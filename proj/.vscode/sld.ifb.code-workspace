@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "SLD.IFB",
+			"path": "../.."
+		},
+		{
+			"name": "SLD.Core",
+			"path": "../../SLD.Core"
+		}
+	],
+	"settings": {}
+}
