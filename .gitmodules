@@ -1,0 +1,3 @@
+[submodule "SLD.Core"]
+	path = SLD.Core
+	url = https://github.com/samldavenport/SLD.Core
