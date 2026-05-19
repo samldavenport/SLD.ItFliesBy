@@ -3,6 +3,7 @@
 #include <Windows.h>
 
 #include "sld.hpp"
+#include "ifb-config.hpp"
 
 int WINAPI
 wWinMain(
