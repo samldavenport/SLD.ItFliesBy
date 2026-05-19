@@ -2,18 +2,10 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "cppbuild",
-			"label": "C/C++: cl.exe build active file",
-			"command": "cl.exe",
-			"args": [
-				"/Zi",
-				"/EHsc",
-				"/nologo",
-				"/Fe${fileDirname}\\${fileBasenameNoExtension}.exe",
-				"${file}"
-			],
+			"label": "Build Win32 Debug",
+			"command": "${workspaceFolder}/scripts/build-debug-win32.bat",
 			"options": {
-				"cwd": "${fileDirname}"
+				"cwd": "${workspaceFolder}/scripts"
 			},
 			"problemMatcher": [
 				"$msCompile"
@@ -22,7 +14,6 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"detail": "compiler: cl.exe"
 		}
 	]
 }

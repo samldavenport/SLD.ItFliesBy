@@ -1,0 +1,22 @@
+//NOTE:
+//this file is not valid in a workspace, it needs to be added at the user level
+[
+    {
+        "key": "ctrl+down",
+        "command": "cursorMove",
+        "when": "editorTextFocus", 
+        "args": {
+            "to": "nextBlankLine",
+            "by": "wrappedLine"
+        }
+    },
+    {
+        "key": "ctrl+up",
+        "command": "cursorMove",
+        "when": "editorTextFocus", 
+        "args": {
+            "to": "prevBlankLine",
+            "by": "wrappedLine"
+        }
+    }
+]
