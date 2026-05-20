@@ -30,7 +30,7 @@ namespace ifb {
         config_mode_e_release = 1
     };
 
-    struct config {
+    struct ifb_config {
         static constexpr u32 build_mode            = IFB_CONFIG_BUILD_MODE;
         static constexpr u32 window_start_width    = IFB_CONFIG_WINDOW_START_WIDTH;
         static constexpr u32 window_start_height   = IFB_CONFIG_WINDOW_START_HEIGHT;
@@ -45,9 +45,9 @@ namespace ifb {
         }; 
     };
 
-    inline config&
-    config_instance(void) {
-        static config cfg;
+    inline ifb_config&
+    ifb_config_instance(void) {
+        static ifb_config cfg;
         return(cfg);
     }
 };

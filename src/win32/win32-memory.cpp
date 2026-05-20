@@ -1,8 +1,6 @@
 #pragma once
 
-#define IFB_WIN32_API_FUNC
-
-#include "ifb.hpp"
+#include "win32.hpp"
 
 namespace ifb {
 

@@ -94,14 +94,13 @@ namespace ifb {
     IFB_PLATFORM_API u32             pfm_file_write         (const pfm_file_handle file, pfm_file_buffer* buffer);
     IFB_PLATFORM_API u32             pfm_file_async_read    (const pfm_file_handle file, pfm_file_buffer* buffer);
     IFB_PLATFORM_API u32             pfm_file_async_write   (const pfm_file_handle file, pfm_file_buffer* buffer);
-    IFB_PLATFORM_API bool            
 
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
     struct pfm_window_config {
-        cchar* title;
+        cchar8* title;
         struct  {
             u32 x;
             u32 y;

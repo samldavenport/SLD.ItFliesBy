@@ -4,9 +4,15 @@
 #include "sld.hpp"
 #include "ifb-platform.hpp"
 
-using namespace sld;
+#ifdef IFB_ENGINE_STATIC
+#   define IFB_ENGINE_API
+#elif defined(IFB_ENGINE_DLL_EXPORT)
+#   define IFB_ENGINE_API __declspec(dllexport)
+#else
+#   define IFB_ENGINE_API __declspec(dllimport)
+#endif
 
-#define IFB_ENGINE_API
+using namespace sld;
 
 namespace ifb {
 
@@ -16,6 +22,7 @@ namespace ifb {
 
     struct eng_context;
     struct eng_mem;
+    struct eng_mem_map;
 
     //--------------------------------------------------------------------
     // CONTEXT
@@ -32,8 +39,8 @@ namespace ifb {
     IFB_ENGINE_API void eng_window_did_close              (void);
     IFB_ENGINE_API void eng_window_set_pos                (const u32 pos_x, const u32 window_pos_y);
     IFB_ENGINE_API void eng_window_set_size               (const u32 width, const u32 height);
-    IFB_ENGINE_API void eng_window_set_keys_down          (const u32 key_count, const pfm_window_key_code* key_ptr)
-    IFB_ENGINE_API void eng_window_set_keys_up            (const u32 key_count, const pfm_window_key_code* key_ptr)
+    IFB_ENGINE_API void eng_window_set_keys_down          (const pfm_window_key_code* key_ptr, const u32 key_count);
+    IFB_ENGINE_API void eng_window_set_keys_up            (const pfm_window_key_code* key_ptr, const u32 key_count);
     IFB_ENGINE_API void eng_window_mouse_click_left_down  (void);
     IFB_ENGINE_API void eng_window_mouse_click_left_up    (void);
     IFB_ENGINE_API void eng_window_mouse_click_right_down (void);
@@ -62,8 +69,5 @@ namespace ifb {
         eng_mem core;
         eng_mem rendering;
     };
-
 }
-
-
 #endif  //IFB_ENGINE_HPP
