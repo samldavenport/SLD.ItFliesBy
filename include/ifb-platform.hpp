@@ -9,7 +9,6 @@ using namespace sld;
 
 namespace ifb {
 
-
     //--------------------------------------------------------------------
     // PRIMITIVE TYPES
     //--------------------------------------------------------------------
@@ -26,6 +25,7 @@ namespace ifb {
     struct pfm_window_config;
     struct pfm_file_buffer;
     struct pfm_monitor_info;
+    struct pfm_monitor_area;
 
     //--------------------------------------------------------------------
     // ENUMS
@@ -46,30 +46,22 @@ namespace ifb {
         window_event_flag_e_mouse_scroll      = bit_value(11)
     };
 
-
-    //--------------------------------------------------------------------
-    // CONSTANTS
-    //--------------------------------------------------------------------
-
-    static const u32 MAX_KEYS       = 8;
-    static const u32 STR_SIZE_TITLE = 32;
-
-
     //--------------------------------------------------------------------
     // WINDOW
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void  pfm_window_open           (pfm_window_context* ctx, const pfm_window_config* cfg);
-    IFB_PLATFORM_API void  pfm_window_process_events (pfm_window_context* ctx);
-    IFB_PLATFORM_API void  pfm_window_close          (pfm_window_context* ctx);
+    IFB_PLATFORM_API void  pfm_window_open           (const pfm_window_config* cfg);
+    IFB_PLATFORM_API void  pfm_window_process_events (void);
+    IFB_PLATFORM_API void  pfm_window_close          (void);
 
     //--------------------------------------------------------------------
     // MONITOR
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void  pfm_monitor_count         (void);
-    IFB_PLATFORM_API u32   pfm_monitor_primary_index (void);
-    IFB_PLATFORM_API void  pfm_monitor_info          (const u32 mntr_index, pfm_monitor_info* mntr_info); 
+    IFB_PLATFORM_API u32   pfm_monitor_count            (void);
+    IFB_PLATFORM_API u32   pfm_monitor_primary_index    (void);
+    IFB_PLATFORM_API u32   pfm_monitor_get_working_area (pfm_monitor_area& working_area);
+    IFB_PLATFORM_API void  pfm_monitor_get_info         (const u32 mntr_index, pfm_monitor_info* mntr_info); 
 
     //--------------------------------------------------------------------
     // MEMORY
@@ -125,8 +117,8 @@ namespace ifb {
         struct {
             u32                 key_count_up;
             u32                 key_count_down;
-            pfm_window_key_code key_codes_up   [MAX_KEYS];
-            pfm_window_key_code key_codes_down [MAX_KEYS];
+            pfm_window_key_code key_codes_up   [IFB_CONFIG_WINDOW_MAX_KEYS];
+            pfm_window_key_code key_codes_down [IFB_CONFIG_WINDOW_MAX_KEYS];
         } keys;
     };
 
@@ -144,6 +136,11 @@ namespace ifb {
         u32 pixel_height;
         u32 x;
         u32 y;
+    };
+
+    struct pfm_monitor_working_area {
+        u32 virtual_pixel_width;
+        u32 virtual_pixel_height;
     };
 };
 

@@ -5,9 +5,9 @@
 
 namespace ifb {
 
-    IFB_ENG_API_FUNC eng_context*
+    IFB_ENGINE_API eng_context*
     eng_context_create(
-        eng_mem_map* mem_map) {
+        const eng_mem_map* mem_map) {
 
         const u32 size_struct_ctx   = sizeof(eng_context);
         const u32 size_struct_stack = sizeof(eng_stack);
@@ -23,6 +23,16 @@ namespace ifb {
         stack->size     = mem_map->stack.size - (size_struct_ctx + size_struct_stack);
         stack->position = 0;
         _eng_ctx->stack = stack;
+
+        const ifb_config& global_cfg = ifb_config_instance();
+        pfm_window_config window_cfg;
+        window_cfg.title            = (char*)&global_cfg.window_title[0];
+        window_cfg.init_dims.width  = global_cfg.window_start_width;
+        window_cfg.init_dims.height = global_cfg.window_start_height;
+        window_cfg.init_dims.x      = 0; 
+        window_cfg.init_dims.y      = 0; 
+
+        pfm_window_open(&window_cfg);
 
         return(_eng_ctx);
     }

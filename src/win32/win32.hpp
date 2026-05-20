@@ -10,7 +10,7 @@
 namespace ifb {
 
     struct win32_window {
-        LPWNDCLASSA class;
+        LPWNDCLASS  class_type;
         HWND        handle;
         HDC         device_context;
     };
@@ -29,6 +29,8 @@ namespace ifb {
         WPARAM w_param,
         LPARAM l_param
     );
+
+    
 };
 
 #endif //WIN32_HPP

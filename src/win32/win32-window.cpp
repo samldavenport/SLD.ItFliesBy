@@ -13,19 +13,18 @@ namespace ifb {
 
     IFB_WIN32_API_FUNC void
     pfm_window_open(
-        pfm_window_context*      ctx,
         const pfm_window_config* cfg) {
 
         // window instance
         win32_window& window = win32_window_instance();
 
         // window class
-        window.class  = win32_window_class_instance();
-        assert(window.class);
+        window.class_type  = win32_window_class_instance();
+        assert(window.class_type);
 
         // create window handle
         window.handle = CreateWindow(
-            window_class->lpszClassName,
+            window.class_type->lpszClassName,
             cfg->title,
             WS_OVERLAPPEDWINDOW,
             cfg->init_dims.x,
@@ -34,13 +33,13 @@ namespace ifb {
             cfg->init_dims.height,
             NULL,
             NULL,
-            window_class->hInstance,
+            window.class_type->hInstance,
             NULL
         );
         assert(window.handle);
 
         // create device context
-        window.device_context = GetDC(window_handle);
+        window.device_context = GetDC(window.handle);
         assert(window.device_context);
 
         // show window
