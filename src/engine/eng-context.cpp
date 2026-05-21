@@ -55,6 +55,10 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_context_run(void) {
 
+        while(true) {
+
+            pfm_window_process_events();
+        }
     }
     
     IFB_ENGINE_API void

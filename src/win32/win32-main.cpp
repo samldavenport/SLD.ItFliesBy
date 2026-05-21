@@ -38,6 +38,7 @@ wWinMain(
     eng_context* ctx = eng_context_create(&mem_map);
 
     eng_context_startup();
+    eng_context_run();
 
     return(0);
 }

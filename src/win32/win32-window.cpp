@@ -48,13 +48,13 @@ namespace ifb {
 
     IFB_WIN32_API_FUNC void
     pfm_window_process_events(
-        pfm_window_context* ctx) {
+        void) {
  
     }
 
     IFB_WIN32_API_FUNC void
     pfm_window_close(
-        pfm_window_context* ctx) {
+        void) {
 
     }
 
