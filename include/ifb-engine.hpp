@@ -30,8 +30,11 @@ namespace ifb {
     // CONTEXT
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_context* eng_context_create  (const eng_mem_map* mem_map);
-    IFB_ENGINE_API void         eng_context_destroy (eng_context* ctx);    
+    IFB_ENGINE_API eng_context* eng_context_create   (const eng_mem_map* mem_map);
+    IFB_ENGINE_API void         eng_context_startup  (void);
+    IFB_ENGINE_API void         eng_context_run      (void);
+    IFB_ENGINE_API void         eng_context_shutdown (void);
+    IFB_ENGINE_API void         eng_context_destroy  (eng_context* ctx);    
 
     //--------------------------------------------------------------------
     // WINDOW
@@ -62,10 +65,9 @@ namespace ifb {
 
     struct eng_system_info {
         struct {
-            u32 count;
-            u32 index_primary;
-            u32 index_current;
-            u32 refresh_rate;
+            u32              count;
+            pfm_monitor_info primary;
+            pfm_monitor_area working_area;
         } monitor;
     };
 

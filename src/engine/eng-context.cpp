@@ -5,6 +5,8 @@
 
 namespace ifb {
 
+    static eng_context* _eng_ctx;    
+
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
@@ -24,22 +26,41 @@ namespace ifb {
         stack->position = 0;
         _eng_ctx->stack = stack;
 
-        // monitor info
-        const u32 monitor_count = pfm_monitor_count();
-        pfm_monitor_info monitor_info;
-        pfm_monitor_get_info(0, &monitor_info);
+        // system info
+        _eng_ctx->system = eng_stack_push_struct<eng_system_info>();
 
+        return(_eng_ctx);
+    }
+
+    IFB_ENGINE_API void
+    eng_context_startup(
+        void) {
+
+        eng_system_info* system = _eng_ctx->system;
+        // monitor info
+        system->monitor.count = pfm_monitor_count();
+        pfm_monitor_get_info         (0, &system->monitor.primary);
+        pfm_monitor_get_working_area (system->monitor.working_area);
 
         const ifb_config& global_cfg = ifb_config_instance();
         pfm_window_config window_cfg;
         window_cfg.title            = (char*)&global_cfg.window_title[0];
         window_cfg.init_dims.width  = global_cfg.window_start_width;
         window_cfg.init_dims.height = global_cfg.window_start_height;
-        window_cfg.init_dims.x      = (monitor_info.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
-        window_cfg.init_dims.y      = (monitor_info.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
+        window_cfg.init_dims.x      = (system->monitor.primary.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
+        window_cfg.init_dims.y      = (system->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
         pfm_window_open(&window_cfg);
+    }
 
-        return(_eng_ctx);
+    IFB_ENGINE_API void
+    eng_context_run(void) {
+
+    }
+    
+    IFB_ENGINE_API void
+    eng_context_shutdown(
+        void) {
+
     }
 
     IFB_ENG_INTERNAL byte*
@@ -69,7 +90,7 @@ namespace ifb {
 
         const u32 push_size = count * sizeof(t);
 
-        t* push = eng_stack_push_data(push_size);
+        t* push = (t*)eng_stack_push_data(push_size);
         assert(push);
 
         return(push);

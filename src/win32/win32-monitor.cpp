@@ -52,7 +52,7 @@ namespace ifb {
 
     IFB_PLATFORM_API void
     pfm_monitor_get_working_area(
-        pfm_monitor_working_area& working_area) {
+        pfm_monitor_area& working_area) {
 
         working_area.virtual_pixel_width  = GetSystemMetrics(SM_CXVIRTUALSCREEN);
         working_area.virtual_pixel_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);

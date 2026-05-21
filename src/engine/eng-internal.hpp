@@ -15,11 +15,11 @@ namespace ifb {
     };
 
     struct eng_context {
-        eng_mem_map*  mem_map;
-        eng_stack*    stack;
+        eng_mem_map*     mem_map;
+        eng_stack*       stack;
+        eng_system_info* system;
     };
 
-    static eng_context* _eng_ctx;    
 
     byte*
     eng_stack_push_data(const u32 size);
