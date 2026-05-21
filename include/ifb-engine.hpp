@@ -21,6 +21,7 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
+    struct eng_system_info;
     struct eng_context;
     struct eng_mem;
     struct eng_mem_map;
@@ -58,6 +59,15 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
+
+    struct eng_system_info {
+        struct {
+            u32 count;
+            u32 index_primary;
+            u32 index_current;
+            u32 refresh_rate;
+        } monitor;
+    };
 
     struct eng_mem {
         void* ptr;

@@ -58,10 +58,10 @@ namespace ifb {
     // MONITOR
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API u32   pfm_monitor_count            (void);
-    IFB_PLATFORM_API u32   pfm_monitor_primary_index    (void);
-    IFB_PLATFORM_API u32   pfm_monitor_get_working_area (pfm_monitor_area& working_area);
-    IFB_PLATFORM_API void  pfm_monitor_get_info         (const u32 mntr_index, pfm_monitor_info* mntr_info); 
+    IFB_PLATFORM_API u32   pfm_monitor_count             (void);
+    IFB_PLATFORM_API u32   pfm_monitor_get_primary_index (void);
+    IFB_PLATFORM_API u32   pfm_monitor_get_working_area  (pfm_monitor_area& working_area);
+    IFB_PLATFORM_API void  pfm_monitor_get_info          (const u32 mntr_index, pfm_monitor_info* mntr_info); 
 
     //--------------------------------------------------------------------
     // MEMORY

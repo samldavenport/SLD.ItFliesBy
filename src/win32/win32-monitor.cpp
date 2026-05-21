@@ -5,17 +5,25 @@
 namespace ifb {
 
     struct win32_monitor_enumerator {
-        u32              index;
-        pfm_monitor_info monitor_info;        
+        u32               index;
+        u32               requested;
+        HMONITOR          handle;
+        pfm_monitor_info* info;
     };
-
 
     static BOOL CALLBACK
     win32_monitor_enum_callback_get_primary(
         HMONITOR h_monitor,
         HDC      hdc_monitor,
         LPRECT   lprc_monitor,
-        LPARAM   dw_data)
+        LPARAM   dw_data);
+
+    static BOOL CALLBACK
+    win32_monitor_enum_callback_get_info(
+        HMONITOR h_monitor,
+        HDC      hdc_monitor,
+        LPRECT   lprc_monitor,
+        LPARAM   dw_data);
 
     IFB_PLATFORM_API u32
     pfm_monitor_count(
@@ -26,10 +34,20 @@ namespace ifb {
     }
     
     IFB_PLATFORM_API u32
-    pfm_monitor_primary_index(
+    win32_monitor_get_primary_index(
         void) {
 
-        return(0);
+        win32_monitor_enumerator enumerator;
+        enumerator.index = 0;
+
+        (void)EnumDisplayMonitors(
+            NULL,
+            NULL,
+            win32_monitor_enum_callback_get_primary,
+            (LPARAM)&enumerator
+        );
+
+        return(enumerator.index);
     }
 
     IFB_PLATFORM_API void
@@ -40,68 +58,84 @@ namespace ifb {
         working_area.virtual_pixel_height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
     }
 
-
     IFB_PLATFORM_API void
     pfm_monitor_get_info(
         const u32         mntr_index,
         pfm_monitor_info* mntr_info) {
 
+        const u32 count = GetSystemMetrics(SM_CMONITORS);
+        assert(mntr_index < count);
+
+        win32_monitor_enumerator enumerator;
+        enumerator.index     = 0;
+        enumerator.requested = mntr_index;
+        enumerator.info      = mntr_info; 
+
+        (void)EnumDisplayMonitors(
+            NULL,
+            NULL,
+            win32_monitor_enum_callback_get_info,
+            (LPARAM)&enumerator
+        );
+
     }
 
-    // IFB_PLATFORM_API u32
-    // win32_monitor_get_primary(
-    //     void) {
-
-    //     POINT        origin    = { 0, 0 };
-    //     HMONITOR     h_monitor = MonitorFromPoint(origin, MONITOR_DEFAULTTOPRIMARY);
-    //     os_monitor_handle monitor   = { h_monitor };
-    //     return(monitor);
-    // }
-
-    // SLD_API_OS_FUNC os_monitor_handle
-    // win32_monitor_from_point(
-    //     const u32 x,
-    //     const u32 y) {
-
-    //     LONG     long_x    = *(LONG*)&x;
-    //     LONG     long_y    = *(LONG*)&y;
-    //     POINT    point     = { long_x, long_y };
-    //     HMONITOR h_monitor = MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY);
-
-    //     os_monitor_handle monitor = { h_monitor };
-    //     return(monitor);
-    // }
-
-    static BOOL CALLBACK
-    win32_monitor_enum_callback(
+    IFB_WIN32_INTERNAL BOOL CALLBACK
+    win32_monitor_enum_callback_get_primary(
         HMONITOR h_monitor,
         HDC      hdc_monitor,
         LPRECT   lprc_monitor,
         LPARAM   dw_data){
 
         constexpr u32 info_size = sizeof(MONITORINFOEX);
-        constexpr u32 name_size = sizeof(MONITORINFOEX::szDevice);
 
-        // cast the data and check if we should enumerate
         win32_monitor_enumerator* enumerator = (win32_monitor_enumerator*)dw_data;
-        const bool should_enumerate = (
-            enumerator != NULL && 
-            enumerator->index < enumerator->count
-        );
 
         MONITORINFOEX win32_monitor_info;
         win32_monitor_info.cbSize = info_size;
 
-        if (should_enumerate) {
+        // get the info for the current monitor handle
+        GetMonitorInfo(h_monitor, (MONITORINFO*)&win32_monitor_info);
 
-            // get the info for the current monitor handle
-            GetMonitorInfo(h_monitor, (MONITORINFO*)&win32_monitor_info);
-
-            // update the index
-            ++enumerator->index;
-        }        
-        
-        return(should_enumerate);
+        const bool found = (win32_monitor_info.rcMonitor.top == 0 && win32_monitor_info.rcMonitor.left == 0);         
+        return(!found);
     }
 
+    IFB_WIN32_INTERNAL BOOL CALLBACK
+    win32_monitor_enum_callback_get_info(
+        HMONITOR h_monitor,
+        HDC      hdc_monitor,
+        LPRECT   lprc_monitor,
+        LPARAM   dw_data) {
+
+        constexpr u32 info_size = sizeof(MONITORINFOEX);
+        constexpr u32 name_size = sizeof(MONITORINFOEX::szDevice);
+
+        win32_monitor_enumerator* enumerator = (win32_monitor_enumerator*)dw_data;
+        if (enumerator->index != enumerator->requested) {
+            ++enumerator->index;
+            return(true);
+        }
+        
+        MONITORINFOEX win32_monitor_info;
+        win32_monitor_info.cbSize = info_size;
+        GetMonitorInfo(h_monitor, (MONITORINFO*)&win32_monitor_info);
+
+        DEVMODE dev_mode = {};
+        dev_mode.dmSize  = sizeof(DEVMODE);
+        const bool has_settings = EnumDisplaySettings(
+            win32_monitor_info.szDevice,
+            ENUM_CURRENT_SETTINGS,
+            &dev_mode
+        );
+
+        auto info = enumerator->info;
+        info->pixel_width     = (win32_monitor_info.rcMonitor.right  - win32_monitor_info.rcMonitor.left);        
+        info->pixel_height    = (win32_monitor_info.rcMonitor.bottom - win32_monitor_info.rcMonitor.top);        
+        info->x               = win32_monitor_info.rcMonitor.left;        
+        info->y               = win32_monitor_info.rcMonitor.top;
+        info->refresh_rate_hz = (has_settings) ? dev_mode.dmDisplayFrequency : 0; 
+
+        return(false);
+    }
 };

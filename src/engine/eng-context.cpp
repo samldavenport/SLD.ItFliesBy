@@ -24,14 +24,19 @@ namespace ifb {
         stack->position = 0;
         _eng_ctx->stack = stack;
 
+        // monitor info
+        const u32 monitor_count = pfm_monitor_count();
+        pfm_monitor_info monitor_info;
+        pfm_monitor_get_info(0, &monitor_info);
+
+
         const ifb_config& global_cfg = ifb_config_instance();
         pfm_window_config window_cfg;
         window_cfg.title            = (char*)&global_cfg.window_title[0];
         window_cfg.init_dims.width  = global_cfg.window_start_width;
         window_cfg.init_dims.height = global_cfg.window_start_height;
-        window_cfg.init_dims.x      = 0; 
-        window_cfg.init_dims.y      = 0; 
-
+        window_cfg.init_dims.x      = (monitor_info.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
+        window_cfg.init_dims.y      = (monitor_info.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
         pfm_window_open(&window_cfg);
 
         return(_eng_ctx);
