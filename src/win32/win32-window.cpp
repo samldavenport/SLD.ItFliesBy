@@ -59,6 +59,7 @@ namespace ifb {
 
         win32_window& window = win32_window_instance();
 
+        gl_context_clear(&window.context);
         SwapBuffers(window.device_context);
     }
 
