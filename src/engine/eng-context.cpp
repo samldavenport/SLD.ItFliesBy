@@ -57,7 +57,9 @@ namespace ifb {
 
         while(true) {
 
-            pfm_window_process_events();
+            pfm_window_frame_start    ();
+            pfm_window_process_events ();
+            pfm_window_frame_render   ();
         }
     }
     

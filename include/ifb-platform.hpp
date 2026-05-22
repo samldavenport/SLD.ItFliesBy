@@ -50,9 +50,11 @@ namespace ifb {
     // WINDOW
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void  pfm_window_open           (const pfm_window_config* cfg);
-    IFB_PLATFORM_API void  pfm_window_process_events (void);
-    IFB_PLATFORM_API void  pfm_window_close          (void);
+    IFB_PLATFORM_API void  pfm_window_open               (const pfm_window_config* cfg);
+    IFB_PLATFORM_API void  pfm_window_frame_start        (void);
+    IFB_PLATFORM_API void  pfm_window_frame_render       (void);
+    IFB_PLATFORM_API void  pfm_window_process_events     (void);
+    IFB_PLATFORM_API void  pfm_window_close              (void);
 
     //--------------------------------------------------------------------
     // MONITOR
@@ -67,8 +69,8 @@ namespace ifb {
     // MEMORY
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void* pfm_memory_commit    (const void* res, const u32 offset, const u32 size);
-    IFB_PLATFORM_API void  pfm_memory_decommit  (const void* cmt);
+    IFB_PLATFORM_API void* pfm_memory_commit             (const void* res, const u32 offset, const u32 size);
+    IFB_PLATFORM_API void  pfm_memory_decommit           (const void* cmt);
 
     //--------------------------------------------------------------------
     // FILES

@@ -24,7 +24,7 @@ IF NOT EXIST %dir_obj% mkdir %dir_obj%
 @set eng_cl_include= /Iinclude /Isrc\engine /Isrc\win32 /ISLD.Core/Include
 @set eng_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
-@set eng_link_in=    ItFliesBy.Engine.obj user32.lib
+@set eng_link_in=    ItFliesBy.Engine.obj user32.lib Gdi32.lib
 @set eng_link_out=   /OUT:build\debug\bin\ItFliesBy.Engine.dll /IMPLIB:build\debug\lib\ItFliesBy.Engine.lib
 @set eng_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib
 @set eng_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG /DLL

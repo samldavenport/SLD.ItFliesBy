@@ -47,6 +47,22 @@ namespace ifb {
     }
 
     IFB_WIN32_API_FUNC void
+    pfm_window_frame_start(
+        void) {
+
+        //TODO
+    }
+     
+    IFB_WIN32_API_FUNC void
+    pfm_window_frame_render(
+        void) {
+
+        win32_window& window = win32_window_instance();
+
+        SwapBuffers(window.device_context);
+    }
+
+    IFB_WIN32_API_FUNC void
     pfm_window_process_events(
         void) {
  
