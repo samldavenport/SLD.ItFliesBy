@@ -7,6 +7,10 @@
 		{
 			"name": "SLD.Core",
 			"path": "../../SLD.Core"
+		},
+		{
+			"name": "SLD.OpenGL",
+			"path": "../../SLD.OpenGL"
 		}
 	],
 	"settings": {}

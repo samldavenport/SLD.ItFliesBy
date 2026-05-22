@@ -2,6 +2,7 @@
 #define IFB_HPP
 
 #include <sld.hpp>
+#include <sld-opengl.hpp>
 
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
