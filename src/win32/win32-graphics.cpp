@@ -8,10 +8,8 @@ namespace ifb {
     pfm_graphics_init_opengl(
         void) {
 
-        color_rgba_u32 clear_color;
-        clear_color.hex = 0x282828FF;
-        win32_window& window = win32_window_instance();
-
+        win32_window&  window      = win32_window_instance();
+        color_rgba_u32 clear_color = 0x282828FF;
 
         RECT window_rect;
         GetWindowRect(window.handle, &window_rect);
