@@ -50,6 +50,8 @@ namespace ifb {
         window_cfg.init_dims.x      = (system->monitor.primary.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
         window_cfg.init_dims.y      = (system->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
         pfm_window_open(&window_cfg);
+
+        pfm_graphics_init_opengl();
     }
 
     IFB_ENGINE_API void

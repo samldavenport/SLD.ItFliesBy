@@ -10,7 +10,6 @@ static const u32 SIZE_RESERVATION = size_megabytes(64);
 
 static byte _stack_mem[SIZE_STACK];   
 
-
 int WINAPI
 wWinMain(
     HINSTANCE h_instance,

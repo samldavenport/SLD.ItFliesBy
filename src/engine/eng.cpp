@@ -9,3 +9,4 @@
 #include "win32-window.cpp"
 #include "win32-monitor.cpp"
 #include "win32-input.cpp"
+#include "win32-graphics.cpp"

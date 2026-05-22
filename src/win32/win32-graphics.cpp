@@ -10,6 +10,7 @@ namespace ifb {
 
         win32_window& window = win32_window_instance();
     
+        gl_context_init_win32(&window.context, window.handle);
     }
   
 

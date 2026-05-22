@@ -13,6 +13,7 @@ namespace ifb {
         LPWNDCLASS  class_type;
         HWND        handle;
         HDC         device_context;
+        gl_context  context;
     };
 
     inline win32_window&

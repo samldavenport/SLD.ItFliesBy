@@ -69,7 +69,7 @@ namespace ifb {
     // GRAPHICS
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void pfm_graphics_init_opengl (void);
+    IFB_PLATFORM_API void  pfm_graphics_init_opengl      (void);
 
     //--------------------------------------------------------------------
     // MEMORY
