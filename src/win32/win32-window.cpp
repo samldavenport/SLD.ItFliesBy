@@ -50,6 +50,60 @@ namespace ifb {
     pfm_window_process_events(
         void) {
  
+        // window instance
+        win32_window& window = win32_window_instance();
+
+        MSG  msg;
+        const UINT msg_filter_min = 0;
+        const UINT msg_filter_max = 0;
+        const UINT msg_remove     = PM_REMOVE;
+
+        for (
+            bool has_message =  PeekMessage(&msg, NULL, msg_filter_min, msg_filter_max, msg_remove);
+                 has_message == true;
+                 has_message =  PeekMessage(&msg, NULL, msg_filter_min, msg_filter_max, msg_remove)) {
+
+            // window specific events
+            if (msg.hwnd == window.handle) {
+                switch (msg.message) {
+                    
+                    case WM_KEYDOWN:
+                    case WM_SYSKEYDOWN: {
+                        const input_keycode key_code = win32_input_get_keycode(msg.wParam);
+                        eng_input_set_key_down(key_code);
+                    } break;
+
+                    case WM_KEYUP:
+                    case WM_SYSKEYUP: {
+                        const input_keycode key_code = win32_input_get_keycode(msg.wParam);
+                        eng_input_set_key_up(key_code);
+                    } break;
+                    
+                    case WM_MOVE: {
+                        const u32 x = LOWORD(msg.lParam);   
+                        const u32 y = HIWORD(msg.lParam);   
+                        eng_window_set_pos(x,y);
+                    } break;
+                    
+                    case WM_SIZE: {
+                        const u32 width  = LOWORD(msg.lParam);   
+                        const u32 height = HIWORD(msg.lParam);  
+                        eng_window_set_size(width,height);
+                    } break;
+                    
+                    case WM_MOUSEMOVE: {
+                        const u32 x = LOWORD(msg.lParam);   
+                        const u32 y = HIWORD(msg.lParam);
+                        eng_input_mouse_move(x, y);
+                    } break;
+                    
+                    default: break;
+                }
+            }
+            else {
+
+            }
+        }
     }
 
     IFB_WIN32_API_FUNC void

@@ -3,6 +3,7 @@
 
 #include "sld.hpp"
 #include "ifb-platform.hpp"
+#include "ifb-input.hpp"
 
 #ifdef IFB_ENGINE_STATIC
 #   define IFB_ENGINE_API
@@ -44,13 +45,18 @@ namespace ifb {
     IFB_ENGINE_API void eng_window_did_close              (void);
     IFB_ENGINE_API void eng_window_set_pos                (const u32 pos_x, const u32 window_pos_y);
     IFB_ENGINE_API void eng_window_set_size               (const u32 width, const u32 height);
-    IFB_ENGINE_API void eng_window_set_keys_down          (const pfm_window_key_code* key_ptr, const u32 key_count);
-    IFB_ENGINE_API void eng_window_set_keys_up            (const pfm_window_key_code* key_ptr, const u32 key_count);
-    IFB_ENGINE_API void eng_window_mouse_click_left_down  (void);
-    IFB_ENGINE_API void eng_window_mouse_click_left_up    (void);
-    IFB_ENGINE_API void eng_window_mouse_click_right_down (void);
-    IFB_ENGINE_API void eng_window_mouse_click_right_up   (void);
-    IFB_ENGINE_API void eng_window_mouse_move             (const u32 x, const u32 y);
+    
+    //--------------------------------------------------------------------
+    // INPUT
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API void eng_input_set_key_down           (const input_keycode key_ptr);
+    IFB_ENGINE_API void eng_input_set_key_up             (const input_keycode key_ptr);
+    IFB_ENGINE_API void eng_input_mouse_click_left_down  (void);
+    IFB_ENGINE_API void eng_input_mouse_click_left_up    (void);
+    IFB_ENGINE_API void eng_input_mouse_click_right_down (void);
+    IFB_ENGINE_API void eng_input_mouse_click_right_up   (void);
+    IFB_ENGINE_API void eng_input_mouse_move             (const u32 x, const u32 y);
 
     //--------------------------------------------------------------------
     // FILES

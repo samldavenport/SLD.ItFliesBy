@@ -6,6 +6,7 @@
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-engine.hpp"
+#include "ifb-input.hpp"
 
 using namespace sld;
 

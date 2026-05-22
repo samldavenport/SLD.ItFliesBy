@@ -2,6 +2,7 @@
 #define IFB_PLATFORM_HPP
 
 #include "sld.hpp"
+#include "ifb-input.hpp"
 
 #define IFB_PLATFORM_API
 
@@ -14,7 +15,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     typedef u32   pfm_window_event_flags;
-    typedef u32   pfm_window_key_code;
     typedef void* pfm_file_handle;
 
     //--------------------------------------------------------------------
@@ -115,10 +115,10 @@ namespace ifb {
             f32 scroll;
         } mouse;
         struct {
-            u32                 key_count_up;
-            u32                 key_count_down;
-            pfm_window_key_code key_codes_up   [IFB_CONFIG_WINDOW_MAX_KEYS];
-            pfm_window_key_code key_codes_down [IFB_CONFIG_WINDOW_MAX_KEYS];
+            u32           key_count_up;
+            u32           key_count_down;
+            input_keycode key_codes_up   [IFB_CONFIG_WINDOW_MAX_KEYS];
+            input_keycode key_codes_down [IFB_CONFIG_WINDOW_MAX_KEYS];
         } keys;
     };
 
