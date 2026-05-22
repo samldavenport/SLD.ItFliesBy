@@ -103,6 +103,10 @@ namespace ifb {
             else {
 
             }
+
+            // handle the message
+            (void)TranslateMessage (&msg);
+            (void)DispatchMessage  (&msg);
         }
     }
 
