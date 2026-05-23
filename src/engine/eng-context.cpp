@@ -52,6 +52,16 @@ namespace ifb {
         pfm_window_open(&window_cfg);
 
         pfm_graphics_init_opengl();
+
+
+        pfm_file_config file_config;
+        file_config.path         = "test.txt";
+        file_config.mode         = pfm_file_mode_e_create_new;
+        file_config.access_flags = pfm_file_access_flag_e_read | pfm_file_access_flag_e_write; 
+        file_config.share_flags  = pfm_file_share_flag_e_read  | pfm_file_share_flag_e_write;
+        file_config.is_async     = false;
+        pfm_file_open(&file_config);
+
     }
 
     IFB_ENGINE_API void
