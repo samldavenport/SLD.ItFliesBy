@@ -15,14 +15,18 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     typedef u32   pfm_window_event_flags;
+    typedef u32   pfm_file_mode;
+    typedef u32   pfm_file_access_flags;
+    typedef u32   pfm_file_share_flags;
     typedef void* pfm_file_handle;
-
+ 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
     struct pfm_window_context;
     struct pfm_window_config;
+    struct pfm_file_config;
     struct pfm_file_buffer;
     struct pfm_monitor_info;
     struct pfm_monitor_area;
@@ -31,21 +35,40 @@ namespace ifb {
     // ENUMS
     //--------------------------------------------------------------------
 
-    enum window_event_flag_e {
-        window_event_flag_e_none              = 0,
-        window_event_flag_e_close             = bit_value(1),
-        window_event_flag_e_minimize          = bit_value(2),
-        window_event_flag_e_maximize          = bit_value(3),
-        window_event_flag_e_position_update   = bit_value(4),
-        window_event_flag_e_size_update       = bit_value(5),
-        window_event_flag_e_key_down          = bit_value(6),
-        window_event_flag_e_key_up            = bit_value(7),
-        window_event_flag_e_mouse_click_left  = bit_value(8),
-        window_event_flag_e_mouse_click_right = bit_value(9),
-        window_event_flag_e_mouse_move        = bit_value(10),
-        window_event_flag_e_mouse_scroll      = bit_value(11)
+    enum pfm_window_event_flag_e {
+        pfm_window_event_flag_e_none              = 0,
+        pfm_window_event_flag_e_close             = bit_value(1),
+        pfm_window_event_flag_e_minimize          = bit_value(2),
+        pfm_window_event_flag_e_maximize          = bit_value(3),
+        pfm_window_event_flag_e_position_update   = bit_value(4),
+        pfm_window_event_flag_e_size_update       = bit_value(5),
+        pfm_window_event_flag_e_key_down          = bit_value(6),
+        pfm_window_event_flag_e_key_up            = bit_value(7),
+        pfm_window_event_flag_e_mouse_click_left  = bit_value(8),
+        pfm_window_event_flag_e_mouse_click_right = bit_value(9),
+        pfm_window_event_flag_e_mouse_move        = bit_value(10),
+        pfm_window_event_flag_e_mouse_scroll      = bit_value(11)
     };
 
+    enum pfm_file_access_flag_e {
+        pfm_file_access_flag_e_none               = 0,        
+        pfm_file_access_flag_e_read               = bit_value(0),        
+        pfm_file_access_flag_e_write              = bit_value(1)
+    };
+
+    enum pfm_file_share_flag_e {
+        pfm_file_share_flag_e_none                = 0,
+        pfm_file_share_flag_e_read                = bit_value(0),
+        pfm_file_share_flag_e_write               = bit_value(1),
+        pfm_file_share_flag_e_delete              = bit_value(2)
+    };
+
+    enum pfm_file_mode_e {
+        pfm_file_mode_e_create_new                = 0, 
+        pfm_file_mode_e_open_existing             = 1, 
+        pfm_file_mode_e_open_always               = 2, 
+        pfm_file_mode_e_overwrite_existing        = 3 
+    };
     //--------------------------------------------------------------------
     // WINDOW
     //--------------------------------------------------------------------
@@ -82,14 +105,12 @@ namespace ifb {
     // FILES
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_r        (const cchar8*  path);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_w        (const cchar8*  path);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_rw       (const cchar8*  path);
+    IFB_PLATFORM_API pfm_file_handle pfm_file_open          (const pfm_file_config* cfg);
     IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_r  (const cchar8*  path);
     IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_w  (const cchar8*  path);
     IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_rw (const cchar8*  path);
     IFB_PLATFORM_API u32             pfm_file_size          (const pfm_file_handle file);
-    IFB_PLATFORM_API bool            pfm_file_close         (const pfm_file_handle file);
+    IFB_PLATFORM_API void            pfm_file_close         (const pfm_file_handle file);
     IFB_PLATFORM_API u32             pfm_file_read          (const pfm_file_handle file, pfm_file_buffer* buffer);
     IFB_PLATFORM_API u32             pfm_file_write         (const pfm_file_handle file, pfm_file_buffer* buffer);
     IFB_PLATFORM_API u32             pfm_file_async_read    (const pfm_file_handle file, pfm_file_buffer* buffer);
@@ -130,6 +151,14 @@ namespace ifb {
         } keys;
     };
 
+    struct pfm_file_config {
+        cchar8*               path;
+        pfm_file_mode         mode;
+        pfm_file_access_flags access_flags;
+        pfm_file_share_flags  share_flags;
+        bool                 is_async;
+    };
+
     struct pfm_file_buffer {
         byte* data;
         u32   size;
@@ -137,6 +166,8 @@ namespace ifb {
         u32   offset;
         u32   cursor;
     };
+
+
 
     struct pfm_monitor_info {
         u32 index;
