@@ -2,6 +2,7 @@
 #define IFB_PLATFORM_HPP
 
 #include "sld.hpp"
+#include "sld-opengl.hpp"
 #include "ifb-input.hpp"
 
 #define IFB_PLATFORM_API
@@ -92,7 +93,7 @@ namespace ifb {
     // GRAPHICS
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void  pfm_graphics_init_opengl      (void);
+    IFB_PLATFORM_API void  pfm_graphics_init_opengl      (gl_context* ctx);
 
     //--------------------------------------------------------------------
     // MEMORY

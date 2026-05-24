@@ -51,8 +51,19 @@ namespace ifb {
         window_cfg.init_dims.y      = (system->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
         pfm_window_open(&window_cfg);
 
-        pfm_graphics_init_opengl();
+        gl_context gl;
+        pfm_graphics_init_opengl(&gl);
 
+        // create some buffers 
+        const gl_vertex vtx1  = gl_vertex_create(&gl);
+        const gl_vertex vtx2  = gl_vertex_create(&gl);
+        const gl_buffer bfr1  = gl_buffer_create(&gl);
+        const gl_buffer bfr2  = gl_buffer_create(&gl);
+
+        gl_vertex_destroy(&gl, vtx1);
+        gl_vertex_destroy(&gl, vtx2);
+        gl_buffer_destroy(&gl, bfr1);
+        gl_buffer_destroy(&gl, bfr2);
 
         pfm_file_config file_config;
         file_config.path         = "test.txt";
