@@ -54,25 +54,48 @@ namespace ifb {
         gl_context gl;
         pfm_graphics_init_opengl(&gl);
 
-        // create some buffers 
-        const gl_vertex vtx1  = gl_vertex_create(&gl);
-        const gl_vertex vtx2  = gl_vertex_create(&gl);
-        const gl_buffer bfr1  = gl_buffer_create(&gl);
-        const gl_buffer bfr2  = gl_buffer_create(&gl);
+        pfm_file_config file_config_vertex;
+        file_config_vertex.path         = "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl";
+        file_config_vertex.mode         = pfm_file_mode_e_open_existing;
+        file_config_vertex.access_flags = pfm_file_access_flag_e_read;
+        file_config_vertex.share_flags  = pfm_file_share_flag_e_read;
+        file_config_vertex.is_async     = false;
 
-        gl_vertex_destroy(&gl, vtx1);
-        gl_vertex_destroy(&gl, vtx2);
-        gl_buffer_destroy(&gl, bfr1);
-        gl_buffer_destroy(&gl, bfr2);
+        pfm_file_config file_config_fragment;
+        file_config_fragment.path         = "..\\..\\..\\assets\\shaders\\quad-shader-fragment.glsl";
+        file_config_fragment.mode         = pfm_file_mode_e_open_existing;
+        file_config_fragment.access_flags = pfm_file_access_flag_e_read;
+        file_config_fragment.share_flags  = pfm_file_share_flag_e_read;
+        file_config_fragment.is_async     = false;
 
-        pfm_file_config file_config;
-        file_config.path         = "test.txt";
-        file_config.mode         = pfm_file_mode_e_create_new;
-        file_config.access_flags = pfm_file_access_flag_e_read | pfm_file_access_flag_e_write; 
-        file_config.share_flags  = pfm_file_share_flag_e_read  | pfm_file_share_flag_e_write;
-        file_config.is_async     = false;
-        pfm_file_open(&file_config);
+        const pfm_file_handle file_hnd_vertex    = pfm_file_open (&file_config_vertex);
+        const pfm_file_handle file_hnd_fragment  = pfm_file_open (&file_config_fragment);
+        const u32             file_size_vertex   = pfm_file_size (file_hnd_vertex);
+        const u32             file_size_fragment = pfm_file_size (file_hnd_fragment);
 
+        const u32 data_size = (file_size_vertex + file_size_fragment);
+        void*     data_ptr  = malloc(data_size);
+        assert(data_size != 0 && data_ptr != NULL);
+
+        pfm_file_buffer file_buffer_vertex;
+        file_buffer_vertex.cursor = 0;
+        file_buffer_vertex.data   = (byte*)data_ptr;
+        file_buffer_vertex.length = 0;
+        file_buffer_vertex.offset = 0;
+        file_buffer_vertex.size   = file_size_vertex;        
+        pfm_file_read(file_hnd_vertex, &file_buffer_vertex);
+
+        pfm_file_buffer file_buffer_fragment;
+        file_buffer_fragment.cursor = 0;
+        file_buffer_fragment.data   = (byte*)data_ptr + file_size_vertex;
+        file_buffer_fragment.length = 0;
+        file_buffer_fragment.offset = 0;
+        file_buffer_fragment.size   = file_size_fragment;
+        pfm_file_read(file_hnd_fragment, &file_buffer_fragment);
+
+
+
+        free(data_ptr); 
     }
 
     IFB_ENGINE_API void
