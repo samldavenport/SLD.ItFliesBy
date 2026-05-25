@@ -80,6 +80,7 @@ namespace ifb {
 
         while(true) {
 
+            //TODO(SAM): pass the opengl context to the platform
             pfm_window_frame_start    ();
             pfm_window_process_events ();
             pfm_window_frame_render   ();
