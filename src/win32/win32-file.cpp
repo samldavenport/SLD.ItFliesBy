@@ -19,11 +19,13 @@ namespace ifb {
         DWORD                 flags           = FILE_ATTRIBUTE_NORMAL;
 
         // access flags
-        const bool access_is_valid = bit_mask_any(
-            cfg->access_flags,
-            (pfm_file_access_flag_e_read | pfm_file_access_flag_e_write)
-        );
+        const bool access_read     = bit_mask_all(cfg->access_flags, pfm_file_access_flag_e_read);
+        const bool access_write    = bit_mask_all(cfg->access_flags, pfm_file_access_flag_e_read);
+        const bool access_is_valid = (access_read || access_write);
         assert(access_is_valid);
+
+        if (access_read)  access |= GENERIC_READ;
+        if (access_write) access |= GENERIC_WRITE;
 
         // share flags
         const bool share_read     = bit_mask_all(cfg->share_flags, pfm_file_share_flag_e_read);
@@ -49,6 +51,13 @@ namespace ifb {
         flags |= cfg->is_async ? FILE_FLAG_OVERLAPPED : 0;
 
         // create the file handle
+
+        access          = GENERIC_READ;
+        share           = FILE_SHARE_READ;
+        security        = NULL;
+        mode            = OPEN_EXISTING;
+        template_handle = NULL;
+
         const HANDLE file_handle = CreateFile(
             cfg->path,
             access,
@@ -108,7 +117,7 @@ namespace ifb {
 
         // do the read
         LPOVERLAPPED file_read_overlapped     = NULL;
-        LPVOID       file_read_buffer         = (LPVOID)(buffer->data + buffer->offset);
+        LPVOID       file_read_buffer         = (LPVOID)(&buffer->data[buffer->offset]);
         DWORD        file_read_size_requested = (buffer->size - buffer->offset); 
         DWORD        file_read_size_actual    = 0;
 
