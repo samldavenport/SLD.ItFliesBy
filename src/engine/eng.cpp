@@ -9,6 +9,8 @@
 #include "../files/file-manager.cpp"
 #include "../files/file-common.cpp"
 #include "../files/file-ro.cpp"
+#include "../files/file-wo.cpp"
+#include "../files/file-rw.cpp"
 
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"

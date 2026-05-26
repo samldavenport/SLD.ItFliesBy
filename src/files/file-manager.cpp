@@ -75,7 +75,7 @@ namespace ifb {
     IFB_INTERNAL u32
     file_manager_index_of_internal_handle(
         const file_manager*   mngr,
-        const pfm_file_handle hnd) {
+        const file_handle     hnd) {
 
         file_manager_assert_valid(mngr);
 
@@ -86,7 +86,7 @@ namespace ifb {
                 index < IFB_FILE_COUNT;
               ++index) {
 
-            if (hnd == mngr->array.handle_platform[index]) {
+            if (hnd == mngr->array.handle_internal[index]) {
                 index_of = index;
                 break;
             }
@@ -130,26 +130,6 @@ namespace ifb {
         byte* buffer     = &mngr->memory.start[offset];
 
         return(buffer);
-    }
-
-    IFB_INTERNAL void
-    file_manager_commit(
-        const file_manager*   mngr,
-        const u32             file_index,
-        const file_handle     hnd_ifb,
-        const pfm_file_handle hnd_pfm,
-        const cchar8*         path) {
-
-        file_manager_assert_valid(mngr);
-
-        assert(
-            file_index <  IFB_FILE_COUNT      &&
-            hnd_ifb    != FILE_HANDLE_INVALID &&
-            hnd_pfm    != NULL                &&
-            path       != NULL
-        );
-
-  
     }
 
     IFB_INTERNAL file_handle

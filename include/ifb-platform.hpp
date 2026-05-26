@@ -157,7 +157,7 @@ namespace ifb {
         pfm_file_mode         mode;
         pfm_file_access_flags access_flags;
         pfm_file_share_flags  share_flags;
-        bool                 is_async;
+        bool                  is_async;
     };
 
     struct pfm_file_buffer {
