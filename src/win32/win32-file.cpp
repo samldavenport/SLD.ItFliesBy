@@ -19,19 +19,19 @@ namespace ifb {
         DWORD                 flags           = FILE_ATTRIBUTE_NORMAL;
 
         // access flags
-        const bool access_read     = bit_test(cfg->access_flags, pfm_file_access_flag_e_read);
-        const bool access_write    = bit_test(cfg->access_flags, pfm_file_access_flag_e_write);
-        const bool access_is_valid = (access_read | access_write); 
+        const bool access_read     = bit_mask_all(cfg->access_flags, pfm_file_access_flag_e_read);
+        const bool access_write    = bit_mask_all(cfg->access_flags, pfm_file_access_flag_e_read);
+        const bool access_is_valid = (access_read || access_write);
         assert(access_is_valid);
-        
+
         if (access_read)  access |= GENERIC_READ;
         if (access_write) access |= GENERIC_WRITE;
 
         // share flags
-        const bool share_read     = bit_test(cfg->share_flags, pfm_file_share_flag_e_read);
-        const bool share_write    = bit_test(cfg->share_flags, pfm_file_share_flag_e_write);
-        const bool share_delete   = bit_test(cfg->share_flags, pfm_file_share_flag_e_delete);
-        const bool share_is_valid = (share_read | share_write | share_delete);
+        const bool share_read     = bit_mask_all(cfg->share_flags, pfm_file_share_flag_e_read);
+        const bool share_write    = bit_mask_all(cfg->share_flags, pfm_file_share_flag_e_write);
+        const bool share_delete   = bit_mask_all(cfg->share_flags, pfm_file_share_flag_e_delete);
+        const bool share_is_valid = (share_read || share_write || share_delete);
         assert(share_is_valid);
 
         if (share_read)   share |= FILE_SHARE_READ;
@@ -48,9 +48,16 @@ namespace ifb {
         mode = create_mode_array[cfg->mode];
 
         // overlapped / async
-        flags |= FILE_FLAG_OVERLAPPED;
+        flags |= cfg->is_async ? FILE_FLAG_OVERLAPPED : 0;
 
         // create the file handle
+
+        access          = GENERIC_READ;
+        share           = FILE_SHARE_READ;
+        security        = NULL;
+        mode            = OPEN_EXISTING;
+        template_handle = NULL;
+
         const HANDLE file_handle = CreateFile(
             cfg->path,
             access,
@@ -110,7 +117,7 @@ namespace ifb {
 
         // do the read
         LPOVERLAPPED file_read_overlapped     = NULL;
-        LPVOID       file_read_buffer         = (LPVOID)(buffer->data + buffer->offset);
+        LPVOID       file_read_buffer         = (LPVOID)(&buffer->data[buffer->offset]);
         DWORD        file_read_size_requested = (buffer->size - buffer->offset); 
         DWORD        file_read_size_actual    = 0;
 
@@ -121,6 +128,9 @@ namespace ifb {
             &file_read_size_actual,
             file_read_overlapped
         );
+
+        const u32 error = GetLastError();
+
         assert(did_read);
 
         // return the bytes read
