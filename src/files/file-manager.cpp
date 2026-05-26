@@ -155,6 +155,33 @@ namespace ifb {
             path       != NULL
         );
 
+  
+    }
+
+    IFB_INTERNAL file_handle
+    file_manager_commit(
+        file_manager*          mngr,
+        const pfm_file_config* cfg) {
+
+        file_manager_assert_valid(mngr);
+        assert(cfg);
+
+        // get index of next free file
+        const u32 index = file_manager_index_of_next_free(mngr);
+        if (index == FILE_INDEX_INVALID) {
+            return(FILE_HANDLE_INVALID);
+        }
+
+        // open the file 
+        const pfm_file_handle hnd_pfm = pfm_file_open(&file_config);
+        if (hnd_pfm == NULL) {
+            return(FILE_HANDLE_INVALID);
+        }
+
+        // create the file handle from the path
+        const u32         path_length = strnlen_s (path, IFB_FILE_PATH_SIZE);
+        const file_handle hnd_ifb     = hash_u32  (path, path_length);
+
         // commit memory
         const u32 offset = (index * mngr->memory.granularity);
         void*     data   =  pfm_memory_commit(
@@ -164,21 +191,19 @@ namespace ifb {
         );
         assert(data);
 
+        // update the table
         mngr->array.handle_internal [file_index] = hnd_ifb;
         mngr->array.handle_platform [file_index] = hnd_pfm;
         mngr->array.io_length       [file_index] = 0;
         mngr->array.cursor          [file_index] = 0;
 
         const u32 path_length = strnlen_s(path, IFB_FILE_PATH_SIZE);
-
         strncpy_s(
             (cchar8*)&mngr->array.paths[file_index].cstr[0],
             path_length,
             path,
             IFB_FILE_PATH_SIZE            
         );
-
     }
-
 
 };

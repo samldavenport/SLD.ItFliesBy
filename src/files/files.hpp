@@ -36,7 +36,7 @@ namespace ifb {
     IFB_INTERNAL u32           file_manager_index_of_internal_handle (const file_manager* mngr, const file_handle     hnd);
     IFB_INTERNAL u32           file_manager_index_of_platform_handle (const file_manager* mngr, const pfm_file_handle hnd);
     IFB_INTERNAL byte*         file_manager_get_buffer               (const file_manager* mngr, const u32 index);
-    IFB_INTERNAL void          file_manager_commit                   (const file_manager* mngr, const u32 file_index, const file_handle hnd_ifb, const pfm_file_handle hnd_pfm);
+    IFB_INTERNAL void          file_manager_commit                   (file_manager* mngr, const pfm_file_config* cfg);
     IFB_INTERNAL file_handle   file_ro_create_new                    (file_manager* mngr, const cchar8*     path);
     IFB_INTERNAL file_handle   file_ro_open_existing                 (file_manager* mngr, const cchar8*     path);
     IFB_INTERNAL file_handle   file_ro_open_always                   (file_manager* mngr, const cchar8*     path);
