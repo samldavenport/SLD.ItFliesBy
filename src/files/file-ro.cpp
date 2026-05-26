@@ -22,7 +22,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(file_config);
+        const file_handle hnd = file_manager_commit(mngr, &file_config);
         return(hnd);
     }
 
@@ -47,7 +47,7 @@ namespace ifb {
         }
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(file_config);
+        const file_handle hnd = file_manager_commit(mngr, &file_config);
         return(hnd);
     }
 
@@ -55,7 +55,6 @@ namespace ifb {
     file_ro_open_always(
         file_manager* mngr,
         const cchar8* path) {
-
 
         file_manager_assert_valid(mngr);
         assert(path);
@@ -73,7 +72,7 @@ namespace ifb {
         }
         
         // return the created handle
-        const file_handle hnd = file_manager_commit(file_config);
+        const file_handle hnd = file_manager_commit(mngr, &file_config);
         return(hnd);
     }
 
@@ -98,7 +97,7 @@ namespace ifb {
         }
         
         // return the created handle
-        const file_handle hnd = file_manager_commit(file_config);
+        const file_handle hnd = file_manager_commit(mngr, &file_config);
         return(hnd);
     }
 

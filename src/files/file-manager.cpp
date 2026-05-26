@@ -18,17 +18,11 @@ namespace ifb {
             mem_ptr         != NULL
         );
 
+        zero_memory((void*)mngr, sizeof(file_manager));
+
         mngr->memory.start       = (byte*)mem_ptr;
         mngr->memory.size        = mem_size;
         mngr->memory.granularity = mem_granularity;
-
-        for (
-            u32 index = 0;
-                index < IFB_FILE_COUNT;
-              ++index) {
-
-            mngr->array.handles[index] = 0;
-        }
     }
     
     IFB_INTERNAL void
@@ -92,7 +86,7 @@ namespace ifb {
                 index < IFB_FILE_COUNT;
               ++index) {
 
-            if (hnd == mngr->array.handle_internal[index]) {
+            if (hnd == mngr->array.handle_platform[index]) {
                 index_of = index;
                 break;
             }
@@ -173,14 +167,14 @@ namespace ifb {
         }
 
         // open the file 
-        const pfm_file_handle hnd_pfm = pfm_file_open(&file_config);
+        const pfm_file_handle hnd_pfm = pfm_file_open(cfg);
         if (hnd_pfm == NULL) {
             return(FILE_HANDLE_INVALID);
         }
 
         // create the file handle from the path
-        const u32         path_length = strnlen_s (path, IFB_FILE_PATH_SIZE);
-        const file_handle hnd_ifb     = hash_u32  (path, path_length);
+        const u32         path_length = strnlen_s (cfg->path, IFB_FILE_PATH_SIZE);
+        const file_handle hnd_ifb     = hash_u32  (cfg->path, path_length);
 
         // commit memory
         const u32 offset = (index * mngr->memory.granularity);
@@ -192,16 +186,14 @@ namespace ifb {
         assert(data);
 
         // update the table
-        mngr->array.handle_internal [file_index] = hnd_ifb;
-        mngr->array.handle_platform [file_index] = hnd_pfm;
-        mngr->array.io_length       [file_index] = 0;
-        mngr->array.cursor          [file_index] = 0;
-
-        const u32 path_length = strnlen_s(path, IFB_FILE_PATH_SIZE);
+        mngr->array.handle_internal [index] = hnd_ifb;
+        mngr->array.handle_platform [index] = hnd_pfm;
+        mngr->array.io_length       [index] = 0;
+        mngr->array.cursor          [index] = 0;
         strncpy_s(
-            (cchar8*)&mngr->array.paths[file_index].cstr[0],
+            (cchar8*)&mngr->array.paths[index].cstr[0],
             path_length,
-            path,
+            cfg->path,
             IFB_FILE_PATH_SIZE            
         );
     }

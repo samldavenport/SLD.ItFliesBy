@@ -153,7 +153,7 @@ namespace ifb {
     };
 
     struct pfm_file_config {
-        cchar8*               path;
+        const cchar8*         path;
         pfm_file_mode         mode;
         pfm_file_access_flags access_flags;
         pfm_file_share_flags  share_flags;
