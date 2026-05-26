@@ -16,6 +16,8 @@ using namespace sld;
 #define IFB_MEMORY_RES_SIZE_CORE        size_megabytes(64);
 #define IFB_MEMORY_RES_SIZE_FILES       size_megabytes(64);
 #define IFB_MEMORY_RES_SIZE_RENDERING   size_megabytes(64);
+#define IFB_FILE_PATH_SIZE              256              
+#define IFB_FILE_COUNT                  64              
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -39,7 +41,8 @@ namespace ifb {
         static constexpr u32 memory_size_core      = IFB_MEMORY_RES_SIZE_CORE;
         static constexpr u32 memory_size_files     = IFB_MEMORY_RES_SIZE_FILES;
         static constexpr u32 memory_size_rendering = IFB_MEMORY_RES_SIZE_RENDERING;
-        
+        static constexpr u32 file_path_size        = IFB_FILE_PATH_SIZE; 
+
         static constexpr cchar8 window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 
