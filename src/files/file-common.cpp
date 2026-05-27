@@ -26,7 +26,7 @@ namespace ifb {
 
         const u32 index = file_manager_index_of_internal_handle(mngr, hnd);
 
-        const pfm_file_handle pfm_hnd = mngr->array.handle_platform[hnd];
+        const pfm_file_handle pfm_hnd = mngr->array.handle_platform[index];
         const u32             size    = pfm_file_size(pfm_hnd);
     
         return(size);
@@ -42,21 +42,19 @@ namespace ifb {
 
         const u32 index = file_manager_index_of_internal_handle(mngr, hnd);
 
-        mngr->array.cursor[hnd] = cursor;
+        mngr->array.cursor[index] = cursor;
     }
 
-    IFB_INTERNAL u32 
+    IFB_INTERNAL const cchar8*
     file_read(
         file_manager*     mngr,
         const file_handle hnd,
-        const u32         buffer_size,
-        byte*             buffer_ptr) {
+        const u32         buffer_size) {
 
         assert(
             mngr        != NULL                &&
             hnd         != FILE_HANDLE_INVALID &&
-            buffer_size != 0                   &&
-            buffer_ptr  != NULL
+            buffer_size != 0
         );
 
         const u32 index  = file_manager_index_of_internal_handle (mngr, hnd);
@@ -72,7 +70,7 @@ namespace ifb {
         const u32             io_length = pfm_file_read(hnd_pfm, &file_buffer);
 
         mngr->array.io_length[index] = io_length;
-        return(io_length);
+        return((const cchar8*)file_buffer.data);
     }
 
     IFB_INTERNAL u32 
