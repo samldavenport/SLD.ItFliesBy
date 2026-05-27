@@ -239,12 +239,13 @@ namespace ifb {
         mngr->array.handle_platform [index] = hnd_pfm;
         mngr->array.io_length       [index] = 0;
         mngr->array.cursor          [index] = 0;
-        strncpy_s(
-            (cchar8*)&mngr->array.paths[index].cstr[0],
-            path_length,
-            cfg->path,
-            IFB_CONFIG_FILE_PATH_SIZE            
-        );
+        for (
+            u32 c = 0;
+            c < path_length;
+            ++c
+        ) {
+            mngr->array.paths[index].cstr[c] = cfg->path[c];
+        }
 
         return(hnd_ifb);
     }
