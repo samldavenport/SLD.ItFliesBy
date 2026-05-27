@@ -2,31 +2,34 @@
 #define IFB_ENG_INTERNAL_HPP
 
 #include "ifb.hpp"
+#include "files.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
 
 namespace ifb {
 
-    struct eng_stack {
-        byte* start;
-        u32   size;
-        u32   position;
-    };
+    struct eng_context;
+    struct eng_stack;
+
 
     struct eng_context {
-        eng_mem_map*     mem_map;
-        eng_stack*       stack;
-        eng_system_info* system;
+        const eng_mem_map* mem_map;
+        eng_stack*         stack;
+        eng_system_info*   system;
+        file_manager*      file_mngr;
+    } static * _eng_context;
+
+    struct eng_stack {
+        u32 size;
+        u32 position;
     };
 
-
-    byte*
-    eng_stack_push_data(const u32 size);
-    
-    template<typename t> t* 
-    eng_stack_push_struct(const u32 count = 1);
-
+    eng_stack*       eng_stack_init                       (const eng_mem_map* mem_map);
+    byte*            eng_stack_push_data                  (eng_stack* eng_stack, const u32 size);
+    eng_context*     eng_stack_push_context               (eng_stack* eng_stack);
+    eng_system_info* eng_stack_push_system_info           (eng_stack* eng_stack);
+    file_manager*    eng_stack_push_and_init_file_manager (eng_stack* eng_stack, const u32 file_count_max);
 };
 
 #endif //IFB_ENG_INTERNAL_HPP

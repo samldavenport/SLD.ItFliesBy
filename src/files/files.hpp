@@ -11,7 +11,7 @@ namespace ifb {
     using file_handle = u32;
 
     struct file_path {
-        cchar8 cstr[IFB_FILE_PATH_SIZE];
+        cchar8 cstr[IFB_CONFIG_FILE_PATH_SIZE];
     };
 
     struct file_manager {
@@ -21,14 +21,17 @@ namespace ifb {
             u32   granularity;
         } memory;
         struct {
-            file_handle     handle_internal [IFB_FILE_COUNT]; 
-            pfm_file_handle handle_platform [IFB_FILE_COUNT];
-            u32             io_length       [IFB_FILE_COUNT];
-            u32             cursor          [IFB_FILE_COUNT];
-            file_path       paths           [IFB_FILE_COUNT];
+            file_handle*     handle_internal; 
+            pfm_file_handle* handle_platform;
+            u32*             io_length;
+            u32*             cursor;
+            file_path*       paths;
         } array;
+        u32 file_count_max;
     };
 
+    IFB_INTERNAL u32           file_manager_memory_requirement       (const u32 file_count_max);
+    IFB_INTERNAL file_manager* file_manager_init                     (const u32 file_count_max, const u32 mem_size, void* mem_ptr);
     IFB_INTERNAL void          file_manager_startup                  (file_manager* mngr, const u32 mem_size, const u32 mem_granularity, void* mem_ptr);
     IFB_INTERNAL void          file_manager_shutdown                 (file_manager* mngr, const u32 mem_size, const u32 mem_granularity, void* mem_ptr);
     IFB_INTERNAL void          file_manager_assert_valid             (const file_manager* mngr);

@@ -5,38 +5,35 @@
 
 namespace ifb {
 
-    static eng_context* _eng_ctx;    
-
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
 
-        const u32 size_struct_ctx   = sizeof(eng_context);
-        const u32 size_struct_stack = sizeof(eng_stack);
+        const auto& config = ifb_config_instance();
 
-        zero_memory(mem_map->stack.ptr, mem_map->stack.size);
+        // stack memory
+        eng_stack* stack = eng_stack_init(mem_map);
+        assert(stack);
 
-        // context
-        _eng_ctx = (eng_context*)mem_map->stack.ptr;
+        // stack allocate context
+        _eng_context = eng_stack_push_context(stack);
+        assert(_eng_context);
+        _eng_context->stack   = stack;
+        _eng_context->mem_map = mem_map;
 
-        // stack
-        auto stack      = (eng_stack*)(((byte*)_eng_ctx) + size_struct_ctx);
-        stack->start    =      (byte*)(((byte*)stack)    + size_struct_stack);
-        stack->size     = mem_map->stack.size - (size_struct_ctx + size_struct_stack);
-        stack->position = 0;
-        _eng_ctx->stack = stack;
+        // stack allocate remanining context data
+        _eng_context->system    = eng_stack_push_system_info           (stack);
+        _eng_context->file_mngr = eng_stack_push_and_init_file_manager (stack, config.file_count); 
 
-        // system info
-        _eng_ctx->system = eng_stack_push_struct<eng_system_info>();
-
-        return(_eng_ctx);
+        return(_eng_context);
     }
 
     IFB_ENGINE_API void
     eng_context_startup(
         void) {
 
-        eng_system_info* system = _eng_ctx->system;
+        const eng_mem_map* mem_map = _eng_context->mem_map;
+        eng_system_info*   system  = _eng_context->system;
 
         // monitor info
         system->monitor.count = pfm_monitor_count();
@@ -57,7 +54,23 @@ namespace ifb {
         gl_context gl;
         pfm_graphics_init_opengl(&gl);
 
+        // file manager
+        const u32 file_granularity = size_kilobytes(64);
+        file_manager_startup(
+            _eng_context->file_mngr,
+            mem_map->files.size,
+            file_granularity,
+            mem_map->files.ptr
+        );        
+
+
+
         // vertex shader file config
+        const file_handle hnd = file_ro_open_existing(
+            _eng_context->file_mngr,
+            "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl"
+        );
+        
         pfm_file_config file_config_vertex;
         file_config_vertex.path         = "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl";
         file_config_vertex.mode         = pfm_file_mode_e_open_existing;
@@ -145,37 +158,5 @@ namespace ifb {
 
     }
 
-    IFB_ENG_INTERNAL byte*
-    eng_stack_push_data(
-        const u32 size) {
-
-        assert(_eng_ctx && _eng_ctx->stack);
-
-        eng_stack* stack = _eng_ctx->stack;        
-
-        const u32 new_position = (stack->position + size);
-        assert(new_position <= stack->size);
-
-        byte* data = &stack->start[stack->position];
-
-        stack->position = new_position;
-
-        return(data);
-    }
-    
-    template<typename t>
-    IFB_ENG_INTERNAL t* 
-    eng_stack_push_struct(
-        const u32 count) {
-
-        assert(count != 0);
-
-        const u32 push_size = count * sizeof(t);
-
-        t* push = (t*)eng_stack_push_data(push_size);
-        assert(push);
-
-        return(push);
-    }
 
 };
