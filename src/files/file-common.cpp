@@ -70,6 +70,15 @@ namespace ifb {
         const u32             io_length = pfm_file_read(hnd_pfm, &file_buffer);
 
         mngr->array.io_length[index] = io_length;
+
+        const u32 null_index = (io_length < file_buffer.size)
+            ? io_length
+            : file_buffer.size - 1;
+
+        if (file_buffer.data[null_index] != 0) {
+            file_buffer.data[null_index] = 0;
+        }
+
         return((const cchar8*)file_buffer.data);
     }
 
