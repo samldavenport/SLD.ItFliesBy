@@ -5,6 +5,8 @@
 
 namespace ifb {
 
+
+
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
@@ -15,15 +17,13 @@ namespace ifb {
         eng_stack* stack = eng_stack_init(mem_map);
         assert(stack);
 
-        // stack allocate context
-        _eng_context = eng_stack_push_context(stack);
-        assert(_eng_context);
-        _eng_context->stack   = stack;
-        _eng_context->mem_map = mem_map;
-
-        // stack allocate remanining context data
+        // stack allocate and initialize context
+        _eng_context            = eng_stack_push_context               (stack);
         _eng_context->system    = eng_stack_push_system_info           (stack);
         _eng_context->file_mngr = eng_stack_push_and_init_file_manager (stack, config.file_count); 
+        _eng_context->renderer  = eng_stack_push_and_init_renderer     (stack);
+        _eng_context->stack     = stack;
+        _eng_context->mem_map   = mem_map;
 
         return(_eng_context);
     }
@@ -50,10 +50,6 @@ namespace ifb {
         window_cfg.init_dims.y      = (system->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
         pfm_window_open(&window_cfg);
 
-        // initialize opengl
-        gl_context gl;
-        pfm_graphics_init_opengl(&gl);
-
         // file manager
         const u32 file_granularity = size_kilobytes(64);
         file_manager_startup(
@@ -63,34 +59,20 @@ namespace ifb {
             mem_map->files.ptr
         );        
 
-        const file_handle vertex_file_hnd    = file_ro_open_existing (_eng_context->file_mngr, "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl");
-        const u32         vertex_file_size   = file_get_size         (_eng_context->file_mngr, vertex_file_hnd); 
-        const cchar8*     vertex_data        = file_read             (_eng_context->file_mngr, vertex_file_hnd, vertex_file_size);
-        
-        const file_handle fragment_file_hnd  = file_ro_open_existing (_eng_context->file_mngr, "..\\..\\..\\assets\\shaders\\quad-shader-fragment.glsl");
-        const u32         fragment_file_size = file_get_size         (_eng_context->file_mngr, fragment_file_hnd);
-        const cchar8*     fragment_data      = file_read             (_eng_context->file_mngr, fragment_file_hnd, fragment_file_size); 
-
-        // create and compile shaders
-        const gl_shader  shader_stage_vertex   = gl_shader_stage_create_vertex   (&gl);
-        const gl_shader  shader_stage_fragment = gl_shader_stage_create_fragment (&gl);
-        bool             did_compile           = true;
-        did_compile &= gl_shader_stage_compile_from_source(&gl, shader_stage_vertex,   (const byte*)vertex_data,   vertex_file_size);
-        did_compile &= gl_shader_stage_compile_from_source(&gl, shader_stage_fragment, (const byte*)fragment_data, fragment_file_size);
-        assert(did_compile);
-
-        // create and link shader program
-        const gl_program shader_program = gl_shader_program_create(&gl); 
-        bool did_link = true;
-        did_link &= gl_shader_program_attach_stage (&gl, shader_program, shader_stage_vertex);
-        did_link &= gl_shader_program_attach_stage (&gl, shader_program, shader_stage_fragment);
-        did_link &= gl_shader_program_link         (&gl, shader_program);
-        assert(did_link);
-
-        // destroy shaders
-        gl_shader_program_destroy (&gl, shader_program);
-        gl_shader_stage_destroy   (&gl, shader_stage_vertex);
-        gl_shader_stage_destroy   (&gl, shader_stage_fragment);
+        // renderer
+        shader_source vtx_src;
+        shader_source frg_src;
+        const file_handle vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl");
+        const file_handle frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "..\\..\\..\\assets\\shaders\\quad-shader-fragment.glsl");
+        vtx_src.size = file_get_size (_eng_context->file_mngr, vtx_file_hnd); 
+        vtx_src.data = file_read     (_eng_context->file_mngr, vtx_file_hnd, vtx_src.size);
+        frg_src.size = file_get_size (_eng_context->file_mngr, frg_file_hnd);
+        frg_src.data = file_read     (_eng_context->file_mngr, frg_file_hnd, frg_src.size); 
+        memory mem_rndr;
+        mem_rndr.ptr  = mem_map->rendering.ptr;
+        mem_rndr.size = mem_map->rendering.size;
+        renderer_startup         (_eng_context->renderer, mem_rndr);
+        renderer_add_quad_shader (_eng_context->renderer, vtx_src, frg_src);
     }
 
     IFB_ENGINE_API void

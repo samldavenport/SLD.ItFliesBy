@@ -13,6 +13,8 @@
 #include "file-wo.cpp"
 #include "file-rw.cpp"
 
+#include "renderer.cpp"
+
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"
 #include "win32-input.cpp"

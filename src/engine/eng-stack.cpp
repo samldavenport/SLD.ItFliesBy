@@ -81,4 +81,19 @@ namespace ifb {
         assert(file_mngr);
         return(file_mngr);
     }
+
+    IFB_ENG_INTERNAL renderer*
+    eng_stack_push_and_init_renderer(
+        eng_stack* stack) {
+
+        assert(stack != NULL);
+
+        memory stack_mem;
+        stack_mem.size  = renderer_memory_requirement ();
+        stack_mem.bytes = eng_stack_push_data         (stack, stack_mem.size);
+
+        renderer* rndr = renderer_init_from_memory(stack_mem);
+        assert(rndr);
+        return(rndr);
+    }
 };
