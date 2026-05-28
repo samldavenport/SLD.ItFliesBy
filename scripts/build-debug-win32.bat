@@ -22,6 +22,26 @@ IF NOT EXIST %dir_obj% mkdir %dir_obj%
 robocopy vcpkg_installed\x64-windows\bin build\debug\bin *.dll > nul
 
 ::--------------------------------------------------------------------
+:: SLD.Core 
+::--------------------------------------------------------------------
+
+@set core_cl_in=      SLD.Core\src\sld.cpp
+@set core_cl_out=     /Fo:build\debug\obj\SLD.Core.obj
+@set core_cl_include= /ISLD.Core\src /ISLD.Core\include /ISLD.Core\3rd-party
+@set core_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
+
+@set core_link_in=    SLD.Core.obj user32.lib
+@set core_link_out=   /OUT:build\debug\bin\SLD.Core.dll /IMPLIB:build\debug\lib\SLD.Core.lib
+@set core_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib /LIBPATH:vcpkg_installed/x64-windows/lib
+@set core_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG /DLL
+
+@set core_cmd_cl=     cl.exe   %core_cl_in%      %core_cl_out%    %core_cl_include% %core_cl_flags%
+@set core_cmd_link=   link.exe %core_link_flags% %core_link_path% %core_link_in%    %core_link_out%
+
+call %core_cmd_cl%
+call %core_cmd_link%
+
+::--------------------------------------------------------------------
 :: SLD.OpenGL 
 ::--------------------------------------------------------------------
 
@@ -47,10 +67,10 @@ call %gl_cmd_link%
 
 @set eng_cl_in=      src\engine\eng.cpp
 @set eng_cl_out=     /Fo:build\debug\obj\ItFliesBy.Engine.obj
-@set eng_cl_include= /Iinclude /Isrc\engine /Isrc\win32 /ISLD.Core\include /ISLD.OpenGL\include /Ivcpkg_installed\x64-windows\include
+@set eng_cl_include= /Iinclude /Isrc\engine /Isrc\files /Isrc\win32 /ISLD.Core\include /ISLD.OpenGL\include /Ivcpkg_installed\x64-windows\include
 @set eng_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
-@set eng_link_in=    ItFliesBy.Engine.obj SLD.OpenGL.lib user32.lib Gdi32.lib
+@set eng_link_in=    ItFliesBy.Engine.obj SLD.OpenGL.lib SLD.Core.lib user32.lib Gdi32.lib
 @set eng_link_out=   /OUT:build\debug\bin\ItFliesBy.Engine.dll /IMPLIB:build\debug\lib\ItFliesBy.Engine.lib
 @set eng_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib
 @set eng_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG /DLL

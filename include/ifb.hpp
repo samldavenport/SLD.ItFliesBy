@@ -9,6 +9,8 @@
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
 
+#define IFB_INTERNAL static
+
 using namespace sld;
 
 #endif //IFB_HPP

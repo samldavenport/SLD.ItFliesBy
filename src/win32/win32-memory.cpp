@@ -15,7 +15,7 @@ namespace ifb {
             size != NULL
         );
 
-        const void* addr = (res + offset);
+        void* addr = ((byte*)res + offset);
 
         void* mem = VirtualAlloc(addr, size, MEM_COMMIT, PAGE_READWRITE);
         assert(mem != NULL);
@@ -29,7 +29,7 @@ namespace ifb {
 
         assert(cmt != NULL && size != 0);
 
-        const bool did_free = VirtualFree(cmt, size, MEM_DECOMMIT);
+        const bool did_free = VirtualFree((void*)cmt, size, MEM_DECOMMIT);
         
         assert(did_free);
     }
