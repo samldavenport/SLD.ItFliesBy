@@ -4,3 +4,6 @@
 [submodule "SLD.OpenGL"]
 	path = SLD.OpenGL
 	url = https://github.com/samldavenport/SLD.OpenGL
+[submodule "SLD.Math"]
+	path = SLD.Math
+	url = https://github.com/samldavenport/SLD.Math
