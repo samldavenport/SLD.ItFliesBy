@@ -9,6 +9,10 @@
 			"path": "../../SLD.Core"
 		},
 		{
+			"name": "SLD.Math",
+			"path": "../../SLD.Math"
+		},
+		{
 			"name": "SLD.OpenGL",
 			"path": "../../SLD.OpenGL"
 		}

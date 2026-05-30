@@ -7,9 +7,9 @@ pushd ..
 :: BUILD DIRECTORIES
 ::--------------------------------------------------------------------
 
-@set dir_bin=    build\debug\bin
-@set dir_lib=    build\debug\lib
-@set dir_obj=    build\debug\obj
+@set dir_bin= build\debug\bin
+@set dir_lib= build\debug\lib
+@set dir_obj= build\debug\obj
 
 IF NOT EXIST %dir_bin% mkdir %dir_bin%
 IF NOT EXIST %dir_lib% mkdir %dir_lib%
@@ -67,7 +67,7 @@ call %gl_cmd_link%
 
 @set eng_cl_in=      src\engine\eng.cpp
 @set eng_cl_out=     /Fo:build\debug\obj\ItFliesBy.Engine.obj
-@set eng_cl_include= /Iinclude /Isrc\engine /Isrc\files /Isrc\renderer /Isrc\win32 /ISLD.Core\include /ISLD.OpenGL\include /Ivcpkg_installed\x64-windows\include
+@set eng_cl_include= /Iinclude /Isrc\engine /Isrc\files /Isrc\renderer /Isrc\win32 /ISLD.Core\include /ISLD.OpenGL\include /ISLD.Math\include /Ivcpkg_installed\x64-windows\include
 @set eng_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
 @set eng_link_in=    ItFliesBy.Engine.obj SLD.OpenGL.lib SLD.Core.lib user32.lib Gdi32.lib
@@ -87,7 +87,7 @@ call %eng_cmd_link%
 
 @set win32_cl_in=      src\win32\win32-main.cpp
 @set win32_cl_out=     /Fo:build\debug\obj\ItFliesBy.obj
-@set win32_cl_include= /Iinclude /Isrc\win32 /ISLD.Core\include  /ISLD.OpenGL\include /Ivcpkg_installed\x64-windows\include
+@set win32_cl_include= /Iinclude /Isrc\win32 /ISLD.Core\include  /ISLD.OpenGL\include /ISLD.Math\include /Ivcpkg_installed\x64-windows\include
 @set win32_cl_flags=   /nologo /c /MD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
 @set win32_link_in=    ItFliesBy.obj ItFliesBy.Engine.lib user32.lib kernel32.lib 

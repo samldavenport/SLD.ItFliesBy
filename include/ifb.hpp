@@ -3,6 +3,7 @@
 
 #include <sld.hpp>
 #include <sld-opengl.hpp>
+#include <sld-math.hpp>
 
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
