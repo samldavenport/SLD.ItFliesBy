@@ -11,7 +11,7 @@ namespace ifb {
     eng_context_create(
         const eng_mem_map* mem_map) {
 
-        const auto& config = ifb_config_instance();
+        const auto& config = config_instance();
 
         // stack memory
         eng_stack* stack = eng_stack_init(mem_map);
@@ -41,7 +41,7 @@ namespace ifb {
         pfm_monitor_get_working_area (system->monitor.working_area);
 
         // open window
-        const ifb_config& global_cfg = ifb_config_instance();
+        const ifb_config& global_cfg = config_instance();
         pfm_window_config window_cfg;
         window_cfg.title            = (char*)&global_cfg.window_title[0];
         window_cfg.init_dims.width  = global_cfg.window_start_width;
@@ -71,8 +71,8 @@ namespace ifb {
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
-        renderer_startup         (_eng_context->renderer, mem_rndr);
-        renderer_add_quad_shader (_eng_context->renderer, vtx_src, frg_src);
+        renderer_context_startup          (_eng_context->renderer, mem_rndr);
+        renderer_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
     }
 
     IFB_ENGINE_API void

@@ -1,89 +1,91 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "memory.cpp" 
+#include "quad.cpp" 
 
 namespace ifb {
 
     IFB_INTERNAL u32
-    renderer_memory_requirement(
+    renderer_context_memory_requirement(
         void) {
 
-        const u32 mem_req = (
-            sizeof(renderer) +
-            sizeof(gl_context)
+        const auto& cfg      = config_instance();
+        const auto& mem_size = cfg.memory_size_rendering;
+        const auto& mem_gran = cfg.renderer_mem_granularity;
+
+        assert(
+            mem_size            != 0 &&
+            mem_gran            != 0 &&
+            mem_size % mem_gran == 0
+        );
+
+        const u32 block_count      = (mem_size / mem_gran); 
+        const u32 block_stack_size = (sizeof(u32) * block_count);
+        const u32 mem_req          = (
+            sizeof(renderer_context)   +
+            sizeof(gl_context) + 
+            block_stack_size
         );
 
         return(mem_req);
     }
 
-    IFB_INTERNAL renderer*
-    renderer_init_from_memory(
+    IFB_INTERNAL renderer_context*
+    renderer_context_init_from_memory(
         memory& mem) {
 
         assert(
-            mem.size == renderer_memory_requirement() &&
+            mem.size == renderer_context_memory_requirement() &&
             mem.ptr  != NULL
         );
-        auto rndr =   (renderer*)mem.ptr;
-        rndr->gl  = (gl_context*)(mem.address + sizeof(renderer));
+
+        const addr addr_rndr      = mem.address;
+        const addr addr_gl        = addr_rndr + sizeof(renderer_context);
+        const addr addr_block_ids = addr_rndr + sizeof(gl_context);
+
+        auto rndr                 =   (renderer_context*)addr_rndr;
+        rndr->gl                  =         (gl_context*)addr_gl;
+        rndr->mem.block_stack.ids =                (u32*)addr_block_ids;
+
         return(rndr);
     }
 
     IFB_INTERNAL void
-    renderer_startup(
-        renderer*  rndr,
-        memory&    reserved_memory) {
+    renderer_context_startup(
+        renderer_context* ctx,
+        memory&           reserved_memory) {
+
+        const auto& cfg = config_instance();
 
         assert(
-            rndr                 != NULL &&
+            ctx                  != NULL &&
             reserved_memory.size != 0    &&
             reserved_memory.ptr  != NULL          
         );
 
-        rndr->reserved_memory = reserved_memory;
+        // initialize opengl
+        pfm_graphics_init_opengl(ctx->gl);
 
-        pfm_graphics_init_opengl(rndr->gl);
+        // initialize memory
+        ctx->mem.address              = reserved_memory.address;
+        ctx->mem.size                 = reserved_memory.size;
+        ctx->mem.granularity          = cfg.renderer_mem_granularity;
+        ctx->mem.block_stack.capacity = reserved_memory.size / cfg.renderer_mem_granularity;
+        ctx->mem.block_stack.position = ctx->mem.block_stack.capacity;
+
+        for (
+            u32 index = 0;
+                index < ctx->mem.block_stack.capacity;
+              ++index
+        ) {
+            ctx->mem.block_stack.ids[index] = index;
+        }
     }
 
     IFB_INTERNAL void
-    renderer_add_quad_shader(
-        renderer*            rndr,
-        const shader_source& src_vertex,
-        const shader_source& src_fragment) {
-
-        assert(
-            rndr              != NULL &&
-            src_vertex.data   != NULL &&
-            src_vertex.size   != 0    &&
-            src_fragment.data != NULL &&
-            src_fragment.size != 0
-        );
-
-        // create gl objects
-        const gl_shader  shader_vtx = gl_shader_stage_create_vertex   (rndr->gl);
-        const gl_shader  shader_frg = gl_shader_stage_create_fragment (rndr->gl);
-        const gl_program shader_prg = gl_shader_program_create        (rndr->gl);
-
-        // compile and link shader pipeline
-        bool shader_is_valid = true;
-        shader_is_valid &= gl_shader_stage_compile_from_source (rndr->gl, shader_vtx, src_vertex.data, src_vertex.size);
-        shader_is_valid &= gl_shader_stage_compile_from_source (rndr->gl, shader_frg, src_fragment.data, src_fragment.size);
-        shader_is_valid &= gl_shader_program_attach_stage      (rndr->gl, shader_prg, shader_vtx);
-        shader_is_valid &= gl_shader_program_attach_stage      (rndr->gl, shader_prg, shader_frg);
-        shader_is_valid &= gl_shader_program_link              (rndr->gl, shader_prg);
-        assert(shader_is_valid);
-
-        // destroy shader stages
-        gl_shader_stage_destroy (rndr->gl, shader_vtx);
-        gl_shader_stage_destroy (rndr->gl, shader_frg);
-
-        // update renderer
-        rndr->shader.quad = shader_prg;
-    }
-
-    IFB_INTERNAL void
-    renderer_shutdown(
-        renderer* rndr) {
+    renderer_context_shutdown(
+        renderer_context* ctx) {
 
         //TODO
     }
