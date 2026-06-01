@@ -88,6 +88,8 @@ namespace ifb {
 
         assert(stack != NULL);
 
+        const auto& cfg = config_instance();
+
         memory stack_mem;
         stack_mem.size  = renderer_memory_requirement ();
         stack_mem.bytes = eng_stack_push_data         (stack, stack_mem.size);
