@@ -161,13 +161,19 @@ namespace ifb {
             rnd_mem.size % rnd_mem.granularity == 0
         );
 
+        auto& stack = rndr->mem.block_stack;
+
         const addr mem_addr = (addr)mem;
-        const addr offset   = mem_addr - rnd_mem.address;
-        assert(rnd_mem.granularity % offset == 0);
-        const u32 block = offset / rnd_mem.granularity;
-        assert(block <)
+        const addr offset   = (mem_addr - rnd_mem.address);
+        const u32  block    = (offset   / rnd_mem.granularity);
+        assert(
+            rnd_mem.granularity % offset == 0 &&
+            block < stack.capacity
+        );
 
+        pfm_memory_decommit(mem);
 
+        stack.ids[stack.position++] = block;
     }
 
     IFB_INTERNAL void

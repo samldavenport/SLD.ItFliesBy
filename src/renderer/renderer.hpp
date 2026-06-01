@@ -15,6 +15,7 @@ namespace ifb {
     struct quad_buffer;
     struct quad_shader;
 
+
     u32       renderer_memory_requirement (void);
     renderer* renderer_init_from_memory   (memory&   mem);
     void      renderer_startup            (renderer* rndr, memory& reserved_memory);
@@ -22,7 +23,6 @@ namespace ifb {
     void*     renderer_memory_commit      (void);
     void      renderer_memory_decommit    (void* mem);
     void      renderer_shutdown           (renderer* rndr);
-
 
     struct renderer_memory : memory {
         u32 granularity;
@@ -44,7 +44,6 @@ namespace ifb {
         u32   capacity;
         u32   count;
     };
-
 
     struct quad_shader {
         gl_program   program;
