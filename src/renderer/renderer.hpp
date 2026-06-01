@@ -9,6 +9,21 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    static constexpr f32 QUAD_VERTEX_BASE_COORDS[] = {
+         0.5f,  0.5f, 0.0f,  // top right
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f,  0.5f, 0.0f   // top left 
+    };
+    static constexpr unsigned int QUAD_BASE_INDICES[] = {
+        0, 1, 3,  // first Triangle
+        1, 2, 3   // second Triangle
+    };
+
+    //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
@@ -54,9 +69,10 @@ namespace ifb {
 
     struct quad {
         vec3           pos;
-        f32            scale;
         color_rgba_u32 color;
+        f32            scale;
     };
+
 
     struct quad_buffer {
         quad*     ptr;
@@ -66,10 +82,55 @@ namespace ifb {
         gl_vertex gl_vtx;
     };
 
-    struct quad_shader {
-        gl_program   program;
-        quad_buffer* buffer;
 
+    struct quad_vertex {
+        union {
+            struct {
+                f32 pos_x;
+                f32 pos_y;
+                f32 pos_z;
+                f32 color_r;
+                f32 color_g;
+                f32 color_b;
+                f32 color_a;
+                f32 scale;
+            };
+            byte data[32];
+        };
+    };
+
+    struct quad_elements {
+        union {
+            struct {
+                u32 a;
+                u32 b;
+                u32 c;
+            } triangle_1;
+            struct {
+                u32 a;
+                u32 b;
+                u32 c;
+            } triangle_2;
+            byte data[24];
+        };
+    }
+
+    struct quad_vertices {
+        quad_vertex top_right;
+        quad_vertex bottom_right;
+        quad_vertex bottom_left;
+        quad_vertex top_left;
+    };
+
+    struct quad_shader {
+        gl_program     program;
+        quad_buffer*   buffer;
+        quad_vertices* quad_buffer_vertices;
+        quad_elements* quad_buffer_elements;
+        u32            quad_count;
+        u32            quad_capacity;
+        gl_buffer      gl_buf_vertex;
+        gl_buffer      gl_buf_element;
     };
 
     struct renderer_context {
