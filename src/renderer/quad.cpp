@@ -22,6 +22,11 @@ namespace ifb {
         const gl_shader  shader_vtx = gl_shader_stage_create_vertex   (ctx->gl);
         const gl_shader  shader_frg = gl_shader_stage_create_fragment (ctx->gl);
         const gl_program shader_prg = gl_shader_program_create        (ctx->gl);
+        assert(
+            shader_vtx != GL_ID_INVALID &&
+            shader_frg != GL_ID_INVALID &&
+            shader_prg != GL_ID_INVALID
+        );
 
         // compile and link shader pipeline
         bool shader_is_valid = true;
@@ -36,8 +41,13 @@ namespace ifb {
         gl_shader_stage_destroy (ctx->gl, shader_vtx);
         gl_shader_stage_destroy (ctx->gl, shader_frg);
 
+        // allocate memory
+        quad_buffer* qbuf = renderer_quad_buffer_create(ctx);
+        assert(qbuf);
+
         // update renderer
         ctx->quad_shader.program = shader_prg;
+        ctx->quad_shader.buffer  = qbuf;
     }
 
     
@@ -58,11 +68,13 @@ namespace ifb {
         qb->capacity = (mem_size - sizeof(quad_buffer)) / sizeof(quad);  
         qb->count    = 0;
         qb->gl_buf   = gl_buffer_create(ctx->gl);
+        qb->gl_vtx   = gl_vertex_create(ctx->gl);
 
         assert(
-            qb->ptr      != NULL &&
-            qb->capacity != 0    &&
-            qb->gl_buf   != GL_ID_INVALID
+            qb->ptr      != NULL          &&
+            qb->capacity != 0             &&
+            qb->gl_buf   != GL_ID_INVALID &&
+            qb->gl_vtx   != GL_ID_INVALID
         );
 
         return(qb);

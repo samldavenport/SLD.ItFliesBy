@@ -30,14 +30,14 @@ namespace ifb {
     void              renderer_context_shutdown            (renderer_context* ctx);
     
     // memory
-    void*             renderer_memory_commit       (renderer_context* ctx);
-    void              renderer_memory_decommit     (renderer_context* ctx, void* mem);
+    void*             renderer_memory_commit               (renderer_context* ctx);
+    void              renderer_memory_decommit             (renderer_context* ctx, void* mem);
     
     // quads
-    void              renderer_quad_shader_init    (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    quad_buffer*      renderer_quad_buffer_create  (renderer_context* ctx);
-    void              renderer_quad_buffer_destroy (renderer_context* ctx, quad_buffer* qb);
-    u32               renderer_quad_push           (renderer_context* ctx, const quad* q_ptr, const u32 q_count = 1);
+    void              renderer_quad_shader_init            (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    quad_buffer*      renderer_quad_buffer_create          (renderer_context* ctx);
+    void              renderer_quad_buffer_destroy         (renderer_context* ctx, quad_buffer* qb);
+    u32               renderer_quad_push                   (renderer_context* ctx, const quad* q_ptr, const u32 q_count = 1);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -63,6 +63,7 @@ namespace ifb {
         u32       capacity;
         u32       count;
         gl_buffer gl_buf;
+        gl_vertex gl_vtx;
     };
 
     struct quad_shader {
