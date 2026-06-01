@@ -82,7 +82,7 @@ namespace ifb {
         return(file_mngr);
     }
 
-    IFB_ENG_INTERNAL renderer*
+    IFB_ENG_INTERNAL renderer_context*
     eng_stack_push_and_init_renderer(
         eng_stack* stack) {
 
@@ -91,10 +91,10 @@ namespace ifb {
         const auto& cfg = config_instance();
 
         memory stack_mem;
-        stack_mem.size  = renderer_memory_requirement ();
-        stack_mem.bytes = eng_stack_push_data         (stack, stack_mem.size);
+        stack_mem.size  = renderer_context_memory_requirement ();
+        stack_mem.bytes = eng_stack_push_data                 (stack, stack_mem.size);
 
-        renderer* rndr = renderer_init_from_memory(stack_mem);
+        renderer_context* rndr = renderer_context_init_from_memory(stack_mem);
         assert(rndr);
         return(rndr);
     }

@@ -71,8 +71,8 @@ namespace ifb {
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
-        renderer_startup          (_eng_context->renderer, mem_rndr);
-        renderer_init_quad_shader (_eng_context->renderer, vtx_src, frg_src);
+        renderer_context_startup          (_eng_context->renderer, mem_rndr);
+        renderer_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
     }
 
     IFB_ENGINE_API void
