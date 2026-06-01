@@ -19,18 +19,24 @@ namespace ifb {
         );
 
         // create gl objects
-        const gl_shader  shader_vtx = gl_shader_stage_create_vertex   (ctx->gl);
-        const gl_shader  shader_frg = gl_shader_stage_create_fragment (ctx->gl);
-        const gl_program shader_prg = gl_shader_program_create        (ctx->gl);
+        const gl_shader  shader_vtx   = gl_shader_stage_create_vertex   (ctx->gl);
+        const gl_shader  shader_frg   = gl_shader_stage_create_fragment (ctx->gl);
+        const gl_program shader_prg   = gl_shader_program_create        (ctx->gl);
+        const gl_buffer  buffer_vtx   = gl_buffer_create                (ctx->gl);
+        const gl_buffer  buffer_elmnt = gl_buffer_create                (ctx->gl);
+        const gl_vertex  vertex       = gl_vertex_create                (ctx->gl); 
         assert(
-            shader_vtx != GL_ID_INVALID &&
-            shader_frg != GL_ID_INVALID &&
-            shader_prg != GL_ID_INVALID
+            shader_vtx   != GL_ID_INVALID &&
+            shader_frg   != GL_ID_INVALID &&
+            shader_prg   != GL_ID_INVALID &&
+            buffer_vtx   != GL_ID_INVALID &&
+            buffer_elmnt != GL_ID_INVALID && 
+            vertex       != GL_ID_INVALID 
         );
 
         // compile and link shader pipeline
         bool shader_is_valid = true;
-        shader_is_valid &= gl_shader_stage_compile_from_source (ctx->gl, shader_vtx, src_vertex.data, src_vertex.size);
+        shader_is_valid &= gl_shader_stage_compile_from_source (ctx->gl, shader_vtx, src_vertex.data,   src_vertex.size);
         shader_is_valid &= gl_shader_stage_compile_from_source (ctx->gl, shader_frg, src_fragment.data, src_fragment.size);
         shader_is_valid &= gl_shader_program_attach_stage      (ctx->gl, shader_prg, shader_vtx);
         shader_is_valid &= gl_shader_program_attach_stage      (ctx->gl, shader_prg, shader_frg);
@@ -42,42 +48,22 @@ namespace ifb {
         gl_shader_stage_destroy (ctx->gl, shader_frg);
 
         // allocate memory
-        quad_buffer* qbuf = renderer_quad_buffer_create(ctx);
-        assert(qbuf);
-
-        // update renderer
-        ctx->quad_shader.program = shader_prg;
-        ctx->quad_shader.buffer  = qbuf;
-    }
-
-    
-    IFB_INTERNAL quad_buffer*
-    renderer_quad_buffer_create(
-        renderer_context* ctx) {
-
-        assert(ctx);
-
-        const u32 mem_size = ctx->mem.granularity;
-        void*     mem      = renderer_memory_commit(ctx);
-        assert(mem);
-
-        zero_memory(mem, mem_size);
-
-        auto qb      = (quad_buffer*)mem;
-        qb->ptr      = (quad*)((addr)mem + sizeof(quad_buffer));
-        qb->capacity = (mem_size - sizeof(quad_buffer)) / sizeof(quad);  
-        qb->count    = 0;
-        qb->gl_buf   = gl_buffer_create(ctx->gl);
-        qb->gl_vtx   = gl_vertex_create(ctx->gl);
-
+        auto buffer_vertex  = (quad_vertices*)renderer_memory_commit(ctx);
+        auto buffer_element = (quad_elements*)renderer_memory_commit(ctx);
         assert(
-            qb->ptr      != NULL          &&
-            qb->capacity != 0             &&
-            qb->gl_buf   != GL_ID_INVALID &&
-            qb->gl_vtx   != GL_ID_INVALID
+            buffer_vertex  != NULL &&
+            buffer_element != NULL            
         );
 
-        return(qb);
+        // update renderer
+        ctx->quad_shader.quad_buffer_vertices = buffer_vertex;
+        ctx->quad_shader.quad_buffer_elements = buffer_element;
+        ctx->quad_shader.quad_capacity        = ctx->mem.granularity / sizeof(quad_vertices);  
+        ctx->quad_shader.quad_count           = 0;
+        ctx->quad_shader.gl.program           = shader_prg;
+        ctx->quad_shader.gl.vertex            = vertex;
+        ctx->quad_shader.gl.buf_vertex        = buffer_vtx;
+        ctx->quad_shader.gl.buf_element       = buffer_elmnt;
     }
 
     IFB_INTERNAL void
@@ -100,24 +86,5 @@ namespace ifb {
         const quad*       q_ptr,
         const u32         q_count) {
 
-        assert(
-            ctx     != NULL &&
-            q_ptr   != NULL &&
-            q_count != 0
-        );
-
-        quad_shader& qs           = ctx->quad_shader;
-        u32          count_pushed = 0;
-
-        for (
-            u32 index = qs.buffer->count;
-                index < qs.buffer->capacity;
-              ++index) {
-
-            qs.buffer->ptr[index] = q_ptr[index];
-            ++count_pushed;
-        }
-
-        return(count_pushed);
     }
 };

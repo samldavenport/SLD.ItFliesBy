@@ -39,20 +39,20 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // renderer context
-    u32               renderer_context_memory_requirement  (void);
-    renderer_context* renderer_context_init_from_memory    (memory&   mem);
-    void              renderer_context_startup             (renderer_context* ctx, memory& reserved_memory);
-    void              renderer_context_shutdown            (renderer_context* ctx);
+    u32               renderer_context_memory_requirement (void);
+    renderer_context* renderer_context_init_from_memory   (memory&   mem);
+    void              renderer_context_startup            (renderer_context* ctx, memory& reserved_memory);
+    void              renderer_context_shutdown           (renderer_context* ctx);
     
     // memory
-    void*             renderer_memory_commit               (renderer_context* ctx);
-    void              renderer_memory_decommit             (renderer_context* ctx, void* mem);
+    void*             renderer_memory_commit              (renderer_context* ctx);
+    void              renderer_memory_decommit            (renderer_context* ctx, void* mem);
     
     // quads
-    void              renderer_quad_shader_init            (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    quad_buffer*      renderer_quad_buffer_create          (renderer_context* ctx);
-    void              renderer_quad_buffer_destroy         (renderer_context* ctx, quad_buffer* qb);
-    u32               renderer_quad_push                   (renderer_context* ctx, const quad* q_ptr, const u32 q_count = 1);
+    void              renderer_quad_shader_init           (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    quad_buffer*      renderer_quad_buffer_create         (renderer_context* ctx);
+    void              renderer_quad_buffer_destroy        (renderer_context* ctx, quad_buffer* qb);
+    u32               renderer_quad_push                  (renderer_context* ctx, const quad* q_ptr, const u32 q_count = 1);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -86,14 +86,9 @@ namespace ifb {
     struct quad_vertex {
         union {
             struct {
-                f32 pos_x;
-                f32 pos_y;
-                f32 pos_z;
-                f32 color_r;
-                f32 color_g;
-                f32 color_b;
-                f32 color_a;
-                f32 scale;
+                vec3           position;
+                color_rgba_f32 color;
+                f32            scale;
             };
             byte data[32];
         };
@@ -113,7 +108,7 @@ namespace ifb {
             } triangle_2;
             byte data[24];
         };
-    }
+    };
 
     struct quad_vertices {
         quad_vertex top_right;
@@ -123,14 +118,16 @@ namespace ifb {
     };
 
     struct quad_shader {
-        gl_program     program;
-        quad_buffer*   buffer;
         quad_vertices* quad_buffer_vertices;
         quad_elements* quad_buffer_elements;
         u32            quad_count;
         u32            quad_capacity;
-        gl_buffer      gl_buf_vertex;
-        gl_buffer      gl_buf_element;
+        struct {
+            gl_program program;
+            gl_vertex  vertex;
+            gl_buffer  buf_vertex;
+            gl_buffer  buf_element;
+        } gl;
     };
 
     struct renderer_context {
