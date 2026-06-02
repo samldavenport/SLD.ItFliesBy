@@ -22,9 +22,9 @@ namespace ifb {
         const gl_shader  shader_vtx   = gl_shader_stage_create_vertex   (ctx->gl);
         const gl_shader  shader_frg   = gl_shader_stage_create_fragment (ctx->gl);
         const gl_program shader_prg   = gl_shader_program_create        (ctx->gl);
+        const gl_vertex  vertex       = gl_vertex_create                (ctx->gl); 
         const gl_buffer  buffer_vtx   = gl_buffer_create                (ctx->gl);
         const gl_buffer  buffer_elmnt = gl_buffer_create                (ctx->gl);
-        const gl_vertex  vertex       = gl_vertex_create                (ctx->gl); 
         assert(
             shader_vtx   != GL_ID_INVALID &&
             shader_frg   != GL_ID_INVALID &&
@@ -54,6 +54,23 @@ namespace ifb {
             buffer_vertex  != NULL &&
             buffer_element != NULL            
         );
+
+        // set buffer data
+        bool did_set_data = true;
+        did_set_data &= gl_buffer_set_vertex_data  (ctx->gl, buffer_vtx,   (byte*)buffer_vertex,  ctx->mem.granularity);
+        did_set_data &= gl_buffer_set_element_data (ctx->gl, buffer_elmnt, (byte*)buffer_element, ctx->mem.granularity);
+        assert(did_set_data);
+
+        // set vertex attributes
+        const u32 vertex_size         = sizeof(quad_vertex);
+        const u32 vertex_offset_pos   = 0;
+        const u32 vertex_offset_color = sizeof(vec3);
+        const u32 vertex_offset_scale = vertex_offset_color + sizeof(color_rgba_f32);  
+        bool      attribs_are_valid   = true;
+        attribs_are_valid &= gl_vertex_add_attribute_f32x3 (ctx->gl, vertex, vertex_size, 0, vertex_offset_pos);
+        attribs_are_valid &= gl_vertex_add_attribute_f32x4 (ctx->gl, vertex, vertex_size, 1, vertex_offset_color);
+        attribs_are_valid &= gl_vertex_add_attribute_f32x1 (ctx->gl, vertex, vertex_size, 2, vertex_offset_scale);
+        assert(attribs_are_valid);
 
         // update renderer
         ctx->quad_shader.quad_buffer_vertices = buffer_vertex;
@@ -86,5 +103,65 @@ namespace ifb {
         const quad*       q_ptr,
         const u32         q_count) {
 
+        assert(
+            ctx      != NULL &&
+            q_ptr    != NULL &&
+            q_count  != 0
+        );
+
+        u32 num_pushed = 0;
+
+        for (
+            u32 index = ctx->quad_shader.quad_count;
+            (
+                index < q_count && 
+                index < ctx->quad_shader.quad_capacity
+            );
+            ++index
+        ) {
+
+            const auto& quad               = q_ptr[index]; 
+            const auto  color              = color_rgba_f32(quad.color.hex);   
+            const f32   x_offset           = (quad.width  / 2.0f);
+            const f32   y_offset           = (quad.height / 2.0f);
+            const u32   element_offset     = (6 * index); 
+            auto&       vtx                = ctx->quad_shader.quad_buffer_vertices [index];
+            auto&       elmnt              = ctx->quad_shader.quad_buffer_elements [index];
+
+            vtx.bottom_left.position.x     = quad.pos.x - x_offset;
+            vtx.bottom_left.position.y     = quad.pos.y - y_offset;
+            vtx.bottom_left.position.z     = quad.pos.z; 
+            vtx.bottom_left.color          = color;
+            vtx.bottom_left.scale          = quad.scale; 
+            
+            vtx.bottom_right.position.x    = quad.pos.x + x_offset;
+            vtx.bottom_right.position.y    = quad.pos.y - y_offset;
+            vtx.bottom_right.position.z    = quad.pos.z; 
+            vtx.bottom_right.color         = color;
+            vtx.bottom_right.scale         = quad.scale; 
+            
+            vtx.top_left.position.x        = quad.pos.x - x_offset;
+            vtx.top_left.position.y        = quad.pos.y + y_offset;
+            vtx.top_left.position.z        = quad.pos.z; 
+            vtx.top_left.color             = color;
+            vtx.top_left.scale             = quad.scale; 
+            
+            vtx.top_right.position.x       = quad.pos.x + x_offset;
+            vtx.top_right.position.y       = quad.pos.y + y_offset;
+            vtx.top_right.position.z       = quad.pos.z; 
+            vtx.top_right.color            = color;
+            vtx.top_right.scale            = quad.scale;
+
+            elmnt.data[element_offset    ] = QUAD_BASE_INDICES[1];             
+            elmnt.data[element_offset + 1] = QUAD_BASE_INDICES[2];             
+            elmnt.data[element_offset + 2] = QUAD_BASE_INDICES[3];             
+            elmnt.data[element_offset + 3] = QUAD_BASE_INDICES[4];             
+            elmnt.data[element_offset + 4] = QUAD_BASE_INDICES[5];             
+            elmnt.data[element_offset + 5] = QUAD_BASE_INDICES[6];             
+
+            ++num_pushed;
+        }
+
+        return(num_pushed);
     }
 };

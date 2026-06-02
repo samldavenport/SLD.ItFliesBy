@@ -69,6 +69,8 @@ namespace ifb {
 
     struct quad {
         vec3           pos;
+        f32            width;
+        f32            height;
         color_rgba_u32 color;
         f32            scale;
     };
