@@ -5,7 +5,6 @@
 
 namespace ifb {
 
-
 };
 
 #endif //IFB_SPARSE_ARRAY_HPP

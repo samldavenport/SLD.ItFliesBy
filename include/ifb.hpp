@@ -12,6 +12,29 @@
 
 #define IFB_INTERNAL static
 
+#ifdef IFB_STATIC
+#   define IFB_API
+#elif defined(IFB_API_DLL_EXPORT)
+#   define IFB_API __declspec(dllexport)
+#else
+#   define IFB_API __declspec(dllimport)
+#endif
+
+
 using namespace sld;
+
+namespace ifb {
+
+    struct sparse_array;
+
+    IFB_API u32           sparse_array_memory_requirement (const u32 capacity);
+    IFB_API sparse_array* sparse_array_memory_init        (const u32 capacity, const u32 mem_size, void* mem_ptr);
+    IFB_API bool          sparse_array_is_valid           (const sparse_array* sa);
+    IFB_API void          sparse_array_assert_valid       (const sparse_array* sa);
+    IFB_API void*         sparse_array_lookup             (const sparse_array* sa, const cchar8* key);
+    IFB_API void          sparse_array_insert             (const sparse_array* sa, const cchar8* key, const void* val, const u32 count = 1);
+    IFB_API void          sparse_array_remove             (const sparse_array* sa, const cchar8* key, const u32 count = 1);
+
+};
 
 #endif //IFB_HPP
