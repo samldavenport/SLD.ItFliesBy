@@ -128,29 +128,29 @@ namespace ifb {
             auto&       vtx                = ctx->quad_shader.quad_buffer_vertices [index];
             auto&       elmnt              = ctx->quad_shader.quad_buffer_elements [index];
 
+            vtx.top_right.position.x       = quad.pos.x + x_offset;
+            vtx.top_right.position.y       = quad.pos.y + y_offset;
+            vtx.top_right.position.z       = quad.pos.z; 
+            vtx.top_right.color            = color;
+            vtx.top_right.scale            = quad.scale;
+
+            vtx.bottom_right.position.x    = quad.pos.x + x_offset;
+            vtx.bottom_right.position.y    = quad.pos.y - y_offset;
+            vtx.bottom_right.position.z    = quad.pos.z; 
+            vtx.bottom_right.color         = color;
+            vtx.bottom_right.scale         = quad.scale; 
+
             vtx.bottom_left.position.x     = quad.pos.x - x_offset;
             vtx.bottom_left.position.y     = quad.pos.y - y_offset;
             vtx.bottom_left.position.z     = quad.pos.z; 
             vtx.bottom_left.color          = color;
             vtx.bottom_left.scale          = quad.scale; 
             
-            vtx.bottom_right.position.x    = quad.pos.x + x_offset;
-            vtx.bottom_right.position.y    = quad.pos.y - y_offset;
-            vtx.bottom_right.position.z    = quad.pos.z; 
-            vtx.bottom_right.color         = color;
-            vtx.bottom_right.scale         = quad.scale; 
-            
             vtx.top_left.position.x        = quad.pos.x - x_offset;
             vtx.top_left.position.y        = quad.pos.y + y_offset;
             vtx.top_left.position.z        = quad.pos.z; 
             vtx.top_left.color             = color;
             vtx.top_left.scale             = quad.scale; 
-            
-            vtx.top_right.position.x       = quad.pos.x + x_offset;
-            vtx.top_right.position.y       = quad.pos.y + y_offset;
-            vtx.top_right.position.z       = quad.pos.z; 
-            vtx.top_right.color            = color;
-            vtx.top_right.scale            = quad.scale;
 
             elmnt.data[element_offset    ] = QUAD_BASE_INDICES[1];             
             elmnt.data[element_offset + 1] = QUAD_BASE_INDICES[2];             
@@ -173,16 +173,17 @@ namespace ifb {
 
         auto& shdr = ctx->quad_shader;
 
-        const u32 element_count = (shdr.quad_count * 6);
+        const u32 quad_count    = shdr.quad_count;
+        const u32 element_count = (quad_count * 6);
 
         gl_context_set_shader_program (ctx->gl, shdr.gl.program);
         gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
-        gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_element);
+        gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_vertex);
         gl_context_set_buffer_element (ctx->gl, shdr.gl.buf_element);
         gl_context_draw_elements      (ctx->gl, element_count);
 
         shdr.quad_count = 0;
 
-        return(element_count);
+        return(quad_count);
     }
 };
