@@ -1,6 +1,7 @@
 #pragma once
 
 #define IFB_ENGINE_DLL_EXPORT
+#define IFB_API_DLL_EXPORT
 
 #include "eng-context.cpp"
 #include "eng-input.cpp"
@@ -21,3 +22,5 @@
 #include "win32-memory.cpp"
 #include "win32-monitor.cpp"
 #include "win32-window.cpp"
+
+#include "sparse-array.cpp"
