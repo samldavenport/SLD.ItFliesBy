@@ -55,6 +55,11 @@ namespace ifb {
             buffer_element != NULL            
         );
 
+        // bind vertex and buffers
+        gl_context_set_vertex_object  (ctx->gl, vertex);
+        gl_context_set_buffer_vertex  (ctx->gl, buffer_vtx);
+        gl_context_set_buffer_element (ctx->gl, buffer_elmnt);
+
         // set buffer data
         bool did_set_data = true;
         did_set_data &= gl_buffer_set_vertex_data  (ctx->gl, buffer_vtx,   (byte*)buffer_vertex,  ctx->mem.granularity);
