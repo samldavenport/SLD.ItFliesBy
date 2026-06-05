@@ -16,98 +16,92 @@ namespace ifb {
 
     struct sparse_array {
         struct {
-            u32*  dense_index;
-            void* val;
-        } sparse_data;
-        struct {
-            u32* sparse_index;
-            u32* hash;
-        } dense_data;
-        struct {
-            u32 key;
-            u32 element;
-        } size;
-        u32 count;
+            struct {
+                u32* sparse_index;
+                u32* hash;
+            } dense;
+            struct {
+                u32*  dense_index;
+                void* val;
+            } sparse;
+        } data;
+        u32 size_val;
+        u32 size_key;
         u32 capacity_sparse;
         u32 capacity_dense;
+        u32 count;
         f32 max_load_p100;
     };
-    
 
     IFB_API u32
-    sparse_array_memory_requirement(
+    sparse_array_memory_requirement (
         const u32 capacity,
-        const u32 size_key,
-        const u32 size_val,
+        const u32 val_size,
         const f32 max_load_p100) {
 
         assert(
             capacity      != 0    &&
-            size_key      != 0    &&
-            size_val      != 0    &&
+            val_size      != 0    &&
             max_load_p100 >  0.0f &&            
-            max_load_p100 <= 1.0f            
+            max_load_p100 <= 1.0f
         );
 
-        const u32 count_max              = (capacity * max_load);
-        const u32 size_struct            = sizeof(sparse_array);
-        const u32 size_array_dense_hash  = count_max * sizeof(u32);
-        const u32 size_array_dense_index = count_max * sizeof(u32);
-        const u32 size_array_sparse_val  = capacity  * size_val;
-        
-        const u32 size_total = (
-            size_struct            +
-            size_array_dense_hash  +
-            size_array_dense_index +
-            size_array_sparse_val
-        );
-
-        return(size_total); 
+        const u32 size_struct = sizeof(sparse_array);
+        const u32 count_dense = (u32)((f32)capacity * max_load_p100);
+        const u32 size_dense  = count_dense * sizeof(u32) * 2;
+        const u32 size_sparse = capacity    * (val_size + sizeof(u32));
+        const u32 size_total  = size_struct + size_dense + size_sparse;
+    
+        return(size_total);
     }
 
     IFB_API sparse_array*
     sparse_array_memory_init(
         const u32 capacity,
-        const u32 size_key,
-        const u32 size_val,
+        const u32 val_size,
         const f32 max_load_p100,
-        const u32 mem_size,
+        const u32 key_size,
+        const u32 mem_size, 
         void*     mem_ptr) {
 
         const u32 mem_req = sparse_array_memory_requirement(
             capacity,
-            size_key,
-            size_val,
-            max_load_p100            
+            val_size,
+            max_load_p100
         );
 
-
         assert(
+            mem_req  != 0       &&
             mem_size != 0       &&
             mem_size == mem_req &&
             mem_ptr  != NULL
         );
 
+        // clear memory
         zero_memory(mem_ptr, mem_size);
 
-        const u32 dense_count = (capacity    * max_load_p100);
-        const u32 dense_size  = (count_dense * sizeof(u32));  
+        // calculate sizes
+        const u32 dense_capactiy    = (f32)capacity  * max_load_p100;
+        const u32 dense_size        = dense_capactiy * sizeof(u32);
+        const u32 sparse_index_size = capacity       * sizeof(u32);
 
+        // cast pointers and initialize
         auto sa = (sparse_array*)mem_ptr;
-        sa->array.dense_hash  =  (u32*)((addr)sa) + sizeof(sparse_array);
-        sa->array.dense_index =  (u32*)((addr)sa) + dense_size);
-        sa->array.sparse_val  = (void*)((addr)sa) + dense_size);
-        sa->capacity_sparse   = capacity;
-        sa->capacity_dense    = dense_count;
-        sa->count             = 0;
-        sa->size.element      = size_val;
-        sa->size.key          = size_key;
-        sa->max_load_p100     = max_load_p100;
+        sa->data.dense.sparse_index =  (u32*)((addr)sa + sizeof(sparse_array));
+        sa->data.dense.hash         =  (u32*)((addr)sa->data.dense.sparse_index + dense_size);
+        sa->data.sparse.dense_index =  (u32*)((addr)sa->data.dense.hash         + dense_size);
+        sa->data.sparse.val         = (void*)((addr)sa->data.sparse.dense_index + sparse_index_size);
+        sa->size_val                = val_size;
+        sa->size_key                = key_size;
+        sa->capacity_sparse         = capacity;
+        sa->capacity_dense          = dense_capactiy;
+        sa->count                   = 0;
+        sa->max_load_p100           = max_load_p100;
 
-        memset(sa->array.dense_hash,  0xFF, dense_size);
-        memset(sa->array.dense_index, 0xFF, dense_size);
-
-        return(sa);
+        // set indexes and hashes to invalid
+        memset((void*)sa->data.dense.sparse_index, 0xFF, dense_size);
+        memset((void*)sa->data.dense.hash,         0xFF, dense_size);
+        memset((void*)sa->data.sparse.dense_index, 0xFF, sparse_index_size);
     }
 
     IFB_API bool
@@ -115,17 +109,18 @@ namespace ifb {
         const sparse_array* sa) {
 
         const bool is_valid = (
-            sa                    != NULL &&
-            sa->array.dense_hash  != NULL &&
-            sa->array.dense_index != NULL &&
-            sa->array.sparse_val  != NULL &&
-            sa->capacity_sparse   != 0    &&
-            sa->capacity_dense    != 0    &&
-            sa->size.element      != 0    &&
-            sa->size.key          != 0    &&
-            sa->max_load_p100     >  0.0f &&
-            sa->max_load_p100     <= 1.0f &&
-            sa->count             <= sa->capacity_dense
+            sa != NULL &&
+            sa->data.dense.sparse_index != NULL               &&
+            sa->data.dense.hash         != NULL               &&
+            sa->data.sparse.dense_index != NULL               &&
+            sa->data.sparse.val         != NULL               &&
+            sa->size_val                != 0                  &&
+            sa->size_key                != 0                  &&
+            sa->capacity_sparse         != 0                  &&
+            sa->capacity_dense          != 0                  &&
+            sa->count                   <  sa->capacity_dense &&
+            sa->max_load_p100           >  0.0f               &&
+            sa->max_load_p100           <= 1.0f
         );
         return(is_valid);
     }
@@ -134,101 +129,211 @@ namespace ifb {
     sparse_array_assert_valid(
         const sparse_array* sa) {
 
-        assert(
-            sparse_array_is_valid(sa);
-        )
+        const bool is_valid = sparse_array_is_valid(sa);
+        assert(is_valid);
     }
-    
+
     IFB_API void*
     sparse_array_lookup(
         const sparse_array* sa,
         const cchar8*       key) {
 
-        sparse_array_assert_valid(sa);
-        assert(key != NULL);
+        assert(
+            sparse_array_is_valid(sa) &&
+            key != NULL
+        );
+
+        const u32 hash               = hash_u32(key, sa->size_key);
+        const u32 sparse_index_start = sa_mask(sa->capacity_sparse, hash);
+         
+        assert(
+            hash               != INVALID_INDEX &&
+            sparse_index_start != INVALID_INDEX &&
+            sparse_index_start <  sa->capacity_sparse
+        );
 
         void* val = NULL;
 
-        const u32 hash   = hash_u32 (key, sa->size.key);
-        void*     lookup = NULL;
-
         for (
-            u32 dense_index = 0;
-                dense_index < sa->capacity_dense;
-              ++dense_index) {
+            u32 probe = 0;
+                probe < sa->capacity_sparse;
+              ++probe) {
 
-            const u32 curr_hash         = sa->array.dense_hash  [dense_index];
-            const u32 curr_sparse_index = sa->array.dense_index [dense_index];  
-            const u32 val_offset        = sa->size.element * curr_sparse_index; 
+            // calculate indexes and offset
+            const u32 index_sparse = (sparse_index_start + probe) % sa->capacity_sparse;
+            const u32 index_dense  = sa->data.sparse.dense_index[sparse_index]; 
+            const u32 val_offset   = (sa->size_val * index_sparse)
 
+            // the first invalid index we hit means it doesn't exist
+            if (index_dense == INVALID_INDEX) {
+                break;
+            }
+
+            // get the current hash
+            assert(index_dense < sa->capacity_dense);
+            const u32 curr_hash = sa->data.dense.hash[index_dense];
+            
+            // if the hashes match, we have found a value
             if (curr_hash == hash) {
-                assert(curr_sparse_index != INVALID_INDEX);
-                lookup = (void*)(((addr)sa->array.sparse_val) + val_offset);
+                val = (void*)((addr)sa->data.sparse.val + val_offset);
                 break;
             }
         }
-        
-        return(lookup);
+
+        return(val);
     }
 
-    IFB_API void
+    IFB_API bool
     sparse_array_insert(
         const sparse_array* sa,
         const cchar8*       key,
-        const void*         val,
-        const u32           count) {
+        const void*         val) {
 
         const bool is_valid = (
             sparse_array_is_valid(sa) &&
             key   != NULL             &&
-            val   != NULL             &&
-            count != 0
+            val   != NULL
         );
         assert(is_valid);
 
+        const u32 hash               = hash_u32(key, sa->size_key);
+        const u32 sparse_index_start = sa_mask(sa->capacity_sparse, hash);
+        const u32 dense_index_new    = sa->count;
+
+        assert(
+            hash               != INVALID_INDEX &&
+            sparse_index_start != INVALID_INDEX &&
+            sparse_index_start <  sa->capacity_sparse
+        );
+
+        if (dense_index_new == sa->capacity_dense) {
+            return(false);
+        } 
+
+        bool did_insert = false;
+
         for (
-            u32 insert_index = 0;
-                insert_index < count;
-              ++insert_index) {
+            u32 probe = 0;
+                probe < sa->capacity_sparse;
+              ++probe
+        ) {
+        
+            const u32 index_sparse     = (sparse_index_start + probe) % sa->capacity_sparse;
+            const u32 index_dense_curr = sa->data.sparse.dense_index[index_sparse]; 
 
-            const u32     key_offset   = (insert_index * sa->size.key);
-            const cchar8* key_current  = (key          + key_offset);
-            const void*   val_curr     = sparse_array_lookup(sa, key_current); 
-            const bool    is_collision = (val_curr != NULL); 
-            const u32     hash         = hash_u32(key_current, sa->size.key);
-            u32           sparse_index = sa_mask(sa->capacity_sparse, hash);
+            // if we already have a value here,
+            // make sure its not a collision and continue
+            if (index_dense_curr != INVALID_INDEX) {
+                const bool is_collision = (hash == sa->data.dense[index_dense_curr]);
+                assert(!is_collision);
+                continue;
+            }
 
-            assert(
-                !is_collision &&
-                sparse_index < sa->capacity_sparse
-            ); 
+            // we have a free space
+            did_insert = true;
 
-            for (
-                u32 sparse_probe = 0;
-                    sparse_probe < sa->capacity_dense;
-                  ++sparse_probe) {
+            // copy the value
+            const u32 val_offset = (index_sparse * sa->size_val);
+            void*     val_dst    = (void*)((addr)sa->data.dense + val_offset); 
+            memmove(val_dst, val, sa->size_val);
 
-                const bool is_empty = sa->
-            }             
+            // set the indexes and hash and break
+            sa->data.sparse.dense_index [index_sparse]    = dense_index_new;
+            sa->data.dense.hash         [dense_index_new] = hash;
+            sa->data.dense.sparse_index [dense_index_new] = index_sparse;
+            break;
         }
 
-        // make sure there's nothing there
-        
-        
-        
-        const void* val_curr = sparse_array_lookup(sa, key);
-        const bool  is_empty = (val_curr == NULL);
-        assert(is_empty);
-
-
-
+        return(did_insert);
     }
 
-    IFB_API void
+    IFB_API bool
     sparse_array_remove(
         const sparse_array* sa,
-        const cchar8*       key,
-        const u32           count) {
+        const cchar8*       key) {
 
+        const bool is_valid = (
+            sparse_array_is_valid(sa) &&
+            key != NULL
+        );
+        assert(is_valid);
+
+        if (sa->count == 0) {
+            return(false);
+        }
+
+        const u32 hash               = hash_u32(key, sa->size_key);
+        const u32 sparse_index_start = sa_mask(sa->capacity_sparse, hash);
+        const u32 dense_index_last   = (sa->count - 1); 
+
+        assert(
+            hash               != INVALID_INDEX &&
+            sparse_index_start != INVALID_INDEX &&
+            sparse_index_start <  sa->capacity_sparse
+        );
+
+
+        bool did_remove = false;
+
+        for (
+            u32 probe = 0;
+                probe < sa->capacity_sparse;
+              ++probe
+        ) {
+
+            // get the indexes
+            const u32 index_sparse = (sparse_index_start + probe) % sa->capacity_sparse;
+            const u32 index_dense  = sa->data.sparse.dense_index[index_sparse]; 
+
+            // the first invalid index we hit means it doesn't exist
+            if (index_dense == INVALID_INDEX) {
+                break;
+            }
+
+            // get the current hash
+            assert(index_dense < sa->capacity_dense);
+            const u32 curr_hash = sa->data.dense.hash[index_dense];
+            
+            // continue if its not a match 
+            if (curr_hash != hash) {
+                continue;
+            }
+
+            // we have a match
+            did_remove = true;
+
+            // if we have only one element or its the last element,
+            // clear the dense element, reduce the count, and we're done
+            if (sa->count == 1 || index_dense == dense_index_last) {
+                sa->count = 0;
+                sa->data.dense.hash         [index_dense] = INVALID_INDEX;
+                sa->data.dense.sparse_index [index_dense] = INVALID_INDEX;
+                break;
+            }            
+            
+            // get the index of the last sparse element
+            const u32 index_sparse_last = sa->data.dense.sparse_index[dense_index_last];
+            
+            // move the last sparse value to the current one
+            void* val_dst = (addr)sa->data.sparse.val + (sa->size_val * index_sparse); 
+            void* val_src = (addr)sa->data.sparse.val + (sa->size_val * index_sparse); 
+            memmove(val_dst, val_src, sa->size_val);
+
+            // update the dense index of the last sparse value
+            sa->data.sparse.dense_index[index_sparse_last] = index_dense;
+
+            // update the current dense data then clear the last dense data
+            sa->data.dense.hash         [index_dense]      = sa->data.dense.hash         [dense_index_last];
+            sa->data.dense.sparse_index [index_dense]      = sa->data.dense.sparse_index [dense_index_last];
+            sa->data.dense.hash         [dense_index_last] = INVALID_INDEX;
+            sa->data.dense.sparse_index [dense_index_last] = INVALID_INDEX;
+
+            // update the count and break;
+            --sa->count;
+            break;
+        }
+
+        return(did_remove);
     }
+
 };

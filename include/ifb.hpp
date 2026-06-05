@@ -30,13 +30,13 @@ namespace ifb {
     constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
     constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
 
-    IFB_API u32           sparse_array_memory_requirement (const u32 capacity);
-    IFB_API sparse_array* sparse_array_memory_init        (const u32 capacity, const u32 mem_size, void* mem_ptr);
+    IFB_API u32           sparse_array_memory_requirement (const u32 capacity, const u32 val_size, const f32 max_load_p100);
+    IFB_API sparse_array* sparse_array_memory_init        (const u32 capacity, const u32 val_size, const f32 max_load_p100, const u32 key_size, const u32 mem_size, void* mem_ptr);
     IFB_API bool          sparse_array_is_valid           (const sparse_array* sa);
     IFB_API void          sparse_array_assert_valid       (const sparse_array* sa);
     IFB_API void*         sparse_array_lookup             (const sparse_array* sa, const cchar8* key);
-    IFB_API void          sparse_array_insert             (const sparse_array* sa, const cchar8* key, const void* val, const u32 count = 1);
-    IFB_API void          sparse_array_remove             (const sparse_array* sa, const cchar8* key, const u32 count = 1);
+    IFB_API bool          sparse_array_insert             (const sparse_array* sa, const cchar8* key, const void* val);
+    IFB_API void          sparse_array_remove             (const sparse_array* sa, const cchar8* key);
 
 };
 
