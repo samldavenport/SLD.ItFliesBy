@@ -27,6 +27,9 @@ namespace ifb {
 
     struct sparse_array;
 
+    constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
+    constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
+
     IFB_API u32           sparse_array_memory_requirement (const u32 capacity);
     IFB_API sparse_array* sparse_array_memory_init        (const u32 capacity, const u32 mem_size, void* mem_ptr);
     IFB_API bool          sparse_array_is_valid           (const sparse_array* sa);

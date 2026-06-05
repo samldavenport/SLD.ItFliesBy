@@ -2,16 +2,27 @@
 
 #include "ifb.hpp"
 
-#define sa_mask(capacity, key) ((capacity-1) & key)
+#define sa_mask(sparse_capacity, hash) ((sparse_capacity-1) & hash)
 
 namespace ifb {
 
+    struct sparse_element {
+        void* val;
+        u32   hash;
+        u32   dense_index;
+        u32   sparse_index;
+        u32   val_size;
+    };
+
     struct sparse_array {
         struct {
-            u32*  dense_hash;
             u32*  dense_index;
-            void* sparse_val;
-        } array;
+            void* val;
+        } sparse_data;
+        struct {
+            u32* sparse_index;
+            u32* hash;
+        } dense_data;
         struct {
             u32 key;
             u32 element;
@@ -38,8 +49,7 @@ namespace ifb {
             max_load_p100 <= 1.0f            
         );
 
-        const u32 count_max = (capacity * max_load);
-
+        const u32 count_max              = (capacity * max_load);
         const u32 size_struct            = sizeof(sparse_array);
         const u32 size_array_dense_hash  = count_max * sizeof(u32);
         const u32 size_array_dense_index = count_max * sizeof(u32);
@@ -94,6 +104,9 @@ namespace ifb {
         sa->size.key          = size_key;
         sa->max_load_p100     = max_load_p100;
 
+        memset(sa->array.dense_hash,  0xFF, dense_size);
+        memset(sa->array.dense_index, 0xFF, dense_size);
+
         return(sa);
     }
 
@@ -134,8 +147,28 @@ namespace ifb {
         sparse_array_assert_valid(sa);
         assert(key != NULL);
 
-        const u32 hash  = hash_u32(key, sa->size.key);
-        const u32 index = sa_mask(sa->capacity_sparse, hash);
+        void* val = NULL;
+
+        const u32 hash   = hash_u32 (key, sa->size.key);
+        void*     lookup = NULL;
+
+        for (
+            u32 dense_index = 0;
+                dense_index < sa->capacity_dense;
+              ++dense_index) {
+
+            const u32 curr_hash         = sa->array.dense_hash  [dense_index];
+            const u32 curr_sparse_index = sa->array.dense_index [dense_index];  
+            const u32 val_offset        = sa->size.element * curr_sparse_index; 
+
+            if (curr_hash == hash) {
+                assert(curr_sparse_index != INVALID_INDEX);
+                lookup = (void*)(((addr)sa->array.sparse_val) + val_offset);
+                break;
+            }
+        }
+        
+        return(lookup);
     }
 
     IFB_API void
@@ -145,7 +178,50 @@ namespace ifb {
         const void*         val,
         const u32           count) {
 
+        const bool is_valid = (
+            sparse_array_is_valid(sa) &&
+            key   != NULL             &&
+            val   != NULL             &&
+            count != 0
+        );
+        assert(is_valid);
+
+        for (
+            u32 insert_index = 0;
+                insert_index < count;
+              ++insert_index) {
+
+            const u32     key_offset   = (insert_index * sa->size.key);
+            const cchar8* key_current  = (key          + key_offset);
+            const void*   val_curr     = sparse_array_lookup(sa, key_current); 
+            const bool    is_collision = (val_curr != NULL); 
+            const u32     hash         = hash_u32(key_current, sa->size.key);
+            u32           sparse_index = sa_mask(sa->capacity_sparse, hash);
+
+            assert(
+                !is_collision &&
+                sparse_index < sa->capacity_sparse
+            ); 
+
+            for (
+                u32 sparse_probe = 0;
+                    sparse_probe < sa->capacity_dense;
+                  ++sparse_probe) {
+
+                const bool is_empty = sa->
+            }             
+        }
+
+        // make sure there's nothing there
         
+        
+        
+        const void* val_curr = sparse_array_lookup(sa, key);
+        const bool  is_empty = (val_curr == NULL);
+        assert(is_empty);
+
+
+
     }
 
     IFB_API void
