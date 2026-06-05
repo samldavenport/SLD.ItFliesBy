@@ -102,6 +102,8 @@ namespace ifb {
         memset((void*)sa->data.dense.sparse_index, 0xFF, dense_size);
         memset((void*)sa->data.dense.hash,         0xFF, dense_size);
         memset((void*)sa->data.sparse.dense_index, 0xFF, sparse_index_size);
+    
+        return(sa);
     }
 
     IFB_API bool
@@ -143,7 +145,7 @@ namespace ifb {
             key != NULL
         );
 
-        const u32 hash               = hash_u32(key, sa->size_key);
+        const u32 hash               = hash_u32((void*)key, sa->size_key);
         const u32 sparse_index_start = sa_mask(sa->capacity_sparse, hash);
          
         assert(
@@ -161,8 +163,8 @@ namespace ifb {
 
             // calculate indexes and offset
             const u32 index_sparse = (sparse_index_start + probe) % sa->capacity_sparse;
-            const u32 index_dense  = sa->data.sparse.dense_index[sparse_index]; 
-            const u32 val_offset   = (sa->size_val * index_sparse)
+            const u32 index_dense  = sa->data.sparse.dense_index[index_sparse]; 
+            const u32 val_offset   = (sa->size_val * index_sparse);
 
             // the first invalid index we hit means it doesn't exist
             if (index_dense == INVALID_INDEX) {
@@ -196,7 +198,7 @@ namespace ifb {
         );
         assert(is_valid);
 
-        const u32 hash               = hash_u32(key, sa->size_key);
+        const u32 hash               = hash_u32((void*)key, sa->size_key);
         const u32 sparse_index_start = sa_mask(sa->capacity_sparse, hash);
         const u32 dense_index_new    = sa->count;
 
@@ -224,7 +226,7 @@ namespace ifb {
             // if we already have a value here,
             // make sure its not a collision and continue
             if (index_dense_curr != INVALID_INDEX) {
-                const bool is_collision = (hash == sa->data.dense[index_dense_curr]);
+                const bool is_collision = (hash == sa->data.dense.hash[index_dense_curr]);
                 assert(!is_collision);
                 continue;
             }
@@ -234,7 +236,7 @@ namespace ifb {
 
             // copy the value
             const u32 val_offset = (index_sparse * sa->size_val);
-            void*     val_dst    = (void*)((addr)sa->data.dense + val_offset); 
+            void*     val_dst    = (void*)((addr)sa->data.sparse.val + val_offset); 
             memmove(val_dst, val, sa->size_val);
 
             // set the indexes and hash and break
@@ -249,7 +251,7 @@ namespace ifb {
 
     IFB_API bool
     sparse_array_remove(
-        const sparse_array* sa,
+        sparse_array* sa,
         const cchar8*       key) {
 
         const bool is_valid = (
@@ -262,7 +264,7 @@ namespace ifb {
             return(false);
         }
 
-        const u32 hash               = hash_u32(key, sa->size_key);
+        const u32 hash               = hash_u32((void*)key, sa->size_key);
         const u32 sparse_index_start = sa_mask(sa->capacity_sparse, hash);
         const u32 dense_index_last   = (sa->count - 1); 
 
@@ -315,8 +317,8 @@ namespace ifb {
             const u32 index_sparse_last = sa->data.dense.sparse_index[dense_index_last];
             
             // move the last sparse value to the current one
-            void* val_dst = (addr)sa->data.sparse.val + (sa->size_val * index_sparse); 
-            void* val_src = (addr)sa->data.sparse.val + (sa->size_val * index_sparse); 
+            void* val_dst = (void*)((addr)sa->data.sparse.val + (sa->size_val * index_sparse_last)); 
+            void* val_src = (void*)((addr)sa->data.sparse.val + (sa->size_val * index_sparse)); 
             memmove(val_dst, val_src, sa->size_val);
 
             // update the dense index of the last sparse value

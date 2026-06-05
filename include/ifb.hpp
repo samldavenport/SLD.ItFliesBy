@@ -35,8 +35,8 @@ namespace ifb {
     IFB_API bool          sparse_array_is_valid           (const sparse_array* sa);
     IFB_API void          sparse_array_assert_valid       (const sparse_array* sa);
     IFB_API void*         sparse_array_lookup             (const sparse_array* sa, const cchar8* key);
-    IFB_API bool          sparse_array_insert             (const sparse_array* sa, const cchar8* key, const void* val);
-    IFB_API void          sparse_array_remove             (const sparse_array* sa, const cchar8* key);
+    IFB_API bool          sparse_array_insert             (sparse_array* sa, const cchar8* key, const void* val);
+    IFB_API bool          sparse_array_remove             (sparse_array* sa, const cchar8* key);
 
 };
 
