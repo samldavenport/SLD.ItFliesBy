@@ -53,6 +53,7 @@ namespace ifb {
     quad_buffer*      renderer_quad_buffer_create         (renderer_context* ctx);
     void              renderer_quad_buffer_destroy        (renderer_context* ctx, quad_buffer* qb);
     u32               renderer_quad_push                  (renderer_context* ctx, const quad* q_ptr, const u32 q_count = 1);
+    u32               renderer_quad_draw_all              (renderer_context* ctx);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

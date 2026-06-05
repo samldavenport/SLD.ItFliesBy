@@ -5,8 +5,6 @@
 
 namespace ifb {
 
-
-
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
@@ -81,8 +79,24 @@ namespace ifb {
         while(true) {
 
             //TODO(SAM): pass the opengl context to the platform
-            pfm_window_frame_start    ();
-            pfm_window_process_events ();
+            
+            // start new frame
+            pfm_window_frame_start   ();
+            pfm_window_process_events();
+            
+            quad q;
+            q.color  = color_rgba_u32(0xFF0000FF);
+            q.height = 0.5f;
+            q.width  = 0.5f;
+            q.scale  = 1.0f;
+            q.pos.x  = 0.0f;
+            q.pos.y  = 0.0f;
+            q.pos.z  = 0.0f;
+
+            renderer_quad_push     (_eng_context->renderer, &q);
+            renderer_quad_draw_all (_eng_context->renderer);
+
+            // render frame
             pfm_window_frame_render   ();
         }
     }

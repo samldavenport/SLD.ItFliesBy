@@ -112,7 +112,7 @@ namespace ifb {
         u32 num_pushed = 0;
 
         for (
-            u32 index = ctx->quad_shader.quad_count;
+            u32& index = ctx->quad_shader.quad_count;
             (
                 index < q_count && 
                 index < ctx->quad_shader.quad_capacity
@@ -163,5 +163,26 @@ namespace ifb {
         }
 
         return(num_pushed);
+    }
+
+    IFB_INTERNAL u32
+    renderer_quad_draw_all(
+        renderer_context* ctx) {
+
+        assert(ctx);
+
+        auto& shdr = ctx->quad_shader;
+
+        const u32 element_count = (shdr.quad_count * 6);
+
+        gl_context_set_shader_program (ctx->gl, shdr.gl.program);
+        gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
+        gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_element);
+        gl_context_set_buffer_element (ctx->gl, shdr.gl.buf_element);
+        gl_context_draw_elements      (ctx->gl, element_count);
+
+        shdr.quad_count = 0;
+
+        return(element_count);
     }
 };
