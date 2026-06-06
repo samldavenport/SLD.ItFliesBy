@@ -45,7 +45,7 @@ namespace ifb {
     IFB_INTERNAL void            entity_get                         (const entity_manager* em, const u32        index, entity* out);
     IFB_INTERNAL entity_id       entity_create                      (entity_manager*       em, const cchar8*    tag_cstr);
     IFB_INTERNAL bool            entity_destroy_by_tag              (entity_manager*       em, const cchar8*    tag_cstr);
-    IFB_INTERNAL bool            entity_destroy_by_id               (entity_manager*       em, const entity_id* id);
+    IFB_INTERNAL bool            entity_destroy_by_id               (entity_manager*       em, const entity_id& id);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

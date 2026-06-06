@@ -105,18 +105,21 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_destroy_by_tag(
-        entity_manager*     em,
-        const entity_tag* tag) {
+        entity_manager* em,
+        const cchar8*   tag_cstr) {
 
         entity_manager_assert_valid(em);
-        assert(tag != NULL);
+        assert(tag_cstr != NULL);
 
         if (em->count == 0) {
             return(false);
         }
 
-        const u32 hash = entity_tag_hash(tag);
+        entity_tag tag;
+        entity_tag_init(&tag, tag_cstr);
         
+        const u32 hash = entity_tag_hash(&tag); 
+
         bool did_remove = false;
 
         for (
@@ -162,7 +165,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_destroy_by_id(
-        entity_manager*     em,
+        entity_manager*   em,
         const entity_id&  id) {
 
         entity_manager_assert_valid(em);
