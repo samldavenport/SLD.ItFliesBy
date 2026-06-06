@@ -25,13 +25,16 @@ wWinMain(
     mem_map.files.ptr      = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.files.size     = SIZE_RESERVATION; 
     mem_map.rendering.ptr  = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.entities.size  = SIZE_RESERVATION; 
+    mem_map.entities.ptr   = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.rendering.size = SIZE_RESERVATION; 
 
     assert(
         mem_map.stack.ptr     != NULL &&        
         mem_map.core.ptr      != NULL &&        
         mem_map.files.ptr     != NULL &&        
-        mem_map.rendering.ptr != NULL
+        mem_map.rendering.ptr != NULL &&
+        mem_map.entities.ptr  != NULL
     );
 
     eng_context* ctx = eng_context_create(&mem_map);

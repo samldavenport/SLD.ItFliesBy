@@ -4,6 +4,7 @@
 #include "ifb.hpp"
 #include "files.hpp"
 #include "renderer.hpp"
+#include "entities.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -12,14 +13,19 @@ namespace ifb {
 
     struct eng_context;
     struct eng_stack;
+    struct eng_managers;
 
+    struct eng_managers {
+        file_manager*   file;
+        entity_manager* entity;
+    };
 
     struct eng_context {
         const eng_mem_map* mem_map;
         eng_stack*         stack;
         eng_system_info*   system;
-        file_manager*      file_mngr;
         renderer_context*  renderer;
+        eng_managers*      mngrs;
     } static * _eng_context;
 
     struct eng_stack {
@@ -33,6 +39,7 @@ namespace ifb {
     eng_system_info*  eng_stack_push_system_info           (eng_stack* eng_stack);
     file_manager*     eng_stack_push_and_init_file_manager (eng_stack* eng_stack, const u32 file_count_max);
     renderer_context* eng_stack_push_and_init_renderer     (eng_stack* eng_stack);
+    eng_managers*     eng_stack_push_and_init_managers     (eng_stack* eng_stack);
 };
 
 #endif //IFB_ENG_INTERNAL_HPP

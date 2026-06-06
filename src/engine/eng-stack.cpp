@@ -69,6 +69,8 @@ namespace ifb {
 
         assert(stack != NULL && file_count_max != 0);
         
+
+
         const u32 mem_req = file_manager_memory_requirement(file_count_max);
         void*     mem_ptr = (void*)eng_stack_push_data(stack, mem_req);
         assert(mem_ptr);
@@ -88,8 +90,6 @@ namespace ifb {
 
         assert(stack != NULL);
 
-        const auto& cfg = config_instance();
-
         memory stack_mem;
         stack_mem.size  = renderer_context_memory_requirement ();
         stack_mem.bytes = eng_stack_push_data                 (stack, stack_mem.size);
@@ -98,4 +98,37 @@ namespace ifb {
         assert(rndr);
         return(rndr);
     }
+
+    IFB_ENG_INTERNAL eng_managers*
+    eng_stack_push_and_init_managers(
+        eng_stack* eng_stack) {
+
+
+        assert(eng_stack != NULL);
+
+        const auto& config = config_instance();
+
+        auto mngrs = (eng_managers*)eng_stack_push_data(eng_stack, sizeof(eng_managers));
+        assert(mngrs);
+
+        memory stack_mem;
+
+        // file manager
+        stack_mem.size = file_manager_memory_requirement (config.file_count);
+        stack_mem.ptr  = eng_stack_push_data             (eng_stack, stack_mem.size); 
+        mngrs->file    = file_manager_init               (config.file_count, stack_mem.size, stack_mem.ptr);
+
+        // entity manager
+        stack_mem.size = entity_manager_memory_requirement ();
+        stack_mem.ptr  = eng_stack_push_data               (eng_stack, stack_mem.size);
+        mngrs->entity  = entity_manager_memory_init        (stack_mem); 
+
+        assert(
+            mngrs->file   != NULL &&            
+            mngrs->entity != NULL
+        );
+
+        return(mngrs);
+    }
+
 };

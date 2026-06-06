@@ -100,7 +100,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_PLATFORM_API void* pfm_memory_commit             (const void* res, const u32 offset, const u32 size);
-    IFB_PLATFORM_API void  pfm_memory_decommit           (const void* cmt);
+    IFB_PLATFORM_API void  pfm_memory_decommit           (const void* cmt, const u32 size);
 
     //--------------------------------------------------------------------
     // FILES
