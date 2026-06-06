@@ -9,6 +9,7 @@
 #include "ifb-platform.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
+#include "ifb-entity.hpp"
 
 #define IFB_INTERNAL static
 
