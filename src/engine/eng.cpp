@@ -4,6 +4,7 @@
 #define IFB_API_DLL_EXPORT
 
 #include "eng-context.cpp"
+#include "eng-entity.cpp"
 #include "eng-input.cpp"
 #include "eng-window.cpp"
 #include "eng-stack.cpp"
