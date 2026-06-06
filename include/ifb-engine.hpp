@@ -22,6 +22,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     using eng_file_handle = u32;
+    using eng_entity_id   = u32;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -84,6 +85,15 @@ namespace ifb {
     IFB_ENGINE_API void            eng_file_set_cursor                   (const eng_file_handle hnd, const u32 cursor);
     IFB_ENGINE_API u32             eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
     IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
+
+    //--------------------------------------------------------------------
+    // ENTITIES
+    //--------------------------------------------------------------------
+
+    eng_entity_id eng_entity_create         (const cchar8*       tag);
+    bool          eng_entity_destroy_by_id  (const eng_entity_id id);
+    bool          eng_entity_destroy_by_tag (const cchar8*       tag);
+    const cchar8* eng_entity_get_tag        (const eng_entity_id id);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
