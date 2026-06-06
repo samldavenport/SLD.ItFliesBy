@@ -9,7 +9,7 @@
 #include "eng-stack.cpp"
 
 #include "entity-id.cpp"
-#include "entity-table.cpp"
+#include "entity-manager.cpp"
 #include "entity-tag.cpp"
 
 #include "file-manager.cpp"

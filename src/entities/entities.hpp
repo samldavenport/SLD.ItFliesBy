@@ -11,7 +11,7 @@ namespace ifb {
     struct entity;
     struct entity_id;
     struct entity_tag;
-    struct entity_table;
+    struct entity_manager;
     
     // entity id
     entity_id     entity_id_init                   (const entity_tag* tag);
@@ -21,16 +21,15 @@ namespace ifb {
     u32           entity_tag_hash                  (const entity_tag* tag);
 
     // entity table
-    u32           entity_table_memory_requirement  (const u32 capacity);
-    entity_table* entity_table_memory_init         (const u32 capacity, const u32 mem_size, void* mem_ptr);
-    void          entity_table_assert_valid        (const entity_table* et);
-    u32           entity_table_lookup_index_by_tag (const entity_table* et, const cchar8*    tag_cstr);
-    u32           entity_table_lookup_index_by_id  (const entity_table* et, const entity_id  id);
-    void          entity_table_get                 (const entity_table* et, const u32        index, entity* out);
-    entity_id     entity_table_insert              (entity_table*       et, const cchar8*    tag_cstr);
-    bool          entity_table_remove_by_tag       (entity_table*       et, const cchar8*    tag_cstr);
-    bool          entity_table_remove_by_id        (entity_table*       et, const entity_id* id);
-
+    u32             entity_manager_memory_requirement  (const u32 capacity);
+    entity_manager* entity_manager_memory_init         (const u32 capacity, const u32 mem_size, void* mem_ptr);
+    void            entity_manager_assert_valid        (const entity_manager* em);
+    u32             entity_manager_lookup_index_by_tag (const entity_manager* em, const cchar8*    tag_cstr);
+    u32             entity_manager_lookup_index_by_id  (const entity_manager* em, const entity_id  id);
+    void            entity_manager_get                 (const entity_manager* em, const u32        index, entity* out);
+    entity_id       entity_manager_insert              (entity_manager*       em, const cchar8*    tag_cstr);
+    bool            entity_manager_remove_by_tag       (entity_manager*       em, const cchar8*    tag_cstr);
+    bool            entity_manager_remove_by_id        (entity_manager*       em, const entity_id* id);
 
     struct entity_id {
         u32 hash;
@@ -121,7 +120,7 @@ namespace ifb {
         const entity_tag* tag;
     };
 
-    struct entity_table {
+    struct entity_manager {
         struct {
             entity_id*  id;
             entity_tag* tag;

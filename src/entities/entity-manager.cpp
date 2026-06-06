@@ -5,10 +5,10 @@
 namespace ifb {
     
     static u32
-    entity_table_memory_requirement(
+    entity_manager_memory_requirement(
         const u32 capacity) {
 
-        const u32 size_struct    = sizeof(entity_table);
+        const u32 size_struct    = sizeof(entity_manager);
         const u32 size_array_id  = (capacity * sizeof(entity_id));
         const u32 size_array_tag = (capacity * sizeof(entity_tag));
         const u32 size_total     = (size_struct + size_array_id + size_array_tag);
@@ -16,8 +16,8 @@ namespace ifb {
         return(size_total);
     }
 
-    static entity_table*
-    entity_table_memory_init(
+    static entity_manager*
+    entity_manager_memory_init(
         const u32 capacity,
         const u32 mem_size,
         void*     mem_ptr) {
@@ -28,53 +28,53 @@ namespace ifb {
             mem_ptr  != NULL
         );
 
-        const u32 size_struct     = sizeof(entity_table);
+        const u32 size_struct     = sizeof(entity_manager);
         const u32 size_array_id   = (capacity * sizeof(entity_id));
         const u32 size_array_tag  = (capacity * sizeof(entity_tag));
         const u32 size_total      = (size_struct + size_array_id + size_array_tag);
 
         assert(mem_size == size_total);
 
-        auto et = (entity_table*)mem_ptr;
-        et->data.id  =  (entity_id*)((addr)et          + size_struct);
-        et->data.tag = (entity_tag*)((addr)et->data.id + size_array_id);
-        et->capacity = capacity;
-        et->count    = 0;
+        auto em = (entity_manager*)mem_ptr;
+        em->data.id  =  (entity_id*)((addr)em          + size_struct);
+        em->data.tag = (entity_tag*)((addr)em->data.id + size_array_id);
+        em->capacity = capacity;
+        em->count    = 0;
         
-        memset((void*)et->data.id, 0xFF, size_array_id);        
+        memset((void*)em->data.id, 0xFF, size_array_id);        
         
-        return(et);
+        return(em);
     }
 
     static void
-    entity_table_assert_valid(
-        const entity_table* et) {
+    entity_manager_assert_valid(
+        const entity_manager* em) {
 
         assert(
-            et &&
-            et->data.id  != NULL &&
-            et->data.tag != NULL &&
-            et->capacity != 0    &&
-            et->count    <= et->capacity
+            em &&
+            em->data.id  != NULL &&
+            em->data.tag != NULL &&
+            em->capacity != 0    &&
+            em->count    <= em->capacity
         );
     }
 
     static u32
-    entity_table_lookup_index_by_tag(
-        const entity_table* et,
+    entity_manager_lookup_index_by_tag(
+        const entity_manager* em,
         const entity_tag*   tag) {
 
-        entity_table_assert_valid(et);
+        entity_manager_assert_valid(em);
         assert(tag != NULL);
 
         const u32 hash = entity_tag_hash(tag);
 
         for (
             u32 index = 0;
-                index < et->capacity;
+                index < em->capacity;
               ++index 
         ) {
-            if (et->data.id[index] == hash) {
+            if (em->data.id[index] == hash) {
                 return(index);
             }
         }
@@ -83,19 +83,19 @@ namespace ifb {
     }
 
     static u32
-    entity_table_lookup_index_by_id(
-        const entity_table* et,
+    entity_manager_lookup_index_by_id(
+        const entity_manager* em,
         const entity_id     id) {
 
-        entity_table_assert_valid(et);
+        entity_manager_assert_valid(em);
         assert(id != ENTITY_ID_INVALID);
 
         for (
             u32 index = 0;
-                index < et->capacity;
+                index < em->capacity;
               ++index 
         ) {
-            if (et->data.id[index] == id) {
+            if (em->data.id[index] == id) {
                 return(index);
             }
         }
@@ -104,40 +104,40 @@ namespace ifb {
     }
 
     static void
-    entity_table_get(
-        const entity_table* et,
+    entity_manager_gem(
+        const entity_manager* em,
         const u32           index,
         entity*             out) {
 
-        entity_table_assert_valid(et);
+        entity_manager_assert_valid(em);
         assert(
-            index <  et->count &&
+            index <  em->count &&
             out   != NULL
         );
 
-        out->id  =  et->data.id  [index];
-        out->tag = &et->data.tag [index];
+        out->id  =  em->data.id  [index];
+        out->tag = &em->data.tag [index];
     }
 
     static entity_id
-    entity_table_insert(
-        entity_table* et,
+    entity_manager_insert(
+        entity_manager* em,
         const cchar8* tag_cstr) {
 
-        entity_table_assert_valid(et);
+        entity_manager_assert_valid(em);
         assert(tag_cstr != NULL);
 
-        if (et->count == et->capacity) {
+        if (em->count == em->capacity) {
             entity_id id;
             id.hash = ENTITY_ID_INVALID;
             return(id);
         }
 
-        // get the index
-        const u32 index = et->count;
+        // gem the index
+        const u32 index = em->count;
 
         // initialize the tag
-        entity_tag* tag = &et->data.tag[index];
+        entity_tag* tag = &em->data.tag[index];
         entity_tag_init(tag, tag_cstr);
 
         // create the id
@@ -146,27 +146,27 @@ namespace ifb {
         // make sure this isn't a duplicate
         for (
             u32 entity = 0;
-                entity < et->count;
+                entity < em->count;
               ++entity
         ) {
-            assert(id != et->data.id[entity]);
+            assert(id != em->data.id[entity]);
         }
 
         // add the id and update the count
-        et->data.id[index] = id;
-        ++et->count;
+        em->data.id[index] = id;
+        ++em->count;
         return(id);
     }
 
     static bool
-    entity_table_remove_by_tag(
-        entity_table*     et,
+    entity_manager_remove_by_tag(
+        entity_manager*     em,
         const entity_tag* tag) {
 
-        entity_table_assert_valid(et);
+        entity_manager_assert_valid(em);
         assert(tag != NULL);
 
-        if (et->count == 0) {
+        if (em->count == 0) {
             return(false);
         }
 
@@ -176,39 +176,39 @@ namespace ifb {
 
         for (
             u32 entity = 0;
-                entity < et->count;
+                entity < em->count;
               ++entity
         ) {
 
-            if (hash != et->data.id[entity].hash) {
+            if (hash != em->data.id[entity].hash) {
                 continue;
             }
 
             did_remove = true;
 
-            // get the current entity data
-            entity_id&  curr_id  = et->data.id  [entity];
-            entity_tag& curr_tag = et->data.tag [entity];
+            // gem the current entity data
+            entity_id&  curr_id  = em->data.id  [entity];
+            entity_tag& curr_tag = em->data.tag [entity];
 
             // if this is the last entity,
             // clear the id and update the count
-            if (entity == et->count - 1) {
-                et->data.id[entity] = ENTITY_ID_INVALID;
-                --et->count;
+            if (entity == em->count - 1) {
+                em->data.id[entity] = ENTITY_ID_INVALID;
+                --em->count;
                 break;
             }
 
-            // get the last entity data
-            const u32   last_entity = (et->count - 1);
-            entity_id&  last_id     = et->data.id  [last_entity];
-            entity_tag& last_tag    = et->data.tag [last_entity];
+            // gem the last entity data
+            const u32   last_entity = (em->count - 1);
+            entity_id&  last_id     = em->data.id  [last_entity];
+            entity_tag& last_tag    = em->data.tag [last_entity];
 
             // swap the current and last entity data
             // and update the count
             curr_id  = last_id;
             curr_tag = last_tag;
             last_id  = ENTITY_ID_INVALID;
-            --et->count; 
+            --em->count; 
             break;
         }
 
@@ -216,11 +216,11 @@ namespace ifb {
     }
 
     static bool
-    entity_table_remove_by_id(
-        entity_table*     et,
+    entity_manager_remove_by_id(
+        entity_manager*     em,
         const entity_id&  id) {
 
-        entity_table_assert_valid(et);
+        entity_manager_assert_valid(em);
         assert(id != ENTITY_ID_INVALID);
 
         
@@ -228,39 +228,39 @@ namespace ifb {
 
         for (
             u32 entity = 0;
-                entity < et->count;
+                entity < em->count;
               ++entity
         ) {
 
-            if (id != et->data.id[entity]) {
+            if (id != em->data.id[entity]) {
                 continue;
             }
 
             did_remove = true;
 
-            // get the current entity data
-            entity_id&  curr_id  = et->data.id  [entity];
-            entity_tag& curr_tag = et->data.tag [entity];
+            // gem the current entity data
+            entity_id&  curr_id  = em->data.id  [entity];
+            entity_tag& curr_tag = em->data.tag [entity];
 
             // if this is the last entity,
             // clear the id and update the count
-            if (entity == et->count - 1) {
-                et->data.id[entity] = ENTITY_ID_INVALID;
-                --et->count;
+            if (entity == em->count - 1) {
+                em->data.id[entity] = ENTITY_ID_INVALID;
+                --em->count;
                 break;
             }
 
-            // get the last entity data
-            const u32   last_entity = (et->count - 1);
-            entity_id&  last_id     = et->data.id  [last_entity];
-            entity_tag& last_tag    = et->data.tag [last_entity];
+            // gem the last entity data
+            const u32   last_entity = (em->count - 1);
+            entity_id&  last_id     = em->data.id  [last_entity];
+            entity_tag& last_tag    = em->data.tag [last_entity];
 
             // swap the current and last entity data
             // and update the count
             curr_id  = last_id;
             curr_tag = last_tag;
             last_id  = ENTITY_ID_INVALID;
-            --et->count; 
+            --em->count; 
             break;
         }
 
