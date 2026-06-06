@@ -117,6 +117,7 @@ namespace ifb {
         eng_mem files;
         eng_mem core;
         eng_mem rendering;
+        eng_mem entities;
     };
 }
 #endif  //IFB_ENGINE_HPP

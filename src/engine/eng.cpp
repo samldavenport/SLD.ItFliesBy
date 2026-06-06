@@ -8,6 +8,7 @@
 #include "eng-window.cpp"
 #include "eng-stack.cpp"
 
+#include "entity.cpp"
 #include "entity-id.cpp"
 #include "entity-manager.cpp"
 #include "entity-tag.cpp"
