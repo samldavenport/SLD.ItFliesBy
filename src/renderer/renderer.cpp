@@ -3,6 +3,7 @@
 #include "renderer.hpp"
 #include "memory.cpp" 
 #include "quad.cpp" 
+#include "hello-triangle.cpp" 
 
 namespace ifb {
 

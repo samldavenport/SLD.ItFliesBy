@@ -33,6 +33,7 @@ namespace ifb {
     struct quad;
     struct quad_buffer;
     struct quad_shader;
+    struct hello_triangle_shader;
 
     //--------------------------------------------------------------------
     // METHODS
@@ -48,6 +49,10 @@ namespace ifb {
     void*             renderer_memory_commit              (renderer_context* ctx);
     void              renderer_memory_decommit            (renderer_context* ctx, void* mem);
     
+    // hello triangle
+    void              renderer_hello_triangle_shader_init (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    void              renderer_hello_triangle_draw        (renderer_context* ctx);
+
     // quads
     void              renderer_quad_shader_init           (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
     quad_buffer*      renderer_quad_buffer_create         (renderer_context* ctx);
@@ -133,10 +138,19 @@ namespace ifb {
         } gl;
     };
 
+    struct hello_triangle_shader {
+        struct {
+            gl_program program;
+            gl_vertex  vertex;
+            gl_buffer  buf_vertex;
+        } gl;
+    };
+
     struct renderer_context {
-        gl_context*     gl;
-        renderer_memory mem;
-        quad_shader     quad_shader;
+        gl_context*           gl;
+        renderer_memory       mem;
+        quad_shader           quad_shader;
+        hello_triangle_shader hello_triangle_shader;
     };
 
     struct shader_source {

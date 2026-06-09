@@ -82,36 +82,22 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_context_run(void) {
 
-        bool gl_ok = true;
+
+        shader_source triangle_shdr_src_vtx;
+        shader_source triangle_shdr_src_frg;
 
         const file_handle vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-vertex.glsl");
         const file_handle frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-fragment.glsl");
-        const u32         vtx_src_size = file_get_size         (_eng_context->file_mngr, vtx_file_hnd); 
-        const u32         frg_src_size = file_get_size         (_eng_context->file_mngr, frg_file_hnd);
-        const char*       vtx_src_data = file_read             (_eng_context->file_mngr, vtx_file_hnd, vtx_src_size);
-        const char*       frg_src_data = file_read             (_eng_context->file_mngr, frg_file_hnd, frg_src_size); 
+        triangle_shdr_src_vtx.size     = file_get_size         (_eng_context->file_mngr, vtx_file_hnd); 
+        triangle_shdr_src_frg.size     = file_get_size         (_eng_context->file_mngr, frg_file_hnd);
+        triangle_shdr_src_vtx.data     = file_read             (_eng_context->file_mngr, vtx_file_hnd, triangle_shdr_src_vtx.size);
+        triangle_shdr_src_frg.data     = file_read             (_eng_context->file_mngr, frg_file_hnd, triangle_shdr_src_frg.size); 
 
-        const u32 test_program  = gl_shader_program_create        (_eng_context->renderer->gl);
-        const u32 test_shdr_vtx = gl_shader_stage_create_vertex   (_eng_context->renderer->gl);
-        const u32 test_shdr_frg = gl_shader_stage_create_fragment (_eng_context->renderer->gl);
-        const u32 test_vao      = gl_vertex_create                (_eng_context->renderer->gl);
-        const u32 test_vbo      = gl_buffer_create                (_eng_context->renderer->gl); 
-
-        gl_ok &= gl_shader_stage_compile_from_source (_eng_context->renderer->gl, test_shdr_vtx, vtx_src_data, vtx_src_size);
-        gl_ok &= gl_shader_stage_compile_from_source (_eng_context->renderer->gl, test_shdr_frg, frg_src_data, frg_src_size);
-        gl_ok &= gl_shader_program_attach_stage      (_eng_context->renderer->gl, test_program,  test_shdr_vtx);
-        gl_ok &= gl_shader_program_attach_stage      (_eng_context->renderer->gl, test_program,  test_shdr_frg);
-        gl_ok &= gl_shader_program_link              (_eng_context->renderer->gl, test_program);
-        gl_shader_stage_destroy                      (_eng_context->renderer->gl, test_shdr_vtx);
-        gl_shader_stage_destroy                      (_eng_context->renderer->gl, test_shdr_frg);
-        assert(gl_ok);
-
-        gl_ok&= gl_context_set_vertex_object (_eng_context->renderer->gl, test_vao);
-        gl_ok&= gl_context_set_buffer_vertex (_eng_context->renderer->gl, test_vbo);
-        gl_ok&= gl_buffer_set_vertex_data    (_eng_context->renderer->gl, test_vbo, (const byte*)test_vertices, sizeof(test_vertices));
-        gl_ok&= gl_vertex_add_attribute_f32x3(_eng_context->renderer->gl, test_vao, (3 * sizeof(float)), 0, NULL);
-        assert(gl_ok);
-
+        renderer_hello_triangle_shader_init(
+            _eng_context->renderer,
+            triangle_shdr_src_vtx,
+            triangle_shdr_src_frg
+        );
 
         while(true) {
 
@@ -121,10 +107,7 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
             
-            gl_context_set_shader_program (_eng_context->renderer->gl, test_program);
-            gl_context_set_vertex_object  (_eng_context->renderer->gl, test_vao);
-            gl_context_draw_vertices      (_eng_context->renderer->gl, 3);
-
+            renderer_hello_triangle_draw(_eng_context->renderer);
             // quad q;
             // q.color  = color_rgba_u32(0xFF0000FF);
             // q.height = 0.5f;
