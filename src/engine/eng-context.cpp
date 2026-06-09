@@ -5,6 +5,12 @@
 
 namespace ifb {
 
+    static const f32 test_vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
+    };
+
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
@@ -70,11 +76,42 @@ namespace ifb {
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
         renderer_context_startup          (_eng_context->renderer, mem_rndr);
-        renderer_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
+        // renderer_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
     }
 
     IFB_ENGINE_API void
     eng_context_run(void) {
+
+        bool gl_ok = true;
+
+        const file_handle vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-vertex.glsl");
+        const file_handle frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-fragment.glsl");
+        const u32         vtx_src_size = file_get_size         (_eng_context->file_mngr, vtx_file_hnd); 
+        const u32         frg_src_size = file_get_size         (_eng_context->file_mngr, frg_file_hnd);
+        const char*       vtx_src_data = file_read             (_eng_context->file_mngr, vtx_file_hnd, vtx_src_size);
+        const char*       frg_src_data = file_read             (_eng_context->file_mngr, frg_file_hnd, frg_src_size); 
+
+        const u32 test_program  = gl_shader_program_create        (_eng_context->renderer->gl);
+        const u32 test_shdr_vtx = gl_shader_stage_create_vertex   (_eng_context->renderer->gl);
+        const u32 test_shdr_frg = gl_shader_stage_create_fragment (_eng_context->renderer->gl);
+        const u32 test_vao      = gl_vertex_create                (_eng_context->renderer->gl);
+        const u32 test_vbo      = gl_buffer_create                (_eng_context->renderer->gl); 
+
+        gl_ok &= gl_shader_stage_compile_from_source (_eng_context->renderer->gl, test_shdr_vtx, vtx_src_data, vtx_src_size);
+        gl_ok &= gl_shader_stage_compile_from_source (_eng_context->renderer->gl, test_shdr_frg, frg_src_data, frg_src_size);
+        gl_ok &= gl_shader_program_attach_stage      (_eng_context->renderer->gl, test_program,  test_shdr_vtx);
+        gl_ok &= gl_shader_program_attach_stage      (_eng_context->renderer->gl, test_program,  test_shdr_frg);
+        gl_ok &= gl_shader_program_link              (_eng_context->renderer->gl, test_program);
+        gl_shader_stage_destroy                      (_eng_context->renderer->gl, test_shdr_vtx);
+        gl_shader_stage_destroy                      (_eng_context->renderer->gl, test_shdr_frg);
+        assert(gl_ok);
+
+        gl_ok&= gl_context_set_vertex_object (_eng_context->renderer->gl, test_vao);
+        gl_ok&= gl_context_set_buffer_vertex (_eng_context->renderer->gl, test_vbo);
+        gl_ok&= gl_buffer_set_vertex_data    (_eng_context->renderer->gl, test_vbo, (const byte*)test_vertices, sizeof(test_vertices));
+        gl_ok&= gl_vertex_add_attribute_f32x3(_eng_context->renderer->gl, test_vao, (3 * sizeof(float)), 0, NULL);
+        assert(gl_ok);
+
 
         while(true) {
 
@@ -84,17 +121,21 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
             
-            quad q;
-            q.color  = color_rgba_u32(0xFF0000FF);
-            q.height = 0.5f;
-            q.width  = 0.5f;
-            q.scale  = 1.0f;
-            q.pos.x  = 0.0f;
-            q.pos.y  = 0.0f;
-            q.pos.z  = 0.0f;
+            gl_context_set_shader_program (_eng_context->renderer->gl, test_program);
+            gl_context_set_vertex_object  (_eng_context->renderer->gl, test_vao);
+            gl_context_draw_vertices      (_eng_context->renderer->gl, 3);
 
-            renderer_quad_push     (_eng_context->renderer, &q);
-            renderer_quad_draw_all (_eng_context->renderer);
+            // quad q;
+            // q.color  = color_rgba_u32(0xFF0000FF);
+            // q.height = 0.5f;
+            // q.width  = 0.5f;
+            // q.scale  = 1.0f;
+            // q.pos.x  = 0.0f;
+            // q.pos.y  = 0.0f;
+            // q.pos.z  = 0.0f;
+
+            // renderer_quad_push     (_eng_context->renderer, &q);
+            // renderer_quad_draw_all (_eng_context->renderer);
 
             // render frame
             pfm_window_frame_render   ();
