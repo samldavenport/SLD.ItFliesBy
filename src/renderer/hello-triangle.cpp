@@ -55,5 +55,4 @@ namespace ifb {
         gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
         gl_context_draw_vertices      (ctx->gl, 3);
     }
-
 };

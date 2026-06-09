@@ -63,41 +63,35 @@ namespace ifb {
             mem_map->files.ptr
         );        
 
-        // renderer
+        // shader source
         shader_source vtx_src;
         shader_source frg_src;
-        const file_handle vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl");
-        const file_handle frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "..\\..\\..\\assets\\shaders\\quad-shader-fragment.glsl");
-        vtx_src.size = file_get_size (_eng_context->file_mngr, vtx_file_hnd); 
-        vtx_src.data = file_read     (_eng_context->file_mngr, vtx_file_hnd, vtx_src.size);
-        frg_src.size = file_get_size (_eng_context->file_mngr, frg_file_hnd);
-        frg_src.data = file_read     (_eng_context->file_mngr, frg_file_hnd, frg_src.size); 
+        shader_source triangle_shdr_src_vtx;
+        shader_source triangle_shdr_src_frg;
+        const file_handle quad_vtx_file_hnd     = file_ro_open_existing (_eng_context->file_mngr, "quad-shader-vertex.glsl");
+        const file_handle quad_frg_file_hnd     = file_ro_open_existing (_eng_context->file_mngr, "quad-shader-fragment.glsl");
+        const file_handle triangle_vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-vertex.glsl");
+        const file_handle triangle_frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-fragment.glsl");
+        vtx_src.size                            = file_get_size         (_eng_context->file_mngr, quad_vtx_file_hnd); 
+        frg_src.size                            = file_get_size         (_eng_context->file_mngr, quad_frg_file_hnd);
+        vtx_src.data                            = file_read             (_eng_context->file_mngr, quad_vtx_file_hnd, vtx_src.size);
+        frg_src.data                            = file_read             (_eng_context->file_mngr, quad_frg_file_hnd, frg_src.size); 
+        triangle_shdr_src_vtx.size              = file_get_size         (_eng_context->file_mngr, triangle_vtx_file_hnd); 
+        triangle_shdr_src_frg.size              = file_get_size         (_eng_context->file_mngr, triangle_frg_file_hnd);
+        triangle_shdr_src_vtx.data              = file_read             (_eng_context->file_mngr, triangle_vtx_file_hnd, triangle_shdr_src_vtx.size);
+        triangle_shdr_src_frg.data              = file_read             (_eng_context->file_mngr, triangle_frg_file_hnd, triangle_shdr_src_frg.size); 
+
+        // renderer
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup          (_eng_context->renderer, mem_rndr);
-        // renderer_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
+        renderer_context_startup            (_eng_context->renderer, mem_rndr);
+        renderer_quad_shader_init           (_eng_context->renderer, vtx_src,               frg_src);
+        renderer_hello_triangle_shader_init (_eng_context->renderer, triangle_shdr_src_vtx, triangle_shdr_src_frg);
     }
 
     IFB_ENGINE_API void
     eng_context_run(void) {
-
-
-        shader_source triangle_shdr_src_vtx;
-        shader_source triangle_shdr_src_frg;
-
-        const file_handle vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-vertex.glsl");
-        const file_handle frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-fragment.glsl");
-        triangle_shdr_src_vtx.size     = file_get_size         (_eng_context->file_mngr, vtx_file_hnd); 
-        triangle_shdr_src_frg.size     = file_get_size         (_eng_context->file_mngr, frg_file_hnd);
-        triangle_shdr_src_vtx.data     = file_read             (_eng_context->file_mngr, vtx_file_hnd, triangle_shdr_src_vtx.size);
-        triangle_shdr_src_frg.data     = file_read             (_eng_context->file_mngr, frg_file_hnd, triangle_shdr_src_frg.size); 
-
-        renderer_hello_triangle_shader_init(
-            _eng_context->renderer,
-            triangle_shdr_src_vtx,
-            triangle_shdr_src_frg
-        );
 
         while(true) {
 
@@ -130,6 +124,4 @@ namespace ifb {
         void) {
 
     }
-
-
 };
