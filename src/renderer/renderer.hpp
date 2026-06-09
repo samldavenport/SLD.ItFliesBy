@@ -30,7 +30,6 @@ namespace ifb {
     struct renderer_context;
     struct renderer_memory;
     struct shader_source;
-    struct quad;
     struct quad_buffer;
     struct quad_shader;
 
@@ -67,11 +66,6 @@ namespace ifb {
         } block_stack;
     };
 
-    struct quad {
-        vec3           pos;
-        color_rgba_u32 color;
-        f32            scale;
-    };
 
 
     struct quad_buffer {

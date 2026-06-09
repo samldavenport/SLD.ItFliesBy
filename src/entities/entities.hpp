@@ -20,6 +20,7 @@ namespace ifb {
     struct entity_id;
     struct entity_tag;
     struct entity_manager;
+    struct entity_sparse_array;
 
     //--------------------------------------------------------------------
     // INTERNAL METHODS
@@ -51,17 +52,6 @@ namespace ifb {
     // DEFINITIONS
     //--------------------------------------------------------------------
 
-    struct entity_id {
-        u32 hash;
-
-        inline bool       operator== (const entity_id& other) const;
-        inline bool       operator!= (const entity_id& other) const;
-        inline bool       operator== (const u32& hash)        const;
-        inline bool       operator!= (const u32& hash)        const;
-        inline entity_id& operator=  (const u32& hash);
-        inline entity_id& operator=  (const entity_id& id);
-    };
-    
     struct entity_tag {
         cchar8 cstr[ENTITY_TAG_SIZE];
 
@@ -78,59 +68,34 @@ namespace ifb {
         struct {
             entity_id*  id;
             entity_tag* tag;
+            u32*        sparse_index;
         } data;
         memory  mem;
         u32     capacity;
         u32     count;
     };
 
-    //--------------------------------------------------------------------
-    // ENTITY ID INLINE OPERATORS
-    //--------------------------------------------------------------------
+    struct entity_sparse_array {
+        struct {
+            struct {
+                entity_id* id;
+                u32*       sparse_index;
+            } dense;
+            struct {
+                u32* dense_index;
+            } sparse;
+        } data;
+        u32 capacity_dense;
+        u32 capacity_sparse;
+        u32 count;
+        f32 max_load_p100;
+    };
 
-    inline bool
-    entity_id::operator==(
-        const entity_id& other) const {
-
-        return(this->hash == other.hash);
-    }
-
-    inline bool
-    entity_id::operator!=(
-        const entity_id& other) const {
-
-        return(this->hash != other.hash);
-    }
-
-    inline bool
-    entity_id::operator==(
-        const u32& hash) const {
-
-        return(this->hash == hash);
-    }
-
-    inline bool
-    entity_id::operator!=(
-        const u32& hash) const {
-
-        return(this->hash != hash);
-    }
-
-    inline entity_id&
-    entity_id::operator=(
-        const u32& hash) {
-
-        this->hash = hash;
-        return(*this);
-    }
-
-    inline entity_id&
-    entity_id::operator= (
-        const entity_id& id) {
-
-        this->hash = id.hash;
-        return(*this);
-    }
+    IFB_INTERNAL u32                  entity_sparse_array_memory_requirement (const u32 dense_capacity, const u32 max_load_p100);
+    IFB_INTERNAL entity_sparse_array* entity_sparse_array_memory_init        (const u32 dense_capacity, const u32 max_load_p100, const u32 mem_size, void* mem_ptr);
+    IFB_INTERNAL bool                 entity_sparse_array_insert             (entity_sparse_array* esa, const entity_id id);
+    IFB_INTERNAL bool                 entity_sparse_array_remove             (entity_sparse_array* esa, const entity_id id);
+    IFB_INTERNAL u32                  entity_sparse_array_lookup             (entity_sparse_array* esa, const entity_id id);
 
     //--------------------------------------------------------------------
     // ENTITY TAG INLINE OPERATORS

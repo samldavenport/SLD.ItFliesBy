@@ -4,6 +4,7 @@
 #include "sld.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-input.hpp"
+#include "ifb-id.hpp"
 
 #ifdef IFB_ENGINE_STATIC
 #   define IFB_ENGINE_API
@@ -16,13 +17,6 @@
 using namespace sld;
 
 namespace ifb {
-
-    //--------------------------------------------------------------------
-    // PRIMITIVE TYPES
-    //--------------------------------------------------------------------
-
-    using eng_file_handle = u32;
-    using eng_entity_id   = u32;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -68,32 +62,41 @@ namespace ifb {
     // FILES
     //--------------------------------------------------------------------
     
-    IFB_ENGINE_API eng_file_handle eng_file_ro_create_new                (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_open_existing             (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_open_always               (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_overwrite                 (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_create_new                (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_open_existing             (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_open_always               (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_overwrite                 (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_create_new                (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_open_existing             (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_open_always               (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_overwrite                 (const cchar8* path);
-    IFB_ENGINE_API void            eng_file_close                        (const eng_file_handle hnd);
-    IFB_ENGINE_API u32             eng_file_get_size                     (const eng_file_handle hnd);
-    IFB_ENGINE_API void            eng_file_set_cursor                   (const eng_file_handle hnd, const u32 cursor);
-    IFB_ENGINE_API u32             eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
-    IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
+    IFB_ENGINE_API file_id eng_file_ro_create_new                (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_ro_open_existing             (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_ro_open_always               (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_ro_overwrite                 (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_wo_create_new                (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_wo_open_existing             (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_wo_open_always               (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_wo_overwrite                 (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_rw_create_new                (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_rw_open_existing             (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_rw_open_always               (const cchar8* path);
+    IFB_ENGINE_API file_id eng_file_rw_overwrite                 (const cchar8* path);
+    IFB_ENGINE_API void    eng_file_close                        (const file_id id);
+    IFB_ENGINE_API u32     eng_file_get_size                     (const file_id id);
+    IFB_ENGINE_API void    eng_file_set_cursor                   (const file_id id, const u32 cursor);
+    IFB_ENGINE_API u32     eng_file_read                         (const file_id id, const u32 buffer_size, byte* buffer_ptr);
+    IFB_ENGINE_API u32     eng_file_write                        (const file_id id, const u32 buffer_size, byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // ENTITIES
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_entity_id eng_entity_create         (const cchar8*       tag);
-    IFB_ENGINE_API bool          eng_entity_destroy_by_id  (const eng_entity_id id);
+    IFB_ENGINE_API entity_id eng_entity_create         (const cchar8*       tag);
+    IFB_ENGINE_API bool          eng_entity_destroy_by_id  (const entity_id id);
     IFB_ENGINE_API bool          eng_entity_destroy_by_tag (const cchar8*       tag);
-    IFB_ENGINE_API const cchar8* eng_entity_get_tag        (const eng_entity_id id);
+    IFB_ENGINE_API const cchar8* eng_entity_get_tag        (const entity_id id);
+
+    //--------------------------------------------------------------------
+    // QUADS
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API bool eng_quad_create  (const eng_entity_id id, const quad* q);
+    IFB_ENGINE_API bool eng_quad_get     (const eng_entity_id id, quad* q);
+    IFB_ENGINE_API bool eng_quad_update  (const eng_entity_id id, quad* q);
+    IFB_ENGINE_API bool eng_quad_destroy (const eng_entity_id id);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

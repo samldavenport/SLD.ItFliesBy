@@ -37,7 +37,6 @@ namespace ifb {
     IFB_API void*         sparse_array_lookup             (const sparse_array* sa, const cchar8* key);
     IFB_API bool          sparse_array_insert             (sparse_array* sa, const cchar8* key, const void* val);
     IFB_API bool          sparse_array_remove             (sparse_array* sa, const cchar8* key);
-
 };
 
 #endif //IFB_HPP
