@@ -11,7 +11,7 @@ namespace ifb {
         const shader_source& src_fragment) {
 
         assert(
-            ctx              != NULL &&
+            ctx               != NULL &&
             src_vertex.data   != NULL &&
             src_vertex.size   != 0    &&
             src_fragment.data != NULL &&
@@ -74,7 +74,6 @@ namespace ifb {
         bool      attribs_are_valid   = true;
         attribs_are_valid &= gl_vertex_add_attribute_f32x3 (ctx->gl, vertex, vertex_size, 0, vertex_offset_pos);
         attribs_are_valid &= gl_vertex_add_attribute_f32x4 (ctx->gl, vertex, vertex_size, 1, vertex_offset_color);
-        attribs_are_valid &= gl_vertex_add_attribute_f32x1 (ctx->gl, vertex, vertex_size, 2, vertex_offset_scale);
         assert(attribs_are_valid);
 
         // update renderer

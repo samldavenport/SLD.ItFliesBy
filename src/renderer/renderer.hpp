@@ -49,10 +49,6 @@ namespace ifb {
     void*             renderer_memory_commit              (renderer_context* ctx);
     void              renderer_memory_decommit            (renderer_context* ctx, void* mem);
     
-    // hello triangle
-    void              renderer_hello_triangle_shader_init (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    void              renderer_hello_triangle_draw        (renderer_context* ctx);
-
     // hello quad
     void              renderer_hello_quad_shader_init     (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
     void              renderer_hello_quad_draw            (renderer_context* ctx);
@@ -142,20 +138,12 @@ namespace ifb {
         } gl;
     };
 
-    struct hello_triangle_shader {
-        struct {
-            gl_program program;
-            gl_vertex  vertex;
-            gl_buffer  buf_vertex;
-            gl_buffer  buf_index;
-        } gl;
-    };
-
     struct hello_quad_shader {
         struct {
             gl_program program;
             gl_vertex  vertex;
             gl_buffer  buf_vertex;
+            gl_buffer  buf_element;
         } gl;
     };
 
@@ -163,7 +151,6 @@ namespace ifb {
         gl_context*           gl;
         renderer_memory       mem;
         quad_shader           quad_shader;
-        hello_triangle_shader hello_triangle_shader;
         hello_quad_shader     hello_quad_shader;
     };
 
