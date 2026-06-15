@@ -9,14 +9,14 @@ namespace ifb {
         // first triangle
          0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top right
          0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom right
-        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left 
-        
-        // second triangle
-         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom right
         -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f  // top left
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left 
     };
 
+    static constexpr u32 HELLO_QUAD_INDICES[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
     IFB_INTERNAL void
     renderer_hello_quad_shader_init(
@@ -35,6 +35,7 @@ namespace ifb {
         shdr.gl.program          = gl_shader_program_create        (ctx->gl);
         shdr.gl.vertex           = gl_vertex_create                (ctx->gl);
         shdr.gl.buf_vertex       = gl_buffer_create                (ctx->gl); 
+        shdr.gl.buf_index        = gl_buffer_create                (ctx->gl);
         const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (ctx->gl);
         const gl_shader shdr_frg = gl_shader_stage_create_fragment (ctx->gl);
 
@@ -53,15 +54,19 @@ namespace ifb {
         // define vertex
         const u32   vertex_count           = 6;
         const byte* vertex_data_ptr        = (const byte*)HELLO_QUAD_VERTICES;
+        const byte* vertex_elmnt_ptr       = (const byte*)HELLO_QUAD_INDICES;
         const u32   vertex_data_size       = sizeof(HELLO_QUAD_VERTICES);
+        const u32   vertex_elmnt_size      = sizeof(HELLO_QUAD_INDICES);
         const u32   vertex_size            = 28; 
         const u32   vertex_offset_position = 0;
         const u32   vertex_offset_color    = vertex_offset_position + 12;
         gl_ok&= gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
         gl_ok&= gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_vertex);
-        gl_ok&= gl_buffer_set_vertex_data     (ctx->gl, shdr.gl.buf_vertex, vertex_data_ptr, vertex_data_size);
-        gl_ok&= gl_vertex_add_attribute_f32x3 (ctx->gl, shdr.gl.vertex, vertex_size, 0, vertex_offset_position);
-        gl_ok&= gl_vertex_add_attribute_f32x4 (ctx->gl, shdr.gl.vertex, vertex_size, 1, vertex_offset_color);
+        gl_ok&= gl_context_set_buffer_element (ctx->gl, shdr.gl.buf_index);
+        gl_ok&= gl_buffer_set_vertex_data     (ctx->gl, shdr.gl.buf_vertex, vertex_data_ptr,  vertex_data_size);
+        gl_ok&= gl_buffer_set_element_data    (ctx->gl, shdr.gl.buf_index,  vertex_elmnt_ptr, vertex_elmnt_size);
+        gl_ok&= gl_vertex_add_attribute_f32x3 (ctx->gl, shdr.gl.vertex,     vertex_size, 0,   vertex_offset_position);
+        gl_ok&= gl_vertex_add_attribute_f32x4 (ctx->gl, shdr.gl.vertex,     vertex_size, 1,   vertex_offset_color);
         assert(gl_ok);
     }
 
@@ -72,6 +77,6 @@ namespace ifb {
         auto& shdr = ctx->hello_triangle_shader;
         gl_context_set_shader_program (ctx->gl, shdr.gl.program);
         gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
-        gl_context_draw_vertices      (ctx->gl, 6);
+        gl_context_draw_elements      (ctx->gl, 6);
     }
 };

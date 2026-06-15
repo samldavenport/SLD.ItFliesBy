@@ -147,6 +147,7 @@ namespace ifb {
             gl_program program;
             gl_vertex  vertex;
             gl_buffer  buf_vertex;
+            gl_buffer  buf_index;
         } gl;
     };
 
