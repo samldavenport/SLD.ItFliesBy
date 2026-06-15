@@ -56,7 +56,7 @@ namespace ifb {
         const u32   vertex_data_size       = sizeof(HELLO_QUAD_VERTICES);
         const u32   vertex_size            = 28; 
         const u32   vertex_offset_position = 0;
-        const u32   vertex_offset_color    = vertex_offset_position + sizeof(vec3);
+        const u32   vertex_offset_color    = vertex_offset_position + 12;
         gl_ok&= gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
         gl_ok&= gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_vertex);
         gl_ok&= gl_buffer_set_vertex_data     (ctx->gl, shdr.gl.buf_vertex, vertex_data_ptr, vertex_data_size);
