@@ -5,12 +5,6 @@
 
 namespace ifb {
 
-    static const f32 test_vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    };
-
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
@@ -70,8 +64,8 @@ namespace ifb {
         shader_source triangle_shdr_src_frg;
         const file_handle quad_vtx_file_hnd     = file_ro_open_existing (_eng_context->file_mngr, "quad-shader-vertex.glsl");
         const file_handle quad_frg_file_hnd     = file_ro_open_existing (_eng_context->file_mngr, "quad-shader-fragment.glsl");
-        const file_handle triangle_vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-vertex.glsl");
-        const file_handle triangle_frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-triangle-shader-fragment.glsl");
+        const file_handle triangle_vtx_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-quad-shader-vertex.glsl");
+        const file_handle triangle_frg_file_hnd = file_ro_open_existing (_eng_context->file_mngr, "hello-quad-shader-fragment.glsl");
         vtx_src.size                            = file_get_size         (_eng_context->file_mngr, quad_vtx_file_hnd); 
         frg_src.size                            = file_get_size         (_eng_context->file_mngr, quad_frg_file_hnd);
         vtx_src.data                            = file_read             (_eng_context->file_mngr, quad_vtx_file_hnd, vtx_src.size);

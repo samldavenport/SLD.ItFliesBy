@@ -4,40 +4,17 @@
 
 namespace ifb {
 
-    struct quad_vertex_ {
-        union {
-            struct {
-                vec3 position;
-            };
-            byte data[sizeof(vec3)];
-        };
-    };
-
-    struct quad_vertex_buffer {
-        union {
-            struct {
-                quad_vertex_ vtx_0;
-                quad_vertex_ vtx_1;
-                quad_vertex_ vtx_2;
-                quad_vertex_ vtx_3;
-                quad_vertex_ vtx_4;
-                quad_vertex_ vtx_5;
-            };
-            byte data[sizeof(quad_vertex_) * 6];
-        };
-    };
-
     static constexpr f32 HELLO_QUAD_VERTICES[] = {
         
         // first triangle
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f,  0.5f, 0.0f,  // top left 
+         0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom right
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left 
         
         // second triangle
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom left
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f  // top left
     };
 
 
@@ -48,6 +25,9 @@ namespace ifb {
         const shader_source& src_fragment) {
 
         assert(ctx);
+
+        assert(sizeof(vec3)           == 12);
+        assert(sizeof(color_rgba_f32) == 16);
         
         auto& shdr = ctx->hello_triangle_shader;
         
@@ -71,14 +51,17 @@ namespace ifb {
         assert(gl_ok);
 
         // define vertex
-        const u32   vertex_count         = 6;
-        const byte* vertex_data_ptr      = (const byte*)HELLO_QUAD_VERTICES;
-        const u32   vertex_data_size     = sizeof(HELLO_QUAD_VERTICES);
-        const u32   vertex_attrib_offset = sizeof(quad_vertex_); 
+        const u32   vertex_count           = 6;
+        const byte* vertex_data_ptr        = (const byte*)HELLO_QUAD_VERTICES;
+        const u32   vertex_data_size       = sizeof(HELLO_QUAD_VERTICES);
+        const u32   vertex_size            = 28; 
+        const u32   vertex_offset_position = 0;
+        const u32   vertex_offset_color    = vertex_offset_position + sizeof(vec3);
         gl_ok&= gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
         gl_ok&= gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_vertex);
         gl_ok&= gl_buffer_set_vertex_data     (ctx->gl, shdr.gl.buf_vertex, vertex_data_ptr, vertex_data_size);
-        gl_ok&= gl_vertex_add_attribute_f32x3 (ctx->gl, shdr.gl.vertex, vertex_attrib_offset, 0, NULL);
+        gl_ok&= gl_vertex_add_attribute_f32x3 (ctx->gl, shdr.gl.vertex, vertex_size, 0, vertex_offset_position);
+        gl_ok&= gl_vertex_add_attribute_f32x4 (ctx->gl, shdr.gl.vertex, vertex_size, 1, vertex_offset_color);
         assert(gl_ok);
     }
 
