@@ -87,7 +87,8 @@ namespace ifb {
         mem_rndr.size = mem_map->rendering.size;
         renderer_context_startup            (_eng_context->renderer, mem_rndr);
         renderer_quad_shader_init           (_eng_context->renderer, vtx_src,               frg_src);
-        renderer_hello_triangle_shader_init (_eng_context->renderer, triangle_shdr_src_vtx, triangle_shdr_src_frg);
+        // renderer_hello_triangle_shader_init (_eng_context->renderer, triangle_shdr_src_vtx, triangle_shdr_src_frg);
+        renderer_hello_quad_shader_init(_eng_context->renderer, triangle_shdr_src_vtx, triangle_shdr_src_frg);
     }
 
     IFB_ENGINE_API void
@@ -101,7 +102,8 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
             
-            renderer_hello_triangle_draw(_eng_context->renderer);
+            renderer_hello_quad_draw(_eng_context->renderer);
+            // renderer_hello_triangle_draw(_eng_context->renderer);
             // quad q;
             // q.color  = color_rgba_u32(0xFF0000FF);
             // q.height = 0.5f;

@@ -53,6 +53,10 @@ namespace ifb {
     void              renderer_hello_triangle_shader_init (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
     void              renderer_hello_triangle_draw        (renderer_context* ctx);
 
+    // hello quad
+    void              renderer_hello_quad_shader_init     (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    void              renderer_hello_quad_draw            (renderer_context* ctx);
+
     // quads
     void              renderer_quad_shader_init           (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
     quad_buffer*      renderer_quad_buffer_create         (renderer_context* ctx);
@@ -146,11 +150,20 @@ namespace ifb {
         } gl;
     };
 
+    struct hello_quad_shader {
+        struct {
+            gl_program program;
+            gl_vertex  vertex;
+            gl_buffer  buf_vertex;
+        } gl;
+    };
+
     struct renderer_context {
         gl_context*           gl;
         renderer_memory       mem;
         quad_shader           quad_shader;
         hello_triangle_shader hello_triangle_shader;
+        hello_quad_shader     hello_quad_shader;
     };
 
     struct shader_source {
