@@ -4,6 +4,26 @@
 
 namespace ifb {
 
+    struct triangle_vertex {
+        union {
+            struct {
+                vec3 position;
+            };
+            byte data[sizeof(vec3)];
+        };
+    };
+
+    struct triangle_vertex_buffer {
+        union {
+            struct {
+                triangle_vertex vtx_0;
+                triangle_vertex vtx_1;
+                triangle_vertex vtx_2;
+            };
+            byte data[sizeof(triangle_vertex) * 3];
+        };
+    };
+
     static constexpr f32 HELLO_TRIANGLE_VERTICES[] = {
         -0.5f, -0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
