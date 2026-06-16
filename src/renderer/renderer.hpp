@@ -53,13 +53,6 @@ namespace ifb {
     void              renderer_hello_quad_shader_init     (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
     void              renderer_hello_quad_draw            (renderer_context* ctx);
 
-    // quads
-    void              renderer_quad_shader_init           (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    quad_buffer*      renderer_quad_buffer_create         (renderer_context* ctx);
-    void              renderer_quad_buffer_destroy        (renderer_context* ctx, quad_buffer* qb);
-    u32               renderer_quad_push                  (renderer_context* ctx, const quad* q_ptr, const u32 q_count = 1);
-    u32               renderer_quad_draw_all              (renderer_context* ctx);
-
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------

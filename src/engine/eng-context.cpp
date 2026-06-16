@@ -80,7 +80,6 @@ namespace ifb {
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
         renderer_context_startup        (_eng_context->renderer, mem_rndr);
-        renderer_quad_shader_init       (_eng_context->renderer, vtx_src,               frg_src);
         renderer_hello_quad_shader_init (_eng_context->renderer, triangle_shdr_src_vtx, triangle_shdr_src_frg);
     }
 
@@ -96,17 +95,6 @@ namespace ifb {
             pfm_window_process_events();
             
             renderer_hello_quad_draw(_eng_context->renderer);
-            // quad q;
-            // q.color  = color_rgba_u32(0xFF0000FF);
-            // q.height = 0.5f;
-            // q.width  = 0.5f;
-            // q.scale  = 1.0f;
-            // q.pos.x  = 0.0f;
-            // q.pos.y  = 0.0f;
-            // q.pos.z  = 0.0f;
-
-            // renderer_quad_push     (_eng_context->renderer, &q);
-            // renderer_quad_draw_all (_eng_context->renderer);
 
             // render frame
             pfm_window_frame_render   ();
