@@ -65,17 +65,11 @@ namespace ifb {
         entity_mem.ptr  = mem_map->entities.ptr;
         entity_manager_startup(mngrs->entity, entity_mem);
 
-        // entity manager
-        memory entity_mem;
-        entity_mem.size = mem_map->entities.size;
-        entity_mem.ptr  = mem_map->entities.ptr;
-        entity_manager_startup(mngrs->entity, entity_mem);
-
         // renderer
         shader_source vtx_src;
         shader_source frg_src;
-        const file_handle vtx_file_hnd = file_ro_open_existing (mngrs->file, "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl");
-        const file_handle frg_file_hnd = file_ro_open_existing (mngrs->file, "..\\..\\..\\assets\\shaders\\quad-shader-fragment.glsl");
+        const file_handle vtx_file_hnd = file_ro_open_existing (mngrs->file, "hello-quad-shader-vertex.glsl");
+        const file_handle frg_file_hnd = file_ro_open_existing (mngrs->file, "hello-quad-shader-fragment.glsl");
         vtx_src.size = file_get_size (mngrs->file, vtx_file_hnd); 
         vtx_src.data = file_read     (mngrs->file, vtx_file_hnd, vtx_src.size);
         frg_src.size = file_get_size (mngrs->file, frg_file_hnd);
@@ -85,7 +79,9 @@ namespace ifb {
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
         renderer_context_startup        (_eng_context->renderer, mem_rndr);
-        renderer_hello_quad_shader_init (_eng_context->renderer, triangle_shdr_src_vtx, triangle_shdr_src_frg);
+        renderer_hello_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
+    
+    
     }
 
     IFB_ENGINE_API void
