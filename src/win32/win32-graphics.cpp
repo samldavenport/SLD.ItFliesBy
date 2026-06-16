@@ -14,10 +14,13 @@ namespace ifb {
         RECT window_rect;
         GetWindowRect(window.handle, &window_rect);
 
+        const u32 viewport_width  = (window_rect.right  - window_rect.left);
+        const u32 viewport_height = (window_rect.bottom - window_rect.top);
+
         gl_context_init_win32             (ctx, window.handle);
         gl_context_enable_depth_buffering (ctx);
         gl_context_enable_smoothing       (ctx);
         gl_context_set_clear_color_rgba   (ctx, clear_color);
-        gl_context_update_viewport        (ctx, 0,0, window_rect.right, window_rect.bottom);
+        gl_context_update_viewport        (ctx, 0,0, viewport_width, viewport_height);
     }
 };

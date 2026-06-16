@@ -50,7 +50,9 @@ namespace ifb {
     pfm_window_frame_start(
         void) {
 
-        //TODO
+        win32_window& window = win32_window_instance();
+
+        gl_context_clear_viewport(&window.context);
     }
      
     IFB_WIN32_API_FUNC void
@@ -59,7 +61,6 @@ namespace ifb {
 
         win32_window& window = win32_window_instance();
 
-        gl_context_clear_viewport(&window.context);
         SwapBuffers(window.device_context);
     }
 

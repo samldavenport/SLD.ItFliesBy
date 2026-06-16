@@ -68,17 +68,18 @@ namespace ifb {
         // renderer
         shader_source vtx_src;
         shader_source frg_src;
-        const file_handle vtx_file_hnd = file_ro_open_existing (mngrs->file, "..\\..\\..\\assets\\shaders\\quad-shader-vertex.glsl");
-        const file_handle frg_file_hnd = file_ro_open_existing (mngrs->file, "..\\..\\..\\assets\\shaders\\quad-shader-fragment.glsl");
+        const file_handle vtx_file_hnd = file_ro_open_existing (mngrs->file, "hello-quad-shader-vertex.glsl");
+        const file_handle frg_file_hnd = file_ro_open_existing (mngrs->file, "hello-quad-shader-fragment.glsl");
         vtx_src.size = file_get_size (mngrs->file, vtx_file_hnd); 
         vtx_src.data = file_read     (mngrs->file, vtx_file_hnd, vtx_src.size);
         frg_src.size = file_get_size (mngrs->file, frg_file_hnd);
         frg_src.data = file_read     (mngrs->file, frg_file_hnd, frg_src.size); 
+
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup          (_eng_context->renderer, mem_rndr);
-        renderer_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
+        renderer_context_startup        (_eng_context->renderer, mem_rndr);
+        renderer_hello_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
     }
 
     IFB_ENGINE_API void
@@ -87,8 +88,14 @@ namespace ifb {
         while(true) {
 
             //TODO(SAM): pass the opengl context to the platform
-            pfm_window_frame_start    ();
-            pfm_window_process_events ();
+            
+            // start new frame
+            pfm_window_frame_start   ();
+            pfm_window_process_events();
+            
+            renderer_hello_quad_draw(_eng_context->renderer);
+
+            // render frame
             pfm_window_frame_render   ();
         }
     }
@@ -98,6 +105,4 @@ namespace ifb {
         void) {
 
     }
-
-
 };
