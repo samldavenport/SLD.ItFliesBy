@@ -1,11 +1,18 @@
 #pragma once
 
 #define IFB_ENGINE_DLL_EXPORT
+#define IFB_API_DLL_EXPORT
 
 #include "eng-context.cpp"
+#include "eng-entity.cpp"
 #include "eng-input.cpp"
 #include "eng-window.cpp"
 #include "eng-stack.cpp"
+
+#include "entity.cpp"
+#include "entity-id.cpp"
+#include "entity-manager.cpp"
+#include "entity-tag.cpp"
 
 #include "file-manager.cpp"
 #include "file-common.cpp"
@@ -21,3 +28,5 @@
 #include "win32-memory.cpp"
 #include "win32-monitor.cpp"
 #include "win32-window.cpp"
+
+#include "sparse-array.cpp"

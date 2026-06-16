@@ -13,7 +13,6 @@
 #   define IFB_ENGINE_API __declspec(dllimport)
 #endif
 
-
 using namespace sld;
 
 namespace ifb {
@@ -23,6 +22,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     using eng_file_handle = u32;
+    using eng_entity_id   = u32;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -87,6 +87,15 @@ namespace ifb {
     IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
 
     //--------------------------------------------------------------------
+    // ENTITIES
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API eng_entity_id eng_entity_create         (const cchar8*       tag);
+    IFB_ENGINE_API bool          eng_entity_destroy_by_id  (const eng_entity_id id);
+    IFB_ENGINE_API bool          eng_entity_destroy_by_tag (const cchar8*       tag);
+    IFB_ENGINE_API const cchar8* eng_entity_get_tag        (const eng_entity_id id);
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
@@ -108,6 +117,7 @@ namespace ifb {
         eng_mem files;
         eng_mem core;
         eng_mem rendering;
+        eng_mem entities;
     };
 }
 #endif  //IFB_ENGINE_HPP

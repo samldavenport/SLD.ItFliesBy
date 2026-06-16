@@ -58,7 +58,7 @@ namespace ifb {
             block < stack.capacity
         );
 
-        pfm_memory_decommit(mem);
+        pfm_memory_decommit(mem, ctx->mem.granularity);
 
         stack.ids[stack.position++] = block;
     }
