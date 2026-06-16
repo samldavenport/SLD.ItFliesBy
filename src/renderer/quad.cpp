@@ -131,7 +131,7 @@ namespace ifb {
                 // top right
                 vtx_0.pos_x   = x_right;
                 vtx_0.pos_y   = y_top;
-                vtx_0.pos_z   = 1.0f;
+                vtx_0.pos_z   = 0.0f;
                 vtx_0.color_r = color_normalized.r;
                 vtx_0.color_g = color_normalized.g;
                 vtx_0.color_b = color_normalized.b;
@@ -140,7 +140,7 @@ namespace ifb {
                 // bottom right
                 vtx_1.pos_x   = x_right;
                 vtx_1.pos_y   = y_bottom;
-                vtx_1.pos_z   = 1.0f;
+                vtx_1.pos_z   = 0.0f;
                 vtx_1.color_r = color_normalized.r;
                 vtx_1.color_g = color_normalized.g;
                 vtx_1.color_b = color_normalized.b;
@@ -149,7 +149,7 @@ namespace ifb {
                 // bottom left
                 vtx_2.pos_x   = x_left;
                 vtx_2.pos_y   = y_bottom;
-                vtx_2.pos_z   = 1.0f;
+                vtx_2.pos_z   = 0.0f;
                 vtx_2.color_r = color_normalized.r;
                 vtx_2.color_g = color_normalized.g;
                 vtx_2.color_b = color_normalized.b;
@@ -158,14 +158,14 @@ namespace ifb {
                 // top left
                 vtx_3.pos_x   = x_left;
                 vtx_3.pos_y   = y_top;
-                vtx_3.pos_z   = 1.0f;
+                vtx_3.pos_z   = 0.0f;
                 vtx_3.color_r = color_normalized.r;
                 vtx_3.color_g = color_normalized.g;
                 vtx_3.color_b = color_normalized.b;
                 vtx_3.color_a = color_normalized.a;
             }
         }
-        
+
         return(count_pushed);
     }
 
@@ -188,15 +188,19 @@ namespace ifb {
 
         // calculate total elements
         // should be 6 indexes per quad
+        static const u32 vertex_count_per_quad = 4; 
         static const u32 element_count_per_quad = sizeof(QUAD_ELEMENTS) / sizeof(u32);
         const u32        element_count_total    = (element_count_per_quad * shdr.vtx_buffer.count);  
+        
 
         // draw quads
         gl_context_set_shader_program (ctx->gl, shdr.gl.program);
         gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
-        gl_context_draw_elements      (ctx->gl, element_count_total);
+        gl_context_draw_elements      (ctx->gl, 6);
     
         // reset the counter
+        const u32 count_drawn = shdr.vtx_buffer.count;
         shdr.vtx_buffer.count = 0;
+        return(count_drawn);
     }
 };
