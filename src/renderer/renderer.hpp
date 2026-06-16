@@ -66,71 +66,6 @@ namespace ifb {
         } block_stack;
     };
 
-    struct quad {
-        vec3           pos;
-        f32            width;
-        f32            height;
-        color_rgba_u32 color;
-        f32            scale;
-    };
-
-
-    struct quad_buffer {
-        quad*     ptr;
-        u32       capacity;
-        u32       count;
-        gl_buffer gl_buf;
-        gl_vertex gl_vtx;
-    };
-
-
-    struct quad_vertex {
-        union {
-            struct {
-                vec3           position;
-                color_rgba_f32 color;
-                f32            scale;
-            };
-            byte data[32];
-        };
-    };
-
-    struct quad_elements {
-        union {
-            struct {
-                u32 a;
-                u32 b;
-                u32 c;
-            } triangle_1;
-            struct {
-                u32 a;
-                u32 b;
-                u32 c;
-            } triangle_2;
-            byte data[24];
-        };
-    };
-
-    struct quad_vertices {
-        quad_vertex top_right;
-        quad_vertex bottom_right;
-        quad_vertex bottom_left;
-        quad_vertex top_left;
-    };
-
-    struct quad_shader {
-        quad_vertices* quad_buffer_vertices;
-        quad_elements* quad_buffer_elements;
-        u32            quad_count;
-        u32            quad_capacity;
-        struct {
-            gl_program program;
-            gl_vertex  vertex;
-            gl_buffer  buf_vertex;
-            gl_buffer  buf_element;
-        } gl;
-    };
-
     struct hello_quad_shader {
         struct {
             gl_program program;
@@ -143,7 +78,6 @@ namespace ifb {
     struct renderer_context {
         gl_context*           gl;
         renderer_memory       mem;
-        quad_shader           quad_shader;
         hello_quad_shader     hello_quad_shader;
     };
 
