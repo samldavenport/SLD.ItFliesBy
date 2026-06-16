@@ -15,9 +15,6 @@ namespace ifb {
     struct renderer_context;
     struct renderer_memory;
     struct shader_source;
-    struct quad_buffer;
-    struct quad_data;
-    struct quad_shader;
 
     //--------------------------------------------------------------------
     // METHODS
@@ -65,51 +62,12 @@ namespace ifb {
         } gl;
     };
 
-    #pragma pack(push, 1)
-    struct quad_vertex {
-        union {
-            struct {
-                f32 pos_x;
-                f32 pos_y;
-                f32 pos_z;
-                f32 color_r;
-                f32 color_g;
-                f32 color_b;
-                f32 color_a;
-            };
-            byte data[sizeof(f32) * 7];
-        };
-    };
-    #pragma pack(pop)
 
-    struct quad_vertex_buffer {
-        u32          capacity;
-        u32          count;
-        quad_vertex* elements;
-    };
-
-    struct quad_element_buffer {
-        u32  capacity;
-        u32  count;
-        u32* elements;
-    };
-
-    struct quad_shader {
-        struct {
-            gl_program program;
-            gl_vertex  vertex;
-            gl_buffer  buf_vertex;
-            gl_buffer  buf_element;
-        } gl;
-        quad_vertex_buffer  vtx_buffer;
-        quad_element_buffer elmnt_buffer;
-    };
 
     struct renderer_context {
         gl_context*           gl;
         renderer_memory       mem;
         hello_quad_shader     hello_quad_shader;
-        quad_shader           quad_shader;
     };
 
     struct shader_source {

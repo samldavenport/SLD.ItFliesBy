@@ -4,23 +4,108 @@
 
 namespace ifb {
 
-    static constexpr f32 _HELLO_QUAD_VERTICES[] = {
-        
-        // first triangle
-         0.1f,  0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top right
-         0.1f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom right
-        -0.1f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        -0.1f,  0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left 
+    //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    static constexpr u32 QUAD_VERTEX_SIZE       = sizeof(f32) * 7;
+    static constexpr u32 QUAD_VERTEX_COUNT      = 4;
+    static constexpr u32 QUAD_DATA_SIZE         = QUAD_VERTEX_SIZE * 4; 
+    static constexpr u32 QUAD_ELEMENT_COUNT     = 6;
+    static constexpr u32 QUAD_ELEMENT_DATA_SIZE = sizeof(u32) * QUAD_ELEMENT_COUNT;
+    
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    struct quad_vertex {
+        union {
+            struct {
+                struct {
+                    f32 x;  // 0
+                    f32 y;  // 4
+                    f32 z;  // 8
+                } attrib_0_pos;
+                struct {
+                    f32 r; // 12
+                    f32 g; // 16
+                    f32 b; // 20
+                    f32 a; // 24
+                } attrib_1_color;
+            };
+            byte data[QUAD_VERTEX_SIZE];
+        };
     };
 
-    static constexpr u32 _HELLO_QUAD_ELEMENTS[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+    struct quad_vertices {
+        union {
+            struct {
+                quad_vertex top_right;
+                quad_vertex bottom_right;
+                quad_vertex bottom_left;
+                quad_vertex top_left;
+            };
+            quad_vertex array[QUAD_VERTEX_COUNT];
+            byte        data [QUAD_DATA_SIZE];
+        };
     };
 
+    struct quad_elements {
+        union {
+            struct {
+                struct {
+                    u32 elmnt_0_index_0;
+                    u32 elmnt_1_index_1;
+                    u32 elmnt_2_index_3;
+                } triangle_1;
+                struct {
+                    u32 elmnt_3_index_1;
+                    u32 elmnt_4_index_2;
+                    u32 elmnt_5_index_3;
+                } triangle_2;
+            };
+            u32  array [QUAD_ELEMENT_COUNT];
+            byte data  [QUAD_ELEMENT_DATA_SIZE];
+        };
+    };
 
-    static quad_vertex_buffer  _vtx_buffer;
-    static quad_element_buffer _elmnt_buffer;
+    struct quad_vertex_buffer {
+        u32            capacity;
+        u32            count;
+        quad_vertices* data;
+    };
+
+    struct quad_element_buffer {
+        u32            capacity;
+        u32            count;
+        quad_elements* data;
+    };
+
+    struct quad_shader {
+        struct {
+            gl_program program;
+            gl_vertex  vertex;
+            gl_buffer  buffer_vtx;
+            gl_buffer  buffer_elmnt;
+            gl_shader  shdr_vtx;
+            gl_shader  shdr_frg;
+        } gl;
+        quad_vertex_buffer  buffer_vtx;
+        quad_element_buffer buffer_elmnt;
+    };
+
+    //--------------------------------------------------------------------
+    // INLINE METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+
+    inline void quad_shader_validate                 (const quad_shader& shdr);    
+    inline void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
+    inline void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
+    inline void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
+
+    //--------------------------------------------------------------------
+    // INTERNAL METHOD DEFINITIONS
+    //--------------------------------------------------------------------
 
     IFB_INTERNAL void
     renderer_quad_shader_init(
@@ -28,52 +113,6 @@ namespace ifb {
         const shader_source& src_vertex,
         const shader_source& src_fragment) {
 
-        assert(ctx);
-        assert(sizeof(vec3)           == 12);
-        assert(sizeof(color_rgba_f32) == 16);
-        
-        auto& shdr = ctx->hello_quad_shader;
-        
-        // create gl objects
-        shdr.gl.program          = gl_shader_program_create        (ctx->gl);
-        shdr.gl.vertex           = gl_vertex_create                (ctx->gl);
-        shdr.gl.buf_vertex       = gl_buffer_create                (ctx->gl); 
-        shdr.gl.buf_element      = gl_buffer_create                (ctx->gl);
-        const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (ctx->gl);
-        const gl_shader shdr_frg = gl_shader_stage_create_fragment (ctx->gl);
-
-        bool gl_ok = true;
-
-        // compile shader
-        gl_ok &= gl_shader_stage_compile_from_source (ctx->gl, shdr_vtx, src_vertex.data, src_vertex.size);
-        gl_ok &= gl_shader_stage_compile_from_source (ctx->gl, shdr_frg, src_fragment.data, src_fragment.size);
-        gl_ok &= gl_shader_program_attach_stage      (ctx->gl, shdr.gl.program,  shdr_vtx);
-        gl_ok &= gl_shader_program_attach_stage      (ctx->gl, shdr.gl.program,  shdr_frg);
-        gl_ok &= gl_shader_program_link              (ctx->gl, shdr.gl.program);
-        gl_shader_stage_destroy                      (ctx->gl, shdr_vtx);
-        gl_shader_stage_destroy                      (ctx->gl, shdr_frg);
-        assert(gl_ok);
-
-        // define vertex
-        const u32   vertex_count           = 6;
-        const byte* vertex_data_ptr        = (const byte*)_HELLO_QUAD_VERTICES;
-        const byte* vertex_elmnt_ptr       = (const byte*)_HELLO_QUAD_ELEMENTS;
-        const u32   vertex_data_size       = sizeof(_HELLO_QUAD_VERTICES);
-        const u32   vertex_elmnt_size      = sizeof(_HELLO_QUAD_ELEMENTS);
-        const u32   vertex_size            = 28; 
-        const u32   vertex_offset_position = 0;
-        const u32   vertex_offset_color    = vertex_offset_position + 12;
-        
-        gl_ok &= gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
-        gl_ok &= gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_vertex);
-        gl_ok &= gl_context_set_buffer_element (ctx->gl, shdr.gl.buf_element);
-        gl_ok &= gl_buffer_set_vertex_data     (ctx->gl, shdr.gl.buf_vertex, (byte*)_vtx_buffer.elements,   ctx->mem.granularity);
-        gl_ok &= gl_buffer_set_element_data    (ctx->gl, shdr.gl.buf_element,(byte*)_elmnt_buffer.elements, ctx->mem.granularity);
-        gl_ok &= gl_vertex_add_attribute_f32x3 (ctx->gl, shdr.gl.vertex,     vertex_size, 0,   vertex_offset_position);
-        gl_ok &= gl_vertex_add_attribute_f32x4 (ctx->gl, shdr.gl.vertex,     vertex_size, 1,   vertex_offset_color);
-        assert(gl_ok);
-
-    
     }
 
     IFB_INTERNAL u32
@@ -82,22 +121,6 @@ namespace ifb {
         const quad*       q,
         const u32         count) {
 
-        for (
-            u32 i = 0;
-            i < 28;
-            ++i) {
-
-            _vtx_buffer.elements[0].data[i] = _HELLO_QUAD_VERTICES[i];
-        }
-
-        for (
-            u32 i =0;
-            i < 6;
-            ++i) {
-
-            _elmnt_buffer.elements[i] = _HELLO_QUAD_ELEMENTS[i];
-        }
-
         return(0);
     }
 
@@ -105,11 +128,81 @@ namespace ifb {
     renderer_quad_draw(
         renderer_context* ctx) {
 
-        auto& shdr = ctx->hello_quad_shader;
-        gl_context_set_shader_program (ctx->gl, shdr.gl.program);
-        gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
-        gl_context_draw_elements      (ctx->gl, 6);
-    
         return(0);
+    }
+
+    //--------------------------------------------------------------------
+    // INLINE METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
+    inline void
+    quad_shader_validate(
+        const quad_shader& shdr) {
+
+        assert(
+            shdr.gl.program      != GL_ID_INVALID &&
+            shdr.gl.vertex       != GL_ID_INVALID &&
+            shdr.gl.buffer_vtx   != GL_ID_INVALID &&
+            shdr.gl.buffer_elmnt != GL_ID_INVALID
+        );
+    } 
+
+    inline void
+    quad_shader_create_gl_objects(
+        quad_shader& shdr,
+        gl_context*  gl) {
+        
+        shdr.gl.program      = gl_shader_program_create        (gl);
+        shdr.gl.vertex       = gl_vertex_create                (gl);
+        shdr.gl.buffer_vtx   = gl_buffer_create                (gl);
+        shdr.gl.buffer_elmnt = gl_buffer_create                (gl);
+        shdr.gl.shdr_vtx     = gl_shader_stage_create_vertex   (gl);
+        shdr.gl.shdr_frg     = gl_shader_stage_create_fragment (gl);
+
+        assert(
+            shdr.gl.program      != GL_ID_INVALID &&
+            shdr.gl.vertex       != GL_ID_INVALID &&
+            shdr.gl.buffer_vtx   != GL_ID_INVALID &&
+            shdr.gl.buffer_elmnt != GL_ID_INVALID &&
+            shdr.gl.shdr_vtx     != GL_ID_INVALID &&
+            shdr.gl.shdr_frg     != GL_ID_INVALID
+        );
+    }
+
+    inline void
+    quad_shader_compile_and_link_program(
+        quad_shader&         shdr,
+        gl_context*          gl,
+        const shader_source& src_vertex,
+        const shader_source& src_fragment) {
+
+        bool gl_ok = true;
+
+        // compile and link program
+        gl_ok &= gl_shader_stage_compile_from_source (gl, shdr.gl.shdr_vtx, src_vertex.data,   src_vertex.size);
+        gl_ok &= gl_shader_stage_compile_from_source (gl, shdr.gl.shdr_frg, src_fragment.data, src_fragment.size);
+        gl_ok &= gl_shader_program_attach_stage      (gl, shdr.gl.program,  shdr.gl.shdr_vtx);
+        gl_ok &= gl_shader_program_attach_stage      (gl, shdr.gl.program,  shdr.gl.shdr_frg);
+        gl_ok &= gl_shader_program_link              (gl, shdr.gl.program);
+        assert(gl_ok);
+
+        // destroy the shader stages
+        gl_shader_stage_destroy (gl, shdr.gl.shdr_vtx);
+        gl_shader_stage_destroy (gl, shdr.gl.shdr_frg);
+        shdr.gl.shdr_vtx = GL_ID_INVALID;
+        shdr.gl.shdr_frg = GL_ID_INVALID;
+    }
+
+    inline void
+    quad_shader_define_vertex(
+        quad_shader& shdr,
+        gl_context*  gl) {
+
+        bool gl_ok = true;
+
+        // set context objects
+        gl_ok &= gl_context_set_vertex_object  (gl, shdr.gl.vertex);
+        gl_ok &= gl_context_set_buffer_vertex  (gl, shdr.gl.buffer_vtx);
+        gl_ok &= gl_context_set_buffer_element (gl, shdr.gl.buffer_elmnt);
     }
 };

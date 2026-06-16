@@ -33,7 +33,6 @@ namespace ifb {
 
     constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
     constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
-    constexpr u32 QUAD_DATA_SIZE  = sizeof(vec3) + sizeof(color_rgba_f32);
 
     IFB_API u32           sparse_array_memory_requirement (const u32 capacity, const u32 val_size, const f32 max_load_p100);
     IFB_API sparse_array* sparse_array_memory_init        (const u32 capacity, const u32 val_size, const f32 max_load_p100, const u32 key_size, const u32 mem_size, void* mem_ptr);
