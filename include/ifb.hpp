@@ -20,7 +20,6 @@
 #   define IFB_API __declspec(dllimport)
 #endif
 
-
 using namespace sld;
 
 namespace ifb {

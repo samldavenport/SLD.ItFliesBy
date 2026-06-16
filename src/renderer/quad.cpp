@@ -26,13 +26,23 @@ namespace ifb {
         auto& shdr = ctx->quad_shader;
         
         // commit memory
+        // NOTE(SAM): we can optimize this to use one block
+        void* buf_mem_vtx  = renderer_memory_commit(ctx);
+        void* buf_mem_elmt = renderer_memory_commit(ctx); 
+        assert(
+            buf_mem_vtx  != NULL &&
+            buf_mem_elmt != NULL
+        );
+
+        // initialize vertex buffer
         shdr.vtx_buffer.count    = 0;
         shdr.vtx_buffer.capacity = renderer_memory_element_count(ctx, sizeof(quad_vertex));
-        shdr.vtx_buffer.elements = (quad_vertex*)renderer_memory_commit(ctx);
-        assert(
-            shdr.vtx_buffer.capacity != NULL &&
-            shdr.vtx_buffer.elements != NULL
-        );
+        shdr.vtx_buffer.elements = (quad_vertex*)buf_mem_vtx;
+       
+        // initialize element buffer
+        shdr.elmnt_buffer.count    = 0;
+        shdr.elmnt_buffer.capacity = renderer_memory_element_count(ctx, sizeof(u32));
+        shdr.elmnt_buffer.elements = (u32*)buf_mem_elmt;
 
         // create gl objects
         shdr.gl.program          = gl_shader_program_create        (ctx->gl);
@@ -65,8 +75,8 @@ namespace ifb {
         // define vertex
         byte*     vertex_data_ptr   = (byte*)shdr.vtx_buffer.elements;
         const u32 vertex_data_size  = ctx->mem.granularity;
-        byte*     element_data_ptr  = (byte*)QUAD_ELEMENTS;
-        const u32 element_data_size = sizeof(QUAD_ELEMENTS);
+        byte*     element_data_ptr  = (byte*)shdr.elmnt_buffer.elements;
+        const u32 element_data_size = ctx->mem.granularity; 
         const u32 vertex_size       = sizeof(quad_vertex); 
         gl_ok &= gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex  (ctx->gl, shdr.gl.buf_vertex);
@@ -163,6 +173,16 @@ namespace ifb {
                 vtx_3.color_g = color_normalized.g;
                 vtx_3.color_b = color_normalized.b;
                 vtx_3.color_a = color_normalized.a;
+
+                // elements
+                const u32 elemnt_offset = (quad_index * 4); // 4 vertices per quad
+                const u32 elment_start  = (quad_index * 6); // 6 elements per quad
+                shdr.elmnt_buffer.elements[elment_start + 0] = (QUAD_ELEMENTS[0] + elemnt_offset);
+                shdr.elmnt_buffer.elements[elment_start + 1] = (QUAD_ELEMENTS[1] + elemnt_offset);
+                shdr.elmnt_buffer.elements[elment_start + 2] = (QUAD_ELEMENTS[2] + elemnt_offset);
+                shdr.elmnt_buffer.elements[elment_start + 3] = (QUAD_ELEMENTS[3] + elemnt_offset);
+                shdr.elmnt_buffer.elements[elment_start + 4] = (QUAD_ELEMENTS[4] + elemnt_offset);
+                shdr.elmnt_buffer.elements[elment_start + 5] = (QUAD_ELEMENTS[5] + elemnt_offset);
             }
         }
 
@@ -191,7 +211,6 @@ namespace ifb {
         static const u32 vertex_count_per_quad = 4; 
         static const u32 element_count_per_quad = sizeof(QUAD_ELEMENTS) / sizeof(u32);
         const u32        element_count_total    = (element_count_per_quad * shdr.vtx_buffer.count);  
-        
 
         // draw quads
         gl_context_set_shader_program (ctx->gl, shdr.gl.program);

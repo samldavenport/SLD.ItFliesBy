@@ -56,7 +56,6 @@ namespace ifb {
         } block_stack;
     };
 
-
     struct hello_quad_shader {
         struct {
             gl_program program;
@@ -89,6 +88,12 @@ namespace ifb {
         quad_vertex* elements;
     };
 
+    struct quad_element_buffer {
+        u32  capacity;
+        u32  count;
+        u32* elements;
+    };
+
     struct quad_shader {
         struct {
             gl_program program;
@@ -96,7 +101,8 @@ namespace ifb {
             gl_buffer  buf_vertex;
             gl_buffer  buf_element;
         } gl;
-        quad_vertex_buffer vtx_buffer;
+        quad_vertex_buffer  vtx_buffer;
+        quad_element_buffer elmnt_buffer;
     };
 
     struct renderer_context {
