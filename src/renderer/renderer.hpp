@@ -9,6 +9,16 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    static constexpr u32 QUAD_VERTEX_SIZE       = sizeof(f32) * 7;
+    static constexpr u32 QUAD_VERTEX_COUNT      = 4;
+    static constexpr u32 QUAD_DATA_SIZE         = QUAD_VERTEX_SIZE * 4; 
+    static constexpr u32 QUAD_ELEMENT_COUNT     = 6;
+    static constexpr u32 QUAD_ELEMENT_DATA_SIZE = sizeof(u32) * QUAD_ELEMENT_COUNT;
+
+    //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
@@ -62,12 +72,87 @@ namespace ifb {
         } gl;
     };
 
+    struct quad_vertex {
+        union {
+            struct {
+                struct {
+                    f32 x;  // 0
+                    f32 y;  // 4
+                    f32 z;  // 8
+                } attrib_0_pos;
+                struct {
+                    f32 r; // 12
+                    f32 g; // 16
+                    f32 b; // 20
+                    f32 a; // 24
+                } attrib_1_color;
+            };
+            byte data[QUAD_VERTEX_SIZE];
+        };
+    };
 
+    struct quad_vertices {
+        union {
+            struct {
+                quad_vertex top_right;
+                quad_vertex bottom_right;
+                quad_vertex bottom_left;
+                quad_vertex top_left;
+            };
+            quad_vertex array[QUAD_VERTEX_COUNT];
+            byte        data [QUAD_DATA_SIZE];
+        };
+    };
+
+    struct quad_elements {
+        union {
+            struct {
+                struct {
+                    u32 elmnt_0_index_0;
+                    u32 elmnt_1_index_1;
+                    u32 elmnt_2_index_3;
+                } triangle_1;
+                struct {
+                    u32 elmnt_3_index_1;
+                    u32 elmnt_4_index_2;
+                    u32 elmnt_5_index_3;
+                } triangle_2;
+            };
+            u32  array [QUAD_ELEMENT_COUNT];
+            byte data  [QUAD_ELEMENT_DATA_SIZE];
+        };
+    };
+
+    struct quad_vertex_buffer {
+        u32            capacity;
+        u32            count;
+        quad_vertices* data;
+    };
+
+    struct quad_element_buffer {
+        u32            capacity;
+        u32            count;
+        quad_elements* data;
+    };
+
+    struct quad_shader {
+        struct {
+            gl_program program;
+            gl_vertex  vertex;
+            gl_buffer  buffer_vtx;
+            gl_buffer  buffer_elmnt;
+            gl_shader  shdr_vtx;
+            gl_shader  shdr_frg;
+        } gl;
+        quad_vertex_buffer  buffer_vtx;
+        quad_element_buffer buffer_elmnt;
+    };
 
     struct renderer_context {
         gl_context*           gl;
         renderer_memory       mem;
         hello_quad_shader     hello_quad_shader;
+        quad_shader           quad_shader;
     };
 
     struct shader_source {
