@@ -41,13 +41,11 @@ namespace ifb {
         
         // cache properties and validate shader
         auto& shdr      = ctx->quad_shader;
-        auto& buf_vtx   = shdr.buffer_vtx;
-        auto& buf_elmnt = shdr.buffer_elmnt;
         quad_shader_validate(shdr);
 
 
         // determine the actual push quantity
-        const u32 count_available = (buf_vtx.capacity - buf_vtx.count);
+        const u32 count_available = shdr.buffers.quad_capacity - shdr.buffers.quad_count; 
         const u32 count_to_push   = (count_available > count) ? count : (count - count_available);   
 
         for (
@@ -57,9 +55,9 @@ namespace ifb {
 
             // cache properties
             const quad& quad_curr = q[index_push];
-            const u32   index_quad = buf_vtx.count; 
-            auto&       vtx       = buf_vtx.array   [index_quad];
-            auto&       elmnt     = buf_elmnt.array [index_quad]; 
+            const u32   index_quad = shdr.buffers.quad_count; 
+            auto&       vtx       = shdr.buffers.vertices.array [index_quad];
+            auto&       elmnt     = shdr.buffers.elements.array [index_quad]; 
         
             // calculate position
             const f32 width_offset  = (quad_curr.dimensions.width  / 2);
@@ -116,9 +114,8 @@ namespace ifb {
             elmnt.triangle_2.elmnt_4_index_2 = index_quad + 2;
             elmnt.triangle_2.elmnt_5_index_3 = index_quad + 3;
 
-            // update counts
-            ++buf_vtx.count;
-            ++buf_elmnt.count;
+            // update count
+            ++shdr.buffers.quad_count;
         }
 
         return(count_to_push);
@@ -135,8 +132,8 @@ namespace ifb {
         quad_shader_validate(shdr);
 
         // calculate counts
-        const u32 quad_count    = shdr.buffer_vtx.count;
-        const u32 element_count = shdr.buffer_vtx.count * QUAD_ELEMENT_COUNT;
+        const u32 quad_count    = shdr.buffers.quad_count;
+        const u32 element_count = quad_count * QUAD_ELEMENT_COUNT;
 
         // draw elements
         gl_context_set_shader_program (ctx->gl, shdr.gl.program);
@@ -144,8 +141,7 @@ namespace ifb {
         gl_context_draw_elements      (ctx->gl, element_count);
 
         // reset counts and return
-        shdr.buffer_vtx.count   = 0;
-        shdr.buffer_elmnt.count = 0;
+        shdr.buffers.quad_count = 0;
         return(quad_count);
     }
 
@@ -170,18 +166,18 @@ namespace ifb {
         const u32 count_quads_total = (size_mem / size_per_quad);
         const u32 size_data_vtx     = count_quads_total * QUAD_VERTEX_SIZE;
         const u32 size_data_elmnt   = count_quads_total * QUAD_ELEMENT_DATA_SIZE;
+        
+        // quad capacity / count
+        shdr.buffers.quad_capacity  = count_quads_total;
+        shdr.buffers.quad_count     = 0;
 
         // vertex buffer
-        shdr.buffer_vtx.capacity  = count_quads_total;
-        shdr.buffer_vtx.count     = 0;
-        shdr.buffer_vtx.data_size = size_data_vtx; 
-        shdr.buffer_vtx.vptr      = mem;
+        shdr.buffers.vertices.size  = size_data_vtx; 
+        shdr.buffers.vertices.vptr  = mem;
 
         // element buffer
-        shdr.buffer_elmnt.capacity  = count_quads_total;
-        shdr.buffer_elmnt.count     = 0;
-        shdr.buffer_elmnt.data_size = size_data_elmnt;
-        shdr.buffer_elmnt.addr      = (shdr.buffer_vtx.addr + size_data_vtx);
+        shdr.buffers.elements.size = size_data_elmnt;
+        shdr.buffers.elements.addr = (shdr.buffers.vertices.addr + size_data_vtx);
 
         // make sure we are within bounds
         assert((size_data_vtx + size_data_elmnt) <= size_mem);
@@ -252,21 +248,17 @@ namespace ifb {
 
         bool gl_ok = true;
 
-        // calcualte sizes
-        const u32 size_vtx       = sizeof(quad_vertex);
-        const u32 size_buf_vtx   = shdr.buffer_vtx.capacity  * size_vtx;
-        const u32 size_buf_elmnt = shdr.buffer_elmnt.capacity * sizeof(u32);
-
         // set context objects
         gl_ok &= gl_context_set_vertex_object  (gl, shdr.gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex  (gl, shdr.gl.buffer_vtx);
         gl_ok &= gl_context_set_buffer_element (gl, shdr.gl.buffer_elmnt);
         
         // set data
-        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr.gl.buffer_vtx,   shdr.buffer_vtx.data,   size_buf_vtx);
-        gl_ok &= gl_buffer_set_element_data    (gl, shdr.gl.buffer_elmnt, shdr.buffer_elmnt.data, size_buf_elmnt);
+        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr.gl.buffer_vtx,   shdr.buffers.vertices.data, shdr.buffers.vertices.size);
+        gl_ok &= gl_buffer_set_element_data    (gl, shdr.gl.buffer_elmnt, shdr.buffers.elements.data, shdr.buffers.elements.size);
         
         // set attributes
+        const u32 size_vtx = sizeof(quad_vertex);
         gl_ok &= gl_vertex_add_attribute_f32x3 (gl, shdr.gl.vertex, size_vtx, 0, 0);
         gl_ok &= gl_vertex_add_attribute_f32x4 (gl, shdr.gl.vertex, size_vtx, 1, 12);
     }

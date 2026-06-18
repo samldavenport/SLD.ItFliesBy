@@ -123,30 +123,29 @@ namespace ifb {
         };
     };
 
-    struct quad_vertex_buffer {
-        u32            capacity;
-        u32            count;
-        u32            data_size;
-        union {
-            quad_vertices* array;
-            byte*          data;
-            void*          vptr;
-            addr           addr;
-            f32*           floats;
-        };
-    };
-
-    struct quad_element_buffer {
-        u32            capacity;
-        u32            count;
-        u32            data_size;
-        union {
-            quad_elements* array;
-            byte*          data;
-            void*          vptr;
-            addr           addr;
-            u32*           uints;
-        };
+    struct quad_buffers {
+        u32 quad_capacity;
+        u32 quad_count;
+        struct {
+            u32 size;
+            union {
+                quad_vertices* array;
+                byte*          data;
+                void*          vptr;
+                addr           addr;
+                f32*           floats;
+            };
+        } vertices;
+        struct {
+            u32 size;
+            union {
+                quad_elements* array;
+                byte*          data;
+                void*          vptr;
+                addr           addr;
+                u32*           uints;
+            };
+        } elements;
     };
 
     struct quad_shader {
@@ -158,8 +157,7 @@ namespace ifb {
             gl_shader  shdr_vtx;
             gl_shader  shdr_frg;
         } gl;
-        quad_vertex_buffer  buffer_vtx;
-        quad_element_buffer buffer_elmnt;
+        quad_buffers buffers;
     };
 
     struct renderer_context {
