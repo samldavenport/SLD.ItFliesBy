@@ -89,30 +89,30 @@ namespace ifb {
             vtx.bottom_right.attrib_1_color.a = color_f32.a;
 
             // bottom left
-            vtx.bottom_left.attrib_0_pos.x   = x_left;
-            vtx.bottom_left.attrib_0_pos.y   = y_bottom;
-            vtx.bottom_left.attrib_0_pos.z   = quad_curr.position.z;
-            vtx.bottom_left.attrib_1_color.r = color_f32.r;
-            vtx.bottom_left.attrib_1_color.g = color_f32.g;
-            vtx.bottom_left.attrib_1_color.b = color_f32.b;
-            vtx.bottom_left.attrib_1_color.a = color_f32.a;
+            vtx.bottom_left.attrib_0_pos.x    = x_left;
+            vtx.bottom_left.attrib_0_pos.y    = y_bottom;
+            vtx.bottom_left.attrib_0_pos.z    = quad_curr.position.z;
+            vtx.bottom_left.attrib_1_color.r  = color_f32.r;
+            vtx.bottom_left.attrib_1_color.g  = color_f32.g;
+            vtx.bottom_left.attrib_1_color.b  = color_f32.b;
+            vtx.bottom_left.attrib_1_color.a  = color_f32.a;
 
             // top left
-            vtx.top_left.attrib_0_pos.x   = x_left;
-            vtx.top_left.attrib_0_pos.y   = y_top;
-            vtx.top_left.attrib_0_pos.z   = quad_curr.position.z;
-            vtx.top_left.attrib_1_color.r = color_f32.r;
-            vtx.top_left.attrib_1_color.g = color_f32.g;
-            vtx.top_left.attrib_1_color.b = color_f32.b;
-            vtx.top_left.attrib_1_color.a = color_f32.a;
+            vtx.top_left.attrib_0_pos.x       = x_left;
+            vtx.top_left.attrib_0_pos.y       = y_top;
+            vtx.top_left.attrib_0_pos.z       = quad_curr.position.z;
+            vtx.top_left.attrib_1_color.r     = color_f32.r;
+            vtx.top_left.attrib_1_color.g     = color_f32.g;
+            vtx.top_left.attrib_1_color.b     = color_f32.b;
+            vtx.top_left.attrib_1_color.a     = color_f32.a;
 
             // elements
-            elmnt.triangle_1.elmnt_0_index_0 = index_quad + 0;
-            elmnt.triangle_1.elmnt_1_index_1 = index_quad + 1;
-            elmnt.triangle_1.elmnt_2_index_3 = index_quad + 3;
-            elmnt.triangle_2.elmnt_3_index_1 = index_quad + 1;
-            elmnt.triangle_2.elmnt_4_index_2 = index_quad + 2;
-            elmnt.triangle_2.elmnt_5_index_3 = index_quad + 3;
+            elmnt.triangle_1.elmnt_0_index_0  = index_quad + 0;
+            elmnt.triangle_1.elmnt_1_index_1  = index_quad + 1;
+            elmnt.triangle_1.elmnt_2_index_3  = index_quad + 3;
+            elmnt.triangle_2.elmnt_3_index_1  = index_quad + 1;
+            elmnt.triangle_2.elmnt_4_index_2  = index_quad + 2;
+            elmnt.triangle_2.elmnt_5_index_3  = index_quad + 3;
 
             // update count
             ++shdr.buffers.quad_count;
