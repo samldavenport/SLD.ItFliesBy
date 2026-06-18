@@ -14,7 +14,6 @@ namespace ifb {
     inline void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
     inline void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
 
-
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
@@ -25,6 +24,7 @@ namespace ifb {
         const shader_source& src_vertex,
         const shader_source& src_fragment) {
 
+        quad_shader_commit_memory            (ctx);
         quad_shader_create_gl_objects        (ctx->quad_shader, ctx->gl);
         quad_shader_compile_and_link_program (ctx->quad_shader, ctx->gl, src_vertex, src_fragment);
         quad_shader_define_vertex            (ctx->quad_shader, ctx->gl);
@@ -38,9 +38,90 @@ namespace ifb {
 
         // validate args
         assert(ctx != NULL && q != 0);
+        
+        // cache properties and validate shader
+        auto& shdr      = ctx->quad_shader;
+        auto& buf_vtx   = shdr.buffer_vtx;
+        auto& buf_elmnt = shdr.buffer_elmnt;
+        quad_shader_validate(shdr);
 
 
-        return(0);
+        // determine the actual push quantity
+        const u32 count_available = (buf_vtx.capacity - buf_vtx.count);
+        const u32 count_to_push   = (count_available > count) ? count : (count - count_available);   
+
+        for (
+            u32 index_push = 0;
+                index_push < count_to_push;
+              ++index_push) {
+
+            // cache properties
+            const quad& quad_curr = q[index_push];
+            const u32   index_quad = buf_vtx.count; 
+            auto&       vtx       = buf_vtx.array   [index_quad];
+            auto&       elmnt     = buf_elmnt.array [index_quad]; 
+        
+            // calculate position
+            const f32 width_offset  = (quad_curr.dimensions.width  / 2);
+            const f32 height_offset = (quad_curr.dimensions.height / 2);
+            const f32 x_left        = (quad_curr.position.x - width_offset);
+            const f32 x_right       = (quad_curr.position.x + width_offset);
+            const f32 y_top         = (quad_curr.position.y + height_offset);
+            const f32 y_bottom      = (quad_curr.position.y - height_offset);
+
+            // normalize color
+            const color_rgba_f32 color_f32(quad_curr.color.hex);
+
+            // top right
+            vtx.top_right.attrib_0_pos.x      = x_right;
+            vtx.top_right.attrib_0_pos.y      = y_top;
+            vtx.top_right.attrib_0_pos.z      = quad_curr.position.z;
+            vtx.top_right.attrib_1_color.r    = color_f32.r;
+            vtx.top_right.attrib_1_color.g    = color_f32.g;
+            vtx.top_right.attrib_1_color.b    = color_f32.b;
+            vtx.top_right.attrib_1_color.a    = color_f32.a;
+
+            // bottom right
+            vtx.bottom_right.attrib_0_pos.x   = x_right;
+            vtx.bottom_right.attrib_0_pos.y   = y_bottom;
+            vtx.bottom_right.attrib_0_pos.z   = quad_curr.position.z;
+            vtx.bottom_right.attrib_1_color.r = color_f32.r;
+            vtx.bottom_right.attrib_1_color.g = color_f32.g;
+            vtx.bottom_right.attrib_1_color.b = color_f32.b;
+            vtx.bottom_right.attrib_1_color.a = color_f32.a;
+
+            // bottom left
+            vtx.bottom_left.attrib_0_pos.x   = x_left;
+            vtx.bottom_left.attrib_0_pos.y   = y_bottom;
+            vtx.bottom_left.attrib_0_pos.z   = quad_curr.position.z;
+            vtx.bottom_left.attrib_1_color.r = color_f32.r;
+            vtx.bottom_left.attrib_1_color.g = color_f32.g;
+            vtx.bottom_left.attrib_1_color.b = color_f32.b;
+            vtx.bottom_left.attrib_1_color.a = color_f32.a;
+
+            // top left
+            vtx.top_left.attrib_0_pos.x   = x_left;
+            vtx.top_left.attrib_0_pos.y   = y_top;
+            vtx.top_left.attrib_0_pos.z   = quad_curr.position.z;
+            vtx.top_left.attrib_1_color.r = color_f32.r;
+            vtx.top_left.attrib_1_color.g = color_f32.g;
+            vtx.top_left.attrib_1_color.b = color_f32.b;
+            vtx.top_left.attrib_1_color.a = color_f32.a;
+
+            // elements
+            elmnt.triangle_1.elmnt_0_index_0 = index_quad + 0;
+            elmnt.triangle_1.elmnt_1_index_1 = index_quad + 1;
+            elmnt.triangle_1.elmnt_2_index_3 = index_quad + 3;
+            elmnt.triangle_2.elmnt_3_index_1 = index_quad + 1;
+            elmnt.triangle_2.elmnt_4_index_2 = index_quad + 2;
+            elmnt.triangle_2.elmnt_5_index_3 = index_quad + 3;
+
+            // update counts
+            ++buf_vtx.count;
+            ++buf_elmnt.count;
+        }
+
+        return(count_to_push);
     }
 
     IFB_INTERNAL u32
@@ -76,14 +157,34 @@ namespace ifb {
     quad_shader_commit_memory(
         renderer_context* ctx) {
 
+        assert(ctx);
+        auto& shdr = ctx->quad_shader;
+
         // commit memory
         void* mem = renderer_memory_commit(ctx);
+        assert(mem);
 
+        // calculate sizes
         const u32 size_mem          = ctx->mem.granularity;
         const u32 size_per_quad     = (QUAD_DATA_SIZE + QUAD_ELEMENT_DATA_SIZE);
         const u32 count_quads_total = (size_mem / size_per_quad);
-        const u32 
+        const u32 size_data_vtx     = count_quads_total * QUAD_VERTEX_SIZE;
+        const u32 size_data_elmnt   = count_quads_total * QUAD_ELEMENT_DATA_SIZE;
 
+        // vertex buffer
+        shdr.buffer_vtx.capacity  = count_quads_total;
+        shdr.buffer_vtx.count     = 0;
+        shdr.buffer_vtx.data_size = size_data_vtx; 
+        shdr.buffer_vtx.vptr      = mem;
+
+        // element buffer
+        shdr.buffer_elmnt.capacity  = count_quads_total;
+        shdr.buffer_elmnt.count     = 0;
+        shdr.buffer_elmnt.data_size = size_data_elmnt;
+        shdr.buffer_elmnt.addr      = (shdr.buffer_vtx.addr + size_data_vtx);
+
+        // make sure we are within bounds
+        assert((size_data_vtx + size_data_elmnt) <= size_mem);
     }
 
     inline void
@@ -162,8 +263,8 @@ namespace ifb {
         gl_ok &= gl_context_set_buffer_element (gl, shdr.gl.buffer_elmnt);
         
         // set data
-        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr.gl.buffer_vtx,   (byte*)shdr.buffer_vtx.data,   size_buf_vtx);
-        gl_ok &= gl_buffer_set_element_data    (gl, shdr.gl.buffer_elmnt, (byte*)shdr.buffer_elmnt.data, size_buf_elmnt);
+        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr.gl.buffer_vtx,   shdr.buffer_vtx.data,   size_buf_vtx);
+        gl_ok &= gl_buffer_set_element_data    (gl, shdr.gl.buffer_elmnt, shdr.buffer_elmnt.data, size_buf_elmnt);
         
         // set attributes
         gl_ok &= gl_vertex_add_attribute_f32x3 (gl, shdr.gl.vertex, size_vtx, 0, 0);

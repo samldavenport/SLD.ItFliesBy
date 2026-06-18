@@ -89,12 +89,9 @@ namespace ifb {
         test_quad.color.hex         = 0xFF0000FF;
         test_quad.position.x        = 0.0f;
         test_quad.position.y        = 0.0f;
-        test_quad.position.z        = 1.0f;
-        test_quad.dimensions.width  = 1.0f;
-        test_quad.dimensions.height = 1.0f;
-
-        
-
+        test_quad.position.z        = 0.0f;
+        test_quad.dimensions.width  = 0.2f;
+        test_quad.dimensions.height = 0.2f;
 
         while(true) {
 
@@ -103,8 +100,9 @@ namespace ifb {
             // start new frame
             pfm_window_frame_start   ();
             pfm_window_process_events();
-            
-            (void)renderer_quad_push(_eng_context->renderer, &test_quad, 1);
+
+            // push and render quad
+            renderer_quad_push(_eng_context->renderer, &test_quad, 1);
             renderer_quad_draw(_eng_context->renderer);
 
             // render frame

@@ -126,13 +126,27 @@ namespace ifb {
     struct quad_vertex_buffer {
         u32            capacity;
         u32            count;
-        quad_vertices* data;
+        u32            data_size;
+        union {
+            quad_vertices* array;
+            byte*          data;
+            void*          vptr;
+            addr           addr;
+            f32*           floats;
+        };
     };
 
     struct quad_element_buffer {
         u32            capacity;
         u32            count;
-        quad_elements* data;
+        u32            data_size;
+        union {
+            quad_elements* array;
+            byte*          data;
+            void*          vptr;
+            addr           addr;
+            u32*           uints;
+        };
     };
 
     struct quad_shader {

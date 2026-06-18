@@ -43,14 +43,14 @@ namespace ifb {
     IFB_API bool          sparse_array_remove             (sparse_array* sa, const cchar8* key);
 
     struct dimensions_2d {
-        u32 width;
-        u32 height;
+        f32 width;
+        f32 height;
     };
 
     struct dimensions_3d {
-        u32 width;
-        u32 height;
-        u32 depth;
+        f32 width;
+        f32 height;
+        f32 depth;
     };
 
     struct quad {
