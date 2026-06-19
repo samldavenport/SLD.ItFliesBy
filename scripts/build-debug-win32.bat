@@ -71,7 +71,7 @@ call %gl_cmd_link%
 @set eng_cl_include= /Iinclude /Isrc\collections /Isrc\engine /Isrc\entities /Isrc\files /Isrc\renderer /Isrc\win32 /ISLD.Core\include /ISLD.OpenGL\include /ISLD.Math\include /Ivcpkg_installed\x64-windows\include
 @set eng_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
-@set eng_link_in=    ItFliesBy.Engine.obj SLD.OpenGL.lib SLD.Core.lib user32.lib Gdi32.lib opengl32.lib glew32.lib
+@set eng_link_in=    ItFliesBy.Engine.obj SLD.OpenGL.lib SLD.Core.lib user32.lib Gdi32.lib opengl32.lib glew32.lib imgui.lib
 @set eng_link_out=   /OUT:build\debug\bin\ItFliesBy.Engine.dll /IMPLIB:build\debug\lib\ItFliesBy.Engine.lib
 @set eng_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib /LIBPATH:vcpkg_installed/x64-windows/lib
 @set eng_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG /DLL
