@@ -78,8 +78,9 @@ namespace ifb {
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup  (_eng_context->renderer, mem_rndr);
-        renderer_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
+        renderer_context_startup        (_eng_context->renderer, mem_rndr);
+        renderer_quad_shader_init       (_eng_context->renderer, vtx_src, frg_src);
+        renderer_hello_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
     }
 
     IFB_ENGINE_API void
@@ -102,11 +103,12 @@ namespace ifb {
             pfm_window_process_events();
 
             // push and render quad
-            renderer_quad_push(_eng_context->renderer, &test_quad, 1);
-            renderer_quad_draw(_eng_context->renderer);
+            renderer_quad_push       (_eng_context->renderer, &test_quad, 1);
+            renderer_quad_draw       (_eng_context->renderer);
+            renderer_hello_quad_draw (_eng_context->renderer);
 
             // render frame
-            pfm_window_frame_render   ();
+            pfm_window_frame_render();
         }
     }
     

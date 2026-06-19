@@ -9,7 +9,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     inline void quad_shader_commit_memory            (renderer_context* ctx);
-    inline void quad_shader_validate                 (const quad_shader& shdr);    
+    inline void quad_shader_validate                 (const quad_shader& shdr);
     inline void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
     inline void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
     inline void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
@@ -25,9 +25,9 @@ namespace ifb {
         const shader_source& src_fragment) {
 
         quad_shader_commit_memory            (ctx);
-        quad_shader_create_gl_objects        (ctx->quad_shader, ctx->gl);
-        quad_shader_compile_and_link_program (ctx->quad_shader, ctx->gl, src_vertex, src_fragment);
-        quad_shader_define_vertex            (ctx->quad_shader, ctx->gl);
+        quad_shader_create_gl_objects        (ctx->shader.quad, ctx->gl);
+        quad_shader_compile_and_link_program (ctx->shader.quad, ctx->gl, src_vertex, src_fragment);
+        quad_shader_define_vertex            (ctx->shader.quad, ctx->gl);
     }
 
     IFB_INTERNAL u32
@@ -40,7 +40,7 @@ namespace ifb {
         assert(ctx != NULL && q != 0);
         
         // cache properties and validate shader
-        auto& shdr      = ctx->quad_shader;
+        auto& shdr      = ctx->shader.quad;
         quad_shader_validate(shdr);
 
 
@@ -128,7 +128,7 @@ namespace ifb {
         assert(ctx);
 
         // validate shader
-        auto& shdr = ctx->quad_shader;
+        auto& shdr = ctx->shader.quad;
         quad_shader_validate(shdr);
 
         // calculate counts
@@ -154,7 +154,7 @@ namespace ifb {
         renderer_context* ctx) {
 
         assert(ctx);
-        auto& shdr = ctx->quad_shader;
+        auto& shdr = ctx->shader.quad;
 
         // commit memory
         void* mem = renderer_memory_commit(ctx);

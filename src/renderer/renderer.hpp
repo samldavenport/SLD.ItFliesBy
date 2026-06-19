@@ -163,8 +163,10 @@ namespace ifb {
     struct renderer_context {
         gl_context*           gl;
         renderer_memory       mem;
-        hello_quad_shader     hello_quad_shader;
-        quad_shader           quad_shader;
+        struct {
+            hello_quad_shader hello_quad;
+            quad_shader       quad;
+        } shader;
     };
 
     struct shader_source {
