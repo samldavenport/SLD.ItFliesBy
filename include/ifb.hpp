@@ -20,12 +20,16 @@
 #   define IFB_API __declspec(dllimport)
 #endif
 
-
 using namespace sld;
 
 namespace ifb {
 
     struct sparse_array;
+    struct quad;
+    struct dimensions_2d;
+    struct dimensions_3d;
+
+    using position_3d = vec3;
 
     constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
     constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
@@ -38,6 +42,22 @@ namespace ifb {
     IFB_API bool          sparse_array_insert             (sparse_array* sa, const cchar8* key, const void* val);
     IFB_API bool          sparse_array_remove             (sparse_array* sa, const cchar8* key);
 
+    struct dimensions_2d {
+        f32 width;
+        f32 height;
+    };
+
+    struct dimensions_3d {
+        f32 width;
+        f32 height;
+        f32 depth;
+    };
+
+    struct quad {
+        position_3d    position;
+        dimensions_2d  dimensions;
+        color_rgba_u32 color;
+    };
 };
 
 #endif //IFB_HPP

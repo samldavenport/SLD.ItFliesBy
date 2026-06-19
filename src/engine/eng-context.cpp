@@ -68,8 +68,8 @@ namespace ifb {
         // renderer
         shader_source vtx_src;
         shader_source frg_src;
-        const file_handle vtx_file_hnd = file_ro_open_existing (mngrs->file, "hello-quad-shader-vertex.glsl");
-        const file_handle frg_file_hnd = file_ro_open_existing (mngrs->file, "hello-quad-shader-fragment.glsl");
+        const file_handle vtx_file_hnd = file_ro_open_existing (mngrs->file, "quad-shader-vertex.glsl");
+        const file_handle frg_file_hnd = file_ro_open_existing (mngrs->file, "quad-shader-fragment.glsl");
         vtx_src.size = file_get_size (mngrs->file, vtx_file_hnd); 
         vtx_src.data = file_read     (mngrs->file, vtx_file_hnd, vtx_src.size);
         frg_src.size = file_get_size (mngrs->file, frg_file_hnd);
@@ -79,11 +79,20 @@ namespace ifb {
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
         renderer_context_startup        (_eng_context->renderer, mem_rndr);
+        renderer_quad_shader_init       (_eng_context->renderer, vtx_src, frg_src);
         renderer_hello_quad_shader_init (_eng_context->renderer, vtx_src, frg_src);
     }
 
     IFB_ENGINE_API void
     eng_context_run(void) {
+
+        quad test_quad;
+        test_quad.color.hex         = 0xFF0000FF;
+        test_quad.position.x        = 0.0f;
+        test_quad.position.y        = 0.0f;
+        test_quad.position.z        = 0.0f;
+        test_quad.dimensions.width  = 0.2f;
+        test_quad.dimensions.height = 0.2f;
 
         while(true) {
 
@@ -92,11 +101,14 @@ namespace ifb {
             // start new frame
             pfm_window_frame_start   ();
             pfm_window_process_events();
-            
-            renderer_hello_quad_draw(_eng_context->renderer);
+
+            // push and render quad
+            renderer_quad_push       (_eng_context->renderer, &test_quad, 1);
+            renderer_quad_draw       (_eng_context->renderer);
+            renderer_hello_quad_draw (_eng_context->renderer);
 
             // render frame
-            pfm_window_frame_render   ();
+            pfm_window_frame_render();
         }
     }
     

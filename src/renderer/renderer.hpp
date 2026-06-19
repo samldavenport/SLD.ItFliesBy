@@ -12,16 +12,11 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
-    static constexpr f32 QUAD_VERTEX_BASE_COORDS[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
-    };
-    static constexpr unsigned int QUAD_BASE_INDICES[] = {
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
-    };
+    static constexpr u32 QUAD_VERTEX_SIZE       = sizeof(f32) * 7;
+    static constexpr u32 QUAD_VERTEX_COUNT      = 4;
+    static constexpr u32 QUAD_DATA_SIZE         = QUAD_VERTEX_SIZE * 4; 
+    static constexpr u32 QUAD_ELEMENT_COUNT     = 6;
+    static constexpr u32 QUAD_ELEMENT_DATA_SIZE = sizeof(u32) * QUAD_ELEMENT_COUNT;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -30,28 +25,30 @@ namespace ifb {
     struct renderer_context;
     struct renderer_memory;
     struct shader_source;
-    struct quad;
-    struct quad_buffer;
-    struct quad_shader;
-    struct hello_triangle_shader;
 
     //--------------------------------------------------------------------
     // METHODS
     //--------------------------------------------------------------------
 
     // renderer context
-    u32               renderer_context_memory_requirement (void);
-    renderer_context* renderer_context_init_from_memory   (memory&   mem);
-    void              renderer_context_startup            (renderer_context* ctx, memory& reserved_memory);
-    void              renderer_context_shutdown           (renderer_context* ctx);
+    IFB_INTERNAL u32               renderer_context_memory_requirement (void);
+    IFB_INTERNAL renderer_context* renderer_context_init_from_memory   (memory&   mem);
+    IFB_INTERNAL void              renderer_context_startup            (renderer_context* ctx, memory& reserved_memory);
+    IFB_INTERNAL void              renderer_context_shutdown           (renderer_context* ctx);
     
     // memory
-    void*             renderer_memory_commit              (renderer_context* ctx);
-    void              renderer_memory_decommit            (renderer_context* ctx, void* mem);
-    
+    IFB_INTERNAL void* renderer_memory_commit        (renderer_context* ctx);
+    IFB_INTERNAL void  renderer_memory_decommit      (renderer_context* ctx, void* mem);
+    IFB_INTERNAL u32   renderer_memory_element_count (renderer_context* ctx, const u32 element_size);
+
     // hello quad
-    void              renderer_hello_quad_shader_init     (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    void              renderer_hello_quad_draw            (renderer_context* ctx);
+    IFB_INTERNAL void renderer_hello_quad_shader_init (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INTERNAL void renderer_hello_quad_draw        (renderer_context* ctx);
+
+    // quad shader
+    IFB_INTERNAL void renderer_quad_shader_init (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INTERNAL u32  renderer_quad_push        (renderer_context* ctx, const quad* q, const u32 count = 1);
+    IFB_INTERNAL u32  renderer_quad_draw        (renderer_context* ctx); 
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -66,71 +63,6 @@ namespace ifb {
         } block_stack;
     };
 
-    struct quad {
-        vec3           pos;
-        f32            width;
-        f32            height;
-        color_rgba_u32 color;
-        f32            scale;
-    };
-
-
-    struct quad_buffer {
-        quad*     ptr;
-        u32       capacity;
-        u32       count;
-        gl_buffer gl_buf;
-        gl_vertex gl_vtx;
-    };
-
-
-    struct quad_vertex {
-        union {
-            struct {
-                vec3           position;
-                color_rgba_f32 color;
-                f32            scale;
-            };
-            byte data[32];
-        };
-    };
-
-    struct quad_elements {
-        union {
-            struct {
-                u32 a;
-                u32 b;
-                u32 c;
-            } triangle_1;
-            struct {
-                u32 a;
-                u32 b;
-                u32 c;
-            } triangle_2;
-            byte data[24];
-        };
-    };
-
-    struct quad_vertices {
-        quad_vertex top_right;
-        quad_vertex bottom_right;
-        quad_vertex bottom_left;
-        quad_vertex top_left;
-    };
-
-    struct quad_shader {
-        quad_vertices* quad_buffer_vertices;
-        quad_elements* quad_buffer_elements;
-        u32            quad_count;
-        u32            quad_capacity;
-        struct {
-            gl_program program;
-            gl_vertex  vertex;
-            gl_buffer  buf_vertex;
-            gl_buffer  buf_element;
-        } gl;
-    };
-
     struct hello_quad_shader {
         struct {
             gl_program program;
@@ -140,11 +72,101 @@ namespace ifb {
         } gl;
     };
 
+    struct quad_vertex {
+        union {
+            struct {
+                struct {
+                    f32 x;  // 0
+                    f32 y;  // 4
+                    f32 z;  // 8
+                } attrib_0_pos;
+                struct {
+                    f32 r; // 12
+                    f32 g; // 16
+                    f32 b; // 20
+                    f32 a; // 24
+                } attrib_1_color;
+            };
+            byte data[QUAD_VERTEX_SIZE];
+        };
+    };
+
+    struct quad_vertices {
+        union {
+            struct {
+                quad_vertex top_right;
+                quad_vertex bottom_right;
+                quad_vertex bottom_left;
+                quad_vertex top_left;
+            };
+            quad_vertex array[QUAD_VERTEX_COUNT];
+            byte        data [QUAD_DATA_SIZE];
+        };
+    };
+
+    struct quad_elements {
+        union {
+            struct {
+                struct {
+                    u32 elmnt_0_index_0;
+                    u32 elmnt_1_index_1;
+                    u32 elmnt_2_index_3;
+                } triangle_1;
+                struct {
+                    u32 elmnt_3_index_1;
+                    u32 elmnt_4_index_2;
+                    u32 elmnt_5_index_3;
+                } triangle_2;
+            };
+            u32  array [QUAD_ELEMENT_COUNT];
+            byte data  [QUAD_ELEMENT_DATA_SIZE];
+        };
+    };
+
+    struct quad_buffers {
+        u32 quad_capacity;
+        u32 quad_count;
+        struct {
+            u32 size;
+            union {
+                quad_vertices* array;
+                byte*          data;
+                void*          vptr;
+                addr           addr;
+                f32*           floats;
+            };
+        } vertices;
+        struct {
+            u32 size;
+            union {
+                quad_elements* array;
+                byte*          data;
+                void*          vptr;
+                addr           addr;
+                u32*           uints;
+            };
+        } elements;
+    };
+
+    struct quad_shader {
+        struct {
+            gl_program program;
+            gl_vertex  vertex;
+            gl_buffer  buffer_vtx;
+            gl_buffer  buffer_elmnt;
+            gl_shader  shdr_vtx;
+            gl_shader  shdr_frg;
+        } gl;
+        quad_buffers buffers;
+    };
+
     struct renderer_context {
         gl_context*           gl;
         renderer_memory       mem;
-        quad_shader           quad_shader;
-        hello_quad_shader     hello_quad_shader;
+        struct {
+            hello_quad_shader hello_quad;
+            quad_shader       quad;
+        } shader;
     };
 
     struct shader_source {

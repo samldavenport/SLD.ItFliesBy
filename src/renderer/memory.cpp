@@ -62,4 +62,17 @@ namespace ifb {
 
         stack.ids[stack.position++] = block;
     }
+
+    IFB_INTERNAL u32
+    renderer_memory_element_count(
+        renderer_context* ctx,
+        const u32         element_size) {
+
+        assert(ctx != NULL && element_size != 0);
+
+        const u32 element_count = (ctx->mem.granularity / element_size);
+        assert(element_count != 0);
+        
+        return(element_count);
+    }
 };
