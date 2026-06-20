@@ -23,4 +23,34 @@ namespace ifb {
         gl_context_set_clear_color_rgba   (ctx, clear_color);
         gl_context_update_viewport        (ctx, 0,0, viewport_width, viewport_height);
     }
+
+    IFB_PLATFORM_API void
+    pfm_graphics_init_imgui(
+        void) {
+
+        // initialize context
+        ImGuiContext* imgui_context = IMGUI_CHECKVERSION() ? ImGui::CreateContext() : NULL;  
+        assert(imgui_context);
+
+        // initialize win32/opengl methods
+        win32_window&  window = win32_window_instance();
+        bool did_init_impl = true;
+        did_init_impl &= ImGui_ImplWin32_InitForOpenGL (window.handle);
+        did_init_impl &= ImGui_ImplOpenGL3_Init        ("#version 330");
+        assert(did_init_impl);
+
+        // load custom font
+        ImGuiIO& io = ImGui::GetIO();
+        ImFontConfig config;
+        config.FontDataOwnedByAtlas = false;
+
+        ImFont* opensans_regular = io.Fonts->AddFontFromMemoryTTF(
+            (void*)OPENSANS_REGULAR_DATA,
+            OPENSANS_REGULAR_SIZE,
+            18.0f,
+            &config
+        );
+        assert(opensans_regular);
+    }
+
 };

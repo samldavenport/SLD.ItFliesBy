@@ -97,7 +97,6 @@ namespace ifb {
         while(true) {
 
             //TODO(SAM): pass the opengl context to the platform
-            
             // start new frame
             pfm_window_frame_start   ();
             pfm_window_process_events();
@@ -106,6 +105,8 @@ namespace ifb {
             renderer_quad_push       (_eng_context->renderer, &test_quad, 1);
             renderer_quad_draw       (_eng_context->renderer);
             renderer_hello_quad_draw (_eng_context->renderer);
+
+            ImGui::ShowDemoWindow();
 
             // render frame
             pfm_window_frame_render();

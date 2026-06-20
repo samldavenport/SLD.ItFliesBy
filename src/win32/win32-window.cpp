@@ -2,8 +2,9 @@
 
 #include "win32.hpp"
 
-
 namespace ifb {
+
+
 
     static win32_window _window;
 
@@ -53,6 +54,10 @@ namespace ifb {
         win32_window& window = win32_window_instance();
 
         gl_context_clear_viewport(&window.context);
+        
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
     }
      
     IFB_WIN32_API_FUNC void
@@ -61,6 +66,13 @@ namespace ifb {
 
         win32_window& window = win32_window_instance();
 
+        // render imgui
+        ImGui::Render();
+        ImDrawData* imgui_draw_data = ImGui::GetDrawData();
+        assert(imgui_draw_data);
+
+        // draw graphics and swap buffers
+        ImGui_ImplOpenGL3_RenderDrawData(imgui_draw_data);
         SwapBuffers(window.device_context);
     }
 
@@ -170,6 +182,16 @@ namespace ifb {
         WPARAM w_param,
         LPARAM l_param) {
 
+        LRESULT result = ImGui_ImplWin32_WndProcHandler(
+            handle,
+            message,
+            w_param,
+            l_param            
+        );
+        if (result) {
+            return(result);
+        }
+
         switch(message) {
      
             case(WM_CLOSE): {
@@ -179,7 +201,7 @@ namespace ifb {
             default: break;
         }
 
-        LRESULT result = DefWindowProc(
+        result = DefWindowProc(
             handle,
             message,
             w_param,
