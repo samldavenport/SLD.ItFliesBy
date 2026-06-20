@@ -35,6 +35,7 @@ namespace ifb {
     IFB_INTERNAL renderer_context* renderer_context_init_from_memory   (memory&   mem);
     IFB_INTERNAL void              renderer_context_startup            (renderer_context* ctx, memory& reserved_memory);
     IFB_INTERNAL void              renderer_context_shutdown           (renderer_context* ctx);
+    IFB_INTERNAL void              renderer_context_update_viewport    (renderer_context* ctx, const u32 width, const u32 height);
     
     // memory
     IFB_INTERNAL void* renderer_memory_commit        (renderer_context* ctx);

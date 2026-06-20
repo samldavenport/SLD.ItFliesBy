@@ -95,4 +95,32 @@ namespace ifb {
 
         //TODO
     }
+
+    IFB_INTERNAL void
+    renderer_context_update_viewport(
+        renderer_context* ctx,
+        const u32         width,
+        const u32         height) {
+
+
+        assert(ctx != NULL);
+
+        // if any of these are null or 0,
+        // we can just assume initialization
+        // has not happened yet
+        const bool can_resize = (
+            ctx->gl != NULL &&
+            width   != 0    &&
+            height  != 0
+        );
+        if (!can_resize) return;
+
+        gl_context_update_viewport(
+            ctx->gl,
+            0,0,
+            width,
+            height
+        );
+    }
+
 };

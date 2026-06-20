@@ -106,18 +106,6 @@ namespace ifb {
                     eng_input_set_key_up(key_code);
                 } break;
                 
-                case WM_MOVE: {
-                    const u32 x = LOWORD(msg.lParam);   
-                    const u32 y = HIWORD(msg.lParam);   
-                    eng_window_set_pos(x,y);
-                } break;
-                
-                case WM_SIZE: {
-                    const u32 width  = LOWORD(msg.lParam);   
-                    const u32 height = HIWORD(msg.lParam);  
-                    eng_window_set_size(width,height);
-                } break;
-                
                 case WM_MOUSEMOVE: {
                     const u32 x = LOWORD(msg.lParam);   
                     const u32 y = HIWORD(msg.lParam);
@@ -201,8 +189,21 @@ namespace ifb {
             case(WM_DESTROY): {
                 PostQuitMessage(0);
                 return(0);
-            }
+            } break;
+
+            case (WM_SIZE): {
+                const u32 width  = LOWORD(l_param);   
+                const u32 height = HIWORD(l_param);  
+                eng_window_set_size(width,height);
+            } break;
      
+            case WM_MOVE: {
+                const u32 x = LOWORD(l_param);   
+                const u32 y = HIWORD(l_param);   
+                eng_window_set_pos(x,y);
+            } break;
+            
+
             default: break;
         }
 
@@ -222,6 +223,7 @@ namespace ifb {
 
         auto& window = win32_window_instance();
         return(window.quit_received);
+
     }
 
 

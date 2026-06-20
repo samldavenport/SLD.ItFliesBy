@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ifb.hpp"
+#include "eng-internal.hpp"
 
 namespace ifb {
 
@@ -28,6 +29,12 @@ namespace ifb {
     eng_window_set_size(
         const u32 width,
         const u32 height) {
+
+        renderer_context_update_viewport(
+            _eng_context->renderer,
+            width,
+            height
+        );
 
     }
 };
