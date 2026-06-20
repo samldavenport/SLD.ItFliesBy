@@ -45,7 +45,12 @@ $Header = @"
 
 namespace ifb
 {
-    static const unsigned char $VariableName[] =
+    //----------------------------------------
+    // Generated using Build-FontHeader.ps1
+    // Do not edit directly!!!
+    //----------------------------------------
+
+    static const unsigned char ${VariableName}_data[] =
     {
 $($ByteLines -join "`n")
     };

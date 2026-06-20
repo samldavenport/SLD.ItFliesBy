@@ -14,6 +14,25 @@
 				"kind": "build",
 				"isDefault": true
 			},
+		},
+		{
+			"label": "Build OpenSans Header",
+			"command": "pwsh.exe",
+			"args": [
+				"${workspaceFolder}/scripts/Build-FontHeader.ps1",
+				"${workspaceFolder}/assets/fonts/OpenSans/static/OpenSans-Regular.ttf",
+				"${workspaceFolder}/include/ifb-font-opensans.hpp"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/scripts"
+			},
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
 		}
 	]
 }
