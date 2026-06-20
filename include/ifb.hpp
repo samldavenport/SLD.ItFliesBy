@@ -13,6 +13,7 @@
 #include "ifb-platform.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
+#include "ifb-font-opensans.hpp"
 
 #define IFB_INTERNAL static
 

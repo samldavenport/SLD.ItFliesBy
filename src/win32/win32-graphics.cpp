@@ -38,6 +38,19 @@ namespace ifb {
         did_init_impl &= ImGui_ImplWin32_InitForOpenGL (window.handle);
         did_init_impl &= ImGui_ImplOpenGL3_Init        ("#version 330");
         assert(did_init_impl);
+
+        // load custom font
+        ImGuiIO& io = ImGui::GetIO();
+        ImFontConfig config;
+        config.FontDataOwnedByAtlas = false;
+
+        ImFont* opensans_regular = io.Fonts->AddFontFromMemoryTTF(
+            (void*)OPENSANS_REGULAR_DATA,
+            OPENSANS_REGULAR_SIZE,
+            18.0f,
+            &config
+        );
+        assert(opensans_regular);
     }
 
 };
