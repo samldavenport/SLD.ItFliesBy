@@ -14,6 +14,7 @@ namespace ifb {
         HWND        handle;
         HDC         device_context;
         gl_context  context;
+        b8          quit_received;
     };
 
 

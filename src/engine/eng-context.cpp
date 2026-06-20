@@ -110,6 +110,10 @@ namespace ifb {
 
             // render frame
             pfm_window_frame_render();
+
+            // check if quit received
+            const bool quit = pfm_window_quit_received();
+            if (quit) break;
         }
     }
     
