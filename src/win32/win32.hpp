@@ -16,6 +16,8 @@ namespace ifb {
         gl_context  context;
     };
 
+
+
     inline win32_window&
     win32_window_instance(void) {
         static win32_window window;
@@ -30,6 +32,13 @@ namespace ifb {
         WPARAM w_param,
         LPARAM l_param
     );
+
+    extern IMGUI_IMPL_API LRESULT 
+    ImGui_ImplWin32_WndProcHandler(
+        HWND   hWnd, 
+        UINT   msg, 
+        WPARAM wParam, 
+        LPARAM lParam);
 
     input_keycode
     win32_input_get_keycode(

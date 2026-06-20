@@ -1,8 +1,6 @@
 #ifndef IFB_ENG_INTERNAL_HPP
 #define IFB_ENG_INTERNAL_HPP
 
-#include <imgui.h>
-
 #include "ifb.hpp"
 #include "files.hpp"
 #include "renderer.hpp"
