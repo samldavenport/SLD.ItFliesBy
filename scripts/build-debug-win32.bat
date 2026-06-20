@@ -51,7 +51,7 @@ call %core_cmd_link%
 @set gl_cl_include= /ISLD.OpenGL\src /ISLD.OpenGL\include /ISLD.Core/include /Ivcpkg_installed/x64-windows/include
 @set gl_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
-@set gl_link_in=    SLD.OpenGL.obj user32.lib opengl32.lib gdi32.lib glew32.lib
+@set gl_link_in=    SLD.OpenGL.obj user32.lib opengl32.lib gdi32.lib glew32.lib imgui.lib
 @set gl_link_out=   /OUT:build\debug\bin\SLD.OpenGL.dll /IMPLIB:build\debug\lib\SLD.OpenGL.lib
 @set gl_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib /LIBPATH:vcpkg_installed/x64-windows/lib
 @set gl_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG /DLL
@@ -91,7 +91,7 @@ call %eng_cmd_link%
 @set win32_cl_include= /Iinclude /Isrc\win32 /ISLD.Core\include  /ISLD.OpenGL\include /ISLD.Math\include /Ivcpkg_installed\x64-windows\include
 @set win32_cl_flags=   /nologo /c /MD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
-@set win32_link_in=    ItFliesBy.obj ItFliesBy.Engine.lib user32.lib kernel32.lib 
+@set win32_link_in=    ItFliesBy.obj ItFliesBy.Engine.lib user32.lib kernel32.lib imgui.lib
 @set win32_link_out=   /OUT:build\debug\bin\ItFliesBy.exe
 @set win32_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib /LIBPATH:vcpkg_installed\x64-windows\lib
 @set win32_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG

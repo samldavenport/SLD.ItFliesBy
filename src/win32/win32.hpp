@@ -33,12 +33,6 @@ namespace ifb {
         LPARAM l_param
     );
 
-    extern IMGUI_IMPL_API LRESULT 
-    ImGui_ImplWin32_WndProcHandler(
-        HWND   hWnd, 
-        UINT   msg, 
-        WPARAM wParam, 
-        LPARAM lParam);
 
     input_keycode
     win32_input_get_keycode(

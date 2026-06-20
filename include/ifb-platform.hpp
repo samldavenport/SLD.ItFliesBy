@@ -94,6 +94,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_PLATFORM_API void  pfm_graphics_init_opengl      (gl_context* ctx);
+    IFB_PLATFORM_API void  pfm_graphics_init_imgui       (void);
 
     //--------------------------------------------------------------------
     // MEMORY

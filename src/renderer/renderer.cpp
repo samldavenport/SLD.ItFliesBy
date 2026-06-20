@@ -65,8 +65,9 @@ namespace ifb {
             reserved_memory.ptr  != NULL          
         );
 
-        // initialize opengl
+        // initialize opengl and imgui
         pfm_graphics_init_opengl(ctx->gl);
+        pfm_graphics_init_imgui();
 
         // initialize memory
         ctx->mem.address              = reserved_memory.address;
