@@ -4,8 +4,6 @@
 
 namespace ifb {
 
-
-
     static win32_window _window;
 
     //--------------------------------------------------------------------
@@ -18,6 +16,7 @@ namespace ifb {
 
         // window instance
         win32_window& window = win32_window_instance();
+        window.quit_received = false;
 
         // window class
         window.class_type  = win32_window_class_instance();
@@ -93,45 +92,45 @@ namespace ifb {
                  has_message == true;
                  has_message =  PeekMessage(&msg, NULL, msg_filter_min, msg_filter_max, msg_remove)) {
 
-            // window specific events
-            if (msg.hwnd == window.handle) {
-                switch (msg.message) {
-                    
-                    case WM_KEYDOWN:
-                    case WM_SYSKEYDOWN: {
-                        const input_keycode key_code = win32_input_get_keycode(msg.wParam);
-                        eng_input_set_key_down(key_code);
-                    } break;
+            switch (msg.message) {
+                
+                case WM_KEYDOWN:
+                case WM_SYSKEYDOWN: {
+                    const input_keycode key_code = win32_input_get_keycode(msg.wParam);
+                    eng_input_set_key_down(key_code);
+                } break;
 
-                    case WM_KEYUP:
-                    case WM_SYSKEYUP: {
-                        const input_keycode key_code = win32_input_get_keycode(msg.wParam);
-                        eng_input_set_key_up(key_code);
-                    } break;
-                    
-                    case WM_MOVE: {
-                        const u32 x = LOWORD(msg.lParam);   
-                        const u32 y = HIWORD(msg.lParam);   
-                        eng_window_set_pos(x,y);
-                    } break;
-                    
-                    case WM_SIZE: {
-                        const u32 width  = LOWORD(msg.lParam);   
-                        const u32 height = HIWORD(msg.lParam);  
-                        eng_window_set_size(width,height);
-                    } break;
-                    
-                    case WM_MOUSEMOVE: {
-                        const u32 x = LOWORD(msg.lParam);   
-                        const u32 y = HIWORD(msg.lParam);
-                        eng_input_mouse_move(x, y);
-                    } break;
-                    
-                    default: break;
+                case WM_KEYUP:
+                case WM_SYSKEYUP: {
+                    const input_keycode key_code = win32_input_get_keycode(msg.wParam);
+                    eng_input_set_key_up(key_code);
+                } break;
+                
+                case WM_MOVE: {
+                    const u32 x = LOWORD(msg.lParam);   
+                    const u32 y = HIWORD(msg.lParam);   
+                    eng_window_set_pos(x,y);
+                } break;
+                
+                case WM_SIZE: {
+                    const u32 width  = LOWORD(msg.lParam);   
+                    const u32 height = HIWORD(msg.lParam);  
+                    eng_window_set_size(width,height);
+                } break;
+                
+                case WM_MOUSEMOVE: {
+                    const u32 x = LOWORD(msg.lParam);   
+                    const u32 y = HIWORD(msg.lParam);
+                    eng_input_mouse_move(x, y);
+                } break;
+                
+                case(WM_QUIT):
+                case(WM_DESTROY):
+                case(WM_CLOSE): {
+                    window.quit_received = true;
                 }
-            }
-            else {
 
+                default: break;
             }
 
             // handle the message
@@ -144,6 +143,7 @@ namespace ifb {
     pfm_window_close(
         void) {
 
+        PostQuitMessage(0);
     }
 
     //--------------------------------------------------------------------
@@ -195,8 +195,13 @@ namespace ifb {
         switch(message) {
      
             case(WM_CLOSE): {
-                PostQuitMessage(0);
+                DestroyWindow(handle);
             } break;
+
+            case(WM_DESTROY): {
+                PostQuitMessage(0);
+                return(0);
+            }
      
             default: break;
         }
@@ -210,5 +215,14 @@ namespace ifb {
 
         return(result);
     }
+
+    IFB_PLATFORM_API bool
+    pfm_window_quit_received(
+        void) {
+
+        auto& window = win32_window_instance();
+        return(window.quit_received);
+    }
+
 
 };

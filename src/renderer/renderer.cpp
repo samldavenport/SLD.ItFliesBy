@@ -65,6 +65,10 @@ namespace ifb {
             reserved_memory.ptr  != NULL          
         );
 
+        // NOTE(SAM): the renderer doesn't need to initialize the opengl context
+        // we can pass the context to the function and use it that way
+        // same for imgui, it can be initialized externally
+
         // initialize opengl and imgui
         pfm_graphics_init_opengl(ctx->gl);
         pfm_graphics_init_imgui();
