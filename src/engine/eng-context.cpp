@@ -119,9 +119,10 @@ namespace ifb {
             pfm_window_process_events();
 
             // push and render quad
-            renderer_quad_push       (_eng_context->renderer, &test_quad, 1);
-            renderer_quad_draw       (_eng_context->renderer);
-            renderer_hello_quad_draw (_eng_context->renderer);
+            renderer_quad_push            (_eng_context->renderer, &test_quad, 1);
+            renderer_quad_draw            (_eng_context->renderer);
+            renderer_hello_quad_draw      (_eng_context->renderer);
+            renderer_direction_gizmo_draw (_eng_context->renderer);
 
             ImGui::ShowDemoWindow();
 
