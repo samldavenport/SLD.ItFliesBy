@@ -4,6 +4,7 @@
 #include "memory.cpp" 
 #include "quad.cpp" 
 #include "hello-quad.cpp" 
+#include "direction-gizmo.cpp"
 
 namespace ifb {
 
