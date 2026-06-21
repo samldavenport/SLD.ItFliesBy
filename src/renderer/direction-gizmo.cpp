@@ -86,15 +86,14 @@ namespace ifb {
         // TODO(SAM): TEST CODE!!!!
         //------------------------
 
-        ctx->cam.origin = vec3(0.0f, 0.0f, -1.0f);
+        ctx->cam.origin = vec3(1.0f, 1.0f, -1.0f);
         ctx->cam.target = vec3(0.0f, 0.0f,  0.0f);
 
-        
+        xform_look_at(&mat4_view_proj, &ctx->cam.origin, &ctx->cam.target);
 
         //------------------------
         // TODO(SAM): TEST CODE!!!!
 
-        mat4_identity(&mat4_view_proj);
         mat4_identity(&mat4_model);
 
         gl_context_set_shader_program (gl, shdr.program);
