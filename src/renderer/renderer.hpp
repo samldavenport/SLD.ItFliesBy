@@ -45,7 +45,7 @@ namespace ifb {
 
     // camera
     IFB_INTERNAL void  renderer_camera_set_origin           (renderer_context* ctx, const vec3* origin);
-    IFB_INTERNAL void  renderer_camera_set_target           (renderer_context* ctx, const vec3* origin);
+    IFB_INTERNAL void  renderer_camera_set_target           (renderer_context* ctx, const vec3* target);
     IFB_INTERNAL void  renderer_camera_xform_look_at        (renderer_context* ctx, mat4* xform);
     IFB_INTERNAL void  renderer_camera_xform_view           (renderer_context* ctx, mat4* xform);
 

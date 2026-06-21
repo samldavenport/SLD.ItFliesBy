@@ -5,6 +5,7 @@
 #include "quad.cpp" 
 #include "hello-quad.cpp" 
 #include "direction-gizmo.cpp"
+#include "camera.cpp"
 
 namespace ifb {
 

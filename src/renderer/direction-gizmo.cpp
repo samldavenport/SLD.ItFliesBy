@@ -83,6 +83,17 @@ namespace ifb {
         static mat4 mat4_view_proj;
         static mat4 mat4_model;
         
+        // TODO(SAM): TEST CODE!!!!
+        //------------------------
+
+        ctx->cam.origin = vec3(0.0f, 0.0f, -1.0f);
+        ctx->cam.target = vec3(0.0f, 0.0f,  0.0f);
+
+        
+
+        //------------------------
+        // TODO(SAM): TEST CODE!!!!
+
         mat4_identity(&mat4_view_proj);
         mat4_identity(&mat4_model);
 
