@@ -39,28 +39,28 @@ namespace ifb {
     IFB_INTERNAL void              renderer_context_update_viewport    (renderer_context* ctx, const u32 width, const u32 height);
     
     // memory
-    IFB_INTERNAL void* renderer_memory_commit              (renderer_context* ctx);
-    IFB_INTERNAL void  renderer_memory_decommit            (renderer_context* ctx, void* mem);
-    IFB_INTERNAL u32   renderer_memory_element_count       (renderer_context* ctx, const u32 element_size);
+    IFB_INTERNAL void* renderer_memory_commit               (renderer_context* ctx);
+    IFB_INTERNAL void  renderer_memory_decommit             (renderer_context* ctx, void* mem);
+    IFB_INTERNAL u32   renderer_memory_element_count        (renderer_context* ctx, const u32 element_size);
 
     // camera
-    IFB_INTERNAL void renderer_camera_set_origin              (renderer_context* ctx, const vec3* origin);
-    IFB_INTERNAL void renderer_camera_set_target              (renderer_context* ctx, const vec3* origin);
-    IFB_INTERNAL void renderer_camera_calculate_xform_look_at (renderer_context* ctx, mat4* xform);
-    IFB_INTERNAL void renderer_camera_calculate_xform_view    (renderer_context* ctx, mat4* xform);
+    IFB_INTERNAL void  renderer_camera_set_origin           (renderer_context* ctx, const vec3* origin);
+    IFB_INTERNAL void  renderer_camera_set_target           (renderer_context* ctx, const vec3* origin);
+    IFB_INTERNAL void  renderer_camera_xform_look_at        (renderer_context* ctx, mat4* xform);
+    IFB_INTERNAL void  renderer_camera_xform_view           (renderer_context* ctx, mat4* xform);
 
     // hello quad
-    IFB_INTERNAL void renderer_hello_quad_shader_init      (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    IFB_INTERNAL void renderer_hello_quad_draw             (renderer_context* ctx);
+    IFB_INTERNAL void  renderer_hello_quad_shader_init      (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INTERNAL void  renderer_hello_quad_draw             (renderer_context* ctx);
 
     // quad shader
-    IFB_INTERNAL void renderer_quad_shader_init            (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    IFB_INTERNAL u32  renderer_quad_push                   (renderer_context* ctx, const quad* q, const u32 count = 1);
-    IFB_INTERNAL u32  renderer_quad_draw                   (renderer_context* ctx); 
+    IFB_INTERNAL void  renderer_quad_shader_init            (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INTERNAL u32   renderer_quad_push                   (renderer_context* ctx, const quad* q, const u32 count = 1);
+    IFB_INTERNAL u32   renderer_quad_draw                   (renderer_context* ctx); 
 
     // direction gizmo
-    IFB_INTERNAL void renderer_direciton_gizmo_shader_init (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
-    IFB_INTERNAL void renderer_direction_gizmo_draw        (renderer_context* ctx);
+    IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INTERNAL void  renderer_direction_gizmo_draw        (renderer_context* ctx);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
