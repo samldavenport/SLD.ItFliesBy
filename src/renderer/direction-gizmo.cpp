@@ -79,8 +79,12 @@ namespace ifb {
             shdr.unif_mat4_model     != GL_UNIFORM_INVALID
         );
 
-        static const mat4& mat4_view_proj = mat4_identity();
-        static const mat4& mat4_model     = mat4_identity();
+
+        static mat4 mat4_view_proj;
+        static mat4 mat4_model;
+        
+        mat4_identity(&mat4_view_proj);
+        mat4_identity(&mat4_model);
 
         gl_context_set_shader_program (gl, shdr.program);
         gl_uniform_set_mat4           (gl, shdr.unif_mat4_view_proj, (const f32*)&mat4_view_proj.m);
