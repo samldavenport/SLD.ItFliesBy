@@ -86,10 +86,15 @@ namespace ifb {
         // TODO(SAM): TEST CODE!!!!
         //------------------------
 
-        ctx->cam.origin = vec3(1.0f, 1.0f, -1.0f);
-        ctx->cam.target = vec3(0.0f, 0.0f,  0.0f);
-
-        xform_look_at(&mat4_view_proj, &ctx->cam.origin, &ctx->cam.target);
+        const vec3 origin(0.0f, 0.0f, -1.0f);
+        const vec3 target(0.0f, 0.0f,  0.0f);
+        renderer_camera_set_origin(ctx, &origin);
+        renderer_camera_set_origin(ctx, &target);
+        
+        mat4 look_at;
+        mat4 view;
+        renderer_camera_xform_look_at (ctx, &look_at);
+        renderer_camera_xform_view    (ctx, &view);
 
         //------------------------
         // TODO(SAM): TEST CODE!!!!
@@ -97,7 +102,7 @@ namespace ifb {
         mat4_identity(&mat4_model);
 
         gl_context_set_shader_program (gl, shdr.program);
-        gl_uniform_set_mat4           (gl, shdr.unif_mat4_view_proj, (const f32*)&mat4_view_proj.m);
+        gl_uniform_set_mat4           (gl, shdr.unif_mat4_view_proj, (const f32*)&view.m);
         gl_uniform_set_mat4           (gl, shdr.unif_mat4_model,     (const f32*)&mat4_model.m);
         gl_context_draw_lines         (gl, DIR_GIZ_VERT_COUNT);
     }
