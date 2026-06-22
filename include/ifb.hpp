@@ -71,6 +71,23 @@ namespace ifb {
         dimensions_2d  dimensions;
         color_rgba_u32 color;
     };
+
+    struct flags {
+
+        s32 val;
+
+        flags() = default;
+        flags(s32 v) : val(v) { }
+
+        inline bool test     (const u32 t) { return(this->val & t); }
+        inline void mask_on  (const u32 m) { this->val |=  m;       }
+        inline void mask_off (const u32 m) { this->val &= ~m;       }
+
+        inline bool   operator== (const u32& other) { return(this->test(other));  } 
+        inline bool   operator!= (const u32& other) { return(!this->test(other)); }
+        inline bool   operator== (const s32& other) { return(this->test(other));  } 
+        inline bool   operator!= (const s32& other) { return(!this->test(other)); }
+    };
 };
 
 #endif //IFB_HPP

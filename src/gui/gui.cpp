@@ -25,7 +25,7 @@ namespace ifb {
         auto g = (gui*)stack_memory.ptr;
         g->is_open      = false;
         g->str          = NULL;
-        g->window_flags = gui_window_flag_e_none;
+        g->window_flags.val = 0;
         return(g);
     }
 
@@ -108,14 +108,25 @@ namespace ifb {
         
         gui_validate(g);
 
-        const auto str = g->str;
+        static bool is_selected = false;
+        const auto str          = g->str;
 
         if (ImGui::BeginMainMenuBar()) {
 
             if (ImGui::BeginMenu(str->menu_engine)) {
 
-                ImGui::MenuItem(str->menu_engine_item_system);
+                is_selected = g->window_flags.get_engine_system();
+                ImGui::MenuItem(str->menu_engine_item_system, NULL, &is_selected);
+                g->window_flags.update_engine_system(is_selected);
+            
+                ImGui::EndMenu();
+            }
 
+            if (ImGui::BeginMenu(str->menu_renderer)) {
+
+                is_selected = g->window_flags.get_renderer_camera();
+                ImGui::MenuItem(str->menu_renderer_item_camera, NULL, &is_selected);
+                g->window_flags.update_renderer_camera(is_selected);
 
                 ImGui::EndMenu();
             }
