@@ -8,6 +8,7 @@
 #include "eng-input.cpp"
 #include "eng-window.cpp"
 #include "eng-stack.cpp"
+#include "eng-gui.cpp"
 
 #include "entity.cpp"
 #include "entity-id.cpp"
@@ -19,6 +20,8 @@
 #include "file-ro.cpp"
 #include "file-wo.cpp"
 #include "file-rw.cpp"
+
+#include "gui.cpp"
 
 #include "renderer.cpp"
 
