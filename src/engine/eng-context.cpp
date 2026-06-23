@@ -131,7 +131,6 @@ namespace ifb {
             renderer_direction_gizmo_draw (_eng_context->renderer);
 
             gui_render(_eng_context->gui);
-            ImGui::ShowDemoWindow();
 
             // render frame
             pfm_window_frame_render();

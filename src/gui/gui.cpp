@@ -1,6 +1,8 @@
 #pragma once
 
 #include "gui.hpp"
+#include "gui-engine.cpp"
+#include "gui-renderer-camera.cpp"
 
 namespace ifb {
 
@@ -80,13 +82,14 @@ namespace ifb {
 
         gui_validate(g);
 
-        
-
         if (!g->is_open) {
             return;
         }
 
-        gui_main_window(g);
+
+        gui_main_window       (g);
+        gui_engine_imgui_demo (g);
+        gui_renderer_camera   (g);
     }
 
     IFB_INTERNAL void
@@ -114,6 +117,10 @@ namespace ifb {
         if (ImGui::BeginMainMenuBar()) {
 
             if (ImGui::BeginMenu(str->menu_engine)) {
+
+                is_selected = g->window_flags.get_engine_imgui_demo();
+                ImGui::MenuItem(str->menu_engine_item_imgui_demo, NULL, &is_selected);
+                g->window_flags.update_engine_imgui_demo(is_selected);
 
                 is_selected = g->window_flags.get_engine_system();
                 ImGui::MenuItem(str->menu_engine_item_system, NULL, &is_selected);
