@@ -6,9 +6,12 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // PRIMITIVE TYPES
+    // CONSTANTS
     //--------------------------------------------------------------------
 
+    static constexpr f32 GUI_DRAG_FLOAT_SPEED =  0.001f;
+    static constexpr f32 GUI_DRAG_FLOAT_MIN   = -1.000f;
+    static constexpr f32 GUI_DRAG_FLOAT_MAX   =  1.000f;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -43,6 +46,9 @@ namespace ifb {
 
     // renderer
     IFB_INTERNAL void  gui_renderer_camera    (gui* g);
+
+    // controls
+    IFB_INTERNAL void gui_control_vec3        (const char* name, vec3* v);
 
     //--------------------------------------------------------------------
     // ENUMS
@@ -96,6 +102,8 @@ namespace ifb {
         inline static const char* menu_renderer               = "Renderer";
         inline static const char* menu_renderer_item_camera   = "Camera"; 
         inline static const char* window_renderer_camera      = "Renderer Camera";
+        inline static const char* camera_origin               = "Camera Origin";
+        inline static const char* camera_target               = "Camera Target";
     };
 
 };

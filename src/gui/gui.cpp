@@ -3,6 +3,7 @@
 #include "gui.hpp"
 #include "gui-engine.cpp"
 #include "gui-renderer-camera.cpp"
+#include "gui-controls.cpp"
 
 namespace ifb {
 

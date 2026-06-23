@@ -5,6 +5,26 @@
 namespace ifb {
 
     IFB_INTERNAL void
+    renderer_camera_get_origin(
+        renderer_context* ctx,
+        vec3*             origin) {
+
+        assert(ctx != NULL && origin != NULL);
+
+        *origin = ctx->cam.origin;
+    }
+
+    IFB_INTERNAL void
+    renderer_camera_get_target(
+        renderer_context* ctx,
+        vec3*             target) {
+
+        assert(ctx != NULL && target != NULL);
+
+        *target = ctx->cam.target;
+    }
+
+    IFB_INTERNAL void
     renderer_camera_set_origin(
         renderer_context* ctx,
         const vec3*       origin) {
