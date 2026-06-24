@@ -68,4 +68,32 @@ namespace ifb {
 
         v.look_at(cam.origin, cam.target);
     }
+
+    IFB_INTERNAL void
+    renderer_camera_get_forward(
+        renderer_context* ctx,
+        vec3&             forward) {
+
+        assert(ctx != NULL);
+
+    }
+
+    IFB_INTERNAL void
+    renderer_camera_get_right(
+        renderer_context* ctx,
+        vec3&             right) {
+
+        assert(ctx != NULL);
+
+    }
+
+    IFB_INTERNAL void
+    renderer_camera_get_up(
+        renderer_context* ctx,
+        vec3&             up) {
+
+        assert(ctx != NULL);
+
+    }
+
 };

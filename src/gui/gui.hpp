@@ -14,7 +14,7 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
-    static constexpr f32 GUI_DRAG_FLOAT_SPEED =  0.00001f;
+    static constexpr f32 GUI_DRAG_FLOAT_SPEED =  0.001f;
     static constexpr f32 GUI_DRAG_FLOAT_MIN   = -1.000f;
     static constexpr f32 GUI_DRAG_FLOAT_MAX   =  1.000f;
 
