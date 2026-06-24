@@ -94,6 +94,15 @@ namespace ifb {
     IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
 
     //--------------------------------------------------------------------
+    // CAMERA
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API void eng_camera_get_origin (vec3& origin);
+    IFB_ENGINE_API void eng_camera_get_target (vec3& target);
+    IFB_ENGINE_API void eng_camera_set_origin (const vec3& origin);
+    IFB_ENGINE_API void eng_camera_set_target (const vec3& target);
+
+    //--------------------------------------------------------------------
     // ENTITIES
     //--------------------------------------------------------------------
 
