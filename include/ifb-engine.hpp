@@ -53,6 +53,13 @@ namespace ifb {
     IFB_ENGINE_API void eng_window_set_size                              (const u32 width, const u32 height);
     
     //--------------------------------------------------------------------
+    // GUI
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API void eng_gui_open  (void);
+    IFB_ENGINE_API void eng_gui_close (void);
+    
+    //--------------------------------------------------------------------
     // INPUT
     //--------------------------------------------------------------------
 
@@ -87,6 +94,15 @@ namespace ifb {
     IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
 
     //--------------------------------------------------------------------
+    // CAMERA
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API void eng_camera_get_origin (vec3& origin);
+    IFB_ENGINE_API void eng_camera_get_target (vec3& target);
+    IFB_ENGINE_API void eng_camera_set_origin (const vec3& origin);
+    IFB_ENGINE_API void eng_camera_set_target (const vec3& target);
+
+    //--------------------------------------------------------------------
     // ENTITIES
     //--------------------------------------------------------------------
 
@@ -118,6 +134,7 @@ namespace ifb {
         eng_mem core;
         eng_mem rendering;
         eng_mem entities;
+        eng_mem gui;
     };
 }
 #endif  //IFB_ENGINE_HPP

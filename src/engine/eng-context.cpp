@@ -20,6 +20,7 @@ namespace ifb {
         _eng_context->system    = eng_stack_push_system_info       (stack);
         _eng_context->renderer  = eng_stack_push_and_init_renderer (stack);
         _eng_context->mngrs     = eng_stack_push_and_init_managers (stack); 
+        _eng_context->gui       = eng_stack_push_and_init_gui      (stack);
         _eng_context->stack     = stack;
         _eng_context->mem_map   = mem_map;
 
@@ -98,6 +99,11 @@ namespace ifb {
         renderer_hello_quad_shader_init      (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (_eng_context->renderer, file_src_dir_giz_vert, file_src_dir_giz_frag);
 
+        // start the gui
+        memory gui_mem;
+        gui_mem.ptr  = mem_map->gui.ptr;
+        gui_mem.size = mem_map->gui.size;
+        gui_startup(_eng_context->gui, gui_mem);
     }
 
     IFB_ENGINE_API void
@@ -119,12 +125,9 @@ namespace ifb {
             pfm_window_process_events();
 
             // push and render quad
-            renderer_quad_push            (_eng_context->renderer, &test_quad, 1);
-            renderer_quad_draw            (_eng_context->renderer);
-            renderer_hello_quad_draw      (_eng_context->renderer);
             renderer_direction_gizmo_draw (_eng_context->renderer);
 
-            ImGui::ShowDemoWindow();
+            gui_render(_eng_context->gui);
 
             // render frame
             pfm_window_frame_render();

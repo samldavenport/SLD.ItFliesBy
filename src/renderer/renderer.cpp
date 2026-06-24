@@ -5,6 +5,7 @@
 #include "quad.cpp" 
 #include "hello-quad.cpp" 
 #include "direction-gizmo.cpp"
+#include "camera.cpp"
 
 namespace ifb {
 
@@ -88,6 +89,9 @@ namespace ifb {
         ) {
             ctx->mem.block_stack.ids[index] = index;
         }
+
+        // intialize camera
+        renderer_camera_init(ctx);
     }
 
     IFB_INTERNAL void
