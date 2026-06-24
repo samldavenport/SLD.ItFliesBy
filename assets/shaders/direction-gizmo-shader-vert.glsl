@@ -6,9 +6,9 @@ uniform mat4 u_mat4_model;
 out vec4 vert_color;
 
 const vec3 directional_axes_pos[6] = vec3[](
-    vec3(0,0,0), vec3(1,0,0), // x-right
-    vec3(0,0,0), vec3(0,1,0), // y-up
-    vec3(0,0,0), vec3(0,0,1)  // z-forward
+    vec3(0,0,0), vec3(0.25,0,0), // x-right
+    vec3(0,0,0), vec3(0,0.25,0), // y-up
+    vec3(0,0,0), vec3(0,0,0.25)  // z-forward
 );
 
 const vec4 directional_axes_colors[6] = vec4[] (
