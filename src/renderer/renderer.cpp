@@ -91,8 +91,7 @@ namespace ifb {
         }
 
         // intialize camera
-        ctx->cam.target = {0.0f, 0.0f, -1.0f};
-        ctx->cam.origin = {0.0f, 0.0f,  0.0f};
+        renderer_camera_init(ctx);
     }
 
     IFB_INTERNAL void

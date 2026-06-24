@@ -83,8 +83,8 @@ namespace ifb {
         static mat4 mat4_model;
         mat4_model.identity();
 
-        view v;
-        v.identity();
+        static view v;
+        renderer_camera_get_view(ctx, v);
 
         gl_context_set_shader_program (gl, shdr.program);
         gl_uniform_set_mat4           (gl, shdr.unif_mat4_view_proj, (const f32*)&v);
