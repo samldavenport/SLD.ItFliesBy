@@ -198,6 +198,12 @@ namespace ifb {
             quad_shader            quad;
             direction_gizmo_shader direction_gizmo;
         } shader;
+        struct  {
+            mat4 projection;
+            mat4 view;
+            mat4 view_projection;
+            mat4 look_at;
+        } matrices;
     };
 
 
