@@ -90,14 +90,9 @@ namespace ifb {
             ctx->mem.block_stack.ids[index] = index;
         }
 
-        // initialize matrices
-        mat4_identity(&ctx->matrices.projection);
-        mat4_identity(&ctx->matrices.view);
-        mat4_identity(&ctx->matrices.view_projection);
-
         // intialize camera
-        ctx->cam.origin = { 0.0f, 0.0f, -1.0f }; 
-        ctx->cam.target = { 0.0f, 0.0f,  0.0f }; 
+        ctx->cam.target = {0.0f, 0.0f, -1.0f};
+        ctx->cam.origin = {0.0f, 0.0f,  0.0f};
     }
 
     IFB_INTERNAL void

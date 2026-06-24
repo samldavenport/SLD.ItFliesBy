@@ -7,70 +7,52 @@ namespace ifb {
     IFB_INTERNAL void
     renderer_camera_get_origin(
         renderer_context* ctx,
-        vec3*             origin) {
+        vec3&             origin) {
 
-        assert(ctx != NULL && origin != NULL);
+        assert(ctx != NULL);
 
-        *origin = ctx->cam.origin;
+        origin = ctx->cam.origin;
     }
 
     IFB_INTERNAL void
     renderer_camera_get_target(
         renderer_context* ctx,
-        vec3*             target) {
+        vec3&             target) {
 
-        assert(ctx != NULL && target != NULL);
+        assert(ctx != NULL);
 
-        *target = ctx->cam.target;
+        target = ctx->cam.target;
     }
 
     IFB_INTERNAL void
     renderer_camera_set_origin(
         renderer_context* ctx,
-        const vec3*       origin) {
+        const vec3&       origin) {
 
-        assert(ctx != NULL && origin != NULL);
+        assert(ctx != NULL);
 
-        ctx->cam.origin = *origin;
+        ctx->cam.origin = origin;
     }
 
     IFB_INTERNAL void
     renderer_camera_set_target(
         renderer_context* ctx,
-        const vec3*       target) {
+        const vec3&       target) {
 
-        assert(ctx != NULL && target != NULL);
+        assert(ctx != NULL);
 
-        ctx->cam.target = *target;
+        ctx->cam.target = target;
     }
 
     IFB_INTERNAL void
-    renderer_camera_xform_look_at(
+    renderer_camera_get_view(
         renderer_context* ctx,
-        mat4*             xform) {
+        view&             v) {
 
-        assert(ctx != NULL && xform != NULL);
+        assert(ctx != NULL);
 
-        xform_look_at(
-            xform,
-            &ctx->cam.origin,
-            &ctx->cam.target
-        );
-    }
+        auto& cam = ctx->cam;
 
-    IFB_INTERNAL void
-    renderer_camera_xform_view(
-        renderer_context* ctx,
-        mat4*             xform) {
-
-        assert(ctx != NULL && xform != NULL);
-
-        xform_look_at(
-            xform,
-            &ctx->cam.origin,
-            &ctx->cam.target
-        );
-
-        mat4_transpose(xform, xform);
+        v.look_at(cam.origin, cam.target);
     }
 };

@@ -9,7 +9,7 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
-    static constexpr f32 GUI_DRAG_FLOAT_SPEED =  0.001f;
+    static constexpr f32 GUI_DRAG_FLOAT_SPEED =  0.00000001f;
     static constexpr f32 GUI_DRAG_FLOAT_MIN   = -1.000f;
     static constexpr f32 GUI_DRAG_FLOAT_MAX   =  1.000f;
 
@@ -48,7 +48,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_renderer_camera    (gui* g);
 
     // controls
-    IFB_INTERNAL void gui_control_vec3        (const char* name, vec3* v);
+    IFB_INTERNAL void gui_control_vec3        (const char* name, vec3& v);
 
     //--------------------------------------------------------------------
     // ENUMS

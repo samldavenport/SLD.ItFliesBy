@@ -45,12 +45,11 @@ namespace ifb {
     IFB_INTERNAL u32   renderer_memory_element_count        (renderer_context* ctx, const u32 element_size);
 
     // camera
-    IFB_INTERNAL void  renderer_camera_get_origin           (renderer_context* ctx, vec3* origin);
-    IFB_INTERNAL void  renderer_camera_get_target           (renderer_context* ctx, vec3* target);
-    IFB_INTERNAL void  renderer_camera_set_origin           (renderer_context* ctx, const vec3* origin);
-    IFB_INTERNAL void  renderer_camera_set_target           (renderer_context* ctx, const vec3* target);
-    IFB_INTERNAL void  renderer_camera_xform_look_at        (renderer_context* ctx, mat4* xform);
-    IFB_INTERNAL void  renderer_camera_xform_view           (renderer_context* ctx, mat4* xform);
+    IFB_INTERNAL void renderer_camera_get_origin           (renderer_context* ctx, vec3&       origin);
+    IFB_INTERNAL void renderer_camera_get_target           (renderer_context* ctx, vec3&       target);
+    IFB_INTERNAL void renderer_camera_set_origin           (renderer_context* ctx, const vec3& origin);
+    IFB_INTERNAL void renderer_camera_set_target           (renderer_context* ctx, const vec3& target);
+    IFB_INTERNAL void renderer_camera_get_view             (renderer_context* ctx, view&       v);
 
     // hello quad
     IFB_INTERNAL void  renderer_hello_quad_shader_init      (renderer_context* ctx, const shader_source& src_vertex, const shader_source& src_fragment);
@@ -198,12 +197,6 @@ namespace ifb {
             quad_shader            quad;
             direction_gizmo_shader direction_gizmo;
         } shader;
-        struct  {
-            mat4 projection;
-            mat4 view;
-            mat4 view_projection;
-            mat4 look_at;
-        } matrices;
     };
 
 
