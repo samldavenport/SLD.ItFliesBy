@@ -64,14 +64,6 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_context_run(void) {
 
-        quad test_quad;
-        test_quad.color.hex         = 0xFF0000FF;
-        test_quad.position.x        = 0.0f;
-        test_quad.position.y        = 0.0f;
-        test_quad.position.z        = 0.0f;
-        test_quad.dimensions.width  = 0.2f;
-        test_quad.dimensions.height = 0.2f;
-
         while(true) {
 
             //TODO(SAM): pass the opengl context to the platform
