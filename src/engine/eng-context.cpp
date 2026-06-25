@@ -5,6 +5,21 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // INLINE METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+
+    inline void eng_context_startup_get_system_info (eng_system_info* sys_info);
+    inline void eng_context_startup_open_window     (const ifb_config& config, const eng_system_info* sys_info);
+    inline void eng_context_startup_file_manager    (eng_managers* mngrs, const eng_mem_map* mem_map);
+    inline void eng_context_startup_entity_manager  (eng_managers* mngrs, const eng_mem_map* mem_map);
+    inline void eng_context_startup_renderer        (renderer_context* renderer, eng_managers* mngrs, const eng_mem_map* mem_map);
+    inline void eng_context_startup_gui             (gui* g, const eng_mem_map* mem_map);
+
+    //--------------------------------------------------------------------
+    // API METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
@@ -31,79 +46,19 @@ namespace ifb {
     eng_context_startup(
         void) {
 
-        const eng_mem_map* mem_map = _eng_context->mem_map;
-        eng_system_info*   system  = _eng_context->system;
+        const auto&        config   = config_instance();
+        const eng_mem_map* mem_map  = _eng_context->mem_map;
+        eng_system_info*   system   = _eng_context->system;
+        eng_managers*      mngrs    = _eng_context->mngrs;
+        renderer_context*  renderer = _eng_context->renderer;
+        gui*               g        = _eng_context->gui;
 
-        // monitor info
-        system->monitor.count = pfm_monitor_count();
-        pfm_monitor_get_info         (0, &system->monitor.primary);
-        pfm_monitor_get_working_area (system->monitor.working_area);
-
-        // open window
-        const ifb_config& global_cfg = config_instance();
-        pfm_window_config window_cfg;
-        window_cfg.title            = (char*)&global_cfg.window_title[0];
-        window_cfg.init_dims.width  = global_cfg.window_start_width;
-        window_cfg.init_dims.height = global_cfg.window_start_height;
-        window_cfg.init_dims.x      = (system->monitor.primary.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
-        window_cfg.init_dims.y      = (system->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
-        pfm_window_open(&window_cfg);
-
-        eng_managers* mngrs = _eng_context->mngrs;
-
-        // file manager
-        const u32 file_granularity = size_kilobytes(64);
-        file_manager_startup(
-            mngrs->file,
-            mem_map->files.size,
-            file_granularity,
-            mem_map->files.ptr
-        );        
-
-        // entity manager
-        memory entity_mem;
-        entity_mem.size = mem_map->entities.size;
-        entity_mem.ptr  = mem_map->entities.ptr;
-        entity_manager_startup(mngrs->entity, entity_mem);
-
-        // initialize the renderer
-        memory mem_rndr;
-        mem_rndr.ptr  = mem_map->rendering.ptr;
-        mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup        (_eng_context->renderer, mem_rndr);
-
-        // open shader files
-        const file_handle file_hnd_quad_vert    = file_ro_open_existing (mngrs->file, "quad-shader-vertex.glsl");
-        const file_handle file_hnd_quad_frag    = file_ro_open_existing (mngrs->file, "quad-shader-fragment.glsl");
-        const file_handle file_hnd_dir_giz_vert = file_ro_open_existing (mngrs->file, "direction-gizmo-shader-vert.glsl");
-        const file_handle file_hnd_dir_giz_frag = file_ro_open_existing (mngrs->file, "direction-gizmo-shader-frag.glsl");
-
-        // read quad shaders        
-        shader_source file_src_quad_vert;
-        shader_source file_src_quad_frag;
-        file_src_quad_vert.size = file_get_size (mngrs->file, file_hnd_quad_vert); 
-        file_src_quad_vert.data = file_read     (mngrs->file, file_hnd_quad_vert, file_src_quad_vert.size);
-        file_src_quad_frag.size = file_get_size (mngrs->file, file_hnd_quad_frag);
-        file_src_quad_frag.data = file_read     (mngrs->file, file_hnd_quad_frag, file_src_quad_frag.size); 
-        
-        // read direction gizmo shaders
-        shader_source file_src_dir_giz_vert;
-        shader_source file_src_dir_giz_frag;
-        file_src_dir_giz_vert.size = file_get_size (mngrs->file, file_hnd_dir_giz_vert); 
-        file_src_dir_giz_vert.data = file_read     (mngrs->file, file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
-        file_src_dir_giz_frag.size = file_get_size (mngrs->file, file_hnd_dir_giz_frag);
-        file_src_dir_giz_frag.data = file_read     (mngrs->file, file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
-
-        // initialize shaders
-        renderer_quad_shader_init            (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
-        renderer_hello_quad_shader_init      (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (_eng_context->renderer, file_src_dir_giz_vert, file_src_dir_giz_frag);
-
-        // start the gui
-        memory gui_mem;
-        gui_mem.ptr  = mem_map->gui.ptr;
-        gui_mem.size = mem_map->gui.size;
-        gui_startup(_eng_context->gui, gui_mem);
+        eng_context_startup_get_system_info  (system);
+        eng_context_startup_open_window      (config, system);
+        eng_context_startup_file_manager     (mngrs, mem_map);
+        eng_context_startup_entity_manager   (mngrs, mem_map);
+        eng_context_startup_renderer         (renderer,mngrs, mem_map);
+        eng_context_startup_gui              (g, mem_map);
     }
 
     IFB_ENGINE_API void
@@ -142,5 +97,114 @@ namespace ifb {
     eng_context_shutdown(
         void) {
 
+    }
+
+    //--------------------------------------------------------------------
+    // INLINE METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
+    inline void
+    eng_context_startup_get_system_info(
+        eng_system_info* sys_info) {
+
+        // monitor info
+        sys_info->monitor.count = pfm_monitor_count();
+        pfm_monitor_get_info         (0, &sys_info->monitor.primary);
+        pfm_monitor_get_working_area (sys_info->monitor.working_area);
+    }
+    
+    inline void
+    eng_context_startup_open_window(
+        const ifb_config&      config,
+        const eng_system_info* sys_info) {
+
+        pfm_window_config window_cfg;
+        window_cfg.title            = (char*)&config.window_title[0];
+        window_cfg.init_dims.width  = config.window_start_width;
+        window_cfg.init_dims.height = config.window_start_height;
+        window_cfg.init_dims.x      = (sys_info->monitor.primary.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
+        window_cfg.init_dims.y      = (sys_info->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
+        pfm_window_open(&window_cfg);
+    }
+
+    inline void
+    eng_context_startup_file_manager(
+        eng_managers*      mngrs,
+        const eng_mem_map* mem_map) {
+
+        const u32 file_granularity = size_kilobytes(64);
+        file_manager_startup(
+            mngrs->file,
+            mem_map->files.size,
+            file_granularity,
+            mem_map->files.ptr
+        );
+    }
+
+    inline void
+    eng_context_startup_entity_manager(
+        eng_managers* mngrs,
+        const eng_mem_map* mem_map) {
+
+        memory entity_mem;
+        entity_mem.size = mem_map->entities.size;
+        entity_mem.ptr  = mem_map->entities.ptr;
+        entity_manager_startup(mngrs->entity, entity_mem);
+    }
+
+    inline void
+    eng_context_startup_renderer(
+        renderer_context*  renderer,
+        eng_managers*      mngrs,
+        const eng_mem_map* mem_map) {
+
+        // initialize the renderer
+        memory mem_rndr;
+        mem_rndr.ptr  = mem_map->rendering.ptr;
+        mem_rndr.size = mem_map->rendering.size;
+        renderer_context_startup        (_eng_context->renderer, mem_rndr);
+
+        // open shader files
+        const file_handle file_hnd_quad_vert    = file_ro_open_existing (mngrs->file, "quad-shader-vertex.glsl");
+        const file_handle file_hnd_quad_frag    = file_ro_open_existing (mngrs->file, "quad-shader-fragment.glsl");
+        const file_handle file_hnd_dir_giz_vert = file_ro_open_existing (mngrs->file, "direction-gizmo-shader-vert.glsl");
+        const file_handle file_hnd_dir_giz_frag = file_ro_open_existing (mngrs->file, "direction-gizmo-shader-frag.glsl");
+
+        // read quad shaders        
+        shader_source file_src_quad_vert;
+        shader_source file_src_quad_frag;
+        file_src_quad_vert.size = file_get_size (mngrs->file, file_hnd_quad_vert); 
+        file_src_quad_vert.data = file_read     (mngrs->file, file_hnd_quad_vert, file_src_quad_vert.size);
+        file_src_quad_frag.size = file_get_size (mngrs->file, file_hnd_quad_frag);
+        file_src_quad_frag.data = file_read     (mngrs->file, file_hnd_quad_frag, file_src_quad_frag.size); 
+        
+        // read direction gizmo shaders
+        shader_source file_src_dir_giz_vert;
+        shader_source file_src_dir_giz_frag;
+        file_src_dir_giz_vert.size = file_get_size (mngrs->file, file_hnd_dir_giz_vert); 
+        file_src_dir_giz_vert.data = file_read     (mngrs->file, file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
+        file_src_dir_giz_frag.size = file_get_size (mngrs->file, file_hnd_dir_giz_frag);
+        file_src_dir_giz_frag.data = file_read     (mngrs->file, file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
+
+        // initialize shaders
+        renderer_quad_shader_init            (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
+        renderer_hello_quad_shader_init      (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (_eng_context->renderer, file_src_dir_giz_vert, file_src_dir_giz_frag);
+
+        // close the shader files
+        file_close(mngrs->file, file_hnd_quad_vert);
+        file_close(mngrs->file, file_hnd_quad_frag);
+        file_close(mngrs->file, file_hnd_dir_giz_vert);
+        file_close(mngrs->file, file_hnd_dir_giz_frag);
+    }
+
+    inline void
+    eng_context_startup_gui(
+        gui* g, const eng_mem_map* mem_map) {
+
+        memory gui_mem;
+        gui_mem.ptr  = mem_map->gui.ptr;
+        gui_mem.size = mem_map->gui.size;
+        gui_startup(g, gui_mem);
     }
 };
