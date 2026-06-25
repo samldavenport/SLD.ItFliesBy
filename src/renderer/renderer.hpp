@@ -32,14 +32,15 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // renderer context
-    IFB_INTERNAL u32               renderer_context_memory_requirement (void);
-    IFB_INTERNAL renderer_context* renderer_context_init_from_memory   (memory&   mem);
-    IFB_INTERNAL void              renderer_context_startup            (renderer_context* ctx, memory& reserved_memory);
-    IFB_INTERNAL void              renderer_context_shutdown           (renderer_context* ctx);
-    IFB_INTERNAL void              renderer_context_update_viewport    (renderer_context* ctx, const u32 width, const u32 height);
-    IFB_INTERNAL void              renderer_context_update_view_matrix (renderer_context* ctx);
-    IFB_INTERNAL void              renderer_context_gui                (renderer_context* ctx);
-    
+    IFB_INTERNAL u32               renderer_context_memory_requirement       (void);
+    IFB_INTERNAL renderer_context* renderer_context_init_from_memory         (memory&   mem);
+    IFB_INTERNAL void              renderer_context_startup                  (renderer_context* ctx, memory& reserved_memory);
+    IFB_INTERNAL void              renderer_context_shutdown                 (renderer_context* ctx);
+    IFB_INTERNAL void              renderer_context_update_viewport          (renderer_context* ctx, const u32 width, const u32 height);
+    IFB_INTERNAL void              renderer_context_update_projection_matrix (renderer_context* ctx);
+    IFB_INTERNAL void              renderer_context_update_view_matrix       (renderer_context* ctx);
+    IFB_INTERNAL f32               renderer_context_aspect_ratio             (renderer_context* ctx);
+
     // memory
     IFB_INTERNAL void* renderer_memory_commit               (renderer_context* ctx);
     IFB_INTERNAL void  renderer_memory_decommit             (renderer_context* ctx, void* mem);
@@ -190,7 +191,8 @@ namespace ifb {
         gl_shader  vert_shdr;
         gl_shader  frag_shdr;
         gl_vertex  vertex;
-        gl_uniform unif_mat4_view_proj;
+        gl_uniform unif_mat4_view;
+        gl_uniform unif_mat4_proj;
         gl_uniform unif_mat4_model;
     };
 
@@ -203,7 +205,10 @@ namespace ifb {
         gl_context*           gl;
         renderer_memory       mem;
         camera                cam;
+        proj                  xform_proj;
         view                  xform_view;
+        dimensions_2d         dims;
+        f32                   fov_y;
         struct {
             hello_quad_shader      hello_quad;
             quad_shader            quad;

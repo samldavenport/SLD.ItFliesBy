@@ -4,9 +4,10 @@
 
 namespace ifb {
      
-    static constexpr char* DIR_GIZ_UNIFORM_NAME_MAT4_VIEW_PROJ = "u_mat4_view_proj";
-    static constexpr char* DIR_GIZ_UNIFORM_NAME_MAT4_MODEL     = "u_mat4_model";
-    static constexpr u32   DIR_GIZ_VERT_COUNT                  = 6;
+    static constexpr char* DIR_GIZ_UNIFORM_NAME_MAT4_VIEW  = "u_mat4_view";
+    static constexpr char* DIR_GIZ_UNIFORM_NAME_MAT4_PROJ  = "u_mat4_proj";
+    static constexpr char* DIR_GIZ_UNIFORM_NAME_MAT4_MODEL = "u_mat4_model";
+    static constexpr u32   DIR_GIZ_VERT_COUNT              = 6;
 
     IFB_INTERNAL void
     renderer_direciton_gizmo_shader_init(
@@ -54,11 +55,13 @@ namespace ifb {
         assert(gl_ok);
 
         // get the uniform locations
-        shdr.unif_mat4_view_proj = gl_uniform_get_location(gl, shdr.program, DIR_GIZ_UNIFORM_NAME_MAT4_VIEW_PROJ);
+        shdr.unif_mat4_proj = gl_uniform_get_location(gl, shdr.program, DIR_GIZ_UNIFORM_NAME_MAT4_PROJ);
+        shdr.unif_mat4_view = gl_uniform_get_location(gl, shdr.program, DIR_GIZ_UNIFORM_NAME_MAT4_VIEW);
         shdr.unif_mat4_model     = gl_uniform_get_location(gl, shdr.program, DIR_GIZ_UNIFORM_NAME_MAT4_MODEL);
         gl_ok &= (
-            shdr.unif_mat4_view_proj != GL_UNIFORM_INVALID &&
-            shdr.unif_mat4_model     != GL_UNIFORM_INVALID
+            shdr.unif_mat4_proj  != GL_UNIFORM_INVALID &&
+            shdr.unif_mat4_view  != GL_UNIFORM_INVALID &&
+            shdr.unif_mat4_model != GL_UNIFORM_INVALID
         );
         assert(gl_ok);
     }
@@ -73,19 +76,21 @@ namespace ifb {
         auto& shdr = ctx->shader.direction_gizmo;
 
         assert(
-            shdr.program             != GL_ID_INVALID      &&
-            shdr.vertex              != GL_ID_INVALID      &&
-            shdr.unif_mat4_view_proj != GL_UNIFORM_INVALID &&
-            shdr.unif_mat4_model     != GL_UNIFORM_INVALID
+            shdr.program         != GL_ID_INVALID      &&
+            shdr.vertex          != GL_ID_INVALID      &&
+            shdr.unif_mat4_proj  != GL_UNIFORM_INVALID &&
+            shdr.unif_mat4_view  != GL_UNIFORM_INVALID &&
+            shdr.unif_mat4_model != GL_UNIFORM_INVALID
         );
 
-
-        static const mat4 mat4_model = mat4();
+        const proj&       mat4_proj  = ctx->xform_proj; 
         const view&       mat4_view  = ctx->xform_view;
+        static const mat4 mat4_model = mat4();
 
         gl_context_set_shader_program (gl, shdr.program);
-        gl_uniform_set_mat4           (gl, shdr.unif_mat4_view_proj, (const f32*)&mat4_view);
-        gl_uniform_set_mat4           (gl, shdr.unif_mat4_model,     (const f32*)&mat4_model.m);
+        gl_uniform_set_mat4           (gl, shdr.unif_mat4_proj,  (const f32*)&mat4_proj.m);
+        gl_uniform_set_mat4           (gl, shdr.unif_mat4_view,  (const f32*)&mat4_view.m);
+        gl_uniform_set_mat4           (gl, shdr.unif_mat4_model, (const f32*)&mat4_model.m);
         gl_context_draw_lines         (gl, DIR_GIZ_VERT_COUNT);
     }
 };

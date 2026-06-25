@@ -72,8 +72,9 @@ namespace ifb {
             pfm_window_process_events();
 
             // render graphics
-            renderer_context_update_view_matrix (_eng_context->renderer);
-            renderer_direction_gizmo_draw       (_eng_context->renderer);
+            renderer_context_update_projection_matrix (_eng_context->renderer);
+            renderer_context_update_view_matrix       (_eng_context->renderer);
+            renderer_direction_gizmo_draw             (_eng_context->renderer);
 
             // render gui
             gui_render(_eng_context->gui);
