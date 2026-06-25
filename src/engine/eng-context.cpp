@@ -5,6 +5,21 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // INLINE METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+
+    inline void eng_context_startup_get_system_info (eng_system_info* sys_info);
+    inline void eng_context_startup_open_window     (const ifb_config& config, const eng_system_info* sys_info);
+    inline void eng_context_startup_file_manager    (eng_managers* mngrs, const eng_mem_map* mem_map);
+    inline void eng_context_startup_entity_manager  (eng_managers* mngrs, const eng_mem_map* mem_map);
+    inline void eng_context_startup_renderer        (renderer_context* renderer, eng_managers* mngrs, const eng_mem_map* mem_map);
+    inline void eng_context_startup_gui             (gui* g, const eng_mem_map* mem_map);
+
+    //--------------------------------------------------------------------
+    // API METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
@@ -31,40 +46,119 @@ namespace ifb {
     eng_context_startup(
         void) {
 
-        const eng_mem_map* mem_map = _eng_context->mem_map;
-        eng_system_info*   system  = _eng_context->system;
+        const auto&        config   = config_instance();
+        const eng_mem_map* mem_map  = _eng_context->mem_map;
+        eng_system_info*   system   = _eng_context->system;
+        eng_managers*      mngrs    = _eng_context->mngrs;
+        renderer_context*  renderer = _eng_context->renderer;
+        gui*               g        = _eng_context->gui;
+
+        eng_context_startup_get_system_info  (system);
+        eng_context_startup_open_window      (config, system);
+        eng_context_startup_file_manager     (mngrs, mem_map);
+        eng_context_startup_entity_manager   (mngrs, mem_map);
+        eng_context_startup_renderer         (renderer,mngrs, mem_map);
+        eng_context_startup_gui              (g, mem_map);
+    }
+
+    IFB_ENGINE_API void
+    eng_context_run(void) {
+
+        quad test_quad;
+        test_quad.color.hex         = 0xFF0000FF;
+        test_quad.position.x        = 0.0f;
+        test_quad.position.y        = 0.0f;
+        test_quad.position.z        = 0.0f;
+        test_quad.dimensions.width  = 0.2f;
+        test_quad.dimensions.height = 0.2f;
+
+        while(true) {
+
+            //TODO(SAM): pass the opengl context to the platform
+            // start new frame
+            pfm_window_frame_start   ();
+            pfm_window_process_events();
+
+            // render graphics
+            renderer_context_update_view_matrix (_eng_context->renderer);
+            renderer_direction_gizmo_draw       (_eng_context->renderer);
+
+            // render gui
+            gui_render(_eng_context->gui);
+
+            // render frame
+            pfm_window_frame_render();
+
+            // check if quit received
+            const bool quit = pfm_window_quit_received();
+            if (quit) break;
+        }
+    }
+    
+    IFB_ENGINE_API void
+    eng_context_shutdown(
+        void) {
+
+    }
+
+    //--------------------------------------------------------------------
+    // INLINE METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
+    inline void
+    eng_context_startup_get_system_info(
+        eng_system_info* sys_info) {
 
         // monitor info
-        system->monitor.count = pfm_monitor_count();
-        pfm_monitor_get_info         (0, &system->monitor.primary);
-        pfm_monitor_get_working_area (system->monitor.working_area);
+        sys_info->monitor.count = pfm_monitor_count();
+        pfm_monitor_get_info         (0, &sys_info->monitor.primary);
+        pfm_monitor_get_working_area (sys_info->monitor.working_area);
+    }
+    
+    inline void
+    eng_context_startup_open_window(
+        const ifb_config&      config,
+        const eng_system_info* sys_info) {
 
-        // open window
-        const ifb_config& global_cfg = config_instance();
         pfm_window_config window_cfg;
-        window_cfg.title            = (char*)&global_cfg.window_title[0];
-        window_cfg.init_dims.width  = global_cfg.window_start_width;
-        window_cfg.init_dims.height = global_cfg.window_start_height;
-        window_cfg.init_dims.x      = (system->monitor.primary.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
-        window_cfg.init_dims.y      = (system->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
+        window_cfg.title            = (char*)&config.window_title[0];
+        window_cfg.init_dims.width  = config.window_start_width;
+        window_cfg.init_dims.height = config.window_start_height;
+        window_cfg.init_dims.x      = (sys_info->monitor.primary.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
+        window_cfg.init_dims.y      = (sys_info->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
         pfm_window_open(&window_cfg);
+    }
 
-        eng_managers* mngrs = _eng_context->mngrs;
+    inline void
+    eng_context_startup_file_manager(
+        eng_managers*      mngrs,
+        const eng_mem_map* mem_map) {
 
-        // file manager
         const u32 file_granularity = size_kilobytes(64);
         file_manager_startup(
             mngrs->file,
             mem_map->files.size,
             file_granularity,
             mem_map->files.ptr
-        );        
+        );
+    }
 
-        // entity manager
+    inline void
+    eng_context_startup_entity_manager(
+        eng_managers* mngrs,
+        const eng_mem_map* mem_map) {
+
         memory entity_mem;
         entity_mem.size = mem_map->entities.size;
         entity_mem.ptr  = mem_map->entities.ptr;
         entity_manager_startup(mngrs->entity, entity_mem);
+    }
+
+    inline void
+    eng_context_startup_renderer(
+        renderer_context*  renderer,
+        eng_managers*      mngrs,
+        const eng_mem_map* mem_map) {
 
         // initialize the renderer
         memory mem_rndr;
@@ -99,48 +193,20 @@ namespace ifb {
         renderer_hello_quad_shader_init      (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (_eng_context->renderer, file_src_dir_giz_vert, file_src_dir_giz_frag);
 
-        // start the gui
+        // close the shader files
+        file_close(mngrs->file, file_hnd_quad_vert);
+        file_close(mngrs->file, file_hnd_quad_frag);
+        file_close(mngrs->file, file_hnd_dir_giz_vert);
+        file_close(mngrs->file, file_hnd_dir_giz_frag);
+    }
+
+    inline void
+    eng_context_startup_gui(
+        gui* g, const eng_mem_map* mem_map) {
+
         memory gui_mem;
         gui_mem.ptr  = mem_map->gui.ptr;
         gui_mem.size = mem_map->gui.size;
-        gui_startup(_eng_context->gui, gui_mem);
-    }
-
-    IFB_ENGINE_API void
-    eng_context_run(void) {
-
-        quad test_quad;
-        test_quad.color.hex         = 0xFF0000FF;
-        test_quad.position.x        = 0.0f;
-        test_quad.position.y        = 0.0f;
-        test_quad.position.z        = 0.0f;
-        test_quad.dimensions.width  = 0.2f;
-        test_quad.dimensions.height = 0.2f;
-
-        while(true) {
-
-            //TODO(SAM): pass the opengl context to the platform
-            // start new frame
-            pfm_window_frame_start   ();
-            pfm_window_process_events();
-
-            // push and render quad
-            renderer_direction_gizmo_draw (_eng_context->renderer);
-
-            gui_render(_eng_context->gui);
-
-            // render frame
-            pfm_window_frame_render();
-
-            // check if quit received
-            const bool quit = pfm_window_quit_received();
-            if (quit) break;
-        }
-    }
-    
-    IFB_ENGINE_API void
-    eng_context_shutdown(
-        void) {
-
+        gui_startup(g, gui_mem);
     }
 };

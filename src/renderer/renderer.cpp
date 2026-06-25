@@ -128,4 +128,17 @@ namespace ifb {
         );
     }
 
+    IFB_INTERNAL void
+    renderer_context_update_view_matrix(
+        renderer_context* ctx) {
+
+        assert(ctx);
+
+        ctx->xform_view.look_at(
+            ctx->cam.origin,
+            ctx->cam.target
+        );
+    }
+
+
 };

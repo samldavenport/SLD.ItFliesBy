@@ -30,7 +30,6 @@ wWinMain(
     mem_map.entities.ptr   = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.gui.size       = SIZE_RESERVATION; 
     mem_map.gui.ptr        = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
-    
 
     assert(
         mem_map.stack.ptr     != NULL &&        

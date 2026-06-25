@@ -37,6 +37,7 @@ namespace ifb {
     IFB_INTERNAL void              renderer_context_startup            (renderer_context* ctx, memory& reserved_memory);
     IFB_INTERNAL void              renderer_context_shutdown           (renderer_context* ctx);
     IFB_INTERNAL void              renderer_context_update_viewport    (renderer_context* ctx, const u32 width, const u32 height);
+    IFB_INTERNAL void              renderer_context_update_view_matrix (renderer_context* ctx);
     IFB_INTERNAL void              renderer_context_gui                (renderer_context* ctx);
     
     // memory
@@ -79,6 +80,12 @@ namespace ifb {
             u32  position;
             u32  capacity;
         } block_stack;
+    };
+
+    
+    struct shader_source {
+        const cchar8* data;
+        u32           size;
     };
 
     struct hello_quad_shader {
@@ -196,6 +203,7 @@ namespace ifb {
         gl_context*           gl;
         renderer_memory       mem;
         camera                cam;
+        view                  xform_view;
         struct {
             hello_quad_shader      hello_quad;
             quad_shader            quad;
@@ -203,11 +211,6 @@ namespace ifb {
         } shader;
     };
 
-
-    struct shader_source {
-        const cchar8* data;
-        u32           size;
-    };
 };
 
 #endif //RENDERER_HPP
