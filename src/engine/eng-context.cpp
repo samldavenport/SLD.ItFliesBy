@@ -79,9 +79,11 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
 
-            // push and render quad
-            renderer_direction_gizmo_draw (_eng_context->renderer);
+            // render graphics
+            renderer_context_update_view_matrix (_eng_context->renderer);
+            renderer_direction_gizmo_draw       (_eng_context->renderer);
 
+            // render gui
             gui_render(_eng_context->gui);
 
             // render frame
