@@ -6,10 +6,10 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_rw_create_new(
-        file_manager* mngr,
         const cchar8* path) {
 
-        assert(mngr != NULL && path != NULL);
+        file_manager_assert_valid();
+        assert(path != NULL);
 
         // configure the file
         pfm_file_config file_config;
@@ -20,7 +20,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
@@ -29,7 +29,8 @@ namespace ifb {
         file_manager* mngr,
         const cchar8* path) {
 
-        assert(mngr != NULL && path != NULL);
+        file_manager_assert_valid();
+        assert(path != NULL);
 
         // configure the file
         pfm_file_config file_config;
@@ -40,16 +41,16 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
     IFB_INTERNAL file_handle
     file_rw_open_always(
-        file_manager* mngr,
         const cchar8* path) {
 
-        assert(mngr != NULL && path != NULL);
+        file_manager_assert_valid();
+        assert(path != NULL);
 
         // configure the file
         pfm_file_config file_config;
@@ -60,16 +61,16 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
     IFB_INTERNAL file_handle
     file_rw_overwrite(
-        file_manager* mngr,
         const cchar8* path) {
 
-        assert(mngr != NULL && path != NULL);
+        file_manager_assert_valid();
+        assert(path != NULL);
 
         // configure the file
         pfm_file_config file_config;
@@ -80,7 +81,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 };
