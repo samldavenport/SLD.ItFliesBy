@@ -11,12 +11,11 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_direciton_gizmo_shader_init(
-        renderer_context*    ctx,
         const shader_source& src_vertex,
         const shader_source& src_fragment) {
 
         assert(
-            ctx               != NULL &&
+            _renderer_ctx     != NULL &&
             src_vertex.data   != NULL &&
             src_vertex.size   != 0    &&
             src_fragment.data != NULL &&
@@ -24,8 +23,8 @@ namespace ifb {
         );
 
         // cache properties
-        auto& shdr  = ctx->shader.direction_gizmo;
-        auto  gl    = ctx->gl;
+        auto& shdr  = _renderer_ctx->shader.direction_gizmo;
+        auto  gl    = _renderer_ctx->gl;
         bool  gl_ok = true;
 
         // create gl objects
@@ -68,12 +67,12 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_direction_gizmo_draw(
-        renderer_context* ctx) {
+        void) {
 
-        assert(ctx);
+        assert(_renderer_ctx);
 
-        auto  gl   = ctx->gl;
-        auto& shdr = ctx->shader.direction_gizmo;
+        auto  gl   = _renderer_ctx->gl;
+        auto& shdr = _renderer_ctx->shader.direction_gizmo;
 
         assert(
             shdr.program         != GL_ID_INVALID      &&
@@ -83,8 +82,8 @@ namespace ifb {
             shdr.unif_mat4_model != GL_UNIFORM_INVALID
         );
 
-        const mat4&       mat4_proj  = ctx->xform_proj; 
-        const mat4&       mat4_view  = ctx->xform_view;
+        const mat4&       mat4_proj  = _renderer_ctx->xform_proj; 
+        const mat4&       mat4_view  = _renderer_ctx->xform_view;
         static const mat4 mat4_model = mat4_identity();
 
         gl_context_set_shader_program (gl, shdr.program);

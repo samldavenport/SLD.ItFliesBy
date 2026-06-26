@@ -72,9 +72,9 @@ namespace ifb {
             pfm_window_process_events();
 
             // render graphics
-            renderer_context_update_projection_matrix (_eng_context->renderer);
-            renderer_context_update_view_matrix       (_eng_context->renderer);
-            renderer_direction_gizmo_draw             (_eng_context->renderer);
+            renderer_context_update_projection_matrix ();
+            renderer_context_update_view_matrix       ();
+            renderer_direction_gizmo_draw             ();
 
             // render gui
             gui_render(_eng_context->gui);
@@ -157,7 +157,7 @@ namespace ifb {
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup        (_eng_context->renderer, mem_rndr);
+        renderer_context_startup        (mem_rndr);
 
         // open shader files
         const file_handle file_hnd_quad_vert    = file_ro_open_existing (mngrs->file, "quad-shader-vertex.glsl");
@@ -182,9 +182,9 @@ namespace ifb {
         file_src_dir_giz_frag.data = file_read     (mngrs->file, file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
 
         // initialize shaders
-        renderer_quad_shader_init            (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
-        renderer_hello_quad_shader_init      (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (_eng_context->renderer, file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
+        renderer_hello_quad_shader_init      (file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
 
         // close the shader files
         file_close(mngrs->file, file_hnd_quad_vert);

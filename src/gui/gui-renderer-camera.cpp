@@ -22,9 +22,9 @@ namespace ifb {
         static vec3         camera_up;
         static mat4         camera_view_matrix;
 
-        renderer_camera_get_target (_eng_context->renderer, camera_target);
-        renderer_camera_get_origin (_eng_context->renderer, camera_origin);
-        renderer_camera_get_view   (_eng_context->renderer, camera_view_matrix);
+        renderer_camera_get_target (camera_target);
+        renderer_camera_get_origin (camera_origin);
+        renderer_camera_get_view   (camera_view_matrix);
 
 
         camera_forward = xform_view_forward (camera_view_matrix);
@@ -196,8 +196,8 @@ namespace ifb {
             ImGui::End();
         }
 
-        renderer_camera_set_target(_eng_context->renderer, camera_target);
-        renderer_camera_set_origin(_eng_context->renderer, camera_origin);
+        renderer_camera_set_target(camera_target);
+        renderer_camera_set_origin(camera_origin);
 
         g->window_flags.update_renderer_camera(is_open);
     }
