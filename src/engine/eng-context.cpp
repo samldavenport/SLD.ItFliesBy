@@ -143,7 +143,7 @@ namespace ifb {
         memory entity_mem;
         entity_mem.size = mem_map->entities.size;
         entity_mem.ptr  = mem_map->entities.ptr;
-        entity_manager_startup(mngrs->entity, entity_mem);
+        entity_manager_startup(entity_mem);
     }
 
     inline void

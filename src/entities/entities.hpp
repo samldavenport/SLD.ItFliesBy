@@ -22,6 +22,12 @@ namespace ifb {
     struct entity_manager;
 
     //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    static entity_manager* _entity_manager;
+
+    //--------------------------------------------------------------------
     // INTERNAL METHODS
     //--------------------------------------------------------------------
 
@@ -35,17 +41,17 @@ namespace ifb {
     // entity manager
     IFB_INTERNAL u32             entity_manager_memory_requirement  (void);
     IFB_INTERNAL entity_manager* entity_manager_memory_init         (const memory& mem);
-    IFB_INTERNAL void            entity_manager_assert_valid        (const entity_manager* em);
-    IFB_INTERNAL void            entity_manager_startup             (entity_manager*       em, const memory& mem_res);
-    IFB_INTERNAL void            entity_manager_shutdown            (entity_manager*       em);
+    IFB_INTERNAL void            entity_manager_assert_valid        (void);
+    IFB_INTERNAL void            entity_manager_startup             (const memory& mem_res);
+    IFB_INTERNAL void            entity_manager_shutdown            (void);
 
     // entity
-    IFB_INTERNAL u32             entity_lookup_index_by_tag         (const entity_manager* em, const cchar8*    tag_cstr);
-    IFB_INTERNAL u32             entity_lookup_index_by_id          (const entity_manager* em, const entity_id  id);
-    IFB_INTERNAL void            entity_get                         (const entity_manager* em, const u32        index, entity* out);
-    IFB_INTERNAL entity_id       entity_create                      (entity_manager*       em, const cchar8*    tag_cstr);
-    IFB_INTERNAL bool            entity_destroy_by_tag              (entity_manager*       em, const cchar8*    tag_cstr);
-    IFB_INTERNAL bool            entity_destroy_by_id               (entity_manager*       em, const entity_id& id);
+    IFB_INTERNAL u32             entity_lookup_index_by_tag         (const cchar8*    tag_cstr);
+    IFB_INTERNAL u32             entity_lookup_index_by_id          (const entity_id  id);
+    IFB_INTERNAL void            entity_get                         (const u32        index, entity* out);
+    IFB_INTERNAL entity_id       entity_create                      (const cchar8*    tag_cstr);
+    IFB_INTERNAL bool            entity_destroy_by_tag              (const cchar8*    tag_cstr);
+    IFB_INTERNAL bool            entity_destroy_by_id               (const entity_id& id);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
