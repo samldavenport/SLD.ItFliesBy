@@ -7,14 +7,14 @@ namespace ifb {
 
     IFB_INTERNAL void
     gui_renderer_camera(
-        gui* g) {
+        void) {
 
-        assert(g);
+        assert(_gui);
    
-        bool is_open = g->window_flags.get_renderer_camera();
+        bool is_open = _gui->window_flags.get_renderer_camera();
         if (!is_open) return;
 
-        static gui_strings* str = g->str;
+        static gui_strings* str = _gui->str;
         static vec3         camera_target;
         static vec3         camera_origin;
         static vec3         camera_forward;
@@ -199,7 +199,7 @@ namespace ifb {
         renderer_camera_set_target(camera_target);
         renderer_camera_set_origin(camera_origin);
 
-        g->window_flags.update_renderer_camera(is_open);
+        _gui->window_flags.update_renderer_camera(is_open);
     }
 };
 

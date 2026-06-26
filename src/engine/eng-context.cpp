@@ -77,7 +77,7 @@ namespace ifb {
             renderer_direction_gizmo_draw             ();
 
             // render gui
-            gui_render(_eng_context->gui);
+            gui_render();
 
             // render frame
             pfm_window_frame_render();
@@ -199,6 +199,6 @@ namespace ifb {
         memory gui_mem;
         gui_mem.ptr  = mem_map->gui.ptr;
         gui_mem.size = mem_map->gui.size;
-        gui_startup(g, gui_mem);
+        gui_startup(gui_mem);
     }
 };

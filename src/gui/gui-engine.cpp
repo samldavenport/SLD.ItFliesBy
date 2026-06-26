@@ -6,26 +6,26 @@ namespace ifb {
     
     IFB_INTERNAL void
     gui_engine_imgui_demo(
-        gui* g) {
+        void) {
 
-        gui_validate(g);
+        gui_validate();
 
-        const gui_strings* str = g->str;
+        const gui_strings* str = _gui->str;
         
-        bool is_open = g->window_flags.get_engine_imgui_demo();
+        bool is_open = _gui->window_flags.get_engine_imgui_demo();
 
         if (!is_open) return;
 
         ImGui::ShowDemoWindow(&is_open);
 
-        g->window_flags.update_engine_imgui_demo(is_open);
+        _gui->window_flags.update_engine_imgui_demo(is_open);
     }
 
     IFB_INTERNAL void
     gui_engine_system(
-        gui* g) {
+        void) {
 
-        gui_validate(g);
+        gui_validate();
 
     }
 }
