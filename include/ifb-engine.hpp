@@ -32,6 +32,7 @@ namespace ifb {
     struct eng_context;
     struct eng_mem;
     struct eng_mem_map;
+    struct eng_image;
 
     //--------------------------------------------------------------------
     // CONTEXT
@@ -136,5 +137,6 @@ namespace ifb {
         eng_mem entities;
         eng_mem gui;
     };
+
 }
 #endif  //IFB_ENGINE_HPP
