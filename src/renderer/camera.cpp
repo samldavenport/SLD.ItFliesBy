@@ -16,7 +16,6 @@ namespace ifb {
         cam.target = { 0.0f, 0.0f,  0.0f };
     }
 
-
     IFB_INTERNAL void
     renderer_camera_get_origin(
         renderer_context* ctx,
@@ -60,13 +59,16 @@ namespace ifb {
     IFB_INTERNAL void
     renderer_camera_get_view(
         renderer_context* ctx,
-        view&             v) {
+        mat4&             v) {
 
         assert(ctx != NULL);
 
         auto& cam = ctx->cam;
 
-        v.look_at(cam.origin, cam.target);
+        v = xform_view_look_at(
+            cam.origin,
+            cam.target
+        );
     }
 
     IFB_INTERNAL void

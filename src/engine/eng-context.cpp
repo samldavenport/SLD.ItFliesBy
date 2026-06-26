@@ -64,14 +64,6 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_context_run(void) {
 
-        quad test_quad;
-        test_quad.color.hex         = 0xFF0000FF;
-        test_quad.position.x        = 0.0f;
-        test_quad.position.y        = 0.0f;
-        test_quad.position.z        = 0.0f;
-        test_quad.dimensions.width  = 0.2f;
-        test_quad.dimensions.height = 0.2f;
-
         while(true) {
 
             //TODO(SAM): pass the opengl context to the platform
@@ -80,8 +72,9 @@ namespace ifb {
             pfm_window_process_events();
 
             // render graphics
-            renderer_context_update_view_matrix (_eng_context->renderer);
-            renderer_direction_gizmo_draw       (_eng_context->renderer);
+            renderer_context_update_projection_matrix (_eng_context->renderer);
+            renderer_context_update_view_matrix       (_eng_context->renderer);
+            renderer_direction_gizmo_draw             (_eng_context->renderer);
 
             // render gui
             gui_render(_eng_context->gui);

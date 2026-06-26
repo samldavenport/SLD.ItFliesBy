@@ -43,27 +43,6 @@ call %core_cmd_cl%
 call %core_cmd_link%
 
 ::--------------------------------------------------------------------
-:: SLD.Math 
-::--------------------------------------------------------------------
-
-@set math_cl_in=      SLD.Math\src\sld-math.cpp
-@set math_cl_out=     /Fo:build\debug\obj\SLD.Math.obj
-@set math_cl_include= /ISLD.Math\src /ISLD.Math\include /ISLD.Core/include
-@set math_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
-
-@set math_link_in=    SLD.Math.obj user32.lib
-@set math_link_out=   /OUT:build\debug\bin\SLD.Math.dll  /IMPLIB:build\debug\lib\SLD.Math.lib
-@set math_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib /LIBPATH:vcpkg_installed/x64-windows/lib
-@set math_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG /DLL
-
-@set math_cmd_cl=     cl.exe   %math_cl_in%      %math_cl_out%    %math_cl_include% %math_cl_flags%
-@set math_cmd_link=   link.exe %math_link_flags% %math_link_path% %math_link_in%    %math_link_out%
-
-call %math_cmd_cl%
-call %math_cmd_link%
-
-
-::--------------------------------------------------------------------
 :: SLD.OpenGL 
 ::--------------------------------------------------------------------
 
@@ -92,7 +71,7 @@ call %gl_cmd_link%
 @set eng_cl_include= /Iinclude /Isrc\collections /Isrc\engine /Isrc\entities /Isrc\files /Isrc\gui /Isrc\renderer /Isrc\win32 /ISLD.Core\include /ISLD.OpenGL\include /ISLD.Math\include  /Ivcpkg_installed\x64-windows\include
 @set eng_cl_flags=   /nologo /c /MD /LD /Z7 /EHs- /std:c++17 /Od /D_HAS_EXCEPTIONS=0
 
-@set eng_link_in=    ItFliesBy.Engine.obj SLD.OpenGL.lib SLD.Core.lib SLD.Math.lib user32.lib Gdi32.lib opengl32.lib glew32.lib imgui.lib
+@set eng_link_in=    ItFliesBy.Engine.obj SLD.OpenGL.lib SLD.Core.lib user32.lib Gdi32.lib opengl32.lib glew32.lib imgui.lib
 @set eng_link_out=   /OUT:build\debug\bin\ItFliesBy.Engine.dll /IMPLIB:build\debug\lib\ItFliesBy.Engine.lib
 @set eng_link_path=  /LIBPATH:build\debug\obj /LIBPATH:build\debug\lib /LIBPATH:vcpkg_installed/x64-windows/lib
 @set eng_link_flags= /nologo /SUBSYSTEM:WINDOWS /DEBUG /DLL

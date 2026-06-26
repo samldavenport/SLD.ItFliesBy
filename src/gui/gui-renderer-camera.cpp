@@ -20,15 +20,16 @@ namespace ifb {
         static vec3         camera_forward;
         static vec3         camera_right;
         static vec3         camera_up;
-        static view         camera_view_matrix;
+        static mat4         camera_view_matrix;
 
         renderer_camera_get_target (_eng_context->renderer, camera_target);
         renderer_camera_get_origin (_eng_context->renderer, camera_origin);
         renderer_camera_get_view   (_eng_context->renderer, camera_view_matrix);
 
-        camera_view_matrix.forward (camera_forward);
-        camera_view_matrix.right   (camera_right);
-        camera_view_matrix.up      (camera_up);
+
+        camera_forward = xform_view_forward (camera_view_matrix);
+        camera_right   = xform_view_right   (camera_view_matrix);
+        camera_up      = xform_view_up      (camera_view_matrix);
 
         if (ImGui::Begin(str->window_renderer_camera, &is_open)) {
 

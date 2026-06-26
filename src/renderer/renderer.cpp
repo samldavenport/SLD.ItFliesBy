@@ -126,6 +126,32 @@ namespace ifb {
             width,
             height
         );
+
+        ctx->dims.width  = width;
+        ctx->dims.height = height;
+    }
+
+    IFB_INTERNAL void
+    renderer_context_update_projection_matrix(
+        renderer_context* ctx) {
+
+        assert(ctx);
+
+        const f32 aspect_ratio = renderer_context_aspect_ratio(ctx);
+        if (aspect_ratio == 0) {
+
+            ctx->xform_proj = mat4_identity();
+        }
+
+        // typical for most engines
+        static const f32 clip_near   = 0.1f; 
+        static const f32 fov_radians = trig_degrees_to_radians(45.0f);
+
+        ctx->xform_proj = xform_project_near_to_infinite(
+            fov_radians,
+            aspect_ratio,
+            clip_near
+        );
     }
 
     IFB_INTERNAL void
@@ -134,11 +160,22 @@ namespace ifb {
 
         assert(ctx);
 
-        ctx->xform_view.look_at(
+        ctx->xform_view = xform_view_look_at(
             ctx->cam.origin,
             ctx->cam.target
         );
     }
 
+    IFB_INTERNAL f32
+    renderer_context_aspect_ratio(
+        renderer_context* ctx) {
 
+        assert(ctx);
+
+        const f32 aspect_ratio = (ctx->dims.height != 0) 
+            ? (ctx->dims.width / ctx->dims.height)
+            : 0;
+
+        return(aspect_ratio);
+    }
 };
