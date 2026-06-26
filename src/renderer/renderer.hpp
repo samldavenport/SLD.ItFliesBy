@@ -53,7 +53,7 @@ namespace ifb {
     IFB_INTERNAL void renderer_camera_get_forward           (renderer_context* ctx, vec3& forward);
     IFB_INTERNAL void renderer_camera_get_right             (renderer_context* ctx, vec3& right);
     IFB_INTERNAL void renderer_camera_get_up                (renderer_context* ctx, vec3& up);
-    IFB_INTERNAL void renderer_camera_get_view              (renderer_context* ctx, view& v);
+    IFB_INTERNAL void renderer_camera_get_view              (renderer_context* ctx, mat4& v);
     IFB_INTERNAL void renderer_camera_set_origin            (renderer_context* ctx, const vec3& origin);
     IFB_INTERNAL void renderer_camera_set_target            (renderer_context* ctx, const vec3& target);
 
@@ -205,8 +205,8 @@ namespace ifb {
         gl_context*           gl;
         renderer_memory       mem;
         camera                cam;
-        proj                  xform_proj;
-        view                  xform_view;
+        mat4                  xform_proj;
+        mat4                  xform_view;
         dimensions_2d         dims;
         f32                   fov_y;
         struct {
