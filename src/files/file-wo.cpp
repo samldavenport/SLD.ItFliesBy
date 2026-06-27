@@ -9,6 +9,7 @@ namespace ifb {
         file_manager* mngr,
         const cchar8* path) {
 
+        file_manager_assert_valid();
         assert(mngr != NULL && path != NULL);
 
         pfm_file_config file_config;
@@ -18,7 +19,7 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
@@ -26,7 +27,8 @@ namespace ifb {
     file_wo_open_existing(
         file_manager* mngr,
         const cchar8* path) {
-
+        
+        file_manager_assert_valid();
         assert(mngr != NULL && path != NULL);
 
         pfm_file_config file_config;
@@ -36,7 +38,7 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
@@ -45,7 +47,8 @@ namespace ifb {
         file_manager* mngr,
         const cchar8* path) {
 
-        assert(mngr != NULL && path != NULL);
+        file_manager_assert_valid();
+        assert(path != NULL);
 
         pfm_file_config file_config;
         file_config.path         = path;
@@ -54,16 +57,16 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
     IFB_INTERNAL file_handle
     file_wo_overwrite(
-        file_manager* mngr,
         const cchar8* path) {
 
-        assert(mngr != NULL && path != NULL);
+        file_manager_assert_valid();
+        assert(path != NULL);
 
         pfm_file_config file_config;
         file_config.path         = path;
@@ -72,7 +75,7 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 };

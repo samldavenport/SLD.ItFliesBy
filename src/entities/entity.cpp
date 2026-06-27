@@ -6,20 +6,19 @@ namespace ifb {
    
     IFB_INTERNAL u32
     entity_lookup_index_by_tag(
-        const entity_manager* em,
-        const entity_tag*   tag) {
+        const entity_tag* tag) {
 
-        entity_manager_assert_valid(em);
+        entity_manager_assert_valid();
         assert(tag != NULL);
 
         const u32 hash = entity_tag_hash(tag);
 
         for (
             u32 index = 0;
-                index < em->capacity;
+                index < _entity_manager->capacity;
               ++index 
         ) {
-            if (em->data.id[index] == hash) {
+            if (_entity_manager->data.id[index] == hash) {
                 return(index);
             }
         }
@@ -29,18 +28,17 @@ namespace ifb {
 
     IFB_INTERNAL u32
     entity_lookup_index_by_id(
-        const entity_manager* em,
-        const entity_id     id) {
+        const entity_id id) {
 
-        entity_manager_assert_valid(em);
+        entity_manager_assert_valid();
         assert(id != ENTITY_ID_INVALID);
 
         for (
             u32 index = 0;
-                index < em->capacity;
+                index < _entity_manager->capacity;
               ++index 
         ) {
-            if (em->data.id[index] == id) {
+            if (_entity_manager->data.id[index] == id) {
                 return(index);
             }
         }
@@ -50,39 +48,37 @@ namespace ifb {
 
     IFB_INTERNAL void
     entity_get(
-        const entity_manager* em,
-        const u32           index,
-        entity*             out) {
+        const u32 index,
+        entity*   out) {
 
-        entity_manager_assert_valid(em);
+        entity_manager_assert_valid();
         assert(
-            index <  em->count &&
+            index <  _entity_manager->count &&
             out   != NULL
         );
 
-        out->id  =  em->data.id  [index];
-        out->tag = &em->data.tag [index];
+        out->id  =  _entity_manager->data.id  [index];
+        out->tag = &_entity_manager->data.tag [index];
     }
 
     IFB_INTERNAL entity_id
     entity_create(
-        entity_manager* em,
         const cchar8* tag_cstr) {
 
-        entity_manager_assert_valid(em);
+        entity_manager_assert_valid();
         assert(tag_cstr != NULL);
 
-        if (em->count == em->capacity) {
+        if (_entity_manager->count == _entity_manager->capacity) {
             entity_id id;
             id.hash = ENTITY_ID_INVALID;
             return(id);
         }
 
         // gem the index
-        const u32 index = em->count;
+        const u32 index = _entity_manager->count;
 
         // initialize the tag
-        entity_tag* tag = &em->data.tag[index];
+        entity_tag* tag = &_entity_manager->data.tag[index];
         entity_tag_init(tag, tag_cstr);
 
         // create the id
@@ -91,27 +87,26 @@ namespace ifb {
         // make sure this isn't a duplicate
         for (
             u32 entity = 0;
-                entity < em->count;
+                entity < _entity_manager->count;
               ++entity
         ) {
-            assert(id != em->data.id[entity]);
+            assert(id != _entity_manager->data.id[entity]);
         }
 
         // add the id and update the count
-        em->data.id[index] = id;
-        ++em->count;
+        _entity_manager->data.id[index] = id;
+        ++_entity_manager->count;
         return(id);
     }
 
     IFB_INTERNAL bool
     entity_destroy_by_tag(
-        entity_manager* em,
-        const cchar8*   tag_cstr) {
+        const cchar8* tag_cstr) {
 
-        entity_manager_assert_valid(em);
+        entity_manager_assert_valid();
         assert(tag_cstr != NULL);
 
-        if (em->count == 0) {
+        if (_entity_manager->count == 0) {
             return(false);
         }
 
@@ -124,39 +119,39 @@ namespace ifb {
 
         for (
             u32 entity = 0;
-                entity < em->count;
+                entity < _entity_manager->count;
               ++entity
         ) {
 
-            if (hash != em->data.id[entity].hash) {
+            if (hash != _entity_manager->data.id[entity].hash) {
                 continue;
             }
 
             did_remove = true;
 
             // gem the current entity data
-            entity_id&  curr_id  = em->data.id  [entity];
-            entity_tag& curr_tag = em->data.tag [entity];
+            entity_id&  curr_id  = _entity_manager->data.id  [entity];
+            entity_tag& curr_tag = _entity_manager->data.tag [entity];
 
             // if this is the last entity,
             // clear the id and update the count
-            if (entity == em->count - 1) {
-                em->data.id[entity] = ENTITY_ID_INVALID;
-                --em->count;
+            if (entity == _entity_manager->count - 1) {
+                _entity_manager->data.id[entity] = ENTITY_ID_INVALID;
+                --_entity_manager->count;
                 break;
             }
 
             // gem the last entity data
-            const u32   last_entity = (em->count - 1);
-            entity_id&  last_id     = em->data.id  [last_entity];
-            entity_tag& last_tag    = em->data.tag [last_entity];
+            const u32   last_entity = (_entity_manager->count - 1);
+            entity_id&  last_id     = _entity_manager->data.id  [last_entity];
+            entity_tag& last_tag    = _entity_manager->data.tag [last_entity];
 
             // swap the current and last entity data
             // and update the count
             curr_id  = last_id;
             curr_tag = last_tag;
             last_id  = ENTITY_ID_INVALID;
-            --em->count; 
+            --_entity_manager->count; 
             break;
         }
 
@@ -165,10 +160,9 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_destroy_by_id(
-        entity_manager*   em,
         const entity_id&  id) {
 
-        entity_manager_assert_valid(em);
+        entity_manager_assert_valid();
         assert(id != ENTITY_ID_INVALID);
 
         
@@ -176,39 +170,39 @@ namespace ifb {
 
         for (
             u32 entity = 0;
-                entity < em->count;
+                entity < _entity_manager->count;
               ++entity
         ) {
 
-            if (id != em->data.id[entity]) {
+            if (id != _entity_manager->data.id[entity]) {
                 continue;
             }
 
             did_remove = true;
 
             // gem the current entity data
-            entity_id&  curr_id  = em->data.id  [entity];
-            entity_tag& curr_tag = em->data.tag [entity];
+            entity_id&  curr_id  = _entity_manager->data.id  [entity];
+            entity_tag& curr_tag = _entity_manager->data.tag [entity];
 
             // if this is the last entity,
             // clear the id and update the count
-            if (entity == em->count - 1) {
-                em->data.id[entity] = ENTITY_ID_INVALID;
-                --em->count;
+            if (entity == _entity_manager->count - 1) {
+                _entity_manager->data.id[entity] = ENTITY_ID_INVALID;
+                --_entity_manager->count;
                 break;
             }
 
             // gem the last entity data
-            const u32   last_entity = (em->count - 1);
-            entity_id&  last_id     = em->data.id  [last_entity];
-            entity_tag& last_tag    = em->data.tag [last_entity];
+            const u32   last_entity = (_entity_manager->count - 1);
+            entity_id&  last_id     = _entity_manager->data.id  [last_entity];
+            entity_tag& last_tag    = _entity_manager->data.tag [last_entity];
 
             // swap the current and last entity data
             // and update the count
             curr_id  = last_id;
             curr_tag = last_tag;
             last_id  = ENTITY_ID_INVALID;
-            --em->count; 
+            --_entity_manager->count; 
             break;
         }
 

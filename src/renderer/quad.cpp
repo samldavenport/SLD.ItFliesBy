@@ -8,7 +8,7 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    inline void quad_shader_commit_memory            (renderer_context* ctx);
+    inline void quad_shader_commit_memory            (renderer_context* _renderer_ctx);
     inline void quad_shader_validate                 (const quad_shader& shdr);
     inline void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
     inline void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
@@ -20,27 +20,25 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_quad_shader_init(
-        renderer_context*    ctx,
         const shader_source& src_vertex,
         const shader_source& src_fragment) {
 
-        quad_shader_commit_memory            (ctx);
-        quad_shader_create_gl_objects        (ctx->shader.quad, ctx->gl);
-        quad_shader_compile_and_link_program (ctx->shader.quad, ctx->gl, src_vertex, src_fragment);
-        quad_shader_define_vertex            (ctx->shader.quad, ctx->gl);
+        quad_shader_commit_memory            (_renderer_ctx);
+        quad_shader_create_gl_objects        (_renderer_ctx->shader.quad, _renderer_ctx->gl);
+        quad_shader_compile_and_link_program (_renderer_ctx->shader.quad, _renderer_ctx->gl, src_vertex, src_fragment);
+        quad_shader_define_vertex            (_renderer_ctx->shader.quad, _renderer_ctx->gl);
     }
 
     IFB_INTERNAL u32
     renderer_quad_push(
-        renderer_context* ctx,
         const quad*       q,
         const u32         count) {
 
         // validate args
-        assert(ctx != NULL && q != 0);
+        assert(_renderer_ctx != NULL && q != 0);
         
         // cache properties and validate shader
-        auto& shdr      = ctx->shader.quad;
+        auto& shdr      = _renderer_ctx->shader.quad;
         quad_shader_validate(shdr);
 
 
@@ -123,12 +121,12 @@ namespace ifb {
 
     IFB_INTERNAL u32
     renderer_quad_draw(
-        renderer_context* ctx) {
+        void) {
 
-        assert(ctx);
+        assert(_renderer_ctx);
 
         // validate shader
-        auto& shdr = ctx->shader.quad;
+        auto& shdr = _renderer_ctx->shader.quad;
         quad_shader_validate(shdr);
 
         // calculate counts
@@ -136,9 +134,9 @@ namespace ifb {
         const u32 element_count = quad_count * QUAD_ELEMENT_COUNT;
 
         // draw elements
-        gl_context_set_shader_program (ctx->gl, shdr.gl.program);
-        gl_context_set_vertex_object  (ctx->gl, shdr.gl.vertex);
-        gl_context_draw_elements      (ctx->gl, element_count);
+        gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
+        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
+        gl_context_draw_elements      (_renderer_ctx->gl, element_count);
 
         // reset counts and return
         shdr.buffers.quad_count = 0;
@@ -151,17 +149,17 @@ namespace ifb {
 
     inline void
     quad_shader_commit_memory(
-        renderer_context* ctx) {
+        renderer_context* _renderer_ctx) {
 
-        assert(ctx);
-        auto& shdr = ctx->shader.quad;
+        assert(_renderer_ctx);
+        auto& shdr = _renderer_ctx->shader.quad;
 
         // commit memory
-        void* mem = renderer_memory_commit(ctx);
+        void* mem = renderer_memory_commit(_renderer_ctx);
         assert(mem);
 
         // calculate sizes
-        const u32 size_mem          = ctx->mem.granularity;
+        const u32 size_mem          = _renderer_ctx->mem.granularity;
         const u32 size_per_quad     = (QUAD_DATA_SIZE + QUAD_ELEMENT_DATA_SIZE);
         const u32 count_quads_total = (size_mem / size_per_quad);
         const u32 size_data_vtx     = count_quads_total * QUAD_VERTEX_SIZE;

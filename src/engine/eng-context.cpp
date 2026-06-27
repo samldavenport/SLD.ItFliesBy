@@ -72,12 +72,12 @@ namespace ifb {
             pfm_window_process_events();
 
             // render graphics
-            renderer_context_update_projection_matrix (_eng_context->renderer);
-            renderer_context_update_view_matrix       (_eng_context->renderer);
-            renderer_direction_gizmo_draw             (_eng_context->renderer);
+            renderer_context_update_projection_matrix ();
+            renderer_context_update_view_matrix       ();
+            renderer_direction_gizmo_draw             ();
 
             // render gui
-            gui_render(_eng_context->gui);
+            gui_render();
 
             // render frame
             pfm_window_frame_render();
@@ -129,7 +129,6 @@ namespace ifb {
 
         const u32 file_granularity = size_kilobytes(64);
         file_manager_startup(
-            mngrs->file,
             mem_map->files.size,
             file_granularity,
             mem_map->files.ptr
@@ -144,7 +143,7 @@ namespace ifb {
         memory entity_mem;
         entity_mem.size = mem_map->entities.size;
         entity_mem.ptr  = mem_map->entities.ptr;
-        entity_manager_startup(mngrs->entity, entity_mem);
+        entity_manager_startup(entity_mem);
     }
 
     inline void
@@ -157,40 +156,40 @@ namespace ifb {
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
         mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup        (_eng_context->renderer, mem_rndr);
+        renderer_context_startup        (mem_rndr);
 
         // open shader files
-        const file_handle file_hnd_quad_vert    = file_ro_open_existing (mngrs->file, "quad-shader-vertex.glsl");
-        const file_handle file_hnd_quad_frag    = file_ro_open_existing (mngrs->file, "quad-shader-fragment.glsl");
-        const file_handle file_hnd_dir_giz_vert = file_ro_open_existing (mngrs->file, "direction-gizmo-shader-vert.glsl");
-        const file_handle file_hnd_dir_giz_frag = file_ro_open_existing (mngrs->file, "direction-gizmo-shader-frag.glsl");
+        const file_handle file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
+        const file_handle file_hnd_quad_frag    = file_ro_open_existing ("quad-shader-fragment.glsl");
+        const file_handle file_hnd_dir_giz_vert = file_ro_open_existing ("direction-gizmo-shader-vert.glsl");
+        const file_handle file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
 
         // read quad shaders        
         shader_source file_src_quad_vert;
         shader_source file_src_quad_frag;
-        file_src_quad_vert.size = file_get_size (mngrs->file, file_hnd_quad_vert); 
-        file_src_quad_vert.data = file_read     (mngrs->file, file_hnd_quad_vert, file_src_quad_vert.size);
-        file_src_quad_frag.size = file_get_size (mngrs->file, file_hnd_quad_frag);
-        file_src_quad_frag.data = file_read     (mngrs->file, file_hnd_quad_frag, file_src_quad_frag.size); 
+        file_src_quad_vert.size = file_get_size (file_hnd_quad_vert); 
+        file_src_quad_vert.data = file_read     (file_hnd_quad_vert, file_src_quad_vert.size);
+        file_src_quad_frag.size = file_get_size (file_hnd_quad_frag);
+        file_src_quad_frag.data = file_read     (file_hnd_quad_frag, file_src_quad_frag.size); 
         
         // read direction gizmo shaders
         shader_source file_src_dir_giz_vert;
         shader_source file_src_dir_giz_frag;
-        file_src_dir_giz_vert.size = file_get_size (mngrs->file, file_hnd_dir_giz_vert); 
-        file_src_dir_giz_vert.data = file_read     (mngrs->file, file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
-        file_src_dir_giz_frag.size = file_get_size (mngrs->file, file_hnd_dir_giz_frag);
-        file_src_dir_giz_frag.data = file_read     (mngrs->file, file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
+        file_src_dir_giz_vert.size = file_get_size (file_hnd_dir_giz_vert); 
+        file_src_dir_giz_vert.data = file_read     (file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
+        file_src_dir_giz_frag.size = file_get_size (file_hnd_dir_giz_frag);
+        file_src_dir_giz_frag.data = file_read     (file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
 
         // initialize shaders
-        renderer_quad_shader_init            (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
-        renderer_hello_quad_shader_init      (_eng_context->renderer, file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (_eng_context->renderer, file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
+        renderer_hello_quad_shader_init      (file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
 
         // close the shader files
-        file_close(mngrs->file, file_hnd_quad_vert);
-        file_close(mngrs->file, file_hnd_quad_frag);
-        file_close(mngrs->file, file_hnd_dir_giz_vert);
-        file_close(mngrs->file, file_hnd_dir_giz_frag);
+        file_close(file_hnd_quad_vert);
+        file_close(file_hnd_quad_frag);
+        file_close(file_hnd_dir_giz_vert);
+        file_close(file_hnd_dir_giz_frag);
     }
 
     inline void
@@ -200,6 +199,6 @@ namespace ifb {
         memory gui_mem;
         gui_mem.ptr  = mem_map->gui.ptr;
         gui_mem.size = mem_map->gui.size;
-        gui_startup(g, gui_mem);
+        gui_startup(gui_mem);
     }
 };

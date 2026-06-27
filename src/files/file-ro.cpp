@@ -7,10 +7,9 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_ro_create_new(
-        file_manager* mngr,
         const cchar8* path) {
 
-        file_manager_assert_valid(mngr);
+        file_manager_assert_valid();
         assert(path);
 
         // configure the file
@@ -22,16 +21,15 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
     IFB_INTERNAL file_handle
     file_ro_open_existing(
-        file_manager* mngr,
         const cchar8* path) {
 
-        file_manager_assert_valid(mngr);
+        file_manager_assert_valid();
         assert(path);
 
         // configure the file
@@ -47,16 +45,15 @@ namespace ifb {
         }
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
     IFB_INTERNAL file_handle
     file_ro_open_always(
-        file_manager* mngr,
         const cchar8* path) {
 
-        file_manager_assert_valid(mngr);
+        file_manager_assert_valid();
         assert(path);
 
         // configure the file
@@ -72,16 +69,15 @@ namespace ifb {
         }
         
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 
     IFB_INTERNAL file_handle
     file_ro_overwrite(
-        file_manager* mngr,
         const cchar8* path) {
 
-        file_manager_assert_valid(mngr);
+        file_manager_assert_valid();
         assert(path);
 
         // configure the file
@@ -97,7 +93,7 @@ namespace ifb {
         }
         
         // return the created handle
-        const file_handle hnd = file_manager_commit(mngr, &file_config);
+        const file_handle hnd = file_manager_commit(&file_config);
         return(hnd);
     }
 

@@ -6,11 +6,11 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_camera_init(
-        renderer_context* ctx) {
+        void) {
 
-        assert(ctx);
+        assert(_renderer_ctx);
 
-        auto& cam = ctx->cam;
+        auto& cam = _renderer_ctx->cam;
 
         cam.origin = { 0.5f, 0.5f, -0.5f };
         cam.target = { 0.0f, 0.0f,  0.0f };
@@ -18,52 +18,47 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_camera_get_origin(
-        renderer_context* ctx,
-        vec3&             origin) {
+        vec3& origin) {
 
-        assert(ctx != NULL);
+        assert(_renderer_ctx != NULL);
 
-        origin = ctx->cam.origin;
+        origin = _renderer_ctx->cam.origin;
     }
 
     IFB_INTERNAL void
     renderer_camera_get_target(
-        renderer_context* ctx,
-        vec3&             target) {
+        vec3& target) {
 
-        assert(ctx != NULL);
+        assert(_renderer_ctx != NULL);
 
-        target = ctx->cam.target;
+        target = _renderer_ctx->cam.target;
     }
 
     IFB_INTERNAL void
     renderer_camera_set_origin(
-        renderer_context* ctx,
-        const vec3&       origin) {
+        const vec3& origin) {
 
-        assert(ctx != NULL);
+        assert(_renderer_ctx != NULL);
 
-        ctx->cam.origin = origin;
+        _renderer_ctx->cam.origin = origin;
     }
 
     IFB_INTERNAL void
     renderer_camera_set_target(
-        renderer_context* ctx,
-        const vec3&       target) {
+        const vec3& target) {
 
-        assert(ctx != NULL);
+        assert(_renderer_ctx != NULL);
 
-        ctx->cam.target = target;
+        _renderer_ctx->cam.target = target;
     }
 
     IFB_INTERNAL void
     renderer_camera_get_view(
-        renderer_context* ctx,
-        mat4&             v) {
+        mat4& v) {
 
-        assert(ctx != NULL);
+        assert(_renderer_ctx != NULL);
 
-        auto& cam = ctx->cam;
+        auto& cam = _renderer_ctx->cam;
 
         v = xform_view_look_at(
             cam.origin,
@@ -73,29 +68,23 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_camera_get_forward(
-        renderer_context* ctx,
-        vec3&             forward) {
+        vec3& forward) {
 
-        assert(ctx != NULL);
-
+        assert(_renderer_ctx != NULL);
     }
 
     IFB_INTERNAL void
     renderer_camera_get_right(
-        renderer_context* ctx,
-        vec3&             right) {
+        vec3& right) {
 
-        assert(ctx != NULL);
-
+        assert(_renderer_ctx != NULL);
     }
 
     IFB_INTERNAL void
     renderer_camera_get_up(
-        renderer_context* ctx,
-        vec3&             up) {
+        vec3& up) {
 
-        assert(ctx != NULL);
-
+        assert(_renderer_ctx != NULL);
     }
 
 };

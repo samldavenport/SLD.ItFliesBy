@@ -14,7 +14,7 @@ namespace ifb {
         eng_managers*   mngrs       = _eng_context->mngrs; 
         entity_manager* entity_mngr = mngrs->entity;
 
-        const entity_id id = entity_create(entity_mngr, tag);
+        const entity_id id = entity_create(tag);
 
         return(id.hash);
     }
@@ -29,7 +29,7 @@ namespace ifb {
         eng_managers*   mngrs       = _eng_context->mngrs; 
         entity_manager* entity_mngr = mngrs->entity;
 
-        const bool did_destroy = entity_destroy_by_id(entity_mngr, eid);
+        const bool did_destroy = entity_destroy_by_id(eid);
         return(did_destroy);
     }
 
@@ -42,7 +42,7 @@ namespace ifb {
         eng_managers*   mngrs       = _eng_context->mngrs; 
         entity_manager* entity_mngr = mngrs->entity;
 
-        const bool did_destroy = entity_destroy_by_tag(entity_mngr, tag);
+        const bool did_destroy = entity_destroy_by_tag(tag);
         return(did_destroy);
     }
 
@@ -56,10 +56,10 @@ namespace ifb {
         eng_managers*   mngrs       = _eng_context->mngrs; 
         entity_manager* entity_mngr = mngrs->entity;
 
-        const u32 index = entity_lookup_index_by_id(entity_mngr, eid);
+        const u32 index = entity_lookup_index_by_id(eid);
 
         entity e;
-        entity_get(entity_mngr, index, &e);
+        entity_get(index, &e);
 
         return(e.tag->cstr);
     }

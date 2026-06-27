@@ -8,27 +8,27 @@ namespace ifb {
     eng_camera_get_origin(
         vec3& origin) {
 
-        renderer_camera_get_origin(_eng_context->renderer, origin);
+        renderer_camera_get_origin(origin);
     }
 
     IFB_ENGINE_API void
     eng_camera_get_target(
         vec3& target) {
 
-        renderer_camera_get_target(_eng_context->renderer, target);
+        renderer_camera_get_target(target);
     }
 
     IFB_ENGINE_API void
     eng_camera_set_origin(
         const vec3& origin) {
 
-        renderer_camera_set_origin(_eng_context->renderer, origin);
+        renderer_camera_set_origin(origin);
     }
 
     IFB_ENGINE_API void
     eng_camera_set_target(
         const vec3& target) {
 
-        renderer_camera_set_target(_eng_context->renderer, target);
+        renderer_camera_set_target(target);
     }
 };

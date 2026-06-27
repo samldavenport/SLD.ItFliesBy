@@ -6,11 +6,6 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // GLOBALS
-    //--------------------------------------------------------------------
-
-
-    //--------------------------------------------------------------------
     // CONSTANTS
     //--------------------------------------------------------------------
 
@@ -28,32 +23,38 @@ namespace ifb {
     struct gui_window_flags;
 
     //--------------------------------------------------------------------
+    // GLOBALS
+    //--------------------------------------------------------------------
+
+    static gui* _gui;
+
+    //--------------------------------------------------------------------
     // METHODS
     //--------------------------------------------------------------------
 
     // context
     IFB_INTERNAL u32   gui_memory_requirement (void);
     IFB_INTERNAL gui*  gui_memory_init        (memory& stack_memory);
-    IFB_INTERNAL void  gui_startup            (gui* g, memory& reserved_memory);
-    IFB_INTERNAL void  gui_open               (gui* g);
-    IFB_INTERNAL void  gui_close              (gui* g);
-    IFB_INTERNAL void  gui_render             (gui* g);
-    IFB_INTERNAL void  gui_validate           (gui* g);
-    IFB_INTERNAL void  gui_main_window        (gui* g);
+    IFB_INTERNAL void  gui_startup            (memory& reserved_memory);
+    IFB_INTERNAL void  gui_open               (void);
+    IFB_INTERNAL void  gui_close              (void);
+    IFB_INTERNAL void  gui_render             (void);
+    IFB_INTERNAL void  gui_validate           (void);
+    IFB_INTERNAL void  gui_main_window        (void);
 
     // memory
-    IFB_INTERNAL void* gui_memory_stack_alloc (gui* g, const u32 size);
-    IFB_INTERNAL void  gui_memory_stack_free  (gui* g, void* mem);
+    IFB_INTERNAL void* gui_memory_stack_alloc (const u32 size);
+    IFB_INTERNAL void  gui_memory_stack_free  (void* mem);
 
     // engine
-    IFB_INTERNAL void  gui_engine_imgui_demo  (gui* g);
-    IFB_INTERNAL void  gui_engine_system      (gui* g);
+    IFB_INTERNAL void  gui_engine_imgui_demo  (void);
+    IFB_INTERNAL void  gui_engine_system      (void);
 
     // renderer
-    IFB_INTERNAL void  gui_renderer_camera    (gui* g);
+    IFB_INTERNAL void  gui_renderer_camera    (void);
 
     // controls
-    IFB_INTERNAL void gui_control_vec3        (const char* name, vec3& v);
+    IFB_INTERNAL void  gui_control_vec3        (const char* name, vec3& v);
 
     //--------------------------------------------------------------------
     // ENUMS

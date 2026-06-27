@@ -31,7 +31,6 @@ namespace ifb {
         const u32 height) {
 
         renderer_context_update_viewport(
-            _eng_context->renderer,
             width,
             height
         );
