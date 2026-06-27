@@ -42,7 +42,8 @@ namespace ifb {
                 used_next->prev = a;
             }
             a->next = used_next;
-            alctr->list.used = a; 
+            alctr->list.used = a;
+            --alctr->arena_count_free;
         }
 
         return(a);
@@ -92,6 +93,7 @@ namespace ifb {
         a->prev          = NULL;
         a->next          = free_next;
         alctr->list.free = a;
+        ++alctr->arena_count_free;
     }
 
     IFB_INTERNAL void
@@ -169,11 +171,11 @@ namespace ifb {
 
         arena_allocator* alctr = _memory_manager->arena_alctr;
         assert(
-            alctr              != NULL &&
-            alctr->mem.address != 0    &&
-            alctr->mem.size    != 0    &&
-            alctr->arena_count != 0    &&
-            alctr->arena_size  != 0    &&
+            alctr                    != NULL &&
+            alctr->mem.address       != 0    &&
+            alctr->mem.size          != 0    &&
+            alctr->arena_count_total != 0    &&
+            alctr->arena_size        != 0    &&
             (
                 alctr->list.free != NULL ||
                 alctr->list.used != NULL
@@ -196,9 +198,9 @@ namespace ifb {
         const void*            arena_vptr   = (void*)(arena_alctr->mem.address + arena_offset); 
 
         assert(
-            a           == (arena*)arena_vptr       &&
-            a->id       <  arena_alctr->arena_count &&
-            a->save     <= a->position              &&
+            a           == (arena*)arena_vptr             &&
+            a->id       <  arena_alctr->arena_count_total &&
+            a->save     <= a->position                    &&
             a->position <  arena_alctr->arena_size
         );
     }

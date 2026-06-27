@@ -118,12 +118,14 @@ namespace ifb {
     // ARENAS
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_arena_handle eng_arena_alloc  (void);
-    IFB_ENGINE_API void             eng_arena_free   (const eng_arena_handle arena);
-    IFB_ENGINE_API void             eng_arena_reset  (const eng_arena_handle arena);
-    IFB_ENGINE_API u32              eng_arena_save   (const eng_arena_handle arena);
-    IFB_ENGINE_API void             eng_arena_revert (const eng_arena_handle arena, const u32 save);
-    IFB_ENGINE_API void*            eng_arena_push   (const eng_arena_handle arena, const u32 size);
+    IFB_ENGINE_API eng_arena_handle eng_arena_alloc     (void);
+    IFB_ENGINE_API void             eng_arena_free      (const eng_arena_handle arena);
+    IFB_ENGINE_API void             eng_arena_reset     (const eng_arena_handle arena);
+    IFB_ENGINE_API u32              eng_arena_save      (const eng_arena_handle arena);
+    IFB_ENGINE_API u32              eng_arena_size_free (const eng_arena_handle arena);
+    IFB_ENGINE_API u32              eng_arena_size_used (const eng_arena_handle arena);
+    IFB_ENGINE_API void             eng_arena_revert    (const eng_arena_handle arena, const u32 save);
+    IFB_ENGINE_API void*            eng_arena_push      (const eng_arena_handle arena, const u32 size);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

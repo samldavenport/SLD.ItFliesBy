@@ -39,7 +39,8 @@ namespace ifb {
     struct arena_allocator {
         memory mem;
         u32    arena_size;
-        u32    arena_count;
+        u32    arena_count_total;
+        u32    arena_count_free;
         struct {
             arena* free;
             arena* used;

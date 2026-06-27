@@ -48,6 +48,28 @@ namespace ifb {
         return(save);
     }
 
+    IFB_ENGINE_API u32
+    eng_arena_size_free(
+        const eng_arena_handle hnd) {
+
+        arena* a = arena_from_handle(hnd);
+        assert(a);
+
+        const arena_allocator* alctr     = a->alctr;
+        const u32              size_free = (alctr->arena_size - a->position); 
+        return(size_free);
+    }
+
+    IFB_ENGINE_API u32
+    eng_arena_size_used(
+        const eng_arena_handle hnd) {
+
+        arena* a = arena_from_handle(hnd);
+        assert(a);
+
+        return(a->position);
+    }
+
     IFB_ENGINE_API void
     eng_arena_revert(
         const eng_arena_handle hnd,
