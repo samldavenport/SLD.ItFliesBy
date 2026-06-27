@@ -19,10 +19,10 @@ namespace ifb {
     // METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL u32    memory_manager_memory_requirement (const u32 allocator_count);
-    IFB_INTERNAL void   memory_manager_memory_init        (const u32 allocator_count, memory& mem_stack);
-    IFB_INTERNAL void   memory_manager_startup            (memory& mem_reserved);
-    IFB_INTERNAL void   memory_manager_shutdown           (void);
+    IFB_INTERNAL u32             memory_manager_memory_requirement (void);
+    IFB_INTERNAL memory_manager* memory_manager_memory_init        (memory& mem_stack);
+    IFB_INTERNAL void            memory_manager_startup            (memory& mem_reserved_arenas);
+    IFB_INTERNAL void            memory_manager_shutdown           (void);
 
     IFB_INTERNAL arena* arena_alloc       (void);
     IFB_INTERNAL arena* arena_from_handle (const eng_arena_handle hnd);

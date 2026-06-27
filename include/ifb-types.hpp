@@ -8,6 +8,7 @@
 using namespace sld;
 
 #define IFB_INTERNAL static
+#define IFB_INLINE   inline
 
 #ifdef IFB_STATIC
 #   define IFB_API

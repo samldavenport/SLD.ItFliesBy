@@ -122,14 +122,19 @@ namespace ifb {
         stack_mem.ptr  = eng_stack_push_data               (eng_stack, stack_mem.size);
         mngrs->entity  = entity_manager_memory_init        (stack_mem); 
 
+        // memory manager
+        stack_mem.size = memory_manager_memory_requirement ();
+        stack_mem.ptr = eng_stack_push_data                (eng_stack, stack_mem.size);
+        mngrs->memory = memory_manager_memory_init         (stack_mem);
+
         assert(
             mngrs->file   != NULL &&            
-            mngrs->entity != NULL
+            mngrs->entity != NULL &&
+            mngrs->memory != NULL
         );
 
         return(mngrs);
     }
-
 
     IFB_ENG_INTERNAL gui*
     eng_stack_push_and_init_gui(
