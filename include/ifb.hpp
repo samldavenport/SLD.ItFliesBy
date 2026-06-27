@@ -41,6 +41,7 @@ namespace ifb {
     struct quad;
     struct dimensions_2d;
     struct dimensions_3d;
+    struct asset;
 
     using position_3d = vec3;
 
@@ -87,6 +88,10 @@ namespace ifb {
         inline bool   operator!= (const u32& other) { return(!this->test(other)); }
         inline bool   operator== (const s32& other) { return(this->test(other));  } 
         inline bool   operator!= (const s32& other) { return(!this->test(other)); }
+    };
+
+    struct asset {
+        memory mem;
     };
 };
 
