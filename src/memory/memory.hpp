@@ -24,12 +24,13 @@ namespace ifb {
     IFB_INTERNAL void   memory_manager_startup            (memory& mem_reserved);
     IFB_INTERNAL void   memory_manager_shutdown           (void);
 
-    IFB_INTERNAL arena* arena_alloc  (void);
-    IFB_INTERNAL void   arena_free   (arena* a);
-    IFB_INTERNAL void   arena_reset  (arena* a);
-    IFB_INTERNAL u32    arena_save   (arena* a);
-    IFB_INTERNAL void*  arena_push   (arena* a, const u32 size);
-    IFB_INTERNAL void   arena_revert (arena* a, const u32 save);
+    IFB_INTERNAL arena* arena_alloc       (void);
+    IFB_INTERNAL arena* arena_from_handle (const eng_arena_handle hnd);
+    IFB_INTERNAL void   arena_free        (arena* a);
+    IFB_INTERNAL void   arena_reset       (arena* a);
+    IFB_INTERNAL u32    arena_save        (arena* a);
+    IFB_INTERNAL void*  arena_push        (arena* a, const u32 size);
+    IFB_INTERNAL void   arena_revert      (arena* a, const u32 save);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
@@ -58,3 +59,5 @@ namespace ifb {
         arena_allocator* arena_alctr;
     } static * _memory_manager;
 };
+
+#endif //MEMORY_HPP

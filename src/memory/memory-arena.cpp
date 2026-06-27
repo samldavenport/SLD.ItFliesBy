@@ -48,6 +48,25 @@ namespace ifb {
         return(a);
     }
 
+
+    IFB_INTERNAL arena*
+    arena_from_handle(
+        const eng_arena_handle hnd) {
+
+        arena_allocator_validate();
+
+        const u32              arena_id = hnd.val;
+        const arena_allocator* alctr    = _memory_manager->arena_alctr;
+
+        const addr   start  = alctr->mem.address;
+        const u32    offset = (arena_id * alctr->arena_size);
+        arena*       a      = (arena*)(start + offset);  
+
+        arena_validate(a);
+        return(a);
+    }
+
+
     IFB_INTERNAL void
     arena_free(
         arena* a) {
@@ -93,6 +112,7 @@ namespace ifb {
         arena_allocator_validate();
         arena_validate(a);
 
+        assert(a->save = 0);
         a->save = a->position;
         return(a->save);
     }
@@ -168,7 +188,7 @@ namespace ifb {
         assert(
             _memory_manager != NULL &&
             a               != NULL &&
-            a->alctr        == _memory_manager->arena_alctr;
+            a->alctr        == _memory_manager->arena_alctr
         );
 
         const arena_allocator* arena_alctr  = a->alctr;
@@ -179,7 +199,7 @@ namespace ifb {
             a           == (arena*)arena_vptr       &&
             a->id       <  arena_alctr->arena_count &&
             a->save     <= a->position              &&
-            a->position <  alctr->arena_size
+            a->position <  arena_alctr->arena_size
         );
     }
 

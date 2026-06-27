@@ -2,6 +2,7 @@
 #define IFB_ENGINE_HPP
 
 #include "sld.hpp"
+#include "ifb-types.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-input.hpp"
 
@@ -32,6 +33,8 @@ namespace ifb {
     struct eng_context;
     struct eng_mem;
     struct eng_mem_map;
+    
+    struct eng_arena_handle : handle { };
 
     //--------------------------------------------------------------------
     // CONTEXT
@@ -110,6 +113,17 @@ namespace ifb {
     IFB_ENGINE_API bool          eng_entity_destroy_by_id  (const eng_entity_id id);
     IFB_ENGINE_API bool          eng_entity_destroy_by_tag (const cchar8*       tag);
     IFB_ENGINE_API const cchar8* eng_entity_get_tag        (const eng_entity_id id);
+
+    //--------------------------------------------------------------------
+    // ARENAS
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API eng_arena_handle eng_arena_alloc  (void);
+    IFB_ENGINE_API void             eng_arena_free   (const eng_arena_handle arena);
+    IFB_ENGINE_API void             eng_arena_reset  (const eng_arena_handle arena);
+    IFB_ENGINE_API u32              eng_arena_save   (const eng_arena_handle arena);
+    IFB_ENGINE_API void             eng_arena_revert (const eng_arena_handle arena, const u32 save);
+    IFB_ENGINE_API void*            eng_arena_push   (const eng_arena_handle arena, const u32 size);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

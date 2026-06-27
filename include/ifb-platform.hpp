@@ -4,6 +4,7 @@
 #include "sld.hpp"
 #include "sld-opengl.hpp"
 #include "ifb-input.hpp"
+#include "ifb-types.hpp"
 
 #define IFB_PLATFORM_API
 
