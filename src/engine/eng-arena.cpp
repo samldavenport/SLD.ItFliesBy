@@ -12,7 +12,8 @@ namespace ifb {
         const arena* a = arena_alloc();
         assert(a);
 
-        eng_arena_handle hnd = { a->id };
+        eng_arena_handle hnd = a->id;
+        
         return(hnd);        
     }
 

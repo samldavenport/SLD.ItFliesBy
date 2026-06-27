@@ -33,8 +33,8 @@ namespace ifb {
     struct eng_context;
     struct eng_mem;
     struct eng_mem_map;
-    
-    struct eng_arena_handle : handle { };
+
+    struct eng_arena_handle : handle { using handle::handle; };
 
     //--------------------------------------------------------------------
     // CONTEXT
