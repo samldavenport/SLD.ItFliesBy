@@ -2,6 +2,7 @@
 #define IFB_ENGINE_HPP
 
 #include "sld.hpp"
+#include "ifb.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-input.hpp"
 
@@ -23,6 +24,7 @@ namespace ifb {
 
     using eng_file_handle = u32;
     using eng_entity_id   = u32;
+
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -110,6 +112,13 @@ namespace ifb {
     IFB_ENGINE_API bool          eng_entity_destroy_by_id  (const eng_entity_id id);
     IFB_ENGINE_API bool          eng_entity_destroy_by_tag (const cchar8*       tag);
     IFB_ENGINE_API const cchar8* eng_entity_get_tag        (const eng_entity_id id);
+
+    //--------------------------------------------------------------------
+    // IMAGES
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API u32  image_size (const cchar8* path);
+    IFB_ENGINE_API bool image_load (const cchar8* path);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

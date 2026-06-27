@@ -37,10 +37,16 @@ ImGui_ImplWin32_WndProcHandler(
 
 namespace ifb {
 
+    struct flags;
+    struct handle;
     struct sparse_array;
     struct quad;
     struct dimensions_2d;
     struct dimensions_3d;
+    struct image;
+    struct pixel;
+    struct handle;
+    struct image_handle;
 
     using position_3d = vec3;
 
@@ -72,6 +78,19 @@ namespace ifb {
         color_rgba_u32 color;
     };
 
+    struct handle {
+        u32 val;
+
+        handle() = default;
+        handle(u32 v) : val(v) { }
+
+        
+        inline bool   operator== (const u32& other) { return(other == val); } 
+        inline bool   operator!= (const u32& other) { return(other != val); }
+        inline bool   operator== (const s32& other) { return(other == val); } 
+        inline bool   operator!= (const s32& other) { return(other != val); }
+    };
+
     struct flags {
 
         s32 val;
@@ -88,6 +107,30 @@ namespace ifb {
         inline bool   operator== (const s32& other) { return(this->test(other));  } 
         inline bool   operator!= (const s32& other) { return(!this->test(other)); }
     };
+
+    struct pixel {
+        union {
+            u32 hex;
+            struct {
+                byte a;
+                byte b;
+                byte g;
+                byte r;
+            };
+        };
+    };
+
+    struct image {
+        union {
+            byte*  bytes;
+            pixel* pixels;
+        } ptr;
+        u32   width;
+        u32   height;
+    };
+
+    struct image_handle : handle { };
+
 };
 
 #endif //IFB_HPP
