@@ -32,6 +32,10 @@ namespace ifb {
     IFB_INTERNAL void*  arena_push        (arena* a, const u32 size);
     IFB_INTERNAL void   arena_revert      (arena* a, const u32 save);
 
+    IFB_INTERNAL void   block_alctr_init  (block_allocator* alctr, memory mem, const u32 granularity);
+    IFB_INTERNAL void*  block_alloc       (block_allocator* alctr);
+    IFB_INTERNAL void   block_free        (void* mem);
+
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------
@@ -45,6 +49,24 @@ namespace ifb {
             arena* free;
             arena* used;
         } list;
+    };
+
+    struct block_memory {
+        block_allocator* alctr;
+        block_memory*    prev;
+        block_memory*    next;
+        u32              id;
+    };
+
+    struct block_allocator {
+        struct {
+            block_memory* free;
+            block_memory* used;
+        } list;
+        addr start;
+        u32  block_size;
+        u32  block_count_total;
+        u32  block_count_free;
     };
 
     struct arena {

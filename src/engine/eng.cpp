@@ -27,6 +27,7 @@
 
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"
+#include "memory-block.cpp"
 
 #include "renderer.cpp"
 
