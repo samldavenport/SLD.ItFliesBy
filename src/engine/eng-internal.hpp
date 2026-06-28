@@ -6,6 +6,7 @@
 #include "renderer.hpp"
 #include "entities.hpp"
 #include "gui.hpp"
+#include "memory.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -19,6 +20,7 @@ namespace ifb {
     struct eng_managers {
         file_manager*   file;
         entity_manager* entity;
+        memory_manager* memory;
     };
 
     struct eng_context {

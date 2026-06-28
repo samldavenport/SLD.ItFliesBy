@@ -3,6 +3,7 @@
 #define IFB_ENGINE_DLL_EXPORT
 #define IFB_API_DLL_EXPORT
 
+#include "eng-arena.cpp"
 #include "eng-camera.cpp"
 #include "eng-context.cpp"
 #include "eng-entity.cpp"
@@ -23,6 +24,10 @@
 #include "file-rw.cpp"
 
 #include "gui.cpp"
+
+#include "memory-manager.cpp"
+#include "memory-arena.cpp"
+#include "memory-block.cpp"
 
 #include "renderer.cpp"
 

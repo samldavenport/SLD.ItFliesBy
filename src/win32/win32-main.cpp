@@ -8,7 +8,7 @@ using namespace ifb;
 static const u32 SIZE_STACK       = size_kilobytes(64);
 static const u32 SIZE_RESERVATION = size_megabytes(64);
 
-static byte _stack_mem[SIZE_STACK];   
+static byte _stack_mem[SIZE_STACK];
 
 int WINAPI
 wWinMain(
@@ -30,6 +30,8 @@ wWinMain(
     mem_map.entities.ptr   = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.gui.size       = SIZE_RESERVATION; 
     mem_map.gui.ptr        = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.arenas.size    = SIZE_RESERVATION; 
+    mem_map.arenas.ptr     = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
 
     assert(
         mem_map.stack.ptr     != NULL &&        

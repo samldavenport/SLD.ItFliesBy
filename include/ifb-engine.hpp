@@ -2,7 +2,7 @@
 #define IFB_ENGINE_HPP
 
 #include "sld.hpp"
-#include "ifb.hpp"
+#include "ifb-types.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-input.hpp"
 
@@ -34,6 +34,8 @@ namespace ifb {
     struct eng_context;
     struct eng_mem;
     struct eng_mem_map;
+
+    struct eng_arena_handle : handle { using handle::handle; };
 
     //--------------------------------------------------------------------
     // CONTEXT
@@ -119,6 +121,19 @@ namespace ifb {
 
     IFB_ENGINE_API u32  image_size (const cchar8* path);
     IFB_ENGINE_API bool image_load (const cchar8* path);
+    
+    //--------------------------------------------------------------------
+    // ARENAS
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API eng_arena_handle eng_arena_alloc     (void);
+    IFB_ENGINE_API void             eng_arena_free      (const eng_arena_handle arena);
+    IFB_ENGINE_API void             eng_arena_reset     (const eng_arena_handle arena);
+    IFB_ENGINE_API u32              eng_arena_save      (const eng_arena_handle arena);
+    IFB_ENGINE_API u32              eng_arena_size_free (const eng_arena_handle arena);
+    IFB_ENGINE_API u32              eng_arena_size_used (const eng_arena_handle arena);
+    IFB_ENGINE_API void             eng_arena_revert    (const eng_arena_handle arena, const u32 save);
+    IFB_ENGINE_API void*            eng_arena_push      (const eng_arena_handle arena, const u32 size);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -144,6 +159,7 @@ namespace ifb {
         eng_mem rendering;
         eng_mem entities;
         eng_mem gui;
+        eng_mem arenas;
     };
 }
 #endif  //IFB_ENGINE_HPP
