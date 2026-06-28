@@ -88,12 +88,13 @@ namespace ifb {
         );
 
         // initial properties
-        alctr->mem.ptr     = pfm_memory_commit(res.ptr, 0, res.size);
-        alctr->mem.size    = res.size;  
-        alctr->arena_size  = granularity;
+        alctr->mem.ptr           = pfm_memory_commit(res.ptr, 0, res.size);
+        alctr->mem.size          = res.size;  
+        alctr->arena_size        = granularity;
         alctr->arena_count_total = res.size / granularity;
-        alctr->list.used   = NULL;
-        alctr->list.free   = (arena*)(alctr->mem.ptr); 
+        alctr->arena_count_free  = alctr->arena_count_total; 
+        alctr->list.used         = NULL;
+        alctr->list.free         = (arena*)(alctr->mem.ptr); 
         assert(
             alctr->mem.address       == res.address &&
             alctr->arena_size        != 0           &&

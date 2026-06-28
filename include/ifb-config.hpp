@@ -16,11 +16,11 @@ using namespace sld;
 #define IFB_CONFIG_MEMORY_RES_SIZE_CORE      size_megabytes(64);
 #define IFB_CONFIG_MEMORY_RES_SIZE_FILES     size_megabytes(64);
 #define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING size_megabytes(64);
-#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS    size_megabytes(64);
+#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS    size_megabytes(128);
 #define IFB_CONFIG_FILE_PATH_SIZE            256              
 #define IFB_CONFIG_FILE_COUNT                64              
 #define IFB_CONFIG_RENDERER_MEM_GRANULARITY  size_kilobytes(64);
-#define IFB_CONFIG_ARENA_MEM_GRANULARITY     size_kilobytes(64);
+#define IFB_CONFIG_ARENA_MEM_GRANULARITY     size_megabytes(1);
 
 
 #if (IFB_CONFIG_BUILD_MODE==0)

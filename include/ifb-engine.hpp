@@ -141,7 +141,7 @@ namespace ifb {
 
     IFB_ENGINE_API u32          eng_image_size           (const eng_file_handle img_file_hnd);
     IFB_ENGINE_API const image* eng_image_load_to_arena  (const eng_file_handle img_file_hnd, const eng_arena_handle arena_hnd);
-    IFB_ENGINE_API const image* eng_image_load_to_memory (const eng_file_handle img_file_hnd, const memory* mem);
+    IFB_ENGINE_API const image* eng_image_load_to_memory (const eng_file_handle img_file_hnd, const memory& mem);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
