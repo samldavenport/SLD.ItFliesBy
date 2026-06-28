@@ -6,11 +6,10 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_wo_create_new(
-        file_manager* mngr,
         const cchar8* path) {
 
         file_manager_assert_valid();
-        assert(mngr != NULL && path != NULL);
+        assert(path != NULL);
 
         pfm_file_config file_config;
         file_config.path         = path;
@@ -25,11 +24,10 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_wo_open_existing(
-        file_manager* mngr,
         const cchar8* path) {
         
         file_manager_assert_valid();
-        assert(mngr != NULL && path != NULL);
+        assert(path != NULL);
 
         pfm_file_config file_config;
         file_config.path         = path;
@@ -44,7 +42,6 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_wo_open_always(
-        file_manager* mngr,
         const cchar8* path) {
 
         file_manager_assert_valid();

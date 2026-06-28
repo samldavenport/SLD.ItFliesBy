@@ -28,8 +28,10 @@ namespace ifb {
     struct asset;
     struct handle;
     struct eng_arena_handle;
+    struct image;
 
     using position_3d = vec3;
+    using pixel       = color_rgba_u32;
 
     constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
     constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
@@ -87,10 +89,20 @@ namespace ifb {
         inline bool   operator!= (const s32& other) { return(!this->test(other)); }
     };
 
-    struct asset {
-        memory mem;
+    struct image {
+        struct {
+            union {
+                pixel* pixels;
+                byte*  bytes;
+                void*  vptr;
+                addr   address;
+            };
+            u32 size;
+        } data;
+        u32 pixel_width;
+        u32 pixel_height;
+        u32 pixel_count;
     };
-
 };
 
 #endif //IFB_TYPES_HPP

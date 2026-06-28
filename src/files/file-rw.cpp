@@ -26,7 +26,6 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_rw_open_existing(
-        file_manager* mngr,
         const cchar8* path) {
 
         file_manager_assert_valid();

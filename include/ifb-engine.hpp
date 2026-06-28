@@ -16,15 +16,17 @@
 
 using namespace sld;
 
+#define IFB_HANDLE(hnd) struct hnd : handle { using handle::handle; };
+
 namespace ifb {
 
     //--------------------------------------------------------------------
     // PRIMITIVE TYPES
     //--------------------------------------------------------------------
 
-    using eng_file_handle = u32;
+    IFB_HANDLE(eng_arena_handle);
+    IFB_HANDLE(eng_file_handle);
     using eng_entity_id   = u32;
-
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -34,8 +36,6 @@ namespace ifb {
     struct eng_context;
     struct eng_mem;
     struct eng_mem_map;
-
-    struct eng_arena_handle : handle { using handle::handle; };
 
     //--------------------------------------------------------------------
     // CONTEXT
@@ -94,8 +94,8 @@ namespace ifb {
     IFB_ENGINE_API void            eng_file_close                        (const eng_file_handle hnd);
     IFB_ENGINE_API u32             eng_file_get_size                     (const eng_file_handle hnd);
     IFB_ENGINE_API void            eng_file_set_cursor                   (const eng_file_handle hnd, const u32 cursor);
-    IFB_ENGINE_API u32             eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
-    IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, byte* buffer_ptr);
+    IFB_ENGINE_API const cchar8*   eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size);
+    IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // CAMERA
@@ -134,6 +134,14 @@ namespace ifb {
     IFB_ENGINE_API u32              eng_arena_size_used (const eng_arena_handle arena);
     IFB_ENGINE_API void             eng_arena_revert    (const eng_arena_handle arena, const u32 save);
     IFB_ENGINE_API void*            eng_arena_push      (const eng_arena_handle arena, const u32 size);
+
+    //--------------------------------------------------------------------
+    // IMAGES
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API u32          eng_image_size           (const eng_file_handle img_file_hnd);
+    IFB_ENGINE_API const image* eng_image_load_to_arena  (const eng_file_handle img_file_hnd, const eng_arena_handle arena_hnd);
+    IFB_ENGINE_API const image* eng_image_load_to_memory (const eng_file_handle img_file_hnd, const memory* mem);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

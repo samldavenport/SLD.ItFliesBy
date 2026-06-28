@@ -11,6 +11,7 @@
 #include "eng-window.cpp"
 #include "eng-stack.cpp"
 #include "eng-gui.cpp"
+#include "eng-file.cpp"
 
 #include "entity.cpp"
 #include "entity-id.cpp"
