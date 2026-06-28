@@ -16,9 +16,11 @@ using namespace sld;
 #define IFB_CONFIG_MEMORY_RES_SIZE_CORE      size_megabytes(64);
 #define IFB_CONFIG_MEMORY_RES_SIZE_FILES     size_megabytes(64);
 #define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING size_megabytes(64);
+#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS    size_megabytes(64);
 #define IFB_CONFIG_FILE_PATH_SIZE            256              
 #define IFB_CONFIG_FILE_COUNT                64              
 #define IFB_CONFIG_RENDERER_MEM_GRANULARITY  size_kilobytes(64);
+#define IFB_CONFIG_ARENA_MEM_GRANULARITY     size_kilobytes(64);
 
 
 #if (IFB_CONFIG_BUILD_MODE==0)
@@ -43,9 +45,11 @@ namespace ifb {
         static constexpr u32    memory_size_core         = IFB_CONFIG_MEMORY_RES_SIZE_CORE;
         static constexpr u32    memory_size_files        = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
         static constexpr u32    memory_size_rendering    = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
+        static constexpr u32    memory_size_arenas       = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
         static constexpr u32    file_path_size           = IFB_CONFIG_FILE_PATH_SIZE; 
         static constexpr u32    file_count               = IFB_CONFIG_FILE_COUNT;
         static constexpr u32    renderer_mem_granularity = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
+        static constexpr u32    arena_granularity        = IFB_CONFIG_ARENA_MEM_GRANULARITY;
         static constexpr cchar8 window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 
