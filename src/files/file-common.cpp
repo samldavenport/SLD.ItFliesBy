@@ -13,8 +13,6 @@ namespace ifb {
 
         const u32 index = file_manager_index_of_internal_handle(hnd);
         assert(index != FILE_INDEX_INVALID);
-
-
     }
 
     IFB_INTERNAL u32
@@ -34,7 +32,6 @@ namespace ifb {
 
     IFB_INTERNAL void
     file_set_cursor(
-        file_manager*     mngr,
         const file_handle hnd,
         const u32         cursor) {
 
@@ -43,7 +40,7 @@ namespace ifb {
 
         const u32 index = file_manager_index_of_internal_handle(hnd);
 
-        mngr->array.cursor[index] = cursor;
+        _file_mngr->array.cursor[index] = cursor;
     }
 
     IFB_INTERNAL const cchar8*
@@ -86,7 +83,7 @@ namespace ifb {
     file_write(
         const file_handle hnd,
         const u32         buffer_size,
-        byte*             buffer_ptr) {
+        const byte*       buffer_ptr) {
 
         file_manager_assert_valid();
         assert(
