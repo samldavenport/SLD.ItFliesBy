@@ -8,8 +8,8 @@ namespace ifb {
     // STATIC METHODS
     //--------------------------------------------------------------------
 
-    u32 stack::memory_requirement (const u32 size) { }
-    u32 stack::memory_init        (const u32 size, memory& mem) { }
+    static u32 stack::memory_requirement (const u32 size) { }
+    static u32 stack::memory_init        (const u32 size, memory& mem) { }
 
     //--------------------------------------------------------------------
     // PUBLIC METHODS
