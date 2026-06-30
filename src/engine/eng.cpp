@@ -41,3 +41,4 @@
 #include "win32-window.cpp"
 
 #include "sparse-set.cpp"
+#include "stack.cpp"
