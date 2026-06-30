@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-sparse-set.hpp"
+#include "ifb-collections.hpp"
 
 #define SPARSE_SET_FUNC template<typename t> auto sparse_set<t>::
 

@@ -8,17 +8,10 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // CLASS TYPES
-    //--------------------------------------------------------------------
-
-    class stack;
-    class sparse_set;
-
-    //--------------------------------------------------------------------
     // STACK
     //--------------------------------------------------------------------
 
-    class stack {
+    class IFB_API stack {
     
     private:
 
@@ -92,6 +85,8 @@ namespace ifb {
         bool lookup          (const cchar* key, t&       val) const;
         void remove          (const cchar* key);
     };
+
+    
 };
 
 #endif //IFB_COLLECTIONS_HPP

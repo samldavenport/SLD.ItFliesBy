@@ -8,8 +8,8 @@ namespace ifb {
     // STATIC METHODS
     //--------------------------------------------------------------------
 
-    static u32 stack::memory_requirement (const u32 size) { }
-    static u32 stack::memory_init        (const u32 size, memory& mem) { }
+    u32 stack::memory_requirement (const u32 size) { }
+    u32 stack::memory_init        (const u32 size, memory& mem) { }
 
     //--------------------------------------------------------------------
     // PUBLIC METHODS
@@ -92,7 +92,7 @@ namespace ifb {
         if (size_remaninig >= size) {
 
             push_mem = (void*)(_mem.address + _pos);
-            _mem.pos += size;
+            _pos += size;
         }
         return(NULL);
     }
