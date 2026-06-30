@@ -35,7 +35,7 @@ namespace ifb {
     IFB_INTERNAL entity_id       entity_id_init                     (const entity_tag* tag);
 
     // entity tag
-    IFB_INTERNAL void            entity_tag_init                    (entity_tag*       tag, const cchar8* cstr);
+    IFB_INTERNAL void            entity_tag_init                    (entity_tag*       tag, const cchar* cstr);
     IFB_INTERNAL u32             entity_tag_hash                    (const entity_tag* tag);
 
     // entity manager
@@ -46,11 +46,11 @@ namespace ifb {
     IFB_INTERNAL void            entity_manager_shutdown            (void);
 
     // entity
-    IFB_INTERNAL u32             entity_lookup_index_by_tag         (const cchar8*    tag_cstr);
+    IFB_INTERNAL u32             entity_lookup_index_by_tag         (const cchar*    tag_cstr);
     IFB_INTERNAL u32             entity_lookup_index_by_id          (const entity_id  id);
     IFB_INTERNAL void            entity_get                         (const u32        index, entity* out);
-    IFB_INTERNAL entity_id       entity_create                      (const cchar8*    tag_cstr);
-    IFB_INTERNAL bool            entity_destroy_by_tag              (const cchar8*    tag_cstr);
+    IFB_INTERNAL entity_id       entity_create                      (const cchar*    tag_cstr);
+    IFB_INTERNAL bool            entity_destroy_by_tag              (const cchar*    tag_cstr);
     IFB_INTERNAL bool            entity_destroy_by_id               (const entity_id& id);
 
     //--------------------------------------------------------------------
@@ -69,10 +69,10 @@ namespace ifb {
     };
     
     struct entity_tag {
-        cchar8 cstr[ENTITY_TAG_SIZE];
+        cchar cstr[ENTITY_TAG_SIZE];
 
         inline entity_tag& operator= (const entity_tag& other);
-        inline entity_tag& operator= (const cchar8* cstr);
+        inline entity_tag& operator= (const cchar* cstr);
     };
 
     struct entity {
@@ -158,7 +158,7 @@ namespace ifb {
     }
 
     inline entity_tag&
-    entity_tag::operator= (const cchar8* cstr) {
+    entity_tag::operator= (const cchar* cstr) {
 
         zero_memory((void*)this, sizeof(entity_tag));
 

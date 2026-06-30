@@ -7,7 +7,7 @@ namespace ifb {
     static void
     entity_tag_init(
         entity_tag*   tag,
-        const cchar8* cstr) {
+        const cchar* cstr) {
 
         assert(tag != NULL && cstr != NULL);
 

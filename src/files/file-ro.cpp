@@ -7,7 +7,7 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_ro_create_new(
-        const cchar8* path) {
+        const cchar* path) {
 
         file_manager_assert_valid();
         assert(path);
@@ -27,7 +27,7 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_ro_open_existing(
-        const cchar8* path) {
+        const cchar* path) {
 
         file_manager_assert_valid();
         assert(path);
@@ -51,7 +51,7 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_ro_open_always(
-        const cchar8* path) {
+        const cchar* path) {
 
         file_manager_assert_valid();
         assert(path);
@@ -75,7 +75,7 @@ namespace ifb {
 
     IFB_INTERNAL file_handle
     file_ro_overwrite(
-        const cchar8* path) {
+        const cchar* path) {
 
         file_manager_assert_valid();
         assert(path);

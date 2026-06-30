@@ -50,7 +50,7 @@ namespace ifb {
         static constexpr u32    file_count               = IFB_CONFIG_FILE_COUNT;
         static constexpr u32    renderer_mem_granularity = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
         static constexpr u32    arena_granularity        = IFB_CONFIG_ARENA_MEM_GRANULARITY;
-        static constexpr cchar8 window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
+        static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 
     };
