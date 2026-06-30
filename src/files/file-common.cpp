@@ -43,7 +43,7 @@ namespace ifb {
         _file_mngr->array.cursor[index] = cursor;
     }
 
-    IFB_INTERNAL const cchar8*
+    IFB_INTERNAL const cchar*
     file_read(
         const file_handle hnd,
         const u32         buffer_size) {
@@ -76,7 +76,7 @@ namespace ifb {
             file_buffer.data[null_index] = 0;
         }
 
-        return((const cchar8*)file_buffer.data);
+        return((const cchar*)file_buffer.data);
     }
 
     IFB_INTERNAL u32 

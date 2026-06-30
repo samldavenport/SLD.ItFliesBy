@@ -45,22 +45,22 @@ namespace ifb {
     IFB_INTERNAL u32           file_manager_index_of_platform_handle (const pfm_file_handle hnd);
     IFB_INTERNAL byte*         file_manager_get_buffer               (const u32 index);
     IFB_INTERNAL file_handle   file_manager_commit                   (const pfm_file_config* cfg);
-    IFB_INTERNAL file_handle   file_ro_create_new                    (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_ro_open_existing                 (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_ro_open_always                   (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_ro_overwrite                     (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_wo_create_new                    (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_wo_open_existing                 (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_wo_open_always                   (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_wo_overwrite                     (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_rw_create_new                    (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_rw_open_existing                 (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_rw_open_always                   (const cchar8*     path);
-    IFB_INTERNAL file_handle   file_rw_overwrite                     (const cchar8*     path);
+    IFB_INTERNAL file_handle   file_ro_create_new                    (const cchar*     path);
+    IFB_INTERNAL file_handle   file_ro_open_existing                 (const cchar*     path);
+    IFB_INTERNAL file_handle   file_ro_open_always                   (const cchar*     path);
+    IFB_INTERNAL file_handle   file_ro_overwrite                     (const cchar*     path);
+    IFB_INTERNAL file_handle   file_wo_create_new                    (const cchar*     path);
+    IFB_INTERNAL file_handle   file_wo_open_existing                 (const cchar*     path);
+    IFB_INTERNAL file_handle   file_wo_open_always                   (const cchar*     path);
+    IFB_INTERNAL file_handle   file_wo_overwrite                     (const cchar*     path);
+    IFB_INTERNAL file_handle   file_rw_create_new                    (const cchar*     path);
+    IFB_INTERNAL file_handle   file_rw_open_existing                 (const cchar*     path);
+    IFB_INTERNAL file_handle   file_rw_open_always                   (const cchar*     path);
+    IFB_INTERNAL file_handle   file_rw_overwrite                     (const cchar*     path);
     IFB_INTERNAL void          file_close                            (const file_handle hnd);
     IFB_INTERNAL u32           file_get_size                         (const file_handle hnd);
     IFB_INTERNAL void          file_set_cursor                       (const file_handle hnd, const u32 cursor);
-    IFB_INTERNAL const cchar8* file_read                             (const file_handle hnd, const u32 buffer_size);
+    IFB_INTERNAL const cchar* file_read                             (const file_handle hnd, const u32 buffer_size);
     IFB_INTERNAL u32           file_write                            (const file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
@@ -68,7 +68,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
    struct file_path {
-        cchar8 cstr[IFB_CONFIG_FILE_PATH_SIZE];
+        cchar cstr[IFB_CONFIG_FILE_PATH_SIZE];
     };
 
     struct file_manager {

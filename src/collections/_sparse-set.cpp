@@ -14,7 +14,7 @@ namespace ifb {
         u32   val_size;
     };
 
-    struct sparse_array {
+    struct sparse_set {
         struct {
             struct {
                 u32* sparse_index;
@@ -34,7 +34,7 @@ namespace ifb {
     };
 
     IFB_API u32
-    sparse_array_memory_requirement (
+    sparse_set_memory_requirement (
         const u32 capacity,
         const u32 val_size,
         const f32 max_load_p100) {
@@ -46,7 +46,7 @@ namespace ifb {
             max_load_p100 <= 1.0f
         );
 
-        const u32 size_struct = sizeof(sparse_array);
+        const u32 size_struct = sizeof(sparse_set);
         const u32 count_dense = (u32)((f32)capacity * max_load_p100);
         const u32 size_dense  = count_dense * sizeof(u32) * 2;
         const u32 size_sparse = capacity    * (val_size + sizeof(u32));
@@ -55,8 +55,8 @@ namespace ifb {
         return(size_total);
     }
 
-    IFB_API sparse_array*
-    sparse_array_memory_init(
+    IFB_API sparse_set*
+    sparse_set_memory_init(
         const u32 capacity,
         const u32 val_size,
         const f32 max_load_p100,
@@ -64,7 +64,7 @@ namespace ifb {
         const u32 mem_size, 
         void*     mem_ptr) {
 
-        const u32 mem_req = sparse_array_memory_requirement(
+        const u32 mem_req = sparse_set_memory_requirement(
             capacity,
             val_size,
             max_load_p100
@@ -86,8 +86,8 @@ namespace ifb {
         const u32 sparse_index_size = capacity       * sizeof(u32);
 
         // cast pointers and initialize
-        auto sa = (sparse_array*)mem_ptr;
-        sa->data.dense.sparse_index =  (u32*)((addr)sa + sizeof(sparse_array));
+        auto sa = (sparse_set*)mem_ptr;
+        sa->data.dense.sparse_index =  (u32*)((addr)sa + sizeof(sparse_set));
         sa->data.dense.hash         =  (u32*)((addr)sa->data.dense.sparse_index + dense_size);
         sa->data.sparse.dense_index =  (u32*)((addr)sa->data.dense.hash         + dense_size);
         sa->data.sparse.val         = (void*)((addr)sa->data.sparse.dense_index + sparse_index_size);
@@ -107,8 +107,8 @@ namespace ifb {
     }
 
     IFB_API bool
-    sparse_array_is_valid(
-        const sparse_array* sa) {
+    sparse_set_is_valid(
+        const sparse_set* sa) {
 
         const bool is_valid = (
             sa != NULL &&
@@ -128,20 +128,20 @@ namespace ifb {
     }
 
     IFB_API void
-    sparse_array_assert_valid(
-        const sparse_array* sa) {
+    sparse_set_assert_valid(
+        const sparse_set* sa) {
 
-        const bool is_valid = sparse_array_is_valid(sa);
+        const bool is_valid = sparse_set_is_valid(sa);
         assert(is_valid);
     }
 
     IFB_API void*
-    sparse_array_lookup(
-        const sparse_array* sa,
-        const cchar8*       key) {
+    sparse_set_lookup(
+        const sparse_set* sa,
+        const cchar*       key) {
 
         assert(
-            sparse_array_is_valid(sa) &&
+            sparse_set_is_valid(sa) &&
             key != NULL
         );
 
@@ -186,13 +186,13 @@ namespace ifb {
     }
 
     IFB_API bool
-    sparse_array_insert(
-        const sparse_array* sa,
-        const cchar8*       key,
+    sparse_set_insert(
+        const sparse_set* sa,
+        const cchar*       key,
         const void*         val) {
 
         const bool is_valid = (
-            sparse_array_is_valid(sa) &&
+            sparse_set_is_valid(sa) &&
             key   != NULL             &&
             val   != NULL
         );
@@ -250,12 +250,12 @@ namespace ifb {
     }
 
     IFB_API bool
-    sparse_array_remove(
-        sparse_array* sa,
-        const cchar8*       key) {
+    sparse_set_remove(
+        sparse_set* sa,
+        const cchar*       key) {
 
         const bool is_valid = (
-            sparse_array_is_valid(sa) &&
+            sparse_set_is_valid(sa) &&
             key != NULL
         );
         assert(is_valid);

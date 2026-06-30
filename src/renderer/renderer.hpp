@@ -91,7 +91,7 @@ namespace ifb {
 
     
     struct shader_source {
-        const cchar8* data;
+        const cchar* data;
         u32           size;
     };
 

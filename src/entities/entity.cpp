@@ -63,7 +63,7 @@ namespace ifb {
 
     IFB_INTERNAL entity_id
     entity_create(
-        const cchar8* tag_cstr) {
+        const cchar* tag_cstr) {
 
         entity_manager_assert_valid();
         assert(tag_cstr != NULL);
@@ -101,7 +101,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_destroy_by_tag(
-        const cchar8* tag_cstr) {
+        const cchar* tag_cstr) {
 
         entity_manager_assert_valid();
         assert(tag_cstr != NULL);

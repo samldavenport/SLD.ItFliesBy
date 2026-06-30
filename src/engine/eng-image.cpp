@@ -9,7 +9,7 @@ namespace ifb {
         const eng_file_handle file_hnd) {
 
         const u32     file_size = eng_file_get_size (file_hnd); 
-        const cchar8* file_str  = eng_file_read     (file_hnd);
+        const cchar* file_str  = eng_file_read     (file_hnd);
         if (file_str == NULL) {
             return(0);
         }

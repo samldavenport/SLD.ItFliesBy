@@ -79,22 +79,22 @@ namespace ifb {
     // FILES
     //--------------------------------------------------------------------
     
-    IFB_ENGINE_API eng_file_handle eng_file_ro_create_new                (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_open_existing             (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_open_always               (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_overwrite                 (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_create_new                (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_open_existing             (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_open_always               (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_overwrite                 (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_create_new                (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_open_existing             (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_open_always               (const cchar8* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_overwrite                 (const cchar8* path);
+    IFB_ENGINE_API eng_file_handle eng_file_ro_create_new                (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_ro_open_existing             (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_ro_open_always               (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_ro_overwrite                 (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_wo_create_new                (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_wo_open_existing             (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_wo_open_always               (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_wo_overwrite                 (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_rw_create_new                (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_rw_open_existing             (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_rw_open_always               (const cchar* path);
+    IFB_ENGINE_API eng_file_handle eng_file_rw_overwrite                 (const cchar* path);
     IFB_ENGINE_API void            eng_file_close                        (const eng_file_handle hnd);
     IFB_ENGINE_API u32             eng_file_get_size                     (const eng_file_handle hnd);
     IFB_ENGINE_API void            eng_file_set_cursor                   (const eng_file_handle hnd, const u32 cursor);
-    IFB_ENGINE_API const cchar8*   eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size);
+    IFB_ENGINE_API const cchar*   eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size);
     IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
@@ -110,17 +110,17 @@ namespace ifb {
     // ENTITIES
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_entity_id eng_entity_create         (const cchar8*       tag);
+    IFB_ENGINE_API eng_entity_id eng_entity_create         (const cchar*       tag);
     IFB_ENGINE_API bool          eng_entity_destroy_by_id  (const eng_entity_id id);
-    IFB_ENGINE_API bool          eng_entity_destroy_by_tag (const cchar8*       tag);
-    IFB_ENGINE_API const cchar8* eng_entity_get_tag        (const eng_entity_id id);
+    IFB_ENGINE_API bool          eng_entity_destroy_by_tag (const cchar*       tag);
+    IFB_ENGINE_API const cchar* eng_entity_get_tag        (const eng_entity_id id);
 
     //--------------------------------------------------------------------
     // IMAGES
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API u32  image_size (const cchar8* path);
-    IFB_ENGINE_API bool image_load (const cchar8* path);
+    IFB_ENGINE_API u32  image_size (const cchar* path);
+    IFB_ENGINE_API bool image_load (const cchar* path);
     
     //--------------------------------------------------------------------
     // ARENAS

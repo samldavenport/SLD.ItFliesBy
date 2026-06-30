@@ -6,7 +6,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_ro_create_new(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_ro_create_new(path);
@@ -15,7 +15,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_ro_open_existing(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_ro_open_existing(path);
@@ -24,7 +24,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_ro_open_always(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_ro_open_always(path);
@@ -33,7 +33,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_ro_overwrite(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_ro_overwrite(path);
@@ -42,7 +42,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_wo_create_new(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_wo_create_new(path);
@@ -51,7 +51,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_wo_open_existing(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_wo_open_existing(path);
@@ -60,7 +60,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_wo_open_always(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_wo_open_always(path);
@@ -69,7 +69,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_wo_overwrite(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_wo_overwrite(path);
@@ -78,7 +78,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_rw_create_new(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_rw_create_new(path);
@@ -87,7 +87,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_rw_open_existing(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_rw_open_existing(path);
@@ -97,7 +97,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_rw_open_always(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_rw_open_always(path);
@@ -106,7 +106,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_file_handle
     eng_file_rw_overwrite(
-        const cchar8* path) {
+        const cchar* path) {
 
         assert(path);
         eng_file_handle hnd = file_rw_overwrite(path);
@@ -136,12 +136,12 @@ namespace ifb {
         file_set_cursor(hnd.val, cursor);
     }
 
-    IFB_ENGINE_API const cchar8*
+    IFB_ENGINE_API const cchar*
     eng_file_read(
         const eng_file_handle hnd) {
 
         const u32     buffer_size = file_get_size(hnd.val);
-        const cchar8* buffer_ptr  = file_read(
+        const cchar* buffer_ptr  = file_read(
             hnd.val,
             buffer_size
         );

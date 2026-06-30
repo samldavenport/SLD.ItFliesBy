@@ -110,9 +110,9 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_PLATFORM_API pfm_file_handle pfm_file_open          (const pfm_file_config* cfg);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_r  (const cchar8*  path);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_w  (const cchar8*  path);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_rw (const cchar8*  path);
+    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_r  (const cchar*  path);
+    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_w  (const cchar*  path);
+    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_rw (const cchar*  path);
     IFB_PLATFORM_API u32             pfm_file_size          (const pfm_file_handle file);
     IFB_PLATFORM_API void            pfm_file_close         (const pfm_file_handle file);
     IFB_PLATFORM_API u32             pfm_file_read          (const pfm_file_handle file, pfm_file_buffer* buffer);
@@ -125,7 +125,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct pfm_window_config {
-        cchar8* title;
+        cchar* title;
         struct  {
             u32 x;
             u32 y;
@@ -156,7 +156,7 @@ namespace ifb {
     };
 
     struct pfm_file_config {
-        const cchar8*         path;
+        const cchar*         path;
         pfm_file_mode         mode;
         pfm_file_access_flags access_flags;
         pfm_file_share_flags  share_flags;
