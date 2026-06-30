@@ -7,6 +7,39 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // STACK
+    //--------------------------------------------------------------------
+
+    class IFB_API stack {
+    
+    private:
+
+        memory _mem;
+        u32    _pos;
+        u32    _save;
+
+    public:
+
+        // instance methods
+        void  init       (memory& mem);
+        void  validate   (void) const;
+        u32   size_total (void) const;
+        u32   size_used  (void) const;
+        u32   size_free  (void) const;
+        void* head       (void) const;
+        void* tail       (void) const;
+        u32   save       (void);
+        void  reset      (void);
+        void* push       (const u32 size);
+        void  pull       (const u32 size);
+        void  revert     (const u32 save);
+    };
+
+    //--------------------------------------------------------------------
+    // SPARSE SET
+    //--------------------------------------------------------------------
+
     template<typename t>
     class IFB_API sparse_set {
 
@@ -35,9 +68,9 @@ namespace ifb {
 
         // static methods
         static u32  memory_requirement (const u32 capacity, const u32 key_size, const f32 max_load_p100);
-        static void memory_init        (const u32 capacity, const u32 key_size, const f32 max_load_p100, memory& mem);
 
         // instance methods
+        void init            (const u32 capacity, const u32 key_size, const f32 max_load_p100, memory& mem);
         u32  capacity_sparse (void) const;
         u32  capacity_dense  (void) const;
         u32  key_size        (void) const;
@@ -50,8 +83,7 @@ namespace ifb {
         void remove          (const cchar* key);
     };
 
-
-
+    
 };
 
 #endif //IFB_COLLECTIONS_HPP

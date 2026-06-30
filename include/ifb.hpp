@@ -18,7 +18,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
 #include "ifb-font-opensans.hpp"
-#include "ifb-sparse-set.hpp"
+#include "ifb-collections.hpp" 
 
 using namespace sld;
 
