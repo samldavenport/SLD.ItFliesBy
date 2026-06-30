@@ -21,22 +21,19 @@ namespace ifb {
 
     public:
 
-        // static methods
-        static u32 memory_requirement (const u32 size);
-        static u32 memory_init        (const u32 size, memory& mem);
-
         // instance methods
+        void  init       (memory& mem);
         void  validate   (void) const;
         u32   size_total (void) const;
         u32   size_used  (void) const;
         u32   size_free  (void) const;
         void* head       (void) const;
         void* tail       (void) const;
-        void* save       (void);
+        u32   save       (void);
         void  reset      (void);
-        void* push       (const u32   size);
-        void  pull       (const u32   size);
-        void  revert     (const void* save);
+        void* push       (const u32 size);
+        void  pull       (const u32 size);
+        void  revert     (const u32 save);
     };
 
     //--------------------------------------------------------------------
@@ -71,9 +68,9 @@ namespace ifb {
 
         // static methods
         static u32  memory_requirement (const u32 capacity, const u32 key_size, const f32 max_load_p100);
-        static void memory_init        (const u32 capacity, const u32 key_size, const f32 max_load_p100, memory& mem);
 
         // instance methods
+        void init            (const u32 capacity, const u32 key_size, const f32 max_load_p100, memory& mem);
         u32  capacity_sparse (void) const;
         u32  capacity_dense  (void) const;
         u32  key_size        (void) const;

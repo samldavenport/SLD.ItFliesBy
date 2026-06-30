@@ -12,23 +12,77 @@ namespace ifb {
         const u32 key_size,
         const f32 max_load_p100) -> u32 {
 
-        return(0);
+        assert(
+            capacity      != 0    &&
+            key_size      != 0    &&
+            max_load_p100 >  0.0f &&
+            max_load_p100 <= 1.0f
+        );
+
+        const u32 capacity_sparse = (u32)((f32)capacity / max_load_p100);
+
+        const u32 size_data_dense_sparse_index = (capacity        * sizeof(u32));
+        const u32 size_data_dense_hash         = (capacity        * sizeof(u32));
+        const u32 size_data_sparse_dense_index = (capacity_sparse * sizeof(u32));
+        const u32 size_data_sparse_val         = (capacity_sparse * sizeof(t));
+
+        const u32 size_total = (
+            size_data_dense_sparse_index +
+            size_data_dense_hash         +
+            size_data_sparse_dense_index +
+            size_data_sparse_val
+        );
+
+        return(size_total);
     }
 
     SPARSE_SET_FUNC
-    memory_init(
+    init(
         const u32 capacity,
         const u32 key_size,
         const f32 max_load_p100,
         memory&   mem) -> void {
 
-    }
+        assert(
+            capacity      != 0    &&
+            key_size      != 0    &&
+            max_load_p100 >  0.0f &&
+            max_load_p100 <= 1.0f &&
+            mem.address   != 0    &&
+            mem.size      != 0
 
+        );
+
+        const u32 capacity_sparse = (u32)((f32)capacity / max_load_p100);
+
+        const u32 size_data_dense_sparse_index = (capacity        * sizeof(u32));
+        const u32 size_data_dense_hash         = (capacity        * sizeof(u32));
+        const u32 size_data_sparse_dense_index = (capacity_sparse * sizeof(u32));
+        const u32 size_data_sparse_val         = (capacity_sparse * sizeof(t));
+
+        const u32 size_total = (
+            size_data_dense_sparse_index +
+            size_data_dense_hash         +
+            size_data_sparse_dense_index +
+            size_data_sparse_val
+        );
+
+        // initialize memory
+        zero_memory(mem);
+        _data.dense.sparse_index = (u32*)mem.address;
+        _data.dense.hash         = (u32*)((addr)_data.dense.sparse_index + size_data_dense_sparse_index);
+        _data.sparse.dense_index = (u32*)((addr)_data.dense.hash         + size_data_dense_hash);
+        _data.sparse.val         =   (t*)((addr)_data.sparse.dense_index + size_data_sparse_dense_index);
+
+        // reset
+        reset();
+    }   
 
     SPARSE_SET_FUNC
     capacity_sparse(
         void) const -> u32 {
 
+        validate();
         return(_capacity.sparse);
     }
 
@@ -36,6 +90,7 @@ namespace ifb {
     capacity_dense(
         void) const -> u32 {
 
+        validate();
         return(_capacity.dense);
     }
 
@@ -43,6 +98,7 @@ namespace ifb {
     key_size(
         void) const -> u32 {
 
+        validate();
         return(_key_size);
     }
 
@@ -50,6 +106,7 @@ namespace ifb {
     count(
         void) const -> u32 {
 
+        validate();
         return(_count);
     }
 
@@ -74,6 +131,7 @@ namespace ifb {
     reset(
         void) -> void {
 
+        validate();
         const u32 sparse_size = sizeof(u32) * _count;
 
         memset(_data.dense.sparse_index, 0xFF, sparse_size);

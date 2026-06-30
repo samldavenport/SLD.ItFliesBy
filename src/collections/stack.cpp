@@ -8,8 +8,19 @@ namespace ifb {
     // STATIC METHODS
     //--------------------------------------------------------------------
 
-    u32 stack::memory_requirement (const u32 size) { }
-    u32 stack::memory_init        (const u32 size, memory& mem) { }
+    void
+    stack::init(
+        memory& mem) {
+
+        assert(
+            mem.size    != 0 &&
+            mem.address != 0
+        );
+
+        zero_memory(mem);
+        _mem.size    = mem.size;        
+        _mem.address = mem.address;
+    }
 
     //--------------------------------------------------------------------
     // PUBLIC METHODS
@@ -62,14 +73,14 @@ namespace ifb {
         return(_mem.ptr);
     }
 
-    void* stack::
+    u32 stack::
     save(void) {
 
         validate();
         assert(_save == 0);
 
         _save = _pos;
-        return((void*)(_mem.address + _save));
+        return(_save);
     }
 
     void stack::
@@ -110,18 +121,14 @@ namespace ifb {
 
     void stack::
     revert(
-        const void* save) {
+        const u32 save) {
 
         validate();
 
-        assert(
-            save != NULL && 
-            save == _save
-        );
+        assert(save == _save);
 
-        const addr addr_save = (addr)save;
-        
-        _pos  = (u32)(addr_save - _mem.address);
+        _pos  = _save;
         _save = 0;
+
     }
 };
