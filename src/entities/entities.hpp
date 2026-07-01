@@ -89,11 +89,7 @@ namespace ifb {
 
     struct entity_tag {
         cchar cstr[ENTITY_TAG_SIZE];
-
-        inline entity_tag& operator= (const entity_tag& other);
-        inline entity_tag& operator= (const cchar* cstr);
     };
-
 
     struct entity {
         entity_id         id;
@@ -109,43 +105,6 @@ namespace ifb {
         u32     capacity;
         u32     count;
     };
-
-    //--------------------------------------------------------------------
-    // ENTITY TAG INLINE OPERATORS
-    //--------------------------------------------------------------------
-
-    inline entity_tag&
-    entity_tag::operator= (const entity_tag& other) {
-
-        zero_memory((void*)this, sizeof(entity_tag));
-
-        (void)memmove(
-            (void*)&this->cstr[0],
-            &other.cstr[0],
-            ENTITY_TAG_SIZE
-        );
-
-        this->cstr[ENTITY_TAG_SIZE - 1] = 0;
-        return(*this);
-    }
-
-    inline entity_tag&
-    entity_tag::operator= (const cchar* cstr) {
-
-        zero_memory((void*)this, sizeof(entity_tag));
-
-        const u32 cstr_len = strnlen_s(cstr, ENTITY_TAG_SIZE);
-
-        (void)memmove(
-            (void*)&this->cstr[0],
-            (void*)cstr,
-            cstr_len
-        );
-
-        this->cstr[ENTITY_TAG_SIZE - 1] = 0;
-        return(*this);            
-    }
-
 };
 
 #endif  //IFB_ENTITIES_HPP
