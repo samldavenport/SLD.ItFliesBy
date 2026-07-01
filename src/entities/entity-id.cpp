@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entities.hpp"
+#include "ifb-entity.hpp"
 
 namespace ifb {
 

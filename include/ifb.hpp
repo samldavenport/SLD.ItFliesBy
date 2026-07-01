@@ -16,6 +16,7 @@
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-engine.hpp"
+#include "ifb-entity.hpp"
 #include "ifb-input.hpp"
 #include "ifb-font-opensans.hpp"
 #include "ifb-collections.hpp" 

@@ -69,13 +69,13 @@ namespace ifb {
 
     struct gui_window_flags : flags {
 
-        inline bool get_engine_system     (void) { return(this->test(gui_window_flag_e_engine_system));     }
-        inline bool get_engine_imgui_demo (void) { return(this->test(gui_window_flag_e_engine_imgui_demo)); }
-        inline bool get_renderer_camera   (void) { return(this->test(gui_window_flag_e_renderer_camera));   }
+        inline bool get_engine_system     (void) { return(test(gui_window_flag_e_engine_system));     }
+        inline bool get_engine_imgui_demo (void) { return(test(gui_window_flag_e_engine_imgui_demo)); }
+        inline bool get_renderer_camera   (void) { return(test(gui_window_flag_e_renderer_camera));   }
     
-        inline void update_engine_system     (bool b) { if (b) this->mask_on(gui_window_flag_e_engine_system);     else this->mask_off(gui_window_flag_e_engine_system);     }
-        inline void update_engine_imgui_demo (bool b) { if (b) this->mask_on(gui_window_flag_e_engine_imgui_demo); else this->mask_off(gui_window_flag_e_engine_imgui_demo); }
-        inline void update_renderer_camera   (bool b) { if (b) this->mask_on(gui_window_flag_e_renderer_camera);   else this->mask_off(gui_window_flag_e_renderer_camera);   }
+        inline void update_engine_system     (bool b) { if (b) mask_on(gui_window_flag_e_engine_system);     else mask_off(gui_window_flag_e_engine_system);     }
+        inline void update_engine_imgui_demo (bool b) { if (b) mask_on(gui_window_flag_e_engine_imgui_demo); else mask_off(gui_window_flag_e_engine_imgui_demo); }
+        inline void update_renderer_camera   (bool b) { if (b) mask_on(gui_window_flag_e_renderer_camera);   else mask_off(gui_window_flag_e_renderer_camera);   }
     };
 
     //--------------------------------------------------------------------

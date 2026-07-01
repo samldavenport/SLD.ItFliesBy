@@ -6,13 +6,6 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // CONSTANTS
-    //--------------------------------------------------------------------
-
-    constexpr u32 ENTITY_ID_INVALID = 0xFFFFFFFF;
-    constexpr u32 ENTITY_TAG_SIZE   = 16;
-
-    //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
@@ -70,32 +63,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
-
-    struct entity_id {
-
-        u32 hash;
-
-        entity_id() = default;
-        entity_id(u32 h) : hash(h) { }
-
-        inline bool operator== (const entity_id& other) const { return(hash == other.hash); }
-        inline bool operator!= (const entity_id& other) const { return(hash != other.hash); }
-        inline bool operator== (const u32& hash)        const { return(hash == hash);       }
-        inline bool operator!= (const u32& hash)        const { return(hash != hash);       }
-        inline u32  operator&  (const u32  val)         const { return(val  & hash);        }
-    };
-    constexpr u32 inline operator& (const u32 val, const entity_id id) { return(val & id.hash); }
-
-
-    struct entity_tag {
-        cchar cstr[ENTITY_TAG_SIZE];
-    };
-
-    struct entity {
-        entity_id         id;
-        const entity_tag* tag;
-    };
-
+    
     struct entity_manager {
         struct {
             entity_id*  id;

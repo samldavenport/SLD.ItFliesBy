@@ -57,8 +57,10 @@ namespace ifb {
             out   != NULL
         );
 
-        out->id  =  _entity_manager->data.id  [index];
-        out->tag = &_entity_manager->data.tag [index];
+        *out = entity(
+            _entity_manager->data.id  [index],
+            _entity_manager->data.tag [index]
+        );
     }
 
     IFB_INTERNAL entity_id

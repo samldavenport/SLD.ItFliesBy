@@ -61,6 +61,6 @@ namespace ifb {
         entity e;
         entity_get(index, &e);
 
-        return(e.tag->cstr);
+        return(e.tag_cstr());
     }
 };

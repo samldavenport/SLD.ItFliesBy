@@ -20,14 +20,21 @@ using namespace sld;
 
 namespace ifb {
     
-    struct handle;
-    struct quad;
+    struct asset;
+    struct component_type;
+    struct component_position;
+    struct component_color;
     struct dimensions_2d;
     struct dimensions_3d;
-    struct asset;
-    struct handle;
     struct eng_arena_handle;
+    struct entity;
+    struct entity_id;
+    struct entity_tag;
+    struct entity_archetype;
+    struct handle;
+    struct handle;
     struct image;
+    struct quad;
 
     using position_3d = vec3;
     using pixel       = color_rgba_u32;

@@ -136,9 +136,8 @@ namespace ifb {
         entity_sparse_set_validate(ess);
         assert(tag_cstr != NULL);
 
-        entity_tag tag;
-        entity_tag_init(&tag, tag_cstr);
-        const entity_id  entity_id          = entity_id_init(&tag);
+        const entity_tag tag(tag_cstr);
+        const entity_id  entity_id(tag);
         const u32        index_sparse_start = (ess->capacity.sparse - 1 & entity_id.hash);
 
         bool found = false;
