@@ -289,8 +289,8 @@ namespace ifb {
                 continue;
             }
 
-            // update the value we found and break
-            _data.sparse.val[index_sparse] = val;
+            // get the value we found and break
+            val = _data.sparse.val[index_sparse];
             break;
         }
     }
