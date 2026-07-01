@@ -87,7 +87,7 @@ namespace ifb {
         sparse_set->capacity.sparse    = capacity_sparse;
         sparse_set->count              = 0;
         
-        reset();
+        entity_sparse_set_reset(sparse_set);
         
         return(sparse_set);
     }
@@ -136,9 +136,10 @@ namespace ifb {
         entity_sparse_set_validate(ess);
         assert(tag_cstr != NULL);
 
-        const entity_tag tag                = entity_tag(tag_cstr);
+        entity_tag tag;
+        entity_tag_init(&tag, tag_cstr);
         const entity_id  entity_id          = entity_id_init(&tag);
-        const u32        index_sparse_start = (ess->capacity.sparse - 1 & entity_id);
+        const u32        index_sparse_start = (ess->capacity.sparse - 1 & entity_id.hash);
 
         bool found = false;
 
@@ -178,17 +179,17 @@ namespace ifb {
         const cchar* tag_cstr) {
 
 
-        validate();
+        entity_sparse_set_validate(ess);
         assert(tag_cstr != NULL);
 
         const entity_id id                 = entity_id_init(tag_cstr); 
         const u32       index_sparse_start = ((ess->capacity.sparse - 1) & id);
-        const u32       index_dense_new    = _count;
+        const u32       index_dense_new    = ess->count;
 
         assert(
             id                 != ENTITY_ID_INVALID &&
-            index_sparse_start != INVALID_INDEX &&
-            index_sparse_start <  _capacity.sparse;
+            index_sparse_start != INVALID_INDEX     &&
+            index_sparse_start <  ess->capacity.sparse
         );
 
         if (index_dense_new == ess->capacity.dense) {
@@ -197,6 +198,8 @@ namespace ifb {
 
         u32 new_sparse_index = 0;
         
+        bool did_insert = false;
+
         for (
             u32 probe = 0;
                 probe < ess->capacity.sparse;
@@ -204,7 +207,7 @@ namespace ifb {
         ) {
         
             // calculate current indexes
-            const u32 index_sparse = (index_sparse_start + probe) % _capacity.sparse;
+            const u32 index_sparse = (index_sparse_start + probe) % ess->capacity.sparse;
             const u32 index_dense  = ess->sparse.dense_index[index_sparse]; 
 
             // if we already have a value here,
@@ -236,8 +239,8 @@ namespace ifb {
     IFB_INTERNAL void
     entity_sparse_set_reset(
         entity_sparse_set* ess) {
-
-        validate();
+        
+        entity_sparse_set_validate(ess);
 
         const u32 size_entity_id    = (ess->capacity.dense  * sizeof(entity_id));
         const u32 size_sparse_index = (ess->capacity.dense  * sizeof(u32));
@@ -254,12 +257,12 @@ namespace ifb {
         entity_sparse_set* ess,
         const cchar*       tag_cstr) {
 
-        validate();
-        assert(key != NULL);
+        entity_sparse_set_validate(ess);
+        assert(tag_cstr != NULL);
 
 
         const entity_id id                 = entity_id_init(tag_cstr); 
-        const u32       index_sparse_start = ((ess->capacity.sparse - 1) & hash);
+        const u32       index_sparse_start = ((ess->capacity.sparse - 1) & id);
         
         for (
             u32 probe = 0;
@@ -275,7 +278,7 @@ namespace ifb {
             // that was verified with lookup
             assert(
                 index_sparse != INVALID_INDEX &&
-                index_dense  != INVALID_INDEX &&
+                index_dense  != INVALID_INDEX
             );
 
             // this is a different value, go to the next one
@@ -302,6 +305,5 @@ namespace ifb {
             --ess->count;
             break;
         } 
-
     }
 };

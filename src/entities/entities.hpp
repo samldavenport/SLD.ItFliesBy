@@ -82,14 +82,18 @@ namespace ifb {
         inline bool operator!= (const entity_id& other) const { return(hash != other.hash); }
         inline bool operator== (const u32& hash)        const { return(hash == hash);       }
         inline bool operator!= (const u32& hash)        const { return(hash != hash);       }
+        inline u32  operator&  (const u32  val)         const { return(val  & hash);        }
     };
-    
+    constexpr u32 inline operator& (const u32 val, const entity_id id) { return(val & id.hash); }
+
+
     struct entity_tag {
         cchar cstr[ENTITY_TAG_SIZE];
 
         inline entity_tag& operator= (const entity_tag& other);
         inline entity_tag& operator= (const cchar* cstr);
     };
+
 
     struct entity {
         entity_id         id;
