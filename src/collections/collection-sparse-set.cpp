@@ -327,12 +327,23 @@ namespace ifb {
                 continue;
             }
 
-            // update the indexes
-            _data.sparse.dense_index [index_sparse] = INVALID_INDEX;
-            _data.dense.sparse_index [index_dense] = INVALID_INDEX;
-            _data.dense.hash         [index_dense] = INVALID_INDEX;
+            // calculate the last indexes
+            const u32 index_sparse_last = _count - 1;
+            const u32 index_dense_last  = _data.sparse.dense_index[index_sparse_last];
 
-            // update the count and break;
+            // in order to remove something from the sparse set:
+            // 1.) the last and current dense indexes need to be swapped,
+            // 2.) the sparse data indexes stay the same, we just clear
+            //      the one that's being removed, and point the last
+            //     one to the sparse index that was removed 
+
+            _data.dense.sparse_index [index_dense]       = index_dense_last;
+            _data.dense.hash         [index_dense]       = index_dense_last;
+            _data.sparse.dense_index [index_sparse_last] = index_dense;
+
+            _data.dense.sparse_index [index_dense_last]  = INVALID_INDEX;
+            _data.dense.hash         [index_dense_last]  = INVALID_HASH_32
+
             --_count;
             break;
         }

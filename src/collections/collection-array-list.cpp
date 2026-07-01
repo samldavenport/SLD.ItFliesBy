@@ -4,8 +4,8 @@
 
 #define ARRAY_LIST_FUNC template<typename t> auto array_list<t>::
 
-namespace ifb  
-{
+namespace ifb {
+    
     ARRAY_LIST_FUNC
     init(
         t*        elmnts,
