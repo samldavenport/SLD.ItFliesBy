@@ -179,38 +179,38 @@ namespace ifb {
 
 
         validate();
-        assert(key != NULL);
+        assert(tag_cstr != NULL);
 
-        const u32 hash               = hash_u32((void*)key, _key_size);
-        const u32 index_sparse_start = ((_capacity.sparse - 1) & hash);
-        const u32 index_dense_new    = _count;
+        const entity_id id                 = entity_id_init(tag_cstr); 
+        const u32       index_sparse_start = ((ess->capacity.sparse - 1) & id);
+        const u32       index_dense_new    = _count;
 
         assert(
-            hash               != INVALID_INDEX &&
+            id                 != ENTITY_ID_INVALID &&
             index_sparse_start != INVALID_INDEX &&
             index_sparse_start <  _capacity.sparse;
         );
 
-        if (index_dense_new == _capacity.sparse) {
+        if (index_dense_new == ess->capacity.dense) {
             return(INVALID_INDEX);
         }
 
-        u32 new_sparse_index = false;
+        u32 new_sparse_index = 0;
         
         for (
             u32 probe = 0;
-                probe < sa->capacity_sparse;
+                probe < ess->capacity.sparse;
               ++probe
         ) {
         
             // calculate current indexes
             const u32 index_sparse = (index_sparse_start + probe) % _capacity.sparse;
-            const u32 index_dense  = _data.sparse.dense_index[index_sparse];
+            const u32 index_dense  = ess->sparse.dense_index[index_sparse]; 
 
             // if we already have a value here,
             // make sure its not a collision and continue
             if (index_dense != INVALID_INDEX) {
-                const bool is_collision = (hash == _data.dense.hash[index_dense]);
+                const bool is_collision = (id == ess->dense.id[index_dense]);
                 assert(is_collision);
                 continue;
             }
@@ -219,22 +219,19 @@ namespace ifb {
             did_insert = true;
 
             // update the sparse data
-            _data.sparse.dense_index [index_sparse] = index_dense_new;
-            _data.sparse.val         [index_sparse] = val;
+            ess->sparse.dense_index [index_sparse] = index_dense_new;
             
             // update the dense_data
-            _data.dense.sparse_index [index_dense_new] = index_sparse;
-            _data.dense.hash         [index_dense_new] = hash;
+            ess->dense.sparse_index [index_dense_new] = index_sparse;
+            ess->dense.id           [index_dense_new] = id;
 
             // update the count and break;
-            ++_count;
+            ++ess->count;
             break;
         }
 
         return(did_insert);
     }
-
-
 
     IFB_INTERNAL void
     entity_sparse_set_reset(
@@ -255,8 +252,56 @@ namespace ifb {
     IFB_INTERNAL void
     entity_sparse_set_remove(
         entity_sparse_set* ess,
-        const cchar*       tag_cstr
-    ) {
+        const cchar*       tag_cstr) {
+
+        validate();
+        assert(key != NULL);
+
+
+        const entity_id id                 = entity_id_init(tag_cstr); 
+        const u32       index_sparse_start = ((ess->capacity.sparse - 1) & hash);
+        
+        for (
+            u32 probe = 0;
+                probe < ess->capacity.sparse;
+              ++probe
+        ) {
+        
+            // calculate current indexes
+            const u32 index_sparse = (index_sparse_start + probe) % ess->capacity.sparse;
+            const u32 index_dense  = ess->sparse.dense_index[index_sparse];
+            
+            // we should always be working with a valid value
+            // that was verified with lookup
+            assert(
+                index_sparse != INVALID_INDEX &&
+                index_dense  != INVALID_INDEX &&
+            );
+
+            // this is a different value, go to the next one
+            if (id != ess->dense.id[index_dense]) {
+                continue;
+            }
+
+            // calculate the last indexes
+            const u32 index_sparse_last = ess->count - 1;
+            const u32 index_dense_last  = ess->sparse.dense_index[index_sparse_last]; 
+
+            // in order to remove something from the sparse set:
+            // 1.) the last and current dense indexes need to be swapped,
+            // 2.) the sparse data indexes stay the same, we just clear
+            //      the one that's being removed, and point the last
+            //     one to the sparse index that was removed 
+
+            ess->dense.sparse_index [index_dense]       = index_dense_last;
+            ess->sparse.dense_index [index_sparse_last] = index_dense;
+
+            ess->dense.sparse_index [index_dense_last] = INVALID_INDEX;
+            ess->dense.id           [index_dense_last] = ENTITY_ID_INVALID;
+
+            --ess->count;
+            break;
+        } 
 
     }
 };

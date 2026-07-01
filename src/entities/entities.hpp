@@ -34,6 +34,7 @@ namespace ifb {
 
     // entity id
     IFB_INTERNAL entity_id          entity_id_init                       (const entity_tag* tag);
+    IFB_INTERNAL entity_id          entity_id_init                       (const cchar*      tag_cstr);
 
     // entity tag
     IFB_INTERNAL void               entity_tag_init                      (entity_tag*       tag, const cchar* cstr);
