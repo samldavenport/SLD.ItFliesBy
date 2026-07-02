@@ -26,7 +26,6 @@ namespace ifb {
 
     IFB_HANDLE(eng_arena_handle);
     IFB_HANDLE(eng_file_handle);
-    using eng_entity_id   = u32;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -110,10 +109,10 @@ namespace ifb {
     // ENTITIES
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_entity_id eng_entity_create         (const cchar*       tag);
-    IFB_ENGINE_API bool          eng_entity_destroy_by_id  (const eng_entity_id id);
-    IFB_ENGINE_API bool          eng_entity_destroy_by_tag (const cchar*       tag);
-    IFB_ENGINE_API const cchar* eng_entity_get_tag        (const eng_entity_id id);
+    IFB_ENGINE_API entity_id    eng_entity_create         (const cchar*    tag);
+    IFB_ENGINE_API bool         eng_entity_destroy_by_id  (const entity_id id);
+    IFB_ENGINE_API bool         eng_entity_destroy_by_tag (const cchar*    tag);
+    IFB_ENGINE_API const cchar* eng_entity_get_tag        (const entity_id id);
 
     //--------------------------------------------------------------------
     // IMAGES

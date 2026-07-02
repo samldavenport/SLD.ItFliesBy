@@ -19,10 +19,8 @@
 #include "eng-image.cpp"
 
 #include "entity.cpp"
-#include "entity-id.cpp"
 #include "entity-manager.cpp"
 #include "entity-sparse-set.cpp"
-#include "entity-tag.cpp"
 
 #include "file-manager.cpp"
 #include "file-common.cpp"

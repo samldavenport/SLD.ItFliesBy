@@ -18,6 +18,8 @@ using namespace sld;
 #   define IFB_API __declspec(dllimport)
 #endif
 
+#define IFB_U32(type) struct type : sld::strong_u32 { using strong_u32::strong_u32; };
+
 namespace ifb {
     
     struct asset;
@@ -32,9 +34,9 @@ namespace ifb {
     struct entity_tag;
     struct entity_archetype;
     struct handle;
-    struct handle;
     struct image;
     struct quad;
+    struct strong_u32;
 
     using position_3d = vec3;
     using pixel       = color_rgba_u32;
@@ -43,16 +45,10 @@ namespace ifb {
     constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
 
 
-    struct handle {
-
-        u32 val;
-
-        handle(void) = default;
-        handle(u32 v) : val(v) { }
-
-        inline bool operator== (const u32& other) { return(other == val); } 
-        inline bool operator!= (const u32& other) { return(other != val); }
-    };
+    IFB_U32(handle);
+    IFB_U32(entity_id);
+    IFB_U32(entity_archetype);
+    IFB_U32(component_type);
 
     struct dimensions_2d {
         f32 width;

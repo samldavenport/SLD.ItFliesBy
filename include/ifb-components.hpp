@@ -4,9 +4,9 @@
 #include <sld.hpp>
 
 #include "ifb-types.hpp"
+#include "ifb-entity.hpp"
 
 namespace ifb {
-
 
     enum component_type_e {
         component_type_e_none     = 0,
@@ -14,16 +14,23 @@ namespace ifb {
         component_type_e_color    = 2
     };
 
-    struct component_type {
-        u32 val;
+    struct component_position {
+        entity_id id;
+        f32       x;
+        f32       y;
+        f32       z;
+    };
 
-        component_type () = default;
-        component_type (const u32 val) : val(val) { }
-
-        inline bool operator== (const u32 other)            { return(val == other);     }
-        inline bool operator!= (const u32 other)            { return(val != other);     }
-        inline bool operator== (const component_type other) { return(val == other.val); }
-        inline bool operator!= (const component_type other) { return(val != other.val); }
+    struct component_color {
+        union {
+            u32 hex_rgba;
+            struct {
+                byte a;
+                byte b;
+                byte g;
+                byte r;
+            };
+        };
     };
 
 };

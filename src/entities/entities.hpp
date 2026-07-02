@@ -3,6 +3,7 @@
 
 #include "ifb.hpp"
 
+
 namespace ifb {
 
     //--------------------------------------------------------------------
@@ -10,8 +11,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct entity;
-    struct entity_id;
-    struct entity_tag;
     struct entity_manager;
     struct entity_sparse_set;
 
@@ -25,14 +24,6 @@ namespace ifb {
     // INTERNAL METHODS
     //--------------------------------------------------------------------
 
-    // entity id
-    IFB_INTERNAL entity_id          entity_id_init                       (const entity_tag* tag);
-    IFB_INTERNAL entity_id          entity_id_init                       (const cchar*      tag_cstr);
-
-    // entity tag
-    IFB_INTERNAL void               entity_tag_init                      (entity_tag*       tag, const cchar* cstr);
-    IFB_INTERNAL u32                entity_tag_hash                      (const entity_tag* tag);
-
     // entity manager
     IFB_INTERNAL u32                entity_manager_memory_requirement    (void);
     IFB_INTERNAL entity_manager*    entity_manager_memory_init           (const memory& mem);
@@ -42,11 +33,11 @@ namespace ifb {
 
     // entity
     IFB_INTERNAL u32                entity_lookup_index_by_tag           (const cchar*    tag_cstr);
-    IFB_INTERNAL u32                entity_lookup_index_by_id            (const entity_id  id);
-    IFB_INTERNAL void               entity_get                           (const u32        index, entity* out);
+    IFB_INTERNAL u32                entity_lookup_index_by_id            (const entity_id id);
+    IFB_INTERNAL void               entity_get                           (const u32       index, entity* out);
     IFB_INTERNAL entity_id          entity_create                        (const cchar*    tag_cstr);
     IFB_INTERNAL bool               entity_destroy_by_tag                (const cchar*    tag_cstr);
-    IFB_INTERNAL bool               entity_destroy_by_id                 (const entity_id& id);
+    IFB_INTERNAL bool               entity_destroy_by_id                 (const entity_id id);
 
     // entity sparse set
     IFB_INTERNAL u32                entity_sparse_set_memory_requirement (const u32 capacity);
@@ -58,7 +49,6 @@ namespace ifb {
     IFB_INTERNAL void               entity_sparse_set_reset              (entity_sparse_set* ess);
     IFB_INTERNAL void               entity_sparse_set_remove             (entity_sparse_set* ess, const cchar* tag_cstr);
     IFB_INTERNAL u32                entity_sparse_set_insert             (entity_sparse_set* ess, const cchar* tag_cstr);
-
 
     //--------------------------------------------------------------------
     // DEFINITIONS

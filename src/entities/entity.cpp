@@ -11,14 +11,15 @@ namespace ifb {
         entity_manager_assert_valid();
         assert(tag != NULL);
 
-        const u32 hash = entity_tag_hash(tag);
+
+        const entity_id id = tag->hash();
 
         for (
             u32 index = 0;
                 index < _entity_manager->capacity;
               ++index 
         ) {
-            if (_entity_manager->data.id[index] == hash) {
+            if (id == _entity_manager->data.id[index]) {
                 return(index);
             }
         }
@@ -72,7 +73,7 @@ namespace ifb {
 
         if (_entity_manager->count == _entity_manager->capacity) {
             entity_id id;
-            id.hash = ENTITY_ID_INVALID;
+            id = ENTITY_ID_INVALID;
             return(id);
         }
 
@@ -80,11 +81,10 @@ namespace ifb {
         const u32 index = _entity_manager->count;
 
         // initialize the tag
-        entity_tag* tag = &_entity_manager->data.tag[index];
-        entity_tag_init(tag, tag_cstr);
+        entity_tag& tag = _entity_manager->data.tag[index];
 
         // create the id
-        entity_id id = entity_id_init(tag);
+        entity_id id = tag.hash(); 
     
         // make sure this isn't a duplicate
         for (
@@ -112,10 +112,8 @@ namespace ifb {
             return(false);
         }
 
-        entity_tag tag;
-        entity_tag_init(&tag, tag_cstr);
-        
-        const u32 hash = entity_tag_hash(&tag); 
+        entity_tag tag(tag_cstr);
+        entity_id  id = tag.hash();
 
         bool did_remove = false;
 
@@ -125,7 +123,7 @@ namespace ifb {
               ++entity
         ) {
 
-            if (hash != _entity_manager->data.id[entity].hash) {
+            if (id != _entity_manager->data.id[entity]) {
                 continue;
             }
 
@@ -162,7 +160,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_destroy_by_id(
-        const entity_id&  id) {
+        const entity_id  id) {
 
         entity_manager_assert_valid();
         assert(id != ENTITY_ID_INVALID);
