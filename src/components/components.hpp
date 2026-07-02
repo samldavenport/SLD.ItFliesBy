@@ -3,12 +3,13 @@
 
 #include "ifb.hpp"
 #include "entities.hpp"
+#include "memory.hpp"
 namespace ifb {
 
     struct component_manager;
-    struct component_table_base;
     struct component_table_position;
     struct component_table_color;
+    struct component_table_memory;
 
     u32                component_manager_memory_size (void);
     component_manager* component_manager_create      (memory& mem_stack);
@@ -20,19 +21,20 @@ namespace ifb {
             component_table_position* position;
             component_table_color*    color; 
         } tables;
+        component_table_memory* memory;
     };
 
-    struct component_table_base {
-        entity_sparse_set* entity_id;
+    struct component_table_memory {
+        block_allocator* block_alctr;
     };
 
-    struct component_table_position : component_table_base {
+    struct component_table_position {
         f32* x;
         f32* y;
         f32* z;
     };
 
-    struct component_table_color : component_table_base{
+    struct component_table_color {
         u32* rgba_hex;
     };
 };
