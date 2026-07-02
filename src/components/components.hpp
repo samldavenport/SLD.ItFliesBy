@@ -22,17 +22,15 @@ namespace ifb {
         } tables;
     };
 
-    struct component_table_base {
-        entity_sparse_set* entity_id;
-    };
 
-    struct component_table_position : component_table_base {
+
+    struct component_table_position {
         f32* x;
         f32* y;
         f32* z;
     };
 
-    struct component_table_color : component_table_base{
+    struct component_table_color {
         u32* rgba_hex;
     };
 };

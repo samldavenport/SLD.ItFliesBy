@@ -118,9 +118,9 @@ namespace ifb {
         mngrs->file    = file_manager_init               (config.file_count, stack_mem.size, stack_mem.ptr);
 
         // entity manager
-        stack_mem.size = entity_manager_memory_requirement ();
+        stack_mem.size = entity_mngr_memory_requirement ();
         stack_mem.ptr  = eng_stack_push_data               (eng_stack, stack_mem.size);
-        mngrs->entity  = entity_manager_memory_init        (stack_mem); 
+        mngrs->entity  = entity_mngr_memory_init        (stack_mem); 
 
         // memory manager
         stack_mem.size = memory_manager_memory_requirement ();
