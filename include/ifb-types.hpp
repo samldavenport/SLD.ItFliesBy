@@ -33,7 +33,6 @@ namespace ifb {
     struct dimensions_2d;
     struct dimensions_3d;
     struct eng_arena_handle;
-    struct entity;
     struct entity_id;
     struct entity_tag;
     struct entity_archetype;
@@ -44,6 +43,13 @@ namespace ifb {
 
     using position_3d = vec3;
     using pixel       = color_rgba_u32;
+
+    //--------------------------------------------------------------------
+    // CLASS TYPES
+    //--------------------------------------------------------------------
+
+    class entity;
+    class entity_tag;
 
     //--------------------------------------------------------------------
     // STRONG TYPES
