@@ -5,7 +5,7 @@
 
 namespace ifb {
     
-    IFB_ENGINE_API eng_entity_id
+    IFB_ENGINE_API entity_id
     eng_entity_create(
         const cchar* tag) {
 
@@ -16,12 +16,12 @@ namespace ifb {
 
         const entity_id id = entity_create(tag);
 
-        return(id.hash);
+        return(id);
     }
 
     IFB_ENGINE_API bool
     eng_entity_destroy_by_id(
-        const eng_entity_id id) {
+        const entity_id id) {
 
         assert(id != ENTITY_ID_INVALID);
         const entity_id eid = {id};
@@ -48,7 +48,7 @@ namespace ifb {
 
     IFB_ENGINE_API const cchar*
     eng_entity_get_tag(
-        const eng_entity_id id) {
+        const entity_id id) {
 
         assert(id != ENTITY_ID_INVALID);
         const entity_id eid = { id };
@@ -61,6 +61,6 @@ namespace ifb {
         entity e;
         entity_get(index, &e);
 
-        return(e.tag->cstr);
+        return(e.tag_cstr());
     }
 };

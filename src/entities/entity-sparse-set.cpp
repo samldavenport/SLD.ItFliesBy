@@ -136,10 +136,9 @@ namespace ifb {
         entity_sparse_set_validate(ess);
         assert(tag_cstr != NULL);
 
-        entity_tag tag;
-        entity_tag_init(&tag, tag_cstr);
-        const entity_id  entity_id          = entity_id_init(&tag);
-        const u32        index_sparse_start = (ess->capacity.sparse - 1 & entity_id.hash);
+        const entity_tag tag(tag_cstr);
+        const entity_id  id = tag.hash();
+        const u32        index_sparse_start = (ess->capacity.sparse - 1 & id);
 
         bool found = false;
 
@@ -162,7 +161,7 @@ namespace ifb {
             }
 
             // this is a different value, go to the next one
-            if (entity_id != ess->dense.id[index_dense]) {
+            if (id != ess->dense.id[index_dense]) {
                 continue;
             }
 
@@ -182,7 +181,8 @@ namespace ifb {
         entity_sparse_set_validate(ess);
         assert(tag_cstr != NULL);
 
-        const entity_id id                 = entity_id_init(tag_cstr); 
+        const entity_tag tag               = entity_tag(tag_cstr);
+        const entity_id id                 = tag.hash(); 
         const u32       index_sparse_start = ((ess->capacity.sparse - 1) & id);
         const u32       index_dense_new    = ess->count;
 
@@ -260,9 +260,9 @@ namespace ifb {
         entity_sparse_set_validate(ess);
         assert(tag_cstr != NULL);
 
-
-        const entity_id id                 = entity_id_init(tag_cstr); 
-        const u32       index_sparse_start = ((ess->capacity.sparse - 1) & id);
+        const entity_tag tag                = entity_tag(tag_cstr);
+        const entity_id  id                 = tag.hash();
+        const u32        index_sparse_start = ((ess->capacity.sparse - 1) & id);
         
         for (
             u32 probe = 0;
