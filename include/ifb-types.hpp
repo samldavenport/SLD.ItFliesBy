@@ -64,8 +64,10 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
-    constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
-    constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
+    constexpr u32 INVALID_INDEX     = 0xFFFFFFFF;
+    constexpr u32 INVALID_HASH_32   = 0xFFFFFFFF;
+    constexpr u32 ENTITY_ID_INVALID = 0xFFFFFFFF;
+    constexpr u32 ENTITY_TAG_SIZE   = 16;
 
     //--------------------------------------------------------------------
     // DEFINITIONS
