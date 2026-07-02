@@ -2,7 +2,7 @@
 #define IFB_ENTITIES_HPP
 
 #include "ifb.hpp"
-
+#include "memory.hpp"
 
 namespace ifb {
 
@@ -13,7 +13,9 @@ namespace ifb {
     struct entity;
     struct entity_manager;
     struct entity_sparse_set;
-
+    struct entity_batch;
+    struct entity_archetype_query;
+    
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
@@ -38,6 +40,7 @@ namespace ifb {
     IFB_INTERNAL entity_id          entity_create                        (const cchar*    tag_cstr);
     IFB_INTERNAL bool               entity_destroy_by_tag                (const cchar*    tag_cstr);
     IFB_INTERNAL bool               entity_destroy_by_id                 (const entity_id id);
+    IFB_INTERNAL bool               entity_query_by_archetype            (entity_ar)
 
     // entity sparse set
     IFB_INTERNAL u32                entity_sparse_set_memory_requirement (const u32 capacity);
@@ -64,6 +67,12 @@ namespace ifb {
         u32     capacity;
         u32     count;
     };
+
+    struct entity_archetype_query {
+        entity_archetype archetype;
+        u32              index_start;              
+    };
+
 };
 
 #endif  //IFB_ENTITIES_HPP

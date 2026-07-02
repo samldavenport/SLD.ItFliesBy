@@ -207,5 +207,33 @@ namespace ifb {
         }
 
         return(did_remove);
-    } 
+    }
+
+    IFB_INTERNAL entity_id*
+    entity_query_by_archetype(
+        arena*                 a,
+        const entity_archetype archetype,
+        const u32              count) {
+
+        assert(a != NULL && count != 0);
+
+        const u32 size     = count * sizeof(entity_id);
+        auto      id_array = (entity_id*)arena_push(a, size);
+
+        if (id_array) {
+
+            memset((void*)id_array, 0xFF, size);
+
+            for (
+                u32 index = 0;
+                    index < count;
+                  ++index
+            ) {
+                
+            }
+        }
+
+        return(id_array);
+    }
+
 };
