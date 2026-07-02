@@ -11,7 +11,6 @@ namespace ifb {
         entity_manager_assert_valid();
         assert(tag != NULL);
 
-
         const entity_id id = tag->hash();
 
         for (
@@ -59,8 +58,9 @@ namespace ifb {
         );
 
         *out = entity(
-            _entity_manager->data.id  [index],
-            _entity_manager->data.tag [index]
+            _entity_manager->data.id        [index],
+            _entity_manager->data.tag       [index],
+            _entity_manager->data.archetype [index]
         );
     }
 

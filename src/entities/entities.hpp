@@ -56,8 +56,9 @@ namespace ifb {
     
     struct entity_manager {
         struct {
-            entity_id*  id;
-            entity_tag* tag;
+            entity_id*        id;
+            entity_tag*       tag;
+            entity_archetype* archetype;
         } data;
         memory  mem;
         u32     capacity;

@@ -55,11 +55,13 @@ namespace ifb {
 
         inline
         entity(
-            const entity_id   id,
-            const entity_tag& tag) {
+            const entity_id        id,
+            const entity_tag&      tag,
+            const entity_archetype archetype = 0) {
 
-            this->id  = id;
-            this->tag = tag;
+            this->id        = id;
+            this->tag       = tag;
+            this->archetype = archetype;
         }
 
         inline entity&

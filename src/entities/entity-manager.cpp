@@ -19,18 +19,23 @@ namespace ifb {
         assert(_entity_manager->mem.ptr);
         
         // calculate capacity
-        const u32 entity_size = sizeof(entity_id) + sizeof(entity_tag);
+        const u32 entity_size = sizeof(entity_id) + sizeof(entity_tag) + sizeof(entity_archetype);
         _entity_manager->capacity = (mem_res.size / entity_size);
         assert(_entity_manager->capacity != 0);
 
         // cast pointers
-        const u32  size_entity_ids = (sizeof(entity_id) * _entity_manager->capacity);
-        const addr addr_ids        = _entity_manager->mem.address;
-        const addr addr_tags       = addr_ids + size_entity_ids;  
-        _entity_manager->data.id  =  (entity_id*)addr_ids;
-        _entity_manager->data.tag = (entity_tag*)addr_tags;
+        const u32  size_entity_ids      = (sizeof(entity_id)        * _entity_manager->capacity);
+        const u32  size_entity_tags     = (sizeof(entity_tag)       * _entity_manager->capacity);
+        const u32  size_entity_arch     = (sizeof(entity_archetype) * _entity_manager->capacity); 
+        const addr addr_ids             = _entity_manager->mem.address;
+        const addr addr_tags            = addr_ids  + size_entity_ids;
+        const addr addr_arch            = addr_tags + size_entity_tags; 
+        _entity_manager->data.id        =        (entity_id*)addr_ids;
+        _entity_manager->data.tag       =       (entity_tag*)addr_tags;
+        _entity_manager->data.archetype = (entity_archetype*)addr_arch;
 
-        memset((void*)addr_ids, 0xFF, size_entity_ids);
+        memset((void*)addr_ids,  0xFF, size_entity_ids);
+        memset((void*)addr_arch, 0x00, size_entity_arch);
 
         entity_manager_assert_valid();
     }
@@ -89,10 +94,11 @@ namespace ifb {
 
         assert(
             _entity_manager &&
-            _entity_manager->data.id  != NULL &&
-            _entity_manager->data.tag != NULL &&
-            _entity_manager->capacity != 0    &&
-            _entity_manager->count    <= _entity_manager->capacity
+            _entity_manager->data.id        != NULL &&
+            _entity_manager->data.tag       != NULL &&
+            _entity_manager->data.archetype != NULL &&
+            _entity_manager->capacity       != 0    &&
+            _entity_manager->count          <= _entity_manager->capacity
         );
     }
 

@@ -22,6 +22,10 @@ using namespace sld;
 
 namespace ifb {
     
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
     struct asset;
     struct component_type;
     struct component_position;
@@ -41,14 +45,25 @@ namespace ifb {
     using position_3d = vec3;
     using pixel       = color_rgba_u32;
 
-    constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
-    constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
-
+    //--------------------------------------------------------------------
+    // STRONG TYPES
+    //--------------------------------------------------------------------
 
     IFB_U32(handle);
     IFB_U32(entity_id);
     IFB_U32(entity_archetype);
     IFB_U32(component_type);
+
+    //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
+    constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
 
     struct dimensions_2d {
         f32 width;
