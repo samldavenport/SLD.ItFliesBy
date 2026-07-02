@@ -16,7 +16,7 @@ namespace ifb {
 
     struct component_manager {
         struct  {
-            component_table_position* position; 
+            component_table_position* position;
             component_table_color*    color; 
         } tables;
     };
