@@ -4,6 +4,27 @@
 
 namespace ifb {
 
+    inline void create_entities (void);
+    inline void test_lookups    (entity_id_list* list);
+
+
+    IFB_INTERNAL void
+    entity_test(
+        void) {
+
+        // allocate arena 
+        arena* a = arena_alloc();
+        assert(a);
+        entity_id_list* id_list = entity_id_list_arena_create(a);
+
+
+        create_entities ();
+        test_lookups    (id_list);
+
+
+        arena_free(a);
+    }
+
     inline void
     create_entities(
         void) {
@@ -26,16 +47,11 @@ namespace ifb {
         const entity_id entity_9 = entity_create("TEST-9", atype_2);
     }
 
-    IFB_INTERNAL void
-    entity_test(
-        void) {
+    inline void
+    test_lookups(
+        entity_id_list* list) {
 
-        arena* a = arena_alloc();
-        assert(a);
-
-        create_entities();
-
+        const bool did_find_colored_entities =  entity_lookup_by_archetype(list, component_type_e_color);
+        assert(did_find_colored_entities && list->count == 4);
     }
-
-    void create_entities();
 };

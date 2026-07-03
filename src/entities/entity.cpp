@@ -48,8 +48,9 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_lookup_by_archetype(
-        const entity_archetype atype,
-        entity_id_list*        id_list) {
+        entity_id_list*        id_list,
+        const entity_archetype atype
+    ) {
 
         entity_mngr_validate();
         entity_id_list_validate(id_list);
@@ -267,22 +268,24 @@ namespace ifb {
         return(id_array);
     }
 
-    IFB_INTERNAL void
-    entity_id_list_arena_init(
-        entity_id_list* list,
-        arena*          a) {
+    IFB_INTERNAL entity_id_list*
+    entity_id_list_arena_create(
+        arena* a) {
 
         entity_mngr_validate();
+        assert(a != NULL);
 
-        assert(list != NULL && a != NULL);
+        
+        auto* list = (entity_id_list*)arena_push(a, sizeof(entity_id_list));
+        assert(list);
 
         const u32 size = _entity_mngr->capacity * sizeof(entity_id);
-
         list->array    = (entity_id*)arena_push(a, size);
         list->capacity = _entity_mngr->capacity;
         list->count    = 0;
-
         assert(list->array != NULL);
+
+        return(list);
     }
 
     IFB_INTERNAL void

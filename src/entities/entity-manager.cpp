@@ -17,12 +17,12 @@ namespace ifb {
         _entity_mngr->mem.ptr  = pfm_memory_commit(mem_res.ptr, 0, mem_res.size);
         _entity_mngr->mem.size = mem_res.size;
         assert(_entity_mngr->mem.ptr);
-        
-        // calculate capacity
-        const u32 entity_size = sizeof(entity_id) + sizeof(entity_tag) + sizeof(entity_archetype);
-        _entity_mngr->capacity = (mem_res.size / entity_size);
-        assert(_entity_mngr->capacity != 0);
 
+        // get config value(s)
+        const ifb_config& cfg = config_instance();
+        _entity_mngr->capacity = cfg.entity_capacity;
+        assert(_entity_mngr->capacity != 0);
+        
         // cast pointers
         const u32  size_entity_ids      = (sizeof(entity_id)        * _entity_mngr->capacity);
         const u32  size_entity_tags     = (sizeof(entity_tag)       * _entity_mngr->capacity);
