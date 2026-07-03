@@ -5,7 +5,7 @@
 namespace ifb {
 
     inline void create_entities (void);
-    inline void test_lookups    (entity_id_list* list);
+    inline void test_lookups    (entity_list* list);
 
 
     IFB_INTERNAL void
@@ -15,7 +15,7 @@ namespace ifb {
         // allocate arena 
         arena* a = arena_alloc();
         assert(a);
-        entity_id_list* id_list = entity_id_list_arena_create(a);
+        entity_list* id_list = entity_list_arena_create(a);
 
 
         create_entities ();
@@ -49,7 +49,7 @@ namespace ifb {
 
     inline void
     test_lookups(
-        entity_id_list* list) {
+        entity_list* list) {
 
         const bool did_find_colored_entities =  entity_lookup_by_archetype(list, component_type_e_color);
         assert(did_find_colored_entities && list->count == 4);

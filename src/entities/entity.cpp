@@ -6,12 +6,12 @@ namespace ifb {
    
     IFB_INTERNAL bool
     entity_lookup_by_archetype(
-        entity_id_list*        id_list,
+        entity_list*        id_list,
         const entity_archetype atype
     ) {
 
         entity_mngr_validate();
-        entity_id_list_validate(id_list);
+        entity_list_validate(id_list);
 
         u32& id_index = id_list->count;
         id_index = 0;
@@ -25,7 +25,7 @@ namespace ifb {
             const entity_id        curr_id    = _entity_mngr->data.dense.id        [entity_index];
 
             if (atype == curr_atype) {
-                id_list->array[id_index++] = curr_id;
+                id_list->data.id[id_index++] = curr_id;
             }
         }
 
@@ -180,62 +180,39 @@ namespace ifb {
         return(did_remove);
     }
 
-    IFB_INTERNAL entity_id*
-    entity_query_by_archetype(
-        arena*                 a,
-        const entity_archetype archetype,
-        const u32              count) {
-
-        assert(a != NULL && count != 0);
-
-        const u32 size     = count * sizeof(entity_id);
-        auto      id_array = (entity_id*)arena_push(a, size);
-
-        if (id_array) {
-
-            memset((void*)id_array, 0xFF, size);
-
-            for (
-                u32 index = 0;
-                    index < count;
-                  ++index
-            ) {
-                
-            }
-        }
-
-        return(id_array);
-    }
-
-    IFB_INTERNAL entity_id_list*
-    entity_id_list_arena_create(
+    IFB_INTERNAL entity_list*
+    entity_list_arena_create(
         arena* a) {
 
         entity_mngr_validate();
         assert(a != NULL);
 
         
-        auto* list = (entity_id_list*)arena_push(a, sizeof(entity_id_list));
+        auto* list = (entity_list*)arena_push(a, sizeof(entity_list));
         assert(list);
 
-        const u32 size = _entity_mngr->capacity.dense * sizeof(entity_id);
-        list->array    = (entity_id*)arena_push(a, size);
-        list->capacity = _entity_mngr->capacity.dense;
-        list->count    = 0;
-        assert(list->array != NULL);
+        const u32 size_array = _entity_mngr->capacity.dense * sizeof(entity_id);
+        list->data.id           = (entity_id*)arena_push(a, size_array);
+        list->data.sparse_index =       (u32*)arena_push(a, size_array);
+        list->data.dense_index  =       (u32*)arena_push(a, size_array);
+        list->capacity          = _entity_mngr->capacity.dense;
+        list->count             = 0;
+        assert(list->data.id           != NULL);
+        assert(list->data.sparse_index != NULL);
+        assert(list->data.dense_index  != NULL);
 
         return(list);
     }
 
     IFB_INTERNAL void
-    entity_id_list_validate(
-        const entity_id_list* list) {
+    entity_list_validate(
+        const entity_list* list) {
 
         entity_mngr_validate();
 
         assert(
             list           != NULL                         &&
-            list->array    != NULL                         &&
+            list->data.id    != NULL                         &&
             list->capacity == _entity_mngr->capacity.dense &&
             list->count    <= list->capacity
         );
