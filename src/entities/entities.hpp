@@ -38,7 +38,7 @@ namespace ifb {
     IFB_INTERNAL u32                entity_lookup_index_by_id      (const entity_id id);
     IFB_INTERNAL bool               entity_lookup_by_archetype     (const entity_archetype atype, entity_id_list* id_list);
     IFB_INTERNAL void               entity_get                     (const u32       index, entity* out);
-    IFB_INTERNAL entity_id          entity_create                  (const cchar*    tag_cstr);
+    IFB_INTERNAL entity_id          entity_create                  (const cchar*    tag_cstr, const entity_archetype atype = component_type_e_none);
     IFB_INTERNAL bool               entity_destroy_by_tag          (const cchar*    tag_cstr);
     IFB_INTERNAL bool               entity_destroy_by_id           (const entity_id id);
     IFB_INTERNAL void               entity_id_list_arena_init      (entity_id_list* list, arena* a);

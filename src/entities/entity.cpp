@@ -95,7 +95,8 @@ namespace ifb {
 
     IFB_INTERNAL entity_id
     entity_create(
-        const cchar* tag_cstr) {
+        const cchar*           tag_cstr,
+        const entity_archetype atype) {
 
         entity_mngr_validate();
         assert(tag_cstr != NULL);
@@ -106,7 +107,6 @@ namespace ifb {
         }
 
         // get the index
-        const u32 index = _entity_mngr->count;
 
         // create the id and tag
         const entity_tag tag = entity_tag(tag_cstr);
@@ -122,8 +122,10 @@ namespace ifb {
         }
 
         // add the id and tag 
-        _entity_mngr->data.id  [index] = id;
-        _entity_mngr->data.tag [index] = tag;
+        const u32 index = _entity_mngr->count;
+        _entity_mngr->data.id        [index] = id;
+        _entity_mngr->data.tag       [index] = tag;
+        _entity_mngr->data.archetype [index] = atype;
 
         // update the count and return the id
         ++_entity_mngr->count;
