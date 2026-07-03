@@ -21,6 +21,7 @@
 #include "entity.cpp"
 #include "entity-manager.cpp"
 #include "entity-sparse-set.cpp"
+#include "entity-testing.cpp"
 
 #include "file-manager.cpp"
 #include "file-common.cpp"

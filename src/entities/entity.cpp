@@ -100,20 +100,17 @@ namespace ifb {
         entity_mngr_validate();
         assert(tag_cstr != NULL);
 
+        // return invalid if we are at capactiy
         if (_entity_mngr->count == _entity_mngr->capacity) {
-            entity_id id;
-            id = ENTITY_ID_INVALID;
-            return(id);
+            return(ENTITY_ID_INVALID);
         }
 
-        // gem the index
+        // get the index
         const u32 index = _entity_mngr->count;
 
-        // initialize the tag
-        entity_tag& tag = _entity_mngr->data.tag[index];
-
-        // create the id
-        entity_id id = tag.hash(); 
+        // create the id and tag
+        const entity_tag tag = entity_tag(tag_cstr);
+        const entity_id  id  = tag.hash(); 
     
         // make sure this isn't a duplicate
         for (
@@ -124,8 +121,11 @@ namespace ifb {
             assert(id != _entity_mngr->data.id[entity]);
         }
 
-        // add the id and update the count
-        _entity_mngr->data.id[index] = id;
+        // add the id and tag 
+        _entity_mngr->data.id  [index] = id;
+        _entity_mngr->data.tag [index] = tag;
+
+        // update the count and return the id
         ++_entity_mngr->count;
         return(id);
     }

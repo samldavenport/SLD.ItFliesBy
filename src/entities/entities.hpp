@@ -55,6 +55,9 @@ namespace ifb {
     IFB_INTERNAL void               entity_sset_remove             (entity_sparse_set* ess, const cchar* tag_cstr);
     IFB_INTERNAL u32                entity_sset_insert             (entity_sparse_set* ess, const cchar* tag_cstr);
 
+    // testing
+    IFB_INTERNAL void               entity_test                    (void);
+
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
@@ -75,7 +78,6 @@ namespace ifb {
         u32        capacity;
         u32        count;
     };
-
 
 };
 

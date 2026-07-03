@@ -22,8 +22,6 @@ namespace ifb {
         } tables;
     };
 
-
-
     struct component_table_position {
         f32* x;
         f32* y;

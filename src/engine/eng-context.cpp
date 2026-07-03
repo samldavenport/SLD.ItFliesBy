@@ -61,6 +61,9 @@ namespace ifb {
         eng_context_startup_memory_manager   (mngrs, mem_map);
         eng_context_startup_renderer         (renderer,mngrs, mem_map);
         eng_context_startup_gui              (g, mem_map);
+
+        // test entities
+        entity_test();
     }
 
     IFB_ENGINE_API void

@@ -80,9 +80,9 @@ namespace ifb {
         );
 
         auto sparse_set                = (entity_sparse_set*)mem.ptr;
-        sparse_set->dense.id           = (entity_id*)((addr)sparse_set                     + size_struct);
-        sparse_set->dense.sparse_index =       (u32*)((addr)sparse_set->dense.id           + size_dense_data_id); 
-        sparse_set->sparse.dense_index =       (u32*)((addr)sparse_set->dense.sparse_index + size_dense_data_sparse_index);
+        sparse_set->dense.id           =         (entity_id*)((addr)sparse_set                     + size_struct);
+        sparse_set->dense.sparse_index =               (u32*)((addr)sparse_set->dense.id           + size_dense_data_id); 
+        sparse_set->sparse.dense_index =               (u32*)((addr)sparse_set->dense.sparse_index + size_dense_data_sparse_index);
         sparse_set->capacity.dense     = capacity;
         sparse_set->capacity.sparse    = capacity_sparse;
         sparse_set->count              = 0;
