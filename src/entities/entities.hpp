@@ -78,7 +78,6 @@ namespace ifb {
         u32        capacity;
         u32        count;
     };
-
 };
 
 #endif  //IFB_ENTITIES_HPP
