@@ -32,7 +32,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_INTERNAL u32
-    entity_sparse_set_memory_requirement(
+    entity_sset_memory_requirement(
         const u32 capacity) {
 
         const ifb_config& cfg             = config_instance();
@@ -54,7 +54,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL entity_sparse_set*
-    entity_sparse_set_memory_init(
+    entity_sset_memory_init(
         const u32 capacity,
         memory&   mem) {
 
@@ -80,20 +80,20 @@ namespace ifb {
         );
 
         auto sparse_set                = (entity_sparse_set*)mem.ptr;
-        sparse_set->dense.id           = (entity_id*)((addr)sparse_set                     + size_struct);
-        sparse_set->dense.sparse_index =       (u32*)((addr)sparse_set->dense.id           + size_dense_data_id); 
-        sparse_set->sparse.dense_index =       (u32*)((addr)sparse_set->dense.sparse_index + size_dense_data_sparse_index);
+        sparse_set->dense.id           =         (entity_id*)((addr)sparse_set                     + size_struct);
+        sparse_set->dense.sparse_index =               (u32*)((addr)sparse_set->dense.id           + size_dense_data_id); 
+        sparse_set->sparse.dense_index =               (u32*)((addr)sparse_set->dense.sparse_index + size_dense_data_sparse_index);
         sparse_set->capacity.dense     = capacity;
         sparse_set->capacity.sparse    = capacity_sparse;
         sparse_set->count              = 0;
         
-        entity_sparse_set_reset(sparse_set);
+        entity_sset_reset(sparse_set);
         
         return(sparse_set);
     }
 
     IFB_INTERNAL void
-    entity_sparse_set_validate(
+    entity_sset_validate(
         const entity_sparse_set* ess) {
 
         assert(
@@ -109,31 +109,31 @@ namespace ifb {
     }
 
     IFB_INTERNAL u32
-    entity_sparse_set_capacity_sparse(
+    entity_sset_capacity_sparse(
         const entity_sparse_set* ess) {
 
-        entity_sparse_set_validate(ess);
+        entity_sset_validate(ess);
 
         return(ess->capacity.sparse);
     }
 
     IFB_INTERNAL u32
-    entity_sparse_set_capacity_dense(
+    entity_sset_capacity_dense(
         const entity_sparse_set* ess) {
 
-        entity_sparse_set_validate(ess);
+        entity_sset_validate(ess);
 
         return(ess->capacity.dense);
     }
 
     IFB_INTERNAL bool
-    entity_sparse_set_index_of(
+    entity_sset_index_of(
         const entity_sparse_set* ess,
         const cchar*             tag_cstr,
         u32&                     index) {
 
 
-        entity_sparse_set_validate(ess);
+        entity_sset_validate(ess);
         assert(tag_cstr != NULL);
 
         const entity_tag tag(tag_cstr);
@@ -173,12 +173,12 @@ namespace ifb {
     }
 
     IFB_INTERNAL u32
-    entity_sparse_set_insert(
+    entity_sset_insert(
         entity_sparse_set* ess,
         const cchar* tag_cstr) {
 
 
-        entity_sparse_set_validate(ess);
+        entity_sset_validate(ess);
         assert(tag_cstr != NULL);
 
         const entity_tag tag               = entity_tag(tag_cstr);
@@ -237,10 +237,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    entity_sparse_set_reset(
+    entity_sset_reset(
         entity_sparse_set* ess) {
         
-        entity_sparse_set_validate(ess);
+        entity_sset_validate(ess);
 
         const u32 size_entity_id    = (ess->capacity.dense  * sizeof(entity_id));
         const u32 size_sparse_index = (ess->capacity.dense  * sizeof(u32));
@@ -253,11 +253,11 @@ namespace ifb {
 
 
     IFB_INTERNAL void
-    entity_sparse_set_remove(
+    entity_sset_remove(
         entity_sparse_set* ess,
         const cchar*       tag_cstr) {
 
-        entity_sparse_set_validate(ess);
+        entity_sset_validate(ess);
         assert(tag_cstr != NULL);
 
         const entity_tag tag                = entity_tag(tag_cstr);

@@ -22,6 +22,10 @@ using namespace sld;
 
 namespace ifb {
     
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
     struct asset;
     struct component_type;
     struct component_position;
@@ -29,7 +33,6 @@ namespace ifb {
     struct dimensions_2d;
     struct dimensions_3d;
     struct eng_arena_handle;
-    struct entity;
     struct entity_id;
     struct entity_tag;
     struct entity_archetype;
@@ -41,14 +44,34 @@ namespace ifb {
     using position_3d = vec3;
     using pixel       = color_rgba_u32;
 
-    constexpr u32 INVALID_INDEX   = 0xFFFFFFFF;
-    constexpr u32 INVALID_HASH_32 = 0xFFFFFFFF;
+    //--------------------------------------------------------------------
+    // CLASS TYPES
+    //--------------------------------------------------------------------
 
+    class entity;
+    class entity_tag;
+
+    //--------------------------------------------------------------------
+    // STRONG TYPES
+    //--------------------------------------------------------------------
 
     IFB_U32(handle);
     IFB_U32(entity_id);
     IFB_U32(entity_archetype);
     IFB_U32(component_type);
+
+    //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    constexpr u32 INVALID_INDEX     = 0xFFFFFFFF;
+    constexpr u32 INVALID_HASH_32   = 0xFFFFFFFF;
+    constexpr u32 ENTITY_ID_INVALID = 0xFFFFFFFF;
+    constexpr u32 ENTITY_TAG_SIZE   = 16;
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
 
     struct dimensions_2d {
         f32 width;
