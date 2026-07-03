@@ -4,48 +4,6 @@
 
 namespace ifb {
    
-    IFB_INTERNAL u32
-    entity_lookup_index_by_tag(
-        const entity_tag* tag) {
-
-        entity_mngr_validate();
-        assert(tag != NULL);
-
-        const entity_id id = tag->hash();
-
-        for (
-            u32 index = 0;
-                index < _entity_mngr->capacity;
-              ++index 
-        ) {
-            if (id == _entity_mngr->data.id[index]) {
-                return(index);
-            }
-        }
-
-        return(ENTITY_ID_INVALID);
-    }
-
-    IFB_INTERNAL u32
-    entity_lookup_index_by_id(
-        const entity_id id) {
-
-        entity_mngr_validate();
-        assert(id != ENTITY_ID_INVALID);
-
-        for (
-            u32 index = 0;
-                index < _entity_mngr->capacity;
-              ++index 
-        ) {
-            if (_entity_mngr->data.id[index] == id) {
-                return(index);
-            }
-        }
-
-        return(ENTITY_ID_INVALID);
-    }
-
     IFB_INTERNAL bool
     entity_lookup_by_archetype(
         entity_id_list*        id_list,
@@ -63,8 +21,8 @@ namespace ifb {
                 entity_index < _entity_mngr->count;
               ++entity_index) {
 
-            const entity_archetype curr_atype = _entity_mngr->data.archetype [entity_index];
-            const entity_id        curr_id    = _entity_mngr->data.id        [entity_index];
+            const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [entity_index];
+            const entity_id        curr_id    = _entity_mngr->data.dense.id        [entity_index];
 
             if (atype == curr_atype) {
                 id_list->array[id_index++] = curr_id;
@@ -73,25 +31,6 @@ namespace ifb {
 
         const bool did_find = (id_list->count > 0); 
         return(did_find);        
-    }
-
-
-    IFB_INTERNAL void
-    entity_get(
-        const u32 index,
-        entity*   out) {
-
-        entity_mngr_validate();
-        assert(
-            index <  _entity_mngr->count &&
-            out   != NULL
-        );
-
-        *out = entity(
-            _entity_mngr->data.id        [index],
-            _entity_mngr->data.tag       [index],
-            _entity_mngr->data.archetype [index]
-        );
     }
 
     IFB_INTERNAL entity_id
@@ -103,7 +42,7 @@ namespace ifb {
         assert(tag_cstr != NULL);
 
         // return invalid if we are at capactiy
-        if (_entity_mngr->count == _entity_mngr->capacity) {
+        if (_entity_mngr->count == _entity_mngr->capacity.dense) {
             return(ENTITY_ID_INVALID);
         }
 
@@ -119,14 +58,14 @@ namespace ifb {
                 entity < _entity_mngr->count;
               ++entity
         ) {
-            assert(id != _entity_mngr->data.id[entity]);
+            assert(id != _entity_mngr->data.dense.id[entity]);
         }
 
         // add the id and tag 
         const u32 index = _entity_mngr->count;
-        _entity_mngr->data.id        [index] = id;
-        _entity_mngr->data.tag       [index] = tag;
-        _entity_mngr->data.archetype [index] = atype;
+        _entity_mngr->data.dense.id        [index] = id;
+        _entity_mngr->data.dense.tag       [index] = tag;
+        _entity_mngr->data.dense.archetype [index] = atype;
 
         // update the count and return the id
         ++_entity_mngr->count;
@@ -155,28 +94,28 @@ namespace ifb {
               ++entity
         ) {
 
-            if (id != _entity_mngr->data.id[entity]) {
+            if (id != _entity_mngr->data.dense.id[entity]) {
                 continue;
             }
 
             did_remove = true;
 
             // gem the current entity data
-            entity_id&  curr_id  = _entity_mngr->data.id  [entity];
-            entity_tag& curr_tag = _entity_mngr->data.tag [entity];
+            entity_id&  curr_id  = _entity_mngr->data.dense.id  [entity];
+            entity_tag& curr_tag = _entity_mngr->data.dense.tag [entity];
 
             // if this is the last entity,
             // clear the id and update the count
             if (entity == _entity_mngr->count - 1) {
-                _entity_mngr->data.id[entity] = ENTITY_ID_INVALID;
+                _entity_mngr->data.dense.id[entity] = ENTITY_ID_INVALID;
                 --_entity_mngr->count;
                 break;
             }
 
             // gem the last entity data
             const u32   last_entity = (_entity_mngr->count - 1);
-            entity_id&  last_id     = _entity_mngr->data.id  [last_entity];
-            entity_tag& last_tag    = _entity_mngr->data.tag [last_entity];
+            entity_id&  last_id     = _entity_mngr->data.dense.id  [last_entity];
+            entity_tag& last_tag    = _entity_mngr->data.dense.tag [last_entity];
 
             // swap the current and last entity data
             // and update the count
@@ -206,28 +145,28 @@ namespace ifb {
               ++entity
         ) {
 
-            if (id != _entity_mngr->data.id[entity]) {
+            if (id != _entity_mngr->data.dense.id[entity]) {
                 continue;
             }
 
             did_remove = true;
 
             // gem the current entity data
-            entity_id&  curr_id  = _entity_mngr->data.id  [entity];
-            entity_tag& curr_tag = _entity_mngr->data.tag [entity];
+            entity_id&  curr_id  = _entity_mngr->data.dense.id  [entity];
+            entity_tag& curr_tag = _entity_mngr->data.dense.tag [entity];
 
             // if this is the last entity,
             // clear the id and update the count
             if (entity == _entity_mngr->count - 1) {
-                _entity_mngr->data.id[entity] = ENTITY_ID_INVALID;
+                _entity_mngr->data.dense.id[entity] = ENTITY_ID_INVALID;
                 --_entity_mngr->count;
                 break;
             }
 
             // gem the last entity data
             const u32   last_entity = (_entity_mngr->count - 1);
-            entity_id&  last_id     = _entity_mngr->data.id  [last_entity];
-            entity_tag& last_tag    = _entity_mngr->data.tag [last_entity];
+            entity_id&  last_id     = _entity_mngr->data.dense.id  [last_entity];
+            entity_tag& last_tag    = _entity_mngr->data.dense.tag [last_entity];
 
             // swap the current and last entity data
             // and update the count
@@ -279,9 +218,9 @@ namespace ifb {
         auto* list = (entity_id_list*)arena_push(a, sizeof(entity_id_list));
         assert(list);
 
-        const u32 size = _entity_mngr->capacity * sizeof(entity_id);
+        const u32 size = _entity_mngr->capacity.dense * sizeof(entity_id);
         list->array    = (entity_id*)arena_push(a, size);
-        list->capacity = _entity_mngr->capacity;
+        list->capacity = _entity_mngr->capacity.dense;
         list->count    = 0;
         assert(list->array != NULL);
 
@@ -295,9 +234,9 @@ namespace ifb {
         entity_mngr_validate();
 
         assert(
-            list           != NULL                   &&
-            list->array    != NULL                   &&
-            list->capacity == _entity_mngr->capacity &&
+            list           != NULL                         &&
+            list->array    != NULL                         &&
+            list->capacity == _entity_mngr->capacity.dense &&
             list->count    <= list->capacity
         );
     }

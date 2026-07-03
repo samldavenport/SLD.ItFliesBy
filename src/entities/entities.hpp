@@ -34,10 +34,7 @@ namespace ifb {
     IFB_INTERNAL void               entity_mngr_shutdown           (void);
 
     // entity
-    IFB_INTERNAL u32                entity_lookup_index_by_tag     (const cchar*    tag_cstr);
-    IFB_INTERNAL u32                entity_lookup_index_by_id      (const entity_id id);
     IFB_INTERNAL bool               entity_lookup_by_archetype     (entity_id_list* id_list, const entity_archetype atype);
-    IFB_INTERNAL void               entity_get                     (const u32       index, entity* out);
     IFB_INTERNAL entity_id          entity_create                  (const cchar*    tag_cstr, const entity_archetype atype = component_type_e_none);
     IFB_INTERNAL bool               entity_destroy_by_tag          (const cchar*    tag_cstr);
     IFB_INTERNAL bool               entity_destroy_by_id           (const entity_id id);
@@ -61,16 +58,52 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
-    
+
+    struct entity_sparse_data {
+        u32* dense_index;
+        u32  capacity;
+    };
+
     struct entity_manager {
+
         struct {
-            entity_id*        id;
-            entity_tag*       tag;
-            entity_archetype* archetype;
+            struct {
+                entity_id*        id;
+                entity_tag*       tag;
+                entity_archetype* archetype;
+                u32*              sparse_index;
+            } dense;
+            struct {
+                u32* dense_index;
+            } sparse;
         } data;
+
+        struct {
+            u32 dense;
+            u32 sparse;
+        } capacity;
+
         memory  mem;
-        u32     capacity;
         u32     count;
+    };
+
+
+    struct entity_sset {
+        struct {
+        
+            struct {
+                entity_id* id;
+                u32*       sparse_index;
+            } dense;
+        
+            struct {
+                entity_tag*       tag;
+                entity_archetype* archetype;
+                u32*              dense_index;
+            } sparse;
+        
+        } data;
+        
     };
 
     struct entity_id_list {
