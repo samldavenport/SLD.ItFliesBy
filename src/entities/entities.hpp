@@ -34,12 +34,10 @@ namespace ifb {
     IFB_INTERNAL void            entity_mngr_shutdown           (void);
 
     // entity
-    IFB_INTERNAL bool            entity_lookup_by_archetype     (entity_list* id_list, const entity_archetype atype);
     IFB_INTERNAL entity_id       entity_create                  (const cchar*    tag_cstr, const entity_archetype atype = component_type_e_none);
-    IFB_INTERNAL bool            entity_destroy_by_tag          (const cchar*    tag_cstr);
-    IFB_INTERNAL bool            entity_destroy_by_id           (const entity_id id);
     IFB_INTERNAL entity_list*    entity_list_arena_create       (arena* a);
     IFB_INTERNAL void            entity_list_validate           (const entity_list* list);
+    IFB_INTERNAL bool            entity_lookup_by_archetype     (entity_list* id_list, const entity_archetype atype);
 
     // testing
     IFB_INTERNAL void            entity_test                    (void);
