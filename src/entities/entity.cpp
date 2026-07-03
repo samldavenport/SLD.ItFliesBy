@@ -144,4 +144,62 @@ namespace ifb {
         );
     }
 
+    IFB_INTERNAL bool
+    entity_lookup_by_tag(
+        entity&      e,
+        const cchar* tag_cstr) {
+        
+        assert(tag_cstr);
+
+        const auto      tag          = entity_tag(tag_cstr);
+        const entity_id id           = tag.hash();
+        u32             sparse_index = (_entity_mngr->capacity.sparse - 1) & id; 
+        bool            did_find     = false;
+
+        for (
+            u32 probe = 0;
+                probe < _entity_mngr->capacity.sparse;
+              ++probe) {
+        
+            // make sure the sparse index wraps around the array
+            sparse_index += probe;
+            sparse_index %= _entity_mngr->capacity.sparse;
+
+            // get the dense index at this sparse location
+            const u32 curr_dense_index = _entity_mngr->data.sparse.dense_index[sparse_index]; 
+            
+            // if there is no value, this entity does not exist
+            if (curr_dense_index == INVALID_INDEX) {
+                break;
+            }
+
+            // sanity check, the sparse indexes should match
+            assert(sparse_index == _entity_mngr->data.dense.sparse_index[curr_dense_index]);
+
+            // get the dense data at this location
+            const entity_id        curr_id    = _entity_mngr->data.dense.id        [curr_dense_index];
+            const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [curr_dense_index];
+
+            // if there is a entity different from what we expect,
+            // go to the next entity
+            if (id != curr_id) {
+                continue;
+            }
+
+            // otherwise, we found the entity
+            did_find = true;
+
+            // set the values and return
+            e.archetype    = curr_atype;
+            e.dense_index  = curr_dense_index;
+            e.id           = curr_id;
+            e.sparse_index = sparse_index;
+            break;
+        }
+
+        return(did_find);
+    }
+
+
+
 };

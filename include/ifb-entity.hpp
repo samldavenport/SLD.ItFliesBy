@@ -48,51 +48,11 @@ namespace ifb {
 
     class entity {
     
-    private:
-    
-        entity_id        _id;
-        entity_archetype _archetype;
-        entity_tag       _tag;
-
     public:
-
-        inline entity() = default;
-
-        inline 
-        entity(
-            const cchar*             tag_cstr,
-            const entity_archetype = component_type_e_none) {
-            
-            _tag = entity_tag (tag_cstr);
-            _id  = _tag.hash();
-        } 
-
-        inline
-        entity(
-            const entity_id        id,
-            const entity_tag&      tag,
-            const entity_archetype archetype = 0) {
-
-            _id        = id;
-            _tag       = tag;
-            _archetype = archetype;
-
-            assert(
-                _tag.hash() == _id
-            );
-        }
-
-        inline entity&
-        add_component(
-            const component_type type) {
-
-            _archetype |= type.val;
-            return(*this);
-        }
-
-        inline const cchar*     tag_cstr (void) { return (_tag.cstr()); }
-        inline entity_id        id       (void) { return (_id);         }
-        inline entity_archetype archetype(void) { return (_archetype);  }
+        entity_id        id;
+        entity_archetype archetype;
+        u32              sparse_index;
+        u32              dense_index;
     };
 };
 
