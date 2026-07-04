@@ -48,9 +48,7 @@ namespace ifb {
     // ENTITY
     //--------------------------------------------------------------------
 
-    class entity {
-    
-    public:
+    struct entity {
         const char*      tag;             
         entity_id        id;
         entity_archetype archetype;

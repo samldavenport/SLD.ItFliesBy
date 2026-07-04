@@ -106,6 +106,7 @@ namespace ifb {
         _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
         _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
         _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
+        _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
 
         // lastly, set the dense index of the last entity to invalid
         // reduce the count

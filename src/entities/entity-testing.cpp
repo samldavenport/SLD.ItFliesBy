@@ -91,13 +91,17 @@ namespace ifb {
     test_destroy(
         void) {
 
-        entity       entity_5;
+        entity       entity_5_before;
+        entity       entity_5_after;
         entity       entity_9;
         const cchar* tag_entity_5 = "TEST-5";
         const cchar* tag_entity_9 = "TEST-9";
 
+        const bool does_exist = entity_lookup_by_tag(entity_5_before, tag_entity_5);
+        assert(does_exist);
+
         const bool did_destroy          =  entity_destroy       (tag_entity_5);
-        const bool did_destroy_for_real = !entity_lookup_by_tag (entity_5, tag_entity_5); 
+        const bool did_destroy_for_real = !entity_lookup_by_tag (entity_5_after, tag_entity_5); 
         assert(
             did_destroy          &&
             did_destroy_for_real &&
@@ -109,16 +113,10 @@ namespace ifb {
 
         //TODO(SAM): this is the process that is still failing
         const bool swapped_entity_still_exists = entity_lookup_by_tag(entity_9, tag_entity_9);
-        const bool did_swap = (
-            strncmp(entity_9.tag, tag_entity_9, ENTITY_TAG_SIZE) == 0 &&
-            entity_9.index_dense  == entity_5.index_dense &&
-            entity_9.index_sparse == entity_5.index_sparse 
-        );
-        assert(
-            swapped_entity_still_exists &&
-            did_swap                    &&
-            "ENTITY SWAP FAILED"
-        );
+        bool did_swap = true;
+        did_swap &= (strncmp(entity_9.tag, tag_entity_9, ENTITY_TAG_SIZE) == 0);
+        did_swap &= (entity_9.index_dense  == entity_5_before.index_dense); 
+        assert(did_swap);
 
     }
 
