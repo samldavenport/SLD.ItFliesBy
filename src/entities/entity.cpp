@@ -74,6 +74,46 @@ namespace ifb {
         return(did_insert ? id : ENTITY_ID_INVALID);
     }
 
+    IFB_INTERNAL bool
+    entity_destroy(
+        const cchar* tag_cstr) {
+
+        entity_mngr_validate();
+
+        if (_entity_mngr->count == 0) {
+            return(false);
+        }
+
+        // look up the current and last entities
+        entity     e_current;
+        entity     e_last;
+        const u32  last_index       = (_entity_mngr->count - 1);
+        const bool did_find_current = entity_lookup_by_tag         (e_current, tag_cstr);
+        const bool did_find_last    = entity_lookup_by_index_dense (e_last,    last_index);   
+
+        // we should always retrieve the last one
+        assert(did_find_last);
+
+        // we're done if we didn't find the requested one
+        if (!did_find_last) {
+            return(false);
+        }
+
+        // by setting the current dense info to the last dense info
+        // and reducing the count by 1,
+        // we have effectively removed the current enitity
+        _entity_mngr->data.dense.tag          [e_current.index_dense] = _entity_mngr->data.dense.tag [e_last.index_dense];
+        _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
+        _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
+        _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
+
+        // lastly, set the dense index of the last entity to invalid
+        // reduce the count
+        // and return
+        _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
+        --_entity_mngr->count;
+        return(true);
+    }
 
     IFB_INTERNAL bool
     entity_lookup_by_archetype(
@@ -105,6 +145,26 @@ namespace ifb {
 
         const bool did_find = (list->count > 0); 
         return(did_find);        
+    }
+
+    IFB_INTERNAL bool
+    entity_lookup_by_index_dense(
+        entity&   e,
+        const u32 index) {
+
+        entity_mngr_validate();
+        
+        if (index >= _entity_mngr->count) {
+            return(false);
+        }
+
+        e.tag          = _entity_mngr->data.dense.tag          [index].cstr();
+        e.id           = _entity_mngr->data.dense.id           [index];
+        e.archetype    = _entity_mngr->data.dense.archetype    [index];
+        e.index_sparse = _entity_mngr->data.dense.sparse_index [index];
+        e.index_dense  = _entity_mngr->data.sparse.dense_index [e.index_sparse];  
+
+        return(true);
     }
 
     IFB_INTERNAL entity_list*
@@ -179,6 +239,7 @@ namespace ifb {
             // get the dense data at this location
             const entity_id        curr_id    = _entity_mngr->data.dense.id        [curr_dense_index];
             const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [curr_dense_index];
+            const char*            curr_tag   = _entity_mngr->data.dense.tag       [curr_dense_index].cstr(); 
 
             // if there is a entity different from what we expect,
             // go to the next entity
@@ -190,10 +251,11 @@ namespace ifb {
             did_find = true;
 
             // set the values and return
-            e.archetype    = curr_atype;
-            e.dense_index  = curr_dense_index;
+            e.tag          = curr_tag;
             e.id           = curr_id;
-            e.sparse_index = sparse_index;
+            e.archetype    = curr_atype;
+            e.index_sparse = sparse_index;
+            e.index_dense  = curr_dense_index;
             break;
         }
 

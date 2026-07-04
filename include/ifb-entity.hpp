@@ -51,10 +51,11 @@ namespace ifb {
     class entity {
     
     public:
+        const char*      tag;             
         entity_id        id;
         entity_archetype archetype;
-        u32              sparse_index;
-        u32              dense_index;
+        u32              index_sparse;
+        u32              index_dense;
     };
 };
 
