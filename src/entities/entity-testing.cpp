@@ -31,9 +31,9 @@ namespace ifb {
         void) {
 
         // archetypes
-        const entity_archetype atype_0 = entity_archetype(component_type_e_position);
-        const entity_archetype atype_1 = entity_archetype(component_type_e_color);
-        const entity_archetype atype_2 = entity_archetype(component_type_e_position | component_type_e_color );
+        const entity_archetype atype_0 = (component_type_e_position);
+        const entity_archetype atype_1 = (component_type_e_color);
+        const entity_archetype atype_2 = (component_type_e_position | component_type_e_color );
 
         // entities
         const entity_id entity_0 = entity_create("TEST-0", atype_0);
