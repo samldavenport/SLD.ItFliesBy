@@ -138,7 +138,7 @@ namespace ifb {
 
         assert(
             list           != NULL                         &&
-            list->data.id    != NULL                         &&
+            list->data.id  != NULL                         &&
             list->capacity == _entity_mngr->capacity.dense &&
             list->count    <= list->capacity
         );

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "entities.hpp"
-
 namespace ifb {
 
-    inline void create_entities (void);
-    inline void test_lookups    (entity_list* list);
+    inline void create_entities     (void);
+    inline void test_lookups        (entity_list* list);
+    inline void test_identical_tags (void);
 
 
     IFB_INTERNAL void
@@ -19,6 +19,7 @@ namespace ifb {
 
 
         create_entities ();
+        test_identical_tags();
         test_lookups    (id_list);
 
 
@@ -58,4 +59,17 @@ namespace ifb {
         const bool did_find_entity_8 = entity_lookup_by_tag(entity_8, "TEST-8");
         assert(did_find_entity_8);
     }
+
+    inline void
+    test_identical_tags(
+        void) {
+
+        cchar test[] = "TEST";
+
+        const u32 hash_0 = hash_u32(test, sizeof(test));
+        const u32 hash_1 = hash_u32(test, sizeof(test));
+
+        assert(hash_0 == hash_1 && "IDENTICAL HASHES ARE DIFFERENT");
+    }
+
 };
