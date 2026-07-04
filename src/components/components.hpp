@@ -5,15 +5,26 @@
 #include "entities.hpp"
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
     struct component_manager;
     struct component_table_base;
     struct component_table_position;
     struct component_table_color;
 
+    //--------------------------------------------------------------------
+    // INTERNAL METHODS
+    //--------------------------------------------------------------------
+
     u32                component_manager_memory_size (void);
     component_manager* component_manager_create      (memory& mem_stack);
     void               component_manager_startup     (memory& mem_res);
 
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
 
     struct component_manager {
         struct  {
