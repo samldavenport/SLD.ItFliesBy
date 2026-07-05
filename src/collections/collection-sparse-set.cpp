@@ -179,7 +179,7 @@ namespace ifb {
             // make sure its not a collision and continue
             if (index_dense != INVALID_INDEX) {
                 const bool is_collision = (hash == _data.dense.hash[index_dense]);
-                assert(is_collision);
+                assert(!is_collision);
                 continue;
             }
 

@@ -10,89 +10,44 @@ namespace ifb {
     // ENTITY TAG
     //--------------------------------------------------------------------
 
-    class entity_tag {
-    
-    private:
-        cchar _cstr[ENTITY_TAG_SIZE];
-
-    public:
-        inline entity_tag() = default;
-        inline entity_tag(
-            const cchar* tag_cstr) {
-
-            assert(tag_cstr != NULL);
-
-            const u32 len = strnlen_s(tag_cstr, ENTITY_TAG_SIZE);
-            (void)strncpy(_cstr, tag_cstr, len);
-        }
-
-        inline u32
-        hash(void) const {
-            
-            void*      data = (void*)_cstr;
-            const u32  size = ENTITY_TAG_SIZE; 
-            const u32  h    = hash_u32(data, size);
-
-            return(h);
-        }
-
-        inline const cchar*
-        cstr(void) {
-            return(_cstr);
-        }
+    struct entity_tag {
+        cchar cstr[ENTITY_TAG_SIZE];
     };
+
+    IFB_INLINE void entity_tag_init (entity_tag& tag, const cchar* cstr);
+    IFB_INLINE u32  entity_tag_hash (const entity_tag& tag);
+
+    IFB_INLINE void
+    entity_tag_init (
+        entity_tag&  tag,
+        const cchar* cstr) {
+
+        assert(cstr != NULL);
+
+        memset((void*)tag.cstr, 0, ENTITY_TAG_SIZE);
+
+        const u32 len = strnlen_s(cstr, ENTITY_TAG_SIZE);
+        (void)strncpy(tag.cstr, cstr, len);
+    }
+
+    IFB_INLINE u32
+    entity_tag_hash(
+        const entity_tag& tag) {
+
+        const u32 hash = hash_u32((void*)tag.cstr, ENTITY_TAG_SIZE);
+        return(hash);
+    }
 
     //--------------------------------------------------------------------
     // ENTITY
     //--------------------------------------------------------------------
 
-    class entity {
-    
-    private:
-    
-        entity_id        _id;
-        entity_archetype _archetype;
-        entity_tag       _tag;
-
-    public:
-
-        inline entity() = default;
-
-        inline 
-        entity(
-            const cchar*             tag_cstr,
-            const entity_archetype = component_type_e_none) {
-            
-            _tag = entity_tag (tag_cstr);
-            _id  = _tag.hash();
-        } 
-
-        inline
-        entity(
-            const entity_id        id,
-            const entity_tag&      tag,
-            const entity_archetype archetype = 0) {
-
-            _id        = id;
-            _tag       = tag;
-            _archetype = archetype;
-
-            assert(
-                _tag.hash() == _id
-            );
-        }
-
-        inline entity&
-        add_component(
-            const component_type type) {
-
-            _archetype |= type.val;
-            return(*this);
-        }
-
-        inline const cchar*     tag_cstr (void) { return (_tag.cstr()); }
-        inline entity_id        id       (void) { return (_id);         }
-        inline entity_archetype archetype(void) { return (_archetype);  }
+    struct entity {
+        const char*      tag;             
+        entity_id        id;
+        entity_archetype archetype;
+        u32              index_sparse;
+        u32              index_dense;
     };
 };
 

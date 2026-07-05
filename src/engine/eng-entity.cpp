@@ -18,49 +18,4 @@ namespace ifb {
 
         return(id);
     }
-
-    IFB_ENGINE_API bool
-    eng_entity_destroy_by_id(
-        const entity_id id) {
-
-        assert(id != ENTITY_ID_INVALID);
-        const entity_id eid = {id};
-
-        eng_managers*   mngrs       = _eng_context->mngrs; 
-        entity_manager* entity_mngr = mngrs->entity;
-
-        const bool did_destroy = entity_destroy_by_id(eid);
-        return(did_destroy);
-    }
-
-    IFB_ENGINE_API bool
-    eng_entity_destroy_by_tag (
-        const cchar* tag) {
-
-        assert(tag);
-        
-        eng_managers*   mngrs       = _eng_context->mngrs; 
-        entity_manager* entity_mngr = mngrs->entity;
-
-        const bool did_destroy = entity_destroy_by_tag(tag);
-        return(did_destroy);
-    }
-
-    IFB_ENGINE_API const cchar*
-    eng_entity_get_tag(
-        const entity_id id) {
-
-        assert(id != ENTITY_ID_INVALID);
-        const entity_id eid = { id };
-
-        eng_managers*   mngrs       = _eng_context->mngrs; 
-        entity_manager* entity_mngr = mngrs->entity;
-
-        const u32 index = entity_lookup_index_by_id(eid);
-
-        entity e;
-        entity_get(index, &e);
-
-        return(e.tag_cstr());
-    }
 };

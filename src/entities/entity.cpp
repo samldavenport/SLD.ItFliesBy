@@ -3,96 +3,6 @@
 #include "entities.hpp"
 
 namespace ifb {
-   
-    IFB_INTERNAL u32
-    entity_lookup_index_by_tag(
-        const entity_tag* tag) {
-
-        entity_mngr_validate();
-        assert(tag != NULL);
-
-        const entity_id id = tag->hash();
-
-        for (
-            u32 index = 0;
-                index < _entity_mngr->capacity;
-              ++index 
-        ) {
-            if (id == _entity_mngr->data.id[index]) {
-                return(index);
-            }
-        }
-
-        return(ENTITY_ID_INVALID);
-    }
-
-    IFB_INTERNAL u32
-    entity_lookup_index_by_id(
-        const entity_id id) {
-
-        entity_mngr_validate();
-        assert(id != ENTITY_ID_INVALID);
-
-        for (
-            u32 index = 0;
-                index < _entity_mngr->capacity;
-              ++index 
-        ) {
-            if (_entity_mngr->data.id[index] == id) {
-                return(index);
-            }
-        }
-
-        return(ENTITY_ID_INVALID);
-    }
-
-    IFB_INTERNAL bool
-    entity_lookup_by_archetype(
-        entity_id_list*        id_list,
-        const entity_archetype atype
-    ) {
-
-        entity_mngr_validate();
-        entity_id_list_validate(id_list);
-
-        u32& id_index = id_list->count;
-        id_index = 0;
-
-        for (
-            u32 entity_index = 0;
-                entity_index < _entity_mngr->count;
-              ++entity_index) {
-
-            const entity_archetype curr_atype = _entity_mngr->data.archetype [entity_index];
-            const entity_id        curr_id    = _entity_mngr->data.id        [entity_index];
-
-            if (atype == curr_atype) {
-                id_list->array[id_index++] = curr_id;
-            }
-        }
-
-        const bool did_find = (id_list->count > 0); 
-        return(did_find);        
-    }
-
-
-    IFB_INTERNAL void
-    entity_get(
-        const u32 index,
-        entity*   out) {
-
-        entity_mngr_validate();
-        assert(
-            index <  _entity_mngr->count &&
-            out   != NULL
-        );
-
-        *out = entity(
-            _entity_mngr->data.id        [index],
-            _entity_mngr->data.tag       [index],
-            _entity_mngr->data.archetype [index]
-        );
-    }
 
     IFB_INTERNAL entity_id
     entity_create(
@@ -103,203 +13,259 @@ namespace ifb {
         assert(tag_cstr != NULL);
 
         // return invalid if we are at capactiy
-        if (_entity_mngr->count == _entity_mngr->capacity) {
+        if (_entity_mngr->count == _entity_mngr->capacity.dense) {
             return(ENTITY_ID_INVALID);
         }
 
-        // get the index
-
         // create the id and tag
-        const entity_tag tag = entity_tag(tag_cstr);
-        const entity_id  id  = tag.hash(); 
-    
+        entity_tag tag;
+        entity_tag_init(tag, tag_cstr);
+
+        const entity_id id  = entity_tag_hash(tag); 
+        assert(id != ENTITY_ID_INVALID);
+
         // make sure this isn't a duplicate
         for (
             u32 entity = 0;
                 entity < _entity_mngr->count;
               ++entity
         ) {
-            assert(id != _entity_mngr->data.id[entity]);
+            assert(id != _entity_mngr->data.dense.id[entity]);
         }
 
-        // add the id and tag 
-        const u32 index = _entity_mngr->count;
-        _entity_mngr->data.id        [index] = id;
-        _entity_mngr->data.tag       [index] = tag;
-        _entity_mngr->data.archetype [index] = atype;
+        // get the sparse and dense_index
+        const u32 dense_index  = _entity_mngr->count;
+        u32       sparse_index = (_entity_mngr->capacity.sparse - 1) & id; 
+        bool      did_insert   = false;       
+        for (
+            u32 probe = 0;
+                probe < _entity_mngr->capacity.sparse;
+              ++probe) {
+
+            // make sure the sparse index wraps around the array
+            sparse_index += probe;
+            sparse_index %= _entity_mngr->capacity.sparse;
+
+            // get the dense index at this sparse location
+            const u32 tmp_dense_index = _entity_mngr->data.sparse.dense_index[sparse_index]; 
+
+            // there is a value here,
+            // make sure its not a collision before continuing
+            if (tmp_dense_index != INVALID_INDEX) {
+                const bool is_collision = (id == _entity_mngr->data.dense.id[tmp_dense_index]);
+                assert(!is_collision);
+                continue;
+            }
+
+            // otherwise, we have a valid index
+            did_insert = true;
+            
+            // add the values 
+            _entity_mngr->data.dense.id           [dense_index]  = id;
+            _entity_mngr->data.dense.tag          [dense_index]  = tag;
+            _entity_mngr->data.dense.archetype    [dense_index]  = atype;
+            _entity_mngr->data.dense.sparse_index [dense_index]  = sparse_index;
+            _entity_mngr->data.sparse.dense_index [sparse_index] = dense_index;
+
+            // update the count
+            ++_entity_mngr->count;
+            break;
+        }
 
         // update the count and return the id
-        ++_entity_mngr->count;
-        return(id);
+        return(did_insert ? id : ENTITY_ID_INVALID);
     }
 
     IFB_INTERNAL bool
-    entity_destroy_by_tag(
+    entity_destroy(
         const cchar* tag_cstr) {
 
         entity_mngr_validate();
-        assert(tag_cstr != NULL);
 
         if (_entity_mngr->count == 0) {
             return(false);
         }
 
-        entity_tag tag(tag_cstr);
-        entity_id  id = tag.hash();
+        // look up the current and last entities
+        entity     e_current;
+        entity     e_last;
+        const u32  last_index       = (_entity_mngr->count - 1);
+        const bool did_find_current = entity_lookup_by_tag         (e_current, tag_cstr);
+        const bool did_find_last    = entity_lookup_by_index_dense (e_last,    last_index);   
 
-        bool did_remove = false;
+        // we should always retrieve the last one
+        assert(did_find_last);
 
-        for (
-            u32 entity = 0;
-                entity < _entity_mngr->count;
-              ++entity
-        ) {
-
-            if (id != _entity_mngr->data.id[entity]) {
-                continue;
-            }
-
-            did_remove = true;
-
-            // gem the current entity data
-            entity_id&  curr_id  = _entity_mngr->data.id  [entity];
-            entity_tag& curr_tag = _entity_mngr->data.tag [entity];
-
-            // if this is the last entity,
-            // clear the id and update the count
-            if (entity == _entity_mngr->count - 1) {
-                _entity_mngr->data.id[entity] = ENTITY_ID_INVALID;
-                --_entity_mngr->count;
-                break;
-            }
-
-            // gem the last entity data
-            const u32   last_entity = (_entity_mngr->count - 1);
-            entity_id&  last_id     = _entity_mngr->data.id  [last_entity];
-            entity_tag& last_tag    = _entity_mngr->data.tag [last_entity];
-
-            // swap the current and last entity data
-            // and update the count
-            curr_id  = last_id;
-            curr_tag = last_tag;
-            last_id  = ENTITY_ID_INVALID;
-            --_entity_mngr->count; 
-            break;
+        // we're done if we didn't find the requested one
+        if (!did_find_last) {
+            return(false);
         }
 
-        return(did_remove);
+        // by setting the current dense info to the last dense info
+        // and reducing the count by 1,
+        // we have effectively removed the current enitity
+        _entity_mngr->data.dense.tag          [e_current.index_dense] = _entity_mngr->data.dense.tag [e_last.index_dense];
+        _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
+        _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
+        _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
+        _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
+
+        // lastly, set the dense index of the last entity to invalid
+        // reduce the count
+        // and return
+        _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
+        --_entity_mngr->count;
+        return(true);
     }
 
     IFB_INTERNAL bool
-    entity_destroy_by_id(
-        const entity_id  id) {
+    entity_lookup_by_archetype(
+        entity_list*           list,
+        const entity_archetype atype ) {
 
         entity_mngr_validate();
-        assert(id != ENTITY_ID_INVALID);
+        entity_list_validate(list);
 
-        
-        bool did_remove = false;
+        u32& list_index = list->count;
+        list_index = 0;
 
         for (
-            u32 entity = 0;
-                entity < _entity_mngr->count;
-              ++entity
-        ) {
+            u32 dense_index = 0;
+                dense_index < _entity_mngr->count;
+              ++dense_index) {
+            
+            const entity_id        curr_id           = _entity_mngr->data.dense.id           [dense_index];
+            const entity_archetype curr_atype        = _entity_mngr->data.dense.archetype    [dense_index];
+            const u32              curr_sparse_index = _entity_mngr->data.dense.sparse_index [dense_index];
 
-            if (id != _entity_mngr->data.id[entity]) {
-                continue;
-            }
-
-            did_remove = true;
-
-            // gem the current entity data
-            entity_id&  curr_id  = _entity_mngr->data.id  [entity];
-            entity_tag& curr_tag = _entity_mngr->data.tag [entity];
-
-            // if this is the last entity,
-            // clear the id and update the count
-            if (entity == _entity_mngr->count - 1) {
-                _entity_mngr->data.id[entity] = ENTITY_ID_INVALID;
-                --_entity_mngr->count;
-                break;
-            }
-
-            // gem the last entity data
-            const u32   last_entity = (_entity_mngr->count - 1);
-            entity_id&  last_id     = _entity_mngr->data.id  [last_entity];
-            entity_tag& last_tag    = _entity_mngr->data.tag [last_entity];
-
-            // swap the current and last entity data
-            // and update the count
-            curr_id  = last_id;
-            curr_tag = last_tag;
-            last_id  = ENTITY_ID_INVALID;
-            --_entity_mngr->count; 
-            break;
-        }
-
-        return(did_remove);
-    }
-
-    IFB_INTERNAL entity_id*
-    entity_query_by_archetype(
-        arena*                 a,
-        const entity_archetype archetype,
-        const u32              count) {
-
-        assert(a != NULL && count != 0);
-
-        const u32 size     = count * sizeof(entity_id);
-        auto      id_array = (entity_id*)arena_push(a, size);
-
-        if (id_array) {
-
-            memset((void*)id_array, 0xFF, size);
-
-            for (
-                u32 index = 0;
-                    index < count;
-                  ++index
-            ) {
-                
+            if (atype == curr_atype) {
+                list->data.id           [list_index] = curr_id;
+                list->data.sparse_index [list_index] = curr_sparse_index;
+                list->data.dense_index  [list_index] = dense_index;                 
+                ++list_index;
             }
         }
 
-        return(id_array);
+        const bool did_find = (list->count > 0); 
+        return(did_find);        
     }
 
-    IFB_INTERNAL entity_id_list*
-    entity_id_list_arena_create(
+    IFB_INTERNAL bool
+    entity_lookup_by_index_dense(
+        entity&   e,
+        const u32 index) {
+
+        entity_mngr_validate();
+        
+        if (index >= _entity_mngr->count) {
+            return(false);
+        }
+
+        e.tag          = _entity_mngr->data.dense.tag          [index].cstr;
+        e.id           = _entity_mngr->data.dense.id           [index];
+        e.archetype    = _entity_mngr->data.dense.archetype    [index];
+        e.index_sparse = _entity_mngr->data.dense.sparse_index [index];
+        e.index_dense  = _entity_mngr->data.sparse.dense_index [e.index_sparse];  
+
+        return(true);
+    }
+
+    IFB_INTERNAL entity_list*
+    entity_list_arena_create(
         arena* a) {
 
         entity_mngr_validate();
         assert(a != NULL);
-
         
-        auto* list = (entity_id_list*)arena_push(a, sizeof(entity_id_list));
+        auto* list = (entity_list*)arena_push(a, sizeof(entity_list));
         assert(list);
 
-        const u32 size = _entity_mngr->capacity * sizeof(entity_id);
-        list->array    = (entity_id*)arena_push(a, size);
-        list->capacity = _entity_mngr->capacity;
-        list->count    = 0;
-        assert(list->array != NULL);
+        const u32 size_array = _entity_mngr->capacity.dense * sizeof(entity_id);
+        list->data.id           = (entity_id*)arena_push(a, size_array);
+        list->data.sparse_index =       (u32*)arena_push(a, size_array);
+        list->data.dense_index  =       (u32*)arena_push(a, size_array);
+        list->capacity          = _entity_mngr->capacity.dense;
+        list->count             = 0;
+        assert(list->data.id           != NULL);
+        assert(list->data.sparse_index != NULL);
+        assert(list->data.dense_index  != NULL);
 
         return(list);
     }
 
     IFB_INTERNAL void
-    entity_id_list_validate(
-        const entity_id_list* list) {
+    entity_list_validate(
+        const entity_list* list) {
 
         entity_mngr_validate();
 
         assert(
-            list           != NULL                   &&
-            list->array    != NULL                   &&
-            list->capacity == _entity_mngr->capacity &&
+            list           != NULL                         &&
+            list->data.id  != NULL                         &&
+            list->capacity == _entity_mngr->capacity.dense &&
             list->count    <= list->capacity
         );
     }
+
+    IFB_INTERNAL bool
+    entity_lookup_by_tag(
+        entity&      e,
+        const cchar* tag_cstr) {
+        
+        assert(tag_cstr);
+
+        entity_tag tag;
+        entity_tag_init(tag, tag_cstr);
+        const entity_id id           = entity_tag_hash(tag);
+        u32             sparse_index = (_entity_mngr->capacity.sparse - 1) & id; 
+        bool            did_find     = false;
+
+        for (
+            u32 probe = 0;
+                probe < _entity_mngr->capacity.sparse;
+              ++probe) {
+        
+            // make sure the sparse index wraps around the array
+            sparse_index += probe;
+            sparse_index %= _entity_mngr->capacity.sparse;
+
+            // get the dense index at this sparse location
+            const u32 curr_dense_index = _entity_mngr->data.sparse.dense_index[sparse_index]; 
+            
+            // if there is no value, this entity does not exist
+            if (curr_dense_index == INVALID_INDEX) {
+                break;
+            }
+
+            // sanity check, the sparse indexes should match
+            assert(sparse_index == _entity_mngr->data.dense.sparse_index[curr_dense_index]);
+
+            // get the dense data at this location
+            const entity_id        curr_id    = _entity_mngr->data.dense.id        [curr_dense_index];
+            const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [curr_dense_index];
+            const char*            curr_tag   = _entity_mngr->data.dense.tag       [curr_dense_index].cstr; 
+
+            // if there is a entity different from what we expect,
+            // go to the next entity
+            if (id != curr_id) {
+                continue;
+            }
+
+            // otherwise, we found the entity
+            did_find = true;
+
+            // set the values and return
+            e.tag          = curr_tag;
+            e.id           = curr_id;
+            e.archetype    = curr_atype;
+            e.index_sparse = sparse_index;
+            e.index_dense  = curr_dense_index;
+            break;
+        }
+
+        return(did_find);
+    }
+
+
 
 };
