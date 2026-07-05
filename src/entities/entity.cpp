@@ -18,8 +18,10 @@ namespace ifb {
         }
 
         // create the id and tag
-        const entity_tag tag = entity_tag(tag_cstr);
-        const entity_id  id  = tag.hash(); 
+        entity_tag tag;
+        entity_tag_init(tag, tag_cstr);
+
+        const entity_id id  = entity_tag_hash(tag); 
         assert(id != ENTITY_ID_INVALID);
 
         // make sure this isn't a duplicate
@@ -159,7 +161,7 @@ namespace ifb {
             return(false);
         }
 
-        e.tag          = _entity_mngr->data.dense.tag          [index].cstr();
+        e.tag          = _entity_mngr->data.dense.tag          [index].cstr;
         e.id           = _entity_mngr->data.dense.id           [index];
         e.archetype    = _entity_mngr->data.dense.archetype    [index];
         e.index_sparse = _entity_mngr->data.dense.sparse_index [index];
@@ -212,8 +214,9 @@ namespace ifb {
         
         assert(tag_cstr);
 
-        const auto      tag          = entity_tag(tag_cstr);
-        const entity_id id           = tag.hash();
+        entity_tag tag;
+        entity_tag_init(tag, tag_cstr);
+        const entity_id id           = entity_tag_hash(tag);
         u32             sparse_index = (_entity_mngr->capacity.sparse - 1) & id; 
         bool            did_find     = false;
 
@@ -240,7 +243,7 @@ namespace ifb {
             // get the dense data at this location
             const entity_id        curr_id    = _entity_mngr->data.dense.id        [curr_dense_index];
             const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [curr_dense_index];
-            const char*            curr_tag   = _entity_mngr->data.dense.tag       [curr_dense_index].cstr(); 
+            const char*            curr_tag   = _entity_mngr->data.dense.tag       [curr_dense_index].cstr; 
 
             // if there is a entity different from what we expect,
             // go to the next entity

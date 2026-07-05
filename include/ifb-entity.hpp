@@ -10,39 +10,33 @@ namespace ifb {
     // ENTITY TAG
     //--------------------------------------------------------------------
 
-    class entity_tag {
-    
-    private:
-        cchar _cstr[ENTITY_TAG_SIZE];
-
-    public:
-        inline entity_tag() = default;
-        inline entity_tag(
-            const cchar* tag_cstr) {
-
-            assert(tag_cstr != NULL);
-
-            memset((void*)_cstr, 0, ENTITY_TAG_SIZE);
-
-            const u32 len = strnlen_s(tag_cstr, ENTITY_TAG_SIZE);
-            (void)strncpy(_cstr, tag_cstr, len);
-        }
-
-        inline u32
-        hash(void) const {
-            
-            const u32 h = hash_u32(
-                (void*)&_cstr[0], 
-                ENTITY_TAG_SIZE);
-
-            return(h);
-        }
-
-        inline const cchar*
-        cstr(void) {
-            return(_cstr);
-        }
+    struct entity_tag {
+        cchar cstr[ENTITY_TAG_SIZE];
     };
+
+    IFB_INLINE void entity_tag_init (entity_tag& tag, const cchar* cstr);
+    IFB_INLINE u32  entity_tag_hash (const entity_tag& tag);
+
+    IFB_INLINE void
+    entity_tag_init (
+        entity_tag&  tag,
+        const cchar* cstr) {
+
+        assert(cstr != NULL);
+
+        memset((void*)tag.cstr, 0, ENTITY_TAG_SIZE);
+
+        const u32 len = strnlen_s(cstr, ENTITY_TAG_SIZE);
+        (void)strncpy(tag.cstr, cstr, len);
+    }
+
+    IFB_INLINE u32
+    entity_tag_hash(
+        const entity_tag& tag) {
+
+        const u32 hash = hash_u32((void*)tag.cstr, ENTITY_TAG_SIZE);
+        return(hash);
+    }
 
     //--------------------------------------------------------------------
     // ENTITY
