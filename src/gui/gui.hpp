@@ -42,11 +42,14 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_imgui_demo  (bool& is_open);
     IFB_INTERNAL void  gui_engine_system      (bool& is_open);
 
+    // entities
+    IFB_INTERNAL void  gui_entity_manager     (bool& is_open);
+
     // renderer
     IFB_INTERNAL void  gui_renderer_camera    (bool& is_open);
 
     // controls
-    IFB_INTERNAL void  gui_control_vec3        (const char* name, vec3& v);
+    IFB_INTERNAL void  gui_control_vec3       (const char* name, vec3& v);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -68,11 +71,14 @@ namespace ifb {
         inline static const char* menu_engine                 = "Engine";
         inline static const char* menu_engine_item_imgui_demo = "ImGui Demo";
         inline static const char* menu_engine_item_system     = "System";
+        inline static const char* menu_entities               = "Entities";
+        inline static const char* menu_entity_item_manager    = "Entity Manager";
         inline static const char* menu_renderer               = "Renderer";
         inline static const char* menu_renderer_item_camera   = "Camera"; 
         inline static const char* window_renderer_camera      = "Renderer Camera";
         inline static const char* camera_origin               = "Camera Origin";
         inline static const char* camera_target               = "Camera Target";
+
     } static * _gui_str;
 
 };

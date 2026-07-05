@@ -2,6 +2,7 @@
 
 #include "gui.hpp"
 #include "gui-engine.cpp"
+#include "gui-entity-manager.cpp"
 #include "gui-renderer-camera.cpp"
 #include "gui-controls.cpp"
 
@@ -42,6 +43,7 @@ namespace ifb {
         static bool eng_imgui_demo = false;
         static bool eng_system     = false;
         static bool rndr_camera    = false; 
+        static bool entity_manager = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -49,6 +51,13 @@ namespace ifb {
 
                 ImGui::MenuItem(_gui_str->menu_engine_item_imgui_demo, NULL, &eng_imgui_demo);
                 ImGui::MenuItem(_gui_str->menu_engine_item_system,     NULL, &eng_system);
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu(_gui_str->menu_entities)) {
+
+                ImGui::MenuItem(_gui_str->menu_entity_item_manager, NULL, &entity_manager);
 
                 ImGui::EndMenu();
             }
@@ -63,8 +72,8 @@ namespace ifb {
             ImGui::EndMainMenuBar();
         }
 
-        gui_engine_imgui_demo(eng_imgui_demo);
-        gui_renderer_camera(rndr_camera);
-
+        gui_engine_imgui_demo (eng_imgui_demo);
+        gui_renderer_camera   (rndr_camera);
+        gui_entity_manager    (entity_manager);
     }
 };
