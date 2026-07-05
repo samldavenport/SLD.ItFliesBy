@@ -109,7 +109,7 @@ namespace ifb {
             // by setting the current dense info to the last dense info
             // and reducing the count by 1,
             // we have effectively removed the current enitity
-            _entity_mngr->data.dense.tag          [e_current.index_dense] = _entity_mngr->data.dense.tag [e_last.index_dense];
+            entity_tag_init(_entity_mngr->data.dense.tag[e_current.index_dense], _entity_mngr->data.dense.tag [e_last.index_dense].cstr);
             _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
             _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
             _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
@@ -120,10 +120,6 @@ namespace ifb {
         // reduce the count
         // and return
         _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
-        _entity_mngr->data.dense.sparse_index [e_last.index_dense]     = INVALID_INDEX;
-        _entity_mngr->data.dense.id           [e_last.index_dense]     = ENTITY_ID_INVALID;
-        _entity_mngr->data.dense.archetype    [e_last.index_dense]     = component_type_e_none;
-
         --_entity_mngr->count;
         return(true);
     }
@@ -242,9 +238,9 @@ namespace ifb {
             // get the dense index at this sparse location
             const u32 curr_dense_index = _entity_mngr->data.sparse.dense_index[sparse_index]; 
             
-            // if there is no value, this entity does not exist
+            // if there is no value, go to the next one 
             if (curr_dense_index == INVALID_INDEX) {
-                break;
+                continue;
             }
 
             // sanity check, the sparse indexes should match
