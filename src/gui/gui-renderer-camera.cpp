@@ -7,14 +7,10 @@ namespace ifb {
 
     IFB_INTERNAL void
     gui_renderer_camera(
-        void) {
+        bool& is_open) {
 
-        assert(_gui);
-   
-        bool is_open = _gui->window_flags.get_renderer_camera();
         if (!is_open) return;
 
-        static gui_strings* str = _gui->str;
         static vec3         camera_target;
         static vec3         camera_origin;
         static vec3         camera_forward;
@@ -26,12 +22,11 @@ namespace ifb {
         renderer_camera_get_origin (camera_origin);
         renderer_camera_get_view   (camera_view_matrix);
 
-
         camera_forward = xform_view_forward (camera_view_matrix);
         camera_right   = xform_view_right   (camera_view_matrix);
         camera_up      = xform_view_up      (camera_view_matrix);
 
-        if (ImGui::Begin(str->window_renderer_camera, &is_open)) {
+        if (ImGui::Begin(_gui_str->window_renderer_camera, &is_open)) {
 
             ImGui::SeparatorText("Camera Vectors");
 
@@ -198,8 +193,6 @@ namespace ifb {
 
         renderer_camera_set_target(camera_target);
         renderer_camera_set_origin(camera_origin);
-
-        _gui->window_flags.update_renderer_camera(is_open);
     }
 };
 
