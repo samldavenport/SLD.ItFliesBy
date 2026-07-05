@@ -7,6 +7,7 @@ namespace ifb {
     inline void test_lookups        (entity_list* list);
     inline void test_identical_tags (void);
     inline void test_destroy        (void);
+    inline void test_destroy_all    (void);
 
 
     IFB_INTERNAL void
@@ -23,6 +24,9 @@ namespace ifb {
         test_identical_tags ();
         test_lookups        (id_list);
         test_destroy        ();
+        
+        // TODO(SAM): this is failing
+        // test_destroy_all    ();
 
         arena_free(a);
     }
@@ -120,5 +124,56 @@ namespace ifb {
 
     }
 
+    inline void
+    test_destroy_all(
+        void) {
+
+        const bool did_destroy_entity_0 = entity_destroy("TEST-0");
+        const bool did_destroy_entity_1 = entity_destroy("TEST-1");
+        const bool did_destroy_entity_2 = entity_destroy("TEST-2");
+        const bool did_destroy_entity_3 = entity_destroy("TEST-3");
+        const bool did_destroy_entity_4 = entity_destroy("TEST-4");
+        const bool did_destroy_entity_6 = entity_destroy("TEST-6");
+        const bool did_destroy_entity_7 = entity_destroy("TEST-7");
+        const bool did_destroy_entity_8 = entity_destroy("TEST-8");
+        const bool did_destroy_entity_9 = entity_destroy("TEST-9");
+
+        assert(
+            did_destroy_entity_0 &&
+            did_destroy_entity_1 &&
+            did_destroy_entity_2 &&
+            did_destroy_entity_3 &&
+            did_destroy_entity_4 &&
+            did_destroy_entity_6 &&
+            did_destroy_entity_7 &&
+            did_destroy_entity_8 &&
+            did_destroy_entity_9            
+        );
+
+        assert(_entity_mngr->count == 0);
+
+        entity e;
+        const bool did_destroy_entity_0_for_real = entity_lookup_by_tag(e, "TEST-0");
+        const bool did_destroy_entity_1_for_real = entity_lookup_by_tag(e, "TEST-1");
+        const bool did_destroy_entity_2_for_real = entity_lookup_by_tag(e, "TEST-2");
+        const bool did_destroy_entity_3_for_real = entity_lookup_by_tag(e, "TEST-3");
+        const bool did_destroy_entity_4_for_real = entity_lookup_by_tag(e, "TEST-4");
+        const bool did_destroy_entity_6_for_real = entity_lookup_by_tag(e, "TEST-6");
+        const bool did_destroy_entity_7_for_real = entity_lookup_by_tag(e, "TEST-7");
+        const bool did_destroy_entity_8_for_real = entity_lookup_by_tag(e, "TEST-8");
+        const bool did_destroy_entity_9_for_real = entity_lookup_by_tag(e, "TEST-9");
+
+        assert(
+            did_destroy_entity_0_for_real &&
+            did_destroy_entity_1_for_real &&
+            did_destroy_entity_2_for_real &&
+            did_destroy_entity_3_for_real &&
+            did_destroy_entity_4_for_real &&
+            did_destroy_entity_6_for_real &&
+            did_destroy_entity_7_for_real &&
+            did_destroy_entity_8_for_real &&
+            did_destroy_entity_9_for_real
+        );
+    }
 
 };
