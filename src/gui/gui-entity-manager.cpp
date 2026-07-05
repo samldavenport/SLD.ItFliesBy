@@ -13,6 +13,20 @@ namespace ifb {
 
         if (ImGui::Begin("Entity Manager", &is_open)) {
 
+            static cchar tag_cstr[ENTITY_TAG_SIZE] = {0};
+
+            ImGui::InputText("Entity Tag", tag_cstr, ENTITY_TAG_SIZE, ImGuiInputFlags_None);
+            ImGui::SameLine();
+            if (ImGui::Button("Create Entity")) {
+
+
+                const entity_id id_new  = entity_create(tag_cstr);
+                assert(id_new != ENTITY_ID_INVALID);
+                memset(tag_cstr, 0, ENTITY_TAG_SIZE);
+            }
+
+
+
             if (ImGui::BeginTable("tbl-entity-mngr", 5, ImGuiTableFlags_Borders)) {
 
                 //---------------------------
