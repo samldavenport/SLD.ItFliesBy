@@ -22,7 +22,6 @@ namespace ifb {
         renderer_camera_get_origin (camera_origin);
         renderer_camera_get_view   (camera_view_matrix);
 
-
         camera_forward = xform_view_forward (camera_view_matrix);
         camera_right   = xform_view_right   (camera_view_matrix);
         camera_up      = xform_view_up      (camera_view_matrix);
