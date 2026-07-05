@@ -119,7 +119,7 @@ namespace ifb {
         // lastly, set the dense index of the last entity to invalid
         // reduce the count
         // and return
-        _entity_mngr->data.sparse.dense_index [e_last.index_sparse] = INVALID_INDEX;
+        _entity_mngr->data.sparse.dense_index [e_last.index_sparse] = e_current.index_dense;
         _entity_mngr->data.dense.sparse_index [e_last.index_dense]  = INVALID_INDEX;
         _entity_mngr->data.dense.id           [e_last.index_dense]  = ENTITY_ID_INVALID;
         --_entity_mngr->count;
