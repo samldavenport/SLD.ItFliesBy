@@ -19,7 +19,7 @@ namespace ifb {
         assert(_entity_mngr->mem.ptr);
 
         // get config value(s)
-        const ifb_config& cfg = config_instance();
+        const config& cfg = config_instance();
         _entity_mngr->capacity.dense  = cfg.entity_capacity;
         _entity_mngr->capacity.sparse = cfg.entity_capacity / cfg.sparse_set_max_load_p100;
         assert(_entity_mngr->capacity.dense  != 0);

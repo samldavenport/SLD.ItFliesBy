@@ -38,8 +38,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // renderer context
-    IFB_INTERNAL u32               renderer_context_memory_requirement       (void);
-    IFB_INTERNAL renderer_context* renderer_context_init_from_memory         (memory& mem);
+    IFB_INTERNAL renderer_context* renderer_context_create                   (void);
     IFB_INTERNAL void              renderer_context_startup                  (memory& reserved_memory);
     IFB_INTERNAL void              renderer_context_shutdown                 (void);
     IFB_INTERNAL void              renderer_context_update_viewport          (const u32 width, const u32 height);

@@ -55,7 +55,7 @@ namespace ifb {
             mem_reserved_arenas.address != 0 
         );
 
-        const ifb_config& cfg = config_instance();
+        const config& cfg = config_instance();
 
         init_arena_allocator(
             _memory_manager->arena_alctr,

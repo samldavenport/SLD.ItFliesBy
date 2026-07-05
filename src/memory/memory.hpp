@@ -13,6 +13,7 @@ namespace ifb {
     struct arena_allocator;
     struct stack_allocator;
     struct block_allocator;
+    struct global_allocator;
     struct arena;
 
     //--------------------------------------------------------------------

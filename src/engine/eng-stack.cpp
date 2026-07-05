@@ -4,8 +4,8 @@
 
 namespace ifb {
 
-    IFB_ENG_INTERNAL eng_stack*
-    eng_stack_init(
+    IFB_ENG_INTERNAL void
+    global_stack_create_and_init(
         const eng_mem_map* mem_map) {
 
         assert(
@@ -16,123 +16,46 @@ namespace ifb {
 
         zero_memory(mem_map->stack.ptr, mem_map->stack.size);
 
-        eng_stack* stack = (eng_stack*)mem_map->stack.ptr;
-        stack->position  = sizeof(eng_stack);
-        stack->size      = mem_map->stack.size;
-
-        return(stack);
+        _global_stack           = (global_stack*)mem_map->stack.ptr;
+        _global_stack->position = sizeof(global_stack);
+        _global_stack->size     = mem_map->stack.size;
     }
 
-    IFB_ENG_INTERNAL byte*
-    eng_stack_push_data(
-        eng_stack* stack,
-        const u32  size) {
-
-        assert(stack);
-
-        const u32 new_position = (stack->position + size);
-        assert(new_position <= stack->size);
-
-        byte* start = (byte*)stack;
-        byte* data  = start + stack->position; 
-
-        stack->position = new_position;
-
-        return(data);
-    }
-
-    IFB_ENG_INTERNAL eng_context*
-    eng_stack_push_context(
-        eng_stack* stack) {
-
-        assert(stack);
-
-        auto ctx = (eng_context*)eng_stack_push_data(stack, sizeof(eng_context));
-        assert(ctx);
-
-        return(ctx);
-    }
-    
-    IFB_ENG_INTERNAL eng_system_info*
-    eng_stack_push_system_info(
-        eng_stack* stack) {
-
-        auto sys_info = (eng_system_info*)eng_stack_push_data(stack, sizeof(eng_system_info));
-        assert(sys_info);
-        return(sys_info);
-    }
-
-    IFB_ENG_INTERNAL file_manager*
-    eng_stack_push_and_init_file_manager(
-        eng_stack* stack,
-        const u32  file_count_max) {
-
-        assert(stack != NULL && file_count_max != 0);
-        
-
-
-        const u32 mem_req = file_manager_memory_requirement(file_count_max);
-        void*     mem_ptr = (void*)eng_stack_push_data(stack, mem_req);
-        assert(mem_ptr);
-
-        auto file_mngr = file_manager_init(
-            file_count_max,
-            mem_req,
-            mem_ptr
-        );
-        assert(file_mngr);
-        return(file_mngr);
-    }
-
-    IFB_ENG_INTERNAL renderer_context*
-    eng_stack_push_and_init_renderer(
-        eng_stack* stack) {
-
-        assert(stack != NULL);
-
-        memory stack_mem;
-        stack_mem.size  = renderer_context_memory_requirement ();
-        stack_mem.bytes = eng_stack_push_data                 (stack, stack_mem.size);
-
-        renderer_context* rndr = renderer_context_init_from_memory(stack_mem);
-        assert(rndr);
-        return(rndr);
-    }
-
-    IFB_ENG_INTERNAL eng_managers*
-    eng_stack_push_and_init_managers(
-        eng_stack* eng_stack) {
-
-        assert(eng_stack != NULL);
-
-        const auto& config = config_instance();
-
-        auto mngrs = (eng_managers*)eng_stack_push_data(eng_stack, sizeof(eng_managers));
-        assert(mngrs);
-
-        memory stack_mem;
-
-        // file manager
-        stack_mem.size = file_manager_memory_requirement (config.file_count);
-        stack_mem.ptr  = eng_stack_push_data             (eng_stack, stack_mem.size); 
-        mngrs->file    = file_manager_init               (config.file_count, stack_mem.size, stack_mem.ptr);
-
-        // entity manager
-        stack_mem.size = entity_mngr_memory_requirement ();
-        stack_mem.ptr  = eng_stack_push_data               (eng_stack, stack_mem.size);
-        mngrs->entity  = entity_mngr_memory_init        (stack_mem); 
-
-        // memory manager
-        stack_mem.size = memory_manager_memory_requirement ();
-        stack_mem.ptr = eng_stack_push_data                (eng_stack, stack_mem.size);
-        mngrs->memory = memory_manager_memory_init         (stack_mem);
+    IFB_ENG_INTERNAL void
+    global_stack_validate(
+        void) {
 
         assert(
-            mngrs->file   != NULL &&            
-            mngrs->entity != NULL &&
-            mngrs->memory != NULL
-        );
+            _global_stack           != NULL &&
+            _global_stack->size     != 0    &&
+            _global_stack->position <= _global_stack->size
+        );      
+    }
 
-        return(mngrs);
+    IFB_ENG_INTERNAL void*
+    global_alloc(
+        const u32 size) {
+
+        global_stack_validate();
+
+        const u32 new_position = (_global_stack->position + size);
+        assert(new_position <= _global_stack->size);
+
+        addr start = (addr)_global_stack;
+        addr data  = (start + _global_stack->position); 
+
+        _global_stack->position = new_position;
+
+        return((void*)data);
+    }
+
+    template<typename t>
+    IFB_ENG_INTERNAL t*
+    global_alloc(const u32 count) {
+    
+        const u32 size = count * sizeof(t);
+        auto mem = (t*)global_alloc(size);
+        assert(mem);
+        return(mem);    
     }
 };

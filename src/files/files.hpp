@@ -35,10 +35,9 @@ namespace ifb {
     // METHODS 
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL u32           file_manager_memory_requirement       (const u32 file_count_max);
-    IFB_INTERNAL file_manager* file_manager_init                     (const u32 file_count_max, const u32 mem_size, void* mem_ptr);
+    IFB_INTERNAL file_manager* file_manager_create                   (const u32 file_count_max);
     IFB_INTERNAL void          file_manager_startup                  (const u32 mem_size, const u32 mem_granularity, void* mem_ptr);
-    IFB_INTERNAL void          file_manager_shutdown                 (const u32 mem_size, const u32 mem_granularity, void* mem_ptr);
+    IFB_INTERNAL void          file_manager_shutdown                 (void);
     IFB_INTERNAL void          file_manager_assert_valid             (void);
     IFB_INTERNAL u32           file_manager_index_of_next_free       (void);
     IFB_INTERNAL u32           file_manager_index_of_internal_handle (const file_handle     hnd);
@@ -60,7 +59,7 @@ namespace ifb {
     IFB_INTERNAL void          file_close                            (const file_handle hnd);
     IFB_INTERNAL u32           file_get_size                         (const file_handle hnd);
     IFB_INTERNAL void          file_set_cursor                       (const file_handle hnd, const u32 cursor);
-    IFB_INTERNAL const cchar* file_read                             (const file_handle hnd, const u32 buffer_size);
+    IFB_INTERNAL const cchar*  file_read                             (const file_handle hnd, const u32 buffer_size);
     IFB_INTERNAL u32           file_write                            (const file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------

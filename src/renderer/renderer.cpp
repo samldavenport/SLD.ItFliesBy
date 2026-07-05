@@ -6,7 +6,7 @@
 #include "hello-quad.cpp" 
 #include "direction-gizmo.cpp"
 #include "camera.cpp"
-
+#include "eng-internal.hpp"
 namespace ifb {
 
     IFB_INTERNAL u32
@@ -35,6 +35,12 @@ namespace ifb {
     }
 
     IFB_INTERNAL renderer_context*
+    renderer_context_create(
+        void) {
+
+    }
+
+    IFB_INTERNAL renderer_context*
     renderer_context_init_from_memory(
         memory& mem) {
 
@@ -43,6 +49,7 @@ namespace ifb {
             mem.ptr  != NULL
         );
 
+        auto rndr = global_alloc
         const addr addr_rndr      = mem.address;
         const addr addr_gl        = addr_rndr + sizeof(renderer_context);
         const addr addr_block_ids = addr_rndr + sizeof(gl_context);
