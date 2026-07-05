@@ -97,23 +97,31 @@ namespace ifb {
         assert(did_find_last);
 
         // we're done if we didn't find the requested one
-        if (!did_find_last) {
+        if (!did_find_current) {
             return(false);
         }
 
-        // by setting the current dense info to the last dense info
-        // and reducing the count by 1,
-        // we have effectively removed the current enitity
-        _entity_mngr->data.dense.tag          [e_current.index_dense] = _entity_mngr->data.dense.tag [e_last.index_dense];
-        _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
-        _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
-        _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
-        _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
+        // if the last entity and current entity not are the same,
+        // we need to set the current info to last info
+        // otherwise, skip straight to invalidating and reducing the count
+        if (e_current.id != e_last.id) {
+
+            // by setting the current dense info to the last dense info
+            // and reducing the count by 1,
+            // we have effectively removed the current enitity
+            _entity_mngr->data.dense.tag          [e_current.index_dense] = _entity_mngr->data.dense.tag [e_last.index_dense];
+            _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
+            _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
+            _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
+            _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
+        }
 
         // lastly, set the dense index of the last entity to invalid
         // reduce the count
         // and return
-        _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
+        _entity_mngr->data.sparse.dense_index [e_last.index_sparse] = INVALID_INDEX;
+        _entity_mngr->data.dense.sparse_index [e_last.index_dense]  = INVALID_INDEX;
+        _entity_mngr->data.dense.id           [e_last.index_dense]  = ENTITY_ID_INVALID;
         --_entity_mngr->count;
         return(true);
     }
@@ -265,7 +273,4 @@ namespace ifb {
 
         return(did_find);
     }
-
-
-
 };
