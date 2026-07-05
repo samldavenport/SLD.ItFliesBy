@@ -135,22 +135,4 @@ namespace ifb {
 
         return(mngrs);
     }
-
-    IFB_ENG_INTERNAL gui*
-    eng_stack_push_and_init_gui(
-        eng_stack* eng_stack) {
-
-        assert(eng_stack != NULL);
-
-        memory gui_stack_mem;
-        gui_stack_mem.size = gui_memory_requirement();
-        gui_stack_mem.ptr  = eng_stack_push_data(eng_stack, gui_stack_mem.size);
-
-        gui* g = gui_memory_init(gui_stack_mem);
-        assert(g);
-
-        return(g);
-    }
-
-
 };
