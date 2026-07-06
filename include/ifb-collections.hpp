@@ -66,6 +66,9 @@ namespace ifb {
         void* push       (const u32 size);
         void  pull       (const u32 size);
         void  revert     (const u32 save);
+
+        template<typename t>
+        t* push_struct(const u32 count = 1);
     };
 
     //--------------------------------------------------------------------

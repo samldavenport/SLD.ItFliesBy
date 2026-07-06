@@ -99,13 +99,14 @@ namespace ifb {
 
         void* push_mem = NULL;
 
-        const u32 size_remaninig = (_mem.size - _pos);
-        if (size_remaninig >= size) {
+        const u32 new_position = (_pos + size);
+        if (new_position <= _mem.size) {
 
             push_mem = (void*)(_mem.address + _pos);
-            _pos += size;
+            _pos = new_position;
         }
-        return(NULL);
+
+        return(push_mem);
     }
 
     void stack::
@@ -130,5 +131,17 @@ namespace ifb {
         _pos  = _save;
         _save = 0;
 
+    }
+
+    template<typename t>
+    t* stack:: 
+    push_struct(
+        const u32 count) {
+
+        const u32 size = (count * sizeof(t));
+        auto      mem  = (t*)push(size);
+        assert(mem);
+
+        return(mem);
     }
 };

@@ -7,6 +7,8 @@
 #include "collection-sparse-set.cpp"
 #include "collection-stack.cpp"
 
+#include "component-manager.cpp"
+
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"
 #include "eng-context.cpp"
