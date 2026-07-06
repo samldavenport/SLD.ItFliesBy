@@ -6,50 +6,28 @@
 #include "hello-quad.cpp" 
 #include "direction-gizmo.cpp"
 #include "camera.cpp"
-
+#include "eng-internal.hpp"
 namespace ifb {
 
-    IFB_INTERNAL u32
-    renderer_context_memory_requirement(
+    IFB_INTERNAL renderer_context*
+    renderer_context_create(
         void) {
 
-        const auto& cfg      = config_instance();
-        const auto& mem_size = cfg.memory_size_rendering;
-        const auto& mem_gran = cfg.renderer_mem_granularity;
+        const auto& cfg         = config_instance();
+        const u32   block_count = (cfg.memory_size_rendering / cfg.renderer_mem_granularity);
 
+        auto rndr      = global_alloc<renderer_context> ();
+        auto gl        = global_alloc<gl_context>       ();
+        auto block_ids = global_alloc<u32>              (block_count); 
         assert(
-            mem_size            != 0 &&
-            mem_gran            != 0 &&
-            mem_size % mem_gran == 0
+            rndr      != NULL &&
+            gl        != NULL &&
+            block_ids != NULL            
         );
 
-        const u32 block_count      = (mem_size / mem_gran); 
-        const u32 block_stack_size = (sizeof(u32) * block_count);
-        const u32 mem_req          = (
-            sizeof(renderer_context)   +
-            sizeof(gl_context) + 
-            block_stack_size
-        );
-
-        return(mem_req);
-    }
-
-    IFB_INTERNAL renderer_context*
-    renderer_context_init_from_memory(
-        memory& mem) {
-
-        assert(
-            mem.size == renderer_context_memory_requirement() &&
-            mem.ptr  != NULL
-        );
-
-        const addr addr_rndr      = mem.address;
-        const addr addr_gl        = addr_rndr + sizeof(renderer_context);
-        const addr addr_block_ids = addr_rndr + sizeof(gl_context);
-
-        _renderer_ctx                      =   (renderer_context*)addr_rndr;
-        _renderer_ctx->gl                  =         (gl_context*)addr_gl;
-        _renderer_ctx->mem.block_stack.ids =                (u32*)addr_block_ids;
+        _renderer_ctx                      = rndr;
+        _renderer_ctx->gl                  = gl;
+        _renderer_ctx->mem.block_stack.ids = block_ids;
 
         return(_renderer_ctx);
     }
@@ -104,7 +82,6 @@ namespace ifb {
     renderer_context_update_viewport(
         const u32         width,
         const u32         height) {
-
 
         assert(_renderer_ctx != NULL);
 

@@ -10,11 +10,11 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_INLINE void eng_context_startup_get_system_info (eng_system_info* sys_info);
-    IFB_INLINE void eng_context_startup_open_window     (const ifb_config& config, const eng_system_info* sys_info);
-    IFB_INLINE void eng_context_startup_file_manager    (eng_managers* mngrs, const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_entity_mngr     (eng_managers* mngrs, const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_memory_manager  (eng_managers* mngrs, const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_renderer        (renderer_context* renderer, eng_managers* mngrs, const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_open_window     (const config& config, const eng_system_info* sys_info);
+    IFB_INLINE void eng_context_startup_file_mngr       (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_entity_mngr     (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_memory_mngr     (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_renderer        (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -27,16 +27,35 @@ namespace ifb {
         const auto& config = config_instance();
 
         // stack memory
-        eng_stack* stack = eng_stack_init(mem_map);
-        assert(stack);
+        global_stack_create_and_init(mem_map);
 
-        // stack allocate and initialize context
-        _eng_context            = eng_stack_push_context           (stack);
-        _eng_context->system    = eng_stack_push_system_info       (stack);
-        _eng_context->renderer  = eng_stack_push_and_init_renderer (stack);
-        _eng_context->mngrs     = eng_stack_push_and_init_managers (stack); 
-        _eng_context->stack     = stack;
-        _eng_context->mem_map   = mem_map;
+        // allocate global memory
+        auto eng_ctx     = global_alloc<eng_context>      (); 
+        auto sys_info    = global_alloc<eng_system_info>  ();
+        assert(
+            eng_ctx     != NULL &&
+            sys_info    != NULL
+        );
+
+        // set context properties        
+        _eng_context              = eng_ctx;
+        _eng_context->mem_map     = mem_map;
+        _eng_context->system      = sys_info;  
+        _eng_context->renderer    = renderer_context_create(); 
+        _eng_context->file_mngr   = file_mngr_create(); 
+        _eng_context->entity_mngr = entity_mngr_create(); 
+        _eng_context->memory_mngr = memory_mngr_create();          
+        _eng_context->mem_map     = mem_map;
+
+        assert(
+            _eng_context->mem_map     != NULL &&
+            _eng_context->system      != NULL &&
+            _eng_context->renderer    != NULL &&
+            _eng_context->file_mngr   != NULL &&
+            _eng_context->entity_mngr != NULL &&
+            _eng_context->memory_mngr != NULL &&
+            _eng_context->mem_map     != NULL
+        );
 
         return(_eng_context);
     }
@@ -48,24 +67,18 @@ namespace ifb {
         const auto&        config   = config_instance();
         const eng_mem_map* mem_map  = _eng_context->mem_map;
         eng_system_info*   system   = _eng_context->system;
-        eng_managers*      mngrs    = _eng_context->mngrs;
         renderer_context*  renderer = _eng_context->renderer;
-        gui*               g        = _eng_context->gui;
 
-        eng_context_startup_get_system_info  (system);
-        eng_context_startup_open_window      (config, system);
-        eng_context_startup_file_manager     (mngrs, mem_map);
-        eng_context_startup_entity_mngr   (mngrs, mem_map);
-        eng_context_startup_memory_manager   (mngrs, mem_map);
-        eng_context_startup_renderer         (renderer,mngrs, mem_map);
-
-        // test entities
-        entity_test();
+        eng_context_startup_get_system_info (_eng_context->system);
+        eng_context_startup_open_window     (config, system);
+        eng_context_startup_file_mngr       (mem_map);
+        eng_context_startup_entity_mngr     (mem_map);
+        eng_context_startup_memory_mngr     (mem_map);
+        eng_context_startup_renderer        (mem_map);
     }
 
     IFB_ENGINE_API void
     eng_context_run(void) {
-
 
         const eng_arena_handle img_arena = eng_arena_alloc();
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
@@ -117,7 +130,7 @@ namespace ifb {
     
     IFB_INLINE void
     eng_context_startup_open_window(
-        const ifb_config&      config,
+        const config&      config,
         const eng_system_info* sys_info) {
 
         pfm_window_config window_cfg;
@@ -130,12 +143,11 @@ namespace ifb {
     }
 
     IFB_INLINE void
-    eng_context_startup_file_manager(
-        eng_managers*      mngrs,
+    eng_context_startup_file_mngr(
         const eng_mem_map* mem_map) {
 
         const u32 file_granularity = size_kilobytes(64);
-        file_manager_startup(
+        file_mngr_startup(
             mem_map->files.size,
             file_granularity,
             mem_map->files.ptr
@@ -144,7 +156,6 @@ namespace ifb {
 
     IFB_INLINE void
     eng_context_startup_entity_mngr(
-        eng_managers* mngrs,
         const eng_mem_map* mem_map) {
 
         memory entity_mem;
@@ -154,20 +165,17 @@ namespace ifb {
     }
 
     IFB_INLINE void
-    eng_context_startup_memory_manager(
-        eng_managers*      mngrs,
+    eng_context_startup_memory_mngr(
         const eng_mem_map* mem_map) {
 
         memory arena_mem;
         arena_mem.size = mem_map->arenas.size;
         arena_mem.ptr  = mem_map->arenas.ptr;
-        memory_manager_startup(arena_mem);
+        memory_mngr_startup(arena_mem);
     }
 
     IFB_INLINE void
     eng_context_startup_renderer(
-        renderer_context*  renderer,
-        eng_managers*      mngrs,
         const eng_mem_map* mem_map) {
 
         // initialize the renderer

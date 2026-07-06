@@ -1,76 +1,46 @@
 #pragma once
 
 #include "files.hpp"
+#include "eng-internal.hpp"
 
 namespace ifb {
 
-    IFB_INTERNAL u32
-    file_manager_memory_requirement(
-        const u32 file_count_max) {
+    IFB_INTERNAL file_mngr*
+    file_mngr_create(
+        void) {
 
-        assert(file_count_max != 0);
+        const auto& cfg = config_instance();
+        assert(cfg.file_count != 0);
 
-        const u32 struct_size    = sizeof(file_manager);
-        const u32 file_info_size = (
-            (file_count_max * sizeof(file_handle))     +
-            (file_count_max * sizeof(pfm_file_handle)) +
-            (file_count_max * sizeof(u32))             +
-            (file_count_max * sizeof(u32))             +
-            (file_count_max * sizeof(file_path))
-        );
-
-        const u32 mem_req = (struct_size + file_info_size);
-        return(mem_req);
-    }
-
-    IFB_INTERNAL file_manager*
-    file_manager_init(
-        const u32 file_count_max,
-        const u32 mem_size,
-        void*     mem_ptr) {
-
+        // allocate memory
+        auto mngr              = global_alloc<file_mngr>    ();
+        auto hnd_file_internal = global_alloc<file_handle>     (cfg.file_count);
+        auto hnd_file_platform = global_alloc<pfm_file_handle> (cfg.file_count);
+        auto io_length         = global_alloc<u32>             (cfg.file_count);
+        auto cursor            = global_alloc<u32>             (cfg.file_count);
+        auto paths             = global_alloc<file_path>       (cfg.file_count);
         assert(
-            file_count_max != 0 &&
-            mem_size       != 0 &&
-            mem_ptr        != NULL          
+            mngr              != NULL &&
+            hnd_file_internal != NULL &&
+            hnd_file_platform != NULL &&
+            io_length         != NULL &&
+            cursor            != NULL &&
+            paths             != NULL
         );
 
-        const u32 mem_req = file_manager_memory_requirement(file_count_max);
-        assert(mem_req == mem_size);
-
-        const u32 offset_hnd_ifb   = sizeof(file_manager); 
-        const u32 offset_hnd_pfm   = offset_hnd_ifb + (file_count_max + sizeof(file_handle)); 
-        const u32 offset_io        = offset_hnd_pfm + (file_count_max + sizeof(pfm_file_handle)); 
-        const u32 offset_cursor    = offset_io      + (file_count_max + sizeof(u32)); 
-        const u32 offset_file_path = offset_cursor  + (file_count_max + sizeof(u32)); 
-
-        byte* mem_handle_internal = ((byte*)mem_ptr             + offset_hnd_ifb);
-        byte* mem_handle_platform = ((byte*)mem_handle_internal + offset_hnd_pfm);
-        byte* mem_io_length       = ((byte*)mem_handle_platform + offset_io);
-        byte* mem_cursor          = ((byte*)mem_io_length       + offset_cursor);
-        byte* mem_paths           = ((byte*)mem_cursor          + offset_file_path);
-
-        _file_mngr = (file_manager*)mem_ptr;
-        _file_mngr->array.handle_internal =     (file_handle*)mem_handle_internal;
-        _file_mngr->array.handle_platform = (pfm_file_handle*)mem_handle_platform;
-        _file_mngr->array.io_length       =             (u32*)mem_io_length;
-        _file_mngr->array.cursor          =             (u32*)mem_cursor;
-        _file_mngr->array.paths           =       (file_path*)mem_paths;
-        _file_mngr->file_count_max        = file_count_max;
-    
-        assert(
-            _file_mngr->array.handle_internal != NULL &&
-            _file_mngr->array.handle_platform != NULL &&
-            _file_mngr->array.io_length       != NULL &&
-            _file_mngr->array.cursor          != NULL &&
-            _file_mngr->array.paths           != NULL            
-        );
+        _file_mngr                        = mngr;                        
+        _file_mngr->array.handle_internal = hnd_file_internal; 
+        _file_mngr->array.handle_platform = hnd_file_platform; 
+        _file_mngr->array.io_length       = io_length; 
+        _file_mngr->array.cursor          = cursor; 
+        _file_mngr->array.paths           = paths; 
+        _file_mngr->file_count_max        = cfg.file_count;
 
         return(_file_mngr);
     }
 
     IFB_INTERNAL void
-    file_manager_startup(
+    file_mngr_startup(
         const u32     mem_size,
         const u32     mem_granularity,
         void*         mem_ptr) {
@@ -88,14 +58,14 @@ namespace ifb {
     }
     
     IFB_INTERNAL void
-    file_manager_shutdown(
+    file_mngr_shutdown(
         void) {
 
         //TODO
     }
 
     IFB_INTERNAL void
-    file_manager_assert_valid(
+    file_mngr_assert_valid(
         void) {
 
         assert(
@@ -113,10 +83,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL u32
-    file_manager_index_of_next_free(
+    file_mngr_index_of_next_free(
         void) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
 
         u32 next_free_index = FILE_INDEX_INVALID;
 
@@ -140,10 +110,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL u32
-    file_manager_index_of_internal_handle(
+    file_mngr_index_of_internal_handle(
         const file_handle hnd) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
 
         u32 index_of = FILE_INDEX_INVALID;
 
@@ -162,10 +132,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL u32
-    file_manager_index_of_platform_handle(
+    file_mngr_index_of_platform_handle(
         const pfm_file_handle hnd) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
 
         u32 index_of = FILE_INDEX_INVALID;
 
@@ -184,10 +154,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL byte*
-    file_manager_get_buffer(
+    file_mngr_get_buffer(
         const u32 index) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(index < IFB_CONFIG_FILE_COUNT);
 
         const u32 offset = (index * _file_mngr->memory.granularity);
@@ -197,14 +167,14 @@ namespace ifb {
     }
 
     IFB_INTERNAL file_handle
-    file_manager_commit(
+    file_mngr_commit(
         const pfm_file_config* cfg) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(cfg);
 
         // get index of next free file
-        const u32 index = file_manager_index_of_next_free();
+        const u32 index = file_mngr_index_of_next_free();
         if (index == FILE_INDEX_INVALID) {
             return(FILE_HANDLE_INVALID);
         }

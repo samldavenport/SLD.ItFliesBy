@@ -1,10 +1,49 @@
 #pragma once
 
 #include "entities.hpp"
+#include "eng-internal.hpp"
 
 namespace ifb {
-    
-    static void
+
+    IFB_INTERNAL entity_mngr*
+    entity_mngr_create(
+        void) {
+
+        _entity_mngr = global_alloc<entity_mngr>();
+        assert(_entity_mngr);
+
+        _entity_mngr->data.dense.id           = NULL;
+        _entity_mngr->data.dense.tag          = NULL;
+        _entity_mngr->data.dense.archetype    = NULL;
+        _entity_mngr->data.dense.sparse_index = NULL;
+        _entity_mngr->data.sparse.dense_index = NULL;
+        _entity_mngr->capacity.dense          = 0;
+        _entity_mngr->capacity.sparse         = 0;
+        _entity_mngr->count                   = 0;
+        _entity_mngr->mem.address             = 0;
+        _entity_mngr->mem.size                = 0;
+        
+        return(_entity_mngr);
+    }
+
+    IFB_INTERNAL void
+    entity_mngr_validate(
+        void) {
+
+        assert(
+            _entity_mngr &&
+            _entity_mngr->data.dense.id           != NULL &&
+            _entity_mngr->data.dense.tag          != NULL &&
+            _entity_mngr->data.dense.archetype    != NULL &&
+            _entity_mngr->data.dense.sparse_index != NULL &&
+            _entity_mngr->data.sparse.dense_index != NULL &&
+            _entity_mngr->capacity.dense          != 0    &&
+            _entity_mngr->capacity.sparse         != 0    &&
+            _entity_mngr->count                   <= _entity_mngr->capacity.dense
+        );
+    }
+
+    IFB_INTERNAL void
     entity_mngr_startup(
         const memory& mem_res) {
 
@@ -19,7 +58,7 @@ namespace ifb {
         assert(_entity_mngr->mem.ptr);
 
         // get config value(s)
-        const ifb_config& cfg = config_instance();
+        const config& cfg = config_instance();
         _entity_mngr->capacity.dense  = cfg.entity_capacity;
         _entity_mngr->capacity.sparse = cfg.entity_capacity / cfg.sparse_set_max_load_p100;
         assert(_entity_mngr->capacity.dense  != 0);
@@ -66,7 +105,7 @@ namespace ifb {
         entity_mngr_validate();
     }
 
-    static void
+    IFB_INTERNAL void
     entity_mngr_shutdown(
         void) {
 
@@ -83,58 +122,5 @@ namespace ifb {
         _entity_mngr->data.sparse.dense_index = NULL;
         _entity_mngr->mem.address             = 0;
         _entity_mngr->mem.size                = 0;
-    }
-
-
-    static u32
-    entity_mngr_memory_requirement(
-        void) {
-
-        const u32 size_struct = sizeof(entity_manager);
-        return(size_struct);
-    }
-
-    static entity_manager*
-    entity_mngr_memory_init(
-        const memory& mem) {
-
-        assert(
-            mem.size != 0 &&
-            mem.ptr  != NULL
-        );
-
-        const u32 size_struct = sizeof(entity_manager);
-        assert(mem.size == size_struct);
-
-        _entity_mngr = (entity_manager*)mem.ptr;
-        _entity_mngr->data.dense.id           = NULL;
-        _entity_mngr->data.dense.tag          = NULL;
-        _entity_mngr->data.dense.archetype    = NULL;
-        _entity_mngr->data.dense.sparse_index = NULL;
-        _entity_mngr->data.sparse.dense_index = NULL;
-        _entity_mngr->capacity.dense          = 0;
-        _entity_mngr->capacity.sparse         = 0;
-        _entity_mngr->count                   = 0;
-        _entity_mngr->mem.address             = 0;
-        _entity_mngr->mem.size                = 0;
-        
-        return(_entity_mngr);
-    }
-
-    static void
-    entity_mngr_validate(
-        void) {
-
-        assert(
-            _entity_mngr &&
-            _entity_mngr->data.dense.id           != NULL &&
-            _entity_mngr->data.dense.tag          != NULL &&
-            _entity_mngr->data.dense.archetype    != NULL &&
-            _entity_mngr->data.dense.sparse_index != NULL &&
-            _entity_mngr->data.sparse.dense_index != NULL &&
-            _entity_mngr->capacity.dense          != 0    &&
-            _entity_mngr->capacity.sparse         != 0    &&
-            _entity_mngr->count                   <= _entity_mngr->capacity.dense
-        );
     }
 };

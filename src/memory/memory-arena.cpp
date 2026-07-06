@@ -21,7 +21,7 @@ namespace ifb {
 
         arena_allocator_validate();
 
-        arena_allocator* alctr = _memory_manager->arena_alctr;
+        arena_allocator* alctr = _memory_mngr->arena_alctr;
         arena*           a     = alctr->list.free;
 
         if (a != NULL) {
@@ -57,7 +57,7 @@ namespace ifb {
         arena_allocator_validate();
 
         const u32              arena_id = hnd.val;
-        const arena_allocator* alctr    = _memory_manager->arena_alctr;
+        const arena_allocator* alctr    = _memory_mngr->arena_alctr;
 
         const addr   start  = alctr->mem.address;
         const u32    offset = (arena_id * alctr->arena_size);
@@ -75,7 +75,7 @@ namespace ifb {
         arena_allocator_validate();
         arena_validate(a);
 
-        arena_allocator* alctr     = _memory_manager->arena_alctr;
+        arena_allocator* alctr     = _memory_mngr->arena_alctr;
         arena*           used_next = a->next;
         arena*           used_prev = a->prev;
         arena*           free_next = alctr->list.free;
@@ -127,7 +127,7 @@ namespace ifb {
         arena_allocator_validate();
         arena_validate(a);
         
-        const arena_allocator* alctr           = _memory_manager->arena_alctr;
+        const arena_allocator* alctr           = _memory_mngr->arena_alctr;
         const u32              space_remaining = (alctr->arena_size - a->position); 
 
         // make sure we have space        
@@ -167,9 +167,9 @@ namespace ifb {
     arena_allocator_validate(
         void) {
 
-        assert(_memory_manager);
+        assert(_memory_mngr);
 
-        arena_allocator* alctr = _memory_manager->arena_alctr;
+        arena_allocator* alctr = _memory_mngr->arena_alctr;
         assert(
             alctr                    != NULL &&
             alctr->mem.address       != 0    &&
@@ -188,9 +188,9 @@ namespace ifb {
         const arena* a) {
         
         assert(
-            _memory_manager != NULL &&
+            _memory_mngr != NULL &&
             a               != NULL &&
-            a->alctr        == _memory_manager->arena_alctr
+            a->alctr        == _memory_mngr->arena_alctr
         );
 
         const arena_allocator* arena_alctr  = a->alctr;

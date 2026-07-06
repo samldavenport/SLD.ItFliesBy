@@ -8,10 +8,10 @@ namespace ifb {
     file_close(
         const file_handle hnd) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(hnd != FILE_HANDLE_INVALID);
 
-        const u32 index = file_manager_index_of_internal_handle(hnd);
+        const u32 index = file_mngr_index_of_internal_handle(hnd);
         assert(index != FILE_INDEX_INVALID);
     }
 
@@ -19,10 +19,10 @@ namespace ifb {
     file_get_size(
         const file_handle hnd) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(hnd != FILE_HANDLE_INVALID);
 
-        const u32 index = file_manager_index_of_internal_handle(hnd);
+        const u32 index = file_mngr_index_of_internal_handle(hnd);
 
         const pfm_file_handle pfm_hnd = _file_mngr->array.handle_platform[index];
         const u32             size    = pfm_file_size(pfm_hnd);
@@ -35,10 +35,10 @@ namespace ifb {
         const file_handle hnd,
         const u32         cursor) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(hnd != FILE_HANDLE_INVALID);
 
-        const u32 index = file_manager_index_of_internal_handle(hnd);
+        const u32 index = file_mngr_index_of_internal_handle(hnd);
 
         _file_mngr->array.cursor[index] = cursor;
     }
@@ -48,16 +48,16 @@ namespace ifb {
         const file_handle hnd,
         const u32         buffer_size) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(
             hnd         != FILE_HANDLE_INVALID &&
             buffer_size != 0
         );
 
-        const u32 index  = file_manager_index_of_internal_handle (hnd);
+        const u32 index  = file_mngr_index_of_internal_handle (hnd);
 
         pfm_file_buffer file_buffer;
-        file_buffer.data   = file_manager_get_buffer(index); 
+        file_buffer.data   = file_mngr_get_buffer(index); 
         file_buffer.size   = _file_mngr->memory.granularity; 
         file_buffer.length = 0;
         file_buffer.offset = 0;
@@ -85,14 +85,14 @@ namespace ifb {
         const u32         buffer_size,
         const byte*       buffer_ptr) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(
             hnd         != FILE_HANDLE_INVALID &&
             buffer_size != 0                   &&
             buffer_ptr  != NULL
         );
 
-        const u32 index  = file_manager_index_of_internal_handle (hnd);
+        const u32 index  = file_mngr_index_of_internal_handle (hnd);
 
         pfm_file_buffer file_buffer;
         file_buffer.data   = (byte*)buffer_ptr;

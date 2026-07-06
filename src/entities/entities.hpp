@@ -11,39 +11,38 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct entity;
-    struct entity_manager;
+    struct entity_mngr;
     struct entity_sparse_set;
     struct entity_batch;
     struct entity_list;
 
     //--------------------------------------------------------------------
-    // STRUCTURED TYPES
+    // GLOBALS
     //--------------------------------------------------------------------
 
-    static entity_manager* _entity_mngr;
+    static entity_mngr* _entity_mngr;
 
     //--------------------------------------------------------------------
     // INTERNAL METHODS
     //--------------------------------------------------------------------
 
     // entity manager
-    IFB_INTERNAL u32             entity_mngr_memory_requirement (void);
-    IFB_INTERNAL entity_manager* entity_mngr_memory_init        (const memory& mem);
-    IFB_INTERNAL void            entity_mngr_validate           (void);
-    IFB_INTERNAL void            entity_mngr_startup            (const memory& mem_res);
-    IFB_INTERNAL void            entity_mngr_shutdown           (void);
+    IFB_INTERNAL entity_mngr* entity_mngr_create           (void);
+    IFB_INTERNAL void         entity_mngr_validate         (void);
+    IFB_INTERNAL void         entity_mngr_startup          (const memory& mem_res);
+    IFB_INTERNAL void         entity_mngr_shutdown         (void);
 
     // entity
-    IFB_INTERNAL entity_id       entity_create                  (const cchar* tag_cstr, const entity_archetype atype = component_type_e_none);
-    IFB_INTERNAL bool            entity_destroy                 (const cchar* tag_cstr);
-    IFB_INTERNAL entity_list*    entity_list_arena_create       (arena* a);
-    IFB_INTERNAL void            entity_list_validate           (const entity_list* list);
-    IFB_INTERNAL bool            entity_lookup_by_archetype     (entity_list* id_list, const entity_archetype atype);
-    IFB_INTERNAL bool            entity_lookup_by_tag           (entity& e, const cchar* tag_cstr);
-    IFB_INTERNAL bool            entity_lookup_by_index_dense   (entity& e, const u32    index);
+    IFB_INTERNAL entity_id    entity_create                (const cchar* tag_cstr, const entity_archetype atype = component_type_e_none);
+    IFB_INTERNAL bool         entity_destroy               (const cchar* tag_cstr);
+    IFB_INTERNAL entity_list* entity_list_arena_create     (arena* a);
+    IFB_INTERNAL void         entity_list_validate         (const entity_list* list);
+    IFB_INTERNAL bool         entity_lookup_by_archetype   (entity_list* id_list, const entity_archetype atype);
+    IFB_INTERNAL bool         entity_lookup_by_tag         (entity& e, const cchar* tag_cstr);
+    IFB_INTERNAL bool         entity_lookup_by_index_dense (entity& e, const u32    index);
 
     // testing
-    IFB_INTERNAL void            entity_test                    (void);
+    IFB_INTERNAL void         entity_test                  (void);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -54,7 +53,7 @@ namespace ifb {
         u32  capacity;
     };
 
-    struct entity_manager {
+    struct entity_mngr {
         struct {
             struct {
                 entity_id*        id;

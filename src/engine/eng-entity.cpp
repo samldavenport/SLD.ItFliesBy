@@ -11,9 +11,6 @@ namespace ifb {
 
         assert(tag != NULL);
 
-        eng_managers*   mngrs       = _eng_context->mngrs; 
-        entity_manager* entity_mngr = mngrs->entity;
-
         const entity_id id = entity_create(tag);
 
         return(id);
