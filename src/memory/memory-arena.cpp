@@ -159,6 +159,21 @@ namespace ifb {
         a->save     = 0;
     }
 
+
+    template<typename t>
+    IFB_INTERNAL t*
+    arena_push(
+        arena*    a,
+        const u32 count) {
+
+        assert(count != 0);
+        
+        const u32 size = count * sizeof(t);
+        auto      mem  = (t*)arena_push(a, size);
+
+        return(mem);
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------

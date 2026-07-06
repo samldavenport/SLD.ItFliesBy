@@ -178,18 +178,25 @@ namespace ifb {
 
     IFB_INTERNAL entity_list*
     entity_list_arena_create(
-        arena* a) {
+        arena* a,
+        const  u32 count) {
 
         entity_mngr_validate();
-        assert(a != NULL);
+        assert(
+            a != NULL &&
+            count < _entity_mngr->capacity.dense
+        );
         
         auto* list = (entity_list*)arena_push(a, sizeof(entity_list));
         assert(list);
 
-        const u32 size_array = _entity_mngr->capacity.dense * sizeof(entity_id);
-        list->data.id           = (entity_id*)arena_push(a, size_array);
-        list->data.sparse_index =       (u32*)arena_push(a, size_array);
-        list->data.dense_index  =       (u32*)arena_push(a, size_array);
+        const u32 count_adjusted = (count == 0)
+            ? _entity_mngr->capacity.dense
+            : count;
+        
+        list->data.id           = arena_push<entity_id> (a, count_adjusted);
+        list->data.sparse_index = arena_push<u32>       (a, count_adjusted);
+        list->data.dense_index  = arena_push<u32>       (a, count_adjusted);
         list->capacity          = _entity_mngr->capacity.dense;
         list->count             = 0;
         assert(list->data.id           != NULL);
