@@ -1,6 +1,7 @@
 #pragma once
 
 #include "memory.hpp"
+#include "eng-internal.hpp"
 
 namespace ifb {
 
@@ -14,40 +15,25 @@ namespace ifb {
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
 
-
-    IFB_INTERNAL u32
-    memory_manager_memory_requirement(
+    IFB_INTERNAL memory_mngr*
+    memory_mngr_create(
         void) {
 
-        const u32 size_mngr        = sizeof(memory_manager);
-        const u32 size_arena_alctr = sizeof(arena_allocator);
-        const u32 size_mem_req = (
-            size_mngr + 
-            size_arena_alctr            
-        );
-
-        return(size_mem_req);
-    }
-
-    IFB_INTERNAL memory_manager*
-    memory_manager_memory_init(
-        memory& mem_stack) {
-
-        const u32 mem_req = memory_manager_memory_requirement();
+        auto mngr        = global_alloc<memory_mngr>();
+        auto arena_alctr = global_alloc<arena_allocator>(); 
         assert(
-            mem_stack.size    == mem_req &&
-            mem_stack.address != 0
+            mngr        != NULL &&
+            arena_alctr != NULL
         );
 
-        zero_memory(mem_stack.ptr, mem_stack.size);
-        _memory_manager              = (memory_manager*)mem_stack.ptr;
-        _memory_manager->arena_alctr = (arena_allocator*)((addr)_memory_manager + sizeof(memory_manager));
+        _memory_mngr              = mngr;
+        _memory_mngr->arena_alctr = arena_alctr; 
 
-        return(_memory_manager);
+        return(_memory_mngr);
     }
 
     IFB_INTERNAL void
-    memory_manager_startup(
+    memory_mngr_startup(
         memory& mem_reserved_arenas) {
 
         assert(
@@ -58,7 +44,7 @@ namespace ifb {
         const config& cfg = config_instance();
 
         init_arena_allocator(
-            _memory_manager->arena_alctr,
+            _memory_mngr->arena_alctr,
             mem_reserved_arenas,
             cfg.arena_granularity
         );
@@ -66,7 +52,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    memory_manager_shutdown(
+    memory_mngr_shutdown(
         void) {
 
     }

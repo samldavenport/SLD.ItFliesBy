@@ -19,9 +19,9 @@ namespace ifb {
         const eng_mem_map* mem_map;
         eng_system_info*   system;
         renderer_context*  renderer;
-        file_manager*      file_mngr;
-        entity_manager*    entity_mngr;
-        memory_manager*    memory_mngr;
+        file_mngr*         file_mngr;
+        entity_mngr*       entity_mngr;
+        memory_mngr*       memory_mngr;
     } static * _eng_context;
 
     struct global_stack {

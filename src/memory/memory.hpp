@@ -9,7 +9,7 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct memory_manager;
+    struct memory_mngr;
     struct arena_allocator;
     struct stack_allocator;
     struct block_allocator;
@@ -20,22 +20,21 @@ namespace ifb {
     // METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL u32             memory_manager_memory_requirement (void);
-    IFB_INTERNAL memory_manager* memory_manager_memory_init        (memory& mem_stack);
-    IFB_INTERNAL void            memory_manager_startup            (memory& mem_reserved_arenas);
-    IFB_INTERNAL void            memory_manager_shutdown           (void);
+    IFB_INTERNAL memory_mngr* memory_mngr_create   (void);
+    IFB_INTERNAL void         memory_mngr_startup  (memory& mem_reserved_arenas);
+    IFB_INTERNAL void         memory_mngr_shutdown (void);
 
-    IFB_INTERNAL arena* arena_alloc       (void);
-    IFB_INTERNAL arena* arena_from_handle (const eng_arena_handle hnd);
-    IFB_INTERNAL void   arena_free        (arena* a);
-    IFB_INTERNAL void   arena_reset       (arena* a);
-    IFB_INTERNAL u32    arena_save        (arena* a);
-    IFB_INTERNAL void*  arena_push        (arena* a, const u32 size);
-    IFB_INTERNAL void   arena_revert      (arena* a, const u32 save);
+    IFB_INTERNAL arena*       arena_alloc          (void);
+    IFB_INTERNAL arena*       arena_from_handle    (const eng_arena_handle hnd);
+    IFB_INTERNAL void         arena_free           (arena* a);
+    IFB_INTERNAL void         arena_reset          (arena* a);
+    IFB_INTERNAL u32          arena_save           (arena* a);
+    IFB_INTERNAL void*        arena_push           (arena* a, const u32 size);
+    IFB_INTERNAL void         arena_revert         (arena* a, const u32 save);
 
-    IFB_INTERNAL void   block_alctr_init  (block_allocator* alctr, memory mem, const u32 granularity);
-    IFB_INTERNAL void*  block_alloc       (block_allocator* alctr);
-    IFB_INTERNAL void   block_free        (void* mem);
+    IFB_INTERNAL void        block_alctr_init      (block_allocator* alctr, memory mem, const u32 granularity);
+    IFB_INTERNAL void*       block_alloc           (block_allocator* alctr);
+    IFB_INTERNAL void        block_free            (void* mem);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
@@ -79,9 +78,9 @@ namespace ifb {
         u32              save;
     };
 
-    struct memory_manager {
+    struct memory_mngr {
         arena_allocator* arena_alctr;
-    } static * _memory_manager;
+    } static * _memory_mngr;
 };
 
 #endif //MEMORY_HPP

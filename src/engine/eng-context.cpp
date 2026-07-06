@@ -10,10 +10,10 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_INLINE void eng_context_startup_get_system_info (eng_system_info* sys_info);
-    IFB_INLINE void eng_context_startup_open_window     (const config& config,   const eng_system_info* sys_info);
-    IFB_INLINE void eng_context_startup_file_manager    (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_open_window     (const config& config, const eng_system_info* sys_info);
+    IFB_INLINE void eng_context_startup_file_mngr       (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_entity_mngr     (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_memory_manager  (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_memory_mngr     (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_renderer        (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
@@ -32,25 +32,30 @@ namespace ifb {
         // allocate global memory
         auto eng_ctx     = global_alloc<eng_context>      (); 
         auto sys_info    = global_alloc<eng_system_info>  ();
-        auto rndr_ctx    = global_alloc<renderer_context> ();
-        auto entity_mngr = global_alloc<entity_manager>   ();
-        auto memory_mngr = global_alloc<memory_manager>   ();
         assert(
             eng_ctx     != NULL &&
-            sys_info    != NULL &&
-            rndr_ctx    != NULL &&
-            entity_mngr != NULL &&
-            memory_mngr != NULL
+            sys_info    != NULL
         );
 
-        // allocate structures        
+        // set context properties        
+        _eng_context              = eng_ctx;
         _eng_context->mem_map     = mem_map;
         _eng_context->system      = sys_info;  
-        _eng_context->renderer    = rndr_ctx; 
-        _eng_context->file_mngr   = file_manager_create(); 
-        _eng_context->entity_mngr = entity_mngr; 
-        _eng_context->memory_mngr = memory_mngr;          
+        _eng_context->renderer    = renderer_context_create(); 
+        _eng_context->file_mngr   = file_mngr_create(); 
+        _eng_context->entity_mngr = entity_mngr_create(); 
+        _eng_context->memory_mngr = memory_mngr_create();          
         _eng_context->mem_map     = mem_map;
+
+        assert(
+            _eng_context->mem_map     != NULL &&
+            _eng_context->system      != NULL &&
+            _eng_context->renderer    != NULL &&
+            _eng_context->file_mngr   != NULL &&
+            _eng_context->entity_mngr != NULL &&
+            _eng_context->memory_mngr != NULL &&
+            _eng_context->mem_map     != NULL
+        );
 
         return(_eng_context);
     }
@@ -64,13 +69,12 @@ namespace ifb {
         eng_system_info*   system   = _eng_context->system;
         renderer_context*  renderer = _eng_context->renderer;
 
-        eng_context_startup_get_system_info  (_eng_context->system);
-        eng_context_startup_open_window      (config, system);
-        eng_context_startup_file_manager     (mem_map);
-        eng_context_startup_entity_mngr      (mem_map);
-        eng_context_startup_memory_manager   (mem_map);
-        eng_context_startup_renderer         (mem_map);
-
+        eng_context_startup_get_system_info (_eng_context->system);
+        eng_context_startup_open_window     (config, system);
+        eng_context_startup_file_mngr       (mem_map);
+        eng_context_startup_entity_mngr     (mem_map);
+        eng_context_startup_memory_mngr     (mem_map);
+        eng_context_startup_renderer        (mem_map);
     }
 
     IFB_ENGINE_API void
@@ -139,12 +143,11 @@ namespace ifb {
     }
 
     IFB_INLINE void
-    eng_context_startup_file_manager(
-        file_manager* file_mngr,
+    eng_context_startup_file_mngr(
         const eng_mem_map* mem_map) {
 
         const u32 file_granularity = size_kilobytes(64);
-        file_manager_startup(
+        file_mngr_startup(
             mem_map->files.size,
             file_granularity,
             mem_map->files.ptr
@@ -153,7 +156,6 @@ namespace ifb {
 
     IFB_INLINE void
     eng_context_startup_entity_mngr(
-        entity_manager* entity_mngr,
         const eng_mem_map* mem_map) {
 
         memory entity_mem;
@@ -163,14 +165,13 @@ namespace ifb {
     }
 
     IFB_INLINE void
-    eng_context_startup_memory_manager(
-        memory_manager* memory_manager,
+    eng_context_startup_memory_mngr(
         const eng_mem_map* mem_map) {
 
         memory arena_mem;
         arena_mem.size = mem_map->arenas.size;
         arena_mem.ptr  = mem_map->arenas.ptr;
-        memory_manager_startup(arena_mem);
+        memory_mngr_startup(arena_mem);
     }
 
     IFB_INLINE void

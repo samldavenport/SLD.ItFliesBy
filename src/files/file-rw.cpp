@@ -8,7 +8,7 @@ namespace ifb {
     file_rw_create_new(
         const cchar* path) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(path != NULL);
 
         // configure the file
@@ -20,7 +20,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(&file_config);
+        const file_handle hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
@@ -28,7 +28,7 @@ namespace ifb {
     file_rw_open_existing(
         const cchar* path) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(path != NULL);
 
         // configure the file
@@ -40,7 +40,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(&file_config);
+        const file_handle hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
@@ -48,7 +48,7 @@ namespace ifb {
     file_rw_open_always(
         const cchar* path) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(path != NULL);
 
         // configure the file
@@ -60,7 +60,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(&file_config);
+        const file_handle hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
@@ -68,7 +68,7 @@ namespace ifb {
     file_rw_overwrite(
         const cchar* path) {
 
-        file_manager_assert_valid();
+        file_mngr_assert_valid();
         assert(path != NULL);
 
         // configure the file
@@ -80,7 +80,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_manager_commit(&file_config);
+        const file_handle hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 };
