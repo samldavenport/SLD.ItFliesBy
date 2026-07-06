@@ -27,12 +27,19 @@ namespace ifb {
     // INTERNAL METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL component_mngr* component_mngr_create  (void);
-    IFB_INTERNAL void            component_mngr_startup (memory& mem_res);
+    IFB_INTERNAL component_mngr*          component_mngr_create            (void);
+    IFB_INTERNAL void                     component_mngr_startup           (memory& mem_res);
 
-    IFB_INTERNAL component_list_position* component_position_table_lookup (arena* in_arena, const entity_list* entt_list,   const u32 count = 1);
-    IFB_INTERNAL void                     component_position_list_get    (const component_list_position*    list, const u32 index, component_position&       pos);
-    IFB_INTERNAL void                     component_position_list_update (component_list_position*          list, const u32 index, const component_position& pos);
+    IFB_INTERNAL component_list_position* component_position_list_create   (arena* arena);
+    IFB_INTERNAL void                     component_position_list_validate (const component_list_position* list_position);
+    IFB_INTERNAL void                     component_position_table_update  (const component_list_position* list_position);
+    IFB_INTERNAL void                     component_position_table_lookup  (component_list_position*       list_position, const entity_list* list_entity);
+
+    IFB_INTERNAL component_list_color*    component_color_list_create      (arena* a);
+    IFB_INTERNAL void                     component_color_list_validate    (const component_list_color* list_color);
+    IFB_INTERNAL void                     component_color_table_update     (const component_list_color* list_color);
+    IFB_INTERNAL void                     component_color_table_lookup     (component_list_color*       list_color, const entity_list* list_entity);
+
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -60,17 +67,16 @@ namespace ifb {
     struct component_list_position {
         struct {
             entity_id* id;
+            u32*       sparse_index;
             f32*       x;
             f32*       y;
             f32*       z;            
         } data;
-        u32 capacity;
         u32 count;
     };
 
     struct component_list_color {
         color_rgba_u32* data;
-        u32             capacity;
         u32             count;
 
     };

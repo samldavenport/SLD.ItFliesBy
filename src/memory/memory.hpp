@@ -29,6 +29,7 @@ namespace ifb {
     IFB_INTERNAL void         arena_free           (arena* a);
     IFB_INTERNAL void         arena_reset          (arena* a);
     IFB_INTERNAL u32          arena_save           (arena* a);
+    IFB_INTERNAL void         arena_commit         (arena* a);        
     IFB_INTERNAL void*        arena_push           (arena* a, const u32 size);
     IFB_INTERNAL void         arena_revert         (arena* a, const u32 save);
 
