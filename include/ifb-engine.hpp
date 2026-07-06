@@ -167,6 +167,7 @@ namespace ifb {
         eng_mem entities;
         eng_mem gui;
         eng_mem arenas;
+        eng_mem components;
     };
 }
 #endif  //IFB_ENGINE_HPP

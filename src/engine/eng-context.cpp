@@ -15,6 +15,7 @@ namespace ifb {
     IFB_INLINE void eng_context_startup_entity_mngr     (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_memory_mngr     (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_renderer        (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_component_mngr  (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -44,7 +45,8 @@ namespace ifb {
         _eng_context->renderer    = renderer_context_create(); 
         _eng_context->file_mngr   = file_mngr_create(); 
         _eng_context->entity_mngr = entity_mngr_create(); 
-        _eng_context->memory_mngr = memory_mngr_create();          
+        _eng_context->memory_mngr = memory_mngr_create(); 
+        _eng_context->cmpnt_mngr  = component_mngr_create();     
         _eng_context->mem_map     = mem_map;
 
         assert(
@@ -75,6 +77,7 @@ namespace ifb {
         eng_context_startup_entity_mngr     (mem_map);
         eng_context_startup_memory_mngr     (mem_map);
         eng_context_startup_renderer        (mem_map);
+        eng_context_startup_component_mngr  (mem_map);
     }
 
     IFB_ENGINE_API void
@@ -217,4 +220,15 @@ namespace ifb {
         file_close(file_hnd_dir_giz_vert);
         file_close(file_hnd_dir_giz_frag);
     }
+
+    IFB_INLINE void
+    eng_context_startup_component_mngr(
+        const eng_mem_map* mem_map) {
+
+        memory mem;
+        mem.ptr  = mem_map->components.ptr;
+        mem.size = mem_map->components.size;
+        component_mngr_startup(mem);
+    }
+
 };

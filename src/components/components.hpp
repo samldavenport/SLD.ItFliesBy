@@ -9,24 +9,30 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct component_manager;
-    struct component_table_base;
+    struct component_mngr;
     struct component_table_position;
     struct component_table_color;
+
+    //--------------------------------------------------------------------
+    // GLOBALS
+    //--------------------------------------------------------------------
+
+    static component_mngr* _cmpnt_mngr;
 
     //--------------------------------------------------------------------
     // INTERNAL METHODS
     //--------------------------------------------------------------------
 
-    u32                component_manager_memory_size (void);
-    component_manager* component_manager_create      (memory& mem_stack);
-    void               component_manager_startup     (memory& mem_res);
+    IFB_INTERNAL component_mngr* component_mngr_create  (void);
+    IFB_INTERNAL void            component_mngr_startup (memory& mem_res);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
-    struct component_manager {
+    struct component_mngr {
+        stack mem;
+        u32   capacity;
         struct  {
             component_table_position* position;
             component_table_color*    color; 

@@ -1,0 +1,84 @@
+#pragma once
+
+#include "components.hpp"
+#include "eng-internal.hpp"
+
+namespace ifb {
+    
+    IFB_INLINE component_table_position* create_tbl_position (void);
+    IFB_INLINE component_table_color*    create_tbl_color    (void);
+
+    IFB_INTERNAL component_mngr*
+    component_mngr_create(
+        void) {
+
+        _cmpnt_mngr = global_alloc<component_mngr>();
+        assert(_cmpnt_mngr);
+
+        return(_cmpnt_mngr);
+    }
+
+    IFB_INTERNAL void
+    component_mngr_startup(
+        memory& mem_res) {
+
+        const auto& cfg = config_instance();
+
+        // calculate capacity
+        _cmpnt_mngr->capacity = (cfg.entity_capacity / cfg.sparse_set_max_load_p100);
+        assert(_cmpnt_mngr->capacity != 0);
+
+        // commit memory to a stack
+        mem_res.ptr = pfm_memory_commit(mem_res.ptr, 0, mem_res.size);
+        assert(mem_res.ptr);
+        _cmpnt_mngr->mem.init(mem_res);
+
+        // create tables
+        _cmpnt_mngr->tables.position = create_tbl_position ();
+        _cmpnt_mngr->tables.color    = create_tbl_color    ();
+        assert(
+            _cmpnt_mngr->tables.position != NULL &&
+            _cmpnt_mngr->tables.color    != NULL            
+        );
+    }
+
+    IFB_INLINE component_table_position*
+    create_tbl_position(
+        void) {
+
+        auto tbl   = _cmpnt_mngr->mem.push_struct<component_table_position>();
+        auto col_x = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+        auto col_y = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+        auto col_z = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+    
+        assert(
+            tbl   != NULL &&
+            col_x != NULL &&
+            col_y != NULL &&
+            col_z != NULL
+        );
+    
+        tbl->x = col_x;
+        tbl->y = col_y;
+        tbl->z = col_z;
+
+        return(tbl);
+    }
+
+    IFB_INLINE component_table_color*
+    create_tbl_color(
+        void) {
+
+        auto tbl     = _cmpnt_mngr->mem.push_struct<component_table_color>();
+        auto col_hex = _cmpnt_mngr->mem.push_struct<u32>(_cmpnt_mngr->capacity);
+
+        assert(
+            tbl     != NULL &&
+            col_hex != NULL
+        );
+
+        tbl->rgba_hex = col_hex;
+
+        return(tbl);
+    }
+};
