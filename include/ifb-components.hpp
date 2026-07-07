@@ -11,7 +11,8 @@ namespace ifb {
     enum component_type_e {
         component_type_e_none     = 0,
         component_type_e_position = 1,
-        component_type_e_color    = 2
+        component_type_e_color    = 2,
+        component_type_e_quad     = 3
     };
 
     struct component_position {
@@ -32,6 +33,12 @@ namespace ifb {
                 byte r;
             };
         };
+    };
+
+    struct component_quad {
+        entity_id id;
+        u32       width;
+        u32       height;
     };
 
 };

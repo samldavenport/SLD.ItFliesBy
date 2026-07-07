@@ -9,6 +9,7 @@
 
 #include "component-manager.cpp"
 #include "component-position.cpp"
+#include "component-quad.cpp"
 
 
 #include "eng-arena.cpp"

@@ -7,6 +7,7 @@ namespace ifb {
     
     IFB_INLINE component_table_position* create_tbl_position (void);
     IFB_INLINE component_table_color*    create_tbl_color    (void);
+    IFB_INLINE component_table_quad*     create_tbl_quad     (void);
 
     IFB_INTERNAL component_mngr*
     component_mngr_create(
@@ -36,9 +37,11 @@ namespace ifb {
         // create tables
         _cmpnt_mngr->tables.position = create_tbl_position ();
         _cmpnt_mngr->tables.color    = create_tbl_color    ();
+        _cmpnt_mngr->tables.quad     = create_tbl_quad     (); 
         assert(
             _cmpnt_mngr->tables.position != NULL &&
-            _cmpnt_mngr->tables.color    != NULL            
+            _cmpnt_mngr->tables.color    != NULL &&            
+            _cmpnt_mngr->tables.quad     != NULL            
         );
     }
 
@@ -78,6 +81,26 @@ namespace ifb {
         );
 
         tbl->rgba_hex = col_hex;
+
+        return(tbl);
+    }
+
+    IFB_INLINE component_table_quad*
+    create_tbl_quad(
+        void) {
+
+        auto tbl    = _cmpnt_mngr->mem.push_struct<component_table_quad> ();
+        auto width  = _cmpnt_mngr->mem.push_struct<u32>                  (_cmpnt_mngr->capacity);
+        auto height = _cmpnt_mngr->mem.push_struct<u32>                  (_cmpnt_mngr->capacity);
+
+        assert(
+            tbl    != NULL &&
+            width  != NULL &&
+            height != NULL            
+        );
+
+        tbl->width  = width; 
+        tbl->height = height; 
 
         return(tbl);
     }
