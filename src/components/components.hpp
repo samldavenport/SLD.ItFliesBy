@@ -76,7 +76,11 @@ namespace ifb {
     };
 
     struct component_list_color {
-        color_rgba_u32* data;
+        struct {
+            entity_id*      id;
+            u32*            sparse_index;
+            color_rgba_u32* color;
+        } data;
         u32             count;
 
     };

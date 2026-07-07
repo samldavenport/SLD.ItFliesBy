@@ -36,14 +36,16 @@ namespace ifb {
         auto array_y     = arena_push<f32>                     (arena, capacity);
         auto array_z     = arena_push<f32>                     (arena, capacity);
 
-        if (
-            list        == NULL ||
-            array_id    == NULL ||
-            array_index == NULL ||
-            array_x     == NULL ||
-            array_y     == NULL ||
-            array_z     == NULL
-        ) {
+        const bool did_create = (
+            list        != NULL &&
+            array_id    != NULL &&
+            array_index != NULL &&
+            array_x     != NULL &&
+            array_y     != NULL &&
+            array_z     != NULL
+        );
+
+        if (!did_create) {
             arena_revert(arena, save);
             return(NULL);
         }
