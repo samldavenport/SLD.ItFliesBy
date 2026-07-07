@@ -125,7 +125,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    entity_lookup_by_archetype(
+    entity_lookup_by_archetype_exclusive(
         entity_list*           list,
         const entity_archetype atype ) {
 
@@ -145,6 +145,38 @@ namespace ifb {
             const u32              curr_sparse_index = _entity_mngr->data.dense.sparse_index [dense_index];
 
             if (atype == curr_atype) {
+                list->data.id           [list_index] = curr_id;
+                list->data.sparse_index [list_index] = curr_sparse_index;
+                list->data.dense_index  [list_index] = dense_index;                 
+                ++list_index;
+            }
+        }
+
+        const bool did_find = (list->count > 0); 
+        return(did_find);        
+    }
+
+    IFB_INTERNAL bool
+    entity_lookup_by_archetype_inclusive(
+        entity_list*           list,
+        const entity_archetype atype ) {
+
+        entity_mngr_validate();
+        entity_list_validate(list);
+
+        u32& list_index = list->count;
+        list_index = 0;
+
+        for (
+            u32 dense_index = 0;
+                dense_index < _entity_mngr->count;
+              ++dense_index) {
+            
+            const entity_id        curr_id           = _entity_mngr->data.dense.id           [dense_index];
+            const entity_archetype curr_atype        = _entity_mngr->data.dense.archetype    [dense_index];
+            const u32              curr_sparse_index = _entity_mngr->data.dense.sparse_index [dense_index];
+
+            if ((curr_atype & atype) == atype) {
                 list->data.id           [list_index] = curr_id;
                 list->data.sparse_index [list_index] = curr_sparse_index;
                 list->data.dense_index  [list_index] = dense_index;                 
