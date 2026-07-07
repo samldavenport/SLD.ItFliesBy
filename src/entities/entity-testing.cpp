@@ -24,9 +24,6 @@ namespace ifb {
         test_identical_tags ();
         test_lookups        (id_list);
         
-        // TODO(SAM): this is failing
-        // test_destroy        ();
-        // test_destroy_all    ();
 
         arena_free(a);
     }
@@ -71,7 +68,7 @@ namespace ifb {
     test_lookups(
         entity_list* list) {
 
-        const bool did_find_colored_entities =  entity_lookup_by_archetype(list, component_type_e_color);
+        const bool did_find_colored_entities =  entity_lookup_by_archetype_inclusive(list, component_type_e_color);
         assert(did_find_colored_entities && list->count == 4);
 
         entity entity_8;
