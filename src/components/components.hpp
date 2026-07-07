@@ -107,6 +107,7 @@ namespace ifb {
     struct component_list_quad {
         struct {
             entity_id* id;
+            u32*       sparse_index;
             u32*       width;
             u32*       height;
         } data;
