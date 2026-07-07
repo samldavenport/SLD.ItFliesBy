@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entities.hpp"
+#include "entity.hpp"
 namespace ifb {
 
     inline void test_create         (void);
@@ -68,7 +68,10 @@ namespace ifb {
     test_lookups(
         entity_list* list) {
 
-        const bool did_find_colored_entities =  entity_lookup_by_archetype_inclusive(list, component_type_e_color);
+        entity_query query = {0};
+        query.has_any = component_type_e_color;
+
+        const bool did_find_colored_entities =  entity_lookup_by_archetype(list, query);
         assert(did_find_colored_entities && list->count == 4);
 
         entity entity_8;

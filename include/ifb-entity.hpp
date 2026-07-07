@@ -2,7 +2,7 @@
 #define IFB_ENTITY_HPP
 
 #include "ifb-types.hpp"
-#include "ifb-components.hpp"
+#include "ifb-component.hpp"
 
 namespace ifb {
 

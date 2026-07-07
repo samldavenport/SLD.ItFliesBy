@@ -4,10 +4,10 @@
 #include "ifb.hpp"
 #include "files.hpp"
 #include "renderer.hpp"
-#include "entities.hpp"
+#include "entity.hpp"
 #include "gui.hpp"
 #include "memory.hpp"
-#include "components.hpp"
+#include "component.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static

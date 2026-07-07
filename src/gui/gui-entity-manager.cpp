@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gui.hpp"
-#include "entities.hpp"
+#include "entity.hpp"
 
 namespace ifb {
 

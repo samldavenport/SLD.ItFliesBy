@@ -7,10 +7,10 @@
 #include "collection-sparse-set.cpp"
 #include "collection-stack.cpp"
 
+#include "component-color.cpp"
 #include "component-manager.cpp"
 #include "component-position.cpp"
 #include "component-quad.cpp"
-
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"
@@ -24,6 +24,9 @@
 #include "eng-image.cpp"
 
 #include "entity.cpp"
+#include "entity-component.cpp"
+#include "entity-list.cpp"
+#include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity-sparse-set.cpp"
 #include "entity-testing.cpp"

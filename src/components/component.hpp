@@ -3,7 +3,7 @@
 
 #include "ifb.hpp"
 #include "memory.hpp"
-#include "entities.hpp"
+#include "entity.hpp"
 
 namespace ifb {
 
@@ -39,6 +39,7 @@ namespace ifb {
 
     IFB_INTERNAL component_list_color*    component_color_list_create      (arena* a);
     IFB_INTERNAL void                     component_color_list_validate    (const component_list_color* list_color);
+    IFB_INTERNAL bool                     component_color_list_add         (component_list_color* list_color, const component_color& color);
     IFB_INTERNAL void                     component_color_table_update     (const component_list_color* list_color);
     IFB_INTERNAL void                     component_color_table_lookup     (component_list_color*       list_color, const entity_list* list_entity);
 

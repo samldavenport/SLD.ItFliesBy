@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components.hpp"
+#include "component.hpp"
 
 namespace ifb {
 
@@ -15,7 +15,7 @@ namespace ifb {
         auto list    = arena_push<component_list_color> (a);
         auto ids     = arena_push<entity_id>            (a, _entity_mngr->capacity.dense); 
         auto indexes = arena_push<u32>                  (a, _entity_mngr->capacity.dense);
-        auto colors  = arena_push<u32>                  (a, _entity_mngr->capacity.dense);
+        auto colors  = arena_push<color_rgba_u32>       (a, _entity_mngr->capacity.dense);
 
         const bool did_create = (
             list    != NULL &&
@@ -29,7 +29,7 @@ namespace ifb {
             return(NULL);
         }
 
-        arena_commit(a);
+        arena_commit(a, save);
 
         list->count             = 0;
         list->data.id           = ids;
@@ -49,6 +49,39 @@ namespace ifb {
             list_color->data.sparse_index != NULL                         &&
             list_color->data.color        != NULL
         );
+    }
+
+    IFB_INTERNAL bool
+    component_color_list_add(
+        component_list_color* list_color,
+        const component_color&      color) {
+
+        component_color_list_validate(list_color);
+
+        if (list_color->count == _cmpnt_mngr->capacity) {
+            return(false);
+        }
+
+        u32 index;
+        for (
+              index = 0;
+              index < list_color->count;
+            ++index 
+        ) {
+            if (color.id == list_color->data.id[index]) {
+                assert(color.sparse_index == list_color->data.sparse_index[index]);
+                break;
+            }
+        }
+
+        assert(index <= list_color->count);
+
+        list_color->data.id           [index]     = color.id;
+        list_color->data.sparse_index [index]     = color.sparse_index;
+        list_color->data.color        [index].hex = color.hex_rgba;
+        ++list_color->count;
+
+        return(true);
     }
 
     IFB_INTERNAL void
