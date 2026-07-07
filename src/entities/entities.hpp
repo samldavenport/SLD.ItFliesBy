@@ -10,10 +10,7 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct entity;
     struct entity_mngr;
-    struct entity_sparse_set;
-    struct entity_batch;
     struct entity_list;
 
     //--------------------------------------------------------------------
@@ -35,11 +32,15 @@ namespace ifb {
     // entity
     IFB_INTERNAL entity_id    entity_create                (const cchar* tag_cstr, const entity_archetype atype = component_type_e_none);
     IFB_INTERNAL bool         entity_destroy               (const cchar* tag_cstr);
-    IFB_INTERNAL entity_list* entity_list_arena_create     (arena* a);
+    IFB_INTERNAL entity_list* entity_list_create           (arena* a);
     IFB_INTERNAL void         entity_list_validate         (const entity_list* list);
     IFB_INTERNAL bool         entity_lookup_by_archetype   (entity_list* id_list, const entity_archetype atype);
     IFB_INTERNAL bool         entity_lookup_by_tag         (entity& e, const cchar* tag_cstr);
     IFB_INTERNAL bool         entity_lookup_by_index_dense (entity& e, const u32    index);
+    IFB_INTERNAL bool         entity_component_add         (const entity_id id,       const component_type types);
+    IFB_INTERNAL bool         entity_component_add         (const cchar*    tag_cstr, const component_type types);
+    IFB_INTERNAL bool         entity_component_remove      (const entity_id id,       const component_type types);
+    IFB_INTERNAL bool         entity_component_remove      (const cchar*    tag_cstr, const component_type types);
 
     // testing
     IFB_INTERNAL void         entity_test                  (void);
@@ -47,11 +48,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
-
-    struct entity_sparse_data {
-        u32* dense_index;
-        u32  capacity;
-    };
 
     struct entity_mngr {
         struct {
@@ -79,7 +75,6 @@ namespace ifb {
             u32*       sparse_index;
             u32*       dense_index;
         } data;
-        u32        capacity;
         u32        count;
     };
 };

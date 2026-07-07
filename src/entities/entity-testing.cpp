@@ -17,7 +17,7 @@ namespace ifb {
         // allocate arena 
         arena* a = arena_alloc();
         assert(a);
-        entity_list* id_list = entity_list_arena_create(a);
+        entity_list* id_list = entity_list_create(a);
 
 
         test_create         ();

@@ -22,6 +22,7 @@ namespace ifb {
     };
 
     struct component_color {
+        entity_id id;
         union {
             u32 hex_rgba;
             struct {

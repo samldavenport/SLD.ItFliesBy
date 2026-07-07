@@ -8,6 +8,8 @@
 #include "collection-stack.cpp"
 
 #include "component-manager.cpp"
+#include "component-position.cpp"
+
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"

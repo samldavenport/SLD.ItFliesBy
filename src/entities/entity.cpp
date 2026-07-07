@@ -177,25 +177,38 @@ namespace ifb {
     }
 
     IFB_INTERNAL entity_list*
-    entity_list_arena_create(
+    entity_list_create(
         arena* a) {
 
         entity_mngr_validate();
         assert(a != NULL);
         
-        auto* list = (entity_list*)arena_push(a, sizeof(entity_list));
-        assert(list);
+        const u32 save     = arena_save(a);
+        const u32 capacity = _entity_mngr->capacity.dense; 
 
-        const u32 size_array = _entity_mngr->capacity.dense * sizeof(entity_id);
-        list->data.id           = (entity_id*)arena_push(a, size_array);
-        list->data.sparse_index =       (u32*)arena_push(a, size_array);
-        list->data.dense_index  =       (u32*)arena_push(a, size_array);
-        list->capacity          = _entity_mngr->capacity.dense;
+        auto* list              = arena_push<entity_list> (a);
+        auto  data_id           = arena_push<entity_id>   (a, capacity);
+        auto  data_sparse_index = arena_push<u32>         (a, capacity);
+        auto  data_dense_index  = arena_push<u32>         (a, capacity);
+
+        const bool did_alloc = (
+            list              != NULL &&
+            data_id           != NULL &&
+            data_sparse_index != NULL &&
+            data_dense_index  != NULL
+        );
+
+        if (!did_alloc) {
+            arena_revert(a,save);
+            return(NULL);
+        }
+
+        arena_commit(a);
+
+        list->data.id           = data_id;
+        list->data.sparse_index = data_sparse_index;
+        list->data.dense_index  = data_dense_index;
         list->count             = 0;
-        assert(list->data.id           != NULL);
-        assert(list->data.sparse_index != NULL);
-        assert(list->data.dense_index  != NULL);
-
         return(list);
     }
 
@@ -206,10 +219,10 @@ namespace ifb {
         entity_mngr_validate();
 
         assert(
-            list           != NULL                         &&
-            list->data.id  != NULL                         &&
-            list->capacity == _entity_mngr->capacity.dense &&
-            list->count    <= list->capacity
+            list                    != NULL &&
+            list->data.id           != NULL &&
+            list->data.sparse_index != NULL &&
+            list->count             <= _entity_mngr->capacity.dense
         );
     }
 
@@ -271,4 +284,71 @@ namespace ifb {
 
         return(did_find);
     }
+
+    IFB_INTERNAL bool
+    entity_component_add(
+        const entity_id      id,
+        const component_type types) {
+
+        bool did_update = false;
+        for (
+            u32 index = 0;
+                index < _entity_mngr->count;
+              ++index) {
+
+            did_update = (id == _entity_mngr->data.dense.id[index]);
+            if (did_update) {
+
+                _entity_mngr->data.dense.archetype[index] |= types;
+                break;
+            }
+        }
+        return(did_update);
+    }
+
+    IFB_INTERNAL bool
+    entity_component_add(
+        const cchar*         tag_cstr,
+        const component_type types) {
+        
+        assert(tag_cstr != NULL);
+
+        const entity_id id         = hash_u32((void*)tag_cstr, ENTITY_TAG_SIZE);
+        const bool      did_update = entity_component_add(id, types);
+        return(did_update);
+    }
+
+    IFB_INTERNAL bool
+    entity_component_remove(
+        const entity_id      id,
+        const component_type types) {
+
+        bool did_update = false;
+        for (
+            u32 index = 0;
+                index < _entity_mngr->count;
+              ++index) {
+
+            did_update = (id == _entity_mngr->data.dense.id[index]);
+            if (did_update) {
+
+                _entity_mngr->data.dense.archetype[index] &= ~types.val;
+                break;
+            }
+        }
+        return(did_update);
+    }
+    
+    IFB_INTERNAL bool
+    entity_component_remove(
+        const cchar*         tag_cstr,
+        const component_type types) {
+        
+        assert(tag_cstr != NULL);
+
+        const entity_id id         = hash_u32((void*)tag_cstr, ENTITY_TAG_SIZE);
+        const bool      did_update = entity_component_remove(id, types);
+        return(did_update);
+    }
+
 };

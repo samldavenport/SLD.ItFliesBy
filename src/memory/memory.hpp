@@ -29,12 +29,16 @@ namespace ifb {
     IFB_INTERNAL void         arena_free           (arena* a);
     IFB_INTERNAL void         arena_reset          (arena* a);
     IFB_INTERNAL u32          arena_save           (arena* a);
+    IFB_INTERNAL void         arena_commit         (arena* a);        
     IFB_INTERNAL void*        arena_push           (arena* a, const u32 size);
     IFB_INTERNAL void         arena_revert         (arena* a, const u32 save);
 
-    IFB_INTERNAL void        block_alctr_init      (block_allocator* alctr, memory mem, const u32 granularity);
-    IFB_INTERNAL void*       block_alloc           (block_allocator* alctr);
-    IFB_INTERNAL void        block_free            (void* mem);
+    template<typename t>
+    IFB_INTERNAL t*           arena_push           (arena* a, const u32 count = 1);
+
+    IFB_INTERNAL void         block_alctr_init     (block_allocator* alctr, memory mem, const u32 granularity);
+    IFB_INTERNAL void*        block_alloc          (block_allocator* alctr);
+    IFB_INTERNAL void         block_free           (void* mem);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
