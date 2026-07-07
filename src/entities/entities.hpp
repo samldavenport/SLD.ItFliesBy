@@ -38,10 +38,15 @@ namespace ifb {
     IFB_INTERNAL bool         entity_lookup_by_archetype_inclusive (entity_list* id_list, const entity_archetype atype);
     IFB_INTERNAL bool         entity_lookup_by_tag                 (entity& e, const cchar* tag_cstr);
     IFB_INTERNAL bool         entity_lookup_by_index_dense         (entity& e, const u32    index);
+
+    // components
     IFB_INTERNAL bool         entity_component_add                 (const entity_id id,       const component_type types);
     IFB_INTERNAL bool         entity_component_add                 (const cchar*    tag_cstr, const component_type types);
     IFB_INTERNAL bool         entity_component_remove              (const entity_id id,       const component_type types);
     IFB_INTERNAL bool         entity_component_remove              (const cchar*    tag_cstr, const component_type types);
+    IFB_INTERNAL void         entity_component_update_color        (const cchar**   tag_cstr, const color_rgba_u32* clr, const u32 count = 1);
+    IFB_INTERNAL void         entity_component_update_position     (const cchar**   tag_cstr, const position_3d*    pos, const u32 count = 1);
+    IFB_INTERNAL void         entity_component_update_quad         (const cchar**   tag_cstr, const dimensions_2d*  dim, const u32 count = 1);
 
     // testing
     IFB_INTERNAL void         entity_test                  (void);
