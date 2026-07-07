@@ -50,7 +50,7 @@ namespace ifb {
             return(NULL);
         }
 
-        arena_commit(arena);
+        arena_commit(arena, save);
 
         list->data.id           = array_id; 
         list->data.sparse_index = array_index; 

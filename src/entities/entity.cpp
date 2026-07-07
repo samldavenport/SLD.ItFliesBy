@@ -203,7 +203,7 @@ namespace ifb {
             return(NULL);
         }
 
-        arena_commit(a);
+        arena_commit(a, save);
 
         list->data.id           = data_id;
         list->data.sparse_index = data_sparse_index;

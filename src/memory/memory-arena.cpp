@@ -119,16 +119,6 @@ namespace ifb {
         return(a->save);
     }
 
-    IFB_INTERNAL void
-    arena_commit(
-        arena* a) {
-
-        arena_allocator_validate();
-        arena_validate(a);
-
-        a->save = 0;
-    }
-
     IFB_INTERNAL void*
     arena_push(
         arena*    a,
@@ -169,6 +159,17 @@ namespace ifb {
         a->save     = 0;
     }
 
+    IFB_INTERNAL void
+    arena_commit(
+        arena*    a,
+        const u32 save) {
+
+        arena_allocator_validate();
+        arena_validate(a);
+
+        assert(save == a->save);
+        a->save = 0;
+    }
 
     template<typename t>
     IFB_INTERNAL t*
