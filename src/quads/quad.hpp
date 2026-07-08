@@ -46,6 +46,8 @@ namespace ifb {
     IFB_INTERNAL void       quad_update        (const quad_entity& q);
 
     IFB_INTERNAL quad_list* quad_list_create   (arena* a);
+    IFB_INTERNAL void       quad_list_validate (const quad_list* ql);
+    IFB_INTERNAL void       quad_list_reset    (quad_list* ql);
     IFB_INTERNAL void       quad_list_add      (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
     IFB_INTERNAL void       quad_list_remove   (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
 
