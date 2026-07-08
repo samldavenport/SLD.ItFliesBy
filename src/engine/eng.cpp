@@ -39,6 +39,7 @@
 
 #include "gui.cpp"
 
+#include "memory-arena-allocator.cpp"
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"
 #include "memory-block.cpp"

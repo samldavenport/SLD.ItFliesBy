@@ -10,50 +10,90 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct memory_mngr;
-    struct arena_allocator;
     struct stack_allocator;
     struct block_allocator;
     struct global_allocator;
-    struct arena;
+    
+    class arena_allocator;
+    class arena;
 
     //--------------------------------------------------------------------
     // METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL memory_mngr* memory_mngr_create   (void);
-    IFB_INTERNAL void         memory_mngr_startup  (memory& mem_reserved_arenas);
-    IFB_INTERNAL void         memory_mngr_shutdown (void);
-
-    IFB_INTERNAL arena*       arena_alloc          (void);
-    IFB_INTERNAL arena*       arena_from_handle    (const eng_arena_handle hnd);
-    IFB_INTERNAL void         arena_free           (arena* a);
-    IFB_INTERNAL void         arena_reset          (arena* a);
-    IFB_INTERNAL u32          arena_save           (arena* a);
-    IFB_INTERNAL void*        arena_push           (arena* a, const u32 size);
-    IFB_INTERNAL void         arena_revert         (arena* a, const u32 save);
-    IFB_INTERNAL void         arena_commit         (arena* a, const u32 save);        
-
-    template<typename t>
-    IFB_INTERNAL t*           arena_push           (arena* a, const u32 count = 1);
+    IFB_INTERNAL memory_mngr* memory_mngr_create            (void);
+    IFB_INTERNAL void         memory_mngr_startup           (memory& mem_reserved_arenas);
+    IFB_INTERNAL void         memory_mngr_shutdown          (void);
+    IFB_INTERNAL arena*       memory_mngr_arena_alloc       (void);
+    IFB_INTERNAL void         memory_mngr_arena_free        (arena** a);
+    IFB_INTERNAL arena*       memory_mngr_arena_from_handle (const eng_arena_handle hnd);
 
     IFB_INTERNAL void         block_alctr_init     (block_allocator* alctr, memory mem, const u32 granularity);
     IFB_INTERNAL void*        block_alloc          (block_allocator* alctr);
     IFB_INTERNAL void         block_free           (void* mem);
 
     //--------------------------------------------------------------------
-    // TYPE DEFINITIONS
+    // ARENA CLASS
     //--------------------------------------------------------------------
 
-    struct arena_allocator {
-        memory mem;
-        u32    arena_size;
-        u32    arena_count_total;
-        u32    arena_count_free;
+    class arena {
+
+    private:
+
+        arena_allocator* _alctr;
+        arena*           _next;
+        arena*           _prev;
+        u32              _id;
+        u32              _position;
+        u32              _save;
+
+        friend class arena_allocator;
+
+    public:
+
+        void   validate (void);
+        void   free     (void);
+        void   reset    (void);
+        u32    save     (void);
+        void*  push     (const u32 size);
+        void   revert   (const u32 save);
+        void   commit   (const u32 save);        
+    
+        template<typename t>
+        t* push(const u32 count = 1);
+    };
+
+    //--------------------------------------------------------------------
+    // ARENA ALLOCATOR CLASS
+    //--------------------------------------------------------------------
+
+    class arena_allocator {
+        
+    private:
+
+        memory _mem;
+        u32    _arena_size;
+        u32    _arena_count_total;
+        u32    _arena_count_free;
         struct {
             arena* free;
             arena* used;
-        } list;
+        } _list;
+
+    public:
+
+        arena_allocator(void) = default;
+
+        void   init              (memory& mem, const u32 granularity);
+        void   validate          (void);
+        arena* alloc             (void);
+        void   free              (arena* a)
+        arena* arena_from_handle (const eng_arena_handle hnd);
     };
+
+    //--------------------------------------------------------------------
+    // TYPE DEFINITIONS
+    //--------------------------------------------------------------------
 
     struct block_memory {
         block_allocator* alctr;
@@ -71,15 +111,6 @@ namespace ifb {
         u32  block_size;
         u32  block_count_total;
         u32  block_count_free;
-    };
-
-    struct arena {
-        arena_allocator* alctr;
-        arena*           next;
-        arena*           prev;
-        u32              id;
-        u32              position;
-        u32              save;
     };
 
     struct memory_mngr {
