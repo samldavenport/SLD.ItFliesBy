@@ -168,6 +168,7 @@ namespace ifb {
         eng_mem gui;
         eng_mem arenas;
         eng_mem components;
+        eng_mem quads;
     };
 }
 #endif  //IFB_ENGINE_HPP
