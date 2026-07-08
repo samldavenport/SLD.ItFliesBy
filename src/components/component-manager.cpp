@@ -5,22 +5,22 @@
 
 namespace ifb {
     
-    IFB_INLINE component_table_position* create_tbl_position (void);
-    IFB_INLINE component_table_color*    create_tbl_color    (void);
-    IFB_INLINE component_table_quad*     create_tbl_quad     (void);
+    IFB_INLINE cmpnt_table_position* create_tbl_position (void);
+    IFB_INLINE cmpnt_table_color*    create_tbl_color    (void);
+    IFB_INLINE cmpnt_table_quad*     create_tbl_quad     (void);
 
-    IFB_INTERNAL component_mngr*
-    component_mngr_create(
+    IFB_INTERNAL cmpnt_mngr*
+    cmpnt_mngr_create(
         void) {
 
-        _cmpnt_mngr = global_alloc<component_mngr>();
+        _cmpnt_mngr = global_alloc<cmpnt_mngr>();
         assert(_cmpnt_mngr);
 
         return(_cmpnt_mngr);
     }
 
     IFB_INTERNAL void
-    component_mngr_startup(
+    cmpnt_mngr_startup(
         memory& mem_res) {
 
         const auto& cfg = config_instance();
@@ -45,11 +45,11 @@ namespace ifb {
         );
     }
 
-    IFB_INLINE component_table_position*
+    IFB_INLINE cmpnt_table_position*
     create_tbl_position(
         void) {
 
-        auto tbl   = _cmpnt_mngr->mem.push_struct<component_table_position>();
+        auto tbl   = _cmpnt_mngr->mem.push_struct<cmpnt_table_position>();
         auto col_x = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
         auto col_y = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
         auto col_z = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
@@ -68,11 +68,11 @@ namespace ifb {
         return(tbl);
     }
 
-    IFB_INLINE component_table_color*
+    IFB_INLINE cmpnt_table_color*
     create_tbl_color(
         void) {
 
-        auto tbl     = _cmpnt_mngr->mem.push_struct<component_table_color>();
+        auto tbl     = _cmpnt_mngr->mem.push_struct<cmpnt_table_color>();
         auto col_hex = _cmpnt_mngr->mem.push_struct<u32>(_cmpnt_mngr->capacity);
 
         assert(
@@ -85,11 +85,11 @@ namespace ifb {
         return(tbl);
     }
 
-    IFB_INLINE component_table_quad*
+    IFB_INLINE cmpnt_table_quad*
     create_tbl_quad(
         void) {
 
-        auto tbl    = _cmpnt_mngr->mem.push_struct<component_table_quad> ();
+        auto tbl    = _cmpnt_mngr->mem.push_struct<cmpnt_table_quad> ();
         auto width  = _cmpnt_mngr->mem.push_struct<u32>                  (_cmpnt_mngr->capacity);
         auto height = _cmpnt_mngr->mem.push_struct<u32>                  (_cmpnt_mngr->capacity);
 

@@ -4,15 +4,15 @@
 
 namespace ifb {
 
-    IFB_INTERNAL component_list_quad*
-    component_quad_list_create(
+    IFB_INTERNAL cmpnt_list_quad*
+    cmpnt_quad_list_create(
         arena* a) {
 
         assert(a);
 
         const u32 save = arena_save(a);
 
-        auto list   = arena_push<component_list_quad> (a);
+        auto list   = arena_push<cmpnt_list_quad> (a);
         auto id     = arena_push<entity_id>           (a);
         auto index  = arena_push<u32>                 (a, _entity_mngr->capacity.dense);
         auto width  = arena_push<u32>                 (a, _entity_mngr->capacity.dense);
@@ -43,8 +43,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_quad_list_validate(
-        const component_list_quad* list_quad) {
+    cmpnt_quad_list_validate(
+        const cmpnt_list_quad* list_quad) {
 
         assert(
             list_quad              != NULL &&
@@ -56,11 +56,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    component_quad_list_add(
-        component_list_quad*  list_quad,
+    cmpnt_quad_list_add(
+        cmpnt_list_quad*  list_quad,
         const component_quad& quad) {
 
-        component_quad_list_validate(list_quad);
+        cmpnt_quad_list_validate(list_quad);
 
         if (list_quad->count == _cmpnt_mngr->capacity) {
             return(false);
@@ -90,10 +90,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_quad_table_update(
-        const component_list_quad* list_quad) {
+    cmpnt_quad_table_update(
+        const cmpnt_list_quad* list_quad) {
 
-        component_quad_list_validate(list_quad);
+        cmpnt_quad_list_validate(list_quad);
         assert(
             _cmpnt_mngr->capacity    != 0    &&
             _cmpnt_mngr->tables.quad != NULL
@@ -115,11 +115,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_quad_table_lookup(
-        component_list_quad* list_quad,
+    cmpnt_quad_table_lookup(
+        cmpnt_list_quad* list_quad,
         const entity_list*   list_entity) {
 
-        component_quad_list_validate(list_quad);
+        cmpnt_quad_list_validate(list_quad);
         assert(
             _cmpnt_mngr->capacity    != 0 &&
             _cmpnt_mngr->tables.quad != NULL

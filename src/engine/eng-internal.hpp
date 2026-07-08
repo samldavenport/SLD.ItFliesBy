@@ -16,7 +16,7 @@ namespace ifb {
 
     struct eng_context;
 
-    static component_mngr* _test = NULL;
+    static cmpnt_mngr* _test = NULL;
 
     struct eng_context {
         const eng_mem_map* mem_map;
@@ -25,7 +25,7 @@ namespace ifb {
         file_mngr*         file_mngr;
         entity_mngr*       entity_mngr;
         memory_mngr*       memory_mngr;
-        component_mngr*    cmpnt_mngr;
+        cmpnt_mngr*    cmpnt_mngr;
     } static * _eng_context;
 
     struct global_stack {
