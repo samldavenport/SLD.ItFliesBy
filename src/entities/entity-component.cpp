@@ -128,20 +128,115 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_component_update_position(
-        arena              a,
+        arena*             a,
         const cchar**      tag_cstr,
         const position_3d* pos,
         const u32          count) {
 
+        assert(
+            a        != NULL &&
+            tag_cstr != NULL &&
+            pos      != NULL &&
+            count    != 0            
+        );
+
+        const u32 save = arena_save(a);
+
+        component_list_position* list = component_position_list_create(a);
+        if (list == NULL) {
+            arena_revert(a, save);
+            return(NULL);
+        }
+
+        entity             curr_entity = {0};
+        component_position curr_cmpnt  = {0};
+        bool               did_update  = true;
+        
+        for (
+            u32 index = 0;
+                index < count;
+              ++index
+        ) {
+
+            // get current tag and color
+            const cchar*       curr_tag = tag_cstr [index];
+            const position_3d& curr_pos = pos      [index];
+            assert(curr_tag != NULL);
+
+            // look up the entity
+            const bool did_find = entity_lookup_by_tag(curr_entity, curr_tag);
+            if (!did_find) {
+                continue;
+            }
+
+            // add the component to the list
+            curr_cmpnt.id           = curr_entity.id;
+            curr_cmpnt.sparse_index = curr_entity.index_sparse;
+            curr_cmpnt.x            = curr_pos.x;
+            curr_cmpnt.y            = curr_pos.y;
+            curr_cmpnt.z            = curr_pos.z;
+            did_update &= component_position_list_add(list, curr_cmpnt);
+        }
+
+        component_position_table_update(list);
+        arena_revert(a, save);
+        return(did_update);
     }
 
     IFB_INTERNAL bool
     entity_component_update_quad(
-        arena                a,
+        arena*               a,
         const cchar**        tag_cstr,
         const dimensions_2d* dim,
         const u32            count) {
 
+        assert(
+            a        != NULL &&
+            tag_cstr != NULL &&
+            dim      != NULL &&
+            count    != 0            
+        );
+
+        const u32 save = arena_save(a);
+
+        component_list_quad* list = component_quad_list_create(a);
+        if (list == NULL) {
+            arena_revert(a, save);
+            return(NULL);
+        }
+
+        entity         curr_entity = {0};
+        component_quad curr_cmpnt  = {0};
+        bool           did_update  = true;
+        
+        for (
+            u32 index = 0;
+                index < count;
+              ++index
+        ) {
+
+            // get current tag and color
+            const cchar*         curr_tag  = tag_cstr [index];
+            const dimensions_2d& curr_dims = dim      [index];
+            assert(curr_tag != NULL);
+
+            // look up the entity
+            const bool did_find = entity_lookup_by_tag(curr_entity, curr_tag);
+            if (!did_find) {
+                continue;
+            }
+
+            // add the component to the list
+            curr_cmpnt.id           = curr_entity.id;
+            curr_cmpnt.sparse_index = curr_entity.index_sparse;
+            curr_cmpnt.width        = curr_dims.width;
+            curr_cmpnt.height       = curr_dims.height;
+            did_update &= component_quad_list_add(list, curr_cmpnt);
+        }
+
+        component_quad_table_update(list);
+        arena_revert(a, save);
+        return(did_update);
     }
 
 

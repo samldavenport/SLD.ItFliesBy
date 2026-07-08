@@ -48,9 +48,9 @@ namespace ifb {
     IFB_INTERNAL bool         entity_component_add                 (const cchar*    tag_cstr, const component_type types);
     IFB_INTERNAL bool         entity_component_remove              (const entity_id id,       const component_type types);
     IFB_INTERNAL bool         entity_component_remove              (const cchar*    tag_cstr, const component_type types);
-    IFB_INTERNAL bool         entity_component_update_color        (arena a, const cchar**   tag_cstr, const color_rgba_u32* clr, const u32 count = 1);
-    IFB_INTERNAL bool         entity_component_update_position     (arena a, const cchar**   tag_cstr, const position_3d*    pos, const u32 count = 1);
-    IFB_INTERNAL bool         entity_component_update_quad         (arena a, const cchar**   tag_cstr, const dimensions_2d*  dim, const u32 count = 1);
+    IFB_INTERNAL bool         entity_component_update_color        (arena* a, const cchar**   tag_cstr, const color_rgba_u32* clr, const u32 count = 1);
+    IFB_INTERNAL bool         entity_component_update_position     (arena* a, const cchar**   tag_cstr, const position_3d*    pos, const u32 count = 1);
+    IFB_INTERNAL bool         entity_component_update_quad         (arena* a, const cchar**   tag_cstr, const dimensions_2d*  dim, const u32 count = 1);
 
     // testing
     IFB_INTERNAL void         entity_test (void);

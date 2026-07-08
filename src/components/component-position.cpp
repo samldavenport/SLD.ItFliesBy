@@ -64,6 +64,41 @@ namespace ifb {
         return(list);
     }
 
+    IFB_INTERNAL bool
+    component_position_list_add(
+        component_list_position* list_position,
+        const component_position&      position) {
+
+        component_position_list_validate(list_position);
+
+        if (list_position->count == _cmpnt_mngr->capacity) {
+            return(false);
+        }
+
+        u32 index;
+        for (
+              index = 0;
+              index < list_position->count;
+            ++index 
+        ) {
+            if (position.id == list_position->data.id[index]) {
+                assert(position.sparse_index == list_position->data.sparse_index[index]);
+                break;
+            }
+        }
+
+        assert(index <= list_position->count);
+
+        list_position->data.id           [index] = position.id;
+        list_position->data.sparse_index [index] = position.sparse_index;
+        list_position->data.x            [index] = position.x;
+        list_position->data.y            [index] = position.y;
+        list_position->data.z            [index] = position.z;
+        ++list_position->count;
+
+        return(true);
+    }
+
     IFB_INTERNAL void
     component_position_table_lookup(
         component_list_position* list_position,
