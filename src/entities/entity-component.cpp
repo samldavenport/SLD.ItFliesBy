@@ -238,6 +238,4 @@ namespace ifb {
         arena_revert(a, save);
         return(did_update);
     }
-
-
 };
