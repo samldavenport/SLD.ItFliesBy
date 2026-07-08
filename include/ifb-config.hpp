@@ -23,6 +23,7 @@ using namespace sld;
 #define IFB_CONFIG_ARENA_MEM_GRANULARITY     size_megabytes(1);
 #define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100  0.75f
 #define IFB_CONFIG_ENTITY_CAPACITY           1024
+#define IFB_CONFIG_QUAD_MAX                  1024
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -53,6 +54,7 @@ namespace ifb {
         static constexpr u32   arena_granularity        = IFB_CONFIG_ARENA_MEM_GRANULARITY;
         static constexpr f32   sparse_set_max_load_p100 = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
         static constexpr u32   entity_capacity          = IFB_CONFIG_ENTITY_CAPACITY;
+        static constexpr u32   quad_capacity            = IFB_CONFIG_QUAD_MAX;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

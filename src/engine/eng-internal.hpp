@@ -8,6 +8,7 @@
 #include "gui.hpp"
 #include "memory.hpp"
 #include "component.hpp"
+#include "quad.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -25,7 +26,8 @@ namespace ifb {
         file_mngr*         file_mngr;
         entity_mngr*       entity_mngr;
         memory_mngr*       memory_mngr;
-        cmpnt_mngr*    cmpnt_mngr;
+        cmpnt_mngr*        cmpnt_mngr;
+        quad_mngr*         quad_mngr;
     } static * _eng_context;
 
     struct global_stack {

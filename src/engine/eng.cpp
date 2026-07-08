@@ -43,6 +43,8 @@
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
 
+#include "quad-manager.cpp"
+
 #include "renderer.cpp"
 
 #include "win32-file.cpp"

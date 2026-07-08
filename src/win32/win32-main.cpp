@@ -34,6 +34,8 @@ wWinMain(
     mem_map.arenas.ptr      = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.components.size = SIZE_RESERVATION;
     mem_map.components.ptr  = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.quads.size = SIZE_RESERVATION;
+    mem_map.quads.ptr  = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
 
     assert(
         mem_map.stack.ptr      != NULL &&        
@@ -42,7 +44,8 @@ wWinMain(
         mem_map.rendering.ptr  != NULL &&
         mem_map.entities.ptr   != NULL &&
         mem_map.gui.ptr        != NULL &&
-        mem_map.components.ptr != NULL
+        mem_map.components.ptr != NULL &&
+        mem_map.quads.ptr      != NULL
     );
 
     eng_context* ctx = eng_context_create(&mem_map);
