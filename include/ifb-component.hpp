@@ -17,6 +17,7 @@ namespace ifb {
 
     struct component_position {
         entity_id id;
+        u32       sparse_index;
         f32       x;
         f32       y;
         f32       z;
@@ -24,6 +25,7 @@ namespace ifb {
 
     struct component_color {
         entity_id id;
+        u32       sparse_index;
         union {
             u32 hex_rgba;
             struct {
@@ -37,6 +39,7 @@ namespace ifb {
 
     struct component_quad {
         entity_id id;
+        u32       sparse_index;
         u32       width;
         u32       height;
     };

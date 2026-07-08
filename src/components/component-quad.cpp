@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components.hpp"
+#include "component.hpp"
 
 namespace ifb {
 
@@ -53,6 +53,40 @@ namespace ifb {
             list_quad->data.height != NULL &&
             list_quad->count       <= _cmpnt_mngr->capacity
         );
+    }
+
+    IFB_INTERNAL bool
+    component_quad_list_add(
+        component_list_quad*  list_quad,
+        const component_quad& quad) {
+
+        component_quad_list_validate(list_quad);
+
+        if (list_quad->count == _cmpnt_mngr->capacity) {
+            return(false);
+        }
+        
+        u32 index;
+        for (
+              index = 0;
+              index < list_quad->count;
+            ++index 
+        ) {
+            if (quad.id == list_quad->data.id[index]) {
+                assert(quad.sparse_index == list_quad->data.sparse_index[index]);
+                break;
+            }
+        }
+
+        assert(index <= list_quad->count);
+
+        list_quad->data.id           [index] = quad.id;
+        list_quad->data.sparse_index [index] = quad.sparse_index;
+        list_quad->data.width        [index] = quad.width;
+        list_quad->data.height       [index] = quad.height;
+        ++list_quad->count;
+
+        return(true);
     }
 
     IFB_INTERNAL void

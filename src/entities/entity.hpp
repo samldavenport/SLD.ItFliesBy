@@ -12,6 +12,7 @@ namespace ifb {
 
     struct entity_mngr;
     struct entity_list;
+    struct entity_query;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -24,27 +25,35 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // entity manager
-    IFB_INTERNAL entity_mngr* entity_mngr_create           (void);
-    IFB_INTERNAL void         entity_mngr_validate         (void);
-    IFB_INTERNAL void         entity_mngr_startup          (const memory& mem_res);
-    IFB_INTERNAL void         entity_mngr_shutdown         (void);
+    IFB_INTERNAL entity_mngr* entity_mngr_create   (void);
+    IFB_INTERNAL void         entity_mngr_validate (void);
+    IFB_INTERNAL void         entity_mngr_startup  (const memory& mem_res);
+    IFB_INTERNAL void         entity_mngr_shutdown (void);
 
     // entity
-    IFB_INTERNAL entity_id    entity_create                        (const cchar* tag_cstr, const entity_archetype atype = component_type_e_none);
-    IFB_INTERNAL bool         entity_destroy                       (const cchar* tag_cstr);
-    IFB_INTERNAL entity_list* entity_list_create                   (arena* a);
-    IFB_INTERNAL void         entity_list_validate                 (const entity_list* list);
-    IFB_INTERNAL bool         entity_lookup_by_archetype_exclusive (entity_list* id_list, const entity_archetype atype);
-    IFB_INTERNAL bool         entity_lookup_by_archetype_inclusive (entity_list* id_list, const entity_archetype atype);
-    IFB_INTERNAL bool         entity_lookup_by_tag                 (entity& e, const cchar* tag_cstr);
-    IFB_INTERNAL bool         entity_lookup_by_index_dense         (entity& e, const u32    index);
+    IFB_INTERNAL entity_id    entity_create  (const cchar* tag_cstr, const entity_archetype atype = component_type_e_none);
+    IFB_INTERNAL bool         entity_destroy (const cchar* tag_cstr);
+
+    // list
+    IFB_INTERNAL entity_list* entity_list_create   (arena* a);
+    IFB_INTERNAL void         entity_list_validate (const entity_list* list);
+
+    // lookup
+    IFB_INTERNAL bool         entity_lookup_by_archetype   (entity_list* id_list, const entity_query& query);
+    IFB_INTERNAL bool         entity_lookup_by_tag         (entity& e, const cchar* tag_cstr);
+    IFB_INTERNAL bool         entity_lookup_by_index_dense (entity& e, const u32    index);
+
+    // components
     IFB_INTERNAL bool         entity_component_add                 (const entity_id id,       const component_type types);
     IFB_INTERNAL bool         entity_component_add                 (const cchar*    tag_cstr, const component_type types);
     IFB_INTERNAL bool         entity_component_remove              (const entity_id id,       const component_type types);
     IFB_INTERNAL bool         entity_component_remove              (const cchar*    tag_cstr, const component_type types);
+    IFB_INTERNAL bool         entity_component_update_color        (arena* a, const cchar**   tag_cstr, const color_rgba_u32* clr, const u32 count = 1);
+    IFB_INTERNAL bool         entity_component_update_position     (arena* a, const cchar**   tag_cstr, const position_3d*    pos, const u32 count = 1);
+    IFB_INTERNAL bool         entity_component_update_quad         (arena* a, const cchar**   tag_cstr, const dimensions_2d*  dim, const u32 count = 1);
 
     // testing
-    IFB_INTERNAL void         entity_test                  (void);
+    IFB_INTERNAL void         entity_test (void);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -77,6 +86,12 @@ namespace ifb {
             u32*       dense_index;
         } data;
         u32        count;
+    };
+
+    struct entity_query {
+        component_type has_all;
+        component_type has_any;
+        component_type has_none;
     };
 };
 
