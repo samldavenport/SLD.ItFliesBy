@@ -32,6 +32,39 @@ namespace ifb {
     IFB_INTERNAL void*        block_alloc          (block_allocator* alctr);
     IFB_INTERNAL void         block_free           (void* mem);
 
+
+    //--------------------------------------------------------------------
+    // ARENA ALLOCATOR CLASS
+    //--------------------------------------------------------------------
+
+    class arena_allocator {
+        
+    private:
+
+        memory _mem;
+        u32    _arena_size;
+        u32    _arena_count_total;
+        u32    _arena_count_free;
+        struct {
+            arena* free;
+            arena* used;
+        } _list;
+
+        friend class arena;
+
+    public:
+
+        arena_allocator(void) = default;
+
+        void   init              (memory& mem, const u32 granularity);
+        void   validate          (void);
+        arena* alloc             (void);
+        void   free              (arena* a);
+        arena* arena_from_handle (const eng_arena_handle hnd);
+
+        inline u32 arena_size(void) { return(_arena_size); }
+    };
+
     //--------------------------------------------------------------------
     // ARENA CLASS
     //--------------------------------------------------------------------
@@ -58,37 +91,14 @@ namespace ifb {
         void*  push     (const u32 size);
         void   revert   (const u32 save);
         void   commit   (const u32 save);        
-    
+
         template<typename t>
         t* push(const u32 count = 1);
-    };
-
-    //--------------------------------------------------------------------
-    // ARENA ALLOCATOR CLASS
-    //--------------------------------------------------------------------
-
-    class arena_allocator {
         
-    private:
-
-        memory _mem;
-        u32    _arena_size;
-        u32    _arena_count_total;
-        u32    _arena_count_free;
-        struct {
-            arena* free;
-            arena* used;
-        } _list;
-
-    public:
-
-        arena_allocator(void) = default;
-
-        void   init              (memory& mem, const u32 granularity);
-        void   validate          (void);
-        arena* alloc             (void);
-        void   free              (arena* a)
-        arena* arena_from_handle (const eng_arena_handle hnd);
+        inline u32 id         (void) const { return( _id);                            }
+        inline u32 size_used  (void) const { return(_position);                       }
+        inline u32 size_total (void) const { return(_alctr->_arena_size);             }
+        inline u32 size_free (void)  const { return(_alctr->_arena_size - _position); }
     };
 
     //--------------------------------------------------------------------

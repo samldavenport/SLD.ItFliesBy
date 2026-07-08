@@ -17,9 +17,9 @@ namespace ifb {
         const void*            arena_vptr   = (void*)(arena_alctr->_mem.address + arena_offset); 
 
         assert(
-            a->_id       <  arena_alctr->_arena_count_total &&
-            a->_save     <= a->_position                    &&
-            a->_position <  arena_alctr->_arena_size
+            _id       <  arena_alctr->_arena_count_total &&
+            _save     <=_position                    &&
+            _position <  arena_alctr->_arena_size
         );
     }
 
@@ -54,7 +54,7 @@ namespace ifb {
         _alctr->validate();
   
         const arena_allocator* alctr           = _alctr;
-        const u32              space_remaining = (_alctr->arena_size - _position); 
+        const u32              space_remaining = (_alctr->arena_size() - _position); 
 
         // make sure we have space        
         if (size > space_remaining) {
@@ -63,7 +63,7 @@ namespace ifb {
 
         // calculate pointer
         const u32  offset = (_position + sizeof(arena));
-        const addr start  = (addr)a;
+        const addr start  = (addr)this;
         void*      mem    = (void*)(start + offset);
 
         // update the position and return

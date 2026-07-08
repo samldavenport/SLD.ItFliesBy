@@ -85,11 +85,11 @@ namespace ifb {
             count    != 0
         );
 
-        const u32 save = arena_save(a);
+        const u32 save = a->save();
 
         cmpnt_list_color* list = cmpnt_color_list_create(a);
         if (list == NULL) {
-            arena_revert(a, save);
+            a->revert(save);
             return(false);
         }
 
@@ -121,7 +121,7 @@ namespace ifb {
         }
 
         cmpnt_color_table_update(list);
-        arena_revert(a, save);
+        a->revert(save);
         return(did_update);
     }
 
@@ -139,11 +139,11 @@ namespace ifb {
             count    != 0            
         );
 
-        const u32 save = arena_save(a);
+        const u32 save = a->save();
 
         cmpnt_list_position* list = cmpnt_position_list_create(a);
         if (list == NULL) {
-            arena_revert(a, save);
+            a->revert(save);
             return(NULL);
         }
 
@@ -178,7 +178,7 @@ namespace ifb {
         }
 
         cmpnt_position_table_update(list);
-        arena_revert(a, save);
+        a->revert(save);
         return(did_update);
     }
 
@@ -196,11 +196,11 @@ namespace ifb {
             count    != 0            
         );
 
-        const u32 save = arena_save(a);
+        const u32 save = a->save();
 
         cmpnt_list_quad* list = cmpnt_quad_list_create(a);
         if (list == NULL) {
-            arena_revert(a, save);
+            a->revert(save);
             return(NULL);
         }
 
@@ -234,7 +234,7 @@ namespace ifb {
         }
 
         cmpnt_quad_table_update(list);
-        arena_revert(a, save);
+        a->revert(save);
         return(did_update);
     }
 };

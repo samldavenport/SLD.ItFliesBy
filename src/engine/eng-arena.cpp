@@ -9,10 +9,10 @@ namespace ifb {
     eng_arena_alloc(
         void) {
 
-        const arena* a = arena_alloc();
+        const arena* a = memory_mngr_arena_alloc();
         assert(a);
 
-        eng_arena_handle hnd = a->id;
+        eng_arena_handle hnd = a->id();
         
         return(hnd);        
     }
@@ -21,30 +21,31 @@ namespace ifb {
     eng_arena_free(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
+        arena* a = memory_mngr_arena_from_handle(hnd); 
         assert(a);
 
-        arena_free(a);
+        memory_mngr_arena_free(&a);
+        a = NULL;
     }
 
     IFB_ENGINE_API void
     eng_arena_reset(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
+        arena* a = memory_mngr_arena_from_handle(hnd); 
         assert(a);
 
-        arena_reset(a);
+        a->reset();
     }
 
     IFB_ENGINE_API u32
     eng_arena_save(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
+        arena* a = memory_mngr_arena_from_handle(hnd); 
         assert(a);
 
-        const u32 save = arena_save(a);
+        const u32 save = a->save(); 
         return(save);
     }
 
@@ -52,22 +53,24 @@ namespace ifb {
     eng_arena_size_free(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
+        //TOOD
+        assert(false);
 
-        const arena_allocator* alctr     = a->alctr;
-        const u32              size_free = (alctr->arena_size - a->position); 
-        return(size_free);
+        // arena* a = memory_mngr_arena_from_handle(hnd); 
+        // assert(a);
+
+        // const u32 size_free = 
+        // return(size_free);
     }
 
     IFB_ENGINE_API u32
     eng_arena_size_used(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
+        arena* a = memory_mngr_arena_from_handle(hnd); 
         assert(a);
 
-        return(a->position);
+        return(a->size_used());
     }
 
     IFB_ENGINE_API void
@@ -75,10 +78,10 @@ namespace ifb {
         const eng_arena_handle hnd,
         const u32              save) {
 
-        arena* a = arena_from_handle(hnd);
+        arena* a = memory_mngr_arena_from_handle(hnd); 
         assert(a);
 
-        arena_revert(a, save);
+        a->revert(save);
     }
     
     IFB_ENGINE_API void*
@@ -86,10 +89,10 @@ namespace ifb {
         const eng_arena_handle hnd,
         const u32              size) {
 
-        arena* a = arena_from_handle(hnd);
+        arena* a = memory_mngr_arena_from_handle(hnd); 
         assert(a);
 
-        void* mem = arena_push(a, size);
+        void* mem = a->push(size);
         return(mem);
     }
 };

@@ -49,9 +49,23 @@ namespace ifb {
     }
 
     IFB_INTERNAL arena*
-    memory_mngr_arena_alloc       (void);
+    memory_mngr_arena_alloc(
+        void) {
+
+        arena_allocator* alctr = _memory_mngr->arena_alctr;
+        arena*           a     = alctr->alloc(); 
+        return(a);
+    }
+
     IFB_INTERNAL void
-    memory_mngr_arena_free        (arena** a);
+    memory_mngr_arena_free(
+        arena** a
+    ) {
+        assert(a && *a);
+
+        alct
+    }
+
     IFB_INTERNAL arena*
     memory_mngr_arena_from_handle (const eng_arena_handle hnd);
 

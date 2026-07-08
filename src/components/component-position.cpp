@@ -26,15 +26,15 @@ namespace ifb {
 
         assert(arena != NULL);
 
-        const u32 save     = arena_save(arena);
+        const u32 save     = arena->save();
         const u32 capacity = _entity_mngr->capacity.dense;
 
-        auto list        = arena_push<cmpnt_list_position> (arena);
-        auto array_id    = arena_push<entity_id>               (arena, capacity);
-        auto array_index = arena_push<u32>                     (arena, capacity);
-        auto array_x     = arena_push<f32>                     (arena, capacity);
-        auto array_y     = arena_push<f32>                     (arena, capacity);
-        auto array_z     = arena_push<f32>                     (arena, capacity);
+        auto list        = arena->push<cmpnt_list_position> ();
+        auto array_id    = arena->push<entity_id>           (capacity);
+        auto array_index = arena->push<u32>                 (capacity);
+        auto array_x     = arena->push<f32>                 (capacity);
+        auto array_y     = arena->push<f32>                 (capacity);
+        auto array_z     = arena->push<f32>                 (capacity);
 
         const bool did_create = (
             list        != NULL &&
@@ -46,11 +46,11 @@ namespace ifb {
         );
 
         if (!did_create) {
-            arena_revert(arena, save);
+            arena->revert(save);
             return(NULL);
         }
 
-        arena_commit(arena, save);
+        arena->commit(save);
 
         list->data.id           = array_id; 
         list->data.sparse_index = array_index; 

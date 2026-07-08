@@ -11,13 +11,13 @@ namespace ifb {
         entity_mngr_validate();
         assert(a != NULL);
         
-        const u32 save     = arena_save(a);
+        const u32 save     = a->save();
         const u32 capacity = _entity_mngr->capacity.dense; 
 
-        auto* list              = arena_push<entity_list> (a);
-        auto  data_id           = arena_push<entity_id>   (a, capacity);
-        auto  data_sparse_index = arena_push<u32>         (a, capacity);
-        auto  data_dense_index  = arena_push<u32>         (a, capacity);
+        auto* list              = a->push<entity_list> ();
+        auto  data_id           = a->push<entity_id>   (capacity);
+        auto  data_sparse_index = a->push<u32>         (capacity);
+        auto  data_dense_index  = a->push<u32>         (capacity);
 
         const bool did_alloc = (
             list              != NULL &&
@@ -27,11 +27,11 @@ namespace ifb {
         );
 
         if (!did_alloc) {
-            arena_revert(a,save);
+            a->revert(save);
             return(NULL);
         }
 
-        arena_commit(a, save);
+        a->commit(save);
 
         list->data.id           = data_id;
         list->data.sparse_index = data_sparse_index;

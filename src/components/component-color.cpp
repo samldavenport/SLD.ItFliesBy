@@ -10,12 +10,12 @@ namespace ifb {
 
         assert(a);
 
-        const u32 save = arena_save(a);
+        const u32 save = a->save(); 
 
-        auto list    = arena_push<cmpnt_list_color> (a);
-        auto ids     = arena_push<entity_id>            (a, _entity_mngr->capacity.dense); 
-        auto indexes = arena_push<u32>                  (a, _entity_mngr->capacity.dense);
-        auto colors  = arena_push<color_rgba_u32>       (a, _entity_mngr->capacity.dense);
+        auto list    = a->push<cmpnt_list_color> ();
+        auto ids     = a->push<entity_id>        (_entity_mngr->capacity.dense); 
+        auto indexes = a->push<u32>              (_entity_mngr->capacity.dense);
+        auto colors  = a->push<color_rgba_u32>   (_entity_mngr->capacity.dense);
 
         const bool did_create = (
             list    != NULL &&
@@ -25,11 +25,11 @@ namespace ifb {
         );
 
         if (!did_create) {
-            arena_revert(a, save);
+            a->revert(save);
             return(NULL);
         }
 
-        arena_commit(a, save);
+        a->commit(save);
 
         list->count             = 0;
         list->data.id           = ids;

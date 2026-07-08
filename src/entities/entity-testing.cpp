@@ -15,7 +15,7 @@ namespace ifb {
         void) {
 
         // allocate arena 
-        arena* a = arena_alloc();
+        arena* a = memory_mngr_arena_alloc(); 
         assert(a);
         entity_list* id_list = entity_list_create(a);
 
@@ -24,8 +24,7 @@ namespace ifb {
         test_identical_tags ();
         test_lookups        (id_list);
         
-
-        arena_free(a);
+        memory_mngr_arena_free(&a);
     }
 
     inline void

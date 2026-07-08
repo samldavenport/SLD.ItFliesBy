@@ -15,11 +15,11 @@ namespace ifb {
         _mem.size          = mem.size;
         _arena_size        = granularity;
         _arena_count_total = _mem.size / granularity;
-        _arena_count_free  = _arena_count_total 
+        _arena_count_free  = _arena_count_total;
         _list.used         = NULL;
         _list.free         = (arena*)(_mem.ptr);
         assert(
-            _mem.address       == res.address &&
+            _mem.address       == mem.address &&
             _arena_size        != 0           &&
             _arena_count_total != 0
         );
@@ -98,7 +98,7 @@ namespace ifb {
             }
             a->_next = used_next;
             _list.used = a;
-            --arena_count_free;
+            --_arena_count_free;
         }
 
         a->validate();
