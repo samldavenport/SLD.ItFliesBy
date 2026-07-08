@@ -4,15 +4,15 @@
 
 namespace ifb {
 
-    IFB_INTERNAL component_list_color*
-    component_color_list_create(
+    IFB_INTERNAL cmpnt_list_color*
+    cmpnt_color_list_create(
         arena* a) {
 
         assert(a);
 
         const u32 save = arena_save(a);
 
-        auto list    = arena_push<component_list_color> (a);
+        auto list    = arena_push<cmpnt_list_color> (a);
         auto ids     = arena_push<entity_id>            (a, _entity_mngr->capacity.dense); 
         auto indexes = arena_push<u32>                  (a, _entity_mngr->capacity.dense);
         auto colors  = arena_push<color_rgba_u32>       (a, _entity_mngr->capacity.dense);
@@ -39,8 +39,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_color_list_validate(
-        const component_list_color* list_color) {
+    cmpnt_color_list_validate(
+        const cmpnt_list_color* list_color) {
 
         assert(
             list_color                    != NULL                         &&
@@ -52,11 +52,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    component_color_list_add(
-        component_list_color* list_color,
+    cmpnt_color_list_add(
+        cmpnt_list_color* list_color,
         const component_color&      color) {
 
-        component_color_list_validate(list_color);
+        cmpnt_color_list_validate(list_color);
 
         if (list_color->count == _cmpnt_mngr->capacity) {
             return(false);
@@ -85,10 +85,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_color_table_update(
-        const component_list_color* list_color) {
+    cmpnt_color_table_update(
+        const cmpnt_list_color* list_color) {
 
-        component_color_list_validate(list_color);
+        cmpnt_color_list_validate(list_color);
         assert(list_color->count <= _cmpnt_mngr->capacity);
 
         auto& tbl = _cmpnt_mngr->tables.color;
@@ -106,11 +106,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_color_table_lookup(
-        component_list_color* list_color,
+    cmpnt_color_table_lookup(
+        cmpnt_list_color* list_color,
         const entity_list*    list_entity) {
 
-        component_color_list_validate (list_color);
+        cmpnt_color_list_validate (list_color);
         entity_list_validate          (list_entity);
         assert(
             _cmpnt_mngr->capacity     != 0 &&

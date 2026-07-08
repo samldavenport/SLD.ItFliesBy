@@ -6,8 +6,8 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    component_position_list_validate(
-        const component_list_position* list) {
+    cmpnt_position_list_validate(
+        const cmpnt_list_position* list) {
 
         assert(
             list                    != NULL &&
@@ -20,8 +20,8 @@ namespace ifb {
         );
     }
 
-    IFB_INTERNAL component_list_position*
-    component_position_list_create(
+    IFB_INTERNAL cmpnt_list_position*
+    cmpnt_position_list_create(
         arena* arena) {
 
         assert(arena != NULL);
@@ -29,7 +29,7 @@ namespace ifb {
         const u32 save     = arena_save(arena);
         const u32 capacity = _entity_mngr->capacity.dense;
 
-        auto list        = arena_push<component_list_position> (arena);
+        auto list        = arena_push<cmpnt_list_position> (arena);
         auto array_id    = arena_push<entity_id>               (arena, capacity);
         auto array_index = arena_push<u32>                     (arena, capacity);
         auto array_x     = arena_push<f32>                     (arena, capacity);
@@ -59,17 +59,17 @@ namespace ifb {
         list->data.z            = array_z; 
         list->count             = 0;
 
-        component_position_list_validate(list);
+        cmpnt_position_list_validate(list);
 
         return(list);
     }
 
     IFB_INTERNAL bool
-    component_position_list_add(
-        component_list_position* list_position,
+    cmpnt_position_list_add(
+        cmpnt_list_position* list_position,
         const component_position&      position) {
 
-        component_position_list_validate(list_position);
+        cmpnt_position_list_validate(list_position);
 
         if (list_position->count == _cmpnt_mngr->capacity) {
             return(false);
@@ -100,11 +100,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_position_table_lookup(
-        component_list_position* list_position,
+    cmpnt_position_table_lookup(
+        cmpnt_list_position* list_position,
         const entity_list*       list_entity) {
 
-        component_position_list_validate (list_position);
+        cmpnt_position_list_validate (list_position);
         entity_list_validate             (list_entity);
     
         assert(
@@ -132,10 +132,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    component_position_table_update(
-        component_list_position* list_position) {
+    cmpnt_position_table_update(
+        cmpnt_list_position* list_position) {
 
-        component_position_list_validate (list_position);
+        cmpnt_position_list_validate (list_position);
 
         assert(
             _cmpnt_mngr->capacity        != 0    &&

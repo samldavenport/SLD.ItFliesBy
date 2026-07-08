@@ -5,7 +5,6 @@
 
 namespace ifb {
 
-
     IFB_INTERNAL bool
     entity_component_add(
         const entity_id      id,
@@ -88,7 +87,7 @@ namespace ifb {
 
         const u32 save = arena_save(a);
 
-        component_list_color* list = component_color_list_create(a);
+        cmpnt_list_color* list = cmpnt_color_list_create(a);
         if (list == NULL) {
             arena_revert(a, save);
             return(false);
@@ -118,10 +117,10 @@ namespace ifb {
             curr_cmpnt.id           = curr_entity.id;
             curr_cmpnt.sparse_index = curr_entity.index_sparse;
             curr_cmpnt.hex_rgba     = curr_color.hex;
-            did_update &= component_color_list_add(list, curr_cmpnt);
+            did_update &= cmpnt_color_list_add(list, curr_cmpnt);
         }
 
-        component_color_table_update(list);
+        cmpnt_color_table_update(list);
         arena_revert(a, save);
         return(did_update);
     }
@@ -142,7 +141,7 @@ namespace ifb {
 
         const u32 save = arena_save(a);
 
-        component_list_position* list = component_position_list_create(a);
+        cmpnt_list_position* list = cmpnt_position_list_create(a);
         if (list == NULL) {
             arena_revert(a, save);
             return(NULL);
@@ -175,10 +174,10 @@ namespace ifb {
             curr_cmpnt.x            = curr_pos.x;
             curr_cmpnt.y            = curr_pos.y;
             curr_cmpnt.z            = curr_pos.z;
-            did_update &= component_position_list_add(list, curr_cmpnt);
+            did_update &= cmpnt_position_list_add(list, curr_cmpnt);
         }
 
-        component_position_table_update(list);
+        cmpnt_position_table_update(list);
         arena_revert(a, save);
         return(did_update);
     }
@@ -199,7 +198,7 @@ namespace ifb {
 
         const u32 save = arena_save(a);
 
-        component_list_quad* list = component_quad_list_create(a);
+        cmpnt_list_quad* list = cmpnt_quad_list_create(a);
         if (list == NULL) {
             arena_revert(a, save);
             return(NULL);
@@ -231,10 +230,10 @@ namespace ifb {
             curr_cmpnt.sparse_index = curr_entity.index_sparse;
             curr_cmpnt.width        = curr_dims.width;
             curr_cmpnt.height       = curr_dims.height;
-            did_update &= component_quad_list_add(list, curr_cmpnt);
+            did_update &= cmpnt_quad_list_add(list, curr_cmpnt);
         }
 
-        component_quad_table_update(list);
+        cmpnt_quad_table_update(list);
         arena_revert(a, save);
         return(did_update);
     }
