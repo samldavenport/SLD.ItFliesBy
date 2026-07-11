@@ -36,9 +36,9 @@ namespace ifb {
     // INTERNAL METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL quad_mngr* quad_mngr_create          (void);
-    IFB_INTERNAL void       quad_mngr_validate        (void);
-    IFB_INTERNAL void       quad_mngr_startup         (memory& mem);
+    IFB_INTERNAL quad_mngr* quad_mngr_create   (void);
+    IFB_INTERNAL void       quad_mngr_validate (void);
+    IFB_INTERNAL void       quad_mngr_startup  (memory& mem);
 
     IFB_INTERNAL entity_id  quad_create        (const cchar* tag_cstr);
     IFB_INTERNAL void       quad_create_batch  (const cchar** tag_cstr, const u32 count, entity_id* id);
@@ -51,6 +51,8 @@ namespace ifb {
     IFB_INTERNAL void       quad_list_reset    (quad_list* ql);
     IFB_INTERNAL bool       quad_list_add      (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
     IFB_INTERNAL void       quad_list_remove   (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
+
+    IFB_INTERNAL void       quad_tests         (void);
 
     //--------------------------------------------------------------------
     // STRUCTURE DEFINITIONS
