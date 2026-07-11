@@ -43,6 +43,7 @@
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
 
+#include "quad.cpp"
 #include "quad-list.cpp"
 #include "quad-manager.cpp"
 

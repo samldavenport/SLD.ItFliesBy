@@ -33,9 +33,9 @@ namespace ifb {
         void) {
 
         // archetypes
-        const entity_archetype atype_0 = (component_type_e_position);
-        const entity_archetype atype_1 = (component_type_e_color);
-        const entity_archetype atype_2 = (component_type_e_position | component_type_e_color );
+        const entity_archetype atype_0 = (cmpnt_type_e_position);
+        const entity_archetype atype_1 = (cmpnt_type_e_color);
+        const entity_archetype atype_2 = (cmpnt_type_e_position | cmpnt_type_e_color );
 
         // entities
         const entity_id entity_0 = entity_create("TEST-0", atype_0);
@@ -69,7 +69,7 @@ namespace ifb {
         entity_list* list) {
 
         entity_query query = {0};
-        query.has_any = component_type_e_color;
+        query.has_any = cmpnt_type_e_color;
 
         const bool did_find_colored_entities =  entity_lookup_by_archetype(list, query);
         assert(did_find_colored_entities && list->count == 4);

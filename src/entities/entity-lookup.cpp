@@ -76,7 +76,7 @@ namespace ifb {
 
         entity_tag tag;
         entity_tag_init(tag, tag_cstr);
-        const entity_id id           = entity_tag_hash(tag);
+        const entity_id id           = entity_tag_to_id(tag);
         u32             sparse_index = (_entity_mngr->capacity.sparse - 1) & id; 
         bool            did_find     = false;
 

@@ -25,7 +25,7 @@ namespace ifb {
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map) {
-
+	
         const auto& config = config_instance();
 
         // stack memory
