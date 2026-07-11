@@ -21,7 +21,7 @@ namespace ifb {
         entity_tag tag;
         entity_tag_init(tag, tag_cstr);
 
-        const entity_id id  = entity_tag_hash(tag); 
+        const entity_id id  = entity_tag_to_id(tag); 
         assert(id != ENTITY_ID_INVALID);
 
         // make sure this isn't a duplicate

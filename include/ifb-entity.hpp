@@ -14,8 +14,9 @@ namespace ifb {
         cchar cstr[ENTITY_TAG_SIZE];
     };
 
-    IFB_INLINE void entity_tag_init (entity_tag& tag, const cchar* cstr);
-    IFB_INLINE u32  entity_tag_hash (const entity_tag& tag);
+    IFB_INLINE void      entity_tag_init       (entity_tag& tag, const cchar* cstr);
+    IFB_INLINE entity_id entity_tag_to_id      (const entity_tag& tag);
+    IFB_INLINE entity_id entity_tag_cstr_to_id (const cchar* tag_cstr);
 
     IFB_INLINE void
     entity_tag_init (
@@ -30,12 +31,21 @@ namespace ifb {
         (void)strncpy(tag.cstr, cstr, len);
     }
 
-    IFB_INLINE u32
-    entity_tag_hash(
+    IFB_INLINE entity_id
+    entity_tag_to_id(
         const entity_tag& tag) {
 
-        const u32 hash = hash_u32((void*)tag.cstr, ENTITY_TAG_SIZE);
-        return(hash);
+        const entity_id id = hash_u32((void*)tag.cstr, ENTITY_TAG_SIZE);
+        return(id);
+    }
+
+    IFB_INLINE entity_id
+    entity_tag_cstr_to_id(
+        const cchar* tag_cstr) {
+        
+        assert(tag_cstr);
+        const entity_id id = hash_u32((void*)tag_cstr, ENTITY_TAG_SIZE);
+        return(id);
     }
 
     //--------------------------------------------------------------------

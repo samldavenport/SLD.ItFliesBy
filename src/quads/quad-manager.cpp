@@ -17,6 +17,14 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
+    quad_mngr_validate(
+        void) {
+
+        assert(_quad_mngr);
+    }
+
+
+    IFB_INTERNAL void
     quad_mngr_startup(
         memory& mem) {
 
@@ -30,28 +38,43 @@ namespace ifb {
         _quad_mngr->capacity = cfg.quad_capacity;
 
         // allocate list memory
-        auto list_all        = _quad_mngr->stack_mem.push_struct<quad_list>();
-        auto list_to_render  = _quad_mngr->stack_mem.push_struct<quad_list>();
-        auto list_to_update  = _quad_mngr->stack_mem.push_struct<quad_list>();
         auto quads_all       = _quad_mngr->stack_mem.push_struct<entity_id>(cfg.quad_capacity);
         auto quads_to_render = _quad_mngr->stack_mem.push_struct<entity_id>(cfg.quad_capacity);
         auto quads_to_update = _quad_mngr->stack_mem.push_struct<entity_id>(cfg.quad_capacity);
         assert(
             _quad_mngr->capacity != 0    &&            
-            list_all             != NULL &&
-            list_to_render       != NULL &&
-            list_to_update       != NULL &&
             quads_all            != NULL &&
             quads_to_render      != NULL &&
             quads_to_update      != NULL            
         );
 
         // initialize lists
-        list_all->array       = quads_all;
-        list_all->count       = cfg.quad_capacity; 
-        list_to_render->array = quads_to_render;
-        list_to_render->count = 0;
-        list_to_update->array = quads_to_update;
-        list_to_update->count = 0; 
+        _quad_mngr->all.array       = quads_all;
+        _quad_mngr->all.count       = _quad_mngr->capacity;
+        _quad_mngr->to_render.array = quads_to_render;
+        _quad_mngr->to_render.count = 0;
+        _quad_mngr->to_update.array = quads_to_update;
+        _quad_mngr->to_update.count = 0;
     }
+
+    IFB_INTERNAL u32
+    quad_mngr_count_all(
+        void) {
+
+        quad_mngr_validate();
+    }
+
+    IFB_INTERNAL u32
+    quad_mngr_count_to_render(
+        void) {
+
+    }
+
+    IFB_INTERNAL u32
+    quad_mngr_count_to_update(
+        void) {
+
+    }
+
+
 };
