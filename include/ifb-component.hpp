@@ -8,14 +8,14 @@
 
 namespace ifb {
 
-    enum component_type_e {
-        component_type_e_none     = 0,
-        component_type_e_position = 1,
-        component_type_e_color    = 2,
-        component_type_e_quad     = 3
+    enum cmpnt_type_e {
+        cmpnt_type_e_none     = 0,
+        cmpnt_type_e_position = 1,
+        cmpnt_type_e_color    = 2,
+        cmpnt_type_e_quad     = 3
     };
 
-    struct component_position {
+    struct cmpnt_position {
         entity_id id;
         u32       sparse_index;
         f32       x;
@@ -23,7 +23,7 @@ namespace ifb {
         f32       z;
     };
 
-    struct component_color {
+    struct cmpnt_color {
         entity_id id;
         u32       sparse_index;
         union {
@@ -37,7 +37,7 @@ namespace ifb {
         };
     };
 
-    struct component_quad {
+    struct cmpnt_quad {
         entity_id id;
         u32       sparse_index;
         u32       width;

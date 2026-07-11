@@ -34,21 +34,27 @@ namespace ifb {
 
     IFB_INTERNAL cmpnt_list_position* cmpnt_position_list_create   (arena* arena);
     IFB_INTERNAL void                 cmpnt_position_list_validate (const cmpnt_list_position* list_position);
-    IFB_INTERNAL bool                 cmpnt_position_list_add      (cmpnt_list_position*       list_position, const component_position& position);
+    IFB_INTERNAL bool                 cmpnt_position_list_add      (cmpnt_list_position*       list_position, const cmpnt_position& position);
     IFB_INTERNAL void                 cmpnt_position_table_update  (const cmpnt_list_position* list_position);
     IFB_INTERNAL void                 cmpnt_position_table_lookup  (cmpnt_list_position*       list_position, const entity_list* list_entity);
+    IFB_INTERNAL void                 cmpnt_position_table_lookup  (cmpnt_position&            position,      const entity& e);
+    IFB_INTERNAL void                 cmpnt_position_table_lookup  (position_3d&               position,      const u32 sparse_index);
 
     IFB_INTERNAL cmpnt_list_color*    cmpnt_color_list_create      (arena* a);
     IFB_INTERNAL void                 cmpnt_color_list_validate    (const cmpnt_list_color* list_color);
-    IFB_INTERNAL bool                 cmpnt_color_list_add         (cmpnt_list_color*       list_color, const component_color& color);
+    IFB_INTERNAL bool                 cmpnt_color_list_add         (cmpnt_list_color*       list_color, const cmpnt_color& color);
     IFB_INTERNAL void                 cmpnt_color_table_update     (const cmpnt_list_color* list_color);
     IFB_INTERNAL void                 cmpnt_color_table_lookup     (cmpnt_list_color*       list_color, const entity_list* list_entity);
+    IFB_INTERNAL void                 cmpnt_color_table_lookup     (cmpnt_color&            color,      const entity&      e);
+    IFB_INTERNAL void                 cmpnt_color_table_lookup     (color_rgba_u32&         color,      const u32          sparse_index);
 
     IFB_INTERNAL cmpnt_list_quad*     cmpnt_quad_list_create       (arena* a);
     IFB_INTERNAL void                 cmpnt_quad_list_validate     (const cmpnt_list_quad* list_quad);
-    IFB_INTERNAL bool                 cmpnt_quad_list_add          (cmpnt_list_quad*       list_quad, const component_quad& quad);
+    IFB_INTERNAL bool                 cmpnt_quad_list_add          (cmpnt_list_quad*       list_quad, const cmpnt_quad& quad);
     IFB_INTERNAL void                 cmpnt_quad_table_update      (const cmpnt_list_quad* list_quad);
     IFB_INTERNAL void                 cmpnt_quad_table_lookup      (cmpnt_list_quad*       list_quad, const entity_list* list_entity);
+    IFB_INTERNAL void                 cmpnt_quad_table_lookup      (cmpnt_quad*            quad,      const entity&      e);
+    IFB_INTERNAL void                 cmpnt_quad_table_lookup      (dimensions_2d&         dims,      const u32          sparse_index);
 
     //--------------------------------------------------------------------
     // COMPONENT MANAGER

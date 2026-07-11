@@ -54,7 +54,7 @@ namespace ifb {
     IFB_INTERNAL bool
     cmpnt_color_list_add(
         cmpnt_list_color* list_color,
-        const component_color&      color) {
+        const cmpnt_color&      color) {
 
         cmpnt_color_list_validate(list_color);
 
@@ -134,5 +134,42 @@ namespace ifb {
         }
 
         list_color->count = list_entity->count;
+    }
+
+    IFB_INTERNAL void
+    cmpnt_color_table_lookup(
+        cmpnt_color&  color,
+        const entity& e) {
+
+        assert(
+            _cmpnt_mngr           != NULL &&
+            _cmpnt_mngr->capacity != 0    &&
+            _cmpnt_mngr->capacity > e.index_sparse
+        );
+
+        auto tbl = _cmpnt_mngr->tables.color;
+        assert(tbl != NULL);
+
+        color.id           = e.id;
+        color.sparse_index = e.index_sparse;
+        color.hex_rgba     = tbl->rgba_hex[e.index_sparse];
+    }
+
+    IFB_INTERNAL void
+    cmpnt_color_table_lookup(
+        color_rgba_u32& color,
+        const u32       sparse_index) {
+
+        assert(
+            _cmpnt_mngr           != NULL &&
+            _cmpnt_mngr->capacity != 0    &&
+            _cmpnt_mngr->capacity > sparse_index
+        );
+
+        auto tbl = _cmpnt_mngr->tables.color;
+        assert(tbl);
+
+        color.hex = tbl->rgba_hex[sparse_index];
+
     }
 };

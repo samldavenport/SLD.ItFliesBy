@@ -30,11 +30,11 @@ namespace ifb {
         const u32 capacity = _entity_mngr->capacity.dense;
 
         auto list        = arena_push<cmpnt_list_position> (arena);
-        auto array_id    = arena_push<entity_id>               (arena, capacity);
-        auto array_index = arena_push<u32>                     (arena, capacity);
-        auto array_x     = arena_push<f32>                     (arena, capacity);
-        auto array_y     = arena_push<f32>                     (arena, capacity);
-        auto array_z     = arena_push<f32>                     (arena, capacity);
+        auto array_id    = arena_push<entity_id>           (arena, capacity);
+        auto array_index = arena_push<u32>                 (arena, capacity);
+        auto array_x     = arena_push<f32>                 (arena, capacity);
+        auto array_y     = arena_push<f32>                 (arena, capacity);
+        auto array_z     = arena_push<f32>                 (arena, capacity);
 
         const bool did_create = (
             list        != NULL &&
@@ -67,7 +67,7 @@ namespace ifb {
     IFB_INTERNAL bool
     cmpnt_position_list_add(
         cmpnt_list_position* list_position,
-        const component_position&      position) {
+        const cmpnt_position&      position) {
 
         cmpnt_position_list_validate(list_position);
 
@@ -155,5 +155,45 @@ namespace ifb {
             tbl->y[sparse_index] = list_position->data.y[index];
             tbl->z[sparse_index] = list_position->data.z[index];
         }
+    }
+
+    IFB_INTERNAL void
+    cmpnt_position_table_lookup(
+        cmpnt_position& position,
+        const entity&   e) {
+
+        assert(
+            _cmpnt_mngr           != NULL &&
+            _cmpnt_mngr->capacity != 0    &&
+            _cmpnt_mngr->capacity > e.index_sparse
+        );
+
+        auto tbl = _cmpnt_mngr->tables.position;
+        assert(tbl != NULL);
+
+        position.id           = e.id;
+        position.sparse_index = e.index_sparse;
+        position.x            = tbl->x[e.index_sparse];
+        position.y            = tbl->y[e.index_sparse];
+        position.z            = tbl->z[e.index_sparse];
+    }
+
+    IFB_INTERNAL void
+    cmpnt_position_table_lookup(
+        position_3d& position,
+        const u32    sparse_index) {
+
+        assert(
+            _cmpnt_mngr           != NULL &&
+            _cmpnt_mngr->capacity != 0    &&
+            _cmpnt_mngr->capacity >  sparse_index
+        );
+
+        auto tbl = _cmpnt_mngr->tables.position;
+        assert(tbl != NULL);
+        
+        position.x = tbl->x[sparse_index];
+        position.y = tbl->y[sparse_index];
+        position.z = tbl->z[sparse_index];
     }
 };

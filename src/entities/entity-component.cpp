@@ -94,7 +94,7 @@ namespace ifb {
         }
 
         entity          curr_entity = {0};
-        component_color curr_cmpnt  = {0};
+        cmpnt_color curr_cmpnt  = {0};
         bool            did_update  = true;
         for (
             u32 index = 0;
@@ -148,7 +148,7 @@ namespace ifb {
         }
 
         entity             curr_entity = {0};
-        component_position curr_cmpnt  = {0};
+        cmpnt_position curr_cmpnt  = {0};
         bool               did_update  = true;
         
         for (
@@ -205,7 +205,7 @@ namespace ifb {
         }
 
         entity         curr_entity = {0};
-        component_quad curr_cmpnt  = {0};
+        cmpnt_quad curr_cmpnt  = {0};
         bool           did_update  = true;
         
         for (

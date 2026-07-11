@@ -123,4 +123,36 @@ namespace ifb {
         --_entity_mngr->count;
         return(true);
     }
+
+    IFB_INTERNAL bool
+    entity_lookup_by_id(
+        entity&         e,
+        const entity_id id) {
+
+        entity_mngr_validate();
+        assert(id != ENTITY_ID_INVALID);
+
+        bool did_find = false;
+        for (
+            u32 index = 0;
+                index < _entity_mngr->count;
+              ++index) {
+
+            if (id != _entity_mngr->data.dense.id[index]) {
+                continue;
+            }
+
+            did_find = true;
+
+            e.tag          = _entity_mngr->data.dense.tag          [index].cstr; 
+            e.id           = _entity_mngr->data.dense.id           [index];
+            e.archetype    = _entity_mngr->data.dense.archetype    [index]; 
+            e.index_sparse = _entity_mngr->data.dense.sparse_index [index];
+            e.index_dense  = _entity_mngr->data.sparse.dense_index [e.index_sparse];
+            
+            break;
+        }
+
+        return(did_find);
+    }
 };

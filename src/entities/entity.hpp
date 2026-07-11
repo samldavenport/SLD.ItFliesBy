@@ -31,7 +31,7 @@ namespace ifb {
     IFB_INTERNAL void         entity_mngr_shutdown (void);
 
     // entity
-    IFB_INTERNAL entity_id    entity_create  (const cchar* tag_cstr, const entity_archetype atype = component_type_e_none);
+    IFB_INTERNAL entity_id    entity_create  (const cchar* tag_cstr, const entity_archetype atype = cmpnt_type_e_none);
     IFB_INTERNAL bool         entity_destroy (const cchar* tag_cstr);
 
     // list
@@ -42,6 +42,7 @@ namespace ifb {
     IFB_INTERNAL bool         entity_lookup_by_archetype   (entity_list* id_list, const entity_query& query);
     IFB_INTERNAL bool         entity_lookup_by_tag         (entity& e, const cchar* tag_cstr);
     IFB_INTERNAL bool         entity_lookup_by_index_dense (entity& e, const u32    index);
+    IFB_INTERNAL bool         entity_lookup_by_id          (entity& e, const entity_id id);
 
     // components
     IFB_INTERNAL bool         entity_component_add                 (const entity_id id,       const component_type types);

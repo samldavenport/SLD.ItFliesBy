@@ -28,9 +28,9 @@ namespace ifb {
 
     struct asset;
     struct component_type;
-    struct component_position;
-    struct component_color;
-    struct component_quad;
+    struct cmpnt_position;
+    struct cmpnt_color;
+    struct cmpnt_quad;
     struct dimensions_2d;
     struct dimensions_3d;
     struct eng_arena_handle;

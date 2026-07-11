@@ -21,9 +21,9 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     static const entity_archetype QUAD_ENTITY_ARCHETYPE = (
-        component_type_e_position |
-        component_type_e_color    |
-        component_type_e_quad
+        cmpnt_type_e_position |
+        cmpnt_type_e_color    |
+        cmpnt_type_e_quad
     );
 
     //--------------------------------------------------------------------

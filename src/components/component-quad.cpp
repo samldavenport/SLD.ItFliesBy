@@ -58,7 +58,7 @@ namespace ifb {
     IFB_INTERNAL bool
     cmpnt_quad_list_add(
         cmpnt_list_quad*  list_quad,
-        const component_quad& quad) {
+        const cmpnt_quad& quad) {
 
         cmpnt_quad_list_validate(list_quad);
 
@@ -142,5 +142,44 @@ namespace ifb {
         }
 
         list_quad->count = list_entity->count;
+    }
+
+    IFB_INTERNAL void
+    cmpnt_quad_table_lookup(
+        cmpnt_quad*   quad,
+        const entity& e) {
+
+        assert(
+            _cmpnt_mngr           != NULL &&
+            _cmpnt_mngr->capacity != 0    &&
+            _cmpnt_mngr->capacity > e.index_sparse
+        );
+
+        auto tbl = _cmpnt_mngr->tables.quad;
+        assert(tbl != NULL);
+
+        quad->id            = e.id;
+        quad->sparse_index = e.index_sparse;
+        quad->width        = tbl->width[e.index_sparse];
+        quad->height       = tbl->height[e.index_sparse];
+    }
+
+    IFB_INTERNAL void
+    cmpnt_quad_table_lookup(
+        dimensions_2d& dims,
+        const u32      sparse_index) {
+
+        assert(
+            _cmpnt_mngr           != NULL &&
+            _cmpnt_mngr->capacity != 0    &&
+            _cmpnt_mngr->capacity >  sparse_index
+        );
+
+        auto tbl = _cmpnt_mngr->tables.quad;
+        assert(tbl != NULL);
+ 
+
+        dims.width  = tbl->width  [sparse_index];
+        dims.height = tbl->height [sparse_index];
     }
 };

@@ -64,7 +64,7 @@ namespace ifb {
         const entity_id id = entity_tag_cstr_to_id(tag_cstr);
         bool did_find = false;
 
-	for (
+        for (
             u32 index = 0;
                 index < _quad_mngr->all.count;
               ++index
@@ -83,19 +83,41 @@ namespace ifb {
 
     IFB_INTERNAL bool 
     quad_lookup_by_id(
-	quad_entity&    q,
-	const entity_id id) {
+        quad_entity&    q,
+        const entity_id id) {
 
-	assert(id != ENTITY_ID_INVALID)
+        assert(id != ENTITY_ID_INVALID);
 
-	for (
-	    u32 index = 0;
-	        index < _quad_mngr->count;
-	      ++index
-	) {
-	    
-	}
+        bool found_entity = false;
+        entity e;
+        for (
+            u32 index = 0;
+                (
+                    index < _quad_mngr->all.count &&
+                    !found_entity
+                );
+              ++index
+        ) {
 
+            found_entity = (
+                id == _quad_mngr->all.array[index] &&
+                entity_lookup_by_id(e, id) 
+            );
+        }
+
+        if (!found_entity) {
+            return(false);
+        }
+
+        q.tag          = e.tag;
+        q.id           = e.id;
+        q.archetype    = e.archetype;
+        q.index_sparse = e.index_sparse;
+        q.index_dense  = e.index_dense;
+
+        cmpnt_position_table_lookup (q.pos,   q.index_sparse);
+        cmpnt_color_table_lookup    (q.color, q.index_sparse);
+        cmpnt_quad_table_lookup     (q.dims,  q.index_sparse);
     }
 
     IFB_INTERNAL void
