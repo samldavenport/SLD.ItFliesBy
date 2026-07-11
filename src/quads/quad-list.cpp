@@ -72,6 +72,7 @@ namespace ifb {
         const u32        count) {
 
         u32 count_removed = 0;
+        
         for (
             u32 remove_index = 0;
                 remove_index < count;
