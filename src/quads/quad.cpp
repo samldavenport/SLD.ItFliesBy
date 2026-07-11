@@ -92,11 +92,11 @@ namespace ifb {
         entity e;
         for (
             u32 index = 0;
-                (
-                    index < _quad_mngr->all.count &&
-                    !found_entity
-                );
-              ++index
+            (
+                index < _quad_mngr->all.count &&
+                !found_entity
+            );
+            ++index
         ) {
 
             found_entity = (
@@ -124,7 +124,14 @@ namespace ifb {
     quad_update(
 	const quad_entity& q) {
 
-	
-    }
+        assert(
+            q.archetype & QUAD_ENTITY_ARCHETYPE == QUAD_ENTITY_ARCHETYPE &&
+            q.id                                != ENTITY_ID_INVALID     &&
+            q.tag                               != NULL 
+        );
 
+        cmpnt_position_table_update (q.pos,   q.index_sparse);
+        cmpnt_color_table_update    (q.color, q.index_sparse);
+        cmpnt_quad_table_update     (q.dims,  q.index_sparse);
+    }
 };

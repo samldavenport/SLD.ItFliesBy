@@ -90,6 +90,44 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
+    cmpnt_quad_table_validate(
+        void) {
+
+        assert(
+            _cmpnt_mngr              != NULL &&
+            _cmpnt_mngr->capacity    != 0    &&
+            _cmpnt_mngr->tables.quad != NULL
+        );
+    }
+
+    IFB_INTERNAL void
+    cmpnt_quad_table_update(
+        const cmpnt_quad& quad) {
+
+        cmpnt_quad_table_validate();
+        assert(quad.sparse_index < _cmpnt_mngr->capacity);
+
+        auto tbl = _cmpnt_mngr->tables.quad;
+
+        tbl->height [quad.sparse_index] = quad.height;
+        tbl->width  [quad.sparse_index] = quad.width;
+    }
+
+    IFB_INTERNAL void
+    cmpnt_quad_table_update(
+        const dimensions_2d& dims,
+        const u32            sparse_index) {
+
+        cmpnt_quad_table_validate();
+        assert(sparse_index < _cmpnt_mngr->capacity);
+
+        auto tbl = _cmpnt_mngr->tables.quad;
+
+        tbl->height [sparse_index] = dims.height;
+        tbl->width  [sparse_index] = dims.width;
+    }
+
+    IFB_INTERNAL void
     cmpnt_quad_table_update(
         const cmpnt_list_quad* list_quad) {
 

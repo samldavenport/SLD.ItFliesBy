@@ -100,6 +100,17 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
+    cmpnt_position_table_validate(
+        void) {
+
+        assert(
+            _cmpnt_mngr                  != NULL &&
+            _cmpnt_mngr->capacity        != 0    &&
+            _cmpnt_mngr->tables.position != NULL
+        );
+    }
+
+    IFB_INTERNAL void
     cmpnt_position_table_lookup(
         cmpnt_list_position* list_position,
         const entity_list*       list_entity) {
@@ -155,6 +166,35 @@ namespace ifb {
             tbl->y[sparse_index] = list_position->data.y[index];
             tbl->z[sparse_index] = list_position->data.z[index];
         }
+    }
+
+    IFB_INTERNAL void
+    cmpnt_position_table_update(
+        const cmpnt_position& position) {
+
+        cmpnt_position_table_validate();
+        assert(position.sparse_index < _cmpnt_mngr->capacity);
+
+        cmpnt_table_position* tbl = _cmpnt_mngr->tables.position;
+
+        tbl->x[position.sparse_index] = position.x; 
+        tbl->y[position.sparse_index] = position.y; 
+        tbl->z[position.sparse_index] = position.z; 
+    }
+
+    IFB_INTERNAL void
+    cmpnt_position_table_update(
+        const position_3d& position,
+        const u32          sparse_index) {
+
+        cmpnt_position_table_validate();
+        assert(sparse_index < _cmpnt_mngr->capacity);
+
+        cmpnt_table_position* tbl = _cmpnt_mngr->tables.position;
+
+        tbl->x[sparse_index] = position.x; 
+        tbl->y[sparse_index] = position.y; 
+        tbl->z[sparse_index] = position.z; 
     }
 
     IFB_INTERNAL void
