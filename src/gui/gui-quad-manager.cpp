@@ -87,17 +87,17 @@ namespace ifb {
                 const entity_id id       = _quad_mngr->all.array[index];
                 const bool      did_find = quad_lookup_by_id(q, id);
                 assert(did_find);
+                ImGui::TableNextRow();
 
                 //---------------------------
                 // DENSE INDEX
                 //---------------------------
 
                 ImGui::TableSetColumnIndex(clmn_dense_index);
-                ImGui::TableSetColumnIndex(clmn_dense_index);
                 memset    (selection_label, 0, SELECTION_LABEL_SIZE);
                 sprintf_s (selection_label, SELECTION_LABEL_SIZE, "%d", q.index_dense);
-                const bool is_selected     = (_selected_row == index);
-                const bool render_selected = ImGui::Selectable(_selection_label, is_selected, ImGuiSelectableFlags_SpanAllColumns);
+                const bool is_selected     = (selected_row == index);
+                const bool render_selected = ImGui::Selectable(selection_label, is_selected, ImGuiSelectableFlags_SpanAllColumns);
                 if (render_selected) {
                     selected_row  = index;
                     selected_quad = q;
@@ -108,58 +108,66 @@ namespace ifb {
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_id);
-                
+                ImGui::Text("%08X", q.id);
+
                 //---------------------------
                 // TAG
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_tag);
-                
+                ImGui::Text("%s", q.tag);
+
                 //---------------------------
                 // SPARSE INDEX
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_sparse_index);
-                
+                ImGui::Text("%d", q.index_sparse);
+
                 //---------------------------
                 // POSITION X
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_pos_x);
-                
+                ImGui::Text("%f", q.pos.x);
+
+
                 //---------------------------
                 // POSITION Y
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_pos_y);
+                ImGui::Text("%f", q.pos.y);
                 
                 //---------------------------
                 // POSITION Z
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_pos_z);
+                ImGui::Text("%f", q.pos.z);
                 
                 //---------------------------
                 // COLOR
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_color);
-                
+                ImGui::Text("%08X", q.color.hex);
+
                 //---------------------------
                 // WIDTH
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_width);
-                
+                ImGui::Text("%f", q.dims.width);
+
+
                 //---------------------------
                 // HEIGHT
                 //---------------------------
                 
                 ImGui::TableSetColumnIndex(clmn_height);
-
+                ImGui::Text("%f", q.dims.height);
             }
-
-
 
             ImGui::EndTable();
         }
