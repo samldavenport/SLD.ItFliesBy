@@ -118,6 +118,8 @@ namespace ifb {
         cmpnt_position_table_lookup (q.pos,   q.index_sparse);
         cmpnt_color_table_lookup    (q.color, q.index_sparse);
         cmpnt_quad_table_lookup     (q.dims,  q.index_sparse);
+
+        return(true);
     }
 
     IFB_INTERNAL void
@@ -133,5 +135,22 @@ namespace ifb {
         cmpnt_position_table_update (q.pos,   q.index_sparse);
         cmpnt_color_table_update    (q.color, q.index_sparse);
         cmpnt_quad_table_update     (q.dims,  q.index_sparse);
+    }
+
+    IFB_INTERNAL void
+    quad_lookup_all(
+        quad_list* ql) {
+
+        quad_list_validate(ql);
+
+        for (
+            u32 index = 0;
+                index < _quad_mngr->all.count;
+              ++index) {
+
+            ql->array[index] = _quad_mngr->all.array[index];
+        }
+        ql->count = _quad_mngr->all.count;
+
     }
 };

@@ -46,6 +46,7 @@
 #include "quad.cpp"
 #include "quad-list.cpp"
 #include "quad-manager.cpp"
+#include "quad-tests.cpp"
 
 #include "renderer.cpp"
 

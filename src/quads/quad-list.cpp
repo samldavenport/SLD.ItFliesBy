@@ -40,8 +40,7 @@ namespace ifb {
         quad_list_validate(ql);
         assert(quad_id != NULL && count != 0);
 
-
-        const u32 count_free = (_quad_mngr->capacity - ql->count); 
+        const u32 count_free   = (_quad_mngr->capacity - ql->count); 
         const u32 count_to_add = (count >= count_free)
             ? count_free
             : count;
@@ -59,8 +58,6 @@ namespace ifb {
             ql->array[list_index] = quad_id[index];
             ++list_index;
         }
-
-        ql->count += count_to_add;
 
         return(true);
     }

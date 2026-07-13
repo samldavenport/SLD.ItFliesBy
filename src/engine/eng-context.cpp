@@ -92,6 +92,9 @@ namespace ifb {
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
         const image*           img       = eng_image_load_to_arena(img_file, img_arena);
 
+
+        quad_tests();
+
         while(true) {
 
             //TODO(SAM): pass the opengl context to the platform

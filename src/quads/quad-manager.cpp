@@ -23,7 +23,6 @@ namespace ifb {
         assert(_quad_mngr);
     }
 
-
     IFB_INTERNAL void
     quad_mngr_startup(
         memory& mem) {
@@ -50,7 +49,7 @@ namespace ifb {
 
         // initialize lists
         _quad_mngr->all.array       = quads_all;
-        _quad_mngr->all.count       = _quad_mngr->capacity;
+        _quad_mngr->all.count       = 0;
         _quad_mngr->to_render.array = quads_to_render;
         _quad_mngr->to_render.count = 0;
         _quad_mngr->to_update.array = quads_to_update;
