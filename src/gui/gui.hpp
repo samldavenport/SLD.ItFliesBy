@@ -17,16 +17,7 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct gui;
     struct gui_strings;
-    struct gui_memory;
-    struct gui_window_flags;
-
-    //--------------------------------------------------------------------
-    // GLOBALS
-    //--------------------------------------------------------------------
-
-    static gui* _gui;
 
     //--------------------------------------------------------------------
     // METHODS
@@ -44,6 +35,7 @@ namespace ifb {
 
     // entities
     IFB_INTERNAL void  gui_entity_manager     (bool& is_open);
+    IFB_INTERNAL void  gui_quad_manager       (bool& is_open);
 
     // renderer
     IFB_INTERNAL void  gui_renderer_camera    (bool& is_open);
@@ -54,18 +46,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
-
-    struct gui_memory {
-        memory sys_mem;
-        struct {
-            union {
-                void* vptr;
-                addr  address;
-            };
-            u32  size;
-            u32  pos;
-        } stack;
-    };
 
     struct gui_strings {
         inline static const char* menu_engine                 = "Engine";
@@ -78,6 +58,7 @@ namespace ifb {
         inline static const char* window_renderer_camera      = "Renderer Camera";
         inline static const char* camera_origin               = "Camera Origin";
         inline static const char* camera_target               = "Camera Target";
+        inline static const char* menu_entity_item_quad_mngr     = "Quad Manager";
 
     } static * _gui_str;
 
