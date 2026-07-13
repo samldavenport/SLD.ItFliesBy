@@ -12,6 +12,7 @@ namespace ifb {
         void) {
 
         create_100_quads();
+        update_quads();
     }
 
     inline void
@@ -39,7 +40,33 @@ namespace ifb {
     update_quads(
         void) {
 
-        
+        arena* a = arena_alloc();
+        assert(a);
+
+        quad_list* ql = quad_list_create(a);
+        assert(ql);
+
+        quad_lookup_all(ql);
+
+        for (
+            u32 index = 0;
+                index < ql->count;
+              ++index
+        ) {
+
+            quad_entity q;
+            const bool did_find = quad_lookup_by_id(q, ql->array[index]);
+            assert(did_find);
+
+            q.color.hex    =  0xFFFFFFFF;
+            q.dims.width   =  0.1f;
+            q.dims.height  =  0.1f;
+            q.pos.x        =  0.0f;
+            q.pos.y        =  0.0f;
+            q.pos.z        = -1.0f;
+
+            quad_update(q);
+        }
     }
 
 };
