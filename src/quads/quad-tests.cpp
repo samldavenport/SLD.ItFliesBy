@@ -5,6 +5,7 @@
 namespace ifb {
 
     inline void create_100_quads (void);
+    inline void update_quads     (void);
 
     IFB_INTERNAL void
     quad_tests(
@@ -17,8 +18,8 @@ namespace ifb {
     create_100_quads(
         void) {
 
-        entity_id  array_id  [100] = {0};
-        char       tag_cstr  [16]  = {0};
+        entity_id array_id [100] = {0};
+        char      tag_cstr [16]  = {0};
 
         for (
             u32 index = 0;
@@ -33,4 +34,12 @@ namespace ifb {
             assert(array_id[index] != ENTITY_ID_INVALID);
         }
     }
+
+    inline void
+    update_quads(
+        void) {
+
+        
+    }
+
 };
