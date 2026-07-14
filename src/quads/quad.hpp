@@ -42,26 +42,23 @@ namespace ifb {
     IFB_INTERNAL void                quad_mngr_validate          (void);
     IFB_INTERNAL void                quad_mngr_startup           (memory& mem);
 
-    // TODO(SAM): this doesn't actually create vertices, since its one
-    // element per quad. It should be 4 vertices per quad, but thats something to resolve
-    // between here and the renderer
     IFB_INTERNAL quad_vertex_buffer* quad_mngr_get_vertex_buffer (arena* a);
     IFB_INTERNAL void                quad_mngr_render_list_reset (void);
-    IFB_INTERNAL entity_id           quad_create             (const cchar*  tag_cstr);
-    IFB_INTERNAL void                quad_create_batch       (const cchar** tag_cstr, const u32 count, entity_id* id);
-    IFB_INTERNAL bool                quad_lookup_by_tag      (quad_entity& q, const cchar*    tag_cstr);
-    IFB_INTERNAL bool                quad_lookup_by_id       (quad_entity& q, const entity_id id);
-    IFB_INTERNAL void                quad_update             (const quad_entity& q);
-    IFB_INTERNAL void                quad_lookup_all         (quad_list* ql);
-    IFB_INTERNAL void                quad_render             (const entity_id id);
+    IFB_INTERNAL entity_id           quad_create                 (const cchar*  tag_cstr);
+    IFB_INTERNAL void                quad_create_batch           (const cchar** tag_cstr, const u32 count, entity_id* id);
+    IFB_INTERNAL bool                quad_lookup_by_tag          (quad_entity& q, const cchar*    tag_cstr);
+    IFB_INTERNAL bool                quad_lookup_by_id           (quad_entity& q, const entity_id id);
+    IFB_INTERNAL void                quad_update                 (const quad_entity& q);
+    IFB_INTERNAL void                quad_lookup_all             (quad_list* ql);
+    IFB_INTERNAL void                quad_render                 (const entity_id id);
 
-    IFB_INTERNAL quad_list*          quad_list_create   (arena* a);
-    IFB_INTERNAL void                quad_list_validate (const quad_list* ql);
-    IFB_INTERNAL void                quad_list_reset    (quad_list* ql);
-    IFB_INTERNAL bool                quad_list_add      (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
-    IFB_INTERNAL void                quad_list_remove   (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
+    IFB_INTERNAL quad_list*          quad_list_create            (arena* a);
+    IFB_INTERNAL void                quad_list_validate          (const quad_list* ql);
+    IFB_INTERNAL void                quad_list_reset             (quad_list* ql);
+    IFB_INTERNAL bool                quad_list_add               (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
+    IFB_INTERNAL void                quad_list_remove            (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
 
-    IFB_INTERNAL void                quad_tests         (void);
+    IFB_INTERNAL void                quad_tests                  (void);
 
     //--------------------------------------------------------------------
     // STRUCTURE DEFINITIONS
