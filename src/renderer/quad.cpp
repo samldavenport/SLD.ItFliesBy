@@ -64,7 +64,6 @@ namespace ifb {
             vtx_buffer->vertex_count != 0
         );
 
-        const u32 element_count = vtx_buffer->vertex_count
     }
 
     //--------------------------------------------------------------------

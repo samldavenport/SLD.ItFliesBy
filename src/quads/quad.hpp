@@ -47,7 +47,6 @@ namespace ifb {
     // between here and the renderer
     IFB_INTERNAL quad_vertex_buffer* quad_mngr_get_vertex_buffer (arena* a);
     IFB_INTERNAL void                quad_mngr_render_list_reset (void);
-
     IFB_INTERNAL entity_id           quad_create             (const cchar*  tag_cstr);
     IFB_INTERNAL void                quad_create_batch       (const cchar** tag_cstr, const u32 count, entity_id* id);
     IFB_INTERNAL bool                quad_lookup_by_tag      (quad_entity& q, const cchar*    tag_cstr);
@@ -90,8 +89,6 @@ namespace ifb {
     struct quad_vertex {
         union {
             struct {
-                f32 height;
-                f32 width;
                 f32 color_a;
                 f32 color_b;
                 f32 color_g;
