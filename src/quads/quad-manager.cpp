@@ -77,8 +77,8 @@ namespace ifb {
 
         // initialize list
         buf_struct->vertices     = quad_vertices;
-        buf_struct->vertex_count = _quad_mngr->to_render.count;
-        buf_struct->data_size    = sizeof(quad_vertex) * buf_struct->vertex_count;
+        buf_struct->vertex_count = vtx_count;
+        buf_struct->data_size    = 4 * sizeof(quad_vertex) * vtx_count;
 
         quad_entity curr_quad = {0};
         u32         vtx_index = 0;
