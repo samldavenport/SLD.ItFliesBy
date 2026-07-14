@@ -6,6 +6,7 @@ namespace ifb {
 
     inline void create_100_quads (void);
     inline void update_quads     (void);
+    inline void render_quads     (void);
 
     IFB_INTERNAL void
     quad_tests(
@@ -13,6 +14,7 @@ namespace ifb {
 
         create_100_quads();
         update_quads();
+        render_quads();
     }
 
     inline void
@@ -67,6 +69,28 @@ namespace ifb {
 
             quad_update(q);
         }
+
+        arena_free(a); 
     }
 
+    inline void
+    render_quads(
+        void) {
+
+        arena* a = arena_alloc();
+        assert(a);
+
+        quad_list* ql = quad_list_create(a);
+        assert(ql);
+
+        quad_lookup_all(ql);
+
+        for (
+            u32 index = 0;
+                index < ql->count;
+              ++index) {
+
+            quad_render(ql->array[index]);
+        }
+    }
 };

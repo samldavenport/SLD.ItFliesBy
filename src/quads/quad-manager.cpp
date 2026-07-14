@@ -56,24 +56,65 @@ namespace ifb {
         _quad_mngr->to_update.count = 0;
     }
 
-    IFB_INTERNAL u32
-    quad_mngr_count_all(
+    IFB_INTERNAL quad_vertex_buffer*
+    quad_mngr_get_vertex_buffer(
+        arena* a) {
+
+        if (_quad_mngr->to_render.count == 0) {
+            return(NULL);
+        }
+
+        auto buf_struct    = arena_push<quad_vertex_buffer> (a);
+        auto quad_vertices = arena_push<quad_vertex>        (a, _quad_mngr->to_render.count); 
+
+        assert(
+            buf_struct    != NULL &&
+            quad_vertices != NULL            
+        );
+
+        buf_struct->vertices     = quad_vertices;
+        buf_struct->vertex_count = _quad_mngr->to_render.count;
+        buf_struct->data_size    = sizeof(quad_vertex) * buf_struct->vertex_count;
+
+        quad_entity curr_quad;
+        quad_vertex curr_vertex;
+
+        for (
+            u32 index = 0;
+                index < _quad_mngr->to_render.count;
+              ++index
+        ) {
+            
+            // get the quad info
+            const entity_id id       = _quad_mngr->to_render.array[index]; 
+            const bool      did_find = quad_lookup_by_id(curr_quad, id);
+            assert(did_find);
+
+            // normalize the color
+            const color_rgba_f32 color(curr_quad.color.hex);
+
+            // add the data to the buffer
+            curr_vertex = quad_vertices[index];
+            curr_vertex.pos_x   = curr_quad.pos.x; 
+            curr_vertex.pos_y   = curr_quad.pos.y; 
+            curr_vertex.pos_z   = curr_quad.pos.z; 
+            curr_vertex.color_r = color.r;
+            curr_vertex.color_g = color.g;
+            curr_vertex.color_b = color.b;
+            curr_vertex.color_a = color.a;
+            curr_vertex.width   = curr_quad.dims.width;
+            curr_vertex.height  = curr_quad.dims.height;
+        }
+
+        return(buf_struct);
+    }
+
+    IFB_INTERNAL void
+    quad_mngr_render_list_reset(
         void) {
 
         quad_mngr_validate();
+
+        _quad_mngr->to_render.count = 0;
     }
-
-    IFB_INTERNAL u32
-    quad_mngr_count_to_render(
-        void) {
-
-    }
-
-    IFB_INTERNAL u32
-    quad_mngr_count_to_update(
-        void) {
-
-    }
-
-
 };
