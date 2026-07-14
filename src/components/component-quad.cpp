@@ -15,8 +15,8 @@ namespace ifb {
         auto list   = arena_push<cmpnt_list_quad> (a);
         auto id     = arena_push<entity_id>           (a);
         auto index  = arena_push<u32>                 (a, _entity_mngr->capacity.dense);
-        auto width  = arena_push<u32>                 (a, _entity_mngr->capacity.dense);
-        auto height = arena_push<u32>                 (a, _entity_mngr->capacity.dense);
+        auto width  = arena_push<f32>                 (a, _entity_mngr->capacity.dense);
+        auto height = arena_push<f32>                 (a, _entity_mngr->capacity.dense);
 
         const bool did_create = (
             list   != NULL &&

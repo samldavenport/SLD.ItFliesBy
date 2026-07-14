@@ -90,8 +90,8 @@ namespace ifb {
         void) {
 
         auto tbl    = _cmpnt_mngr->mem.push_struct<cmpnt_table_quad> ();
-        auto width  = _cmpnt_mngr->mem.push_struct<u32>                  (_cmpnt_mngr->capacity);
-        auto height = _cmpnt_mngr->mem.push_struct<u32>                  (_cmpnt_mngr->capacity);
+        auto width  = _cmpnt_mngr->mem.push_struct<f32>                  (_cmpnt_mngr->capacity);
+        auto height = _cmpnt_mngr->mem.push_struct<f32>                  (_cmpnt_mngr->capacity);
 
         assert(
             tbl    != NULL &&

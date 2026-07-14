@@ -153,4 +153,27 @@ namespace ifb {
         ql->count = _quad_mngr->all.count;
 
     }
+
+    IFB_INTERNAL void
+    quad_render(
+        const entity_id id) {
+
+        assert(id != ENTITY_ID_INVALID);
+        quad_mngr_validate();
+
+        for (
+            u32 index = 0;
+                index < _quad_mngr->to_render.count;
+              ++index
+        ) {
+            if (id == _quad_mngr->to_render.array[index]) {
+                return;
+            }
+        }
+
+        (void)quad_list_add(
+            &_quad_mngr->to_render,
+            &id
+        );
+    }
 };

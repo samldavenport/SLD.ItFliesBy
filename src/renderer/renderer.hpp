@@ -103,37 +103,37 @@ namespace ifb {
         } gl;
     };
 
-    struct quad_vertex {
-        union {
-            struct {
-                struct {
-                    f32 x;  // 0
-                    f32 y;  // 4
-                    f32 z;  // 8
-                } attrib_0_pos;
-                struct {
-                    f32 r; // 12
-                    f32 g; // 16
-                    f32 b; // 20
-                    f32 a; // 24
-                } attrib_1_color;
-            };
-            byte data[QUAD_VERTEX_SIZE];
-        };
-    };
+    // struct quad_vertex {
+    //     union {
+    //         struct {
+    //             struct {
+    //                 f32 x;  // 0
+    //                 f32 y;  // 4
+    //                 f32 z;  // 8
+    //             } attrib_0_pos;
+    //             struct {
+    //                 f32 r; // 12
+    //                 f32 g; // 16
+    //                 f32 b; // 20
+    //                 f32 a; // 24
+    //             } attrib_1_color;
+    //         };
+    //         byte data[QUAD_VERTEX_SIZE];
+    //     };
+    // };
 
-    struct quad_vertices {
-        union {
-            struct {
-                quad_vertex top_right;
-                quad_vertex bottom_right;
-                quad_vertex bottom_left;
-                quad_vertex top_left;
-            };
-            quad_vertex array[QUAD_VERTEX_COUNT];
-            byte        data [QUAD_DATA_SIZE];
-        };
-    };
+    // struct quad_vertices {
+    //     union {
+    //         struct {
+    //             quad_vertex top_right;
+    //             quad_vertex bottom_right;
+    //             quad_vertex bottom_left;
+    //             quad_vertex top_left;
+    //         };
+    //         quad_vertex array[QUAD_VERTEX_COUNT];
+    //         byte        data [QUAD_DATA_SIZE];
+    //     };
+    // };
 
     struct quad_elements {
         union {
@@ -160,7 +160,6 @@ namespace ifb {
         struct {
             u32 size;
             union {
-                quad_vertices* array;
                 byte*          data;
                 void*          vptr;
                 addr           addr;

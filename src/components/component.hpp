@@ -95,8 +95,8 @@ namespace ifb {
     };
 
     struct cmpnt_table_quad {
-        u32* width;
-        u32* height;
+        f32* width;
+        f32* height;
     };
 
     //--------------------------------------------------------------------
@@ -127,8 +127,8 @@ namespace ifb {
         struct {
             entity_id* id;
             u32*       sparse_index;
-            u32*       width;
-            u32*       height;
+            f32*       width;
+            f32*       height;
         } data;
         u32 count;
     };
