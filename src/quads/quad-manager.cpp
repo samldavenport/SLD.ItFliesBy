@@ -77,8 +77,7 @@ namespace ifb {
         buf_struct->data_size    = sizeof(quad_vertex) * buf_struct->vertex_count;
 
         quad_entity curr_quad;
-        quad_vertex curr_vertex;
-
+        
         for (
             u32 index = 0;
                 index < _quad_mngr->to_render.count;
@@ -94,7 +93,7 @@ namespace ifb {
             const color_rgba_f32 color(curr_quad.color.hex);
 
             // add the data to the buffer
-            curr_vertex = quad_vertices[index];
+            quad_vertex& curr_vertex = quad_vertices[index];
             curr_vertex.pos_x   = curr_quad.pos.x; 
             curr_vertex.pos_y   = curr_quad.pos.y; 
             curr_vertex.pos_z   = curr_quad.pos.z; 
