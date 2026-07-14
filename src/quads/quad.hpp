@@ -41,6 +41,10 @@ namespace ifb {
     IFB_INTERNAL quad_mngr*          quad_mngr_create            (void);
     IFB_INTERNAL void                quad_mngr_validate          (void);
     IFB_INTERNAL void                quad_mngr_startup           (memory& mem);
+
+    // TODO(SAM): this doesn't actually create vertices, since its one
+    // element per quad. It should be 4 vertices per quad, but thats something to resolve
+    // between here and the renderer
     IFB_INTERNAL quad_vertex_buffer* quad_mngr_get_vertex_buffer (arena* a);
     IFB_INTERNAL void                quad_mngr_render_list_reset (void);
 
