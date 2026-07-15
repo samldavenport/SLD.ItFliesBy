@@ -182,6 +182,7 @@ namespace ifb {
         mat4                  xform_view;
         dimensions_2d         dims;
         f32                   fov_y;
+        quad_vertex_buffer*   quad_vtx_buffer;
         struct {
             hello_quad_shader      hello_quad;
             quad_shader            quad;

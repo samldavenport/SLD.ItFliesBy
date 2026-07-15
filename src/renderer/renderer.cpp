@@ -7,6 +7,8 @@
 #include "direction-gizmo.cpp"
 #include "camera.cpp"
 #include "eng-internal.hpp"
+#include "quad.hpp"
+
 namespace ifb {
 
     IFB_INTERNAL renderer_context*
