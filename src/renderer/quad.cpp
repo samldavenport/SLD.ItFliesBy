@@ -60,10 +60,9 @@ namespace ifb {
 
         assert(
             vtx_buffer               != NULL &&
-            vtx_buffer->vertices     != NULL &&
+            vtx_buffer->data.bytes   != NULL &&
             vtx_buffer->vertex_count != 0
         );
-
     }
 
     //--------------------------------------------------------------------

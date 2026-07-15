@@ -92,9 +92,6 @@ namespace ifb {
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
         const image*           img       = eng_image_load_to_arena(img_file, img_arena);
 
-        arena* quad_vtx_arena = arena_alloc();
-        assert(quad_vtx_arena);
-
         quad_tests();
 
         while(true) {
@@ -108,9 +105,6 @@ namespace ifb {
             renderer_context_update_projection_matrix ();
             renderer_context_update_view_matrix       ();
             renderer_direction_gizmo_draw             ();
-            
-            quad_vertex_buffer* quad_vtx_buffer = quad_mngr_get_vertex_buffer(quad_vtx_arena);
-            
 
             // render gui
             gui_render();
@@ -122,7 +116,6 @@ namespace ifb {
             const bool quit = pfm_window_quit_received();
             if (quit) break;
 
-            arena_reset(quad_vtx_arena);
         }
     }
     
