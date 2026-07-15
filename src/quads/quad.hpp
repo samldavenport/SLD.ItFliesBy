@@ -41,24 +41,28 @@ namespace ifb {
     IFB_INTERNAL quad_mngr*          quad_mngr_create            (void);
     IFB_INTERNAL void                quad_mngr_validate          (void);
     IFB_INTERNAL void                quad_mngr_startup           (memory& mem);
-    IFB_INTERNAL quad_vertex_buffer* quad_mngr_get_vertex_buffer (arena* a);
     IFB_INTERNAL void                quad_mngr_render_list_reset (void);
 
-    IFB_INTERNAL entity_id           quad_create             (const cchar*  tag_cstr);
-    IFB_INTERNAL void                quad_create_batch       (const cchar** tag_cstr, const u32 count, entity_id* id);
-    IFB_INTERNAL bool                quad_lookup_by_tag      (quad_entity& q, const cchar*    tag_cstr);
-    IFB_INTERNAL bool                quad_lookup_by_id       (quad_entity& q, const entity_id id);
-    IFB_INTERNAL void                quad_update             (const quad_entity& q);
-    IFB_INTERNAL void                quad_lookup_all         (quad_list* ql);
-    IFB_INTERNAL void                quad_render             (const entity_id id);
+    IFB_INTERNAL u32                 quad_vertex_buffer_size     (void);
+    IFB_INTERNAL quad_vertex_buffer* quad_vertex_buffer_create   (memory& mem);
+    IFB_INTERNAL void                quad_vertex_buffer_render   (quad_vertex_buffer* vtx_buffer);
+    IFB_INTERNAL void                quad_vertex_buffer_validate (const quad_vertex_buffer* vtx_buffer);
 
-    IFB_INTERNAL quad_list*          quad_list_create   (arena* a);
-    IFB_INTERNAL void                quad_list_validate (const quad_list* ql);
-    IFB_INTERNAL void                quad_list_reset    (quad_list* ql);
-    IFB_INTERNAL bool                quad_list_add      (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
-    IFB_INTERNAL void                quad_list_remove   (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
+    IFB_INTERNAL entity_id           quad_create                 (const cchar*  tag_cstr);
+    IFB_INTERNAL void                quad_create_batch           (const cchar** tag_cstr, const u32 count, entity_id* id);
+    IFB_INTERNAL bool                quad_lookup_by_tag          (quad_entity& q, const cchar*    tag_cstr);
+    IFB_INTERNAL bool                quad_lookup_by_id           (quad_entity& q, const entity_id id);
+    IFB_INTERNAL void                quad_update                 (const quad_entity& q);
+    IFB_INTERNAL void                quad_lookup_all             (quad_list* ql);
+    IFB_INTERNAL void                quad_render                 (const entity_id id);
 
-    IFB_INTERNAL void                quad_tests         (void);
+    IFB_INTERNAL quad_list*          quad_list_create            (arena* a);
+    IFB_INTERNAL void                quad_list_validate          (const quad_list* ql);
+    IFB_INTERNAL void                quad_list_reset             (quad_list* ql);
+    IFB_INTERNAL bool                quad_list_add               (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
+    IFB_INTERNAL void                quad_list_remove            (quad_list* ql, const entity_id* quad_id, const u32 count = 1);
+
+    IFB_INTERNAL void                quad_tests                  (void);
 
     //--------------------------------------------------------------------
     // STRUCTURE DEFINITIONS
@@ -86,8 +90,6 @@ namespace ifb {
     struct quad_vertex {
         union {
             struct {
-                f32 height;
-                f32 width;
                 f32 color_a;
                 f32 color_b;
                 f32 color_g;
@@ -96,15 +98,15 @@ namespace ifb {
                 f32 pos_y;
                 f32 pos_x;
             };
-            byte bytes[36];
+            byte bytes[28];
         };
     };
 
     struct quad_vertex_buffer {
         union {
             quad_vertex* vertices;
-            byte*        data;     
-        };
+            byte*        bytes;     
+        } data;
         u32 vertex_count;
         u32 data_size;  
     };

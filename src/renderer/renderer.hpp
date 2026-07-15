@@ -5,7 +5,7 @@
 #include <files.hpp>
 
 #include "ifb.hpp"
-
+#include "quad.hpp"
 namespace ifb {
 
     //--------------------------------------------------------------------
@@ -70,6 +70,7 @@ namespace ifb {
     IFB_INTERNAL void  renderer_quad_shader_init            (const shader_source& src_vertex, const shader_source& src_fragment);
     IFB_INTERNAL u32   renderer_quad_push                   (const quad* q, const u32 count = 1);
     IFB_INTERNAL u32   renderer_quad_draw                   (void); 
+    IFB_INTERNAL void  renderer_quad_draw_buffer            (const quad_vertex_buffer* vtx_buffer);
 
     // direction gizmo
     IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (const shader_source& src_vertex, const shader_source& src_fragment);
@@ -102,38 +103,6 @@ namespace ifb {
             gl_buffer  buf_element;
         } gl;
     };
-
-    // struct quad_vertex {
-    //     union {
-    //         struct {
-    //             struct {
-    //                 f32 x;  // 0
-    //                 f32 y;  // 4
-    //                 f32 z;  // 8
-    //             } attrib_0_pos;
-    //             struct {
-    //                 f32 r; // 12
-    //                 f32 g; // 16
-    //                 f32 b; // 20
-    //                 f32 a; // 24
-    //             } attrib_1_color;
-    //         };
-    //         byte data[QUAD_VERTEX_SIZE];
-    //     };
-    // };
-
-    // struct quad_vertices {
-    //     union {
-    //         struct {
-    //             quad_vertex top_right;
-    //             quad_vertex bottom_right;
-    //             quad_vertex bottom_left;
-    //             quad_vertex top_left;
-    //         };
-    //         quad_vertex array[QUAD_VERTEX_COUNT];
-    //         byte        data [QUAD_DATA_SIZE];
-    //     };
-    // };
 
     struct quad_elements {
         union {
@@ -213,6 +182,7 @@ namespace ifb {
         mat4                  xform_view;
         dimensions_2d         dims;
         f32                   fov_y;
+        quad_vertex_buffer*   quad_vtx_buffer;
         struct {
             hello_quad_shader      hello_quad;
             quad_shader            quad;

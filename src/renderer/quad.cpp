@@ -54,6 +54,17 @@ namespace ifb {
         return(quad_count);
     }
 
+    IFB_INTERNAL void
+    renderer_quad_draw_buffer(
+        const quad_vertex_buffer* vtx_buffer) {
+
+        assert(
+            vtx_buffer               != NULL &&
+            vtx_buffer->data.bytes   != NULL &&
+            vtx_buffer->vertex_count != 0
+        );
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
