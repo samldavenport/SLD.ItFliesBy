@@ -152,6 +152,25 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
+    quad_does_exist(
+        const entity_id id) {
+
+        bool exists = false;
+        for (
+            u32 i = 0;
+            i < _quad_mngr->all.count();
+            ++i) {
+
+            if (id == _quad_mngr->all[i]) {
+                exists = true;
+                break;
+            }
+        }
+
+        return(exists);
+    }
+
+    IFB_INTERNAL bool
     quad_get_vertices(
         quad_vertices&  qv,
         const entity_id id) {

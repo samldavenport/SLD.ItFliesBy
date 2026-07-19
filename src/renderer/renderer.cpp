@@ -13,7 +13,7 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
     
-    IFB_INLINE void renderer_init_quad_buffers(void);
+    IFB_INLINE void renderer_init_quad_memory(void);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -62,7 +62,7 @@ namespace ifb {
         _renderer_ctx->memory.stack.init(commit);
 
         // initialize buffers
-        renderer_init_quad_buffers();
+        renderer_init_quad_memory();
 
         // NOTE(SAM): the renderer doesn't need to initialize the opengl context
         // we can pass the context to the function and use it that way
@@ -164,7 +164,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_INLINE void
-    renderer_init_quad_buffers(
+    renderer_init_quad_memory(
         void) {
 
         const auto& cfg             = config_instance();
@@ -173,13 +173,13 @@ namespace ifb {
         const u32   elements_size   = (elements_count     * sizeof(u32));
         void*       vertices_memory = _renderer_ctx->memory.stack.push(vertices_size);
         void*       elements_memory = _renderer_ctx->memory.stack.push(elements_size);
+        auto        list_elements   = _renderer_ctx->memory.stack.push_struct<entity_id>(cfg.quad_capacity);
 
         assert(vertices_size   != 0);
         assert(vertices_memory != NULL); 
+        assert(list_elements   != NULL); 
 
         quad_buffers& buffers = _renderer_ctx->shader.quad.buffers;
-        buffers.quad_capacity = cfg.quad_capacity;
-        buffers.quad_count    = 0;
         buffers.vertices.size = vertices_size; 
         buffers.vertices.vptr = vertices_memory;
         buffers.elements.size = elements_size;
@@ -201,5 +201,8 @@ namespace ifb {
             curr.triangle_2.elmnt_4_index_2 = 2;
             curr.triangle_2.elmnt_5_index_3 = 3;
         }
+
+        // initialize the quad list
+        _renderer_ctx->shader.quad.list.init(list_elements, cfg.quad_capacity);
     }
 };

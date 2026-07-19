@@ -67,9 +67,11 @@ namespace ifb {
     IFB_INTERNAL void  renderer_hello_quad_shader_init      (const shader_source& src_vertex, const shader_source& src_fragment);
     IFB_INTERNAL void  renderer_hello_quad_draw             (void);
 
+
     // quad shader
     IFB_INTERNAL void  renderer_quad_shader_init            (const shader_source& src_vertex, const shader_source& src_fragment);
     IFB_INTERNAL void  renderer_quad_push                   (const entity_id quad_id);
+    IFB_INTERNAL void  renderer_quad_draw_list              (void);
 
     // direction gizmo
     IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (const shader_source& src_vertex, const shader_source& src_fragment);
@@ -85,7 +87,7 @@ namespace ifb {
 
     struct shader_source {
         const cchar* data;
-        u32           size;
+        u32          size;
     };
 
     struct hello_quad_shader {
@@ -117,8 +119,6 @@ namespace ifb {
     };
 
     struct quad_buffers {
-        u32 quad_capacity;
-        u32 quad_count;
         struct {
             u32 size;
             union {
@@ -151,6 +151,7 @@ namespace ifb {
             gl_shader  shdr_frg;
         } gl;
         quad_buffers buffers;
+        quad_list    list;
     };
 
     struct direction_gizmo_shader {

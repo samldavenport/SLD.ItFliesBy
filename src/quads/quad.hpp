@@ -47,6 +47,7 @@ namespace ifb {
     IFB_INTERNAL void       quad_create_batch   (const cchar** tag_cstr, const u32 count, entity_id* id);
     IFB_INTERNAL bool       quad_lookup_by_tag  (quad_entity& q, const cchar*    tag_cstr);
     IFB_INTERNAL bool       quad_lookup_by_id   (quad_entity& q, const entity_id id);
+    IFB_INTERNAL bool       quad_does_exist     (const entity_id id);
     IFB_INTERNAL void       quad_update         (const quad_entity& q);
     IFB_INTERNAL void       quad_lookup_all     (quad_list& ql);
     IFB_INTERNAL bool       quad_get_vertices   (quad_vertices& qv, const entity_id id);

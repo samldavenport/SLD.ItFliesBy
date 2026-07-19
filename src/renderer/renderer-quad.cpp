@@ -8,11 +8,10 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    inline void quad_shader_validate                 (const quad_shader& shdr);
-    inline void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
-    inline void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
-    inline void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
-    inline void quad_shader_memory_init              (quad_shader& shdr);
+    IFB_INLINE void quad_shader_validate                 (const quad_shader& shdr);
+    IFB_INLINE void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
+    IFB_INLINE void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INLINE void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -28,6 +27,41 @@ namespace ifb {
         quad_shader_define_vertex            (_renderer_ctx->shader.quad, _renderer_ctx->gl);
     }
 
+    IFB_INTERNAL void 
+    renderer_quad_push(
+        const entity_id quad_id) {
+
+        assert(quad_does_exist(quad_id));
+        _renderer_ctx->shader.quad.list.add(quad_id);
+    }
+
+    IFB_INTERNAL void
+    renderer_quad_draw_list(
+        void) {
+
+        auto& shdr = _renderer_ctx->shader.quad;        
+        quad_shader_validate(shdr);
+
+        for (
+            u32 i = 0;
+            i < shdr.list.count();
+            ++i) {
+
+            const entity_id id       = shdr.list[i];
+            quad_vertices&  vertices = shdr.buffers.vertices.vertices[i];
+
+            assert(id != ENTITY_ID_INVALID);
+            assert(quad_get_vertices(vertices, id));
+        }
+
+        const u32 element_draw_count = (6 * shdr.list.count()); 
+        
+        gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
+        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
+        gl_context_draw_elements      (_renderer_ctx->gl, element_draw_count);
+
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
@@ -36,12 +70,11 @@ namespace ifb {
     quad_shader_validate(
         const quad_shader& shdr) {
 
-        assert(
-            shdr.gl.program      != GL_ID_INVALID &&
-            shdr.gl.vertex       != GL_ID_INVALID &&
-            shdr.gl.buffer_vtx   != GL_ID_INVALID &&
-            shdr.gl.buffer_elmnt != GL_ID_INVALID
-        );
+        shdr.list.validate();
+        assert(shdr.gl.program      != GL_ID_INVALID);
+        assert(shdr.gl.vertex       != GL_ID_INVALID);
+        assert(shdr.gl.buffer_vtx   != GL_ID_INVALID);
+        assert(shdr.gl.buffer_elmnt != GL_ID_INVALID);
     } 
 
     inline void
