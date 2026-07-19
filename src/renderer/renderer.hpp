@@ -68,9 +68,6 @@ namespace ifb {
 
     // quad shader
     IFB_INTERNAL void  renderer_quad_shader_init            (const shader_source& src_vertex, const shader_source& src_fragment);
-    IFB_INTERNAL u32   renderer_quad_push                   (const quad* q, const u32 count = 1);
-    IFB_INTERNAL u32   renderer_quad_draw                   (void); 
-    IFB_INTERNAL void  renderer_quad_draw_buffer            (const quad_vertex_buffer* vtx_buffer);
 
     // direction gizmo
     IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (const shader_source& src_vertex, const shader_source& src_fragment);

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "renderer.hpp"
-#include "memory.cpp" 
-#include "quad.cpp" 
-#include "hello-quad.cpp" 
-#include "direction-gizmo.cpp"
-#include "camera.cpp"
+#include "renderer-memory.cpp" 
+#include "renderer-quad.cpp" 
+#include "renderer-hello-quad.cpp" 
+#include "renderer-direction-gizmo.cpp"
+#include "renderer-camera.cpp"
 #include "eng-internal.hpp"
 #include "quad.hpp"
 
