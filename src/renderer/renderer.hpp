@@ -26,6 +26,7 @@ namespace ifb {
     struct renderer_memory;
     struct shader_source;
     struct camera;
+    struct render_buffer_quad_vertex;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -78,6 +79,10 @@ namespace ifb {
     // DEFINITIONS
     //--------------------------------------------------------------------
     
+    struct renderer_memory {
+        stack stack;
+    };
+
     struct shader_source {
         const cchar* data;
         u32           size;
@@ -96,15 +101,15 @@ namespace ifb {
         union {
             struct {
                 struct {
-                    u32 elmnt_0_index_0;
-                    u32 elmnt_1_index_1;
-                    u32 elmnt_2_index_3;
-                } triangle_1;
-                struct {
-                    u32 elmnt_3_index_1;
-                    u32 elmnt_4_index_2;
                     u32 elmnt_5_index_3;
+                    u32 elmnt_4_index_2;
+                    u32 elmnt_3_index_1;
                 } triangle_2;
+                struct {
+                    u32 elmnt_2_index_3;
+                    u32 elmnt_1_index_1;
+                    u32 elmnt_0_index_0;
+                } triangle_1;
             };
             u32  array [QUAD_ELEMENT_COUNT];
             byte data  [QUAD_ELEMENT_DATA_SIZE];
@@ -117,6 +122,7 @@ namespace ifb {
         struct {
             u32 size;
             union {
+                quad_vertices* vertices;
                 byte*          data;
                 void*          vptr;
                 addr           addr;
@@ -164,12 +170,13 @@ namespace ifb {
     };
 
     struct renderer_context {
-        gl_context*           gl;
-        camera                cam;
-        mat4                  xform_proj;
-        mat4                  xform_view;
-        dimensions_2d         dims;
-        f32                   fov_y;
+        gl_context*               gl;
+        renderer_memory           memory;
+        camera                    cam;
+        mat4                      xform_proj;
+        mat4                      xform_view;
+        dimensions_2d             dims;
+        f32                       fov_y;
         struct {
             hello_quad_shader      hello_quad;
             quad_shader            quad;

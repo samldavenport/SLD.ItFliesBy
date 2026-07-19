@@ -12,6 +12,7 @@ namespace ifb {
     inline void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
     inline void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
     inline void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
+    inline void quad_shader_memory_init              (quad_shader& shdr);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS

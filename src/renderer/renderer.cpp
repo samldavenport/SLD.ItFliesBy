@@ -1,7 +1,6 @@
 #pragma once
 
 #include "renderer.hpp"
-#include "renderer-memory.cpp" 
 #include "renderer-quad.cpp" 
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-camera.cpp"
@@ -10,6 +9,16 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // INLINE METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+    
+    IFB_INLINE void renderer_init_quad_buffers(void);
+
+    //--------------------------------------------------------------------
+    // INTERNAL METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+    
     IFB_INTERNAL renderer_context*
     renderer_context_create(
         void) {
@@ -43,6 +52,17 @@ namespace ifb {
             reserved_memory.size != 0    &&
             reserved_memory.ptr  != NULL          
         );
+
+        // create the stack
+        memory commit;
+        commit.size = reserved_memory.size;
+        commit.ptr  = pfm_memory_commit(reserved_memory.ptr, 0, commit.size);
+        assert(commit.size    != 0); 
+        assert(commit.address != 0); 
+        _renderer_ctx->memory.stack.init(commit);
+
+        // initialize buffers
+        renderer_init_quad_buffers();
 
         // NOTE(SAM): the renderer doesn't need to initialize the opengl context
         // we can pass the context to the function and use it that way
@@ -137,5 +157,49 @@ namespace ifb {
             : 0;
 
         return(aspect_ratio);
+    }
+
+    //--------------------------------------------------------------------
+    // INLINE METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+    
+    IFB_INLINE void
+    renderer_init_quad_buffers(
+        void) {
+
+        const auto& cfg             = config_instance();
+        const u32   vertices_size   = (cfg.quad_capacity  * sizeof(quad_vertices));
+        const u32   elements_count  = (cfg.quad_capacity  * 6);
+        const u32   elements_size   = (elements_count     * sizeof(u32));
+        void*       vertices_memory = _renderer_ctx->memory.stack.push(vertices_size);
+        void*       elements_memory = _renderer_ctx->memory.stack.push(elements_size);
+
+        assert(vertices_size   != 0);
+        assert(vertices_memory != NULL); 
+
+        quad_buffers& buffers = _renderer_ctx->shader.quad.buffers;
+        buffers.quad_capacity = cfg.quad_capacity;
+        buffers.quad_count    = 0;
+        buffers.vertices.size = vertices_size; 
+        buffers.vertices.vptr = vertices_memory;
+        buffers.elements.size = elements_size;
+        buffers.elements.vptr = elements_memory;
+
+        // we can initialize the element buffer array
+        // because they always repeat
+        for (
+            u32 i = 0;
+                i < elements_count;
+              ++i) {
+
+            quad_elements& curr = buffers.elements.array[i];
+
+            curr.triangle_1.elmnt_0_index_0 = 0;
+            curr.triangle_1.elmnt_1_index_1 = 1;
+            curr.triangle_1.elmnt_2_index_3 = 3;
+            curr.triangle_2.elmnt_3_index_1 = 1;
+            curr.triangle_2.elmnt_4_index_2 = 2;
+            curr.triangle_2.elmnt_5_index_3 = 3;
+        }
     }
 };
