@@ -152,6 +152,7 @@ namespace ifb {
         gl_shader  vert_shdr;
         gl_shader  frag_shdr;
         gl_vertex  vertex;
+        gl_buffer  vertex_buffer;
         gl_uniform unif_mat4_view;
         gl_uniform unif_mat4_proj;
         gl_uniform unif_mat4_model;

@@ -28,11 +28,11 @@ namespace ifb {
         bool  gl_ok = true;
 
         // create gl objects
-        shdr.program   = gl_shader_program_create        (gl);
-        shdr.vert_shdr = gl_shader_stage_create_vertex   (gl); 
-        shdr.frag_shdr = gl_shader_stage_create_fragment (gl); 
-        shdr.vertex    = gl_vertex_create                (gl);
-        shdr.
+        shdr.program       = gl_shader_program_create        (gl);
+        shdr.vert_shdr     = gl_shader_stage_create_vertex   (gl); 
+        shdr.frag_shdr     = gl_shader_stage_create_fragment (gl); 
+        shdr.vertex        = gl_vertex_create                (gl);
+        shdr.vertex_buffer = gl_buffer_create(gl); 
 
         gl_ok &= (
             shdr.program   != GL_ID_INVALID &&
@@ -89,6 +89,7 @@ namespace ifb {
 
         gl_context_set_shader_program (gl, shdr.program);
         gl_context_set_vertex_object  (gl, shdr.vertex);
+        gl_context_set_buffer_vertex  (gl, shdr.vertex_buffer);
         gl_uniform_set_mat4           (gl, shdr.unif_mat4_proj,  (const f32*)&mat4_proj.m);
         gl_uniform_set_mat4           (gl, shdr.unif_mat4_view,  (const f32*)&mat4_view.m);
         gl_uniform_set_mat4           (gl, shdr.unif_mat4_model, (const f32*)&mat4_model.m);
