@@ -46,6 +46,8 @@ namespace ifb {
             --alctr->arena_count_free;
         }
 
+        a->save     = 0;
+        a->position = 0;
         return(a);
     }
 

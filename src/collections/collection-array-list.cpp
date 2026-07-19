@@ -25,8 +25,8 @@ namespace ifb {
 
         assert(
             _elmnt    != NULL &&
-            _capacity != 0 &&
-            _count    <= _capacity;
+            _capacity != 0    &&
+            _count    <= _capacity
         );
     }
 
@@ -102,6 +102,15 @@ namespace ifb {
         const u32 index_elmnt  = (offset_elmnt / size_elmnt);  
         return(index_elmnt);
     }
+
+    ARRAY_LIST_FUNC
+    reset(
+        void) -> void {
+
+        validate();
+        _count = 0;
+    }
+
 
     ARRAY_LIST_FUNC
     add(

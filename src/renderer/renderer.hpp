@@ -68,6 +68,7 @@ namespace ifb {
 
     // quad shader
     IFB_INTERNAL void  renderer_quad_shader_init            (const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INTERNAL void  renderer_quad_push                   (const entity_id quad_id);
 
     // direction gizmo
     IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (const shader_source& src_vertex, const shader_source& src_fragment);
@@ -76,16 +77,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
-
-    struct renderer_memory : memory {
-        u32 granularity;
-        struct {
-            u32* ids;
-            u32  position;
-            u32  capacity;
-        } block_stack;
-    };
-
     
     struct shader_source {
         const cchar* data;
@@ -173,13 +164,11 @@ namespace ifb {
 
     struct renderer_context {
         gl_context*           gl;
-        renderer_memory       mem;
         camera                cam;
         mat4                  xform_proj;
         mat4                  xform_view;
         dimensions_2d         dims;
         f32                   fov_y;
-        quad_vertex_buffer*   quad_vtx_buffer;
         struct {
             hello_quad_shader      hello_quad;
             quad_shader            quad;

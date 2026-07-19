@@ -44,7 +44,6 @@
 #include "memory-block.cpp"
 
 #include "quad.cpp"
-#include "quad-list.cpp"
 #include "quad-manager.cpp"
 #include "quad-tests.cpp"
 #include "quad-vertex-buffer.cpp"

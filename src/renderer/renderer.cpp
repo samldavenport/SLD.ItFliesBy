@@ -3,7 +3,6 @@
 #include "renderer.hpp"
 #include "renderer-memory.cpp" 
 #include "renderer-quad.cpp" 
-#include "renderer-hello-quad.cpp" 
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-camera.cpp"
 #include "eng-internal.hpp"
@@ -29,7 +28,6 @@ namespace ifb {
 
         _renderer_ctx                      = rndr;
         _renderer_ctx->gl                  = gl;
-        _renderer_ctx->mem.block_stack.ids = block_ids;
 
         return(_renderer_ctx);
     }
@@ -53,21 +51,6 @@ namespace ifb {
         // initialize opengl and imgui
         pfm_graphics_init_opengl(_renderer_ctx->gl);
         pfm_graphics_init_imgui();
-
-        // initialize memory
-        _renderer_ctx->mem.address              = reserved_memory.address;
-        _renderer_ctx->mem.size                 = reserved_memory.size;
-        _renderer_ctx->mem.granularity          = cfg.renderer_mem_granularity;
-        _renderer_ctx->mem.block_stack.capacity = reserved_memory.size / cfg.renderer_mem_granularity;
-        _renderer_ctx->mem.block_stack.position = _renderer_ctx->mem.block_stack.capacity;
-
-        for (
-            u32 index = 0;
-                index < _renderer_ctx->mem.block_stack.capacity;
-              ++index
-        ) {
-            _renderer_ctx->mem.block_stack.ids[index] = index;
-        }
 
         // intialize camera
         renderer_camera_init();

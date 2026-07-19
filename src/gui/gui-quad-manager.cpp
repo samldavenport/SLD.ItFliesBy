@@ -80,11 +80,11 @@ namespace ifb {
 
             for (
                 u32 index = 0;
-                    index < _quad_mngr->all.count;
+                    index < _quad_mngr->all.count();
                   ++index
             ) {
 
-                const entity_id id       = _quad_mngr->all.array[index];
+                const entity_id id       = _quad_mngr->all[index];
                 const bool      did_find = quad_lookup_by_id(q, id);
                 assert(did_find);
                 ImGui::TableNextRow();

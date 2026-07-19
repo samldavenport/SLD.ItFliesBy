@@ -34,8 +34,8 @@ namespace ifb {
         void remove_at     (const u32 index);
 
         inline t& operator[] (const u32 index) {
-            assert(index < count);
-            return(elmnt[index]);
+            assert(index < _count);
+            return(_elmnt[index]);
         }
     };
 

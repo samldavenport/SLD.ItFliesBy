@@ -218,8 +218,7 @@ namespace ifb {
         file_src_dir_giz_frag.data = file_read     (file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
 
         // initialize shaders
-        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
-        renderer_hello_quad_shader_init      (file_src_quad_vert,    file_src_quad_frag);
+        // renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
 
         // close the shader files
@@ -248,5 +247,4 @@ namespace ifb {
         mem.size = mem_map->quads.size;
         quad_mngr_startup(mem);
     }
-
 };

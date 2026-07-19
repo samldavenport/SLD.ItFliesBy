@@ -6,7 +6,6 @@ namespace ifb {
 
     inline void create_100_quads (void);
     inline void update_quads     (void);
-    inline void render_quads     (void);
 
     IFB_INTERNAL void
     quad_tests(
@@ -14,7 +13,6 @@ namespace ifb {
 
         create_100_quads();
         update_quads();
-        render_quads();
     }
 
     inline void
@@ -45,19 +43,21 @@ namespace ifb {
         arena* a = arena_alloc();
         assert(a);
 
-        quad_list* ql = quad_list_create(a);
-        assert(ql);
+        quad_list ql;
+        const bool did_init = quad_list_init(ql, a);
+        assert(did_init);
 
         quad_lookup_all(ql);
 
         for (
             u32 index = 0;
-                index < ql->count;
+                index < ql.count();
               ++index
         ) {
 
+
             quad_entity q;
-            const bool did_find = quad_lookup_by_id(q, ql->array[index]);
+            const bool did_find = quad_lookup_by_id(q, ql[index]);
             assert(did_find);
 
             q.color.hex    =  0xFFFFFFFF;
@@ -73,24 +73,4 @@ namespace ifb {
         arena_free(a); 
     }
 
-    inline void
-    render_quads(
-        void) {
-
-        arena* a = arena_alloc();
-        assert(a);
-
-        quad_list* ql = quad_list_create(a);
-        assert(ql);
-
-        quad_lookup_all(ql);
-
-        for (
-            u32 index = 0;
-                index < ql->count;
-              ++index) {
-
-            quad_render(ql->array[index]);
-        }
-    }
 };
