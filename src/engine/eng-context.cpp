@@ -92,7 +92,14 @@ namespace ifb {
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
         const image*           img       = eng_image_load_to_arena(img_file, img_arena);
 
-        quad_tests();
+        quad q;
+        q.color.hex         = 0xFF0000FF;
+        q.dimensions.width  = 0.2;
+        q.dimensions.height = 0.2;
+        q.position.x        = 0.0;
+        q.position.y        = 0.0;
+        q.position.z        = 0.0;
+        const entity_id q_id = quad_create("TEST-QUAD", q);
 
         while(true) {
 
@@ -101,10 +108,14 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
 
+            renderer_quad_push(q_id);
+
             // render graphics
-            renderer_context_update_projection_matrix ();
-            renderer_context_update_view_matrix       ();
-            renderer_direction_gizmo_draw             ();
+            // renderer_context_update_projection_matrix ();
+            // renderer_context_update_view_matrix       ();
+            // renderer_direction_gizmo_draw             ();
+            // renderer_hello_quad_draw();
+            renderer_quad_draw_list();
 
             // render gui
             gui_render();
@@ -218,8 +229,8 @@ namespace ifb {
         file_src_dir_giz_frag.data = file_read     (file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
 
         // initialize shaders
-        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
         renderer_hello_quad_shader_init      (file_src_quad_vert,    file_src_quad_frag);
+        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
 
         // close the shader files
@@ -248,5 +259,4 @@ namespace ifb {
         mem.size = mem_map->quads.size;
         quad_mngr_startup(mem);
     }
-
 };

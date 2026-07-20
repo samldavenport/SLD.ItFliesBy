@@ -26,6 +26,7 @@ namespace ifb {
     struct renderer_memory;
     struct shader_source;
     struct camera;
+    struct render_buffer_quad_vertex;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -66,11 +67,11 @@ namespace ifb {
     IFB_INTERNAL void  renderer_hello_quad_shader_init      (const shader_source& src_vertex, const shader_source& src_fragment);
     IFB_INTERNAL void  renderer_hello_quad_draw             (void);
 
+
     // quad shader
     IFB_INTERNAL void  renderer_quad_shader_init            (const shader_source& src_vertex, const shader_source& src_fragment);
-    IFB_INTERNAL u32   renderer_quad_push                   (const quad* q, const u32 count = 1);
-    IFB_INTERNAL u32   renderer_quad_draw                   (void); 
-    IFB_INTERNAL void  renderer_quad_draw_buffer            (const quad_vertex_buffer* vtx_buffer);
+    IFB_INTERNAL void  renderer_quad_push                   (const entity_id quad_id);
+    IFB_INTERNAL void  renderer_quad_draw_list              (void);
 
     // direction gizmo
     IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (const shader_source& src_vertex, const shader_source& src_fragment);
@@ -79,20 +80,14 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
-
-    struct renderer_memory : memory {
-        u32 granularity;
-        struct {
-            u32* ids;
-            u32  position;
-            u32  capacity;
-        } block_stack;
+    
+    struct renderer_memory {
+        stack stack;
     };
 
-    
     struct shader_source {
         const cchar* data;
-        u32           size;
+        u32          size;
     };
 
     struct hello_quad_shader {
@@ -108,15 +103,15 @@ namespace ifb {
         union {
             struct {
                 struct {
-                    u32 elmnt_0_index_0;
-                    u32 elmnt_1_index_1;
-                    u32 elmnt_2_index_3;
-                } triangle_1;
-                struct {
-                    u32 elmnt_3_index_1;
-                    u32 elmnt_4_index_2;
                     u32 elmnt_5_index_3;
+                    u32 elmnt_4_index_2;
+                    u32 elmnt_3_index_1;
                 } triangle_2;
+                struct {
+                    u32 elmnt_2_index_3;
+                    u32 elmnt_1_index_1;
+                    u32 elmnt_0_index_0;
+                } triangle_1;
             };
             u32  array [QUAD_ELEMENT_COUNT];
             byte data  [QUAD_ELEMENT_DATA_SIZE];
@@ -124,11 +119,10 @@ namespace ifb {
     };
 
     struct quad_buffers {
-        u32 quad_capacity;
-        u32 quad_count;
         struct {
             u32 size;
             union {
+                quad_vertices* vertices;
                 byte*          data;
                 void*          vptr;
                 addr           addr;
@@ -157,6 +151,7 @@ namespace ifb {
             gl_shader  shdr_frg;
         } gl;
         quad_buffers buffers;
+        quad_list    list;
     };
 
     struct direction_gizmo_shader {
@@ -164,6 +159,7 @@ namespace ifb {
         gl_shader  vert_shdr;
         gl_shader  frag_shdr;
         gl_vertex  vertex;
+        gl_buffer  vertex_buffer;
         gl_uniform unif_mat4_view;
         gl_uniform unif_mat4_proj;
         gl_uniform unif_mat4_model;
@@ -175,14 +171,13 @@ namespace ifb {
     };
 
     struct renderer_context {
-        gl_context*           gl;
-        renderer_memory       mem;
-        camera                cam;
-        mat4                  xform_proj;
-        mat4                  xform_view;
-        dimensions_2d         dims;
-        f32                   fov_y;
-        quad_vertex_buffer*   quad_vtx_buffer;
+        gl_context*               gl;
+        renderer_memory           memory;
+        camera                    cam;
+        mat4                      xform_proj;
+        mat4                      xform_view;
+        dimensions_2d             dims;
+        f32                       fov_y;
         struct {
             hello_quad_shader      hello_quad;
             quad_shader            quad;

@@ -46,6 +46,8 @@ namespace ifb {
             --alctr->arena_count_free;
         }
 
+        a->save     = 0;
+        a->position = 0;
         return(a);
     }
 
@@ -114,7 +116,7 @@ namespace ifb {
         arena_allocator_validate();
         arena_validate(a);
 
-        assert(a->save = 0);
+        assert(a->save == 0);
         a->save = a->position;
         return(a->save);
     }

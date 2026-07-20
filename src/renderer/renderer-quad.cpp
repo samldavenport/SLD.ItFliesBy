@@ -8,11 +8,10 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    inline void quad_shader_commit_memory            (renderer_context* _renderer_ctx);
-    inline void quad_shader_validate                 (const quad_shader& shdr);
-    inline void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
-    inline void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
-    inline void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
+    IFB_INLINE void quad_shader_validate                 (const quad_shader& shdr);
+    IFB_INLINE void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
+    IFB_INLINE void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
+    IFB_INLINE void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -23,46 +22,45 @@ namespace ifb {
         const shader_source& src_vertex,
         const shader_source& src_fragment) {
 
-        quad_shader_commit_memory            (_renderer_ctx);
         quad_shader_create_gl_objects        (_renderer_ctx->shader.quad, _renderer_ctx->gl);
         quad_shader_compile_and_link_program (_renderer_ctx->shader.quad, _renderer_ctx->gl, src_vertex, src_fragment);
         quad_shader_define_vertex            (_renderer_ctx->shader.quad, _renderer_ctx->gl);
     }
 
+    IFB_INTERNAL void 
+    renderer_quad_push(
+        const entity_id quad_id) {
 
-    IFB_INTERNAL u32
-    renderer_quad_draw(
-        void) {
-
-        assert(_renderer_ctx);
-
-        // validate shader
-        auto& shdr = _renderer_ctx->shader.quad;
-        quad_shader_validate(shdr);
-
-        // calculate counts
-        const u32 quad_count    = shdr.buffers.quad_count;
-        const u32 element_count = quad_count * QUAD_ELEMENT_COUNT;
-
-        // draw elements
-        gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
-        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
-        gl_context_draw_elements      (_renderer_ctx->gl, element_count);
-
-        // reset counts and return
-        shdr.buffers.quad_count = 0;
-        return(quad_count);
+        assert(quad_does_exist(quad_id));
+        _renderer_ctx->shader.quad.list.add(quad_id);
     }
 
     IFB_INTERNAL void
-    renderer_quad_draw_buffer(
-        const quad_vertex_buffer* vtx_buffer) {
+    renderer_quad_draw_list(
+        void) {
 
-        assert(
-            vtx_buffer               != NULL &&
-            vtx_buffer->data.bytes   != NULL &&
-            vtx_buffer->vertex_count != 0
-        );
+        auto& shdr = _renderer_ctx->shader.quad;        
+        quad_shader_validate(shdr);
+
+        for (
+            u32 i = 0;
+            i < shdr.list.count();
+            ++i) {
+
+            const entity_id id       = shdr.list[i];
+            quad_vertices&  vertices = shdr.buffers.vertices.vertices[i];
+
+            assert(id != ENTITY_ID_INVALID);
+            assert(quad_get_vertices(vertices, id));
+        }
+
+        const u32 element_draw_count = (6 * shdr.list.count()); 
+        
+        gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
+        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
+        gl_context_draw_elements      (_renderer_ctx->gl, element_draw_count);
+
+        shdr.list.reset();
     }
 
     //--------------------------------------------------------------------
@@ -70,49 +68,14 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     inline void
-    quad_shader_commit_memory(
-        renderer_context* _renderer_ctx) {
-
-        assert(_renderer_ctx);
-        auto& shdr = _renderer_ctx->shader.quad;
-
-        // commit memory
-        void* mem = renderer_memory_commit(_renderer_ctx);
-        assert(mem);
-
-        // calculate sizes
-        const u32 size_mem          = _renderer_ctx->mem.granularity;
-        const u32 size_per_quad     = (QUAD_DATA_SIZE + QUAD_ELEMENT_DATA_SIZE);
-        const u32 count_quads_total = (size_mem / size_per_quad);
-        const u32 size_data_vtx     = count_quads_total * QUAD_VERTEX_SIZE;
-        const u32 size_data_elmnt   = count_quads_total * QUAD_ELEMENT_DATA_SIZE;
-        
-        // quad capacity / count
-        shdr.buffers.quad_capacity  = count_quads_total;
-        shdr.buffers.quad_count     = 0;
-
-        // vertex buffer
-        shdr.buffers.vertices.size  = size_data_vtx; 
-        shdr.buffers.vertices.vptr  = mem;
-
-        // element buffer
-        shdr.buffers.elements.size = size_data_elmnt;
-        shdr.buffers.elements.addr = (shdr.buffers.vertices.addr + size_data_vtx);
-
-        // make sure we are within bounds
-        assert((size_data_vtx + size_data_elmnt) <= size_mem);
-    }
-
-    inline void
     quad_shader_validate(
         const quad_shader& shdr) {
 
-        assert(
-            shdr.gl.program      != GL_ID_INVALID &&
-            shdr.gl.vertex       != GL_ID_INVALID &&
-            shdr.gl.buffer_vtx   != GL_ID_INVALID &&
-            shdr.gl.buffer_elmnt != GL_ID_INVALID
-        );
+        shdr.list.validate();
+        assert(shdr.gl.program      != GL_ID_INVALID);
+        assert(shdr.gl.vertex       != GL_ID_INVALID);
+        assert(shdr.gl.buffer_vtx   != GL_ID_INVALID);
+        assert(shdr.gl.buffer_elmnt != GL_ID_INVALID);
     } 
 
     inline void
