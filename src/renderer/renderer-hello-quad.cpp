@@ -29,8 +29,6 @@ namespace ifb {
         assert(sizeof(vec3)           == 12);
         assert(sizeof(color_rgba_f32) == 16);
         
-        _quad_buffers.quad_capacity   = 1;
-        _quad_buffers.quad_count      = 1;
         _quad_buffers.vertices.floats = (f32*)HELLO_QUAD_VERTICES;
         _quad_buffers.vertices.size   = sizeof(HELLO_QUAD_VERTICES); 
         _quad_buffers.elements.uints  = (u32*)HELLO_QUAD_ELEMENTS;

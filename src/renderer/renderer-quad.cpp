@@ -60,6 +60,7 @@ namespace ifb {
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
         gl_context_draw_elements      (_renderer_ctx->gl, element_draw_count);
 
+        shdr.list.reset();
     }
 
     //--------------------------------------------------------------------

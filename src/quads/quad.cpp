@@ -22,6 +22,25 @@ namespace ifb {
         return(id);
     }
 
+    IFB_INTERNAL entity_id
+    quad_create(
+        const cchar* tag_cstr,
+        quad         q) {
+
+        const entity_id id = quad_create(tag_cstr);
+        if (id != ENTITY_ID_INVALID) {
+
+            entity e;
+            assert(entity_lookup_by_id(e, id));
+
+            cmpnt_position_table_update (q.position,   e.index_sparse);
+            cmpnt_color_table_update    (q.color,      e.index_sparse);
+            cmpnt_quad_table_update     (q.dimensions, e.index_sparse);
+        }
+
+        return(id);
+    }
+
     IFB_INTERNAL void
     quad_create_batch(
         const cchar** tag_cstr,
@@ -190,40 +209,40 @@ namespace ifb {
         const f32 offset_y = (q.dims.height / 2.0f);
 
         // top right
-        qv.top_right.pos_x   = q.pos.x + offset_x; 
-        qv.top_right.pos_y   = q.pos.y + offset_y; 
-        qv.top_right.pos_z   = q.pos.z; 
-        qv.top_right.color_r = color.r;
-        qv.top_right.color_g = color.g;
-        qv.top_right.color_b = color.b;
-        qv.top_right.color_a = color.a;
+        qv.top_right.pos_x      = q.pos.x + offset_x; 
+        qv.top_right.pos_y      = q.pos.y + offset_y; 
+        qv.top_right.pos_z      = q.pos.z; 
+        qv.top_right.color_r    = color.r;
+        qv.top_right.color_g    = color.g;
+        qv.top_right.color_b    = color.b;
+        qv.top_right.color_a    = color.a;
         
         // bottom right
-        qv.top_right.pos_x   = q.pos.x + offset_x; 
-        qv.top_right.pos_y   = q.pos.y - offset_y; 
-        qv.top_right.pos_z   = q.pos.z; 
-        qv.top_right.color_r = color.r;
-        qv.top_right.color_g = color.g;
-        qv.top_right.color_b = color.b;
-        qv.top_right.color_a = color.a;
+        qv.bottom_right.pos_x   = q.pos.x + offset_x; 
+        qv.bottom_right.pos_y   = q.pos.y - offset_y; 
+        qv.bottom_right.pos_z   = q.pos.z; 
+        qv.bottom_right.color_r = color.r;
+        qv.bottom_right.color_g = color.g;
+        qv.bottom_right.color_b = color.b;
+        qv.bottom_right.color_a = color.a;
         
         // bottom left
-        qv.top_right.pos_x   = q.pos.x - offset_x; 
-        qv.top_right.pos_y   = q.pos.y - offset_y; 
-        qv.top_right.pos_z   = q.pos.z; 
-        qv.top_right.color_r = color.r;
-        qv.top_right.color_g = color.g;
-        qv.top_right.color_b = color.b;
-        qv.top_right.color_a = color.a;
+        qv.bottom_left.pos_x    = q.pos.x - offset_x; 
+        qv.bottom_left.pos_y    = q.pos.y - offset_y; 
+        qv.bottom_left.pos_z    = q.pos.z; 
+        qv.bottom_left.color_r  = color.r;
+        qv.bottom_left.color_g  = color.g;
+        qv.bottom_left.color_b  = color.b;
+        qv.bottom_left.color_a  = color.a;
         
         // top left
-        qv.top_right.pos_x   = q.pos.x - offset_x; 
-        qv.top_right.pos_y   = q.pos.y + offset_y; 
-        qv.top_right.pos_z   = q.pos.z; 
-        qv.top_right.color_r = color.r;
-        qv.top_right.color_g = color.g;
-        qv.top_right.color_b = color.b;
-        qv.top_right.color_a = color.a;
+        qv.top_left.pos_x       = q.pos.x - offset_x; 
+        qv.top_left.pos_y       = q.pos.y + offset_y; 
+        qv.top_left.pos_z       = q.pos.z; 
+        qv.top_left.color_r     = color.r;
+        qv.top_left.color_g     = color.g;
+        qv.top_left.color_b     = color.b;
+        qv.top_left.color_a     = color.a;
 
         return(true);
     }

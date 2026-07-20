@@ -44,6 +44,7 @@ namespace ifb {
     IFB_INTERNAL void       quad_mngr_startup   (memory& mem);
 
     IFB_INTERNAL entity_id  quad_create         (const cchar*  tag_cstr);
+    IFB_INTERNAL entity_id  quad_create         (const cchar*  tag_cstr, quad q);
     IFB_INTERNAL void       quad_create_batch   (const cchar** tag_cstr, const u32 count, entity_id* id);
     IFB_INTERNAL bool       quad_lookup_by_tag  (quad_entity& q, const cchar*    tag_cstr);
     IFB_INTERNAL bool       quad_lookup_by_id   (quad_entity& q, const entity_id id);
@@ -73,13 +74,13 @@ namespace ifb {
     struct quad_vertex {
         union {
             struct {
-                f32 color_a;
-                f32 color_b;
-                f32 color_g;
-                f32 color_r;
-                f32 pos_z;
-                f32 pos_y;
                 f32 pos_x;
+                f32 pos_y;
+                f32 pos_z;
+                f32 color_r;
+                f32 color_g;
+                f32 color_b;
+                f32 color_a;
             };
             byte bytes[28];
         };
@@ -88,11 +89,10 @@ namespace ifb {
     struct quad_vertices {
         union {
             struct {
-                quad_vertex top_left;
-                quad_vertex bottom_left;
-                quad_vertex bottom_right;
                 quad_vertex top_right;
-            
+                quad_vertex bottom_right;
+                quad_vertex bottom_left;
+                quad_vertex top_left;
             };
             byte data[112];
         };

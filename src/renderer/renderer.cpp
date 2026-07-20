@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "renderer-hello-quad.cpp" 
 #include "renderer-quad.cpp" 
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-camera.cpp"
