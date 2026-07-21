@@ -167,10 +167,11 @@ namespace ifb {
     renderer_init_quad_memory(
         void) {
 
-        const auto&   cfg     = config_instance();
-        renderer_quad_buffers& buffers = _renderer_ctx->shader.quad.buffers;
+        const auto& cfg     = config_instance();
+        auto&       buffers = _renderer_ctx->shader.quad.buffers;
         
-        buffers.vertices.size = (cfg.quad_capacity  * sizeof(quad_vertices)); 
+        buffers.vertex.size = 
+        buffers.size = (cfg.quad_capacity  * sizeof(quad_vertices)); 
         buffers.vertices.vptr = _renderer_ctx->memory.stack.push(buffers.vertices.size);
         buffers.elements.size = (cfg.quad_capacity * sizeof(u32) * 6);
         buffers.elements.vptr = _renderer_ctx->memory.stack.push(buffers.elements.size);

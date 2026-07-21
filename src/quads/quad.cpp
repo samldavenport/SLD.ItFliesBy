@@ -189,64 +189,6 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    quad_get_vertices(
-        quad_vertices&  qv,
-        const entity_id id) {
-        
-        assert(id != ENTITY_ID_INVALID);
-
-        quad_entity q = {0};
-        if (!quad_lookup_by_id(q, id)) {
-            return(false);
-        }
-
-        // normalize the color
-        const color_rgba_f32 color(q.color.hex);
-
-        // calculate x and y offsets
-        const f32 offset_x = (q.dims.width  / 2.0f);
-        const f32 offset_y = (q.dims.height / 2.0f);
-
-        // top right
-        qv.data.bytes[0]  = q.pos.x + offset_x; 
-        qv.data.bytes[1]  = q.pos.y + offset_y; 
-        qv.data.bytes[2]  = q.pos.z; 
-        qv.data.bytes[3]  = color.r;
-        qv.data.bytes[4]  = color.g;
-        qv.data.bytes[5]  = color.b;
-        qv.data.bytes[6]  = color.a;
-        
-        // bottom right
-        qv.data.bytes[7]  = q.pos.x + offset_x; 
-        qv.data.bytes[8]  = q.pos.y - offset_y; 
-        qv.data.bytes[9]  = q.pos.z; 
-        qv.data.bytes[10] = color.r;
-        qv.data.bytes[11] = color.g;
-        qv.data.bytes[12] = color.b;
-        qv.data.bytes[13] = color.a;
-        
-        // bottom left
-        qv.data.bytes[14] = q.pos.x - offset_x; 
-        qv.data.bytes[15] = q.pos.y - offset_y; 
-        qv.data.bytes[16] = q.pos.z; 
-        qv.data.bytes[17] = color.r;
-        qv.data.bytes[18] = color.g;
-        qv.data.bytes[19] = color.b;
-        qv.data.bytes[20] = color.a;
-        
-        // top left
-        qv.data.bytes[21] = q.pos.x - offset_x; 
-        qv.data.bytes[22] = q.pos.y + offset_y; 
-        qv.data.bytes[23] = q.pos.z; 
-        qv.data.bytes[24] = color.r;
-        qv.data.bytes[25] = color.g;
-        qv.data.bytes[26] = color.b;
-        qv.data.bytes[27] = color.a;
-
-        return(true);
-    }
-
-    IFB_INTERNAL bool
     quad_list_init(
         quad_list& ql,
         arena*     a) {
