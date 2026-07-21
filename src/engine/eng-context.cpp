@@ -80,9 +80,9 @@ namespace ifb {
         eng_context_startup_file_mngr       (mem_map);
         eng_context_startup_entity_mngr     (mem_map);
         eng_context_startup_memory_mngr     (mem_map);
-        eng_context_startup_renderer        (mem_map);
         eng_context_startup_cmpnt_mngr      (mem_map);
         eng_context_startup_quad_mngr       (mem_map);
+        eng_context_startup_renderer        (mem_map);
     }
 
     IFB_ENGINE_API void
@@ -91,15 +91,6 @@ namespace ifb {
         const eng_arena_handle img_arena = eng_arena_alloc();
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
         const image*           img       = eng_image_load_to_arena(img_file, img_arena);
-
-        quad q;
-        q.color.hex         = 0xFF0000FF;
-        q.dimensions.width  = 0.2;
-        q.dimensions.height = 0.2;
-        q.position.x        = 0.0;
-        q.position.y        = 0.0;
-        q.position.z        = 0.0;
-        const entity_id q_id = quad_create("TEST-QUAD", q);
 
         while(true) {
 

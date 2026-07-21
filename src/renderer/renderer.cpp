@@ -159,6 +159,17 @@ namespace ifb {
         return(aspect_ratio);
     }
 
+    IFB_INTERNAL void*
+    renderer_context_memory_alloc(
+        const u32 size) {
+
+        assert(size != 0);
+
+        void* mem = _renderer_ctx->memory.stack.push(size);
+        return(mem);
+    }
+
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
@@ -169,16 +180,20 @@ namespace ifb {
 
         const auto& cfg     = config_instance();
         auto&       buffers = _renderer_ctx->shader.quad.buffers;
-        
-        buffers.vertex.size = 
-        buffers.size = (cfg.quad_capacity  * sizeof(quad_vertices)); 
-        buffers.vertices.vptr = _renderer_ctx->memory.stack.push(buffers.vertices.size);
-        buffers.elements.size = (cfg.quad_capacity * sizeof(u32) * 6);
-        buffers.elements.vptr = _renderer_ctx->memory.stack.push(buffers.elements.size);
+        auto&       list    = _renderer_ctx->shader.quad.render_list;
 
-        assert(buffers.vertices.size != 0);
-        assert(buffers.vertices.addr != 0);
-        assert(buffers.elements.size != 0);
-        assert(buffers.elements.addr != 0);
+        auto* quad_entities       = (entity_id*)renderer_context_memory_alloc(cfg.quad_capacity * sizeof(entity_id));
+        buffers.vertex.size       = (cfg.quad_capacity  * sizeof(renderer_quad_vertices)); 
+        buffers.vertex.data.vptr  = renderer_context_memory_alloc(buffers.vertex.size);
+        buffers.element.size      = (cfg.quad_capacity * sizeof(u32) * 6);
+        buffers.element.data.vptr = renderer_context_memory_alloc(buffers.element.size);
+
+        assert(buffers.vertex.size       != 0);
+        assert(buffers.vertex.data.vptr  != 0);
+        assert(buffers.element.size      != 0);
+        assert(buffers.element.data.vptr != 0);
+        assert(quad_entities             != NULL);
+
+        list.init(quad_entities, cfg.quad_capacity);
     }
 };

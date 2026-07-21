@@ -27,6 +27,7 @@ namespace ifb {
     struct renderer_camera;
     struct renderer_quad_shader;
     struct renderer_quad_buffers;
+    struct renderer_quad_vertices;
     struct renderer_quad_elements;
 
     //--------------------------------------------------------------------
@@ -47,11 +48,7 @@ namespace ifb {
     IFB_INTERNAL void              renderer_context_update_projection_matrix (void);
     IFB_INTERNAL void              renderer_context_update_view_matrix       (void);
     IFB_INTERNAL f32               renderer_context_aspect_ratio             (void);
-
-    // memory
-    IFB_INTERNAL void* renderer_memory_commit               (void);
-    IFB_INTERNAL void  renderer_memory_decommit             (void* mem);
-    IFB_INTERNAL u32   renderer_memory_element_count        (const u32 element_size);
+    IFB_INTERNAL void*             renderer_context_memory_alloc             (const u32 size);
 
     // camera
     IFB_INTERNAL void  renderer_camera_init                 (void);
@@ -68,6 +65,7 @@ namespace ifb {
     IFB_INTERNAL void  renderer_quad_shader_init            (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL void  renderer_quad_push                   (const entity_id id);
     IFB_INTERNAL void  renderer_quad_draw                   (void);
+    IFB_INTERNAL bool  renderer_quad_get_vertices           (renderer_quad_vertices& vertices, const entity_id quad_id);
 
     // direction gizmo
     IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
@@ -106,10 +104,16 @@ namespace ifb {
     };
 
     struct renderer_quad_vertices {
-        renderer_quad_vertex top_right;
-        renderer_quad_vertex bottom_right;
-        renderer_quad_vertex bottom_left;
-        renderer_quad_vertex top_left;
+        union {
+            struct {
+                renderer_quad_vertex top_right;
+                renderer_quad_vertex bottom_right;
+                renderer_quad_vertex bottom_left;
+                renderer_quad_vertex top_left;
+            };
+            byte bytes  [112];
+            f32  floats [28];
+        };
     };
 
     struct renderer_quad_vertex_buffer {
@@ -146,6 +150,7 @@ namespace ifb {
             renderer_quad_vertex_buffer  vertex;
             renderer_quad_element_buffer element;
         } buffers;
+        quad_list render_list;
     };
     struct renderer_direction_gizmo_shader {
         gl_program program;
