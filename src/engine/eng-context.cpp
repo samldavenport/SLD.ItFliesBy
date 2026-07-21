@@ -108,14 +108,13 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
 
-            renderer_quad_push(q_id);
 
             // render graphics
             // renderer_context_update_projection_matrix ();
             // renderer_context_update_view_matrix       ();
             // renderer_direction_gizmo_draw             ();
             // renderer_hello_quad_draw();
-            renderer_quad_draw_list();
+            renderer_quad_draw();
 
             // render gui
             gui_render();
@@ -213,23 +212,22 @@ namespace ifb {
         const file_handle file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
 
         // read quad shaders        
-        shader_source file_src_quad_vert;
-        shader_source file_src_quad_frag;
+        renderer_shader_source file_src_quad_vert;
+        renderer_shader_source file_src_quad_frag;
         file_src_quad_vert.size = file_get_size (file_hnd_quad_vert); 
         file_src_quad_vert.data = file_read     (file_hnd_quad_vert, file_src_quad_vert.size);
         file_src_quad_frag.size = file_get_size (file_hnd_quad_frag);
         file_src_quad_frag.data = file_read     (file_hnd_quad_frag, file_src_quad_frag.size); 
         
         // read direction gizmo shaders
-        shader_source file_src_dir_giz_vert;
-        shader_source file_src_dir_giz_frag;
+        renderer_shader_source file_src_dir_giz_vert;
+        renderer_shader_source file_src_dir_giz_frag;
         file_src_dir_giz_vert.size = file_get_size (file_hnd_dir_giz_vert); 
         file_src_dir_giz_vert.data = file_read     (file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
         file_src_dir_giz_frag.size = file_get_size (file_hnd_dir_giz_frag);
         file_src_dir_giz_frag.data = file_read     (file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
 
         // initialize shaders
-        renderer_hello_quad_shader_init      (file_src_quad_vert,    file_src_quad_frag);
         renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
 

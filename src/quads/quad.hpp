@@ -71,32 +71,42 @@ namespace ifb {
         position_3d    pos;
     };
 
-    struct quad_vertex {
-        union {
-            struct {
-                f32 pos_x;
-                f32 pos_y;
-                f32 pos_z;
-                f32 color_r;
-                f32 color_g;
-                f32 color_b;
-                f32 color_a;
-            };
-            byte bytes[28];
-        };
-    };
-
     struct quad_vertices {
         union {
             struct {
-                quad_vertex top_right;
-                quad_vertex bottom_right;
-                quad_vertex bottom_left;
-                quad_vertex top_left;
+                f32 right_top_pos_x;
+                f32 right_top_pos_y;
+                f32 right_top_pos_z;
+                f32 right_top_color_r;
+                f32 right_top_color_g;
+                f32 right_top_color_b;
+                f32 right_top_color_a;
+                f32 right_bottom_pos_x;
+                f32 right_bottom_pos_y;
+                f32 right_bottom_pos_z;
+                f32 right_bottom_color_r;
+                f32 right_bottom_color_g;
+                f32 right_bottom_color_b;
+                f32 right_bottom_color_a;
+                f32 left_bottom_pos_x;
+                f32 left_bottom_pos_y;
+                f32 left_bottom_pos_z;
+                f32 left_bottom_color_r;
+                f32 left_bottom_color_g;
+                f32 left_bottom_color_b;
+                f32 left_bottom_color_a;
+                f32 left_top_pos_x;
+                f32 left_top_pos_y;
+                f32 left_top_pos_z;
+                f32 left_top_color_r;
+                f32 left_top_color_g;
+                f32 left_top_color_b;
+                f32 left_top_color_a;
             };
-            byte data[112];
-        };
+            byte bytes[112];
+        } data;
     };
+
 };
 
 #endif //IFB_QUAD_HPP

@@ -167,7 +167,6 @@ namespace ifb {
 
             ql.add(_quad_mngr->all[index]) ;
         }
-
     }
 
     IFB_INTERNAL bool
@@ -209,40 +208,40 @@ namespace ifb {
         const f32 offset_y = (q.dims.height / 2.0f);
 
         // top right
-        qv.top_right.pos_x      = q.pos.x + offset_x; 
-        qv.top_right.pos_y      = q.pos.y + offset_y; 
-        qv.top_right.pos_z      = q.pos.z; 
-        qv.top_right.color_r    = color.r;
-        qv.top_right.color_g    = color.g;
-        qv.top_right.color_b    = color.b;
-        qv.top_right.color_a    = color.a;
+        qv.data.bytes[0]  = q.pos.x + offset_x; 
+        qv.data.bytes[1]  = q.pos.y + offset_y; 
+        qv.data.bytes[2]  = q.pos.z; 
+        qv.data.bytes[3]  = color.r;
+        qv.data.bytes[4]  = color.g;
+        qv.data.bytes[5]  = color.b;
+        qv.data.bytes[6]  = color.a;
         
         // bottom right
-        qv.bottom_right.pos_x   = q.pos.x + offset_x; 
-        qv.bottom_right.pos_y   = q.pos.y - offset_y; 
-        qv.bottom_right.pos_z   = q.pos.z; 
-        qv.bottom_right.color_r = color.r;
-        qv.bottom_right.color_g = color.g;
-        qv.bottom_right.color_b = color.b;
-        qv.bottom_right.color_a = color.a;
+        qv.data.bytes[7]  = q.pos.x + offset_x; 
+        qv.data.bytes[8]  = q.pos.y - offset_y; 
+        qv.data.bytes[9]  = q.pos.z; 
+        qv.data.bytes[10] = color.r;
+        qv.data.bytes[11] = color.g;
+        qv.data.bytes[12] = color.b;
+        qv.data.bytes[13] = color.a;
         
         // bottom left
-        qv.bottom_left.pos_x    = q.pos.x - offset_x; 
-        qv.bottom_left.pos_y    = q.pos.y - offset_y; 
-        qv.bottom_left.pos_z    = q.pos.z; 
-        qv.bottom_left.color_r  = color.r;
-        qv.bottom_left.color_g  = color.g;
-        qv.bottom_left.color_b  = color.b;
-        qv.bottom_left.color_a  = color.a;
+        qv.data.bytes[14] = q.pos.x - offset_x; 
+        qv.data.bytes[15] = q.pos.y - offset_y; 
+        qv.data.bytes[16] = q.pos.z; 
+        qv.data.bytes[17] = color.r;
+        qv.data.bytes[18] = color.g;
+        qv.data.bytes[19] = color.b;
+        qv.data.bytes[20] = color.a;
         
         // top left
-        qv.top_left.pos_x       = q.pos.x - offset_x; 
-        qv.top_left.pos_y       = q.pos.y + offset_y; 
-        qv.top_left.pos_z       = q.pos.z; 
-        qv.top_left.color_r     = color.r;
-        qv.top_left.color_g     = color.g;
-        qv.top_left.color_b     = color.b;
-        qv.top_left.color_a     = color.a;
+        qv.data.bytes[21] = q.pos.x - offset_x; 
+        qv.data.bytes[22] = q.pos.y + offset_y; 
+        qv.data.bytes[23] = q.pos.z; 
+        qv.data.bytes[24] = color.r;
+        qv.data.bytes[25] = color.g;
+        qv.data.bytes[26] = color.b;
+        qv.data.bytes[27] = color.a;
 
         return(true);
     }

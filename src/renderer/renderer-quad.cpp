@@ -4,145 +4,86 @@
 
 namespace ifb {
 
-    //--------------------------------------------------------------------
-    // INLINE METHOD DECLARATIONS
-    //--------------------------------------------------------------------
+    static constexpr f32 QUAD_VERTICES[] = {
+        
+        //position---------|color-----------------|
+         0.1f,  0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top right
+         0.1f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom right
+        -0.1f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom left
+        -0.1f,  0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left
+    };
 
-    IFB_INLINE void quad_shader_validate                 (const quad_shader& shdr);
-    IFB_INLINE void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
-    IFB_INLINE void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
-    IFB_INLINE void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
-
-    //--------------------------------------------------------------------
-    // INTERNAL METHOD DEFINITIONS
-    //--------------------------------------------------------------------
+    static constexpr u32 QUAD_ELEMENTS[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
     IFB_INTERNAL void
     renderer_quad_shader_init(
-        const shader_source& src_vertex,
-        const shader_source& src_fragment) {
+        const renderer_shader_source& src_vertex,
+        const renderer_shader_source& src_fragment) {
 
-        quad_shader_create_gl_objects        (_renderer_ctx->shader.quad, _renderer_ctx->gl);
-        quad_shader_compile_and_link_program (_renderer_ctx->shader.quad, _renderer_ctx->gl, src_vertex, src_fragment);
-        quad_shader_define_vertex            (_renderer_ctx->shader.quad, _renderer_ctx->gl);
-    }
+        assert(_renderer_ctx);
+        assert(sizeof(vec3)           == 12);
+        assert(sizeof(color_rgba_f32) == 16);
 
-    IFB_INTERNAL void 
-    renderer_quad_push(
-        const entity_id quad_id) {
-
-        assert(quad_does_exist(quad_id));
-        _renderer_ctx->shader.quad.list.add(quad_id);
-    }
-
-    IFB_INTERNAL void
-    renderer_quad_draw_list(
-        void) {
-
-        auto& shdr = _renderer_ctx->shader.quad;        
-        quad_shader_validate(shdr);
+        auto& shdr = _renderer_ctx->shader.quad;
 
         for (
             u32 i = 0;
-            i < shdr.list.count();
+            i < 28;
             ++i) {
 
-            const entity_id id       = shdr.list[i];
-            quad_vertices&  vertices = shdr.buffers.vertices.vertices[i];
-
-            assert(id != ENTITY_ID_INVALID);
-            assert(quad_get_vertices(vertices, id));
+            shdr.buffers.vertices.floats[i] = QUAD_VERTICES[i];
         }
 
-        const u32 element_draw_count = (6 * shdr.list.count()); 
+        for (
+            u32 i = 0;
+            i < 6;
+            ++i) {
+
+            shdr.buffers.elements.uints[i] = QUAD_ELEMENTS[i]; 
+        }
         
-        gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
-        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
-        gl_context_draw_elements      (_renderer_ctx->gl, element_draw_count);
-
-        shdr.list.reset();
-    }
-
-    //--------------------------------------------------------------------
-    // INLINE METHOD DEFINITIONS
-    //--------------------------------------------------------------------
-
-    inline void
-    quad_shader_validate(
-        const quad_shader& shdr) {
-
-        shdr.list.validate();
-        assert(shdr.gl.program      != GL_ID_INVALID);
-        assert(shdr.gl.vertex       != GL_ID_INVALID);
-        assert(shdr.gl.buffer_vtx   != GL_ID_INVALID);
-        assert(shdr.gl.buffer_elmnt != GL_ID_INVALID);
-    } 
-
-    inline void
-    quad_shader_create_gl_objects(
-        quad_shader& shdr,
-        gl_context*  gl) {
-        
-        shdr.gl.program      = gl_shader_program_create        (gl);
-        shdr.gl.vertex       = gl_vertex_create                (gl);
-        shdr.gl.buffer_vtx   = gl_buffer_create                (gl);
-        shdr.gl.buffer_elmnt = gl_buffer_create                (gl);
-        shdr.gl.shdr_vtx     = gl_shader_stage_create_vertex   (gl);
-        shdr.gl.shdr_frg     = gl_shader_stage_create_fragment (gl);
-
-        assert(
-            shdr.gl.program      != GL_ID_INVALID &&
-            shdr.gl.vertex       != GL_ID_INVALID &&
-            shdr.gl.buffer_vtx   != GL_ID_INVALID &&
-            shdr.gl.buffer_elmnt != GL_ID_INVALID &&
-            shdr.gl.shdr_vtx     != GL_ID_INVALID &&
-            shdr.gl.shdr_frg     != GL_ID_INVALID
-        );
-    }
-
-    inline void
-    quad_shader_compile_and_link_program(
-        quad_shader&         shdr,
-        gl_context*          gl,
-        const shader_source& src_vertex,
-        const shader_source& src_fragment) {
+        // create gl objects
+        shdr.gl.program          = gl_shader_program_create        (_renderer_ctx->gl);
+        shdr.gl.vertex           = gl_vertex_create                (_renderer_ctx->gl);
+        shdr.gl.buf_vertex       = gl_buffer_create                (_renderer_ctx->gl); 
+        shdr.gl.buf_element      = gl_buffer_create                (_renderer_ctx->gl);
+        const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (_renderer_ctx->gl);
+        const gl_shader shdr_frg = gl_shader_stage_create_fragment (_renderer_ctx->gl);
 
         bool gl_ok = true;
 
-        // compile and link program
-        gl_ok &= gl_shader_stage_compile_from_source (gl, shdr.gl.shdr_vtx, src_vertex.data,   src_vertex.size);
-        gl_ok &= gl_shader_stage_compile_from_source (gl, shdr.gl.shdr_frg, src_fragment.data, src_fragment.size);
-        gl_ok &= gl_shader_program_attach_stage      (gl, shdr.gl.program,  shdr.gl.shdr_vtx);
-        gl_ok &= gl_shader_program_attach_stage      (gl, shdr.gl.program,  shdr.gl.shdr_frg);
-        gl_ok &= gl_shader_program_link              (gl, shdr.gl.program);
+        // compile shader
+        gl_ok &= gl_shader_stage_compile_from_source (_renderer_ctx->gl, shdr_vtx, src_vertex.data,   src_vertex.size);
+        gl_ok &= gl_shader_stage_compile_from_source (_renderer_ctx->gl, shdr_frg, src_fragment.data, src_fragment.size);
+        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr.gl.program,  shdr_vtx);
+        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr.gl.program,  shdr_frg);
+        gl_ok &= gl_shader_program_link              (_renderer_ctx->gl, shdr.gl.program);
+        gl_shader_stage_destroy                      (_renderer_ctx->gl, shdr_vtx);
+        gl_shader_stage_destroy                      (_renderer_ctx->gl, shdr_frg);
         assert(gl_ok);
 
-        // destroy the shader stages
-        gl_shader_stage_destroy (gl, shdr.gl.shdr_vtx);
-        gl_shader_stage_destroy (gl, shdr.gl.shdr_frg);
-        shdr.gl.shdr_vtx = GL_ID_INVALID;
-        shdr.gl.shdr_frg = GL_ID_INVALID;
+        // define vertex
+        const u32 vertex_size  = sizeof(vec3) + sizeof(vec4); 
+        gl_ok &= gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
+        gl_ok &= gl_context_set_buffer_vertex  (_renderer_ctx->gl, shdr.gl.buf_vertex);
+        gl_ok &= gl_context_set_buffer_element (_renderer_ctx->gl, shdr.gl.buf_element);
+        gl_ok &= gl_buffer_set_vertex_data     (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertices.data, shdr.buffers.vertices.size);
+        gl_ok &= gl_buffer_set_element_data    (_renderer_ctx->gl, shdr.gl.buf_element, shdr.buffers.elements.data, shdr.buffers.elements.size);
+        gl_ok &= gl_vertex_add_attribute_f32x3 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 0, 0);
+        gl_ok &= gl_vertex_add_attribute_f32x4 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 1, 12);
+        assert(gl_ok);
     }
 
-    inline void
-    quad_shader_define_vertex(
-        quad_shader& shdr,
-        gl_context*  gl) {
+    IFB_INTERNAL void
+    renderer_quad_draw(
+        void) {
 
-        bool gl_ok = true;
-
-        // set context objects
-        gl_ok &= gl_context_set_vertex_object  (gl, shdr.gl.vertex);
-        gl_ok &= gl_context_set_buffer_vertex  (gl, shdr.gl.buffer_vtx);
-        gl_ok &= gl_context_set_buffer_element (gl, shdr.gl.buffer_elmnt);
-        
-        // set data
-        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr.gl.buffer_vtx,   shdr.buffers.vertices.data, shdr.buffers.vertices.size);
-        gl_ok &= gl_buffer_set_element_data    (gl, shdr.gl.buffer_elmnt, shdr.buffers.elements.data, shdr.buffers.elements.size);
-        
-        // set attributes
-        const u32 size_vtx = sizeof(quad_vertex);
-        gl_ok &= gl_vertex_add_attribute_f32x3 (gl, shdr.gl.vertex, size_vtx, 0, 0);
-        gl_ok &= gl_vertex_add_attribute_f32x4 (gl, shdr.gl.vertex, size_vtx, 1, 12);
+        auto& shdr = _renderer_ctx->shader.quad;
+        gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
+        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
+        gl_context_draw_elements      (_renderer_ctx->gl, 6);
     }
 };
