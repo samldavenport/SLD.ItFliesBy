@@ -28,7 +28,7 @@ namespace ifb {
     struct renderer_quad_shader;
     struct renderer_quad_buffers;
     struct renderer_quad_elements;
-    
+
     //--------------------------------------------------------------------
     // GLOBALS
     //--------------------------------------------------------------------
@@ -87,45 +87,52 @@ namespace ifb {
     };
 
     struct renderer_quad_elements {
-        union {
-            struct {
-                struct {
-                    u32 elmnt_5_index_3;
-                    u32 elmnt_4_index_2;
-                    u32 elmnt_3_index_1;
-                } triangle_2;
-                struct {
-                    u32 elmnt_2_index_3;
-                    u32 elmnt_1_index_1;
-                    u32 elmnt_0_index_0;
-                } triangle_1;
-            };
-            u32  array [QUAD_ELEMENT_COUNT];
-            byte data  [QUAD_ELEMENT_DATA_SIZE];
-        };
+        u32 elmnt_0_index_0;
+        u32 elmnt_1_index_1;
+        u32 elmnt_2_index_3;
+        u32 elmnt_3_index_1;
+        u32 elmnt_4_index_2;
+        u32 elmnt_5_index_3;
     };
 
-    struct renderer_quad_buffers {
-        struct {
-            u32 size;
-            union {
-                quad_vertices* vertices;
-                byte*          data;
-                void*          vptr;
-                addr           addr;
-                f32*           floats;
-            };
-        } vertices;
-        struct {
-            u32 size;
-            union {
-                renderer_quad_elements* array;
-                byte*          data;
-                void*          vptr;
-                addr           addr;
-                u32*           uints;
-            };
-        } elements;
+    struct renderer_quad_vertex {
+        f32 pos_x;
+        f32 pos_y;
+        f32 pos_z;
+        f32 color_r;
+        f32 color_g;
+        f32 color_b;
+        f32 color_a;
+    };
+
+    struct renderer_quad_vertices {
+        renderer_quad_vertex top_right;
+        renderer_quad_vertex bottom_right;
+        renderer_quad_vertex bottom_left;
+        renderer_quad_vertex top_left;
+    };
+
+    struct renderer_quad_vertex_buffer {
+        u32 size;
+        union {
+            renderer_quad_vertices* vertices;
+            byte*                   bytes;
+            void*                   vptr;
+            addr                    addr;
+            f32*                    floats;
+        } data;
+    };
+
+
+    struct renderer_quad_element_buffer {
+        u32 size;
+        union {
+            renderer_quad_elements* elements;
+            byte*                   bytes;
+            void*                   vptr;
+            addr                    addr;
+            u32*                    uints;
+        } data;
     };
 
     struct renderer_quad_shader {
@@ -135,7 +142,10 @@ namespace ifb {
             gl_buffer  buf_vertex;
             gl_buffer  buf_element;
         } gl;
-        renderer_quad_buffers buffers;
+        struct {
+            renderer_quad_vertex_buffer  vertex;
+            renderer_quad_element_buffer element;
+        } buffers;
     };
     struct renderer_direction_gizmo_shader {
         gl_program program;

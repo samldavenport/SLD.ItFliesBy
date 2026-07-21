@@ -51,7 +51,6 @@ namespace ifb {
     IFB_INTERNAL bool       quad_does_exist     (const entity_id id);
     IFB_INTERNAL void       quad_update         (const quad_entity& q);
     IFB_INTERNAL void       quad_lookup_all     (quad_list& ql);
-    IFB_INTERNAL bool       quad_get_vertices   (quad_vertices& qv, const entity_id id);
     IFB_INTERNAL bool       quad_list_init      (quad_list& ql, arena* a);
 
     IFB_INTERNAL void       quad_tests          (void);
@@ -70,43 +69,6 @@ namespace ifb {
         dimensions_2d  dims;
         position_3d    pos;
     };
-
-    struct quad_vertices {
-        union {
-            struct {
-                f32 right_top_pos_x;
-                f32 right_top_pos_y;
-                f32 right_top_pos_z;
-                f32 right_top_color_r;
-                f32 right_top_color_g;
-                f32 right_top_color_b;
-                f32 right_top_color_a;
-                f32 right_bottom_pos_x;
-                f32 right_bottom_pos_y;
-                f32 right_bottom_pos_z;
-                f32 right_bottom_color_r;
-                f32 right_bottom_color_g;
-                f32 right_bottom_color_b;
-                f32 right_bottom_color_a;
-                f32 left_bottom_pos_x;
-                f32 left_bottom_pos_y;
-                f32 left_bottom_pos_z;
-                f32 left_bottom_color_r;
-                f32 left_bottom_color_g;
-                f32 left_bottom_color_b;
-                f32 left_bottom_color_a;
-                f32 left_top_pos_x;
-                f32 left_top_pos_y;
-                f32 left_top_pos_z;
-                f32 left_top_color_r;
-                f32 left_top_color_g;
-                f32 left_top_color_b;
-                f32 left_top_color_a;
-            };
-            byte bytes[112];
-        } data;
-    };
-
 };
 
 #endif //IFB_QUAD_HPP
