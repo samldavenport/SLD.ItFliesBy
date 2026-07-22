@@ -15,7 +15,6 @@ namespace ifb {
     struct quad_mngr;
     struct quad_entity;
     struct quad_vertex;
-    struct quad_vertices;
 
     using quad_list = array_list<entity_id>;
 

@@ -63,7 +63,7 @@ namespace ifb {
 
     // hello quad
     IFB_INTERNAL void  renderer_quad_shader_init            (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL void  renderer_quad_push                   (const entity_id id);
+    IFB_INTERNAL bool  renderer_quad_push                   (const entity_id id);
     IFB_INTERNAL void  renderer_quad_draw                   (void);
     IFB_INTERNAL bool  renderer_quad_get_vertices           (renderer_quad_vertices& vertices, const entity_id quad_id);
 

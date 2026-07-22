@@ -92,6 +92,33 @@ namespace ifb {
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
         const image*           img       = eng_image_load_to_arena(img_file, img_arena);
 
+        // create a test quad
+        quad q_0 = {0};
+        q_0.color.hex         = 0xFF0000FF;
+        q_0.dimensions.width  = 0.2;
+        q_0.dimensions.height = 0.2;
+        q_0.position          = {0};
+        const entity_id q_id_0 = quad_create("HELLO-QUAD-1",q_0);
+        assert(q_id_0 != ENTITY_ID_INVALID);
+
+        quad q_1 = {0};
+        q_1.color.hex         = 0x00FF00FF;
+        q_1.dimensions.width  = 0.2;
+        q_1.dimensions.height = 0.2;
+        q_1.position.x = 0.5;
+        q_1.position.y = 0.5;
+        const entity_id q_id_1 = quad_create("HELLO-QUAD-2",q_1);
+        assert(q_id_1 != ENTITY_ID_INVALID);
+
+        quad q_2 = {0};
+        q_2.color.hex         = 0x0000FFFF;
+        q_2.dimensions.width  = 0.2;
+        q_2.dimensions.height = 0.2;
+        q_2.position.x = -0.5;
+        q_2.position.y = -0.5;
+        const entity_id q_id_2 = quad_create("HELLO-QUAD-3",q_2);
+        assert(q_id_2 != ENTITY_ID_INVALID);
+
         while(true) {
 
             //TODO(SAM): pass the opengl context to the platform
@@ -99,12 +126,13 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
 
-
             // render graphics
             // renderer_context_update_projection_matrix ();
             // renderer_context_update_view_matrix       ();
             // renderer_direction_gizmo_draw             ();
-            // renderer_hello_quad_draw();
+            renderer_quad_push(q_id_0);            
+            renderer_quad_push(q_id_1);            
+            renderer_quad_push(q_id_2);            
             renderer_quad_draw();
 
             // render gui

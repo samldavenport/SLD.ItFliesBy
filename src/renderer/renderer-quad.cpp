@@ -4,9 +4,6 @@
 
 namespace ifb {
 
-    static entity_id   _test_quad_id =  0;
-    static quad_entity _test_quad    = {0};
-
     IFB_INTERNAL void
     renderer_quad_shader_init(
         const renderer_shader_source& src_vertex,
@@ -16,17 +13,7 @@ namespace ifb {
         assert(sizeof(vec3)           == 12);
         assert(sizeof(color_rgba_f32) == 16);
 
-        // create a test quad
-        quad q = {0};
-        q.color.hex         = 0xFF0000FF;
-        q.dimensions.width  = 0.2;
-        q.dimensions.height = 0.2;
-        q.position          = {0};
-        _test_quad_id       = quad_create("HELLO-QUAD",q);
-        assert(_test_quad_id != ENTITY_ID_INVALID);
-
         auto& shdr = _renderer_ctx->shader.quad;
-        
 
         // set the element data
         const auto& cfg = config_instance();
@@ -78,29 +65,53 @@ namespace ifb {
         assert(gl_ok);
     }
 
+    IFB_INTERNAL bool
+    renderer_quad_push(
+        const entity_id id) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        const bool does_exist = quad_does_exist(id);
+        assert(does_exist);
+        
+        const bool did_add = _renderer_ctx->shader.quad.render_list.add(id);
+        return(did_add);
+    }
+
     IFB_INTERNAL void
     renderer_quad_draw(
         void) {
 
-        renderer_quad_vertices vertices;
-        assert(renderer_quad_get_vertices(vertices, _test_quad_id));
-
         auto& shdr = _renderer_ctx->shader.quad;
 
+        // get the number of quads and elements
+        const u32 quad_count    = shdr.render_list.count();
+        const u32 element_count = (quad_count * 6);
+        if (element_count == 0) {
+            return;
+        } 
+
+        // calculate the vertices
         for (
             u32 i = 0;
-            i < 28;
+            i < quad_count;
             ++i) {
 
-            shdr.buffers.vertex.data.floats[i] = vertices.floats[i];
+            const entity_id         quad_id  = shdr.render_list[i];
+            renderer_quad_vertices& vertices = shdr.buffers.vertex.data.vertices[i];
+
+            assert(renderer_quad_get_vertices(vertices, quad_id));
         }
 
+        // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
         gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertex.data.bytes,  shdr.buffers.vertex.size);
-        gl_context_draw_elements      (_renderer_ctx->gl, 6);
-    }
+        gl_context_draw_elements      (_renderer_ctx->gl, element_count);
 
+        // reset the list
+        shdr.render_list.reset();
+    }
     
     IFB_INTERNAL bool
     renderer_quad_get_vertices(
