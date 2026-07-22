@@ -15,9 +15,11 @@ namespace ifb {
     struct cmpnt_table_position;
     struct cmpnt_table_color;
     struct cmpnt_table_quad;
+    struct cmpnt_table_physics;
     struct cmpnt_list_position;
     struct cmpnt_list_color;
     struct cmpnt_list_quad;
+    struct cmpnt_list_physics;
 
     //--------------------------------------------------------------------
     // GLOBALS

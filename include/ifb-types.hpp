@@ -43,8 +43,10 @@ namespace ifb {
     struct quad;
     struct strong_u32;
 
-    using position_3d = vec3;
-    using pixel       = color_rgba_u32;
+    using position_3d     = vec3;
+    using velocity_3d     = vec3;
+    using acceleration_3d = vec3;
+    using pixel           = color_rgba_u32;
 
     //--------------------------------------------------------------------
     // STRONG TYPES
