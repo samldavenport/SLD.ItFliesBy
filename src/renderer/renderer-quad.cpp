@@ -39,22 +39,6 @@ namespace ifb {
         assert(sizeof(color_rgba_f32) == 16);
 
         auto& shdr = _renderer_ctx->shader.quad;
-
-        for (
-            u32 i = 0;
-            i < 28;
-            ++i) {
-
-            shdr.buffers.vertex.data.floats[i] = QUAD_VERTICES[i];
-        }
-
-        for (
-            u32 i = 0;
-            i < 6;
-            ++i) {
-
-            shdr.buffers.element.data.uints[i] = QUAD_ELEMENTS[i]; 
-        }
         
         // create gl objects
         shdr.gl.program          = gl_shader_program_create        (_renderer_ctx->gl);
@@ -97,10 +81,26 @@ namespace ifb {
 
         auto& shdr = _renderer_ctx->shader.quad;
 
-        //TODO(SAM): MUST CALL glBufferSubData!!!
+        for (
+            u32 i = 0;
+            i < 28;
+            ++i) {
+
+            shdr.buffers.vertex.data.floats[i] = QUAD_VERTICES[i];
+        }
+        for (
+            u32 i = 0;
+            i < 6;
+            ++i) {
+
+            shdr.buffers.element.data.uints[i] = QUAD_ELEMENTS[i]; 
+        }
+
 
         gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
+        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertex.data.bytes,  shdr.buffers.vertex.size);
+        gl_buffer_update_element_data (_renderer_ctx->gl, shdr.gl.buf_element, shdr.buffers.element.data.bytes, shdr.buffers.element.size);
         gl_context_draw_elements      (_renderer_ctx->gl, 6);
     }
 
