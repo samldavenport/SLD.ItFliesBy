@@ -167,7 +167,6 @@ namespace ifb {
 
             ql.add(_quad_mngr->all[index]) ;
         }
-
     }
 
     IFB_INTERNAL bool
@@ -187,64 +186,6 @@ namespace ifb {
         }
 
         return(exists);
-    }
-
-    IFB_INTERNAL bool
-    quad_get_vertices(
-        quad_vertices&  qv,
-        const entity_id id) {
-        
-        assert(id != ENTITY_ID_INVALID);
-
-        quad_entity q = {0};
-        if (!quad_lookup_by_id(q, id)) {
-            return(false);
-        }
-
-        // normalize the color
-        const color_rgba_f32 color(q.color.hex);
-
-        // calculate x and y offsets
-        const f32 offset_x = (q.dims.width  / 2.0f);
-        const f32 offset_y = (q.dims.height / 2.0f);
-
-        // top right
-        qv.top_right.pos_x      = q.pos.x + offset_x; 
-        qv.top_right.pos_y      = q.pos.y + offset_y; 
-        qv.top_right.pos_z      = q.pos.z; 
-        qv.top_right.color_r    = color.r;
-        qv.top_right.color_g    = color.g;
-        qv.top_right.color_b    = color.b;
-        qv.top_right.color_a    = color.a;
-        
-        // bottom right
-        qv.bottom_right.pos_x   = q.pos.x + offset_x; 
-        qv.bottom_right.pos_y   = q.pos.y - offset_y; 
-        qv.bottom_right.pos_z   = q.pos.z; 
-        qv.bottom_right.color_r = color.r;
-        qv.bottom_right.color_g = color.g;
-        qv.bottom_right.color_b = color.b;
-        qv.bottom_right.color_a = color.a;
-        
-        // bottom left
-        qv.bottom_left.pos_x    = q.pos.x - offset_x; 
-        qv.bottom_left.pos_y    = q.pos.y - offset_y; 
-        qv.bottom_left.pos_z    = q.pos.z; 
-        qv.bottom_left.color_r  = color.r;
-        qv.bottom_left.color_g  = color.g;
-        qv.bottom_left.color_b  = color.b;
-        qv.bottom_left.color_a  = color.a;
-        
-        // top left
-        qv.top_left.pos_x       = q.pos.x - offset_x; 
-        qv.top_left.pos_y       = q.pos.y + offset_y; 
-        qv.top_left.pos_z       = q.pos.z; 
-        qv.top_left.color_r     = color.r;
-        qv.top_left.color_g     = color.g;
-        qv.top_left.color_b     = color.b;
-        qv.top_left.color_a     = color.a;
-
-        return(true);
     }
 
     IFB_INTERNAL bool

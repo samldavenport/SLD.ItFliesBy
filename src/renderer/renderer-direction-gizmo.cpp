@@ -11,8 +11,8 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_direciton_gizmo_shader_init(
-        const shader_source& src_vertex,
-        const shader_source& src_fragment) {
+        const renderer_shader_source& src_vertex,
+        const renderer_shader_source& src_fragment) {
 
         assert(
             _renderer_ctx     != NULL &&

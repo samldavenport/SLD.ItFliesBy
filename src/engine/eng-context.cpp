@@ -80,9 +80,9 @@ namespace ifb {
         eng_context_startup_file_mngr       (mem_map);
         eng_context_startup_entity_mngr     (mem_map);
         eng_context_startup_memory_mngr     (mem_map);
-        eng_context_startup_renderer        (mem_map);
         eng_context_startup_cmpnt_mngr      (mem_map);
         eng_context_startup_quad_mngr       (mem_map);
+        eng_context_startup_renderer        (mem_map);
     }
 
     IFB_ENGINE_API void
@@ -92,14 +92,32 @@ namespace ifb {
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
         const image*           img       = eng_image_load_to_arena(img_file, img_arena);
 
-        quad q;
-        q.color.hex         = 0xFF0000FF;
-        q.dimensions.width  = 0.2;
-        q.dimensions.height = 0.2;
-        q.position.x        = 0.0;
-        q.position.y        = 0.0;
-        q.position.z        = 0.0;
-        const entity_id q_id = quad_create("TEST-QUAD", q);
+        // create a test quad
+        quad q_0 = {0};
+        q_0.color.hex         = 0xFF0000FF;
+        q_0.dimensions.width  = 0.2;
+        q_0.dimensions.height = 0.2;
+        q_0.position          = {0};
+        const entity_id q_id_0 = quad_create("HELLO-QUAD-1",q_0);
+        assert(q_id_0 != ENTITY_ID_INVALID);
+
+        quad q_1 = {0};
+        q_1.color.hex         = 0x00FF00FF;
+        q_1.dimensions.width  = 0.2;
+        q_1.dimensions.height = 0.2;
+        q_1.position.x = 0.5;
+        q_1.position.y = 0.5;
+        const entity_id q_id_1 = quad_create("HELLO-QUAD-2",q_1);
+        assert(q_id_1 != ENTITY_ID_INVALID);
+
+        quad q_2 = {0};
+        q_2.color.hex         = 0x0000FFFF;
+        q_2.dimensions.width  = 0.2;
+        q_2.dimensions.height = 0.2;
+        q_2.position.x = -0.5;
+        q_2.position.y = -0.5;
+        const entity_id q_id_2 = quad_create("HELLO-QUAD-3",q_2);
+        assert(q_id_2 != ENTITY_ID_INVALID);
 
         while(true) {
 
@@ -108,14 +126,14 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
 
-            renderer_quad_push(q_id);
-
             // render graphics
             // renderer_context_update_projection_matrix ();
             // renderer_context_update_view_matrix       ();
             // renderer_direction_gizmo_draw             ();
-            // renderer_hello_quad_draw();
-            renderer_quad_draw_list();
+            renderer_quad_push(q_id_0);            
+            renderer_quad_push(q_id_1);            
+            renderer_quad_push(q_id_2);            
+            renderer_quad_draw();
 
             // render gui
             gui_render();
@@ -213,23 +231,22 @@ namespace ifb {
         const file_handle file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
 
         // read quad shaders        
-        shader_source file_src_quad_vert;
-        shader_source file_src_quad_frag;
+        renderer_shader_source file_src_quad_vert;
+        renderer_shader_source file_src_quad_frag;
         file_src_quad_vert.size = file_get_size (file_hnd_quad_vert); 
         file_src_quad_vert.data = file_read     (file_hnd_quad_vert, file_src_quad_vert.size);
         file_src_quad_frag.size = file_get_size (file_hnd_quad_frag);
         file_src_quad_frag.data = file_read     (file_hnd_quad_frag, file_src_quad_frag.size); 
         
         // read direction gizmo shaders
-        shader_source file_src_dir_giz_vert;
-        shader_source file_src_dir_giz_frag;
+        renderer_shader_source file_src_dir_giz_vert;
+        renderer_shader_source file_src_dir_giz_frag;
         file_src_dir_giz_vert.size = file_get_size (file_hnd_dir_giz_vert); 
         file_src_dir_giz_vert.data = file_read     (file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
         file_src_dir_giz_frag.size = file_get_size (file_hnd_dir_giz_frag);
         file_src_dir_giz_frag.data = file_read     (file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
 
         // initialize shaders
-        renderer_hello_quad_shader_init      (file_src_quad_vert,    file_src_quad_frag);
         renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
 

@@ -4,145 +4,164 @@
 
 namespace ifb {
 
-    //--------------------------------------------------------------------
-    // INLINE METHOD DECLARATIONS
-    //--------------------------------------------------------------------
-
-    IFB_INLINE void quad_shader_validate                 (const quad_shader& shdr);
-    IFB_INLINE void quad_shader_create_gl_objects        (quad_shader& shdr, gl_context* gl);
-    IFB_INLINE void quad_shader_compile_and_link_program (quad_shader& shdr, gl_context* gl, const shader_source& src_vertex, const shader_source& src_fragment);
-    IFB_INLINE void quad_shader_define_vertex            (quad_shader& shdr, gl_context* gl);
-
-    //--------------------------------------------------------------------
-    // INTERNAL METHOD DEFINITIONS
-    //--------------------------------------------------------------------
-
     IFB_INTERNAL void
     renderer_quad_shader_init(
-        const shader_source& src_vertex,
-        const shader_source& src_fragment) {
+        const renderer_shader_source& src_vertex,
+        const renderer_shader_source& src_fragment) {
 
-        quad_shader_create_gl_objects        (_renderer_ctx->shader.quad, _renderer_ctx->gl);
-        quad_shader_compile_and_link_program (_renderer_ctx->shader.quad, _renderer_ctx->gl, src_vertex, src_fragment);
-        quad_shader_define_vertex            (_renderer_ctx->shader.quad, _renderer_ctx->gl);
+        assert(_renderer_ctx);
+        assert(sizeof(vec3)           == 12);
+        assert(sizeof(color_rgba_f32) == 16);
+
+        auto& shdr = _renderer_ctx->shader.quad;
+
+        // set the element data
+        const auto& cfg = config_instance();
+        for (
+            u32 i = 0;
+            i < cfg.quad_capacity;
+            ++i) {
+
+            const u32 offset   = (i * 4);
+            auto&     elements = shdr.buffers.element.data.elements[i];
+            elements.elmnt_0_index_0 = (offset);  
+            elements.elmnt_1_index_1 = (offset + 1); 
+            elements.elmnt_2_index_3 = (offset + 3); 
+            elements.elmnt_3_index_1 = (offset + 1); 
+            elements.elmnt_4_index_2 = (offset + 2); 
+            elements.elmnt_5_index_3 = (offset + 3); 
+        }
+
+        // create gl objects
+        shdr.gl.program          = gl_shader_program_create        (_renderer_ctx->gl);
+        shdr.gl.vertex           = gl_vertex_create                (_renderer_ctx->gl);
+        shdr.gl.buf_vertex       = gl_buffer_create                (_renderer_ctx->gl); 
+        shdr.gl.buf_element      = gl_buffer_create                (_renderer_ctx->gl);
+        const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (_renderer_ctx->gl);
+        const gl_shader shdr_frg = gl_shader_stage_create_fragment (_renderer_ctx->gl);
+
+
+        bool gl_ok = true;
+
+        // compile shader
+        gl_ok &= gl_shader_stage_compile_from_source (_renderer_ctx->gl, shdr_vtx, src_vertex.data,   src_vertex.size);
+        gl_ok &= gl_shader_stage_compile_from_source (_renderer_ctx->gl, shdr_frg, src_fragment.data, src_fragment.size);
+        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr.gl.program,  shdr_vtx);
+        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr.gl.program,  shdr_frg);
+        gl_ok &= gl_shader_program_link              (_renderer_ctx->gl, shdr.gl.program);
+        gl_shader_stage_destroy                      (_renderer_ctx->gl, shdr_vtx);
+        gl_shader_stage_destroy                      (_renderer_ctx->gl, shdr_frg);
+        assert(gl_ok);
+
+        // define vertex
+        const u32 vertex_size  = sizeof(vec3) + sizeof(vec4); 
+        gl_ok &= gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
+        gl_ok &= gl_context_set_buffer_vertex  (_renderer_ctx->gl, shdr.gl.buf_vertex);
+        gl_ok &= gl_context_set_buffer_element (_renderer_ctx->gl, shdr.gl.buf_element);
+        gl_ok &= gl_buffer_set_vertex_data     (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertex.data.bytes,  shdr.buffers.vertex.size);
+        gl_ok &= gl_buffer_set_element_data    (_renderer_ctx->gl, shdr.gl.buf_element, shdr.buffers.element.data.bytes, shdr.buffers.element.size);
+        gl_ok &= gl_vertex_add_attribute_f32x3 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 0, 0);
+        gl_ok &= gl_vertex_add_attribute_f32x4 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 1, 12);
+        assert(gl_ok);
     }
 
-    IFB_INTERNAL void 
+    IFB_INTERNAL bool
     renderer_quad_push(
-        const entity_id quad_id) {
+        const entity_id id) {
 
-        assert(quad_does_exist(quad_id));
-        _renderer_ctx->shader.quad.list.add(quad_id);
+        assert(id != ENTITY_ID_INVALID);
+
+        const bool does_exist = quad_does_exist(id);
+        assert(does_exist);
+        
+        const bool did_add = _renderer_ctx->shader.quad.render_list.add(id);
+        return(did_add);
     }
 
     IFB_INTERNAL void
-    renderer_quad_draw_list(
+    renderer_quad_draw(
         void) {
 
-        auto& shdr = _renderer_ctx->shader.quad;        
-        quad_shader_validate(shdr);
+        auto& shdr = _renderer_ctx->shader.quad;
 
+        // get the number of quads and elements
+        const u32 quad_count    = shdr.render_list.count();
+        const u32 element_count = (quad_count * 6);
+        if (element_count == 0) {
+            return;
+        } 
+
+        // calculate the vertices
         for (
             u32 i = 0;
-            i < shdr.list.count();
+            i < quad_count;
             ++i) {
 
-            const entity_id id       = shdr.list[i];
-            quad_vertices&  vertices = shdr.buffers.vertices.vertices[i];
+            const entity_id         quad_id  = shdr.render_list[i];
+            renderer_quad_vertices& vertices = shdr.buffers.vertex.data.vertices[i];
 
-            assert(id != ENTITY_ID_INVALID);
-            assert(quad_get_vertices(vertices, id));
+            assert(renderer_quad_get_vertices(vertices, quad_id));
         }
 
-        const u32 element_draw_count = (6 * shdr.list.count()); 
-        
+        // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
-        gl_context_draw_elements      (_renderer_ctx->gl, element_draw_count);
+        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertex.data.bytes,  shdr.buffers.vertex.size);
+        gl_context_draw_elements      (_renderer_ctx->gl, element_count);
 
-        shdr.list.reset();
+        // reset the list
+        shdr.render_list.reset();
     }
+    
+    IFB_INTERNAL bool
+    renderer_quad_get_vertices(
+        renderer_quad_vertices& vertices,
+        const entity_id         quad_id) {
 
-    //--------------------------------------------------------------------
-    // INLINE METHOD DEFINITIONS
-    //--------------------------------------------------------------------
+        quad_entity quad_entity = {0};
+        const bool  result      = quad_lookup_by_id(quad_entity, quad_id); 
+        if (result) {
 
-    inline void
-    quad_shader_validate(
-        const quad_shader& shdr) {
+            const color_rgba_f32 color         = color_rgba_f32(quad_entity.color.hex);
+            const f32            offset_width  = (quad_entity.dims.width  * 0.5f);
+            const f32            offset_height = (quad_entity.dims.height * 0.5f);
 
-        shdr.list.validate();
-        assert(shdr.gl.program      != GL_ID_INVALID);
-        assert(shdr.gl.vertex       != GL_ID_INVALID);
-        assert(shdr.gl.buffer_vtx   != GL_ID_INVALID);
-        assert(shdr.gl.buffer_elmnt != GL_ID_INVALID);
-    } 
+            // top right
+            vertices.top_right.pos_x      = (quad_entity.pos.x + offset_width);
+            vertices.top_right.pos_y      = (quad_entity.pos.y + offset_height);
+            vertices.top_right.pos_z      = 0.0f;
+            vertices.top_right.color_r    = color.r;
+            vertices.top_right.color_g    = color.g;
+            vertices.top_right.color_b    = color.b;
+            vertices.top_right.color_a    = color.a;
 
-    inline void
-    quad_shader_create_gl_objects(
-        quad_shader& shdr,
-        gl_context*  gl) {
-        
-        shdr.gl.program      = gl_shader_program_create        (gl);
-        shdr.gl.vertex       = gl_vertex_create                (gl);
-        shdr.gl.buffer_vtx   = gl_buffer_create                (gl);
-        shdr.gl.buffer_elmnt = gl_buffer_create                (gl);
-        shdr.gl.shdr_vtx     = gl_shader_stage_create_vertex   (gl);
-        shdr.gl.shdr_frg     = gl_shader_stage_create_fragment (gl);
+            // bottom right
+            vertices.bottom_right.pos_x   = (quad_entity.pos.x + offset_width);
+            vertices.bottom_right.pos_y   = (quad_entity.pos.y - offset_height);
+            vertices.bottom_right.pos_z   = 0.0f;
+            vertices.bottom_right.color_r = color.r;
+            vertices.bottom_right.color_g = color.g;
+            vertices.bottom_right.color_b = color.b;
+            vertices.bottom_right.color_a = color.a;
 
-        assert(
-            shdr.gl.program      != GL_ID_INVALID &&
-            shdr.gl.vertex       != GL_ID_INVALID &&
-            shdr.gl.buffer_vtx   != GL_ID_INVALID &&
-            shdr.gl.buffer_elmnt != GL_ID_INVALID &&
-            shdr.gl.shdr_vtx     != GL_ID_INVALID &&
-            shdr.gl.shdr_frg     != GL_ID_INVALID
-        );
-    }
+            // bottom left
+            vertices.bottom_left.pos_x    = (quad_entity.pos.x - offset_width);
+            vertices.bottom_left.pos_y    = (quad_entity.pos.y - offset_height);
+            vertices.bottom_left.pos_z    = 0.0f;
+            vertices.bottom_left.color_r  = color.r;
+            vertices.bottom_left.color_g  = color.g;
+            vertices.bottom_left.color_b  = color.b;
+            vertices.bottom_left.color_a  = color.a;
 
-    inline void
-    quad_shader_compile_and_link_program(
-        quad_shader&         shdr,
-        gl_context*          gl,
-        const shader_source& src_vertex,
-        const shader_source& src_fragment) {
-
-        bool gl_ok = true;
-
-        // compile and link program
-        gl_ok &= gl_shader_stage_compile_from_source (gl, shdr.gl.shdr_vtx, src_vertex.data,   src_vertex.size);
-        gl_ok &= gl_shader_stage_compile_from_source (gl, shdr.gl.shdr_frg, src_fragment.data, src_fragment.size);
-        gl_ok &= gl_shader_program_attach_stage      (gl, shdr.gl.program,  shdr.gl.shdr_vtx);
-        gl_ok &= gl_shader_program_attach_stage      (gl, shdr.gl.program,  shdr.gl.shdr_frg);
-        gl_ok &= gl_shader_program_link              (gl, shdr.gl.program);
-        assert(gl_ok);
-
-        // destroy the shader stages
-        gl_shader_stage_destroy (gl, shdr.gl.shdr_vtx);
-        gl_shader_stage_destroy (gl, shdr.gl.shdr_frg);
-        shdr.gl.shdr_vtx = GL_ID_INVALID;
-        shdr.gl.shdr_frg = GL_ID_INVALID;
-    }
-
-    inline void
-    quad_shader_define_vertex(
-        quad_shader& shdr,
-        gl_context*  gl) {
-
-        bool gl_ok = true;
-
-        // set context objects
-        gl_ok &= gl_context_set_vertex_object  (gl, shdr.gl.vertex);
-        gl_ok &= gl_context_set_buffer_vertex  (gl, shdr.gl.buffer_vtx);
-        gl_ok &= gl_context_set_buffer_element (gl, shdr.gl.buffer_elmnt);
-        
-        // set data
-        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr.gl.buffer_vtx,   shdr.buffers.vertices.data, shdr.buffers.vertices.size);
-        gl_ok &= gl_buffer_set_element_data    (gl, shdr.gl.buffer_elmnt, shdr.buffers.elements.data, shdr.buffers.elements.size);
-        
-        // set attributes
-        const u32 size_vtx = sizeof(quad_vertex);
-        gl_ok &= gl_vertex_add_attribute_f32x3 (gl, shdr.gl.vertex, size_vtx, 0, 0);
-        gl_ok &= gl_vertex_add_attribute_f32x4 (gl, shdr.gl.vertex, size_vtx, 1, 12);
+            // top left
+            vertices.top_left.pos_x       = (quad_entity.pos.x - offset_width);
+            vertices.top_left.pos_y       = (quad_entity.pos.y + offset_height);
+            vertices.top_left.pos_z       = 0.0f;
+            vertices.top_left.color_r     = color.r;
+            vertices.top_left.color_g     = color.g;
+            vertices.top_left.color_b     = color.b;
+            vertices.top_left.color_a     = color.a;
+        }
+        return(result);
     }
 };

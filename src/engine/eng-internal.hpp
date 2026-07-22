@@ -17,7 +17,6 @@ namespace ifb {
 
     struct eng_context;
 
-    static cmpnt_mngr* _test = NULL;
 
     struct eng_context {
         const eng_mem_map* mem_map;

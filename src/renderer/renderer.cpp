@@ -1,7 +1,6 @@
 #pragma once
 
 #include "renderer.hpp"
-#include "renderer-hello-quad.cpp" 
 #include "renderer-quad.cpp" 
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-camera.cpp"
@@ -14,7 +13,7 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
     
-    IFB_INLINE void renderer_init_quad_memory(void);
+    IFB_INLINE void renderer_init_quad_memory      (void);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -160,50 +159,42 @@ namespace ifb {
         return(aspect_ratio);
     }
 
+    IFB_INTERNAL void*
+    renderer_context_memory_alloc(
+        const u32 size) {
+
+        assert(size != 0);
+
+        void* mem = _renderer_ctx->memory.stack.push(size);
+        return(mem);
+    }
+
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
-    
+
     IFB_INLINE void
     renderer_init_quad_memory(
         void) {
 
-        const auto& cfg             = config_instance();
-        const u32   vertices_size   = (cfg.quad_capacity  * sizeof(quad_vertices));
-        const u32   elements_count  = (cfg.quad_capacity  * 6);
-        const u32   elements_size   = (elements_count     * sizeof(u32));
-        void*       vertices_memory = _renderer_ctx->memory.stack.push(vertices_size);
-        void*       elements_memory = _renderer_ctx->memory.stack.push(elements_size);
-        auto        list_elements   = _renderer_ctx->memory.stack.push_struct<entity_id>(cfg.quad_capacity);
+        const auto& cfg     = config_instance();
+        auto&       buffers = _renderer_ctx->shader.quad.buffers;
+        auto&       list    = _renderer_ctx->shader.quad.render_list;
 
-        assert(vertices_size   != 0);
-        assert(vertices_memory != NULL); 
-        assert(list_elements   != NULL); 
+        auto* quad_entities       = (entity_id*)renderer_context_memory_alloc(cfg.quad_capacity * sizeof(entity_id));
+        buffers.vertex.size       = (cfg.quad_capacity  * sizeof(renderer_quad_vertices)); 
+        buffers.vertex.data.vptr  = renderer_context_memory_alloc(buffers.vertex.size);
+        buffers.element.size      = (cfg.quad_capacity * sizeof(u32) * 6);
+        buffers.element.data.vptr = renderer_context_memory_alloc(buffers.element.size);
 
-        quad_buffers& buffers = _renderer_ctx->shader.quad.buffers;
-        buffers.vertices.size = vertices_size; 
-        buffers.vertices.vptr = vertices_memory;
-        buffers.elements.size = elements_size;
-        buffers.elements.vptr = elements_memory;
+        assert(buffers.vertex.size       != 0);
+        assert(buffers.vertex.data.vptr  != 0);
+        assert(buffers.element.size      != 0);
+        assert(buffers.element.data.vptr != 0);
+        assert(quad_entities             != NULL);
 
-        // we can initialize the element buffer array
-        // because they always repeat
-        for (
-            u32 i = 0;
-                i < elements_count;
-              ++i) {
+        list.init(quad_entities, cfg.quad_capacity);
 
-            quad_elements& curr = buffers.elements.array[i];
-
-            curr.triangle_1.elmnt_0_index_0 = 0;
-            curr.triangle_1.elmnt_1_index_1 = 1;
-            curr.triangle_1.elmnt_2_index_3 = 3;
-            curr.triangle_2.elmnt_3_index_1 = 1;
-            curr.triangle_2.elmnt_4_index_2 = 2;
-            curr.triangle_2.elmnt_5_index_3 = 3;
-        }
-
-        // initialize the quad list
-        _renderer_ctx->shader.quad.list.init(list_elements, cfg.quad_capacity);
     }
 };

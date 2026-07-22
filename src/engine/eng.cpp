@@ -46,7 +46,6 @@
 #include "quad.cpp"
 #include "quad-manager.cpp"
 #include "quad-tests.cpp"
-#include "quad-vertex-buffer.cpp"
 
 #include "renderer.cpp"
 
