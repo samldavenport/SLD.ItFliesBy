@@ -195,5 +195,6 @@ namespace ifb {
         assert(quad_entities             != NULL);
 
         list.init(quad_entities, cfg.quad_capacity);
+
     }
 };

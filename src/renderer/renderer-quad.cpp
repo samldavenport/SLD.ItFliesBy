@@ -4,20 +4,6 @@
 
 namespace ifb {
 
-    static constexpr f32 QUAD_VERTICES[] = {
-        
-        //position---------|color-----------------|
-         0.1f,  0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top right
-         0.1f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom right
-        -0.1f, -0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        -0.1f,  0.1f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left
-    };
-
-    static constexpr u32 QUAD_ELEMENTS[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-
     static entity_id   _test_quad_id =  0;
     static quad_entity _test_quad    = {0};
 
@@ -26,6 +12,11 @@ namespace ifb {
         const renderer_shader_source& src_vertex,
         const renderer_shader_source& src_fragment) {
 
+        assert(_renderer_ctx);
+        assert(sizeof(vec3)           == 12);
+        assert(sizeof(color_rgba_f32) == 16);
+
+        // create a test quad
         quad q = {0};
         q.color.hex         = 0xFF0000FF;
         q.dimensions.width  = 0.2;
@@ -34,12 +25,26 @@ namespace ifb {
         _test_quad_id       = quad_create("HELLO-QUAD",q);
         assert(_test_quad_id != ENTITY_ID_INVALID);
 
-        assert(_renderer_ctx);
-        assert(sizeof(vec3)           == 12);
-        assert(sizeof(color_rgba_f32) == 16);
-
         auto& shdr = _renderer_ctx->shader.quad;
         
+
+        // set the element data
+        const auto& cfg = config_instance();
+        for (
+            u32 i = 0;
+            i < cfg.quad_capacity;
+            ++i) {
+
+            const u32 offset   = (i * 4);
+            auto&     elements = shdr.buffers.element.data.elements[i];
+            elements.elmnt_0_index_0 = (offset);  
+            elements.elmnt_1_index_1 = (offset + 1); 
+            elements.elmnt_2_index_3 = (offset + 3); 
+            elements.elmnt_3_index_1 = (offset + 1); 
+            elements.elmnt_4_index_2 = (offset + 2); 
+            elements.elmnt_5_index_3 = (offset + 3); 
+        }
+
         // create gl objects
         shdr.gl.program          = gl_shader_program_create        (_renderer_ctx->gl);
         shdr.gl.vertex           = gl_vertex_create                (_renderer_ctx->gl);
@@ -47,6 +52,7 @@ namespace ifb {
         shdr.gl.buf_element      = gl_buffer_create                (_renderer_ctx->gl);
         const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (_renderer_ctx->gl);
         const gl_shader shdr_frg = gl_shader_stage_create_fragment (_renderer_ctx->gl);
+
 
         bool gl_ok = true;
 
@@ -86,21 +92,12 @@ namespace ifb {
             i < 28;
             ++i) {
 
-            shdr.buffers.vertex.data.floats[i] = QUAD_VERTICES[i];
+            shdr.buffers.vertex.data.floats[i] = vertices.floats[i];
         }
-        for (
-            u32 i = 0;
-            i < 6;
-            ++i) {
-
-            shdr.buffers.element.data.uints[i] = QUAD_ELEMENTS[i]; 
-        }
-
 
         gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
         gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertex.data.bytes,  shdr.buffers.vertex.size);
-        gl_buffer_update_element_data (_renderer_ctx->gl, shdr.gl.buf_element, shdr.buffers.element.data.bytes, shdr.buffers.element.size);
         gl_context_draw_elements      (_renderer_ctx->gl, 6);
     }
 
