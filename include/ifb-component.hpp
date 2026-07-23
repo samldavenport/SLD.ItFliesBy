@@ -67,9 +67,10 @@ namespace ifb {
 
     struct cmpnt_acceleration {
         entity_id id;
-        f32 x;
-        f32 y;
-        f32 z;
+        u32       sparse_index;
+        f32       x;
+        f32       y;
+        f32       z;
     };
 
 };
