@@ -49,6 +49,7 @@ namespace ifb {
 
     struct cmpnt_rigid_body {
         entity_id id;
+        u32       sparse_index;
         f32       origin_x;
         f32       origin_y;
         f32       origin_z;
@@ -58,9 +59,10 @@ namespace ifb {
 
     struct cmpnt_velocity {
         entity_id id;
-        f32 x;
-        f32 y;
-        f32 z;
+        u32       sparse_index;
+        f32       x;
+        f32       y;
+        f32       z;
     };
 
     struct cmpnt_acceleration {

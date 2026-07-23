@@ -11,6 +11,7 @@
 #include "component-manager.cpp"
 #include "component-position.cpp"
 #include "component-quad.cpp"
+#include "component-rigid-body.cpp"
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"
