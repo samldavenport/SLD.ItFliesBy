@@ -46,6 +46,9 @@
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
 
+#include "physics-manager.cpp"
+#include "physics-world.cpp"
+
 #include "quad.cpp"
 #include "quad-manager.cpp"
 #include "quad-tests.cpp"

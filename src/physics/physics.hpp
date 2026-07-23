@@ -3,6 +3,7 @@
 
 #include "ifb.hpp"
 #include "memory.hpp"
+#include "entity.hpp"
 
 namespace ifb {
 
@@ -43,14 +44,15 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_INTERNAL physics_manager* physics_manager_create   (void);
+    IFB_INTERNAL void             physics_manager_validate (void);
     IFB_INTERNAL void             physics_manager_startup  (memory& memory);
-    IFB_INTERNAL void             physics_manager_shutdown ();
+    IFB_INTERNAL void             physics_manager_shutdown (void);
 
     IFB_INTERNAL physics_world*   physics_world_create             (void);
     IFB_INTERNAL void             physics_world_destroy            (physics_world* world);
     IFB_INTERNAL void             physics_world_simulate           (physics_world* world, const u32 dt_ms);
-    IFB_INTERNAL entity_id        physics_world_add_entity_dynamic (physics_world* world);
-    IFB_INTERNAL entity_id        physics_world_add_entity_static  (physics_world* world);
+    IFB_INTERNAL bool             physics_world_add_entity_dynamic (physics_world* world, const entity_id id);
+    IFB_INTERNAL bool             physics_world_add_entity_static  (physics_world* world, const entity_id id);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
@@ -69,6 +71,9 @@ namespace ifb {
     struct physics_world {
         physics_world* next;
         physics_world* prev;
+        arena*         arena;
+        entity_list*   entity_list_dynamic;
+        entity_list*   entity_list_static;
     };
 
     struct physics_dynamic_entity : entity {
@@ -81,7 +86,7 @@ namespace ifb {
     struct physics_static_entitiy : entity {
         rigid_body rb;
         position   pos;
-    }
+    };
 
 };
 

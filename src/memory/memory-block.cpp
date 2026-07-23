@@ -6,30 +6,14 @@ namespace ifb {
 
     IFB_INLINE void block_alctr_validate(const block_allocator* alctr);
 
-    IFB_INTERNAL u32
-    block_alctr_mem_requriement(
-        const u32 granularity,
-        const u32 block_count) {
-
-        assert(granularity != NULL);
-        assert(block_count != NULL);
-
-        const u32 size_block = granularity + sizeof(block_memory);
-        const u32 size_req   = (block_count <= 64)
-            ? (size_block * block_count)
-            : (size_block * 64);
-
-        return(size_req);
-    }
-
     IFB_INTERNAL void
     block_alctr_init(
         block_allocator* alctr,
         memory           mem,
         const u32        granularity) {
 
-        const u32 block_size  = (granularity + sizeof(block_memory)); 
-        const u32 block_count = (mem.size / block_size);
+        const u32 block_count = (mem.size / granularity);
+        const u32 block_size  = granularity - sizeof(block_memory); 
 
         assert (alctr       != NULL);
         assert (mem.ptr     != NULL);
@@ -112,7 +96,8 @@ namespace ifb {
 
         // we have a free block
         // calculate the start of the block header
-        const addr block_start = alctr->start + (free_block * alctr->block_size);
+        const u32  granularity = alctr->block_size + sizeof(block_memory);
+        const addr block_start = alctr->start + (free_block * granularity);
         auto*      block_mem   = (block_memory*)block_start;
 
         // cast the block header
@@ -153,9 +138,10 @@ namespace ifb {
         block_alctr_validate(alctr);
         
         // validate the id of the block
+        const u32  granularity  = alctr->block_size + sizeof(block_memory);
         const addr block_offset = ((addr)block_mem - alctr->start);
-        assert(block_mem->id % alctr->block_size == 0);
-        const u32 block_id = (block_offset / alctr->block_size);
+        const u32  block_id     = (block_offset / alctr->block_size);
+        assert(block_mem->id % granularity == 0);
         assert(block_id == block_mem->id);
 
         // toggle the block id as free
