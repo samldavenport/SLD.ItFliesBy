@@ -8,7 +8,7 @@ namespace ifb {
     physics_world_create(
         void) {
 
-        physics_manager_validate();
+        physics_mngr_validate();
 
         auto mem = _phys_mngr->memory;
     
@@ -61,7 +61,7 @@ namespace ifb {
     physics_world_destroy(
         physics_world* world) {
 
-        physics_manager_validate();
+        physics_mngr_validate();
         physics_world_validate(world);
 
         physics_world* next = world->next;

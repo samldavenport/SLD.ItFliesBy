@@ -5,12 +5,12 @@
 
 namespace ifb {
     
-    IFB_INTERNAL physics_manager*
-    physics_manager_create(
+    IFB_INTERNAL physics_mngr*
+    physics_mngr_create(
         void) {
 
-        physics_manager* mngr = global_alloc<physics_manager>();
-        physics_memory*  mem  = global_alloc<physics_memory>();
+        physics_mngr*   mngr = global_alloc<physics_mngr>();
+        physics_memory* mem  = global_alloc<physics_memory>();
 
         assert(mngr != NULL);
         assert(mem  != NULL);
@@ -23,7 +23,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    physics_manager_validate(
+    physics_mngr_validate(
         void) {
 
         assert(_phys_mngr         != NULL);
@@ -31,10 +31,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    physics_manager_startup(
+    physics_mngr_startup(
         memory& mem_res) {
 
-        physics_manager_validate();
+        physics_mngr_validate();
         auto phys_mem = _phys_mngr->memory; 
 
         assert(mem_res.address != 0);
@@ -63,7 +63,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    physics_manager_shutdown(
+    physics_mngr_shutdown(
         void) {
 
         //TODO(SAM)

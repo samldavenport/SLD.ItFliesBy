@@ -27,7 +27,7 @@ namespace ifb {
     // TYPE DECLARATIONS
     //--------------------------------------------------------------------
 
-    struct physics_manager;
+    struct physics_mngr;
     struct physics_memory;
     struct physics_world;
     struct physics_dynamic_entity;
@@ -39,24 +39,24 @@ namespace ifb {
     // GLOBALS 
     //--------------------------------------------------------------------
 
-    static physics_manager* _phys_mngr;
+    static physics_mngr* _phys_mngr;
 
     //--------------------------------------------------------------------
     // METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL physics_manager* physics_manager_create   (void);
-    IFB_INTERNAL void             physics_manager_validate (void);
-    IFB_INTERNAL void             physics_manager_startup  (memory& memory);
-    IFB_INTERNAL void             physics_manager_shutdown (void);
+    IFB_INTERNAL physics_mngr*  physics_mngr_create   (void);
+    IFB_INTERNAL void           physics_mngr_validate (void);
+    IFB_INTERNAL void           physics_mngr_startup  (memory& memory);
+    IFB_INTERNAL void           physics_mngr_shutdown (void);
 
-    IFB_INTERNAL physics_world*   physics_world_create             (void);
-    IFB_INTERNAL void             physics_world_validate           (const physics_world* world);
-    IFB_INTERNAL void             physics_world_destroy            (physics_world* world);
-    IFB_INTERNAL void             physics_world_simulate           (physics_world* world, const u32 dt_ms);
-    IFB_INTERNAL bool             physics_world_add_entity_dynamic (physics_world* world, const entity_id id);
-    IFB_INTERNAL bool             physics_world_add_entity_static  (physics_world* world, const entity_id id);
-    IFB_INTERNAL bool             physics_world_remove_entity      (physics_world* world, const entity_id id);
+    IFB_INTERNAL physics_world* physics_world_create             (void);
+    IFB_INTERNAL void           physics_world_validate           (const physics_world* world);
+    IFB_INTERNAL void           physics_world_destroy            (physics_world* world);
+    IFB_INTERNAL void           physics_world_simulate           (physics_world* world, const u32 dt_ms);
+    IFB_INTERNAL bool           physics_world_add_entity_dynamic (physics_world* world, const entity_id id);
+    IFB_INTERNAL bool           physics_world_add_entity_static  (physics_world* world, const entity_id id);
+    IFB_INTERNAL bool           physics_world_remove_entity      (physics_world* world, const entity_id id);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
@@ -67,7 +67,7 @@ namespace ifb {
         block_allocator world_allocator;
     };
 
-    struct physics_manager {
+    struct physics_mngr {
         physics_memory* memory;
         physics_world*  world_list;
     };
