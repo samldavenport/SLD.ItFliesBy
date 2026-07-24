@@ -57,13 +57,21 @@ namespace ifb {
         return(_count);
     }
 
+    ARRAY_LIST_FUNC 
+    is_full(
+        void) const -> bool {
+
+        validate();
+        return(_count == _capacity);
+    }
+
     ARRAY_LIST_FUNC
     index_of(
         const t& elmnt,
         u32&     index) const -> bool  {
 
         validate();
-        index = INVALID_INDEX
+        index = INVALID_INDEX;
 
 
         // if there are no elements, nothing to do
@@ -71,10 +79,10 @@ namespace ifb {
             return(false);
         }
 
-        const u32 size_elmnt   = sizeof(t);
+        const u32  size_elmnt = sizeof(t);
         const addr addr_elmnt = (addr)&elmnt;
-        const addr addr_first = (addr)_elmnt[0];
-        const addr addr_last  = (addr)_elmnt[_count - 1];
+        const addr addr_first = (addr)&_elmnt[0];
+        const addr addr_last  = (addr)&_elmnt[_count - 1];
 
         // if the element is not in the address space or
         // not a multiple of the element size,
@@ -102,6 +110,28 @@ namespace ifb {
         const u32 index_elmnt  = (offset_elmnt / size_elmnt);  
         return(index_elmnt);
     }
+
+    ARRAY_LIST_FUNC
+    contains(
+        const t& elmnt)const -> bool {
+
+        validate();
+
+        bool does_contain = false;
+        for (
+            u32 i = 0;
+            i < _count;
+            ++i) {
+
+            if (elmnt == _elmnt[i]) {
+                does_contain = true;
+                break;
+            }
+        }
+
+        return(does_contain);
+    }
+
 
     ARRAY_LIST_FUNC
     reset(

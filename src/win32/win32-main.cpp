@@ -34,8 +34,10 @@ wWinMain(
     mem_map.arenas.ptr      = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.components.size = SIZE_RESERVATION;
     mem_map.components.ptr  = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
-    mem_map.quads.size = SIZE_RESERVATION;
-    mem_map.quads.ptr  = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.quads.size      = SIZE_RESERVATION;
+    mem_map.quads.ptr       = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.physics.size    = SIZE_RESERVATION;
+    mem_map.physics.ptr     = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
 
     assert(
         mem_map.stack.ptr      != NULL &&        
@@ -45,7 +47,8 @@ wWinMain(
         mem_map.entities.ptr   != NULL &&
         mem_map.gui.ptr        != NULL &&
         mem_map.components.ptr != NULL &&
-        mem_map.quads.ptr      != NULL
+        mem_map.quads.ptr      != NULL &&
+        mem_map.physics.ptr    != NULL
     );
 
     eng_context* ctx = eng_context_create(&mem_map);

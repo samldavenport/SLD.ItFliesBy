@@ -1,0 +1,97 @@
+#ifndef PHYSICS_HPP
+#define PHYSICS_HPP
+
+#include "ifb.hpp"
+#include "memory.hpp"
+#include "entity.hpp"
+
+namespace ifb {
+
+    //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    static const entity_archetype PHYSICS_ENTITY_ARCHETYPE_STATIC = (
+        cmpnt_type_e_position   |
+        cmpnt_type_e_rigid_body
+    );
+
+    static const entity_archetype PHYSICS_ENTITY_ARCHETYPE_DYNAMIC = (
+        cmpnt_type_e_position     |
+        cmpnt_type_e_rigid_body   |
+        cmpnt_type_e_velocity     |
+        cmpnt_type_e_acceleration
+    );
+ 
+    //--------------------------------------------------------------------
+    // TYPE DECLARATIONS
+    //--------------------------------------------------------------------
+
+    struct physics_mngr;
+    struct physics_memory;
+    struct physics_world;
+    struct physics_dynamic_entity;
+    struct physics_static_entitiy;
+
+    using physics_entity_list = array_list<entity_id>;
+
+    //--------------------------------------------------------------------
+    // GLOBALS 
+    //--------------------------------------------------------------------
+
+    static physics_mngr* _phys_mngr;
+
+    //--------------------------------------------------------------------
+    // METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+
+    IFB_INTERNAL physics_mngr*  physics_mngr_create   (void);
+    IFB_INTERNAL void           physics_mngr_validate (void);
+    IFB_INTERNAL void           physics_mngr_startup  (memory& memory);
+    IFB_INTERNAL void           physics_mngr_shutdown (void);
+
+    IFB_INTERNAL physics_world* physics_world_create             (void);
+    IFB_INTERNAL void           physics_world_validate           (const physics_world* world);
+    IFB_INTERNAL void           physics_world_destroy            (physics_world* world);
+    IFB_INTERNAL void           physics_world_simulate           (physics_world* world, const u32 dt_ms);
+    IFB_INTERNAL bool           physics_world_add_entity_dynamic (physics_world* world, const entity_id id);
+    IFB_INTERNAL bool           physics_world_add_entity_static  (physics_world* world, const entity_id id);
+    IFB_INTERNAL bool           physics_world_remove_entity      (physics_world* world, const entity_id id);
+
+    //--------------------------------------------------------------------
+    // TYPE DEFINITIONS
+    //--------------------------------------------------------------------
+
+    struct physics_memory {
+        stack           stack;
+        block_allocator world_allocator;
+    };
+
+    struct physics_mngr {
+        physics_memory* memory;
+        physics_world*  world_list;
+    };
+
+    struct physics_world {
+        physics_world*       next;
+        physics_world*       prev;
+        arena*               arena;
+        physics_entity_list  entity_list_dynamic;
+        physics_entity_list  entity_list_static;
+    };
+
+    struct physics_dynamic_entity : entity {
+        rigid_body      rb;
+        position        pos;
+        velocity_3d     vel;
+        acceleration_3d acc;
+    };
+
+    struct physics_static_entitiy : entity {
+        rigid_body rb;
+        position   pos;
+    };
+
+};
+
+#endif //PHYSICS_HPP

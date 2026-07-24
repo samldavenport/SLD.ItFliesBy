@@ -123,4 +123,22 @@ namespace ifb {
         _entity_mngr->mem.address             = 0;
         _entity_mngr->mem.size                = 0;
     }
+
+    IFB_INTERNAL u32
+    entity_mngr_capacity_dense(
+        void) {
+
+        entity_mngr_validate();
+        
+        return(_entity_mngr->capacity.dense);
+    }
+
+    IFB_INTERNAL u32
+    entity_mngr_capacity_sparse(
+        void) {
+
+        entity_mngr_validate();
+        
+        return(_entity_mngr->capacity.sparse);
+    }
 };

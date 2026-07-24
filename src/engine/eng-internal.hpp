@@ -9,6 +9,7 @@
 #include "memory.hpp"
 #include "component.hpp"
 #include "quad.hpp"
+#include "physics.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -27,6 +28,7 @@ namespace ifb {
         memory_mngr*       memory_mngr;
         cmpnt_mngr*        cmpnt_mngr;
         quad_mngr*         quad_mngr;
+        physics_mngr*      phys_mngr;
     } static * _eng_context;
 
     struct global_stack {

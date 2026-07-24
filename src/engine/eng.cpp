@@ -11,6 +11,9 @@
 #include "component-manager.cpp"
 #include "component-position.cpp"
 #include "component-quad.cpp"
+#include "component-rigid-body.cpp"
+#include "component-velocity.cpp"
+#include "component-acceleration.cpp"
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"
@@ -42,6 +45,9 @@
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
+
+#include "physics-manager.cpp"
+#include "physics-world.cpp"
 
 #include "quad.cpp"
 #include "quad-manager.cpp"
