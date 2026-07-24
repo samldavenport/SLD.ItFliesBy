@@ -25,10 +25,12 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // entity manager
-    IFB_INTERNAL entity_mngr* entity_mngr_create   (void);
-    IFB_INTERNAL void         entity_mngr_validate (void);
-    IFB_INTERNAL void         entity_mngr_startup  (const memory& mem_res);
-    IFB_INTERNAL void         entity_mngr_shutdown (void);
+    IFB_INTERNAL entity_mngr* entity_mngr_create          (void);
+    IFB_INTERNAL void         entity_mngr_validate        (void);
+    IFB_INTERNAL void         entity_mngr_startup         (const memory& mem_res);
+    IFB_INTERNAL void         entity_mngr_shutdown        (void);
+    IFB_INTERNAL u32          entity_mngr_capacity_dense  (void);
+    IFB_INTERNAL u32          entity_mngr_capacity_sparse (void);
 
     // entity
     IFB_INTERNAL entity_id    entity_create  (const cchar* tag_cstr, const entity_archetype atype = cmpnt_type_e_none);

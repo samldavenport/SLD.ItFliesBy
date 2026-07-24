@@ -33,6 +33,8 @@ namespace ifb {
     struct physics_dynamic_entity;
     struct physics_static_entitiy;
 
+    using physics_entity_list = array_list<entity_id>;
+
     //--------------------------------------------------------------------
     // GLOBALS 
     //--------------------------------------------------------------------
@@ -69,11 +71,11 @@ namespace ifb {
     };
 
     struct physics_world {
-        physics_world* next;
-        physics_world* prev;
-        arena*         arena;
-        entity_list*   entity_list_dynamic;
-        entity_list*   entity_list_static;
+        physics_world*       next;
+        physics_world*       prev;
+        arena*               arena;
+        physics_entity_list  entity_list_dynamic;
+        physics_entity_list  entity_list_static;
     };
 
     struct physics_dynamic_entity : entity {

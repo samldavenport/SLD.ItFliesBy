@@ -27,15 +27,21 @@ namespace ifb {
             world->next = next;
             _phys_mngr->world_list = world;
 
-            world->arena               = arena_alloc();
-            world->entity_list_dynamic = entity_list_create(world->arena);
-            world->entity_list_static  = entity_list_create(world->arena);
+            world->arena = arena_alloc();
+            assert(world->arena != NULL);
 
-            assert(world->arena               != NULL);
-            assert(world->entity_list_dynamic != NULL);
-            assert(world->entity_list_static  != NULL);
+            const u32 entity_list_capacity = entity_mngr_capacity_dense();
+            assert(entity_list_capacity != 0);
+
+            auto dynamic_entities = arena_push<entity_id>(world->arena, entity_list_capacity);
+            auto static_entities  = arena_push<entity_id>(world->arena, entity_list_capacity);
+            assert(dynamic_entities);
+            assert(static_entities);
+
+            world->entity_list_dynamic.init(dynamic_entities, entity_list_capacity);
+            world->entity_list_dynamic.init(static_entities,  entity_list_capacity);
         }
-        return(world);
+        return(world); 
     }
 
     IFB_INTERNAL void
@@ -59,7 +65,6 @@ namespace ifb {
             assert(prev == NULL);
             _phys_mngr->world_list = next; 
         }
-
     }
 
     IFB_INTERNAL void
@@ -76,6 +81,31 @@ namespace ifb {
         const entity_id id) {
 
         assert(world);
+        assert(id != ENTITY_ID_INVALID);
+
+        const bool can_add = (
+            !world->entity_list_dynamic.contains(id) &&
+            !world->entity_list_dynamic.is_full()
+        );
+
+        if (!can_add) {
+            return(false);
+        }
+
+        const component_type dynamic_type = (
+            cmpnt_type_e_position   |
+            cmpnt_type_e_rigid_body |
+            cmpnt_type_e_velocity   |
+            cmpnt_type_e_acceleration
+        );
+        const bool did_add = entity_component_add(id, dynamic_type);
+        if (!did_add) {
+            return(false);
+        }
+
+        assert(world->entity_list_dynamic.add(id));
+
+        return(true);
     }
 
     IFB_INTERNAL bool
@@ -83,6 +113,29 @@ namespace ifb {
         physics_world*  world,
         const entity_id id) {
 
+        assert(world);
+        assert(id != ENTITY_ID_INVALID);
+
+        const bool can_add = (
+            !world->entity_list_static.contains(id) &&
+            !world->entity_list_static.is_full()
+        );
+
+        const component_type dynamic_type = (cmpnt_type_e_velocity | cmpnt_type_e_acceleration);
+        const component_type static_type  = (cmpnt_type_e_position | cmpnt_type_e_rigid_body);
+
+        // we want to ensure there are no dynamic components
+        // only static components should be on this enitity
+        bool did_add = true;
+        did_add &= entity_component_remove (id, dynamic_type);
+        did_add &= entity_component_add    (id, static_type);
+        if (!did_add) {
+            return(false);
+        }
+
+        
+
+        return(did_add);
     }
 
 

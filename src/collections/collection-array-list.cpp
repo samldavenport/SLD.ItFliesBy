@@ -57,6 +57,14 @@ namespace ifb {
         return(_count);
     }
 
+    ARRAY_LIST_FUNC 
+    is_full(
+        void) const -> bool {
+
+        validate();
+        return(_count == _capacity);
+    }
+
     ARRAY_LIST_FUNC
     index_of(
         const t& elmnt,
@@ -102,6 +110,28 @@ namespace ifb {
         const u32 index_elmnt  = (offset_elmnt / size_elmnt);  
         return(index_elmnt);
     }
+
+    ARRAY_LIST_FUNC
+    contains(
+        const t& elmnt)const -> bool {
+
+        validate();
+
+        bool does_contain = false;
+        for (
+            u32 i = 0;
+            i < _count;
+            ++i) {
+
+            if (elmnt == _elmnt[i]) {
+                does_contain = true;
+                break;
+            }
+        }
+
+        return(does_contain);
+    }
+
 
     ARRAY_LIST_FUNC
     reset(
