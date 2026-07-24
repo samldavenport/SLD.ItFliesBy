@@ -71,7 +71,7 @@ namespace ifb {
         u32&     index) const -> bool  {
 
         validate();
-        index = INVALID_INDEX
+        index = INVALID_INDEX;
 
 
         // if there are no elements, nothing to do
@@ -79,10 +79,10 @@ namespace ifb {
             return(false);
         }
 
-        const u32 size_elmnt   = sizeof(t);
+        const u32  size_elmnt = sizeof(t);
         const addr addr_elmnt = (addr)&elmnt;
-        const addr addr_first = (addr)_elmnt[0];
-        const addr addr_last  = (addr)_elmnt[_count - 1];
+        const addr addr_first = (addr)&_elmnt[0];
+        const addr addr_last  = (addr)&_elmnt[_count - 1];
 
         // if the element is not in the address space or
         // not a multiple of the element size,

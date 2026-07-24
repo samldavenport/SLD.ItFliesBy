@@ -70,7 +70,7 @@ namespace ifb {
     IFB_INTERNAL void
     physics_world_simulate(
         physics_world* world,
-        const u32 dt_ms) {
+        const u32      dt_ms) {
 
         //TODO(SAM)
     }
@@ -83,6 +83,8 @@ namespace ifb {
         assert(world);
         assert(id != ENTITY_ID_INVALID);
 
+        // make sure we can add the entity
+        // to the dynamic list
         const bool can_add = (
             !world->entity_list_dynamic.contains(id) &&
             !world->entity_list_dynamic.is_full()
@@ -92,6 +94,8 @@ namespace ifb {
             return(false);
         }
 
+        // add the dynamic components to the 
+        // entity
         const component_type dynamic_type = (
             cmpnt_type_e_position   |
             cmpnt_type_e_rigid_body |
@@ -103,8 +107,15 @@ namespace ifb {
             return(false);
         }
 
-        assert(world->entity_list_dynamic.add(id));
+        // ensure this entity is not in the static list
+        u32 static_index = 0;
+        if (world->entity_list_static.index_of(id, static_index)) {
+            world->entity_list_static.remove_at(static_index);
+        }
 
+        // add the entity to the dynamic list
+        // and return
+        assert(world->entity_list_dynamic.add(id));
         return(true);
     }
 
@@ -116,11 +127,15 @@ namespace ifb {
         assert(world);
         assert(id != ENTITY_ID_INVALID);
 
+        // make sure we can add the entity
+        // to the static list
         const bool can_add = (
             !world->entity_list_static.contains(id) &&
             !world->entity_list_static.is_full()
         );
 
+        // add the static components
+        // and remove the dynamic components
         const component_type dynamic_type = (cmpnt_type_e_velocity | cmpnt_type_e_acceleration);
         const component_type static_type  = (cmpnt_type_e_position | cmpnt_type_e_rigid_body);
 
@@ -133,10 +148,15 @@ namespace ifb {
             return(false);
         }
 
-        
+        // ensure this entity is not in the dynamic list
+        u32 dynamic_index = 0;
+        if (world->entity_list_dynamic.index_of(id, dynamic_index)) {
+            world->entity_list_dynamic.remove_at(dynamic_index);
+        }        
 
-        return(did_add);
+        // add the entity to the dynamic list
+        // and return
+        assert(world->entity_list_dynamic.add(id));
+        return(true);
     }
-
-
 };
