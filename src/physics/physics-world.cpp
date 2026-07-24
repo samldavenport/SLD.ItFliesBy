@@ -40,16 +40,29 @@ namespace ifb {
 
             world->entity_list_dynamic.init(dynamic_entities, entity_list_capacity);
             world->entity_list_dynamic.init(static_entities,  entity_list_capacity);
+
+            physics_world_validate(world);
         }
         return(world); 
     }
+
+    IFB_INTERNAL void 
+    physics_world_validate(
+        const physics_world* world)  {
+
+        assert(world);
+        assert(world->arena);
+        world->entity_list_dynamic.validate();
+        world->entity_list_static.validate();
+    }
+
 
     IFB_INTERNAL void
     physics_world_destroy(
         physics_world* world) {
 
-        assert(world);
         physics_manager_validate();
+        physics_world_validate(world);
 
         physics_world* next = world->next;
         physics_world* prev = world->prev;
@@ -72,6 +85,8 @@ namespace ifb {
         physics_world* world,
         const u32      dt_ms) {
 
+        physics_world_validate(world);
+
         //TODO(SAM)
     }
 
@@ -79,6 +94,8 @@ namespace ifb {
     physics_world_add_entity_dynamic(
         physics_world*  world,
         const entity_id id) {
+
+        physics_world_validate(world);
 
         assert(world);
         assert(id != ENTITY_ID_INVALID);
@@ -124,6 +141,8 @@ namespace ifb {
         physics_world*  world,
         const entity_id id) {
 
+        physics_world_validate(world);
+        
         assert(world);
         assert(id != ENTITY_ID_INVALID);
 
@@ -159,4 +178,50 @@ namespace ifb {
         assert(world->entity_list_dynamic.add(id));
         return(true);
     }
+
+    IFB_INTERNAL bool
+    physics_world_remove_entity(
+        physics_world*  world,
+        const entity_id id) {
+
+        physics_world_validate(world);
+        assert(id != ENTITY_ID_INVALID);
+
+        bool did_remove = false;
+
+
+        u32 index = 0;
+
+        // remove the entity from the dynamic list if it exists
+        // and ensure it is not in the static list
+        if (world->entity_list_dynamic.index_of(id, index)) {
+            world->entity_list_dynamic.remove_at(index);
+            assert(!world->entity_list_static.contains(id));
+            did_remove = true;
+        }
+
+        // remove the entity from the static list if it exists
+        // and ensure it is not in the dynamic list
+        else if (world->entity_list_static.index_of(id, index)) {
+            world->entity_list_static.remove_at(index);
+            assert(!world->entity_list_dynamic.contains(id));
+            did_remove = true;
+        }
+
+        // if the entity did not exist in either list, we're done
+        if (!did_remove) {
+            return(false);
+        }
+
+        // ensure the physics components are removed
+        const component_type cmpnts = (
+            cmpnt_type_e_rigid_body   |
+            cmpnt_type_e_velocity     |
+            cmpnt_type_e_acceleration
+        );
+        assert(entity_component_remove(id, cmpnts));
+
+        return(true);
+    }
+
 };

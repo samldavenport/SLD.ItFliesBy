@@ -51,10 +51,12 @@ namespace ifb {
     IFB_INTERNAL void             physics_manager_shutdown (void);
 
     IFB_INTERNAL physics_world*   physics_world_create             (void);
+    IFB_INTERNAL void             physics_world_validate           (const physics_world* world);
     IFB_INTERNAL void             physics_world_destroy            (physics_world* world);
     IFB_INTERNAL void             physics_world_simulate           (physics_world* world, const u32 dt_ms);
     IFB_INTERNAL bool             physics_world_add_entity_dynamic (physics_world* world, const entity_id id);
     IFB_INTERNAL bool             physics_world_add_entity_static  (physics_world* world, const entity_id id);
+    IFB_INTERNAL bool             physics_world_remove_entity      (physics_world* world, const entity_id id);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
