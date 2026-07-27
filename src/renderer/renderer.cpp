@@ -194,7 +194,6 @@ namespace ifb {
         assert(buffers.element.data.vptr != 0);
         assert(quad_entities             != NULL);
 
-        list.init(quad_entities, cfg.quad_capacity);
-
+        list.stack_init(_renderer_ctx->memory.stack);
     }
 };

@@ -13,7 +13,7 @@ namespace ifb {
         const entity_id id = entity_create(tag_cstr, QUAD_ENTITY_ARCHETYPE);
         assert(id != ENTITY_ID_INVALID);
 
-        const bool did_add = _quad_mngr->all.add(id); 
+        const bool did_add = _quad_mngr->quad_id_list.add(id); 
         if (!did_add) {
             entity_destroy(tag_cstr);
             return(ENTITY_ID_INVALID);
@@ -67,7 +67,7 @@ namespace ifb {
             curr_id = entity_create(curr_tag, QUAD_ENTITY_ARCHETYPE);
             assert(curr_id != ENTITY_ID_INVALID);
 
-            const bool did_add = _quad_mngr->all.add(curr_id); 
+            const bool did_add = _quad_mngr->quad_id_list.add(curr_id); 
             if (!did_add) {
                 curr_id = ENTITY_ID_INVALID;
                 break;
@@ -85,11 +85,11 @@ namespace ifb {
 
         for (
             u32 index = 0;
-                index < _quad_mngr->all.count();
+                index < _quad_mngr->quad_id_list.count();
               ++index
         ) {
 
-            if (id == _quad_mngr->all[index]) {
+            if (id == _quad_mngr->quad_id_list[index]) {
                 did_find = true;
                 break;
             }
@@ -112,14 +112,14 @@ namespace ifb {
         for (
             u32 index = 0;
             (
-                index < _quad_mngr->all.count() &&
+                index < _quad_mngr->quad_id_list.count() &&
                 !found_entity
             );
             ++index
         ) {
 
             found_entity = (
-                id == _quad_mngr->all[index] &&
+                id == _quad_mngr->quad_id_list[index] &&
                 entity_lookup_by_id(e, id) 
             );
         }
@@ -158,14 +158,14 @@ namespace ifb {
 
     IFB_INTERNAL void
     quad_lookup_all(
-        quad_list& ql) {
+        entity_id_list& list) {
 
         for (
             u32 index = 0;
-                index < _quad_mngr->all.count();
+                index < _quad_mngr->quad_id_list.count();
               ++index) {
 
-            ql.add(_quad_mngr->all[index]) ;
+            list.add(_quad_mngr->quad_id_list[index]);
         }
     }
 
@@ -173,40 +173,7 @@ namespace ifb {
     quad_does_exist(
         const entity_id id) {
 
-        bool exists = false;
-        for (
-            u32 i = 0;
-            i < _quad_mngr->all.count();
-            ++i) {
-
-            if (id == _quad_mngr->all[i]) {
-                exists = true;
-                break;
-            }
-        }
-
+        const bool exists = _quad_mngr->quad_id_list.contains(id);
         return(exists);
-    }
-
-    IFB_INTERNAL bool
-    quad_list_init(
-        quad_list& ql,
-        arena*     a) {
-
-        assert(a);
-
-        const u32 save     = arena_save(a);
-        const u32 capacity = _quad_mngr->all.capacity();
-
-        entity_id* elmnt = arena_push<entity_id>(a, capacity);
-        if (elmnt == NULL) {
-            arena_revert(a, save);
-            return(false);
-        }
-
-        arena_commit(a, save);
-
-        ql.init(elmnt, capacity);
-        return(true);
     }
 };

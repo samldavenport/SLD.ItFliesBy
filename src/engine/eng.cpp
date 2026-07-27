@@ -6,6 +6,7 @@
 #include "collection-array-list.cpp"
 #include "collection-sparse-set.cpp"
 #include "collection-stack.cpp"
+#include "collection-entity-id-list.cpp"
 
 #include "component-color.cpp"
 #include "component-manager.cpp"
