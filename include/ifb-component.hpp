@@ -76,11 +76,13 @@ namespace ifb {
 
     struct cmpnt_inv_mass {
         entity_id id;
+        u32       sparse_index;
         f32       val;
     };
 
     struct cmpnt_drag {
         entity_id id;
+        u32       sparse_index;
         f32       val;
     };
 };

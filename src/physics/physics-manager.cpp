@@ -16,7 +16,6 @@ namespace ifb {
         assert(mem  != NULL);
     
         mngr->memory     = mem;
-        mngr->world_list = NULL;
 
         _phys_mngr = mngr;
         return(mngr);
@@ -26,8 +25,9 @@ namespace ifb {
     physics_mngr_validate(
         void) {
 
-        assert(_phys_mngr         != NULL);
-        assert(_phys_mngr->memory != NULL);
+        assert(_phys_mngr                    != NULL);
+        assert(_phys_mngr->memory            != NULL);
+        assert(_phys_mngr->force_accumulator != NULL);
     }
 
     IFB_INTERNAL void
@@ -46,20 +46,9 @@ namespace ifb {
         mem_stack.size = mem_res.size;
         assert(mem_stack.ptr != NULL);
 
-        // initialize stack
+        // initialize stack and remaining structures
         phys_mem->stack.init(mem_stack);
-
-        // calculate world block size and granularity
-        const auto cfg = config_instance();
-        const u32  block_granularity = cfg.physics_world_size;
-        const u32  block_count       = cfg.physics_world_count;
-        const u32  block_memory_size = (block_granularity * block_count);
-
-        // intialize world block allocator
-        memory block_mem;
-        block_mem.ptr  = phys_mem->stack.push(block_memory_size);
-        block_mem.size = block_memory_size;
-        block_alctr_init(&phys_mem->world_allocator, block_mem, block_granularity);
+        _phys_mngr->force_accumulator = physics_accumulator_init(phys_mem->stack);
     }
 
     IFB_INTERNAL void

@@ -15,6 +15,7 @@ namespace ifb {
     IFB_INLINE cmpnt_table_rigid_body*   create_tbl_rigid_body   (void);
     IFB_INLINE cmpnt_table_velocity*     create_tbl_velocity     (void);
     IFB_INLINE cmpnt_table_acceleration* create_tbl_acceleration (void);
+    IFB_INLINE cmpnt_table_inv_mass*     create_tbl_inv_mass     (void);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -52,13 +53,16 @@ namespace ifb {
         _cmpnt_mngr->tables.rigid_body   = create_tbl_rigid_body   ();
         _cmpnt_mngr->tables.velocity     = create_tbl_velocity     ();
         _cmpnt_mngr->tables.acceleration = create_tbl_acceleration ();
+        _cmpnt_mngr->tables.inv_mass     = create_tbl_inv_mass     ();
+
         assert(
             _cmpnt_mngr->tables.position     != NULL &&
             _cmpnt_mngr->tables.color        != NULL &&            
             _cmpnt_mngr->tables.quad         != NULL &&            
             _cmpnt_mngr->tables.rigid_body   != NULL &&
             _cmpnt_mngr->tables.velocity     != NULL &&
-            _cmpnt_mngr->tables.acceleration != NULL
+            _cmpnt_mngr->tables.acceleration != NULL &&
+            _cmpnt_mngr->tables.inv_mass     != NULL
         );
     }
 
@@ -197,6 +201,21 @@ namespace ifb {
         tbl->x = col_x;
         tbl->y = col_y;
         tbl->z = col_z;
+
+        return(tbl);
+    }
+
+    IFB_INLINE cmpnt_table_inv_mass*
+    create_tbl_inv_mass(
+        void) {
+
+        auto tbl     = _cmpnt_mngr->mem.push_struct<cmpnt_table_inv_mass>();
+        auto col_val = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+    
+        assert(tbl);
+        assert(col_val);
+
+        tbl->normal_val = col_val;
 
         return(tbl);
     }

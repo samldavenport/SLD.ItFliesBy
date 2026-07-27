@@ -1,6 +1,8 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
+#include "ifb-component.hpp"
+#include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "memory.hpp"
 #include "entity.hpp"
@@ -18,6 +20,7 @@ namespace ifb {
     struct cmpnt_table_rigid_body;
     struct cmpnt_table_velocity;
     struct cmpnt_table_acceleration;
+    struct cmpnt_table_inv_mass;
 
     struct cmpnt_list_position;
     struct cmpnt_list_color;
@@ -77,7 +80,7 @@ namespace ifb {
     IFB_INTERNAL bool                     cmpnt_rigid_body_list_add       (cmpnt_list_rigid_body*       list_rb, const cmpnt_rigid_body& rb);
     IFB_INTERNAL void                     cmpnt_rigid_body_table_validate (void);
     IFB_INTERNAL void                     cmpnt_rigid_body_table_update   (const cmpnt_rigid_body&    rb);
-    IFB_INTERNAL void                     cmpnt_rigid_body_table_update   (rigid_body& rb, const u32 sparse_index);
+    IFB_INTERNAL void                     cmpnt_rigid_body_table_update   (const rigid_body& rb, const u32 sparse_index);
     IFB_INTERNAL void                     cmpnt_rigid_body_table_update   (const cmpnt_list_rigid_body* list_rb);
     IFB_INTERNAL void                     cmpnt_rigid_body_table_lookup   (cmpnt_list_rigid_body*       list_rb, const entity_list* list_entity);
     IFB_INTERNAL void                     cmpnt_rigid_body_table_lookup   (cmpnt_rigid_body& rb, const entity& e);
@@ -105,6 +108,17 @@ namespace ifb {
     IFB_INTERNAL void                     cmpnt_acceleration_table_lookup   (cmpnt_acceleration& accel, const entity&      e);
     IFB_INTERNAL void                     cmpnt_acceleration_table_lookup   (acceleration_3d& accel,    const u32          sparse_index);
 
+    IFB_INTERNAL void                     cmpnt_table_inv_mass_validate     (void);
+    IFB_INTERNAL void                     cmpnt_table_inv_mass_update       (const cmpnt_inv_mass& inv_mass);
+    IFB_INTERNAL void                     cmpnt_table_inv_mass_update       (const u32 sparse_index, const inv_mass& inv_mass);
+    IFB_INTERNAL void                     cmpnt_table_inv_mass_lookup       (const u32 sparse_index, inv_mass&       inv_mass);
+    IFB_INTERNAL void                     cmpnt_table_inv_mass_lookup       (const u32 sparse_index, cmpnt_inv_mass& inv_mass);
+
+    IFB_INTERNAL void                     cmpnt_table_drag_validate         (void);
+    IFB_INTERNAL void                     cmpnt_table_drag_update           (const cmpnt_inv_mass& inv_mass);
+    IFB_INTERNAL void                     cmpnt_table_drag_update           (const u32 sparse_index, const inv_mass& inv_mass);
+    IFB_INTERNAL void                     cmpnt_table_drag_lookup           (const u32 sparse_index, inv_mass&       inv_mass);
+    IFB_INTERNAL void                     cmpnt_table_drag_lookup           (const u32 sparse_index, cmpnt_inv_mass& inv_mass);
 
     //--------------------------------------------------------------------
     // COMPONENT MANAGER
@@ -120,6 +134,7 @@ namespace ifb {
             cmpnt_table_rigid_body*   rigid_body;
             cmpnt_table_velocity*     velocity;
             cmpnt_table_acceleration* acceleration;
+            cmpnt_table_inv_mass*     inv_mass;
         } tables;
     };
 
@@ -160,6 +175,10 @@ namespace ifb {
         f32* x;
         f32* y;
         f32* z;
+    };
+
+    struct cmpnt_table_inv_mass {
+        f32* normal_val;
     };
 
     //--------------------------------------------------------------------

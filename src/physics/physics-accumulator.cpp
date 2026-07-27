@@ -67,7 +67,7 @@ namespace ifb {
         physics_accumulator_validate(accum);
         assert(id != ENTITY_ID_INVALID);
 
-        // if the entity has a force already,
+        // if the entity has a vector already,
         // update it
         for (
             u32 i = 0;
@@ -115,6 +115,37 @@ namespace ifb {
         return(false);
     }
 
+    IFB_INTERNAL bool
+    physics_accumulator_remove(
+        physics_accumulator* const accum,
+        const entity_id            id) {
+
+
+        const u32 last = accum->count - 1;
+        if (id == accum->data.ids[last]) {
+            --accum->count;
+            return(true);
+        }
+
+        for (
+            u32 i = 0;
+            i < accum->count;
+            ++i
+        ) {
+            if (id == accum->data.ids[i]) {
+                if (accum->count > 1) {
+                    accum->data.ids     [i] = accum->data.ids     [last];
+                    accum->data.vectors [i] = accum->data.vectors [last];
+                }
+                --accum->count;
+                return(true);
+            }
+        }
+
+        return(false);
+                 
+    }
+    
     IFB_INTERNAL void
     physics_accumulator_reset(
         physics_accumulator* const accum) {
