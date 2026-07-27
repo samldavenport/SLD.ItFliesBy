@@ -16,14 +16,13 @@ namespace ifb {
 
     public:
 
+        void validate    (void);
         bool arena_init  (arena* a);
         bool add         (const entity_id id);
         bool remove      (const entity_id id);
         void reset       (void);
         u32  capacity    (void);
-        u32  count_total (void);
-        u32  count_free  (void);
-        u32  count_used  (void);
+        u32  count       (void);
 
         inline const entity_id&
         operator[] (const u32 index) {
