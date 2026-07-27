@@ -40,7 +40,6 @@ namespace ifb {
         assert(quads_all != NULL);
 
         // initialize list
-        _quad_mngr->all.init(quads_all, cfg.quad_capacity);
+        _quad_mngr->quad_id_list.stack_init(_quad_mngr->stack_mem);
     }
-
 };

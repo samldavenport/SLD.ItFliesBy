@@ -43,21 +43,21 @@ namespace ifb {
         arena* a = arena_alloc();
         assert(a);
 
-        quad_list ql;
-        const bool did_init = quad_list_init(ql, a);
+        entity_id_list quad_list;
+        const bool did_init = quad_list.arena_init(a);
         assert(did_init);
 
-        quad_lookup_all(ql);
+        quad_lookup_all(quad_list);
 
         for (
             u32 index = 0;
-                index < ql.count();
+                index < quad_list.count();
               ++index
         ) {
 
 
             quad_entity q;
-            const bool did_find = quad_lookup_by_id(q, ql[index]);
+            const bool did_find = quad_lookup_by_id(q, quad_list[index]);
             assert(did_find);
 
             q.color.hex    =  0xFFFFFFFF;
@@ -72,5 +72,4 @@ namespace ifb {
 
         arena_free(a); 
     }
-
 };

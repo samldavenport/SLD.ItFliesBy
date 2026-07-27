@@ -6,15 +6,6 @@
 
 namespace ifb {
     
-    void
-    entity_id_list::validate(
-        void) {
-    
-        assert(_array    != NULL);
-        assert(_capacity != 0);
-        assert(_count    <= _capacity);
-    }
-
     bool
     entity_id_list::arena_init(
         arena* a) {
@@ -29,7 +20,20 @@ namespace ifb {
 
         return(_array != NULL);
     }
+
+    bool
+    entity_id_list::stack_init(
+        stack& s) {
+
+        const auto& config = config_instance();
+    
+        _array    = s.push_struct<entity_id>(config.entity_capacity);
+        _capacity = config.entity_capacity;
+        _count    = 0;
    
+        return(_array != NULL);
+    }
+
     bool
     entity_id_list::add(
         const entity_id id) {
@@ -98,15 +102,45 @@ namespace ifb {
     
     u32
     entity_id_list::capacity(
-        void) {
+        void) const {
 
         return(_capacity); 
     }
     
     u32
     entity_id_list::count(
-        void) {
+        void) const {
 
         return(_count);
     }
+    
+    bool
+    entity_id_list::contains(
+        const entity_id id) const {
+    
+        assert(id != ENTITY_ID_INVALID);
+        validate();
+
+        for (
+            u32 i = 0;
+            i < _count;
+            ++i
+        ) {
+            if (id == _array[i]) {
+                return(true);
+            }
+        }
+
+        return(false);
+    }
+    
+    void
+    entity_id_list::validate(
+        void) const {
+    
+        assert(_array    != NULL);
+        assert(_capacity != 0);
+        assert(_count    <= _capacity);
+    }
+
 };
