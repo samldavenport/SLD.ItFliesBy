@@ -6,6 +6,10 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // ENTITY ID LIST 
+    //--------------------------------------------------------------------
+
     class entity_id_list {
 
     private:
@@ -21,9 +25,9 @@ namespace ifb {
         bool add         (const entity_id id);
         bool remove      (const entity_id id);
         void reset       (void);
-        void validate    (void)               const;
-        u32  capacity    (void)               const;
-        u32  count       (void)               const;
+        void validate    (void)                const;
+        u32  capacity    (void)                const;
+        u32  count       (void)                const;
         bool contains    (const entity_id id) const;
 
         inline const entity_id&
@@ -32,9 +36,7 @@ namespace ifb {
             assert(index < _count);
             return(_array[index]);
         }
-
     };
-
 };
 
 #endif //COLLECTIONS_INTERNAL_HPP
