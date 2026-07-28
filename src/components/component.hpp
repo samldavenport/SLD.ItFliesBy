@@ -21,6 +21,7 @@ namespace ifb {
     struct cmpnt_table_velocity;
     struct cmpnt_table_acceleration;
     struct cmpnt_table_inv_mass;
+    struct cmpnt_table_drag;
 
     struct cmpnt_list_position;
     struct cmpnt_list_color;
@@ -115,10 +116,10 @@ namespace ifb {
     IFB_INTERNAL void                     cmpnt_table_inv_mass_lookup       (const u32 sparse_index, cmpnt_inv_mass& inv_mass);
 
     IFB_INTERNAL void                     cmpnt_table_drag_validate         (void);
-    IFB_INTERNAL void                     cmpnt_table_drag_update           (const cmpnt_inv_mass& inv_mass);
-    IFB_INTERNAL void                     cmpnt_table_drag_update           (const u32 sparse_index, const inv_mass& inv_mass);
-    IFB_INTERNAL void                     cmpnt_table_drag_lookup           (const u32 sparse_index, inv_mass&       inv_mass);
-    IFB_INTERNAL void                     cmpnt_table_drag_lookup           (const u32 sparse_index, cmpnt_inv_mass& inv_mass);
+    IFB_INTERNAL void                     cmpnt_table_drag_update           (const cmpnt_drag& drag);
+    IFB_INTERNAL void                     cmpnt_table_drag_update           (const u32 sparse_index, const drag& d);
+    IFB_INTERNAL void                     cmpnt_table_drag_lookup           (const u32 sparse_index, drag&       d);
+    IFB_INTERNAL void                     cmpnt_table_drag_lookup           (const u32 sparse_index, cmpnt_drag& d);
 
     //--------------------------------------------------------------------
     // COMPONENT MANAGER
@@ -135,6 +136,7 @@ namespace ifb {
             cmpnt_table_velocity*     velocity;
             cmpnt_table_acceleration* acceleration;
             cmpnt_table_inv_mass*     inv_mass;
+            cmpnt_table_drag*         drag;
         } tables;
     };
 
@@ -178,6 +180,10 @@ namespace ifb {
     };
 
     struct cmpnt_table_inv_mass {
+        f32* normal_val;
+    };
+
+    struct cmpnt_table_drag {
         f32* normal_val;
     };
 

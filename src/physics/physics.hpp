@@ -3,9 +3,7 @@
 
 #include "ifb-component.hpp"
 #include "ifb-types.hpp"
-#include "ifb.hpp"
 #include "memory.hpp"
-#include "entity.hpp"
 #include "collections-internal.hpp"
 
 namespace ifb {
@@ -58,9 +56,9 @@ namespace ifb {
 
     IFB_INTERNAL void                 physics_entity_add_force        (const entity_id id, const vec3& force);
     IFB_INTERNAL bool                 physics_entity_remove_all_force (const entity_id id);
-    IFB_INTERNAL bool                 physics_entity_set_mass         (const entity_id id, const f32 mass);
-    IFB_INTERNAL bool                 physics_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
-    IFB_INTERNAL bool                 physics_entity_set_rigid_body   (const entity_id id, const rigid_body& rb);
+    IFB_INTERNAL void                 physics_entity_set_mass         (const entity_id id, const f32 mass);
+    IFB_INTERNAL void                 physics_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
+    IFB_INTERNAL void                 physics_entity_set_rigid_body   (const entity_id id, const rigid_body& rb);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS

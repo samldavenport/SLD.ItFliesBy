@@ -16,6 +16,7 @@ namespace ifb {
     IFB_INLINE cmpnt_table_velocity*     create_tbl_velocity     (void);
     IFB_INLINE cmpnt_table_acceleration* create_tbl_acceleration (void);
     IFB_INLINE cmpnt_table_inv_mass*     create_tbl_inv_mass     (void);
+    IFB_INLINE cmpnt_table_drag*         create_tbl_drag         (void);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -54,6 +55,7 @@ namespace ifb {
         _cmpnt_mngr->tables.velocity     = create_tbl_velocity     ();
         _cmpnt_mngr->tables.acceleration = create_tbl_acceleration ();
         _cmpnt_mngr->tables.inv_mass     = create_tbl_inv_mass     ();
+        _cmpnt_mngr->tables.drag         = create_tbl_drag         ();
 
         assert(
             _cmpnt_mngr->tables.position     != NULL &&
@@ -62,7 +64,8 @@ namespace ifb {
             _cmpnt_mngr->tables.rigid_body   != NULL &&
             _cmpnt_mngr->tables.velocity     != NULL &&
             _cmpnt_mngr->tables.acceleration != NULL &&
-            _cmpnt_mngr->tables.inv_mass     != NULL
+            _cmpnt_mngr->tables.inv_mass     != NULL &&
+            _cmpnt_mngr->tables.drag         != NULL
         );
     }
 
@@ -210,6 +213,21 @@ namespace ifb {
         void) {
 
         auto tbl     = _cmpnt_mngr->mem.push_struct<cmpnt_table_inv_mass>();
+        auto col_val = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+    
+        assert(tbl);
+        assert(col_val);
+
+        tbl->normal_val = col_val;
+
+        return(tbl);
+    }
+
+    IFB_INLINE cmpnt_table_drag*
+    create_tbl_drag(
+        void) {
+
+        auto tbl     = _cmpnt_mngr->mem.push_struct<cmpnt_table_drag>();
         auto col_val = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
     
         assert(tbl);

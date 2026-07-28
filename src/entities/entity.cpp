@@ -1,6 +1,8 @@
 #pragma once
 
 #include "entity.hpp"
+#include "ifb-types.hpp"
+#include "sld.hpp"
 
 namespace ifb {
 
@@ -154,5 +156,29 @@ namespace ifb {
         }
 
         return(did_find);
+    }
+
+    IFB_INTERNAL u32
+    entity_lookup_sparse_index(
+        const entity_id id) {
+        
+        entity_mngr_validate();
+        assert(id != ENTITY_ID_INVALID);
+
+        u32 sparse_index = INVALID_INDEX;     
+        for (
+            u32 index = 0;
+                index < _entity_mngr->count;
+              ++index) {
+
+            if (id != _entity_mngr->data.dense.id[index]) {
+                continue;
+            }
+
+            sparse_index = _entity_mngr->data.dense.sparse_index[index];
+            break;
+        }
+
+        return(sparse_index);
     }
 };
