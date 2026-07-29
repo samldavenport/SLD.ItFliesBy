@@ -53,12 +53,13 @@ namespace ifb {
     IFB_INTERNAL bool                 physics_accumulator_remove      (physics_accumulator* const accum, const entity_id id);
     IFB_INTERNAL void                 physics_accumulator_reset       (physics_accumulator* const accum);
 
-
     IFB_INTERNAL void                 physics_entity_add_force        (const entity_id id, const vec3& force);
     IFB_INTERNAL bool                 physics_entity_remove_all_force (const entity_id id);
     IFB_INTERNAL void                 physics_entity_set_mass         (const entity_id id, const f32 mass);
     IFB_INTERNAL void                 physics_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
     IFB_INTERNAL void                 physics_entity_set_rigid_body   (const entity_id id, const rigid_body& rb);
+
+    IFB_INTERNAL bool                 physics_integrate_forces        (const u32 dt_ms, arena* a);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS

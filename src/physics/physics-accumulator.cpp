@@ -143,7 +143,6 @@ namespace ifb {
         }
 
         return(false);
-                 
     }
     
     IFB_INTERNAL void
