@@ -45,6 +45,7 @@ namespace ifb {
     IFB_INTERNAL bool         entity_lookup_by_tag         (entity& e, const cchar* tag_cstr);
     IFB_INTERNAL bool         entity_lookup_by_index_dense (entity& e, const u32    index);
     IFB_INTERNAL bool         entity_lookup_by_id          (entity& e, const entity_id id);
+    IFB_INTERNAL u32          entity_lookup_sparse_index   (const entity_id);
 
     // components
     IFB_INTERNAL bool         entity_component_add                 (const entity_id id,       const component_type types);

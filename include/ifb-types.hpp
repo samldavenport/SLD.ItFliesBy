@@ -94,6 +94,23 @@ namespace ifb {
         dimensions_2d dimensions;
     };
 
+    struct inv_mass {
+        f32 normal_val;
+    };
+
+    struct drag {
+        f32 normal_val;
+    };
+
+    struct particle {
+        rigid_body      rb;
+        position        pos;
+        velocity_3d     vel;
+        acceleration_3d acc;
+        inv_mass        im;
+        drag            drg;
+    };
+
     struct flags {
 
         s32 val;

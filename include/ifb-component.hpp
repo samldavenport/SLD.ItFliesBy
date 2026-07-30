@@ -4,7 +4,6 @@
 #include <sld.hpp>
 
 #include "ifb-types.hpp"
-#include "ifb-entity.hpp"
 
 namespace ifb {
 
@@ -16,6 +15,8 @@ namespace ifb {
         cmpnt_type_e_rigid_body   = 4,
         cmpnt_type_e_velocity     = 5,
         cmpnt_type_e_acceleration = 6,
+        cmpnt_type_e_inv_mass     = 7,
+        cmpnt_type_e_drag         = 8
     };
 
     struct cmpnt_position {
@@ -73,6 +74,17 @@ namespace ifb {
         f32       z;
     };
 
+    struct cmpnt_inv_mass {
+        entity_id id;
+        u32       sparse_index;
+        f32       val;
+    };
+
+    struct cmpnt_drag {
+        entity_id id;
+        u32       sparse_index;
+        f32       val;
+    };
 };
 
 #endif //IFB_COMPONENTS_HPP

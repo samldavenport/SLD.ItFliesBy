@@ -136,7 +136,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     cmpnt_rigid_body_table_update(
-        rigid_body& rb,
+        const rigid_body& rb,
         const u32   sparse_index) {
 
         cmpnt_rigid_body_table_validate();

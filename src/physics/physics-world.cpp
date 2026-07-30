@@ -30,16 +30,9 @@ namespace ifb {
             world->arena = arena_alloc();
             assert(world->arena != NULL);
 
-            const u32 entity_list_capacity = entity_mngr_capacity_dense();
-            assert(entity_list_capacity != 0);
 
-            auto dynamic_entities = arena_push<entity_id>(world->arena, entity_list_capacity);
-            auto static_entities  = arena_push<entity_id>(world->arena, entity_list_capacity);
-            assert(dynamic_entities);
-            assert(static_entities);
-
-            world->entity_list_dynamic.init(dynamic_entities, entity_list_capacity);
-            world->entity_list_dynamic.init(static_entities,  entity_list_capacity);
+            world->entity_list_dynamic.arena_init(world->arena);
+            world->entity_list_static.arena_init(world->arena);
 
             physics_world_validate(world);
         }

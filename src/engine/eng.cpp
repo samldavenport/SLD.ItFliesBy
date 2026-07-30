@@ -15,6 +15,8 @@
 #include "component-rigid-body.cpp"
 #include "component-velocity.cpp"
 #include "component-acceleration.cpp"
+#include "component-inverse-mass.cpp"
+#include "component-drag.cpp"
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"
@@ -48,7 +50,9 @@
 #include "memory-block.cpp"
 
 #include "physics-manager.cpp"
-#include "physics-world.cpp"
+#include "physics-accumulator.cpp"
+#include "physics-entity.cpp"
+#include "physics-integrator.cpp"
 
 #include "quad.cpp"
 #include "quad-manager.cpp"
