@@ -9,13 +9,16 @@ namespace ifb {
     physics_mngr_create(
         void) {
 
-        physics_mngr*   mngr = global_alloc<physics_mngr>();
-        physics_memory* mem  = global_alloc<physics_memory>();
+        auto mngr  = global_alloc<physics_mngr>();
+        auto mem   = global_alloc<physics_memory>();
+        auto accum = global_alloc<physics_accumulator>();         
 
-        assert(mngr != NULL);
-        assert(mem  != NULL);
+        assert(mngr  != NULL);
+        assert(mem   != NULL);
+        assert(accum != NULL);
     
-        mngr->memory     = mem;
+        mngr->memory            = mem;
+        mngr->force_accumulator = accum;
 
         _phys_mngr = mngr;
         return(mngr);
