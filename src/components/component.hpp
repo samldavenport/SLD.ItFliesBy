@@ -109,6 +109,8 @@ namespace ifb {
     IFB_INTERNAL void                     cmpnt_acceleration_table_lookup   (cmpnt_acceleration& accel, const entity&      e);
     IFB_INTERNAL void                     cmpnt_acceleration_table_lookup   (acceleration_3d& accel,    const u32          sparse_index);
 
+    //TODO(SAM): inconsistent naming needs to be fixed
+
     IFB_INTERNAL void                     cmpnt_table_inv_mass_validate     (void);
     IFB_INTERNAL void                     cmpnt_table_inv_mass_update       (const cmpnt_inv_mass& inv_mass);
     IFB_INTERNAL void                     cmpnt_table_inv_mass_update       (const u32 sparse_index, const inv_mass& inv_mass);

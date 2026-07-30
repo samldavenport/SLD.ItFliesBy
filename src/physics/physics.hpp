@@ -39,7 +39,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // METHOD DECLARATIONS
     //--------------------------------------------------------------------
-
     IFB_INTERNAL physics_mngr*        physics_mngr_create             (void);
     IFB_INTERNAL void                 physics_mngr_validate           (void);
     IFB_INTERNAL void                 physics_mngr_startup            (memory& memory);

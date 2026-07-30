@@ -52,6 +52,7 @@
 #include "physics-manager.cpp"
 #include "physics-accumulator.cpp"
 #include "physics-entity.cpp"
+#include "physics-integrator.cpp"
 
 #include "quad.cpp"
 #include "quad-manager.cpp"
