@@ -124,6 +124,10 @@ namespace ifb {
         assert(q_id_2 != ENTITY_ID_INVALID);
 
         while(true) {
+    
+            // get delta time
+            eng_system_update_time();
+            const f64 dt_ms =  eng_system_get_delta_time_ms();
 
             //TODO(SAM): pass the opengl context to the platform
             // start new frame

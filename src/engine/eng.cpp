@@ -28,6 +28,7 @@
 #include "eng-gui.cpp"
 #include "eng-file.cpp"
 #include "eng-image.cpp"
+#include "eng-system.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"
@@ -65,4 +66,5 @@
 #include "win32-input.cpp"
 #include "win32-memory.cpp"
 #include "win32-monitor.cpp"
+#include "win32-system.cpp"
 #include "win32-window.cpp"

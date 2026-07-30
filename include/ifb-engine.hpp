@@ -93,7 +93,7 @@ namespace ifb {
     IFB_ENGINE_API void            eng_file_close                        (const eng_file_handle hnd);
     IFB_ENGINE_API u32             eng_file_get_size                     (const eng_file_handle hnd);
     IFB_ENGINE_API void            eng_file_set_cursor                   (const eng_file_handle hnd, const u32 cursor);
-    IFB_ENGINE_API const cchar*   eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size);
+    IFB_ENGINE_API const cchar*    eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size);
     IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
@@ -152,6 +152,11 @@ namespace ifb {
             pfm_monitor_info primary;
             pfm_monitor_area working_area;
         } monitor;
+        struct {
+            u64 timestamp_curr;
+            u64 timestamp_prev;
+            u64 frequency;
+        } time;
     };
 
     struct eng_mem {

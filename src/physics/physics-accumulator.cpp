@@ -55,7 +55,7 @@ namespace ifb {
         assert(accum->data.ids     != NULL);
         assert(accum->data.vectors != NULL);
         assert(accum->capacity     != 0);
-        assert(accum->count        != 0);
+        assert(accum->count        <= accum->capacity);
     }
 
     IFB_INTERNAL void

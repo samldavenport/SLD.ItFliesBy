@@ -121,6 +121,13 @@ namespace ifb {
     IFB_PLATFORM_API u32             pfm_file_async_write   (const pfm_file_handle file, pfm_file_buffer* buffer);
 
     //--------------------------------------------------------------------
+    // SYSTEM
+    //--------------------------------------------------------------------
+   
+    IFB_PLATFORM_API u64 pfm_system_timestamp (void);
+    IFB_PLATFORM_API u64 pfm_system_frequency (void);
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
@@ -156,7 +163,7 @@ namespace ifb {
     };
 
     struct pfm_file_config {
-        const cchar*         path;
+        const cchar*          path;
         pfm_file_mode         mode;
         pfm_file_access_flags access_flags;
         pfm_file_share_flags  share_flags;
@@ -170,8 +177,6 @@ namespace ifb {
         u32   offset;
         u32   cursor;
     };
-
-
 
     struct pfm_monitor_info {
         u32 index;

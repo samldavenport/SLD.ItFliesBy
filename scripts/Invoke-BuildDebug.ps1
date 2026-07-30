@@ -4,7 +4,7 @@ $EngSrcFile    = Join-Path $ProjectRoot "src\engine\eng.cpp"
 $EngCompile = @(
     "cl.exe"
     $EngSrcFile
-    "/Fo:" + @(Join-Path $ProjectRoot "build\debug\obj\ItFliesBy.obj")  
+    "/Fo:" + @(Join-Path $ProjectRoot "build\debug\obj\ItFliesBy.Engine.obj")  
     "/I"   + @(Join-Path $ProjectRoot "include")
     "/I"   + @(Join-Path $ProjectRoot "src\collections")
     "/I"   + @(Join-Path $ProjectRoot "src\components")
@@ -45,11 +45,15 @@ $EngLink = @(
     "opengl32.lib"
     "glew32.lib"
     "imgui.lib"
-    "/LIBPATH:build\debug\obj"
-    "/LIBPATH:build\debug\lib"
-    "/LIBPATH:vcpkg_installed/x64-windows/lib"
-    "/OUT:build\debug\bin\ItFliesBy.Engine.dll"
-    "/IMPLIB:build\debug\lib\ItFliesBy.Engine.lib"
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.Core\build\debug\lib")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.Core\build\debug\obj")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\lib")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\obj")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "build\debug\lib")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "build\debug\obj")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "vcpkg_installed/x64-windows/lib")
+    "/OUT:"     + @(Join-Path $ProjectRoot "build\debug\bin\ItFliesBy.Engine.dll")
+    "/IMPLIB:"  + @(Join-Path $ProjectRoot "build\debug\lib\ItFliesBy.Engine.lib")
 ) -join " "
 
 $Win32SrcFile = Join-Path $ProjectRoot "src\win32\win32-main.cpp"
@@ -91,9 +95,17 @@ $Win32Link = @(
 ) -join " "
 
 & .\SLD.Core\scripts\Build-SLDCoreDebug.ps1
+& .\SLD.OpenGL\scripts\Invoke-BuildDebug.ps1
 
 Invoke-Expression $EngCompile
 Invoke-Expression $EngLink
 Invoke-Expression $Win32Compile
 Invoke-Expression $Win32Link
+
+$BinDst       = @(Join-Path $ProjectRoot "build\debug\bin") -join " "
+$BinSrcOpenGL = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll") -join " "
+$BinSrcCore   = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll") -join " "
+
+Copy-Item -Path $BinSrcCore   -Destination $BinDst 
+Copy-Item -Path $BinSrcOpenGL -Destination $BinDst 
 
