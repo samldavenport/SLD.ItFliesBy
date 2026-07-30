@@ -4,7 +4,7 @@ $EngSrcFile    = Join-Path $ProjectRoot "src\engine\eng.cpp"
 $EngCompile = @(
     "cl.exe"
     $EngSrcFile
-    "/Fo:" + @(Join-Path $ProjectRoot "build\debug\obj\ItFliesBy.obj")  
+    "/Fo:" + @(Join-Path $ProjectRoot "build\debug\obj\ItFliesBy.Engine.obj")  
     "/I"   + @(Join-Path $ProjectRoot "include")
     "/I"   + @(Join-Path $ProjectRoot "src\collections")
     "/I"   + @(Join-Path $ProjectRoot "src\components")

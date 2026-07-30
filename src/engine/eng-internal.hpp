@@ -16,9 +16,6 @@
 
 namespace ifb {
 
-    struct eng_context;
-
-
     struct eng_context {
         const eng_mem_map* mem_map;
         eng_system_info*   system;
@@ -42,6 +39,9 @@ namespace ifb {
     
     template<typename t>
     IFB_ENG_INTERNAL t* global_alloc(const u32 count = 1);
+
+    IFB_ENG_INTERNAL void eng_system_update_time       (void);
+    IFB_ENG_INTERNAL f64 eng_system_get_delta_time_ms (void);
 };
 
 #endif //IFB_ENG_INTERNAL_HPP

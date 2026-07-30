@@ -1,7 +1,6 @@
 #ifndef IFB_INPUT_HPP
 #define IFB_INPUT_HPP
 
-#include "ifb.hpp"
 #include "ifb-config.hpp"
 
 namespace ifb {
