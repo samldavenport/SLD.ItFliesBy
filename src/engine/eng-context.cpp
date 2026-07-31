@@ -44,6 +44,7 @@ namespace ifb {
         _eng_context              = eng_ctx;
         _eng_context->mem_map     = mem_map;
         _eng_context->system      = sys_info;  
+        _eng_context->keyboard    = keyboard_input_create(); 
         _eng_context->renderer    = renderer_context_create(); 
         _eng_context->file_mngr   = file_mngr_create(); 
         _eng_context->entity_mngr = entity_mngr_create(); 
@@ -56,6 +57,7 @@ namespace ifb {
         assert(
             _eng_context->mem_map     != NULL &&
             _eng_context->system      != NULL &&
+            _eng_context->keyboard    != NULL &&
             _eng_context->renderer    != NULL &&
             _eng_context->file_mngr   != NULL &&
             _eng_context->entity_mngr != NULL &&

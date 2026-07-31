@@ -29,6 +29,7 @@
 #include "eng-file.cpp"
 #include "eng-image.cpp"
 #include "eng-system.cpp"
+#include "eng-keycode.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"
