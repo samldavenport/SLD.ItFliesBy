@@ -1,19 +1,22 @@
 #pragma once
 
 #include "ifb.hpp"
+#include "eng-internal.hpp"
 
 namespace ifb {
 
     IFB_ENGINE_API void
     eng_input_set_key_down(
-        const input_keycode key_ptr) {
+        const input_keycode key) {
 
+        keyboard_set_key_down(key);
     }
 
     IFB_ENGINE_API void
     eng_input_set_key_up(
-        const input_keycode key_ptr) {
+        const input_keycode key) {
 
+        keyboard_set_key_up(key);
     }
 
     IFB_ENGINE_API void

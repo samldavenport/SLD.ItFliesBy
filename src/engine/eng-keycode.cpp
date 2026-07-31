@@ -22,8 +22,8 @@ namespace ifb {
         union {
             input_keycode keycode;
             struct {
-                byte group;
                 byte index;
+                byte group;
             };
         };
     };
@@ -59,7 +59,7 @@ namespace ifb {
         assert(code.group <= 4);
         assert(code.index <= 32);
 
-        _keyboard->groups[code.group] &= ~(1 >> code.index);
+        _keyboard->groups[code.group] &= ~(1 << code.index);
     }
     
     IFB_ENG_INTERNAL void 
@@ -74,7 +74,7 @@ namespace ifb {
         assert(code.group <= 4);
         assert(code.index <= 32);
         
-        _keyboard->groups[code.group] |= (1 >> code.index);
+        _keyboard->groups[code.group] |= (1 << code.index);
     }
     
     IFB_ENG_INTERNAL bool
@@ -89,7 +89,7 @@ namespace ifb {
         assert(code.group <= 4);
         assert(code.index <= 32);
 
-        const bool is_set = ( _keyboard->groups[code.group] >> code.index) & 1 == 1; 
+        const bool is_set = (( _keyboard->groups[code.group] >> code.index) & 1) == 1; 
         return(is_set);
     }
 };
