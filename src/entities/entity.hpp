@@ -33,8 +33,10 @@ namespace ifb {
     IFB_INTERNAL u32          entity_mngr_capacity_sparse (void);
 
     // entity
-    IFB_INTERNAL entity_id    entity_create  (const cchar* tag_cstr, const entity_archetype atype = cmpnt_type_e_none);
-    IFB_INTERNAL bool         entity_destroy (const cchar* tag_cstr);
+    IFB_INTERNAL entity_id    entity_create        (const cchar* tag_cstr, const entity_archetype atype = cmpnt_type_e_none);
+    IFB_INTERNAL bool         entity_destroy       (const cchar* tag_cstr);
+    IFB_INTERNAL bool         entity_destroy       (const entity_id id);
+    IFB_INTERNAL bool         entity_has_component (const entity& e, const component_type type);
 
     // list
     IFB_INTERNAL entity_list* entity_list_create   (arena* a);
@@ -45,7 +47,7 @@ namespace ifb {
     IFB_INTERNAL bool         entity_lookup_by_tag         (entity& e, const cchar* tag_cstr);
     IFB_INTERNAL bool         entity_lookup_by_index_dense (entity& e, const u32    index);
     IFB_INTERNAL bool         entity_lookup_by_id          (entity& e, const entity_id id);
-    IFB_INTERNAL u32          entity_lookup_sparse_index   (const entity_id);
+    IFB_INTERNAL u32          entity_lookup_sparse_index   (const entity_id id);
 
     // components
     IFB_INTERNAL bool         entity_component_add                 (const entity_id id,       const component_type types);
