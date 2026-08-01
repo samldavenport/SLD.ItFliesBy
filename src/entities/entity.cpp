@@ -127,6 +127,57 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
+    entity_destroy(
+        const entity_id id) {
+    
+        assert(id != ENTITY_ID_INVALID);
+        
+        entity_mngr_validate();
+
+        if (_entity_mngr->count == 0) {
+            return(false);
+        }
+
+        // look up the current and last entities
+        entity     e_current;
+        entity     e_last;
+        const u32  last_index       = (_entity_mngr->count - 1);
+        const bool did_find_current = entity_lookup_by_id          (e_current, id);
+        const bool did_find_last    = entity_lookup_by_index_dense (e_last,    last_index);   
+
+        // we should always retrieve the last one
+        assert(did_find_last);
+
+        // we're done if we didn't find the requested one
+        if (!did_find_current) {
+            return(false);
+        }
+
+        // if the last entity and current entity not are the same,
+        // we need to set the current info to last info
+        // otherwise, skip straight to invalidating and reducing the count
+        if (e_current.id != e_last.id) {
+
+            // by setting the current dense info to the last dense info
+            // and reducing the count by 1,
+            // we have effectively removed the current enitity
+            entity_tag_init(_entity_mngr->data.dense.tag[e_current.index_dense], _entity_mngr->data.dense.tag [e_last.index_dense].cstr);
+            _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
+            _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
+            _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
+            _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
+        }
+
+        // lastly, set the dense index of the last entity to invalid
+        // reduce the count
+        // and return
+        _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
+        --_entity_mngr->count;
+        return(true);
+    }
+    
+
+    IFB_INTERNAL bool
     entity_lookup_by_id(
         entity&         e,
         const entity_id id) {
@@ -180,5 +231,14 @@ namespace ifb {
         }
 
         return(sparse_index);
+    }
+
+    IFB_INTERNAL bool
+    entity_has_component(
+        const entity&        e,
+        const component_type type) {
+
+        const bool has_cmpnt = (e.archetype | type) != 0;
+        return(has_cmpnt);
     }
 };
