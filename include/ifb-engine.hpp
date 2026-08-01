@@ -188,5 +188,11 @@ namespace ifb {
         eng_mem quads;
         eng_mem physics;
     };
+
+    struct eng_game_context {
+        int x;
+    };
+
+  typedef bool (*eng_game_proc)(eng_game_context& game_ctx); 
 }
 #endif  //IFB_ENGINE_HPP

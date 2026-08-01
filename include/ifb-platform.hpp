@@ -154,12 +154,6 @@ namespace ifb {
             u32 y;
             f32 scroll;
         } mouse;
-        struct {
-            u32           key_count_up;
-            u32           key_count_down;
-            input_keycode key_codes_up   [IFB_CONFIG_WINDOW_MAX_KEYS];
-            input_keycode key_codes_down [IFB_CONFIG_WINDOW_MAX_KEYS];
-        } keys;
     };
 
     struct pfm_file_config {

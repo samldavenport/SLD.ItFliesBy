@@ -59,3 +59,11 @@ wWinMain(
 
     return(0);
 }
+
+static bool
+ifb_game_proc(
+    eng_game_context& ctx) {
+    
+}
+
+
