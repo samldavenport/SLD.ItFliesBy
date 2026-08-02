@@ -10,6 +10,9 @@ static const u32 SIZE_RESERVATION = size_megabytes(64);
 
 static byte _stack_mem[SIZE_STACK];
 
+
+bool ifb_game_proc(eng_game_context* ctx);
+
 int WINAPI
 wWinMain(
     HINSTANCE h_instance,
@@ -51,7 +54,7 @@ wWinMain(
         mem_map.physics.ptr    != NULL
     );
 
-    eng_context* ctx = eng_context_create(&mem_map);
+    eng_context* ctx = eng_context_create(&mem_map, ifb_game_proc);
 
     eng_context_startup();
     eng_gui_open();
@@ -62,8 +65,9 @@ wWinMain(
 
 static bool
 ifb_game_proc(
-    eng_game_context& ctx) {
-    
+    eng_game_context* ctx) {
+
+    return(true);
 }
 
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-engine.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
 
@@ -25,9 +26,11 @@ namespace ifb {
 
     IFB_ENGINE_API eng_context*
     eng_context_create(
-        const eng_mem_map* mem_map) {
+        const eng_mem_map* mem_map,
+        eng_game_proc      game_callback) {
 	
         const auto& config = config_instance();
+
 
         // stack memory
         global_stack_create_and_init(mem_map);
@@ -35,37 +38,43 @@ namespace ifb {
         // allocate global memory
         auto eng_ctx     = global_alloc<eng_context>      (); 
         auto sys_info    = global_alloc<eng_system_info>  ();
+        auto game_ctx    = global_alloc<eng_game_context> (); 
         assert(
             eng_ctx     != NULL &&
             sys_info    != NULL
         );
 
         // set context properties        
-        _eng_context              = eng_ctx;
-        _eng_context->mem_map     = mem_map;
-        _eng_context->system      = sys_info;  
-        _eng_context->keyboard    = keyboard_input_create(); 
-        _eng_context->renderer    = renderer_context_create(); 
-        _eng_context->file_mngr   = file_mngr_create(); 
-        _eng_context->entity_mngr = entity_mngr_create(); 
-        _eng_context->memory_mngr = memory_mngr_create(); 
-        _eng_context->cmpnt_mngr  = cmpnt_mngr_create();  
-        _eng_context->quad_mngr   = quad_mngr_create();
-        _eng_context->phys_mngr   = physics_mngr_create();
-        _eng_context->mem_map     = mem_map;
+        _eng_context                = eng_ctx;
+        _eng_context->mem_map       = mem_map;
+        _eng_context->game_callback = game_callback;
+        _eng_context->game_ctx      = game_ctx;
+        _eng_context->system        = sys_info;  
+        _eng_context->keyboard      = keyboard_input_create(); 
+        _eng_context->renderer      = renderer_context_create(); 
+        _eng_context->file_mngr     = file_mngr_create(); 
+        _eng_context->entity_mngr   = entity_mngr_create(); 
+        _eng_context->memory_mngr   = memory_mngr_create(); 
+        _eng_context->cmpnt_mngr    = cmpnt_mngr_create();  
+        _eng_context->quad_mngr     = quad_mngr_create();
+        _eng_context->phys_mngr     = physics_mngr_create();
+        _eng_context->mem_map       = mem_map;
 
         assert(
-            _eng_context->mem_map     != NULL &&
-            _eng_context->system      != NULL &&
-            _eng_context->keyboard    != NULL &&
-            _eng_context->renderer    != NULL &&
-            _eng_context->file_mngr   != NULL &&
-            _eng_context->entity_mngr != NULL &&
-            _eng_context->memory_mngr != NULL &&
-            _eng_context->cmpnt_mngr  != NULL &&
-            _eng_context->quad_mngr   != NULL &&
-            _eng_context->phys_mngr   != NULL &&
-            _eng_context->mem_map     != NULL
+            _eng_context->mem_map       != NULL &&
+            _eng_context->game_callback != NULL &&
+            _eng_context->game_ctx      != NULL &&
+            _eng_context->system        != NULL &&
+            _eng_context->system        != NULL &&
+            _eng_context->keyboard      != NULL &&
+            _eng_context->renderer      != NULL &&
+            _eng_context->file_mngr     != NULL &&
+            _eng_context->entity_mngr   != NULL &&
+            _eng_context->memory_mngr   != NULL &&
+            _eng_context->cmpnt_mngr    != NULL &&
+            _eng_context->quad_mngr     != NULL &&
+            _eng_context->phys_mngr     != NULL &&
+            _eng_context->mem_map       != NULL
         );
 
         return(_eng_context);
@@ -155,6 +164,10 @@ namespace ifb {
             const bool quit = pfm_window_quit_received();
             if (quit) break;
 
+            // game callback    
+            _eng_context->game_callback(
+                _eng_context->game_ctx
+            );
         }
     }
     

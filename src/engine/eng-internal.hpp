@@ -1,6 +1,7 @@
 #ifndef IFB_ENG_INTERNAL_HPP
 #define IFB_ENG_INTERNAL_HPP
 
+#include "ifb-engine.hpp"
 #include "ifb-input.hpp"
 #include "ifb.hpp"
 #include "files.hpp"
@@ -27,6 +28,8 @@ namespace ifb {
 
     struct eng_context {
         const eng_mem_map* mem_map;
+        eng_game_proc      game_callback;
+        eng_game_context*  game_ctx;
         eng_system_info*   system;
         keyboard_input*    keyboard;
         renderer_context*  renderer;
