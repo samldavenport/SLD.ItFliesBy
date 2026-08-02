@@ -162,12 +162,15 @@ namespace ifb {
 
             // check if quit received
             const bool quit = pfm_window_quit_received();
-            if (quit) break;
 
             // game callback    
-            _eng_context->game_callback(
+            const bool game_result = _eng_context->game_callback(
                 _eng_context->game_ctx
             );
+
+            if (quit || !game_result) {
+                break;
+            }
         }
     }
     
