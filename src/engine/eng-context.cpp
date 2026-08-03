@@ -1,8 +1,11 @@
 #pragma once
 
+#include "entity.cpp"
 #include "ifb-engine.hpp"
+#include "ifb-entity.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "quad.cpp"
 
 namespace ifb {
 
@@ -106,15 +109,21 @@ namespace ifb {
         const eng_arena_handle img_arena = eng_arena_alloc();
         const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
         const image*           img       = eng_image_load_to_arena(img_file, img_arena);
+        
+        const entity_id q_id_0 = entity_create("HELLO-QUAD-1");
+        const entity_id q_id_1 = entity_create("HELLO-QUAD-2");
+        const entity_id q_id_2 = entity_create("HELLO-QUAD-3");
 
+        entity_add_archetype(q_id_0, ENTITY_ARCHETYPE_QUAD);
+        entity_add_archetype(q_id_1, ENTITY_ARCHETYPE_QUAD);
+        entity_add_archetype(q_id_2, ENTITY_ARCHETYPE_QUAD);
+        
         // create a test quad
         quad q_0 = {0};
         q_0.color.hex         = 0xFF0000FF;
         q_0.dimensions.width  = 0.2;
         q_0.dimensions.height = 0.2;
         q_0.position          = {0};
-        const entity_id q_id_0 = quad_create("HELLO-QUAD-1",q_0);
-        assert(q_id_0 != ENTITY_ID_INVALID);
 
         quad q_1 = {0};
         q_1.color.hex         = 0x00FF00FF;
@@ -122,8 +131,6 @@ namespace ifb {
         q_1.dimensions.height = 0.2;
         q_1.position.x = 0.5;
         q_1.position.y = 0.5;
-        const entity_id q_id_1 = quad_create("HELLO-QUAD-2",q_1);
-        assert(q_id_1 != ENTITY_ID_INVALID);
 
         quad q_2 = {0};
         q_2.color.hex         = 0x0000FFFF;
@@ -131,8 +138,10 @@ namespace ifb {
         q_2.dimensions.height = 0.2;
         q_2.position.x = -0.5;
         q_2.position.y = -0.5;
-        const entity_id q_id_2 = quad_create("HELLO-QUAD-3",q_2);
-        assert(q_id_2 != ENTITY_ID_INVALID);
+
+        quad_update(q_id_0, q_0);
+        quad_update(q_id_1, q_1);
+        quad_update(q_id_2, q_2);
 
         while(true) {
     
@@ -162,15 +171,12 @@ namespace ifb {
 
             // check if quit received
             const bool quit = pfm_window_quit_received();
+            if (quit) break;
 
             // game callback    
-            const bool game_result = _eng_context->game_callback(
+            _eng_context->game_callback(
                 _eng_context->game_ctx
             );
-
-            if (quit || !game_result) {
-                break;
-            }
         }
     }
     

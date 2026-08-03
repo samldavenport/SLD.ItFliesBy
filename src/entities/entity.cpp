@@ -8,8 +8,7 @@ namespace ifb {
 
     IFB_INTERNAL entity_id
     entity_create(
-        const cchar*           tag_cstr,
-        const entity_archetype atype) {
+        const cchar* tag_cstr) {
 
         entity_mngr_validate();
         assert(tag_cstr != NULL);
@@ -20,10 +19,8 @@ namespace ifb {
         }
 
         // create the id and tag
-        entity_tag tag;
-        entity_tag_init(tag, tag_cstr);
-
-        const entity_id id  = entity_tag_to_id(tag); 
+        const entity_tag tag = tag_cstr;
+        const entity_id  id  = tag.to_id(); 
         assert(id != ENTITY_ID_INVALID);
 
         // make sure this isn't a duplicate
@@ -65,7 +62,7 @@ namespace ifb {
             // add the values 
             _entity_mngr->data.dense.id           [dense_index]  = id;
             _entity_mngr->data.dense.tag          [dense_index]  = tag;
-            _entity_mngr->data.dense.archetype    [dense_index]  = atype;
+            _entity_mngr->data.dense.archetype    [dense_index]  = 0;
             _entity_mngr->data.dense.sparse_index [dense_index]  = sparse_index;
             _entity_mngr->data.sparse.dense_index [sparse_index] = dense_index;
 
@@ -76,6 +73,36 @@ namespace ifb {
 
         // update the count and return the id
         return(did_insert ? id : ENTITY_ID_INVALID);
+    }
+
+    IFB_INTERNAL bool
+    entity_add_archetype(
+        const entity_id        id,
+        const entity_archetype atype) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool did_find = entity_lookup_by_id(e, id);
+        if (did_find) {
+            _entity_mngr->data.dense.archetype[e.index_dense].val |= atype.val;
+        }
+        return(did_find);
+    }
+
+    IFB_INTERNAL bool
+    entity_remove_archetype(
+        const entity_id        id,
+        const entity_archetype atype) {
+        
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool did_find = entity_lookup_by_id(e, id);
+        if (did_find) {
+            _entity_mngr->data.dense.archetype[e.index_dense].val &= ~atype.val;
+        }
+        return(did_find);
     }
 
     IFB_INTERNAL bool
@@ -111,7 +138,11 @@ namespace ifb {
             // by setting the current dense info to the last dense info
             // and reducing the count by 1,
             // we have effectively removed the current enitity
-            entity_tag_init(_entity_mngr->data.dense.tag[e_current.index_dense], _entity_mngr->data.dense.tag [e_last.index_dense].cstr);
+            _entity_mngr->data.dense.tag[e_current.index_dense].init(
+                _entity_mngr->data.dense.tag [e_last.index_dense].cstr
+            );
+
+
             _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
             _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
             _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
@@ -161,7 +192,7 @@ namespace ifb {
             // by setting the current dense info to the last dense info
             // and reducing the count by 1,
             // we have effectively removed the current enitity
-            entity_tag_init(_entity_mngr->data.dense.tag[e_current.index_dense], _entity_mngr->data.dense.tag [e_last.index_dense].cstr);
+            _entity_mngr->data.dense.tag[e_current.index_dense].init(_entity_mngr->data.dense.tag [e_last.index_dense].cstr);
             _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
             _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
             _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 

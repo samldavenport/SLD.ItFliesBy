@@ -6,7 +6,7 @@
 #include "collection-array-list.cpp"
 #include "collection-sparse-set.cpp"
 #include "collection-stack.cpp"
-#include "collection-entity-id-list.cpp"
+#include "collection-entity-list.cpp"
 
 #include "component-color.cpp"
 #include "component-manager.cpp"
@@ -33,7 +33,6 @@
 
 #include "entity.cpp"
 #include "entity-component.cpp"
-#include "entity-list.cpp"
 #include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity-sparse-set.cpp"

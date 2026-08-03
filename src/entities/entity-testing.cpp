@@ -38,16 +38,16 @@ namespace ifb {
         const entity_archetype atype_2 = (cmpnt_type_e_position | cmpnt_type_e_color );
 
         // entities
-        const entity_id entity_0 = entity_create("TEST-0", atype_0);
-        const entity_id entity_1 = entity_create("TEST-1", atype_1);
-        const entity_id entity_2 = entity_create("TEST-2", atype_0);
-        const entity_id entity_3 = entity_create("TEST-3", atype_1);
-        const entity_id entity_4 = entity_create("TEST-4", atype_0);
-        const entity_id entity_5 = entity_create("TEST-5", atype_1);
-        const entity_id entity_6 = entity_create("TEST-6", atype_0);
-        const entity_id entity_7 = entity_create("TEST-7", atype_1);
-        const entity_id entity_8 = entity_create("TEST-8", atype_0);
-        const entity_id entity_9 = entity_create("TEST-9", atype_2);
+        const entity_id entity_0 = entity_create("TEST-0");
+        const entity_id entity_1 = entity_create("TEST-1");
+        const entity_id entity_2 = entity_create("TEST-2");
+        const entity_id entity_3 = entity_create("TEST-3");
+        const entity_id entity_4 = entity_create("TEST-4");
+        const entity_id entity_5 = entity_create("TEST-5");
+        const entity_id entity_6 = entity_create("TEST-6");
+        const entity_id entity_7 = entity_create("TEST-7");
+        const entity_id entity_8 = entity_create("TEST-8");
+        const entity_id entity_9 = entity_create("TEST-9");
 
         assert(
             entity_0 != ENTITY_ID_INVALID &&
@@ -62,6 +62,19 @@ namespace ifb {
             entity_9 != ENTITY_ID_INVALID &&
             "ENTITY CREATE RETURN INVALID ID"          
         );
+
+        bool added_atype = true;
+        added_atype &= entity_add_archetype(entity_0, atype_0);
+        added_atype &= entity_add_archetype(entity_1, atype_1);
+        added_atype &= entity_add_archetype(entity_2, atype_0);
+        added_atype &= entity_add_archetype(entity_3, atype_1);
+        added_atype &= entity_add_archetype(entity_4, atype_0);
+        added_atype &= entity_add_archetype(entity_5, atype_1);
+        added_atype &= entity_add_archetype(entity_6, atype_0);
+        added_atype &= entity_add_archetype(entity_7, atype_1);
+        added_atype &= entity_add_archetype(entity_8, atype_0);
+        added_atype &= entity_add_archetype(entity_9, atype_2);
+        assert(added_atype);
     }
 
     inline void

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "component.hpp"
+#include "entity.cpp"
 
 namespace ifb {
 
@@ -144,10 +145,11 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_color_table_lookup(
         cmpnt_list_color* list_color,
-        const entity_list*    list_entity) {
+        entity_id_list&   list_entity) {
 
         cmpnt_color_list_validate (list_color);
-        entity_list_validate          (list_entity);
+        list_entity.validate();
+
         assert(
             _cmpnt_mngr->capacity     != 0 &&
             _cmpnt_mngr->tables.color != NULL
@@ -157,19 +159,18 @@ namespace ifb {
 
         for (
             u32 index = 0;
-                index < list_entity->count;
+                index < list_entity.count();
               ++index
         ) {
-
-            const u32 sparse_index = list_entity->data.sparse_index[index];
+            const u32 sparse_index = entity_lookup_sparse_index(list_entity[index]);
             assert(sparse_index < _cmpnt_mngr->capacity);
             
-            list_color->data.id           [index]     = list_entity->data.id[index];
+            list_color->data.id           [index]     = list_entity[index];
             list_color->data.sparse_index [index]     = sparse_index;
             list_color->data.color        [index].hex = tbl->rgba_hex[sparse_index];
         }
 
-        list_color->count = list_entity->count;
+        list_color->count = list_entity.count();
     }
 
     IFB_INTERNAL void

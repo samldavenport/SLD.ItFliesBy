@@ -11,7 +11,8 @@ static const u32 SIZE_RESERVATION = size_megabytes(64);
 static byte _stack_mem[SIZE_STACK];
 
 
-bool ifb_game_proc(eng_game_context* ctx);
+bool game_proc (eng_game_context* ctx);
+void mem_map_init  (eng_mem_map& mem_map);
 
 int WINAPI
 wWinMain(
@@ -20,7 +21,34 @@ wWinMain(
     PWSTR     p_cmd_line,
     int       n_cmd_show) {
 
+    // initialize the memory map
     eng_mem_map mem_map;
+    mem_map_init(mem_map);
+
+    // create the engine context
+    eng_context* ctx = eng_context_create(&mem_map, game_proc);
+
+    // run the engine
+    eng_context_startup();
+    eng_gui_open();
+    eng_context_run();
+
+    return(0);
+}
+
+static bool
+game_proc(
+    eng_game_context* ctx) {
+
+    assert(ctx);
+
+    return(true);
+}
+
+inline void
+mem_map_init(
+    eng_mem_map& mem_map) {
+    
     mem_map.stack.size      = SIZE_STACK;
     mem_map.stack.ptr       = _stack_mem;
     mem_map.core.size       = SIZE_RESERVATION; 
@@ -53,21 +81,4 @@ wWinMain(
         mem_map.quads.ptr      != NULL &&
         mem_map.physics.ptr    != NULL
     );
-
-    eng_context* ctx = eng_context_create(&mem_map, ifb_game_proc);
-
-    eng_context_startup();
-    eng_gui_open();
-    eng_context_run();
-
-    return(0);
 }
-
-static bool
-ifb_game_proc(
-    eng_game_context* ctx) {
-
-    return(true);
-}
-
-

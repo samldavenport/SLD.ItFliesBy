@@ -34,12 +34,5 @@ namespace ifb {
         stack_mem.ptr  = pfm_memory_commit(mem.ptr, 0, mem.size);
         stack_mem.size = mem.size;
         _quad_mngr->stack_mem.init(stack_mem);
-
-        // allocate list memory
-        auto quads_all = _quad_mngr->stack_mem.push_struct<entity_id>(cfg.quad_capacity);
-        assert(quads_all != NULL);
-
-        // initialize list
-        _quad_mngr->quad_id_list.stack_init(_quad_mngr->stack_mem);
     }
 };

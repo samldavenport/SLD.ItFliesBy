@@ -9,19 +9,6 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // CONSTANTS
-    //--------------------------------------------------------------------
-
-    static const entity_archetype PHYSICS_ENTITY_ARCHETYPE = (
-        cmpnt_type_e_position     |
-        cmpnt_type_e_rigid_body   |
-        cmpnt_type_e_velocity     |
-        cmpnt_type_e_acceleration |
-        cmpnt_type_e_inv_mass     |
-        cmpnt_type_e_drag     
-    );
- 
-    //--------------------------------------------------------------------
     // TYPE DECLARATIONS
     //--------------------------------------------------------------------
 

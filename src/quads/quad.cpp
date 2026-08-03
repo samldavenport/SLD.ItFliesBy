@@ -1,104 +1,13 @@
 #pragma once
 
 #include "quad.hpp"
+#include "entity-lookup.cpp"
+#include "entity.cpp"
+#include "ifb-entity.hpp"
+#include "component.hpp"
+#include "ifb-types.hpp"
 
 namespace ifb {
-
-    IFB_INTERNAL entity_id
-    quad_create(
-        const cchar* tag_cstr) {
-
-        assert(tag_cstr != NULL);
-
-        const entity_id id = entity_create(tag_cstr, QUAD_ENTITY_ARCHETYPE);
-        assert(id != ENTITY_ID_INVALID);
-
-        const bool did_add = _quad_mngr->quad_id_list.add(id); 
-        if (!did_add) {
-            entity_destroy(tag_cstr);
-            return(ENTITY_ID_INVALID);
-        }
-
-        return(id);
-    }
-
-    IFB_INTERNAL entity_id
-    quad_create(
-        const cchar* tag_cstr,
-        quad         q) {
-
-        const entity_id id = quad_create(tag_cstr);
-        if (id != ENTITY_ID_INVALID) {
-
-            entity e;
-            assert(entity_lookup_by_id(e, id));
-
-            cmpnt_position_table_update (q.position,   e.index_sparse);
-            cmpnt_color_table_update    (q.color,      e.index_sparse);
-            cmpnt_quad_table_update     (q.dimensions, e.index_sparse);
-        }
-
-        return(id);
-    }
-
-    IFB_INTERNAL void
-    quad_create_batch(
-        const cchar** tag_cstr,
-        const u32     count,
-        entity_id*    id) {
-
-        assert(
-            tag_cstr != NULL &&
-            count    != 0    &&
-            id       != NULL          
-        );
-
-        (void)memset((void*)id, 0xFF, sizeof(entity_id) * count);
-
-        for (
-            u32 index = 0;
-                index < count;
-              ++index
-        ) {
-            entity_id&   curr_id  = id       [index];
-            const cchar* curr_tag = tag_cstr [index]; 
-            assert(curr_tag != NULL);
-
-            curr_id = entity_create(curr_tag, QUAD_ENTITY_ARCHETYPE);
-            assert(curr_id != ENTITY_ID_INVALID);
-
-            const bool did_add = _quad_mngr->quad_id_list.add(curr_id); 
-            if (!did_add) {
-                curr_id = ENTITY_ID_INVALID;
-                break;
-            }
-        }
-    }
-
-    IFB_INTERNAL bool
-    quad_lookup_by_tag(
-        quad_entity& q,
-        const cchar* tag_cstr) {
-
-        const entity_id id = entity_tag_cstr_to_id(tag_cstr);
-        bool did_find = false;
-
-        for (
-            u32 index = 0;
-                index < _quad_mngr->quad_id_list.count();
-              ++index
-        ) {
-
-            if (id == _quad_mngr->quad_id_list[index]) {
-                did_find = true;
-                break;
-            }
-        }
-
-        if (!did_find) {
-            return(FALSE);
-        }
-    }
 
     IFB_INTERNAL bool 
     quad_lookup_by_id(
@@ -107,22 +16,12 @@ namespace ifb {
 
         assert(id != ENTITY_ID_INVALID);
 
-        bool found_entity = false;
-        entity e;
-        for (
-            u32 index = 0;
-            (
-                index < _quad_mngr->quad_id_list.count() &&
-                !found_entity
-            );
-            ++index
-        ) {
 
-            found_entity = (
-                id == _quad_mngr->quad_id_list[index] &&
-                entity_lookup_by_id(e, id) 
-            );
-        }
+        entity e;
+        const bool found_entity = (
+            entity_lookup_by_id(e, id) &&
+            e.archetype & ENTITY_ARCHETYPE_QUAD == ENTITY_ARCHETYPE_QUAD 
+        );
 
         if (!found_entity) {
             return(false);
@@ -146,9 +45,9 @@ namespace ifb {
 	const quad_entity& q) {
 
         assert(
-            q.archetype & QUAD_ENTITY_ARCHETYPE == QUAD_ENTITY_ARCHETYPE &&
-            q.id                                != ENTITY_ID_INVALID     &&
-            q.tag                               != NULL 
+            (q.archetype & ENTITY_ARCHETYPE_QUAD) == ENTITY_ARCHETYPE_QUAD &&
+            q.id                                  != ENTITY_ID_INVALID     &&
+            q.tag                                 != NULL 
         );
 
         cmpnt_position_table_update (q.pos,   q.index_sparse);
@@ -157,23 +56,30 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    quad_lookup_all(
-        entity_id_list& list) {
+    quad_update(
+        const entity_id id,
+        const quad&     q) {
 
-        for (
-            u32 index = 0;
-                index < _quad_mngr->quad_id_list.count();
-              ++index) {
+        assert(id != ENTITY_ID_INVALID);
 
-            list.add(_quad_mngr->quad_id_list[index]);
-        }
+        const u32 sparse_index = entity_lookup_sparse_index(id);
+        assert(sparse_index != INVALID_INDEX);
+        
+        cmpnt_position_table_update (q.position,   sparse_index);
+        cmpnt_color_table_update    (q.color,      sparse_index);
+        cmpnt_quad_table_update     (q.dimensions, sparse_index);
     }
 
     IFB_INTERNAL bool
     quad_does_exist(
         const entity_id id) {
 
-        const bool exists = _quad_mngr->quad_id_list.contains(id);
-        return(exists);
+        entity e;
+        const bool does_exist = (
+            entity_lookup_by_id(e, id) &&
+            e.archetype & ENTITY_ARCHETYPE_QUAD == ENTITY_ARCHETYPE_QUAD 
+        );
+
+        return(does_exist);
     }
 };

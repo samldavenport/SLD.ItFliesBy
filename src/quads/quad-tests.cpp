@@ -1,5 +1,7 @@
 #pragma once
 
+#include "entity.cpp"
+#include "ifb-entity.hpp"
 #include "quad.hpp"
 
 namespace ifb {
@@ -30,9 +32,13 @@ namespace ifb {
 
             (void)memset((void*)tag_cstr, 0, sizeof(tag_cstr));
             (void)sprintf_s(tag_cstr, sizeof(tag_cstr), "ENTITY-%d",index);
-        
-            array_id[index] = quad_create(tag_cstr);
+       
+
+            array_id[index] = entity_create(tag_cstr);
+
             assert(array_id[index] != ENTITY_ID_INVALID);
+
+            entity_add_archetype(array_id[index], ENTITY_ARCHETYPE_QUAD);
         }
     }
 
