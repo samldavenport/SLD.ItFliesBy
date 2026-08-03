@@ -7,22 +7,20 @@
 
 namespace ifb {
 
-    IFB_INTERNAL bool 
-    entity_lookup(
+    IFB_INTERNAL bool
+    entity_lookup_list(
         entity_id_list&     list,
         const entity_query& query) {
 
         entity_mngr_validate();
         list.validate();
-        list.reset();        
 
         for (
             u32 dense_index = 0;
                 dense_index < _entity_mngr->count;
-              ++dense_index) {
-            
+              ++dense_index ) {
+
             const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [dense_index];
-            const entity_id        curr_id    = _entity_mngr->data.dense.id        [dense_index];
             const bool             has_all    = ((curr_atype & query.has_all) == query.has_all);
             const bool             has_any    = ((curr_atype & query.has_any) != 0 || (query.has_any == 0));
             const bool             has_none   = ((curr_atype & query.has_none) == 0);
@@ -33,12 +31,11 @@ namespace ifb {
             );
 
             if (is_match) {
-               list.add(curr_id); 
+                list.add(dense_index);
             }
         }
 
-        const bool did_find = (list.count() > 0); 
-        return(did_find);        
+        return(entity_list.count() > 0);
     }
 
     IFB_INTERNAL bool
