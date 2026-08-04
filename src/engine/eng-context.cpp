@@ -106,45 +106,8 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_context_run(void) {
 
-        const eng_arena_handle img_arena = eng_arena_alloc();
-        const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
-        const image*           img       = eng_image_load_to_arena(img_file, img_arena);
-        
-        const entity_id q_id_0 = entity_create("HELLO-QUAD-1");
-        const entity_id q_id_1 = entity_create("HELLO-QUAD-2");
-        const entity_id q_id_2 = entity_create("HELLO-QUAD-3");
-
-        entity_add_archetype(q_id_0, ENTITY_ARCHETYPE_QUAD);
-        entity_add_archetype(q_id_1, ENTITY_ARCHETYPE_QUAD);
-        entity_add_archetype(q_id_2, ENTITY_ARCHETYPE_QUAD);
-        
-        // create a test quad
-        quad q_0 = {0};
-        q_0.color.hex         = 0xFF0000FF;
-        q_0.dimensions.width  = 0.2;
-        q_0.dimensions.height = 0.2;
-        q_0.position          = {0};
-
-        quad q_1 = {0};
-        q_1.color.hex         = 0x00FF00FF;
-        q_1.dimensions.width  = 0.2;
-        q_1.dimensions.height = 0.2;
-        q_1.position.x = 0.5;
-        q_1.position.y = 0.5;
-
-        quad q_2 = {0};
-        q_2.color.hex         = 0x0000FFFF;
-        q_2.dimensions.width  = 0.2;
-        q_2.dimensions.height = 0.2;
-        q_2.position.x = -0.5;
-        q_2.position.y = -0.5;
-
-        quad_update(q_id_0, q_0);
-        quad_update(q_id_1, q_1);
-        quad_update(q_id_2, q_2);
-
         while(true) {
-    
+
             // get delta time
             eng_system_update_time();
             const f64 dt_ms =  eng_system_get_delta_time_ms();
@@ -154,13 +117,15 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
 
+            // game callback    
+            _eng_context->game_callback(
+                _eng_context->game_ctx
+            );
+
             // render graphics
             // renderer_context_update_projection_matrix ();
             // renderer_context_update_view_matrix       ();
             // renderer_direction_gizmo_draw             ();
-            renderer_quad_push(q_id_0);            
-            renderer_quad_push(q_id_1);            
-            renderer_quad_push(q_id_2);            
             renderer_quad_draw();
 
             // render gui
@@ -173,10 +138,6 @@ namespace ifb {
             const bool quit = pfm_window_quit_received();
             if (quit) break;
 
-            // game callback    
-            _eng_context->game_callback(
-                _eng_context->game_ctx
-            );
         }
     }
     
