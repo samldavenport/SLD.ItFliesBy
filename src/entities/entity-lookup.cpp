@@ -21,6 +21,7 @@ namespace ifb {
               ++dense_index ) {
 
             const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [dense_index];
+            const entity_id        curr_id    = _entity_mngr->data.dense.id        [dense_index];
             const bool             has_all    = ((curr_atype & query.has_all) == query.has_all);
             const bool             has_any    = ((curr_atype & query.has_any) != 0 || (query.has_any == 0));
             const bool             has_none   = ((curr_atype & query.has_none) == 0);
@@ -31,7 +32,7 @@ namespace ifb {
             );
 
             if (is_match) {
-                list.add(dense_index);
+                list.add(curr_id);
             }
         }
 
