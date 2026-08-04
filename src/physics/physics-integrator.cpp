@@ -38,7 +38,7 @@ namespace ifb {
     inline void physics_force_integrator_exec              (physics_force_integrator& i, const u32 dt_ms);
     inline void physics_force_integrator_update_components (physics_force_integrator& i);
 
-    IFB_INTERNAL bool 
+    IFB_INTERNAL void 
     physics_integrate_forces(
         const u32 dt_ms,
         arena*    a) {
@@ -49,24 +49,23 @@ namespace ifb {
         auto*     forces = _phys_mngr->force_accumulator;
         
         // initialize the integrator
-        physics_force_integrator integrator;
+        physics_force_integrator integrator = {0};
         if (!physics_force_integrator_init(integrator, a)) {
             arena_revert(a, save);
-            return(false);
+            return;
         }
 
         // load all components into the integrator
         // with forces and matching archetype
         if (!physics_force_integrator_lookup_components(integrator, forces)) {
             arena_revert(a, save);
-            return(false);
+            return;
         }
 
         // do the integration
         physics_force_integrator_exec(integrator, dt_ms);             
-        return(true);
+        arena_revert(a, save);
     }
-
 
     inline bool 
     physics_force_integrator_init(
@@ -76,42 +75,41 @@ namespace ifb {
         const auto& cfg  = config_instance();
         const u32   save = arena_save(a);
 
-        physics_force_integrator integrator;
-        integrator.count        = 0;
-        integrator.id           = arena_push<entity_id>(a, cfg.entity_capacity);
-        integrator.sparse_index = arena_push<u32>      (a, cfg.entity_capacity);
-        integrator.pos_x        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.pos_y        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.pos_z        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.vel_x        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.vel_y        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.vel_z        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.acc_x        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.acc_y        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.acc_z        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.frc_x        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.frc_y        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.frc_z        = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.inv_mass     = arena_push<f32>      (a, cfg.entity_capacity);
-        integrator.drag         = arena_push<f32>      (a, cfg.entity_capacity);
+        i.count        = 0;
+        i.id           = arena_push<entity_id>(a, cfg.entity_capacity);
+        i.sparse_index = arena_push<u32>      (a, cfg.entity_capacity);
+        i.pos_x        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.pos_y        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.pos_z        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.vel_x        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.vel_y        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.vel_z        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.acc_x        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.acc_y        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.acc_z        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.frc_x        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.frc_y        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.frc_z        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.inv_mass     = arena_push<f32>      (a, cfg.entity_capacity);
+        i.drag         = arena_push<f32>      (a, cfg.entity_capacity);
     
         const bool did_init = (
-            integrator.id           != NULL &&
-            integrator.sparse_index != NULL &&
-            integrator.pos_x        != NULL &&
-            integrator.pos_y        != NULL &&
-            integrator.pos_z        != NULL &&
-            integrator.vel_x        != NULL &&
-            integrator.vel_y        != NULL &&
-            integrator.vel_z        != NULL &&
-            integrator.acc_x        != NULL &&
-            integrator.acc_y        != NULL &&
-            integrator.acc_z        != NULL &&
-            integrator.frc_x        != NULL &&
-            integrator.frc_y        != NULL &&
-            integrator.frc_z        != NULL &&
-            integrator.inv_mass     != NULL &&
-            integrator.drag         != NULL
+            i.id           != NULL &&
+            i.sparse_index != NULL &&
+            i.pos_x        != NULL &&
+            i.pos_y        != NULL &&
+            i.pos_z        != NULL &&
+            i.vel_x        != NULL &&
+            i.vel_y        != NULL &&
+            i.vel_z        != NULL &&
+            i.acc_x        != NULL &&
+            i.acc_y        != NULL &&
+            i.acc_z        != NULL &&
+            i.frc_x        != NULL &&
+            i.frc_y        != NULL &&
+            i.frc_z        != NULL &&
+            i.inv_mass     != NULL &&
+            i.drag         != NULL
         );
 
         return(did_init);
@@ -153,7 +151,7 @@ namespace ifb {
             drag            drg;
             cmpnt_position_table_lookup    (pos,e.index_sparse);            
             cmpnt_velocity_table_lookup    (vel,e.index_sparse);            
-            cmpnt_acceleration_table_lookup(vel,e.index_sparse);            
+            cmpnt_acceleration_table_lookup(acc,e.index_sparse);            
             cmpnt_table_inv_mass_lookup    (e.index_sparse, inv);
             cmpnt_table_drag_lookup        (e.index_sparse, drg);
 

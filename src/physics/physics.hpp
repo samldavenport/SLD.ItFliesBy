@@ -45,7 +45,7 @@ namespace ifb {
     IFB_INTERNAL void                 physics_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
     IFB_INTERNAL void                 physics_entity_set_rigid_body   (const entity_id id, const rigid_body& rb);
 
-    IFB_INTERNAL bool                 physics_integrate_forces        (const u32 dt_ms, arena* a);
+    IFB_INTERNAL void                 physics_integrate_forces        (const u32 dt_ms, arena* a);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
@@ -54,6 +54,7 @@ namespace ifb {
     struct physics_memory {
         stack           stack;
         block_allocator world_allocator;
+        arena*          simulation_arena;
     };
 
     struct physics_entity : entity {

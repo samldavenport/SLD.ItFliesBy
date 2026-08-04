@@ -5,6 +5,8 @@
 #include "ifb-entity.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "physics-manager.cpp"
+#include "physics.hpp"
 #include "quad.cpp"
 
 namespace ifb {
@@ -121,6 +123,9 @@ namespace ifb {
             _eng_context->game_callback(
                 _eng_context->game_ctx
             );
+
+            // simulate physics
+            physics_mngr_simulate(dt_ms);
 
             // render graphics
             // renderer_context_update_projection_matrix ();

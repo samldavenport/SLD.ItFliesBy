@@ -40,7 +40,7 @@ wWinMain(
     // create test quad 
     q_id_0 = eng_entity_create("HELLO-QUAD-1");
     
-    eng_entity_add_components(q_id_0, ENTITY_ARCHETYPE_QUAD.val);
+    eng_entity_add_components(q_id_0, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
 
     quad q_0 = {0};
     q_0.color.hex         = 0xFF0000FF;
@@ -62,6 +62,10 @@ game_proc(
 
     assert(ctx);
 
+    vec3 force = {0};
+    force.x = 1.0f;
+
+    eng_entity_add_force(q_id_0, force);
     eng_entity_render(q_id_0);
 
     return(true);

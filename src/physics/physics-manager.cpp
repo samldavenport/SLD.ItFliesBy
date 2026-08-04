@@ -1,7 +1,10 @@
 #pragma once
 
+#include "memory-arena.cpp"
 #include "physics.hpp"
 #include "eng-internal.hpp"
+#include <cassert>
+#include <cstddef>
 
 namespace ifb {
     
@@ -52,6 +55,9 @@ namespace ifb {
         // initialize stack and remaining structures
         phys_mem->stack.init(mem_stack);
         _phys_mngr->force_accumulator = physics_accumulator_init(phys_mem->stack);
+
+        phys_mem->simulation_arena = arena_alloc();
+        assert(phys_mem->simulation_arena != NULL);
     }
 
     IFB_INTERNAL void
@@ -62,4 +68,14 @@ namespace ifb {
         
     }
 
+    IFB_INTERNAL void
+    physics_mngr_simulate(
+        const u32 dt_ms) {
+
+        auto phys_mem = _phys_mngr->memory;
+
+        physics_integrate_forces(dt_ms, phys_mem->simulation_arena);
+    
+        arena_reset(phys_mem->simulation_arena);
+    }
 };
