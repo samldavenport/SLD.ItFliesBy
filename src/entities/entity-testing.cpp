@@ -1,10 +1,11 @@
 #pragma once
 
+#include "collections-internal.hpp"
 #include "entity.hpp"
 namespace ifb {
 
     inline void test_create         (void);
-    inline void test_lookups        (entity_list* list);
+    inline void test_lookups        (entity_list& list);
     inline void test_identical_tags (void);
     inline void test_destroy        (void);
     inline void test_destroy_all    (void);
@@ -17,12 +18,14 @@ namespace ifb {
         // allocate arena 
         arena* a = arena_alloc();
         assert(a);
-        entity_list* id_list = entity_list_create(a);
+
+        entity_list entity_list;
+        entity_list.arena_init(a);
 
 
         test_create         ();
         test_identical_tags ();
-        test_lookups        (id_list);
+        test_lookups        (entity_list);
         
 
         arena_free(a);
@@ -38,16 +41,16 @@ namespace ifb {
         const entity_archetype atype_2 = (cmpnt_type_e_position | cmpnt_type_e_color );
 
         // entities
-        const entity_id entity_0 = entity_create("TEST-0", atype_0);
-        const entity_id entity_1 = entity_create("TEST-1", atype_1);
-        const entity_id entity_2 = entity_create("TEST-2", atype_0);
-        const entity_id entity_3 = entity_create("TEST-3", atype_1);
-        const entity_id entity_4 = entity_create("TEST-4", atype_0);
-        const entity_id entity_5 = entity_create("TEST-5", atype_1);
-        const entity_id entity_6 = entity_create("TEST-6", atype_0);
-        const entity_id entity_7 = entity_create("TEST-7", atype_1);
-        const entity_id entity_8 = entity_create("TEST-8", atype_0);
-        const entity_id entity_9 = entity_create("TEST-9", atype_2);
+        const entity_id entity_0 = entity_create("TEST-0");
+        const entity_id entity_1 = entity_create("TEST-1");
+        const entity_id entity_2 = entity_create("TEST-2");
+        const entity_id entity_3 = entity_create("TEST-3");
+        const entity_id entity_4 = entity_create("TEST-4");
+        const entity_id entity_5 = entity_create("TEST-5");
+        const entity_id entity_6 = entity_create("TEST-6");
+        const entity_id entity_7 = entity_create("TEST-7");
+        const entity_id entity_8 = entity_create("TEST-8");
+        const entity_id entity_9 = entity_create("TEST-9");
 
         assert(
             entity_0 != ENTITY_ID_INVALID &&
@@ -62,17 +65,30 @@ namespace ifb {
             entity_9 != ENTITY_ID_INVALID &&
             "ENTITY CREATE RETURN INVALID ID"          
         );
+
+        bool added_atype = true;
+        added_atype &= entity_add_archetype(entity_0, atype_0);
+        added_atype &= entity_add_archetype(entity_1, atype_1);
+        added_atype &= entity_add_archetype(entity_2, atype_0);
+        added_atype &= entity_add_archetype(entity_3, atype_1);
+        added_atype &= entity_add_archetype(entity_4, atype_0);
+        added_atype &= entity_add_archetype(entity_5, atype_1);
+        added_atype &= entity_add_archetype(entity_6, atype_0);
+        added_atype &= entity_add_archetype(entity_7, atype_1);
+        added_atype &= entity_add_archetype(entity_8, atype_0);
+        added_atype &= entity_add_archetype(entity_9, atype_2);
+        assert(added_atype);
     }
 
     inline void
     test_lookups(
-        entity_list* list) {
+        entity_list& list) {
 
         entity_query query = {0};
         query.has_any = cmpnt_type_e_color;
 
-        const bool did_find_colored_entities =  entity_lookup_by_archetype(list, query);
-        assert(did_find_colored_entities && list->count == 4);
+        const bool did_find_colored_entities =  entity_lookup_list(list, query);
+        assert(did_find_colored_entities && list.count() == 4);
 
         entity entity_8;
         const bool did_find_entity_8 = entity_lookup_by_tag(entity_8, "TEST-8");

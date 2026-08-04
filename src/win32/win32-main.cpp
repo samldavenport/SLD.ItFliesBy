@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Windows.h>
+#include "ifb-engine.hpp"
+#include "ifb-entity.hpp"
 #include "ifb.hpp"
 
 using namespace ifb;
@@ -10,6 +12,13 @@ static const u32 SIZE_RESERVATION = size_megabytes(64);
 
 static byte _stack_mem[SIZE_STACK];
 
+static entity_id q_id_0;
+static entity_id q_id_1;
+static entity_id q_id_2;
+
+bool game_proc (eng_game_context* ctx);
+void mem_map_init  (eng_mem_map& mem_map);
+
 int WINAPI
 wWinMain(
     HINSTANCE h_instance,
@@ -17,7 +26,75 @@ wWinMain(
     PWSTR     p_cmd_line,
     int       n_cmd_show) {
 
+    // initialize the memory map
     eng_mem_map mem_map;
+    mem_map_init(mem_map);
+
+    // create the engine context
+    eng_context* ctx = eng_context_create(&mem_map, game_proc);
+
+    // engine startup 
+    eng_context_startup();
+    eng_gui_open();
+    
+    // create some quads
+    q_id_0 = eng_entity_create("HELLO-QUAD-1");
+    q_id_1 = eng_entity_create("HELLO-QUAD-2");
+    q_id_2 = eng_entity_create("HELLO-QUAD-3");
+    
+    eng_entity_add_components(q_id_0, ENTITY_ARCHETYPE_QUAD.val);
+    eng_entity_add_components(q_id_1, ENTITY_ARCHETYPE_QUAD.val);
+    eng_entity_add_components(q_id_2, ENTITY_ARCHETYPE_QUAD.val);
+
+    quad q_0 = {0};
+    q_0.color.hex         = 0xFF0000FF;
+    q_0.dimensions.width  = 0.2;
+    q_0.dimensions.height = 0.2;
+    q_0.position          = {0};
+
+    quad q_1 = {0};
+    q_1.color.hex         = 0x00FF00FF;
+    q_1.dimensions.width  = 0.2;
+    q_1.dimensions.height = 0.2;
+    q_1.position.x        = 0.5;
+    q_1.position.y        = 0.5;
+
+    quad q_2 = {0};
+    q_2.color.hex         = 0x0000FFFF;
+    q_2.dimensions.width  = 0.2;
+    q_2.dimensions.height = 0.2;
+    q_2.position.x        = -0.5;
+    q_2.position.y        = -0.5;
+
+
+
+    eng_entity_update_quad(q_id_0, q_0);
+    eng_entity_update_quad(q_id_1, q_1);
+    eng_entity_update_quad(q_id_2, q_2);
+
+    // run the engine
+    eng_context_run();
+
+    return(0);
+}
+
+static bool
+game_proc(
+    eng_game_context* ctx) {
+
+    assert(ctx);
+
+    eng_entity_render(q_id_0);
+    eng_entity_render(q_id_1);
+    eng_entity_render(q_id_2);
+
+    return(true);
+}
+
+inline void
+mem_map_init(
+    eng_mem_map& mem_map) {
+    
     mem_map.stack.size      = SIZE_STACK;
     mem_map.stack.ptr       = _stack_mem;
     mem_map.core.size       = SIZE_RESERVATION; 
@@ -50,12 +127,4 @@ wWinMain(
         mem_map.quads.ptr      != NULL &&
         mem_map.physics.ptr    != NULL
     );
-
-    eng_context* ctx = eng_context_create(&mem_map);
-
-    eng_context_startup();
-    eng_gui_open();
-    eng_context_run();
-
-    return(0);
 }

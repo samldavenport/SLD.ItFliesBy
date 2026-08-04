@@ -1,8 +1,10 @@
 #ifndef IFB_ENTITIES_HPP
 #define IFB_ENTITIES_HPP
 
+#include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "memory.hpp"
+#include "collections-internal.hpp"
 
 namespace ifb {
 
@@ -11,7 +13,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct entity_mngr;
-    struct entity_list;
     struct entity_query;
 
     //--------------------------------------------------------------------
@@ -25,41 +26,35 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // entity manager
-    IFB_INTERNAL entity_mngr* entity_mngr_create          (void);
-    IFB_INTERNAL void         entity_mngr_validate        (void);
-    IFB_INTERNAL void         entity_mngr_startup         (const memory& mem_res);
-    IFB_INTERNAL void         entity_mngr_shutdown        (void);
-    IFB_INTERNAL u32          entity_mngr_capacity_dense  (void);
-    IFB_INTERNAL u32          entity_mngr_capacity_sparse (void);
+    IFB_INTERNAL entity_mngr*     entity_mngr_create               (void);
+    IFB_INTERNAL void             entity_mngr_validate             (void);
+    IFB_INTERNAL void             entity_mngr_startup              (const memory& mem_res);
+    IFB_INTERNAL void             entity_mngr_shutdown             (void);
+    IFB_INTERNAL u32              entity_mngr_capacity_dense       (void);
+    IFB_INTERNAL u32              entity_mngr_capacity_sparse      (void);
 
     // entity
-    IFB_INTERNAL entity_id    entity_create        (const cchar* tag_cstr, const entity_archetype atype = cmpnt_type_e_none);
-    IFB_INTERNAL bool         entity_destroy       (const cchar* tag_cstr);
-    IFB_INTERNAL bool         entity_destroy       (const entity_id id);
-    IFB_INTERNAL bool         entity_has_component (const entity& e, const component_type type);
-
-    // list
-    IFB_INTERNAL entity_list* entity_list_create   (arena* a);
-    IFB_INTERNAL void         entity_list_validate (const entity_list* list);
+    IFB_INTERNAL entity_id        entity_create                    (const cchar* tag_cstr);
+    IFB_INTERNAL bool             entity_add_archetype             (const entity_id id, const entity_archetype atype);
+    IFB_INTERNAL bool             entity_remove_archetype          (const entity_id id, const entity_archetype atype);
+    IFB_INTERNAL bool             entity_destroy                   (const entity_id id);
+    IFB_INTERNAL bool             entity_has_component             (const entity& e, const component_type type);
 
     // lookup
-    IFB_INTERNAL bool         entity_lookup_by_archetype   (entity_list* id_list, const entity_query& query);
-    IFB_INTERNAL bool         entity_lookup_by_tag         (entity& e, const cchar* tag_cstr);
-    IFB_INTERNAL bool         entity_lookup_by_index_dense (entity& e, const u32    index);
-    IFB_INTERNAL bool         entity_lookup_by_id          (entity& e, const entity_id id);
-    IFB_INTERNAL u32          entity_lookup_sparse_index   (const entity_id id);
+    IFB_INTERNAL bool             entity_lookup_list               (entity_list& list, const entity_query& query);
+    IFB_INTERNAL bool             entity_lookup_by_tag             (entity& e, const cchar* tag_cstr);
+    IFB_INTERNAL bool             entity_lookup_by_index_dense     (entity& e, const u32    index);
+    IFB_INTERNAL bool             entity_lookup_by_id              (entity& e, const entity_id id);
+    IFB_INTERNAL u32              entity_lookup_sparse_index       (const entity_id id);
+    IFB_INTERNAL entity_archetype entity_lookup_archetype          (const entity_id id);
+    IFB_INTERNAL const cchar*     entity_lookup_tag                (const entity_id id);
 
     // components
-    IFB_INTERNAL bool         entity_component_add                 (const entity_id id,       const component_type types);
-    IFB_INTERNAL bool         entity_component_add                 (const cchar*    tag_cstr, const component_type types);
-    IFB_INTERNAL bool         entity_component_remove              (const entity_id id,       const component_type types);
-    IFB_INTERNAL bool         entity_component_remove              (const cchar*    tag_cstr, const component_type types);
-    IFB_INTERNAL bool         entity_component_update_color        (arena* a, const cchar**   tag_cstr, const color_rgba_u32* clr, const u32 count = 1);
-    IFB_INTERNAL bool         entity_component_update_position     (arena* a, const cchar**   tag_cstr, const position_3d*    pos, const u32 count = 1);
-    IFB_INTERNAL bool         entity_component_update_quad         (arena* a, const cchar**   tag_cstr, const dimensions_2d*  dim, const u32 count = 1);
+    IFB_INTERNAL bool             entity_component_add             (const entity_id id, const component_type types);
+    IFB_INTERNAL bool             entity_component_remove          (const entity_id id, const component_type types);
 
     // testing
-    IFB_INTERNAL void         entity_test (void);
+    IFB_INTERNAL void             entity_test (void);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -83,15 +78,6 @@ namespace ifb {
         } capacity;
         memory  mem;
         u32     count;
-    };
-
-    struct entity_list {
-        struct {
-            entity_id* id;
-            u32*       sparse_index;
-            u32*       dense_index;
-        } data;
-        u32        count;
     };
 
     struct entity_query {

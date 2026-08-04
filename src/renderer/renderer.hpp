@@ -150,7 +150,7 @@ namespace ifb {
             renderer_quad_vertex_buffer  vertex;
             renderer_quad_element_buffer element;
         } buffers;
-        entity_id_list render_list;
+        entity_list render_list;
     };
     struct renderer_direction_gizmo_shader {
         gl_program program;

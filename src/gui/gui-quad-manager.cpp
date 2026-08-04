@@ -1,6 +1,8 @@
 #pragma once
 
+#include "entity.hpp"
 #include "gui.hpp"
+#include "ifb-entity.hpp"
 #include "quad.hpp"
 
 namespace ifb {
@@ -78,13 +80,30 @@ namespace ifb {
 
             quad_entity q;
 
+            static arena*       a;
+            static entity_list quad_list;
+            if (a == NULL) {
+                a = arena_alloc();
+                quad_list.arena_init(a);
+            }
+
+            assert(a != NULL);
+            quad_list.validate();
+
+            entity_query query;
+            query.has_all.val = ENTITY_ARCHETYPE_QUAD.val;
+            const bool has_entities = entity_lookup_list(quad_list, query);    
+            if (!has_entities) {
+                return;
+            }
+
             for (
                 u32 index = 0;
-                    index < _quad_mngr->quad_id_list.count();
+                    index < quad_list.count();
                   ++index
             ) {
 
-                const entity_id id       = _quad_mngr->quad_id_list[index];
+                const entity_id id       = quad_list[index]; 
                 const bool      did_find = quad_lookup_by_id(q, id);
                 assert(did_find);
                 ImGui::TableNextRow();

@@ -35,16 +35,23 @@ namespace ifb {
     struct eng_context;
     struct eng_mem;
     struct eng_mem_map;
+    struct eng_game_context;
+
+    //--------------------------------------------------------------------
+    // FUNCTION POINTERS 
+    //--------------------------------------------------------------------
+
+  typedef bool (*eng_game_proc)(eng_game_context* game_ctx); 
 
     //--------------------------------------------------------------------
     // CONTEXT
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_context* eng_context_create                       (const eng_mem_map* mem_map);
+    IFB_ENGINE_API eng_context* eng_context_create                       (const eng_mem_map* mem_map, eng_game_proc game_callback);
     IFB_ENGINE_API void         eng_context_startup                      (void);
     IFB_ENGINE_API void         eng_context_run                          (void);
     IFB_ENGINE_API void         eng_context_shutdown                     (void);
-    IFB_ENGINE_API void         eng_context_destroy                      (eng_context* ctx);    
+    IFB_ENGINE_API void         eng_context_destroy                      (eng_context* ctx);
 
     //--------------------------------------------------------------------
     // WINDOW
@@ -188,5 +195,10 @@ namespace ifb {
         eng_mem quads;
         eng_mem physics;
     };
+
+    struct eng_game_context {
+        int x;
+    };
+
 }
 #endif  //IFB_ENGINE_HPP

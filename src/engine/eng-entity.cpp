@@ -212,7 +212,9 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_quad_table_update(quad.dimensions, e.index_sparse);
+            cmpnt_quad_table_update     (quad.dimensions, e.index_sparse);
+            cmpnt_color_table_update    (quad.color,      e.index_sparse);
+            cmpnt_position_table_update (quad.position,   e.index_sparse);
         }
 
         return(can_update);

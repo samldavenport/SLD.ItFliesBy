@@ -1,7 +1,11 @@
 #pragma once
 
+#include "entity.cpp"
+#include "ifb-engine.hpp"
+#include "ifb-entity.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "quad.cpp"
 
 namespace ifb {
 
@@ -25,9 +29,11 @@ namespace ifb {
 
     IFB_ENGINE_API eng_context*
     eng_context_create(
-        const eng_mem_map* mem_map) {
+        const eng_mem_map* mem_map,
+        eng_game_proc      game_callback) {
 	
         const auto& config = config_instance();
+
 
         // stack memory
         global_stack_create_and_init(mem_map);
@@ -35,37 +41,43 @@ namespace ifb {
         // allocate global memory
         auto eng_ctx     = global_alloc<eng_context>      (); 
         auto sys_info    = global_alloc<eng_system_info>  ();
+        auto game_ctx    = global_alloc<eng_game_context> (); 
         assert(
             eng_ctx     != NULL &&
             sys_info    != NULL
         );
 
         // set context properties        
-        _eng_context              = eng_ctx;
-        _eng_context->mem_map     = mem_map;
-        _eng_context->system      = sys_info;  
-        _eng_context->keyboard    = keyboard_input_create(); 
-        _eng_context->renderer    = renderer_context_create(); 
-        _eng_context->file_mngr   = file_mngr_create(); 
-        _eng_context->entity_mngr = entity_mngr_create(); 
-        _eng_context->memory_mngr = memory_mngr_create(); 
-        _eng_context->cmpnt_mngr  = cmpnt_mngr_create();  
-        _eng_context->quad_mngr   = quad_mngr_create();
-        _eng_context->phys_mngr   = physics_mngr_create();
-        _eng_context->mem_map     = mem_map;
+        _eng_context                = eng_ctx;
+        _eng_context->mem_map       = mem_map;
+        _eng_context->game_callback = game_callback;
+        _eng_context->game_ctx      = game_ctx;
+        _eng_context->system        = sys_info;  
+        _eng_context->keyboard      = keyboard_input_create(); 
+        _eng_context->renderer      = renderer_context_create(); 
+        _eng_context->file_mngr     = file_mngr_create(); 
+        _eng_context->entity_mngr   = entity_mngr_create(); 
+        _eng_context->memory_mngr   = memory_mngr_create(); 
+        _eng_context->cmpnt_mngr    = cmpnt_mngr_create();  
+        _eng_context->quad_mngr     = quad_mngr_create();
+        _eng_context->phys_mngr     = physics_mngr_create();
+        _eng_context->mem_map       = mem_map;
 
         assert(
-            _eng_context->mem_map     != NULL &&
-            _eng_context->system      != NULL &&
-            _eng_context->keyboard    != NULL &&
-            _eng_context->renderer    != NULL &&
-            _eng_context->file_mngr   != NULL &&
-            _eng_context->entity_mngr != NULL &&
-            _eng_context->memory_mngr != NULL &&
-            _eng_context->cmpnt_mngr  != NULL &&
-            _eng_context->quad_mngr   != NULL &&
-            _eng_context->phys_mngr   != NULL &&
-            _eng_context->mem_map     != NULL
+            _eng_context->mem_map       != NULL &&
+            _eng_context->game_callback != NULL &&
+            _eng_context->game_ctx      != NULL &&
+            _eng_context->system        != NULL &&
+            _eng_context->system        != NULL &&
+            _eng_context->keyboard      != NULL &&
+            _eng_context->renderer      != NULL &&
+            _eng_context->file_mngr     != NULL &&
+            _eng_context->entity_mngr   != NULL &&
+            _eng_context->memory_mngr   != NULL &&
+            _eng_context->cmpnt_mngr    != NULL &&
+            _eng_context->quad_mngr     != NULL &&
+            _eng_context->phys_mngr     != NULL &&
+            _eng_context->mem_map       != NULL
         );
 
         return(_eng_context);
@@ -94,39 +106,8 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_context_run(void) {
 
-        const eng_arena_handle img_arena = eng_arena_alloc();
-        const eng_file_handle  img_file  = eng_file_ro_open_existing("../../../assets/images/test-sprite.png");
-        const image*           img       = eng_image_load_to_arena(img_file, img_arena);
-
-        // create a test quad
-        quad q_0 = {0};
-        q_0.color.hex         = 0xFF0000FF;
-        q_0.dimensions.width  = 0.2;
-        q_0.dimensions.height = 0.2;
-        q_0.position          = {0};
-        const entity_id q_id_0 = quad_create("HELLO-QUAD-1",q_0);
-        assert(q_id_0 != ENTITY_ID_INVALID);
-
-        quad q_1 = {0};
-        q_1.color.hex         = 0x00FF00FF;
-        q_1.dimensions.width  = 0.2;
-        q_1.dimensions.height = 0.2;
-        q_1.position.x = 0.5;
-        q_1.position.y = 0.5;
-        const entity_id q_id_1 = quad_create("HELLO-QUAD-2",q_1);
-        assert(q_id_1 != ENTITY_ID_INVALID);
-
-        quad q_2 = {0};
-        q_2.color.hex         = 0x0000FFFF;
-        q_2.dimensions.width  = 0.2;
-        q_2.dimensions.height = 0.2;
-        q_2.position.x = -0.5;
-        q_2.position.y = -0.5;
-        const entity_id q_id_2 = quad_create("HELLO-QUAD-3",q_2);
-        assert(q_id_2 != ENTITY_ID_INVALID);
-
         while(true) {
-    
+
             // get delta time
             eng_system_update_time();
             const f64 dt_ms =  eng_system_get_delta_time_ms();
@@ -136,13 +117,15 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
 
+            // game callback    
+            _eng_context->game_callback(
+                _eng_context->game_ctx
+            );
+
             // render graphics
             // renderer_context_update_projection_matrix ();
             // renderer_context_update_view_matrix       ();
             // renderer_direction_gizmo_draw             ();
-            renderer_quad_push(q_id_0);            
-            renderer_quad_push(q_id_1);            
-            renderer_quad_push(q_id_2);            
             renderer_quad_draw();
 
             // render gui

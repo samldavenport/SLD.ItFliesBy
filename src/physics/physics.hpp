@@ -9,19 +9,6 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // CONSTANTS
-    //--------------------------------------------------------------------
-
-    static const entity_archetype PHYSICS_ENTITY_ARCHETYPE = (
-        cmpnt_type_e_position     |
-        cmpnt_type_e_rigid_body   |
-        cmpnt_type_e_velocity     |
-        cmpnt_type_e_acceleration |
-        cmpnt_type_e_inv_mass     |
-        cmpnt_type_e_drag     
-    );
- 
-    //--------------------------------------------------------------------
     // TYPE DECLARATIONS
     //--------------------------------------------------------------------
 
@@ -81,8 +68,8 @@ namespace ifb {
     struct physics_mngr {
         physics_memory*      memory;
         physics_accumulator* force_accumulator;
-        entity_id_list       static_entity_ids;
-        entity_id_list       dynamic_entity_ids;
+        entity_list          static_entities;
+        entity_list          dynamic_entities;
         u32                  delta_time_ms;
     };
 };
