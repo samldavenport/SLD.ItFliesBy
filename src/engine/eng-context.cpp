@@ -5,6 +5,8 @@
 #include "ifb-entity.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "physics-manager.cpp"
+#include "physics.hpp"
 #include "quad.cpp"
 
 namespace ifb {
@@ -110,7 +112,7 @@ namespace ifb {
 
             // get delta time
             eng_system_update_time();
-            const f64 dt_ms =  eng_system_get_delta_time_ms();
+            const f64 dt =  eng_system_get_delta_time_s();
 
             //TODO(SAM): pass the opengl context to the platform
             // start new frame
@@ -121,6 +123,9 @@ namespace ifb {
             _eng_context->game_callback(
                 _eng_context->game_ctx
             );
+
+            // simulate physics
+            physics_mngr_simulate(dt);
 
             // render graphics
             // renderer_context_update_projection_matrix ();

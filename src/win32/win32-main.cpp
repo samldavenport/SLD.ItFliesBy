@@ -37,14 +37,10 @@ wWinMain(
     eng_context_startup();
     eng_gui_open();
     
-    // create some quads
+    // create test quad 
     q_id_0 = eng_entity_create("HELLO-QUAD-1");
-    q_id_1 = eng_entity_create("HELLO-QUAD-2");
-    q_id_2 = eng_entity_create("HELLO-QUAD-3");
     
-    eng_entity_add_components(q_id_0, ENTITY_ARCHETYPE_QUAD.val);
-    eng_entity_add_components(q_id_1, ENTITY_ARCHETYPE_QUAD.val);
-    eng_entity_add_components(q_id_2, ENTITY_ARCHETYPE_QUAD.val);
+    eng_entity_add_components(q_id_0, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
 
     quad q_0 = {0};
     q_0.color.hex         = 0xFF0000FF;
@@ -52,25 +48,9 @@ wWinMain(
     q_0.dimensions.height = 0.2;
     q_0.position          = {0};
 
-    quad q_1 = {0};
-    q_1.color.hex         = 0x00FF00FF;
-    q_1.dimensions.width  = 0.2;
-    q_1.dimensions.height = 0.2;
-    q_1.position.x        = 0.5;
-    q_1.position.y        = 0.5;
-
-    quad q_2 = {0};
-    q_2.color.hex         = 0x0000FFFF;
-    q_2.dimensions.width  = 0.2;
-    q_2.dimensions.height = 0.2;
-    q_2.position.x        = -0.5;
-    q_2.position.y        = -0.5;
-
-
-
-    eng_entity_update_quad(q_id_0, q_0);
-    eng_entity_update_quad(q_id_1, q_1);
-    eng_entity_update_quad(q_id_2, q_2);
+    eng_entity_update_quad     (q_id_0, q_0);
+    eng_entity_update_inv_mass (q_id_0, 1.0f);
+    eng_entity_update_drag     (q_id_0, 0.95f); 
 
     // run the engine
     eng_context_run();
@@ -84,9 +64,11 @@ game_proc(
 
     assert(ctx);
 
+    vec3 force = {0};
+    force.x = 1.0f;
+
+    eng_entity_add_force(q_id_0, force);
     eng_entity_render(q_id_0);
-    eng_entity_render(q_id_1);
-    eng_entity_render(q_id_2);
 
     return(true);
 }
