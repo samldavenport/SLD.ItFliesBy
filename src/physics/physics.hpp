@@ -68,8 +68,8 @@ namespace ifb {
     struct physics_mngr {
         physics_memory*      memory;
         physics_accumulator* force_accumulator;
-        entity_id_list       static_entity_ids;
-        entity_id_list       dynamic_entity_ids;
+        entity_list          static_entities;
+        entity_list          dynamic_entities;
         u32                  delta_time_ms;
     };
 };

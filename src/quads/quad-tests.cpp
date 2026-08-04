@@ -49,11 +49,14 @@ namespace ifb {
         arena* a = arena_alloc();
         assert(a);
 
-        entity_id_list quad_list;
+        entity_list quad_list;
         const bool did_init = quad_list.arena_init(a);
         assert(did_init);
 
-        quad_lookup_all(quad_list);
+        entity_query query = {0};
+        query.has_all.val = ENTITY_ARCHETYPE_QUAD.val;
+        entity_lookup_list(quad_list, query);
+            
 
         for (
             u32 index = 0;

@@ -22,18 +22,18 @@ namespace ifb {
 
         bool             arena_init           (arena* a);
         bool             stack_init           (stack& s);
-        bool             add                  (const u32 dense_index);
-        bool             remove               (const u32 dense_index);
+        bool             add                  (const entity_id id);
+        bool             remove               (const entity_id id);
         void             reset                (void);
         void             validate             (void)                  const;
         u32              capacity             (void)                  const;
         u32              count                (void)                  const;
-        bool             contains             (const u32 dense_index) const;
-        entity_id        get_entity_id        (const u32 index)       const;
-        entity_archetype get_entity_archetype (const u32 index)       const;
-        u32              get_dense_index      (const u32 index)       const;
-        u32              get_sparse_index     (const u32 index)       const;
-        const cchar*     get_tag              (const u32 index)       const;
+        bool             contains             (const entity_id id) const;
+
+        inline entity_id
+        operator[](const u32 index) {
+            return(_ids[index]);
+        }
     };
 };
 

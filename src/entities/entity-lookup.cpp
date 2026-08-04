@@ -9,7 +9,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_lookup_list(
-        entity_id_list&     list,
+        entity_list&        list,
         const entity_query& query) {
 
         entity_mngr_validate();
@@ -35,7 +35,7 @@ namespace ifb {
             }
         }
 
-        return(entity_list.count() > 0);
+        return(list.count() > 0);
     }
 
     IFB_INTERNAL bool

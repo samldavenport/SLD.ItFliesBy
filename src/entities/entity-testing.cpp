@@ -88,7 +88,7 @@ namespace ifb {
         query.has_any = cmpnt_type_e_color;
 
         const bool did_find_colored_entities =  entity_lookup_list(list, query);
-        assert(did_find_colored_entities && list->count() == 4);
+        assert(did_find_colored_entities && list.count() == 4);
 
         entity entity_8;
         const bool did_find_entity_8 = entity_lookup_by_tag(entity_8, "TEST-8");
