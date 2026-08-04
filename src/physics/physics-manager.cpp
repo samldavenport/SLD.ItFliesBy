@@ -70,11 +70,11 @@ namespace ifb {
 
     IFB_INTERNAL void
     physics_mngr_simulate(
-        const u32 dt_ms) {
+        const f32 dt) {
 
         auto phys_mem = _phys_mngr->memory;
 
-        physics_integrate_forces(dt_ms, phys_mem->simulation_arena);
+        physics_integrate_forces(dt, phys_mem->simulation_arena);
     
         arena_reset(phys_mem->simulation_arena);
     }

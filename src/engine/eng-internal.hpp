@@ -58,8 +58,8 @@ namespace ifb {
     template<typename t>
     IFB_ENG_INTERNAL t*    global_alloc                 (const u32 count = 1);
 
-    IFB_ENG_INTERNAL void eng_system_update_time       (void);
-    IFB_ENG_INTERNAL f64  eng_system_get_delta_time_ms (void);
+    IFB_ENG_INTERNAL void eng_system_update_time      (void);
+    IFB_ENG_INTERNAL f32  eng_system_get_delta_time_s (void);
 };
 
 #endif //IFB_ENG_INTERNAL_HPP

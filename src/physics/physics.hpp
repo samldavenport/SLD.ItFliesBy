@@ -30,7 +30,7 @@ namespace ifb {
     IFB_INTERNAL void                 physics_mngr_validate           (void);
     IFB_INTERNAL void                 physics_mngr_startup            (memory& memory);
     IFB_INTERNAL void                 physics_mngr_shutdown           (void);
-    IFB_INTERNAL void                 physics_mngr_simulate           (const u32 dt_ms);
+    IFB_INTERNAL void                 physics_mngr_simulate           (const f32 dt);
 
     IFB_INTERNAL physics_accumulator* physics_accumulator_init        (stack& s);
     IFB_INTERNAL void                 physics_accumulator_validate    (physics_accumulator* const accum);
@@ -45,7 +45,7 @@ namespace ifb {
     IFB_INTERNAL void                 physics_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
     IFB_INTERNAL void                 physics_entity_set_rigid_body   (const entity_id id, const rigid_body& rb);
 
-    IFB_INTERNAL void                 physics_integrate_forces        (const u32 dt_ms, arena* a);
+    IFB_INTERNAL void                 physics_integrate_forces        (const f32 dt, arena* a);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS

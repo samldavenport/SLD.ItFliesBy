@@ -35,12 +35,12 @@ namespace ifb {
 
     inline bool physics_force_integrator_init              (physics_force_integrator& i, arena* a);
     inline bool physics_force_integrator_lookup_components (physics_force_integrator& i, physics_accumulator* a);
-    inline void physics_force_integrator_exec              (physics_force_integrator& i, const u32 dt_ms);
+    inline void physics_force_integrator_exec              (physics_force_integrator& i, const f32 dt);
     inline void physics_force_integrator_update_components (physics_force_integrator& i);
 
     IFB_INTERNAL void 
     physics_integrate_forces(
-        const u32 dt_ms,
+        const f32 dt,
         arena*    a) {
 
         assert(a != NULL);     
@@ -62,8 +62,9 @@ namespace ifb {
             return;
         }
 
-        // do the integration
-        physics_force_integrator_exec(integrator, dt_ms);             
+        // do the integration and update components
+        physics_force_integrator_exec              (integrator, dt);             
+        physics_force_integrator_update_components (integrator);            
         arena_revert(a, save);
     }
 
@@ -157,20 +158,21 @@ namespace ifb {
 
             // add the components to the intregrator 
             const u32 integrator_index = i.count;
-            i.pos_x    [integrator_index] = pos.x; 
-            i.pos_y    [integrator_index] = pos.y; 
-            i.pos_z    [integrator_index] = pos.z; 
-            i.vel_x    [integrator_index] = vel.x;
-            i.vel_y    [integrator_index] = vel.y;
-            i.vel_z    [integrator_index] = vel.z;
-            i.acc_x    [integrator_index] = acc.x;
-            i.acc_y    [integrator_index] = acc.y;
-            i.acc_z    [integrator_index] = acc.z;
-            i.frc_x    [integrator_index] = a->data.vectors[force_index].x;
-            i.frc_y    [integrator_index] = a->data.vectors[force_index].y;
-            i.frc_z    [integrator_index] = a->data.vectors[force_index].z;
-            i.inv_mass [integrator_index] = inv.normal_val;
-            i.drag     [integrator_index] = drg.normal_val;
+            i.sparse_index [integrator_index] = e.index_sparse;
+            i.pos_x        [integrator_index] = pos.x; 
+            i.pos_y        [integrator_index] = pos.y; 
+            i.pos_z        [integrator_index] = pos.z; 
+            i.vel_x        [integrator_index] = vel.x;
+            i.vel_y        [integrator_index] = vel.y;
+            i.vel_z        [integrator_index] = vel.z;
+            i.acc_x        [integrator_index] = acc.x;
+            i.acc_y        [integrator_index] = acc.y;
+            i.acc_z        [integrator_index] = acc.z;
+            i.frc_x        [integrator_index] = a->data.vectors[force_index].x;
+            i.frc_y        [integrator_index] = a->data.vectors[force_index].y;
+            i.frc_z        [integrator_index] = a->data.vectors[force_index].z;
+            i.inv_mass     [integrator_index] = inv.normal_val;
+            i.drag         [integrator_index] = drg.normal_val;
             ++i.count;
         }
 
@@ -179,11 +181,11 @@ namespace ifb {
 
     inline void
     physics_force_integrator_exec(
-        physics_force_integrator& i, const u32 dt_ms) {
+        physics_force_integrator& i, const f32 dt) {
      
         // calculate dt constants
-        const u32 dt_ms_pow_2        = dt_ms * dt_ms; 
-        const f32 dt_ms_pow_2_over_2 = (f32)dt_ms_pow_2 * 0.5f;    
+        const f32 dt_pow_2        = dt * dt; 
+        const f32 dt_pow_2_over_2 = dt_pow_2 * 0.5f;    
 
         for (
             u32 integrator_index = 0;
@@ -192,7 +194,7 @@ namespace ifb {
         ) {
 
             // calculate component constants 
-            const f32 drag_pow_dt = powf(i.drag[integrator_index], (const f32)dt_ms); 
+            const f32 drag_pow_dt = powf(i.drag[integrator_index], dt); 
 
             // calculate acceleration 
             i.acc_x[integrator_index] = i.frc_x[integrator_index] * i.inv_mass[integrator_index];
@@ -200,14 +202,19 @@ namespace ifb {
             i.acc_z[integrator_index] = i.frc_z[integrator_index] * i.inv_mass[integrator_index];
 
             // position
-            i.pos_x[integrator_index] += (i.pos_x[integrator_index] + (i.vel_x[integrator_index] * dt_ms) + (i.acc_x[integrator_index] * dt_ms_pow_2_over_2));  
-            i.pos_y[integrator_index] += (i.pos_y[integrator_index] + (i.vel_y[integrator_index] * dt_ms) + (i.acc_y[integrator_index] * dt_ms_pow_2_over_2));  
-            i.pos_z[integrator_index] += (i.pos_z[integrator_index] + (i.vel_z[integrator_index] * dt_ms) + (i.acc_z[integrator_index] * dt_ms_pow_2_over_2));  
+            i.pos_x[integrator_index] += (i.vel_x[integrator_index] * dt) + (i.acc_x[integrator_index] * dt_pow_2_over_2);  
+            i.pos_y[integrator_index] += (i.vel_y[integrator_index] * dt) + (i.acc_y[integrator_index] * dt_pow_2_over_2);  
+            i.pos_z[integrator_index] += (i.vel_z[integrator_index] * dt) + (i.acc_z[integrator_index] * dt_pow_2_over_2);  
             
             // calculate velocity
-            i.vel_x[integrator_index] = (i.vel_x[integrator_index] * drag_pow_dt) + (i.acc_x[integrator_index] * dt_ms);   
-            i.vel_y[integrator_index] = (i.vel_y[integrator_index] * drag_pow_dt) + (i.acc_y[integrator_index] * dt_ms);  
-            i.vel_z[integrator_index] = (i.vel_z[integrator_index] * drag_pow_dt) + (i.acc_z[integrator_index] * dt_ms);  
+            i.vel_x[integrator_index] = (i.vel_x[integrator_index] + i.acc_x[integrator_index] * dt) * drag_pow_dt;   
+            i.vel_y[integrator_index] = (i.vel_y[integrator_index] + i.acc_y[integrator_index] * dt) * drag_pow_dt;  
+            i.vel_z[integrator_index] = (i.vel_z[integrator_index] + i.acc_z[integrator_index] * dt) * drag_pow_dt;  
+
+            // TODO(SAM): this needs to be a component, max velocity 
+            if(i.vel_x[integrator_index] > 0.01f) i.vel_x[integrator_index] = 0.01f;
+            if(i.vel_y[integrator_index] > 0.01f) i.vel_y[integrator_index] = 0.01f;
+            if(i.vel_z[integrator_index] > 0.01f) i.vel_z[integrator_index] = 0.01f;
         }
     }
 

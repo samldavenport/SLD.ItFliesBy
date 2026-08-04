@@ -48,7 +48,9 @@ wWinMain(
     q_0.dimensions.height = 0.2;
     q_0.position          = {0};
 
-    eng_entity_update_quad(q_id_0, q_0);
+    eng_entity_update_quad     (q_id_0, q_0);
+    eng_entity_update_inv_mass (q_id_0, 1.0f);
+    eng_entity_update_drag     (q_id_0, 0.95f); 
 
     // run the engine
     eng_context_run();

@@ -112,7 +112,7 @@ namespace ifb {
 
             // get delta time
             eng_system_update_time();
-            const f64 dt_ms =  eng_system_get_delta_time_ms();
+            const f64 dt =  eng_system_get_delta_time_s();
 
             //TODO(SAM): pass the opengl context to the platform
             // start new frame
@@ -125,7 +125,7 @@ namespace ifb {
             );
 
             // simulate physics
-            physics_mngr_simulate(dt_ms);
+            physics_mngr_simulate(dt);
 
             // render graphics
             // renderer_context_update_projection_matrix ();

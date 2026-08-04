@@ -18,15 +18,16 @@ namespace ifb {
         sys->time.frequency      = freq;  
     }
     
-    IFB_ENG_INTERNAL f64 
-    eng_system_get_delta_time_ms(
+    IFB_ENG_INTERNAL f32 
+    eng_system_get_delta_time_s(
         void) {
 
         auto      sys     = _eng_context->system;
         const f64 elapsed = (f64)sys->time.timestamp_curr - (f64)sys->time.timestamp_prev;
         const f64 dt_s    = elapsed / (f64)sys->time.frequency;
-        const f64 dt_ms   = dt_s * 1000.0; 
-    
-        return(dt_ms);
+   
+        //TODO(SAM): debugging to ensure constant dt
+        //return((f32)dt_s);
+        return(0.016667f);
     }
 };
