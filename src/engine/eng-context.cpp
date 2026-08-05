@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity.cpp"
+#include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
 #include "ifb.hpp"
@@ -93,6 +94,8 @@ namespace ifb {
         const eng_mem_map* mem_map  = _eng_context->mem_map;
         eng_system_info*   system   = _eng_context->system;
         renderer_context*  renderer = _eng_context->renderer;
+    
+        _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
 
         eng_context_startup_get_system_info (_eng_context->system);
         eng_context_startup_open_window     (config, system);
@@ -108,16 +111,25 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_context_run(void) {
 
+        static f32 elapsed_time = 0.0f;
+
         while(true) {
 
             // get delta time
             eng_system_update_time();
-            const f64 dt =  eng_system_get_delta_time_s();
+            const f32 dt =  eng_system_get_delta_time_s();
+
+            elapsed_time += dt;
+            if (elapsed_time >= _eng_context->seconds_per_frame) {
+                elapsed_time = 0.0f;
+            }
 
             //TODO(SAM): pass the opengl context to the platform
             // start new frame
-            pfm_window_frame_start   ();
-            pfm_window_process_events();
+            if (elapsed_time == 0.0f) {
+                pfm_window_frame_start   ();
+                pfm_window_process_events();
+            }
 
             // game callback    
             _eng_context->game_callback(
@@ -131,13 +143,16 @@ namespace ifb {
             // renderer_context_update_projection_matrix ();
             // renderer_context_update_view_matrix       ();
             // renderer_direction_gizmo_draw             ();
-            renderer_quad_draw();
+            
+            if (elapsed_time == 0.0f) {
+                renderer_quad_draw();
 
-            // render gui
-            gui_render();
+                // render gui
+                gui_render();
 
-            // render frame
-            pfm_window_frame_render();
+                // render frame
+                pfm_window_frame_render();
+            }
 
             // check if quit received
             const bool quit = pfm_window_quit_received();

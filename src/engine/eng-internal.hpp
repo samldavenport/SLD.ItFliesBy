@@ -27,6 +27,7 @@ namespace ifb {
     struct global_stack;
 
     struct eng_context {
+        f32                seconds_per_frame;
         const eng_mem_map* mem_map;
         eng_game_proc      game_callback;
         eng_game_context*  game_ctx;
