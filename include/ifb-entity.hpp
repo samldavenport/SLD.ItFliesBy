@@ -22,7 +22,8 @@ namespace ifb {
         cmpnt_type_e_velocity     |
         cmpnt_type_e_acceleration |
         cmpnt_type_e_inv_mass     |
-        cmpnt_type_e_drag     
+        cmpnt_type_e_drag         |     
+        cmpnt_type_e_term_velocity 
     );
 
     static const entity_archetype ENTITY_ARCHETYPE_PHYSICS_QUAD = (

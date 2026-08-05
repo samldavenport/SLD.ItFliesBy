@@ -9,14 +9,15 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    IFB_INLINE cmpnt_table_position*     create_tbl_position     (void);
-    IFB_INLINE cmpnt_table_color*        create_tbl_color        (void);
-    IFB_INLINE cmpnt_table_quad*         create_tbl_quad         (void);
-    IFB_INLINE cmpnt_table_rigid_body*   create_tbl_rigid_body   (void);
-    IFB_INLINE cmpnt_table_velocity*     create_tbl_velocity     (void);
-    IFB_INLINE cmpnt_table_acceleration* create_tbl_acceleration (void);
-    IFB_INLINE cmpnt_table_inv_mass*     create_tbl_inv_mass     (void);
-    IFB_INLINE cmpnt_table_drag*         create_tbl_drag         (void);
+    IFB_INLINE cmpnt_table_position*      create_tbl_position      (void);
+    IFB_INLINE cmpnt_table_color*         create_tbl_color         (void);
+    IFB_INLINE cmpnt_table_quad*          create_tbl_quad          (void);
+    IFB_INLINE cmpnt_table_rigid_body*    create_tbl_rigid_body    (void);
+    IFB_INLINE cmpnt_table_velocity*      create_tbl_velocity      (void);
+    IFB_INLINE cmpnt_table_acceleration*  create_tbl_acceleration  (void);
+    IFB_INLINE cmpnt_table_inv_mass*      create_tbl_inv_mass      (void);
+    IFB_INLINE cmpnt_table_drag*          create_tbl_drag          (void);
+    IFB_INLINE cmpnt_table_term_velocity* create_tbl_term_velocity (void);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -48,24 +49,26 @@ namespace ifb {
         _cmpnt_mngr->mem.init(mem_res);
 
         // create tables
-        _cmpnt_mngr->tables.position     = create_tbl_position     ();
-        _cmpnt_mngr->tables.color        = create_tbl_color        ();
-        _cmpnt_mngr->tables.quad         = create_tbl_quad         (); 
-        _cmpnt_mngr->tables.rigid_body   = create_tbl_rigid_body   ();
-        _cmpnt_mngr->tables.velocity     = create_tbl_velocity     ();
-        _cmpnt_mngr->tables.acceleration = create_tbl_acceleration ();
-        _cmpnt_mngr->tables.inv_mass     = create_tbl_inv_mass     ();
-        _cmpnt_mngr->tables.drag         = create_tbl_drag         ();
+        _cmpnt_mngr->tables.position      = create_tbl_position      ();
+        _cmpnt_mngr->tables.color         = create_tbl_color         ();
+        _cmpnt_mngr->tables.quad          = create_tbl_quad          (); 
+        _cmpnt_mngr->tables.rigid_body    = create_tbl_rigid_body    ();
+        _cmpnt_mngr->tables.velocity      = create_tbl_velocity      ();
+        _cmpnt_mngr->tables.acceleration  = create_tbl_acceleration  ();
+        _cmpnt_mngr->tables.inv_mass      = create_tbl_inv_mass      ();
+        _cmpnt_mngr->tables.drag          = create_tbl_drag          ();
+        _cmpnt_mngr->tables.term_velocity = create_tbl_term_velocity ();
 
         assert(
-            _cmpnt_mngr->tables.position     != NULL &&
-            _cmpnt_mngr->tables.color        != NULL &&            
-            _cmpnt_mngr->tables.quad         != NULL &&            
-            _cmpnt_mngr->tables.rigid_body   != NULL &&
-            _cmpnt_mngr->tables.velocity     != NULL &&
-            _cmpnt_mngr->tables.acceleration != NULL &&
-            _cmpnt_mngr->tables.inv_mass     != NULL &&
-            _cmpnt_mngr->tables.drag         != NULL
+            _cmpnt_mngr->tables.position      != NULL &&
+            _cmpnt_mngr->tables.color         != NULL &&            
+            _cmpnt_mngr->tables.quad          != NULL &&            
+            _cmpnt_mngr->tables.rigid_body    != NULL &&
+            _cmpnt_mngr->tables.velocity      != NULL &&
+            _cmpnt_mngr->tables.acceleration  != NULL &&
+            _cmpnt_mngr->tables.inv_mass      != NULL &&
+            _cmpnt_mngr->tables.drag          != NULL &&
+            _cmpnt_mngr->tables.term_velocity != NULL
         );
     }
 
@@ -234,6 +237,29 @@ namespace ifb {
         assert(col_val);
 
         tbl->normal_val = col_val;
+
+        return(tbl);
+    }
+
+    IFB_INLINE cmpnt_table_term_velocity*
+    create_tbl_term_velocity(
+        void) {
+        
+        auto tbl   = _cmpnt_mngr->mem.push_struct<cmpnt_table_term_velocity>();
+        auto col_x = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+        auto col_y = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+        auto col_z = _cmpnt_mngr->mem.push_struct<f32>(_cmpnt_mngr->capacity);
+    
+        assert(
+            tbl   != NULL &&
+            col_x != NULL &&
+            col_y != NULL &&
+            col_z != NULL
+        );
+
+        tbl->x = col_x;
+        tbl->y = col_y;
+        tbl->z = col_z;
 
         return(tbl);
     }

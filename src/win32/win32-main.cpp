@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
+#include "ifb-types.hpp"
 #include "ifb.hpp"
 
 using namespace ifb;
@@ -48,9 +49,15 @@ wWinMain(
     q_0.dimensions.height = 0.2;
     q_0.position          = {0};
 
-    eng_entity_update_quad     (q_id_0, q_0);
-    eng_entity_update_inv_mass (q_id_0, 1.0f);
-    eng_entity_update_drag     (q_id_0, 0.95f); 
+    term_velocity_3d tv;
+    tv.x = 0.01f;
+    tv.y = 0.01f;
+    tv.z = 0.01f;
+    
+    eng_entity_update_quad          (q_id_0, q_0);
+    eng_entity_update_inv_mass      (q_id_0, 1.00f);
+    eng_entity_update_drag          (q_id_0, 0.95f); 
+    eng_entity_update_term_velocity (q_id_0, tv);
 
     // run the engine
     eng_context_run();
