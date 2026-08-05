@@ -45,7 +45,7 @@ wWinMain(
     eng_entity_add_components(q_id_0, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
 
     quad q_0 = {0};
-    q_0.color.hex         = 0xFF0000FF;
+    q_0.color.hex         = 0xB8BB26FF;
     q_0.dimensions.width  = 0.2;
     q_0.dimensions.height = 0.2;
     q_0.position          = {0};
