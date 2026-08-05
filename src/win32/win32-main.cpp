@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
+#include "ifb-input.hpp"
 #include "ifb-types.hpp"
 #include "ifb.hpp"
 
@@ -72,10 +73,19 @@ game_proc(
     assert(ctx);
 
     vec3 force = {0};
-    force.x = 1.0f;
 
-    eng_entity_add_force(q_id_0, force);
-    eng_entity_render(q_id_0);
+    const bool move_left  = eng_input_is_key_down(input_keycode_e_a);
+    const bool move_right = eng_input_is_key_down(input_keycode_e_d);
+    const bool move_up    = eng_input_is_key_down(input_keycode_e_w);
+    const bool move_down  = eng_input_is_key_down(input_keycode_e_s);
+
+    if (move_left)  force.x = -0.01f;
+    if (move_right) force.x =  0.01f;
+    if (move_up)    force.y =  0.01f;
+    if (move_down)  force.y = -0.01f;
+
+    eng_entity_add_force (q_id_0, force);
+    eng_entity_render    (q_id_0);
 
     return(true);
 }
