@@ -224,8 +224,8 @@ namespace ifb {
             i.vel_z[integrator_index] = (i.vel_z[integrator_index] + i.acc_z[integrator_index] * dt) * drag_pow_dt;  
 
             const f32 tv_x = i.tv_x[integrator_index];
-            const f32 tv_y = i.tv_x[integrator_index];
-            const f32 tv_z = i.tv_x[integrator_index];
+            const f32 tv_y = i.tv_y[integrator_index];
+            const f32 tv_z = i.tv_z[integrator_index];
           
             // update terminal velocity
             const f32 vel_x_curr = i.vel_x[integrator_index];
@@ -234,6 +234,9 @@ namespace ifb {
             if(vel_x_curr > tv_x && tv_x > 0.0f) i.vel_x[integrator_index] = tv_x;
             if(vel_y_curr > tv_y && tv_y > 0.0f) i.vel_y[integrator_index] = tv_y;
             if(vel_z_curr > tv_z && tv_z > 0.0f) i.vel_z[integrator_index] = tv_z;
+            if(vel_x_curr < -tv_x && tv_x > 0.0f) i.vel_x[integrator_index] = -tv_x;
+            if(vel_y_curr < -tv_y && tv_y > 0.0f) i.vel_y[integrator_index] = -tv_y;
+            if(vel_z_curr < -tv_z && tv_z > 0.0f) i.vel_z[integrator_index] = -tv_z;
         }
     }
 

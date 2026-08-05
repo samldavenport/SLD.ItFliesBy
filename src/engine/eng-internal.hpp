@@ -51,6 +51,7 @@ namespace ifb {
     IFB_ENG_INTERNAL void            keyboard_input_reset    (void);
     IFB_ENG_INTERNAL void            keyboard_set_key_up     (const input_keycode kc);
     IFB_ENG_INTERNAL void            keyboard_set_key_down   (const input_keycode kc);
+    IFB_ENG_INTERNAL bool            keyboard_is_key_down    (const input_keycode kc);
 
     IFB_ENG_INTERNAL void  global_stack_create_and_init (const eng_mem_map* mem_map);
     IFB_ENG_INTERNAL void  global_stack_validate        (void);
