@@ -27,7 +27,7 @@ namespace ifb {
         const f64 dt_s    = elapsed / (f64)sys->time.frequency;
    
         //TODO(SAM): debugging to ensure constant dt
-        //return((f32)dt_s);
-        return(0.016667f);
+        return((f32)dt_s);
+        //return(0.016667f);
     }
 };
