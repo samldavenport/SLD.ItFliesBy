@@ -6,6 +6,7 @@
 #include "entity.cpp"
 #include "entity-component.cpp"
 #include "ifb-component.hpp"
+#include "ifb-types.hpp"
 #include "physics-entity.cpp"
 #include "renderer.hpp"
 
@@ -136,6 +137,25 @@ namespace ifb {
         return(can_update);
     }
 
+    IFB_ENGINE_API const bool
+    eng_entity_update_term_velocity(
+        const entity_id         id,
+        const term_velocity_3d& tv) {
+
+        assert(id != ENTITY_ID_INVALID); 
+   
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = entity_has_component (e, cmpnt_type_e_term_velocity); 
+        const bool can_update    = (does_exist && has_component); 
+
+        if (can_update) {
+            cmpnt_table_term_velocity_update(e.index_sparse, tv);
+        }
+
+        return(can_update);
+    }
+    
     IFB_ENGINE_API const bool
     eng_entity_update_inv_mass(
         const entity_id id,

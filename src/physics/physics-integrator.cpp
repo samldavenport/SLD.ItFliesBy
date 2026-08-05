@@ -29,6 +29,9 @@ namespace ifb {
         f32*       frc_x;
         f32*       frc_y;
         f32*       frc_z;
+        f32*       tv_x;
+        f32*       tv_y;
+        f32*       tv_z;
         f32*       inv_mass;
         f32*       drag;
     };
@@ -91,6 +94,9 @@ namespace ifb {
         i.frc_x        = arena_push<f32>      (a, cfg.entity_capacity);
         i.frc_y        = arena_push<f32>      (a, cfg.entity_capacity);
         i.frc_z        = arena_push<f32>      (a, cfg.entity_capacity);
+        i.tv_x         = arena_push<f32>      (a, cfg.entity_capacity);
+        i.tv_y         = arena_push<f32>      (a, cfg.entity_capacity);
+        i.tv_z         = arena_push<f32>      (a, cfg.entity_capacity);
         i.inv_mass     = arena_push<f32>      (a, cfg.entity_capacity);
         i.drag         = arena_push<f32>      (a, cfg.entity_capacity);
     
@@ -126,7 +132,8 @@ namespace ifb {
             cmpnt_type_e_velocity     |
             cmpnt_type_e_acceleration |
             cmpnt_type_e_inv_mass     |
-            cmpnt_type_e_drag
+            cmpnt_type_e_drag         |
+            cmpnt_type_e_term_velocity
         );
 
         for (
@@ -145,16 +152,18 @@ namespace ifb {
             if (!should_integrate) continue;
 
             // look up the components
-            position_3d     pos;
-            velocity_3d     vel;
-            acceleration_3d acc;
-            inv_mass        inv;
-            drag            drg;
-            cmpnt_position_table_lookup    (pos,e.index_sparse);            
-            cmpnt_velocity_table_lookup    (vel,e.index_sparse);            
-            cmpnt_acceleration_table_lookup(acc,e.index_sparse);            
-            cmpnt_table_inv_mass_lookup    (e.index_sparse, inv);
-            cmpnt_table_drag_lookup        (e.index_sparse, drg);
+            position_3d      pos;
+            velocity_3d      vel;
+            acceleration_3d  acc;
+            inv_mass         inv;
+            drag             drg;
+            term_velocity_3d tv;
+            cmpnt_position_table_lookup      (pos,e.index_sparse);            
+            cmpnt_velocity_table_lookup      (vel,e.index_sparse);            
+            cmpnt_acceleration_table_lookup  (acc,e.index_sparse);            
+            cmpnt_table_inv_mass_lookup      (e.index_sparse, inv);
+            cmpnt_table_drag_lookup          (e.index_sparse, drg);
+            cmpnt_table_term_velocity_lookup (e.index_sparse, tv);
 
             // add the components to the intregrator 
             const u32 integrator_index = i.count;
@@ -171,6 +180,9 @@ namespace ifb {
             i.frc_x        [integrator_index] = a->data.vectors[force_index].x;
             i.frc_y        [integrator_index] = a->data.vectors[force_index].y;
             i.frc_z        [integrator_index] = a->data.vectors[force_index].z;
+            i.tv_x         [integrator_index] = tv.x;
+            i.tv_y         [integrator_index] = tv.y;
+            i.tv_z         [integrator_index] = tv.z;
             i.inv_mass     [integrator_index] = inv.normal_val;
             i.drag         [integrator_index] = drg.normal_val;
             ++i.count;
@@ -211,10 +223,17 @@ namespace ifb {
             i.vel_y[integrator_index] = (i.vel_y[integrator_index] + i.acc_y[integrator_index] * dt) * drag_pow_dt;  
             i.vel_z[integrator_index] = (i.vel_z[integrator_index] + i.acc_z[integrator_index] * dt) * drag_pow_dt;  
 
-            // TODO(SAM): this needs to be a component, max velocity 
-            if(i.vel_x[integrator_index] > 0.01f) i.vel_x[integrator_index] = 0.01f;
-            if(i.vel_y[integrator_index] > 0.01f) i.vel_y[integrator_index] = 0.01f;
-            if(i.vel_z[integrator_index] > 0.01f) i.vel_z[integrator_index] = 0.01f;
+            const f32 tv_x = i.tv_x[integrator_index];
+            const f32 tv_y = i.tv_x[integrator_index];
+            const f32 tv_z = i.tv_x[integrator_index];
+          
+            // update terminal velocity
+            const f32 vel_x_curr = i.vel_x[integrator_index];
+            const f32 vel_y_curr = i.vel_y[integrator_index];
+            const f32 vel_z_curr = i.vel_z[integrator_index];
+            if(vel_x_curr > tv_x && tv_x > 0.0f) i.vel_x[integrator_index] = tv_x;
+            if(vel_y_curr > tv_y && tv_y > 0.0f) i.vel_y[integrator_index] = tv_y;
+            if(vel_z_curr > tv_z && tv_z > 0.0f) i.vel_z[integrator_index] = tv_z;
         }
     }
 

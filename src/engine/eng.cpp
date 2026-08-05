@@ -17,6 +17,7 @@
 #include "component-acceleration.cpp"
 #include "component-inverse-mass.cpp"
 #include "component-drag.cpp"
+#include "component-term-velocity.cpp"
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"

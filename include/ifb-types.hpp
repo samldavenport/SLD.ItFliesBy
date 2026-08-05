@@ -44,11 +44,12 @@ namespace ifb {
     struct strong_u32;
     struct rigid_body;
 
-    using position_3d     = vec3;
-    using velocity_3d     = vec3;
-    using acceleration_3d = vec3;
-    using origin_3d       = vec3;       
-    using pixel           = color_rgba_u32;
+    using position_3d      = vec3;
+    using velocity_3d      = vec3;
+    using acceleration_3d  = vec3;
+    using term_velocity_3d = vec3;
+    using origin_3d        = vec3;       
+    using pixel            = color_rgba_u32;
 
     //--------------------------------------------------------------------
     // STRONG TYPES
@@ -118,14 +119,14 @@ namespace ifb {
         flags() = default;
         flags(s32 v) : val(v) { }
 
-        inline bool test     (const u32 t) { return(this->val & t); }
-        inline void mask_on  (const u32 m) { this->val |=  m;       }
-        inline void mask_off (const u32 m) { this->val &= ~m;       }
+        inline bool test       (const u32 t)      { return(this->val & t); }
+        inline void mask_on    (const u32 m)      { this->val |=  m;       }
+        inline void mask_off   (const u32 m)      { this->val &= ~m;       }
 
-        inline bool   operator== (const u32& other) { return(this->test(other));  } 
-        inline bool   operator!= (const u32& other) { return(!this->test(other)); }
-        inline bool   operator== (const s32& other) { return(this->test(other));  } 
-        inline bool   operator!= (const s32& other) { return(!this->test(other)); }
+        inline bool operator== (const u32& other) { return(this->test(other));  } 
+        inline bool operator!= (const u32& other) { return(!this->test(other)); }
+        inline bool operator== (const s32& other) { return(this->test(other));  } 
+        inline bool operator!= (const s32& other) { return(!this->test(other)); }
     };
 
     struct image {
