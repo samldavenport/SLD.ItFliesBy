@@ -6,6 +6,7 @@ $Win32Command     = @(
     $File
     "/Fo:" + @(Join-Path $ProjectRoot "build\debug\obj\ItFliesBy.obj")  
     "/I"   + @(Join-Path $ProjectRoot "src\win32")
+    "/I"   + @(Join-Path $ProjectRoot "src\game")
     "/I"   + @(Join-Path $ProjectRoot "include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Opengl\include")
