@@ -6,7 +6,7 @@ namespace ifb {
 
 
     IFB_INTERNAL void
-    cmpnt_quad_table_validate(
+    cmpnt_table_quad_validate(
         void) {
 
         assert(
@@ -17,10 +17,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_quad_table_update(
+    cmpnt_table_quad_update(
         const cmpnt_quad& quad) {
 
-        cmpnt_quad_table_validate();
+        cmpnt_table_quad_validate();
         assert(quad.sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.quad;
@@ -30,11 +30,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_quad_table_update(
+    cmpnt_table_quad_update(
         const dimensions_2d& dims,
         const u32            sparse_index) {
 
-        cmpnt_quad_table_validate();
+        cmpnt_table_quad_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.quad;
@@ -44,7 +44,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_quad_table_lookup(
+    cmpnt_table_quad_lookup(
         cmpnt_quad*   quad,
         const entity& e) {
 
@@ -64,7 +64,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_quad_table_lookup(
+    cmpnt_table_quad_lookup(
         dimensions_2d& dims,
         const u32      sparse_index) {
 

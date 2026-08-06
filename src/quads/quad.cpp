@@ -33,9 +33,9 @@ namespace ifb {
         q.index_sparse = e.index_sparse;
         q.index_dense  = e.index_dense;
 
-        cmpnt_position_table_lookup (q.pos,   q.index_sparse);
-        cmpnt_color_table_lookup    (q.color, q.index_sparse);
-        cmpnt_quad_table_lookup     (q.dims,  q.index_sparse);
+        cmpnt_table_position_lookup (q.pos,   q.index_sparse);
+        cmpnt_table_color_lookup    (q.color, q.index_sparse);
+        cmpnt_table_quad_lookup     (q.dims,  q.index_sparse);
 
         return(true);
     }
@@ -50,9 +50,9 @@ namespace ifb {
             q.tag                                 != NULL 
         );
 
-        cmpnt_position_table_update (q.pos,   q.index_sparse);
-        cmpnt_color_table_update    (q.color, q.index_sparse);
-        cmpnt_quad_table_update     (q.dims,  q.index_sparse);
+        cmpnt_table_position_update (q.pos,   q.index_sparse);
+        cmpnt_table_color_update    (q.color, q.index_sparse);
+        cmpnt_table_quad_update     (q.dims,  q.index_sparse);
     }
 
     IFB_INTERNAL void
@@ -65,9 +65,9 @@ namespace ifb {
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
         
-        cmpnt_position_table_update (q.position,   sparse_index);
-        cmpnt_color_table_update    (q.color,      sparse_index);
-        cmpnt_quad_table_update     (q.dimensions, sparse_index);
+        cmpnt_table_position_update (q.position,   sparse_index);
+        cmpnt_table_color_update    (q.color,      sparse_index);
+        cmpnt_table_quad_update     (q.dimensions, sparse_index);
     }
 
     IFB_INTERNAL bool

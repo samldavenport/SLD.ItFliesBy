@@ -6,7 +6,7 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    cmpnt_position_table_validate(
+    cmpnt_table_position_validate(
         void) {
 
         assert(
@@ -18,10 +18,10 @@ namespace ifb {
 
 
     IFB_INTERNAL void
-    cmpnt_position_table_update(
+    cmpnt_table_position_update(
         const cmpnt_position& position) {
 
-        cmpnt_position_table_validate();
+        cmpnt_table_position_validate();
         assert(position.sparse_index < _cmpnt_mngr->capacity);
 
         cmpnt_table_position* tbl = _cmpnt_mngr->tables.position;
@@ -32,11 +32,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_position_table_update(
+    cmpnt_table_position_update(
         const position_3d& position,
         const u32          sparse_index) {
 
-        cmpnt_position_table_validate();
+        cmpnt_table_position_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         cmpnt_table_position* tbl = _cmpnt_mngr->tables.position;
@@ -47,7 +47,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_position_table_lookup(
+    cmpnt_table_position_lookup(
         cmpnt_position& position,
         const entity&   e) {
 
@@ -68,7 +68,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_position_table_lookup(
+    cmpnt_table_position_lookup(
         position_3d& position,
         const u32    sparse_index) {
 

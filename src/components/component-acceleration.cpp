@@ -6,7 +6,7 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    cmpnt_acceleration_table_validate(
+    cmpnt_table_acceleration_validate(
         void) {
 
         assert(
@@ -17,10 +17,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_acceleration_table_update(
+    cmpnt_table_acceleration_update(
         const cmpnt_acceleration& acceleration) {
 
-        cmpnt_acceleration_table_validate();
+        cmpnt_table_acceleration_validate();
         assert(acceleration.sparse_index < _cmpnt_mngr->capacity);
 
         cmpnt_table_acceleration* tbl = _cmpnt_mngr->tables.acceleration;
@@ -31,11 +31,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_acceleration_table_update(
+    cmpnt_table_acceleration_update(
         const acceleration_3d& acceleration,
         const u32          sparse_index) {
 
-        cmpnt_acceleration_table_validate();
+        cmpnt_table_acceleration_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         cmpnt_table_acceleration* tbl = _cmpnt_mngr->tables.acceleration;
@@ -46,7 +46,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_acceleration_table_lookup(
+    cmpnt_table_acceleration_lookup(
         cmpnt_acceleration& acceleration,
         const entity&   e) {
 
@@ -67,7 +67,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_acceleration_table_lookup(
+    cmpnt_table_acceleration_lookup(
         acceleration_3d& acceleration,
         const u32    sparse_index) {
 

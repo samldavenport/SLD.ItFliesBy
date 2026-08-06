@@ -6,7 +6,7 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    cmpnt_color_table_validate(
+    cmpnt_table_color_validate(
         void) {
 
         assert(
@@ -17,10 +17,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_color_table_update(
+    cmpnt_table_color_update(
         const cmpnt_color& color) {
 
-        cmpnt_color_table_validate();
+        cmpnt_table_color_validate();
         assert(color.sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.color;
@@ -29,11 +29,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_color_table_update(
+    cmpnt_table_color_update(
         const color_rgba_u32& color,
         const u32             sparse_index) {
         
-        cmpnt_color_table_validate();
+        cmpnt_table_color_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.color;
@@ -42,7 +42,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_color_table_lookup(
+    cmpnt_table_color_lookup(
         cmpnt_color&  color,
         const entity& e) {
 
@@ -61,7 +61,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_color_table_lookup(
+    cmpnt_table_color_lookup(
         color_rgba_u32& color,
         const u32       sparse_index) {
 

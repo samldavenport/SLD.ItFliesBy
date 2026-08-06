@@ -5,7 +5,7 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_validate(
+    cmpnt_table_rigid_body_validate(
         void) {
 
         assert(_cmpnt_mngr                    != NULL);
@@ -22,10 +22,10 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_update(
+    cmpnt_table_rigid_body_update(
         const cmpnt_rigid_body& rb) {
 
-        cmpnt_rigid_body_table_validate();
+        cmpnt_table_rigid_body_validate();
         assert(rb.sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.rigid_body;
@@ -38,11 +38,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_update(
+    cmpnt_table_rigid_body_update(
         const rigid_body& rb,
         const u32   sparse_index) {
 
-        cmpnt_rigid_body_table_validate();
+        cmpnt_table_rigid_body_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.rigid_body;
@@ -55,11 +55,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_lookup(
+    cmpnt_table_rigid_body_lookup(
         cmpnt_rigid_body& rb,
         const entity&     e) {
 
-        cmpnt_rigid_body_table_validate();
+        cmpnt_table_rigid_body_validate();
         assert(e.index_sparse < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.rigid_body;
@@ -75,11 +75,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_lookup(
+    cmpnt_table_rigid_body_lookup(
         rigid_body& rb,
         const u32   sparse_index) {
             
-        cmpnt_rigid_body_table_validate();
+        cmpnt_table_rigid_body_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.rigid_body;
