@@ -93,7 +93,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_position_update(pos, e.index_sparse);   
+            cmpnt_table_position_update(e.index_sparse, pos);   
         }
 
         return(can_update);
@@ -112,7 +112,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_velocity_update(vel, e.index_sparse);   
+            cmpnt_table_velocity_update(e.index_sparse,vel);   
         }
 
         return(can_update);
@@ -232,9 +232,9 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_quad_update     (quad.dimensions, e.index_sparse);
-            cmpnt_table_color_update    (quad.color,      e.index_sparse);
-            cmpnt_table_position_update (quad.position,   e.index_sparse);
+            cmpnt_table_quad_update     (e.index_sparse, quad.dimensions);
+            cmpnt_table_color_update    (e.index_sparse, quad.color);
+            cmpnt_table_position_update (e.index_sparse, quad.position);
         }
 
         return(can_update);
@@ -253,7 +253,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_color_update(color, e.index_sparse);
+            cmpnt_table_color_update(e.index_sparse, color);
         }
 
         return(can_update);

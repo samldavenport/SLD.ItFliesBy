@@ -37,30 +37,28 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_mngr_startup              (memory& mem_res);
 
     IFB_INTERNAL void        cmpnt_table_position_validate      (void);
-    IFB_INTERNAL void        cmpnt_table_position_update        (const position_3d&    position, const u32 sparse_index);
-    IFB_INTERNAL void        cmpnt_table_position_lookup        (position_3d&          position, const u32 sparse_index);
+    IFB_INTERNAL void        cmpnt_table_position_update        (const u32 sparse_index, const position_3d&    position);
+    IFB_INTERNAL void        cmpnt_table_position_lookup        (const u32 sparse_index, position_3d&          position);
 
     IFB_INTERNAL void        cmpnt_table_color_validate         (void);
-    IFB_INTERNAL void        cmpnt_table_color_update           (const color_rgba_u32&   color, const u32 sparse_index);
-    IFB_INTERNAL void        cmpnt_table_color_lookup           (color_rgba_u32&         color, const u32          sparse_index);
+    IFB_INTERNAL void        cmpnt_table_color_update           (const u32 sparse_index, const color_rgba_u32&   color);
+    IFB_INTERNAL void        cmpnt_table_color_lookup           (const u32 sparse_index, color_rgba_u32&         color);
 
     IFB_INTERNAL void        cmpnt_table_quad_validate          (void);
-    IFB_INTERNAL void        cmpnt_table_quad_update            (const dimensions_2d& dims, const u32 sparse_index);
-    IFB_INTERNAL void        cmpnt_table_quad_lookup            (dimensions_2d&       dims, const u32          sparse_index);
+    IFB_INTERNAL void        cmpnt_table_quad_update            (const u32 sparse_index, const dimensions_2d& dims);
+    IFB_INTERNAL void        cmpnt_table_quad_lookup            (const u32 sparse_index, dimensions_2d&       dims);
 
     IFB_INTERNAL void        cmpnt_table_rigid_body_validate    (void);
-    IFB_INTERNAL void        cmpnt_table_rigid_body_update      (const rigid_body& rb, const u32 sparse_index);
-    IFB_INTERNAL void        cmpnt_table_rigid_body_lookup      (rigid_body&       rb, const u32     sparse_index);
+    IFB_INTERNAL void        cmpnt_table_rigid_body_update      (const u32 sparse_index, const rigid_body& rb);
+    IFB_INTERNAL void        cmpnt_table_rigid_body_lookup      (const u32 sparse_index, rigid_body&       rb);
 
     IFB_INTERNAL void        cmpnt_table_velocity_validate      (void);
-    IFB_INTERNAL void        cmpnt_table_velocity_update        (const velocity_3d& vel, const u32 sparse_index);
-    IFB_INTERNAL void        cmpnt_table_velocity_lookup        (velocity_3d&       vel, const u32          sparse_index);
+    IFB_INTERNAL void        cmpnt_table_velocity_update        (const u32 sparse_index, const velocity_3d& vel);
+    IFB_INTERNAL void        cmpnt_table_velocity_lookup        (const u32 sparse_index, velocity_3d&       vel);
 
     IFB_INTERNAL void        cmpnt_table_acceleration_validate  (void);
     IFB_INTERNAL void        cmpnt_table_acceleration_update    (const u32 sparse_index, const acceleration_3d& accel);
     IFB_INTERNAL void        cmpnt_table_acceleration_lookup    (const u32 sparse_index, acceleration_3d&       accel);
-
-    //TODO(SAM): inconsistent naming needs to be fixed
 
     IFB_INTERNAL void        cmpnt_table_inv_mass_validate      (void);
     IFB_INTERNAL void        cmpnt_table_inv_mass_update        (const u32 sparse_index, const inv_mass& inv_mass);
