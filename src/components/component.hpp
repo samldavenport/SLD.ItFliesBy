@@ -33,8 +33,8 @@ namespace ifb {
     // INTERNAL METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL cmpnt_mngr* cmpnt_mngr_create               (void);
-    IFB_INTERNAL void        cmpnt_mngr_startup              (memory& mem_res);
+    IFB_INTERNAL cmpnt_mngr* cmpnt_mngr_create                  (void);
+    IFB_INTERNAL void        cmpnt_mngr_startup                 (memory& mem_res);
 
     IFB_INTERNAL void        cmpnt_table_position_validate      (void);
     IFB_INTERNAL void        cmpnt_table_position_update        (const u32 sparse_index, const position_3d&    position);

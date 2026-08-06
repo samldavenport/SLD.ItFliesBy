@@ -15,21 +15,6 @@ namespace ifb {
 
     IFB_INTERNAL void
     cmpnt_table_inv_mass_update(
-        const cmpnt_inv_mass& inv_mass) {
-
-        cmpnt_table_inv_mass_validate();  
-        
-        assert(inv_mass.sparse_index < _cmpnt_mngr->capacity);
-
-        auto tbl = _cmpnt_mngr->tables.inv_mass;
-
-        tbl->normal_val[inv_mass.sparse_index] = (inv_mass.val >= 0.0f && inv_mass.val <= 1.0f)
-            ? inv_mass.val
-            : 1.0f;
-    }
-    
-    IFB_INTERNAL void
-    cmpnt_table_inv_mass_update(
         const u32       sparse_index,
         const inv_mass& inv_mass) {
 
@@ -56,18 +41,5 @@ namespace ifb {
         auto& tbl = _cmpnt_mngr->tables.inv_mass;
 
         inv_mass.normal_val = tbl->normal_val[sparse_index];
-    }
-    
-    IFB_INTERNAL void
-    cmpnt_table_inv_mass_lookup(
-        cmpnt_inv_mass& inv_mass) {
-            
-        cmpnt_table_inv_mass_validate(); 
-    
-        assert(inv_mass.sparse_index < _cmpnt_mngr->capacity);
-
-        auto& tbl = _cmpnt_mngr->tables.inv_mass;
-
-        inv_mass.val = tbl->normal_val[inv_mass.sparse_index];          
     }
 };
