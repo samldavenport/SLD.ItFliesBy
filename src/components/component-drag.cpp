@@ -12,21 +12,6 @@ namespace ifb {
         assert(_cmpnt_mngr->capacity        != 0);     
         assert(_cmpnt_mngr->tables.drag != NULL);     
     }
-
-    IFB_INTERNAL void
-    cmpnt_table_drag_update(
-        const cmpnt_drag& drag) {
-
-        cmpnt_table_drag_validate();  
-        
-        assert(drag.sparse_index < _cmpnt_mngr->capacity);
-
-        auto tbl = _cmpnt_mngr->tables.drag;
-
-        tbl->normal_val[drag.sparse_index] = (drag.val >= 0.0f && drag.val <= 1.0f)
-            ? drag.val
-            : 1.0f;
-    }
     
     IFB_INTERNAL void
     cmpnt_table_drag_update(
@@ -56,18 +41,5 @@ namespace ifb {
         auto& tbl = _cmpnt_mngr->tables.drag;
 
         d.normal_val = tbl->normal_val[sparse_index];
-    }
-    
-    IFB_INTERNAL void
-    cmpnt_table_drag_lookup(
-        cmpnt_drag& drag) {
-            
-        cmpnt_table_drag_validate(); 
-    
-        assert(drag.sparse_index < _cmpnt_mngr->capacity);
-
-        auto& tbl = _cmpnt_mngr->tables.drag;
-
-        drag.val = tbl->normal_val[drag.sparse_index];          
     }
 };

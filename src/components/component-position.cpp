@@ -1,12 +1,11 @@
 #pragma once
 
 #include "component.hpp"
-#include "entity.hpp"
 
 namespace ifb {
 
     IFB_INTERNAL void
-    cmpnt_position_table_validate(
+    cmpnt_table_position_validate(
         void) {
 
         assert(
@@ -16,27 +15,12 @@ namespace ifb {
         );
     }
 
-
     IFB_INTERNAL void
-    cmpnt_position_table_update(
-        const cmpnt_position& position) {
+    cmpnt_table_position_update(
+        const u32          sparse_index,
+        const position_3d& position) {
 
-        cmpnt_position_table_validate();
-        assert(position.sparse_index < _cmpnt_mngr->capacity);
-
-        cmpnt_table_position* tbl = _cmpnt_mngr->tables.position;
-
-        tbl->x[position.sparse_index] = position.x; 
-        tbl->y[position.sparse_index] = position.y; 
-        tbl->z[position.sparse_index] = position.z; 
-    }
-
-    IFB_INTERNAL void
-    cmpnt_position_table_update(
-        const position_3d& position,
-        const u32          sparse_index) {
-
-        cmpnt_position_table_validate();
+        cmpnt_table_position_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         cmpnt_table_position* tbl = _cmpnt_mngr->tables.position;
@@ -47,30 +31,9 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_position_table_lookup(
-        cmpnt_position& position,
-        const entity&   e) {
-
-        assert(
-            _cmpnt_mngr           != NULL &&
-            _cmpnt_mngr->capacity != 0    &&
-            _cmpnt_mngr->capacity > e.index_sparse
-        );
-
-        auto tbl = _cmpnt_mngr->tables.position;
-        assert(tbl != NULL);
-
-        position.id           = e.id;
-        position.sparse_index = e.index_sparse;
-        position.x            = tbl->x[e.index_sparse];
-        position.y            = tbl->y[e.index_sparse];
-        position.z            = tbl->z[e.index_sparse];
-    }
-
-    IFB_INTERNAL void
-    cmpnt_position_table_lookup(
-        position_3d& position,
-        const u32    sparse_index) {
+    cmpnt_table_position_lookup(
+        const u32    sparse_index,
+        position_3d& position) {
 
         assert(
             _cmpnt_mngr           != NULL &&

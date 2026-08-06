@@ -5,7 +5,7 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_validate(
+    cmpnt_table_rigid_body_validate(
         void) {
 
         assert(_cmpnt_mngr                    != NULL);
@@ -22,27 +22,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_update(
-        const cmpnt_rigid_body& rb) {
+    cmpnt_table_rigid_body_update(
+        const u32         sparse_index,
+        const rigid_body& rb) {
 
-        cmpnt_rigid_body_table_validate();
-        assert(rb.sparse_index < _cmpnt_mngr->capacity);
-
-        auto tbl = _cmpnt_mngr->tables.rigid_body;
-
-        tbl->origin_x [rb.sparse_index] = rb.origin_x;
-        tbl->origin_y [rb.sparse_index] = rb.origin_y;
-        tbl->origin_z [rb.sparse_index] = rb.origin_z;
-        tbl->width    [rb.sparse_index] = rb.width;
-        tbl->height   [rb.sparse_index] = rb.height;
-    }
-
-    IFB_INTERNAL void
-    cmpnt_rigid_body_table_update(
-        const rigid_body& rb,
-        const u32   sparse_index) {
-
-        cmpnt_rigid_body_table_validate();
+        cmpnt_table_rigid_body_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.rigid_body;
@@ -55,31 +39,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_rigid_body_table_lookup(
-        cmpnt_rigid_body& rb,
-        const entity&     e) {
-
-        cmpnt_rigid_body_table_validate();
-        assert(e.index_sparse < _cmpnt_mngr->capacity);
-
-        auto tbl = _cmpnt_mngr->tables.rigid_body;
-        assert(tbl != NULL);
-
-        rb.id           = e.id;
-        rb.sparse_index = e.index_sparse;
-        rb.origin_x     = tbl->origin_x [e.index_sparse];
-        rb.origin_y     = tbl->origin_y [e.index_sparse];
-        rb.origin_z     = tbl->origin_z [e.index_sparse];
-        rb.width        = tbl->width    [e.index_sparse];
-        rb.height       = tbl->height   [e.index_sparse];
-    }
-
-    IFB_INTERNAL void
-    cmpnt_rigid_body_table_lookup(
-        rigid_body& rb,
-        const u32   sparse_index) {
+    cmpnt_table_rigid_body_lookup(
+        const u32   sparse_index,
+        rigid_body& rb) {
             
-        cmpnt_rigid_body_table_validate();
+        cmpnt_table_rigid_body_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.rigid_body;

@@ -6,7 +6,7 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    cmpnt_color_table_validate(
+    cmpnt_table_color_validate(
         void) {
 
         assert(
@@ -17,23 +17,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_color_table_update(
-        const cmpnt_color& color) {
-
-        cmpnt_color_table_validate();
-        assert(color.sparse_index < _cmpnt_mngr->capacity);
-
-        auto tbl = _cmpnt_mngr->tables.color;
-
-        tbl->rgba_hex[color.sparse_index] = color.hex_rgba;
-    }
-
-    IFB_INTERNAL void
-    cmpnt_color_table_update(
-        const color_rgba_u32& color,
-        const u32             sparse_index) {
+    cmpnt_table_color_update(
+        const u32             sparse_index,
+        const color_rgba_u32& color) {
         
-        cmpnt_color_table_validate();
+        cmpnt_table_color_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.color;
@@ -42,28 +30,9 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_color_table_lookup(
-        cmpnt_color&  color,
-        const entity& e) {
-
-        assert(
-            _cmpnt_mngr           != NULL &&
-            _cmpnt_mngr->capacity != 0    &&
-            _cmpnt_mngr->capacity > e.index_sparse
-        );
-
-        auto tbl = _cmpnt_mngr->tables.color;
-        assert(tbl != NULL);
-
-        color.id           = e.id;
-        color.sparse_index = e.index_sparse;
-        color.hex_rgba     = tbl->rgba_hex[e.index_sparse];
-    }
-
-    IFB_INTERNAL void
-    cmpnt_color_table_lookup(
-        color_rgba_u32& color,
-        const u32       sparse_index) {
+    cmpnt_table_color_lookup(
+        const u32       sparse_index,
+        color_rgba_u32& color) {
 
         assert(
             _cmpnt_mngr           != NULL &&

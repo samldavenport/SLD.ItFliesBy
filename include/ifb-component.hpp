@@ -20,67 +20,6 @@ namespace ifb {
         cmpnt_type_e_term_velocity = 9
     };
 
-    struct cmpnt_base {
-        entity_id id;
-        u32       sparse_index;
-    };
-
-    struct cmpnt_position : cmpnt_base {
-        f32       x;
-        f32       y;
-        f32       z;
-    };
-
-    struct cmpnt_color : cmpnt_base {
-        union {
-            u32 hex_rgba;
-            struct {
-                byte a;
-                byte b;
-                byte g;
-                byte r;
-            };
-        };
-    };
-
-    struct cmpnt_quad : cmpnt_base {
-        u32 width;
-        u32 height;
-    };
-
-    struct cmpnt_rigid_body : cmpnt_base {
-        f32 origin_x;
-        f32 origin_y;
-        f32 origin_z;
-        f32 width;
-        f32 height;
-    };
-
-    struct cmpnt_velocity : cmpnt_base {
-        f32 x;
-        f32 y;
-        f32 z;
-    };
-
-    struct cmpnt_acceleration : cmpnt_base {
-        f32 x;
-        f32 y;
-        f32 z;
-    };
-
-    struct cmpnt_inv_mass : cmpnt_base {
-        f32 val;
-    };
-
-    struct cmpnt_drag : cmpnt_base {
-        f32 val;
-    };
-
-    struct cmpnt_term_velocity : cmpnt_base {
-        f32 x;
-        f32 y;
-        f32 z;
-    };
 };
 
 #endif //IFB_COMPONENTS_HPP

@@ -6,7 +6,7 @@ namespace ifb {
 
 
     IFB_INTERNAL void
-    cmpnt_quad_table_validate(
+    cmpnt_table_quad_validate(
         void) {
 
         assert(
@@ -17,24 +17,11 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_quad_table_update(
-        const cmpnt_quad& quad) {
+    cmpnt_table_quad_update(
+        const u32            sparse_index,
+        const dimensions_2d& dims) {
 
-        cmpnt_quad_table_validate();
-        assert(quad.sparse_index < _cmpnt_mngr->capacity);
-
-        auto tbl = _cmpnt_mngr->tables.quad;
-
-        tbl->height [quad.sparse_index] = quad.height;
-        tbl->width  [quad.sparse_index] = quad.width;
-    }
-
-    IFB_INTERNAL void
-    cmpnt_quad_table_update(
-        const dimensions_2d& dims,
-        const u32            sparse_index) {
-
-        cmpnt_quad_table_validate();
+        cmpnt_table_quad_validate();
         assert(sparse_index < _cmpnt_mngr->capacity);
 
         auto tbl = _cmpnt_mngr->tables.quad;
@@ -44,29 +31,9 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_quad_table_lookup(
-        cmpnt_quad*   quad,
-        const entity& e) {
-
-        assert(
-            _cmpnt_mngr           != NULL &&
-            _cmpnt_mngr->capacity != 0    &&
-            _cmpnt_mngr->capacity > e.index_sparse
-        );
-
-        auto tbl = _cmpnt_mngr->tables.quad;
-        assert(tbl != NULL);
-
-        quad->id            = e.id;
-        quad->sparse_index = e.index_sparse;
-        quad->width        = tbl->width[e.index_sparse];
-        quad->height       = tbl->height[e.index_sparse];
-    }
-
-    IFB_INTERNAL void
-    cmpnt_quad_table_lookup(
-        dimensions_2d& dims,
-        const u32      sparse_index) {
+    cmpnt_table_quad_lookup(
+        const u32      sparse_index,
+        dimensions_2d& dims) {
 
         assert(
             _cmpnt_mngr           != NULL &&

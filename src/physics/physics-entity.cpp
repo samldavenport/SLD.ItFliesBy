@@ -78,6 +78,6 @@ namespace ifb {
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
     
-        cmpnt_rigid_body_table_update(rb, sparse_index);
+        cmpnt_table_rigid_body_update(sparse_index,rb);
     }
 };
