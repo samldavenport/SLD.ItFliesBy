@@ -4,6 +4,8 @@
 #include "ifb-game.hpp"
 #include "ifb-types.hpp"
 
+#include "game-player-rig.cpp"
+
 namespace ifb {
 
     IFB_INTERNAL game_context*
@@ -25,6 +27,24 @@ namespace ifb {
         player_rig_init(ctx->player_rig);
 
         return(ctx);      
+    }
+    
+    IFB_INTERNAL void
+    game_context_validate(
+        game_context* ctx) {
+
+        assert(ctx);
+        assert(ctx->player_rig   != NULL);
+        assert(ctx->global_arena != INVALID_INDEX);
+    }
+
+    IFB_INTERNAL void
+    game_context_update_and_render(
+        game_context* ctx) {
+
+        game_context_validate(ctx);
+
+        player_rig_update_and_render(ctx->player_rig);
     }
 };
 

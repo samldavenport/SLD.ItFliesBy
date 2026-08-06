@@ -59,7 +59,7 @@ static bool
 game_proc(
     eng_game_context* ctx) {
 
-    player_rig_update_and_render(game_ctx->player_rig);
+    game_context_update_and_render(game_ctx);
 
     return(true);
 }

@@ -2,6 +2,7 @@
 
 #include "ifb-game.hpp"
 #include "ifb-types.hpp"
+#include "ifb-entity.hpp"
 #include <cassert>
 
 namespace ifb {
