@@ -131,7 +131,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_acceleration_update(acc, e.index_sparse);
+            cmpnt_table_acceleration_update(e.index_sparse, acc);
         }
 
         return(can_update);

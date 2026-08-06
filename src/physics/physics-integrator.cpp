@@ -160,7 +160,7 @@ namespace ifb {
             term_velocity_3d tv;
             cmpnt_table_position_lookup      (pos,e.index_sparse);            
             cmpnt_table_velocity_lookup      (vel,e.index_sparse);            
-            cmpnt_table_acceleration_lookup  (acc,e.index_sparse);            
+            cmpnt_table_acceleration_lookup  (e.index_sparse,acc);            
             cmpnt_table_inv_mass_lookup      (e.index_sparse, inv);
             cmpnt_table_drag_lookup          (e.index_sparse, drg);
             cmpnt_table_term_velocity_lookup (e.index_sparse, tv);
@@ -270,7 +270,7 @@ namespace ifb {
         
             cmpnt_table_position_update     (pos, i.sparse_index[index]);
             cmpnt_table_velocity_update     (vel, i.sparse_index[index]);     
-            cmpnt_table_acceleration_update (acc, i.sparse_index[index]);   
+            cmpnt_table_acceleration_update (i.sparse_index[index], acc);   
             cmpnt_table_inv_mass_update     (i.sparse_index[index], inv);       
             cmpnt_table_drag_update         (i.sparse_index[index], drg);           
         } 
