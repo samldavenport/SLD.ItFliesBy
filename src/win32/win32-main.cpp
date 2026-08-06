@@ -3,9 +3,13 @@
 #include <Windows.h>
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
+#include "ifb-game.hpp"
 #include "ifb-input.hpp"
 #include "ifb-types.hpp"
 #include "ifb.hpp"
+
+#include "game-context.cpp"
+#include "game-player-rig.cpp"
 
 using namespace ifb;
 
@@ -17,6 +21,8 @@ static byte _stack_mem[SIZE_STACK];
 static entity_id q_id_0;
 static entity_id q_id_1;
 static entity_id q_id_2;
+
+static game_context* game_ctx;
 
 bool game_proc (eng_game_context* ctx);
 void mem_map_init  (eng_mem_map& mem_map);
@@ -38,27 +44,10 @@ wWinMain(
     // engine startup 
     eng_context_startup();
     eng_gui_open();
-    
-    // create test quad 
-    q_id_0 = eng_entity_create("HELLO-QUAD-1");
-    
-    eng_entity_add_components(q_id_0, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
 
-    quad q_0 = {0};
-    q_0.color.hex         = 0xB8BB26FF;
-    q_0.dimensions.width  = 0.2;
-    q_0.dimensions.height = 0.2;
-    q_0.position          = {0};
-
-    term_velocity_3d tv;
-    tv.x = 1.00f;
-    tv.y = 1.00f;
-    tv.z = 1.00f;
-    
-    eng_entity_update_quad          (q_id_0, q_0);
-    eng_entity_update_inv_mass      (q_id_0, 0.5f);
-    eng_entity_update_drag          (q_id_0, 0.01f); 
-    eng_entity_update_term_velocity (q_id_0, tv);
+    // create the game context
+    game_ctx = game_context_create_and_init();
+    assert(game_ctx);
 
     // run the engine
     eng_context_run();
@@ -70,22 +59,7 @@ static bool
 game_proc(
     eng_game_context* ctx) {
 
-    assert(ctx);
-
-    vec3 force = {0};
-
-    const bool move_left  = eng_input_is_key_down(input_keycode_e_a);
-    const bool move_right = eng_input_is_key_down(input_keycode_e_d);
-    const bool move_up    = eng_input_is_key_down(input_keycode_e_w);
-    const bool move_down  = eng_input_is_key_down(input_keycode_e_s);
-
-    if (move_left)  force.x -= 10.0f;
-    if (move_right) force.x += 10.0f;
-    if (move_up)    force.y += 10.0f;
-    if (move_down)  force.y -= 10.0f;
-
-    eng_entity_add_force (q_id_0, force);
-    eng_entity_render    (q_id_0);
+    game_context_update_and_render(game_ctx);
 
     return(true);
 }
