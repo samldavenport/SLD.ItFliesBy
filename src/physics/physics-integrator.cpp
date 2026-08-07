@@ -159,11 +159,11 @@ namespace ifb {
             drag             drg;
             term_velocity_3d tv;
             cmpnt_table_position_lookup      (e.index_sparse, pos);            
-            cmpnt_table_velocity_lookup      (e.index_sparse, vel);            
-            cmpnt_table_acceleration_lookup  (e.index_sparse, acc);            
+            cmpnt_lookup_velocity      (e.index_sparse, vel);            
+            cmpnt_lookup_acceleration  (e.index_sparse, acc);            
             cmpnt_table_inv_mass_lookup      (e.index_sparse, inv);
-            cmpnt_table_drag_lookup          (e.index_sparse, drg);
-            cmpnt_table_term_velocity_lookup (e.index_sparse, tv);
+            cmpnt_lookup_drag          (e.index_sparse, drg);
+            cmpnt_update_term_velocity (e.index_sparse, tv);
 
             // add the components to the intregrator 
             const u32 integrator_index = i.count;
@@ -269,10 +269,10 @@ namespace ifb {
             drg.normal_val = i.drag     [index];
         
             cmpnt_table_position_update     (i.sparse_index[index], pos);
-            cmpnt_table_velocity_update     (i.sparse_index[index], vel);     
-            cmpnt_table_acceleration_update (i.sparse_index[index], acc);   
-            cmpnt_table_inv_mass_update     (i.sparse_index[index], inv);       
-            cmpnt_table_drag_update         (i.sparse_index[index], drg);           
+            cmpnt_update_velocity     (i.sparse_index[index], vel);     
+            cmpnt_update_acceleration (i.sparse_index[index], acc);   
+            cmpnt_update_term_velocity     (i.sparse_index[index], inv);       
+            cmpnt_update_drag         (i.sparse_index[index], drg);           
         } 
     }
 }; 

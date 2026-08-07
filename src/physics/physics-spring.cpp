@@ -31,11 +31,11 @@ namespace ifb {
     };
 
     inline bool spring_calculator_create            (spring_calculator& calc, arena* a);
-    inline bool spring_calculator_load_components   (spring_calculator& calc);
+    inline bool spring_calculator_load_components   (spring_calculator& calc, arena* a);
     inline void spring_calculator_load_exec         (spring_calculator& calc);
 
     IFB_INTERNAL void 
-    pysics_spring_calculate_forces(
+    physics_spring_calculate_forces(
         arena* a) {
 
         assert(a);
@@ -48,7 +48,7 @@ namespace ifb {
             return;
         }
     
-        if(!spring_calculator_load_components(calc)) {
+        if(!spring_calculator_load_components(calc, a)) {
             arena_revert(a, save);
             return;
         }
@@ -136,7 +136,7 @@ namespace ifb {
            
             // look up the spring info
             cmpnt_table_position_lookup (spring_sparse_index, pos_spr);
-            cmpnt_table_spring_lookup   (spring_sparse_index, spr);
+            cmpnt_lookup_spring   (spring_sparse_index, spr);
            
             // look up the anchor info
             const u32 anchor_sparse_index = entity_lookup_sparse_index(spr.anchor);
