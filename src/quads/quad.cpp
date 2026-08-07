@@ -19,7 +19,7 @@ namespace ifb {
         entity e;
         const bool found_entity = (
             entity_lookup_by_id(e, id) &&
-            e.archetype & ENTITY_ARCHETYPE_QUAD == ENTITY_ARCHETYPE_QUAD 
+            (e.archetype & ENTITY_ARCHETYPE_QUAD.val) == ENTITY_ARCHETYPE_QUAD.val 
         );
 
         if (!found_entity) {
@@ -81,7 +81,7 @@ namespace ifb {
         entity e;
         const bool does_exist = (
             entity_lookup_by_id(e, id) &&
-            e.archetype & ENTITY_ARCHETYPE_QUAD == ENTITY_ARCHETYPE_QUAD 
+            (e.archetype & ENTITY_ARCHETYPE_QUAD.val) == ENTITY_ARCHETYPE_QUAD.val 
         );
 
         return(does_exist);
