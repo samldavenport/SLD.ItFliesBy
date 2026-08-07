@@ -1,7 +1,5 @@
 #pragma once
 
-#include "component-inverse-mass.cpp"
-#include "component-position.cpp"
 #include "component.hpp"
 #include "entity.cpp"
 #include "entity-component.cpp"
@@ -93,7 +91,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_position_update(e.index_sparse, pos);   
+            cmpnt_update_position(e.index_sparse, pos);   
         }
 
         return(can_update);
@@ -112,7 +110,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_velocity_update(e.index_sparse,vel);   
+            cmpnt_update_velocity(e.index_sparse,vel);   
         }
 
         return(can_update);
@@ -131,7 +129,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_acceleration_update(e.index_sparse, acc);
+            cmpnt_update_acceleration(e.index_sparse, acc);
         }
 
         return(can_update);
@@ -150,7 +148,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_term_velocity_update(e.index_sparse, tv);
+            cmpnt_update_term_velocity(e.index_sparse, tv);
         }
 
         return(can_update);
@@ -171,7 +169,7 @@ namespace ifb {
         if (can_update) {
 
             struct inv_mass im = {inv_mass};
-            cmpnt_table_inv_mass_update(e.index_sparse, im);
+            cmpnt_update_inv_mass(e.index_sparse, im);
         }
 
         return(can_update);
@@ -192,7 +190,7 @@ namespace ifb {
         if (can_update) {
 
             struct inv_mass im = {1 / mass};
-            cmpnt_table_inv_mass_update(e.index_sparse, im);
+            cmpnt_update_inv_mass(e.index_sparse, im);
         }
 
         return(can_update);
@@ -213,7 +211,7 @@ namespace ifb {
         if (can_update) {
 
             struct drag d = { drag };
-            cmpnt_table_drag_update(e.index_sparse, d);
+            cmpnt_update_drag(e.index_sparse, d);
         }
 
         return(can_update);
@@ -221,8 +219,8 @@ namespace ifb {
 
     IFB_ENGINE_API const bool
     eng_entity_update_quad(
-        const entity_id id,
-        const quad&     quad) {
+        const entity_id       id,
+        const quad_archetype& quad_atype) {
     
         assert(id != ENTITY_ID_INVALID); 
    
@@ -232,9 +230,14 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_quad_update     (e.index_sparse, quad.dimensions);
-            cmpnt_table_color_update    (e.index_sparse, quad.color);
-            cmpnt_table_position_update (e.index_sparse, quad.position);
+
+            quad q;
+            q.height = quad_atype.dimensions.height;
+            q.width  = quad_atype.dimensions.width;
+
+            cmpnt_update_quad     (e.index_sparse, q);
+            cmpnt_update_color    (e.index_sparse, quad_atype.color);
+            cmpnt_update_position (e.index_sparse, quad_atype.position);
         }
 
         return(can_update);
@@ -253,7 +256,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_table_color_update(e.index_sparse, color);
+            cmpnt_update_color(e.index_sparse, color);
         }
 
         return(can_update);

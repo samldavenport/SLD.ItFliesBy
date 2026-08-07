@@ -28,13 +28,13 @@ namespace ifb {
         assert(rig->connor_id != ENTITY_ID_INVALID);
         assert(rig->jig_id    != ENTITY_ID_INVALID);
 
-        quad quad_connor = {0};
+        quad_archetype quad_connor = {0};
         quad_connor.color.hex         = 0xB8BB26FF;     
         quad_connor.dimensions.width  = 0.2;
         quad_connor.dimensions.height = 0.2;
         quad_connor.position          = {0};
 
-        quad quad_jig    = {0};
+        quad_archetype quad_jig    = {0};
         quad_jig.color.hex         =  0x458588FF;     
         quad_jig.dimensions.width  =  0.1;
         quad_jig.dimensions.height =  0.1;

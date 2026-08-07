@@ -1,6 +1,7 @@
 #ifndef COLLECTIONS_INTERNAL_HPP
 #define COLLECTIONS_INTERNAL_HPP
 
+#include "ifb-config.hpp"
 #include "ifb.hpp"
 #include "memory.hpp"
 
@@ -34,6 +35,23 @@ namespace ifb {
         operator[](const u32 index) {
             return(_ids[index]);
         }
+    };
+    
+    //--------------------------------------------------------------------
+    // COMPONENT TABLE 
+    //--------------------------------------------------------------------
+   
+    template<typename t>
+    class component_table {
+    
+    private:
+        t* _cmpnt;
+
+    public:
+       
+        void stack_init (stack& s);
+        void lookup     (const u32 sparse_index, t&       cmpnt);
+        void update     (const u32 sparse_index, const t& cmpnt);
     };
 };
 

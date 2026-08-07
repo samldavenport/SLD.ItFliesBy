@@ -47,7 +47,7 @@ namespace ifb {
         inv_mass im;
         im.normal_val = 1.0f / mass;
 
-        cmpnt_table_inv_mass_update(sparse_index, im);
+        cmpnt_lookup_inv_mass(sparse_index, im);
     }
     
     IFB_INTERNAL void 
@@ -63,7 +63,7 @@ namespace ifb {
         inv_mass im;
         im.normal_val = 1.0f / i_mass;
 
-        cmpnt_table_inv_mass_update(sparse_index, im);
+        cmpnt_update_inv_mass(sparse_index, im);
     }
     
     IFB_INTERNAL void 
@@ -78,6 +78,6 @@ namespace ifb {
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
     
-        cmpnt_table_rigid_body_update(sparse_index,rb);
+        cmpnt_update_rigid_body(sparse_index,rb);
     }
 };

@@ -50,29 +50,16 @@ namespace ifb {
         _cmpnt_mngr->mem.init(mem_res);
 
         // create tables
-        _cmpnt_mngr->tables.position      = create_tbl_position      ();
-        _cmpnt_mngr->tables.color         = create_tbl_color         ();
-        _cmpnt_mngr->tables.quad          = create_tbl_quad          (); 
-        _cmpnt_mngr->tables.rigid_body    = create_tbl_rigid_body    ();
-        _cmpnt_mngr->tables.velocity      = create_tbl_velocity      ();
-        _cmpnt_mngr->tables.acceleration  = create_tbl_acceleration  ();
-        _cmpnt_mngr->tables.inv_mass      = create_tbl_inv_mass      ();
-        _cmpnt_mngr->tables.drag          = create_tbl_drag          ();
-        _cmpnt_mngr->tables.term_velocity = create_tbl_term_velocity ();
-        _cmpnt_mngr->tables.spring        = create_tbl_spring        ();
-
-        assert(
-            _cmpnt_mngr->tables.position      != NULL &&
-            _cmpnt_mngr->tables.color         != NULL &&            
-            _cmpnt_mngr->tables.quad          != NULL &&            
-            _cmpnt_mngr->tables.rigid_body    != NULL &&
-            _cmpnt_mngr->tables.velocity      != NULL &&
-            _cmpnt_mngr->tables.acceleration  != NULL &&
-            _cmpnt_mngr->tables.inv_mass      != NULL &&
-            _cmpnt_mngr->tables.drag          != NULL &&
-            _cmpnt_mngr->tables.term_velocity != NULL &&
-            _cmpnt_mngr->tables.spring        != NULL
-        );
+        _cmpnt_mngr->tbl.position.stack_init      (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.color.stack_init         (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.quad.stack_init          (_cmpnt_mngr->mem); 
+        _cmpnt_mngr->tbl.rigid_body.stack_init    (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.velocity.stack_init      (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.acceleration.stack_init  (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.inv_mass.stack_init      (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.drag.stack_init          (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.term_velocity.stack_init (_cmpnt_mngr->mem);
+        _cmpnt_mngr->tbl.spring.stack_init        (_cmpnt_mngr->mem);
     }
 
     //--------------------------------------------------------------------
