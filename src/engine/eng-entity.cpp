@@ -219,8 +219,8 @@ namespace ifb {
 
     IFB_ENGINE_API const bool
     eng_entity_update_quad(
-        const entity_id id,
-        const quad&     quad) {
+        const entity_id       id,
+        const quad_archetype& quad_atype) {
     
         assert(id != ENTITY_ID_INVALID); 
    
@@ -230,9 +230,14 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_update_quad     (e.index_sparse, quad.dimensions);
-            cmpnt_update_color    (e.index_sparse, quad.color);
-            cmpnt_update_position (e.index_sparse, quad.position);
+
+            quad q;
+            q.height = quad_atype.dimensions.height;
+            q.width  = quad_atype.dimensions.width;
+
+            cmpnt_update_quad     (e.index_sparse, q);
+            cmpnt_update_color    (e.index_sparse, quad_atype.color);
+            cmpnt_update_position (e.index_sparse, quad_atype.position);
         }
 
         return(can_update);
@@ -251,7 +256,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_color_update(e.index_sparse, color);
+            cmpnt_update_color(e.index_sparse, color);
         }
 
         return(can_update);

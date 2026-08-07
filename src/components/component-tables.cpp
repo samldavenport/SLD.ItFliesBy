@@ -28,7 +28,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_lookup_quad          (
         const u32 sparse_index,
-        dimensions_2d& dims) {
+        quad& q) {
   
         _cmpnt_mngr->tbl.quad.lookup(sparse_index, q);     
     }

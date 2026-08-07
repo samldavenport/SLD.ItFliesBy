@@ -1,8 +1,7 @@
 #pragma once
 
 #include "collections-internal.hpp"
-#include "component-position.cpp"
-#include "component-spring.cpp"
+#include "component-tables.cpp"
 #include "ifb-component.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
@@ -135,13 +134,13 @@ namespace ifb {
             const u32       spring_sparse_index = entity_lookup_sparse_index(spring_id);
            
             // look up the spring info
-            cmpnt_table_position_lookup (spring_sparse_index, pos_spr);
+            cmpnt_lookup_position (spring_sparse_index, pos_spr);
             cmpnt_lookup_spring   (spring_sparse_index, spr);
            
             // look up the anchor info
             const u32 anchor_sparse_index = entity_lookup_sparse_index(spr.anchor);
             assert(anchor_sparse_index != INVALID_INDEX);
-            cmpnt_table_position_lookup(anchor_sparse_index, pos_anchor);
+            cmpnt_lookup_position(anchor_sparse_index, pos_anchor);
 
             // save the info in the calculator
             const u32 spring_index = calc.count;

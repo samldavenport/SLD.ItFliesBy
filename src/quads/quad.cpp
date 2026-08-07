@@ -32,9 +32,13 @@ namespace ifb {
         q.index_sparse = e.index_sparse;
         q.index_dense  = e.index_dense;
 
+        quad q_;
         cmpnt_lookup_position (q.index_sparse, q.pos);
         cmpnt_lookup_color    (q.index_sparse, q.color);
-        cmpnt_lookup_quad     (q.index_sparse, q.dims);
+        cmpnt_lookup_quad     (q.index_sparse, q_);
+
+        q.dims.width  = q_.width;
+        q.dims.height = q_.height;
 
         return(true);
     }
@@ -49,9 +53,12 @@ namespace ifb {
             q.tag                                 != NULL 
         );
 
+        quad q_;
+        q_.width  = q.dims.width;
+        q_.height = q.dims.height;
         cmpnt_update_position (q.index_sparse, q.pos);
         cmpnt_update_color    (q.index_sparse, q.color);
-        cmpnt_update_quad     (q.index_sparse, q.dims);
+        cmpnt_update_quad     (q.index_sparse, q_);
     }
 
     IFB_INTERNAL void
@@ -64,9 +71,7 @@ namespace ifb {
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
         
-        cmpnt_update_position (sparse_index, q.position);
-        cmpnt_update_color    (sparse_index, q.color);
-        cmpnt_update_quad     (sparse_index, q.dimensions);
+        cmpnt_update_quad     (sparse_index, q);
     }
 
     IFB_INTERNAL bool

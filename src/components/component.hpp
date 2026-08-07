@@ -48,7 +48,7 @@ namespace ifb {
     
     IFB_INTERNAL void        cmpnt_lookup_position      (const u32 sparse_index, position_3d&      pos);
     IFB_INTERNAL void        cmpnt_lookup_color         (const u32 sparse_index, color_rgba_u32&   clr);
-    IFB_INTERNAL void        cmpnt_lookup_quad          (const u32 sparse_index, dimensions_2d&    q);
+    IFB_INTERNAL void        cmpnt_lookup_quad          (const u32 sparse_index, quad&    q);
     IFB_INTERNAL void        cmpnt_lookup_rigid_body    (const u32 sparse_index, rigid_body&       rb);
     IFB_INTERNAL void        cmpnt_lookup_velocity      (const u32 sparse_index, velocity_3d&      vel);
     IFB_INTERNAL void        cmpnt_lookup_acceleration  (const u32 sparse_index, acceleration_3d&  acc);
@@ -59,7 +59,7 @@ namespace ifb {
 
     IFB_INTERNAL void        cmpnt_update_position      (const u32 sparse_index, const position_3d&      pos);
     IFB_INTERNAL void        cmpnt_update_color         (const u32 sparse_index, const color_rgba_u32&   clr);
-    IFB_INTERNAL void        cmpnt_update_quad          (const u32 sparse_index, const dimensions_2d&    dims);
+    IFB_INTERNAL void        cmpnt_update_quad          (const u32 sparse_index, const quad& q);
     IFB_INTERNAL void        cmpnt_update_rigid_body    (const u32 sparse_index, const rigid_body&       rb);
     IFB_INTERNAL void        cmpnt_update_velocity      (const u32 sparse_index, const velocity_3d&      vel);
     IFB_INTERNAL void        cmpnt_update_acceleration  (const u32 sparse_index, const acceleration_3d&  acc);

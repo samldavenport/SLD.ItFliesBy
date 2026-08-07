@@ -85,10 +85,15 @@ namespace ifb {
         f32 depth;
     };
 
-    struct quad {
+    struct quad_archetype {
         position_3d    position;
         dimensions_2d  dimensions;
         color_rgba_u32 color;
+    };
+
+    struct quad {
+        f32 width;
+        f32 height;
     };
 
     struct rigid_body {
