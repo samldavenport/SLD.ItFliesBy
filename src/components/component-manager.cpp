@@ -18,6 +18,7 @@ namespace ifb {
     IFB_INLINE cmpnt_table_inv_mass*      create_tbl_inv_mass      (void);
     IFB_INLINE cmpnt_table_drag*          create_tbl_drag          (void);
     IFB_INLINE cmpnt_table_term_velocity* create_tbl_term_velocity (void);
+    IFB_INLINE cmpnt_table_spring*        create_tbl_spring        (void);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -58,6 +59,7 @@ namespace ifb {
         _cmpnt_mngr->tables.inv_mass      = create_tbl_inv_mass      ();
         _cmpnt_mngr->tables.drag          = create_tbl_drag          ();
         _cmpnt_mngr->tables.term_velocity = create_tbl_term_velocity ();
+        _cmpnt_mngr->tables.spring        = create_tbl_spring        ();
 
         assert(
             _cmpnt_mngr->tables.position      != NULL &&
@@ -68,7 +70,8 @@ namespace ifb {
             _cmpnt_mngr->tables.acceleration  != NULL &&
             _cmpnt_mngr->tables.inv_mass      != NULL &&
             _cmpnt_mngr->tables.drag          != NULL &&
-            _cmpnt_mngr->tables.term_velocity != NULL
+            _cmpnt_mngr->tables.term_velocity != NULL &&
+            _cmpnt_mngr->tables.spring        != NULL
         );
     }
 
@@ -260,6 +263,30 @@ namespace ifb {
         tbl->x = col_x;
         tbl->y = col_y;
         tbl->z = col_z;
+
+        return(tbl);
+    }
+
+    IFB_INLINE cmpnt_table_spring*
+    create_tbl_spring(
+        void) {
+
+        auto tbl    = _cmpnt_mngr->mem.push_struct<cmpnt_table_spring>();
+        auto anchor = _cmpnt_mngr->mem.push_struct<entity_id> (_cmpnt_mngr->capacity);
+        auto stiff  = _cmpnt_mngr->mem.push_struct<f32>       (_cmpnt_mngr->capacity);
+        auto damp   = _cmpnt_mngr->mem.push_struct<f32>       (_cmpnt_mngr->capacity);
+        auto rest   = _cmpnt_mngr->mem.push_struct<f32>       (_cmpnt_mngr->capacity);
+
+        assert(tbl    != NULL);
+        assert(anchor != NULL);
+        assert(stiff  != NULL);
+        assert(damp   != NULL);
+        assert(rest   != NULL);
+
+        tbl->anchor      = anchor;
+        tbl->stiffness   = stiff;
+        tbl->damping     = damp;
+        tbl->rest_length = rest;
 
         return(tbl);
     }

@@ -43,6 +43,7 @@ namespace ifb {
     struct quad;
     struct strong_u32;
     struct rigid_body;
+    struct spring;
 
     using position_3d      = vec3;
     using velocity_3d      = vec3;
@@ -112,9 +113,17 @@ namespace ifb {
         drag            drg;
     };
 
+    struct spring {
+        entity_id id;
+        entity_id anchor;
+        f32       stiffness;
+        f32       damping;
+        f32       rest_length;
+    };
+
     struct flags {
 
-        s32 val;
+            s32 val;
 
         flags() = default;
         flags(s32 v) : val(v) { }

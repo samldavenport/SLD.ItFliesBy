@@ -18,6 +18,7 @@
 #include "component-inverse-mass.cpp"
 #include "component-drag.cpp"
 #include "component-term-velocity.cpp"
+#include "component-spring.cpp"
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"
@@ -55,6 +56,7 @@
 #include "physics-accumulator.cpp"
 #include "physics-entity.cpp"
 #include "physics-integrator.cpp"
+#include "physics-spring.cpp"
 
 #include "quad.cpp"
 #include "quad-manager.cpp"
