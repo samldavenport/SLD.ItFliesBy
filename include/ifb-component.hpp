@@ -17,7 +17,8 @@ namespace ifb {
         cmpnt_type_e_acceleration  = 6,
         cmpnt_type_e_inv_mass      = 7,
         cmpnt_type_e_drag          = 8,
-        cmpnt_type_e_term_velocity = 9
+        cmpnt_type_e_term_velocity = 9,
+        cmpnt_type_e_spring        = 10
     };
 
 };

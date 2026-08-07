@@ -47,6 +47,8 @@ namespace ifb {
 
     IFB_INTERNAL void                 physics_integrate_forces        (const f32 dt, arena* a);
 
+    IFB_INTERNAL void                 physics_spring_calculate_forces (arena* a);
+
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------

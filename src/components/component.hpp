@@ -22,6 +22,7 @@ namespace ifb {
     struct cmpnt_table_inv_mass;
     struct cmpnt_table_drag;
     struct cmpnt_table_term_velocity;
+    struct cmpnt_table_spring;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -72,6 +73,11 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_table_term_velocity_update   (const u32 sparse_index, const term_velocity_3d& tv);
     IFB_INTERNAL void        cmpnt_table_term_velocity_lookup   (const u32 sparse_index, term_velocity_3d&       tv);
 
+    IFB_INTERNAL void        cmpnt_table_spring_validate (void);
+    IFB_INTERNAL void        cmpnt_table_spring_update   (const u32 sparse_index, const spring& s);
+    IFB_INTERNAL void        cmpnt_table_spring_lookup   (const u32 sparse_index, spring&       s);
+    
+
     //--------------------------------------------------------------------
     // COMPONENT MANAGER
     //--------------------------------------------------------------------
@@ -89,6 +95,7 @@ namespace ifb {
             cmpnt_table_inv_mass*      inv_mass;
             cmpnt_table_drag*          drag;
             cmpnt_table_term_velocity* term_velocity;
+            cmpnt_table_spring*        spring;
         } tables;
     };
 
@@ -143,6 +150,13 @@ namespace ifb {
         f32* x;
         f32* y;
         f32* z;
+    };
+
+    struct cmpnt_table_spring {
+        entity_id* anchor;
+        f32*       stiffness;
+        f32*       damping;
+        f32*       rest_length;
     };
 };
 
