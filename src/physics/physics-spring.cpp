@@ -110,7 +110,7 @@ namespace ifb {
 
         entity_query query = { 0 };
         query.has_all = (
-            cmpnt_type_e_position &&
+            cmpnt_type_e_position |
             cmpnt_type_e_spring
         );
 
