@@ -1,10 +1,10 @@
 #pragma once
 
+#include "ifb-component.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
 #include "ifb-types.hpp"
 #include "ifb-entity.hpp"
-#include "ifb-component.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -24,11 +24,13 @@ namespace ifb {
 
         assert(rig); 
     
-        rig->connor_id = eng_entity_create("CONNOR");
-        rig->jig_id    = eng_entity_create("JIG");
+        rig->connor_id     = eng_entity_create("CONNOR");
+        rig->jig_id        = eng_entity_create("JIG");
+        rig->jig_anchor_id = eng_entity_create("JIG-ANCHOR");
 
-        assert(rig->connor_id != ENTITY_ID_INVALID);
-        assert(rig->jig_id    != ENTITY_ID_INVALID);
+        assert(rig->connor_id     != ENTITY_ID_INVALID);
+        assert(rig->jig_id        != ENTITY_ID_INVALID);
+        assert(rig->jig_anchor_id != ENTITY_ID_INVALID);
 
         quad_archetype quad_connor = {0};
         quad_connor.color.hex         = 0xB8BB26FF;     
@@ -48,18 +50,22 @@ namespace ifb {
         tv.x = 1.00f;
         tv.y = 1.00f;
         tv.z = 1.00f;
-       
+      
+        spring jig_spring;
+        jig_spring.id          = rig->jig_id;
+        jig_spring.anchor      = rig->jig_anchor_id;
+        jig_spring.stiffness   = 20.0f;
+        jig_spring.damping     = 5.0f;
+        jig_spring.rest_length = 0.001f;
+
+        position_3d anchor_pos;
+        anchor_pos.x = -0.175f;
+        anchor_pos.y =  0.1f;
+        anchor_pos.z =  0.0f;
+                    
         const f32 inv_mass = 0.50f;
         const f32 drag     = 0.01f;
-       
-        spring spr;
-        spr.id          = rig->jig_id;
-        spr.anchor      = rig->connor_id;
-        spr.rest_length = 0.1f;
-        spr.stiffness   = 20.0f;
-        spr.damping     = 5.0f;
-            
-
+        
         eng_entity_add_components       (rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
         eng_entity_update_quad          (rig->connor_id, quad_connor);
         eng_entity_update_inv_mass      (rig->connor_id, inv_mass);
@@ -72,7 +78,10 @@ namespace ifb {
         eng_entity_update_inv_mass      (rig->jig_id, inv_mass);
         eng_entity_update_drag          (rig->jig_id, drag); 
         eng_entity_update_term_velocity (rig->jig_id, tv);
-        eng_entity_update_spring        (rig->jig_id,    spr); 
+        eng_entity_update_spring        (rig->jig_id, jig_spring);
+
+        eng_entity_add_components       (rig->jig_anchor_id, cmpnt_type_e_position);
+        eng_entity_update_position      (rig->jig_anchor_id, anchor_pos);
     }
     
     IFB_INTERNAL void
@@ -92,6 +101,21 @@ namespace ifb {
         if (move_right) connor_force.x += 10.0f;
         if (move_up)    connor_force.y += 10.0f;
         if (move_down)  connor_force.y -= 10.0f;
+
+        position_3d pos_anchor;
+        position_3d pos_connor;
+
+        if (
+            eng_entity_lookup_position(rig->jig_anchor_id, pos_anchor) &&
+            eng_entity_lookup_position(rig->connor_id,     pos_connor) 
+        ){
+           pos_anchor.x = pos_connor.x - 0.175f;
+           pos_anchor.y = pos_connor.y + 0.100f;
+           pos_anchor.z = 0.0f;
+
+           assert(eng_entity_update_position(rig->jig_anchor_id, pos_anchor));
+        }
+
 
         eng_entity_add_force (rig->connor_id, connor_force);
         eng_entity_render    (rig->connor_id);

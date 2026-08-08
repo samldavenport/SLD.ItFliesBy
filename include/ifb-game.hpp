@@ -9,6 +9,7 @@ namespace ifb {
     struct player_rig {
         entity_id connor_id;
         entity_id jig_id;
+        entity_id jig_anchor_id;
     }; 
 
     struct game_context {

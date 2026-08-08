@@ -188,6 +188,8 @@ namespace ifb {
         vec3 delta;
         vec3 direction;
         vec3 spring_force;
+        vec3 vel;
+        
         for (
             u32 index = 0;
                 index < calc.count;
@@ -203,23 +205,21 @@ namespace ifb {
             const f32 distance  = vec3_magnitude(delta);
             if (distance < 0.001) continue;
 
-            const f32 extension     = distance - calc.rest_length[index]; 
-            const f32 spring_scalar = calc.stiffness[index] * extension;
-            direction               = vec3_scalar_multiply(delta, 1.0f / distance);
-
-            // calculate the velocity along the spring
-            vec3 vel;
-            vel.x = calc.vel_spring_x[index];
-            vel.y = calc.vel_spring_y[index];
-            vel.z = calc.vel_spring_z[index];
+            // calculate the direction and velocity along the spring
+            direction = vec3_scalar_multiply(delta, 1.0f / distance);
+            vel.x     = calc.vel_spring_x[index];
+            vel.y     = calc.vel_spring_y[index];
+            vel.z     = calc.vel_spring_z[index];
             const f32 vel_along_spring = vec3_dot(vel, direction); 
 
-            // calculate the damping scalar
+            // calculate the damping and force scalars
+            const f32 extension      = distance - calc.rest_length[index]; 
+            const f32 spring_scalar  = calc.stiffness[index] * extension;
+            const f32 damping_scalar = -calc.damping[index] * vel_along_spring;
+            const f32 force_scalar   = spring_scalar + damping_scalar;  
 
-
-
-            spring_force = vec3_scalar_multiply(direction, spring_scalar); 
-       
+            // calculate the spring force and add it to the entity
+            spring_force = vec3_scalar_multiply(direction, force_scalar); 
             physics_entity_add_force(calc.spring_id[index], spring_force);
         }
     }
