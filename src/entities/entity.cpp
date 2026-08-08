@@ -269,7 +269,7 @@ namespace ifb {
         const entity&        e,
         const component_type type) {
 
-        const bool has_cmpnt = (e.archetype | type) != 0;
+        const bool has_cmpnt = (e.archetype & type) == type;
         return(has_cmpnt);
     }
 };
