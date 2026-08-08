@@ -62,7 +62,7 @@ namespace ifb {
             // add the values 
             _entity_mngr->data.dense.id           [dense_index]  = id;
             _entity_mngr->data.dense.tag          [dense_index]  = tag;
-            _entity_mngr->data.dense.archetype    [dense_index]  = 0;
+            _entity_mngr->data.dense.archetype    [dense_index].reset();
             _entity_mngr->data.dense.sparse_index [dense_index]  = sparse_index;
             _entity_mngr->data.sparse.dense_index [sparse_index] = dense_index;
 
@@ -85,7 +85,7 @@ namespace ifb {
         entity e;
         const bool did_find = entity_lookup_by_id(e, id);
         if (did_find) {
-            _entity_mngr->data.dense.archetype[e.index_dense].val |= atype.val;
+            _entity_mngr->data.dense.archetype[e.index_dense].add(atype.cmpnt_mask);
         }
         return(did_find);
     }
@@ -100,7 +100,7 @@ namespace ifb {
         entity e;
         const bool did_find = entity_lookup_by_id(e, id);
         if (did_find) {
-            _entity_mngr->data.dense.archetype[e.index_dense].val &= ~atype.val;
+            _entity_mngr->data.dense.archetype[e.index_dense].remove(atype.cmpnt_mask);
         }
         return(did_find);
     }
@@ -269,7 +269,7 @@ namespace ifb {
         const entity&        e,
         const component_type type) {
 
-        const bool has_cmpnt = (e.archetype & type) == type;
+        const bool has_cmpnt = e.archetype.has_any(type);
         return(has_cmpnt);
     }
 };

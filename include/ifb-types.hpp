@@ -58,7 +58,6 @@ namespace ifb {
 
     IFB_U32(handle);
     IFB_U32(entity_id);
-    IFB_U32(entity_archetype);
     IFB_U32(component_type);
 
     //--------------------------------------------------------------------

@@ -15,11 +15,10 @@ namespace ifb {
 
         assert(id != ENTITY_ID_INVALID);
 
-
         entity e;
         const bool found_entity = (
             entity_lookup_by_id(e, id) &&
-            (e.archetype & ENTITY_ARCHETYPE_QUAD.val) == ENTITY_ARCHETYPE_QUAD.val 
+            e.archetype.has_all(ENTITY_ARCHETYPE_QUAD)
         );
 
         if (!found_entity) {
@@ -48,9 +47,9 @@ namespace ifb {
 	const quad_entity& q) {
 
         assert(
-            (q.archetype & ENTITY_ARCHETYPE_QUAD) == ENTITY_ARCHETYPE_QUAD &&
-            q.id                                  != ENTITY_ID_INVALID     &&
-            q.tag                                 != NULL 
+            q.archetype.has_all(ENTITY_ARCHETYPE_QUAD) &&
+            q.id  != ENTITY_ID_INVALID                 &&
+            q.tag != NULL 
         );
 
         quad q_;
@@ -81,7 +80,7 @@ namespace ifb {
         entity e;
         const bool does_exist = (
             entity_lookup_by_id(e, id) &&
-            (e.archetype & ENTITY_ARCHETYPE_QUAD.val) == ENTITY_ARCHETYPE_QUAD.val 
+            e.archetype.has_all(ENTITY_ARCHETYPE_QUAD)
         );
 
         return(does_exist);

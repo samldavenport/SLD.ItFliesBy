@@ -66,13 +66,13 @@ namespace ifb {
         const f32 inv_mass = 0.50f;
         const f32 drag     = 0.01f;
         
-        eng_entity_add_components       (rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
+        eng_entity_add_components       (rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
         eng_entity_update_quad          (rig->connor_id, quad_connor);
         eng_entity_update_inv_mass      (rig->connor_id, inv_mass);
         eng_entity_update_drag          (rig->connor_id, drag); 
         eng_entity_update_term_velocity (rig->connor_id, tv);
 
-        eng_entity_add_components       (rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
+        eng_entity_add_components       (rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
         eng_entity_add_components       (rig->jig_id, cmpnt_type_e_spring);
         eng_entity_update_quad          (rig->jig_id, quad_jig);
         eng_entity_update_inv_mass      (rig->jig_id, inv_mass);

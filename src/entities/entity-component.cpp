@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity.hpp"
+#include "component.hpp"
 
 namespace ifb {
 
@@ -17,8 +18,7 @@ namespace ifb {
 
             did_update = (id == _entity_mngr->data.dense.id[index]);
             if (did_update) {
-
-                _entity_mngr->data.dense.archetype[index] |= types;
+                _entity_mngr->data.dense.archetype[index].add(types);
                 break;
             }
         }
@@ -50,8 +50,7 @@ namespace ifb {
 
             did_update = (id == _entity_mngr->data.dense.id[index]);
             if (did_update) {
-
-                _entity_mngr->data.dense.archetype[index] &= ~types.val;
+                _entity_mngr->data.dense.archetype[index].remove(types);
                 break;
             }
         }
