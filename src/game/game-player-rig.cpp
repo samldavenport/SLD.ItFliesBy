@@ -54,8 +54,8 @@ namespace ifb {
         spring jig_spring;
         jig_spring.id          = rig->jig_id;
         jig_spring.anchor      = rig->jig_anchor_id;
-        jig_spring.stiffness   = 20.0f;
-        jig_spring.damping     = 5.0f;
+        jig_spring.stiffness   = 40.0f;
+        jig_spring.damping     = 5.0f; 
         jig_spring.rest_length = 0.001f;
 
         position_3d anchor_pos;
@@ -90,35 +90,32 @@ namespace ifb {
 
         player_rig_validate(rig);     
 
-        vec3 connor_force = {0};
-
+        // get plaer input
         const bool move_left  = eng_input_is_key_down (input_keycode_e_a);
         const bool move_right = eng_input_is_key_down (input_keycode_e_d);
         const bool move_up    = eng_input_is_key_down (input_keycode_e_w);
         const bool move_down  = eng_input_is_key_down (input_keycode_e_s);
 
+        // add movement forces to connor
+        vec3 connor_force = {0};
         if (move_left)  connor_force.x -= 10.0f;
         if (move_right) connor_force.x += 10.0f;
         if (move_up)    connor_force.y += 10.0f;
         if (move_down)  connor_force.y -= 10.0f;
+        eng_entity_add_force (rig->connor_id, connor_force);
 
+        // move jig's anchor point to follow connor
         position_3d pos_anchor;
         position_3d pos_connor;
+        assert(eng_entity_lookup_position(rig->jig_anchor_id, pos_anchor));
+        assert(eng_entity_lookup_position(rig->connor_id,     pos_connor)); 
+        pos_anchor.x = pos_connor.x - 0.175f;
+        pos_anchor.y = pos_connor.y + 0.100f;
+        pos_anchor.z = 0.0f;
+        assert(eng_entity_update_position(rig->jig_anchor_id, pos_anchor));
 
-        if (
-            eng_entity_lookup_position(rig->jig_anchor_id, pos_anchor) &&
-            eng_entity_lookup_position(rig->connor_id,     pos_connor) 
-        ){
-           pos_anchor.x = pos_connor.x - 0.175f;
-           pos_anchor.y = pos_connor.y + 0.100f;
-           pos_anchor.z = 0.0f;
-
-           assert(eng_entity_update_position(rig->jig_anchor_id, pos_anchor));
-        }
-
-
-        eng_entity_add_force (rig->connor_id, connor_force);
-        eng_entity_render    (rig->connor_id);
-        eng_entity_render    (rig->jig_id);
+        // render quads
+        eng_entity_render(rig->connor_id);
+        eng_entity_render(rig->jig_id);
     }
 };
