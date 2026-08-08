@@ -12,7 +12,7 @@ using namespace sld;
 #define IFB_CONFIG_WINDOW_START_WIDTH        1024
 #define IFB_CONFIG_WINDOW_START_HEIGHT       768
 #define IFB_CONFIG_WINDOW_MAX_KEYS           8
-#define IFB_CONFIG_DEFAULT_FPS               60 
+#define IFB_CONFIG_DEFAULT_FPS               240 
 #define IFB_CONFIG_MEMORY_RES_SIZE_CORE      size_megabytes(64);
 #define IFB_CONFIG_MEMORY_RES_SIZE_FILES     size_megabytes(64);
 #define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING size_megabytes(64);
