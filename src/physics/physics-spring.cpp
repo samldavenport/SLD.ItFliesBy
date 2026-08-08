@@ -24,6 +24,9 @@ namespace ifb {
         f32*       pos_anchor_x;
         f32*       pos_anchor_y;
         f32*       pos_anchor_z;
+        f32*       vel_spring_x;
+        f32*       vel_spring_y;
+        f32*       vel_spring_z;
         f32*       stiffness;
         f32*       damping;
         f32*       rest_length;
@@ -73,6 +76,9 @@ namespace ifb {
         calc.pos_anchor_x = arena_push<f32>       (a, calc.capacity);
         calc.pos_anchor_y = arena_push<f32>       (a, calc.capacity);
         calc.pos_anchor_z = arena_push<f32>       (a, calc.capacity);
+        calc.vel_spring_x = arena_push<f32>       (a, calc.capacity);
+        calc.vel_spring_y = arena_push<f32>       (a, calc.capacity);
+        calc.vel_spring_z = arena_push<f32>       (a, calc.capacity);
         calc.stiffness    = arena_push<f32>       (a, calc.capacity);
         calc.damping      = arena_push<f32>       (a, calc.capacity);
         calc.rest_length  = arena_push<f32>       (a, calc.capacity);
@@ -85,6 +91,9 @@ namespace ifb {
             calc.pos_anchor_x != NULL && 
             calc.pos_anchor_y != NULL && 
             calc.pos_anchor_z != NULL && 
+            calc.vel_spring_x != NULL && 
+            calc.vel_spring_y != NULL && 
+            calc.vel_spring_z != NULL && 
             calc.stiffness    != NULL && 
             calc.damping      != NULL && 
             calc.rest_length  != NULL 
@@ -124,6 +133,7 @@ namespace ifb {
         spring spr;     
         position_3d pos_spr;
         position_3d pos_anchor;
+        velocity_3d vel_spr;
         for (
             u32 entity_index = 0;
                 entity_index < list.count();
@@ -136,6 +146,7 @@ namespace ifb {
             // look up the spring info
             cmpnt_lookup_position (spring_sparse_index, pos_spr);
             cmpnt_lookup_spring   (spring_sparse_index, spr);
+            cmpnt_lookup_velocity (spring_sparse_index, vel_spr);
            
             // look up the anchor info
             const u32 anchor_sparse_index = entity_lookup_sparse_index(spr.anchor);
@@ -151,6 +162,9 @@ namespace ifb {
             calc.pos_anchor_x [spring_index] = pos_anchor.x;
             calc.pos_anchor_y [spring_index] = pos_anchor.y;
             calc.pos_anchor_z [spring_index] = pos_anchor.z;
+            calc.vel_spring_x [spring_index] = vel_spr.x;
+            calc.vel_spring_y [spring_index] = vel_spr.y;
+            calc.vel_spring_z [spring_index] = vel_spr.z;
             calc.stiffness    [spring_index] = spr.stiffness;
             calc.damping      [spring_index] = spr.damping;
             calc.rest_length  [spring_index] = spr.rest_length;
@@ -179,20 +193,32 @@ namespace ifb {
                 index < calc.count;
               ++index
         ) {
-     
+    
+            // calculate difference between anchor and spring positions
             delta.x = calc.pos_anchor_x[index] - calc.pos_spring_x[index];
             delta.y = calc.pos_anchor_y[index] - calc.pos_spring_y[index];
             delta.z = calc.pos_anchor_z[index] - calc.pos_spring_z[index];
 
+            // calculate the distance between anchor and spring
             const f32 distance  = vec3_magnitude(delta);
-            if (distance < 0.001) {
-                continue;
-            }
-            const f32 extension = distance - calc.rest_length[index]; 
-            const f32 scalar    = calc.stiffness[index] * extension;
-            
-            direction    = vec3_scalar_multiply(delta, 1.0f / distance);
-            spring_force = vec3_scalar_multiply(direction, scalar); 
+            if (distance < 0.001) continue;
+
+            const f32 extension     = distance - calc.rest_length[index]; 
+            const f32 spring_scalar = calc.stiffness[index] * extension;
+            direction               = vec3_scalar_multiply(delta, 1.0f / distance);
+
+            // calculate the velocity along the spring
+            vec3 vel;
+            vel.x = calc.vel_spring_x[index];
+            vel.y = calc.vel_spring_y[index];
+            vel.z = calc.vel_spring_z[index];
+            const f32 vel_along_spring = vec3_dot(vel, direction); 
+
+            // calculate the damping scalar
+
+
+
+            spring_force = vec3_scalar_multiply(direction, spring_scalar); 
        
             physics_entity_add_force(calc.spring_id[index], spring_force);
         }

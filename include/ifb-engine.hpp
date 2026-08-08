@@ -132,6 +132,7 @@ namespace ifb {
     IFB_ENGINE_API const bool   eng_entity_update_drag          (const entity_id id, const f32               drag);
     IFB_ENGINE_API const bool   eng_entity_update_quad          (const entity_id id, const quad_archetype&   quad);
     IFB_ENGINE_API const bool   eng_entity_update_color         (const entity_id id, const color_rgba_u32&   color);
+    IFB_ENGINE_API const bool   eng_entity_update_spring        (const entity_id id, const spring&           spr);
     IFB_ENGINE_API const bool   eng_entity_render               (const entity_id id);
     IFB_ENGINE_API const bool   eng_entity_add_force            (const entity_id id, const vec3& force);
 

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "ifb-engine.hpp"
 #include "ifb-game.hpp"
 #include "ifb-types.hpp"
 #include "ifb-entity.hpp"
+#include "ifb-component.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -49,7 +51,15 @@ namespace ifb {
        
         const f32 inv_mass = 0.50f;
         const f32 drag     = 0.01f;
-        
+       
+        spring spr;
+        spr.id          = rig->jig_id;
+        spr.anchor      = rig->connor_id;
+        spr.rest_length = 0.1f;
+        spr.stiffness   = 20.0f;
+        spr.damping     = 5.0f;
+            
+
         eng_entity_add_components       (rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
         eng_entity_update_quad          (rig->connor_id, quad_connor);
         eng_entity_update_inv_mass      (rig->connor_id, inv_mass);
@@ -57,10 +67,12 @@ namespace ifb {
         eng_entity_update_term_velocity (rig->connor_id, tv);
 
         eng_entity_add_components       (rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD.val);
+        eng_entity_add_components       (rig->jig_id, cmpnt_type_e_spring);
         eng_entity_update_quad          (rig->jig_id, quad_jig);
         eng_entity_update_inv_mass      (rig->jig_id, inv_mass);
         eng_entity_update_drag          (rig->jig_id, drag); 
         eng_entity_update_term_velocity (rig->jig_id, tv);
+        eng_entity_update_spring        (rig->jig_id,    spr); 
     }
     
     IFB_INTERNAL void

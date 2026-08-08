@@ -75,7 +75,7 @@ namespace ifb {
         auto phys_mem = _phys_mngr->memory;
 
         arena_reset                     (phys_mem->simulation_arena);
-        //physics_spring_calculate_forces (phys_mem->simulation_arena); 
+        physics_spring_calculate_forces (phys_mem->simulation_arena); 
         physics_integrate_forces        (dt, phys_mem->simulation_arena);
         physics_accumulator_reset       (_phys_mngr->force_accumulator);
     }
