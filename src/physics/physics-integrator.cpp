@@ -127,13 +127,13 @@ namespace ifb {
         physics_force_integrator& i,
         physics_accumulator*      a) {
         
-        const entity_archetype archetype = (
-            cmpnt_type_e_position     |
-            cmpnt_type_e_velocity     |
-            cmpnt_type_e_acceleration |
-            cmpnt_type_e_inv_mass     |
-            cmpnt_type_e_drag         |
-            cmpnt_type_e_term_velocity
+        const component_type physics_types = (
+            cmpnt_type_e_position       |
+            cmpnt_type_e_velocity       |
+            cmpnt_type_e_acceleration   |
+            cmpnt_type_e_inv_mass       |
+            cmpnt_type_e_drag           |
+            cmpnt_type_e_term_velocity 
         );
 
         for (
@@ -148,7 +148,7 @@ namespace ifb {
             assert(did_lookup);
 
             // make sure it matches the archetype for integration
-            const bool should_integrate = (e.archetype & archetype) == archetype;
+            const bool should_integrate = e.archetype.has_all(physics_types);
             if (!should_integrate) continue;
 
             // look up the components

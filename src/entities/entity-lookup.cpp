@@ -22,9 +22,9 @@ namespace ifb {
 
             const entity_archetype curr_atype = _entity_mngr->data.dense.archetype [dense_index];
             const entity_id        curr_id    = _entity_mngr->data.dense.id        [dense_index];
-            const bool             has_all    = ((curr_atype & query.has_all) == query.has_all);
-            const bool             has_any    = ((curr_atype & query.has_any) != 0 || (query.has_any == 0));
-            const bool             has_none   = ((curr_atype & query.has_none) == 0);
+            const bool             has_all    = curr_atype.has_all(query.has_all);
+            const bool             has_any    = curr_atype.has_any(query.has_any) || (query.has_any == 0);
+            const bool             has_none   = curr_atype.has_none(query.has_none);
             const bool             is_match   = (
                 has_all &&
                 has_any &&
@@ -123,7 +123,7 @@ namespace ifb {
 
         assert(id != ENTITY_ID_INVALID);
 
-        entity_archetype atype = 0;
+        entity_archetype atype = { 0 };
 
         for (
             u32 i = 0;

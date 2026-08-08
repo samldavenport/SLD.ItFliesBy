@@ -10,13 +10,13 @@ namespace ifb {
     // ENTITY ARCHETYPES 
     //--------------------------------------------------------------------
 
-    static const entity_archetype ENTITY_ARCHETYPE_QUAD = (
+    static const component_type ENTITY_ARCHETYPE_QUAD = (
         cmpnt_type_e_position |
         cmpnt_type_e_color    |
         cmpnt_type_e_quad
     );
 
-    static const entity_archetype ENTITY_ARCHETYPE_PHYSICS_PARTICLE = (
+    static const component_type ENTITY_ARCHETYPE_PHYSICS_PARTICLE = (
         cmpnt_type_e_position     |
         cmpnt_type_e_rigid_body   |
         cmpnt_type_e_velocity     |
@@ -26,7 +26,7 @@ namespace ifb {
         cmpnt_type_e_term_velocity 
     );
 
-    static const entity_archetype ENTITY_ARCHETYPE_PHYSICS_QUAD = (
+    static const component_type ENTITY_ARCHETYPE_PHYSICS_QUAD = (
         ENTITY_ARCHETYPE_QUAD | 
         ENTITY_ARCHETYPE_PHYSICS_PARTICLE 
     );
@@ -62,6 +62,33 @@ namespace ifb {
 
             const entity_id id = hash_u32((void*)this->cstr, ENTITY_TAG_SIZE);
             return(id);
+        }
+    };
+
+    struct entity_archetype {
+
+        component_type cmpnt_mask;
+
+        entity_archetype(void) = default;
+        entity_archetype(const component_type val) : cmpnt_mask(val) {}
+
+        inline void reset(void) {
+            cmpnt_mask = 0;
+        }
+
+        inline bool has_any  (const component_type types) const { return((cmpnt_mask & types) !=  0);    } 
+        inline bool has_all  (const component_type types) const { return((cmpnt_mask & types) == types); } 
+        inline bool has_none (const component_type types) const { return((cmpnt_mask & types) == 0);     } 
+    
+        inline void 
+        add(const component_type types) {
+
+            cmpnt_mask |= types;
+        }
+
+        inline void
+        remove(const component_type types) {
+            cmpnt_mask &= ~types.val;
         }
     };
 

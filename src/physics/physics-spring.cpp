@@ -107,11 +107,6 @@ namespace ifb {
         spring_calculator& calc,
         arena* a) {
 
-        const entity_archetype atype = (
-            cmpnt_type_e_position &&
-            cmpnt_type_e_spring
-        );
-
         entity_list list;
         if (!list.arena_init(a)) {
             return(false);
