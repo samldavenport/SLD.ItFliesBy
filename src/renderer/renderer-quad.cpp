@@ -127,7 +127,7 @@ namespace ifb {
         mat4 p = mat4_identity();
 
         gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_model, m.m);
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_view, m.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_view, view.m);
         gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_proj, proj.m);
 
         // draw elements

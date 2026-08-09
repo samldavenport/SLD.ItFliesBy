@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "sld-math-vec3.hpp"
 #include "sld-math-xforms.hpp"
 
 namespace ifb {
@@ -80,7 +81,9 @@ namespace ifb {
         assert(_renderer_ctx != NULL);
         auto cam = _renderer_ctx->cam;
         assert(cam);
-    
+
+        const vec3 target_sub_origin = vec3_subtract(cam->target, cam->origin);  
+        forward = vec3_normalize(target_sub_origin);     
     }
 
     IFB_INTERNAL void
@@ -90,6 +93,14 @@ namespace ifb {
         assert(_renderer_ctx != NULL);
         auto cam = _renderer_ctx->cam;
         assert(cam);
+   
+        static const vec3 world_up = { 0.0f, 1.0f, 0.0f };
+
+
+        vec3 forward;
+        renderer_camera_get_forward(vec3 &forward); 
+
+        const vec3 forward_cross_world_up = vec3_cross(forward, world_up);
     }
 
     IFB_INTERNAL void
