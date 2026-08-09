@@ -1,6 +1,7 @@
 #pragma once
 
 #include "eng-internal.hpp"
+#include "renderer.hpp"
 
 namespace ifb {
 
@@ -31,4 +32,5 @@ namespace ifb {
 
         renderer_camera_set_target(target);
     }
+
 };

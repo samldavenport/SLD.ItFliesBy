@@ -80,7 +80,8 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_quad_draw(
-        void) {
+        const mat4& view,
+        const mat4& proj) {
 
         auto& shdr = _renderer_ctx->shader.quad;
 

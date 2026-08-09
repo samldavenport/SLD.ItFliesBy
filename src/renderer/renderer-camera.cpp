@@ -1,8 +1,14 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "sld-math-xforms.hpp"
 
 namespace ifb {
+
+    struct renderer_camera {
+        vec3 origin;
+        vec3 target;
+    };
 
     IFB_INTERNAL void
     renderer_camera_init(
@@ -10,10 +16,13 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
-        auto& cam = _renderer_ctx->cam;
+        auto cam = _renderer_ctx->memory.stack.push_struct<renderer_camera>();
+        assert(cam);
 
-        cam.origin = { 0.5f, 0.5f, -0.5f };
-        cam.target = { 0.0f, 0.0f,  0.0f };
+        cam->origin = { 0.5f, 0.5f, -0.5f };
+        cam->target = { 0.0f, 0.0f,  0.0f };
+    
+        _renderer_ctx->cam = cam;
     }
 
     IFB_INTERNAL void
@@ -21,8 +30,11 @@ namespace ifb {
         vec3& origin) {
 
         assert(_renderer_ctx != NULL);
+        
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
 
-        origin = _renderer_ctx->cam.origin;
+        origin = cam->origin;
     }
 
     IFB_INTERNAL void
@@ -31,7 +43,10 @@ namespace ifb {
 
         assert(_renderer_ctx != NULL);
 
-        target = _renderer_ctx->cam.target;
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
+        
+        target = cam->target;
     }
 
     IFB_INTERNAL void
@@ -40,7 +55,10 @@ namespace ifb {
 
         assert(_renderer_ctx != NULL);
 
-        _renderer_ctx->cam.origin = origin;
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
+
+        cam->origin = origin;
     }
 
     IFB_INTERNAL void
@@ -49,21 +67,10 @@ namespace ifb {
 
         assert(_renderer_ctx != NULL);
 
-        _renderer_ctx->cam.target = target;
-    }
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
 
-    IFB_INTERNAL void
-    renderer_camera_get_view(
-        mat4& v) {
-
-        assert(_renderer_ctx != NULL);
-
-        auto& cam = _renderer_ctx->cam;
-
-        v = xform_view_look_at(
-            cam.origin,
-            cam.target
-        );
+        cam->target = target;
     }
 
     IFB_INTERNAL void
@@ -71,6 +78,9 @@ namespace ifb {
         vec3& forward) {
 
         assert(_renderer_ctx != NULL);
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
+    
     }
 
     IFB_INTERNAL void
@@ -78,6 +88,8 @@ namespace ifb {
         vec3& right) {
 
         assert(_renderer_ctx != NULL);
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
     }
 
     IFB_INTERNAL void
@@ -85,6 +97,22 @@ namespace ifb {
         vec3& up) {
 
         assert(_renderer_ctx != NULL);
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
     }
 
+    IFB_INTERNAL void
+    renderer_camera_xform(
+        mat4& xform) {
+
+        assert(_renderer_ctx);
+
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
+
+        xform = xform_view_look_at(
+            cam->origin,
+            cam->target
+        );
+    }
 };

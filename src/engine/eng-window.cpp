@@ -30,7 +30,7 @@ namespace ifb {
         const u32 width,
         const u32 height) {
 
-        renderer_context_update_viewport(
+        renderer_projection_set_viewport(
             width,
             height
         );

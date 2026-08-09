@@ -2,10 +2,10 @@
 
 #include "renderer.hpp"
 #include "renderer-quad.cpp" 
-#include "renderer-direction-gizmo.cpp"
 #include "renderer-camera.cpp"
+#include "renderer-projection.cpp"
 #include "eng-internal.hpp"
-#include "quad.hpp"
+#include "sld-math-mat4.hpp"
 
 namespace ifb {
 
@@ -35,8 +35,8 @@ namespace ifb {
             block_ids != NULL            
         );
 
-        _renderer_ctx                      = rndr;
-        _renderer_ctx->gl                  = gl;
+        _renderer_ctx     = rndr;
+        _renderer_ctx->gl = gl;
 
         return(_renderer_ctx);
     }
@@ -72,8 +72,11 @@ namespace ifb {
         pfm_graphics_init_opengl(_renderer_ctx->gl);
         pfm_graphics_init_imgui();
 
+
         // intialize camera
+        renderer_projection_init();
         renderer_camera_init();
+        renderer_projection_set_viewport(cfg.window_start_width, cfg.window_start_height);
     }
 
     IFB_INTERNAL void
@@ -81,82 +84,6 @@ namespace ifb {
         void) {
 
         //TODO
-    }
-
-    IFB_INTERNAL void
-    renderer_context_update_viewport(
-        const u32         width,
-        const u32         height) {
-
-        assert(_renderer_ctx != NULL);
-
-        // if any of these are null or 0,
-        // we can just assume initialization
-        // has not happened yet
-        const bool can_resize = (
-            _renderer_ctx->gl != NULL &&
-            width   != 0    &&
-            height  != 0
-        );
-        if (!can_resize) return;
-
-        gl_context_update_viewport(
-            _renderer_ctx->gl,
-            0,0,
-            width,
-            height
-        );
-
-        _renderer_ctx->dims.width  = width;
-        _renderer_ctx->dims.height = height;
-    }
-
-    IFB_INTERNAL void
-    renderer_context_update_projection_matrix(
-        void) {
-
-        assert(_renderer_ctx);
-
-        const f32 aspect_ratio = renderer_context_aspect_ratio();
-        if (aspect_ratio == 0) {
-
-            _renderer_ctx->xform_proj = mat4_identity();
-        }
-
-        // typical for most engines
-        static const f32 clip_near   = 0.1f; 
-        static const f32 fov_radians = trig_degrees_to_radians(45.0f);
-
-        _renderer_ctx->xform_proj = xform_project_near_to_infinite(
-            fov_radians,
-            aspect_ratio,
-            clip_near
-        );
-    }
-
-    IFB_INTERNAL void
-    renderer_context_update_view_matrix(
-        void) {
-
-        assert(_renderer_ctx);
-
-        _renderer_ctx->xform_view = xform_view_look_at(
-            _renderer_ctx->cam.origin,
-            _renderer_ctx->cam.target
-        );
-    }
-
-    IFB_INTERNAL f32
-    renderer_context_aspect_ratio(
-        void) {
-
-        assert(_renderer_ctx);
-
-        const f32 aspect_ratio = (_renderer_ctx->dims.height != 0) 
-            ? (_renderer_ctx->dims.width / _renderer_ctx->dims.height)
-            : 0;
-
-        return(aspect_ratio);
     }
 
     IFB_INTERNAL void*
@@ -169,7 +96,19 @@ namespace ifb {
         return(mem);
     }
 
+    IFB_INTERNAL void
+    renderer_context_draw_buffers(
+        void) {
 
+        // calculate view and projection matrices
+        static mat4 proj = mat4_identity();
+        static mat4 view = mat4_identity();
+        renderer_projection_xform (proj);
+        renderer_camera_xform     (view);
+    
+        renderer_quad_draw(view, proj);
+    }
+    
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------

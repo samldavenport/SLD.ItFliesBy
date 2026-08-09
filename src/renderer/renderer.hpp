@@ -29,6 +29,7 @@ namespace ifb {
     struct renderer_quad_buffers;
     struct renderer_quad_vertices;
     struct renderer_quad_elements;
+    struct renderer_projection;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -44,11 +45,9 @@ namespace ifb {
     IFB_INTERNAL renderer_context* renderer_context_create                   (void);
     IFB_INTERNAL void              renderer_context_startup                  (memory& reserved_memory);
     IFB_INTERNAL void              renderer_context_shutdown                 (void);
-    IFB_INTERNAL void              renderer_context_update_viewport          (const u32 width, const u32 height);
-    IFB_INTERNAL void              renderer_context_update_projection_matrix (void);
     IFB_INTERNAL void              renderer_context_update_view_matrix       (void);
-    IFB_INTERNAL f32               renderer_context_aspect_ratio             (void);
     IFB_INTERNAL void*             renderer_context_memory_alloc             (const u32 size);
+    IFB_INTERNAL void              renderer_context_draw_buffers             (void);
 
     // camera
     IFB_INTERNAL void  renderer_camera_init                 (void);
@@ -60,11 +59,18 @@ namespace ifb {
     IFB_INTERNAL void  renderer_camera_get_view             (mat4& v);
     IFB_INTERNAL void  renderer_camera_set_origin           (const vec3& origin);
     IFB_INTERNAL void  renderer_camera_set_target           (const vec3& target);
+    IFB_INTERNAL void  renderer_camera_xform                (mat4& xform);
+
+    // projection
+    IFB_INTERNAL void renderer_projection_init              (void);
+    IFB_INTERNAL void renderer_projection_set_viewport      (const u32 width, const u32 height);
+    IFB_INTERNAL f32  renderer_projection_get_aspect_ratio  (void);
+    IFB_INTERNAL void renderer_projection_xform             (mat4& xform);
 
     // hello quad
     IFB_INTERNAL void  renderer_quad_shader_init            (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL bool  renderer_quad_push                   (const entity_id id);
-    IFB_INTERNAL void  renderer_quad_draw                   (void);
+    IFB_INTERNAL void  renderer_quad_draw                   (const mat4& view, const mat4& proj);
     IFB_INTERNAL bool  renderer_quad_get_vertices           (renderer_quad_vertices& vertices, const entity_id quad_id);
 
     // direction gizmo
@@ -127,7 +133,6 @@ namespace ifb {
         } data;
     };
 
-
     struct renderer_quad_element_buffer {
         u32 size;
         union {
@@ -163,19 +168,11 @@ namespace ifb {
         gl_uniform unif_mat4_model;
     };
 
-    struct renderer_camera {
-        vec3 origin;
-        vec3 target;
-    };
-
     struct renderer_context {
-        gl_context*     gl;
-        renderer_memory memory;
-        renderer_camera cam;
-        mat4            xform_proj;
-        mat4            xform_view;
-        dimensions_2d   dims;
-        f32             fov_y;
+        gl_context*          gl;
+        renderer_memory      memory;
+        renderer_camera*     cam;
+        renderer_projection* proj;
         struct {
             renderer_quad_shader            quad;
             renderer_direction_gizmo_shader direction_gizmo;
