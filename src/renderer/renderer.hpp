@@ -150,6 +150,9 @@ namespace ifb {
             gl_vertex  vertex;
             gl_buffer  buf_vertex;
             gl_buffer  buf_element;
+            gl_uniform unif_mat4_proj;
+            gl_uniform unif_mat4_view;
+            gl_uniform unif_mat4_model;
         } gl;
         struct {
             renderer_quad_vertex_buffer  vertex;

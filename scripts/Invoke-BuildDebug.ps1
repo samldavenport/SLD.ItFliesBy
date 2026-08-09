@@ -106,7 +106,10 @@ Invoke-Expression $Win32Link
 $BinDst       = @(Join-Path $ProjectRoot "build\debug\bin") -join " "
 $BinSrcOpenGL = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll") -join " "
 $BinSrcCore   = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll") -join " "
+$ShdrSrc      = @(Join-Path $ProjectRoot "assets\shaders\*.glsl") -join " "
 
 Copy-Item -Path $BinSrcCore   -Destination $BinDst 
 Copy-Item -Path $BinSrcOpenGL -Destination $BinDst 
+Copy-Item -Path $ShdrSrc      -Destination $BinDst 
+
 

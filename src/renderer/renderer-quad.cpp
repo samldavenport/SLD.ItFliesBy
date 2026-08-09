@@ -1,8 +1,15 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "sld-math-mat4.hpp"
+#include "sld-opengl.hpp"
+#include <cassert>
 
 namespace ifb {
+
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW  = "u_mat4_view";
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_PROJ  = "u_mat4_proj";
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL = "u_mat4_model";
 
     IFB_INTERNAL void
     renderer_quad_shader_init(
@@ -40,7 +47,6 @@ namespace ifb {
         const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (_renderer_ctx->gl);
         const gl_shader shdr_frg = gl_shader_stage_create_fragment (_renderer_ctx->gl);
 
-
         bool gl_ok = true;
 
         // compile shader
@@ -53,6 +59,17 @@ namespace ifb {
         gl_shader_stage_destroy                      (_renderer_ctx->gl, shdr_frg);
         assert(gl_ok);
 
+        // get uniform locations
+        shdr.gl.unif_mat4_proj  = gl_uniform_get_location(_renderer_ctx->gl, shdr.gl.program, QUAD_UNIFORM_NAME_MAT4_PROJ);
+        shdr.gl.unif_mat4_view  = gl_uniform_get_location(_renderer_ctx->gl, shdr.gl.program, QUAD_UNIFORM_NAME_MAT4_VIEW);
+        shdr.gl.unif_mat4_model = gl_uniform_get_location(_renderer_ctx->gl, shdr.gl.program, QUAD_UNIFORM_NAME_MAT4_MODEL);
+        gl_ok &= (
+            shdr.gl.unif_mat4_proj  != GL_UNIFORM_INVALID && 
+            shdr.gl.unif_mat4_view  != GL_UNIFORM_INVALID && 
+            shdr.gl.unif_mat4_model != GL_UNIFORM_INVALID 
+        );
+        assert(gl_ok);
+
         // define vertex
         const u32 vertex_size  = sizeof(vec3) + sizeof(vec4); 
         gl_ok &= gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
@@ -63,6 +80,7 @@ namespace ifb {
         gl_ok &= gl_vertex_add_attribute_f32x3 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 0, 0);
         gl_ok &= gl_vertex_add_attribute_f32x4 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 1, 12);
         assert(gl_ok);
+    
     }
 
     IFB_INTERNAL bool
@@ -103,6 +121,14 @@ namespace ifb {
 
             assert(renderer_quad_get_vertices(vertices, quad_id));
         }
+
+        mat4 m = mat4_identity();
+        mat4 v = mat4_identity();
+        mat4 p = mat4_identity();
+
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_model, m.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_view, m.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_proj, proj.m);
 
         // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
