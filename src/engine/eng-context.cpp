@@ -9,6 +9,7 @@
 #include "physics-manager.cpp"
 #include "physics.hpp"
 #include "quad.cpp"
+#include "renderer.cpp"
 
 namespace ifb {
 
@@ -98,13 +99,13 @@ namespace ifb {
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
 
         eng_context_startup_get_system_info (_eng_context->system);
-        eng_context_startup_open_window     (config, system);
         eng_context_startup_file_mngr       (mem_map);
         eng_context_startup_entity_mngr     (mem_map);
         eng_context_startup_memory_mngr     (mem_map);
         eng_context_startup_cmpnt_mngr      (mem_map);
         eng_context_startup_quad_mngr       (mem_map);
         eng_context_startup_phys_mngr       (mem_map);
+        eng_context_startup_open_window     (config, system);
         eng_context_startup_renderer        (mem_map);
     }
 
@@ -142,10 +143,10 @@ namespace ifb {
             // render graphics
             // renderer_context_update_projection_matrix ();
             // renderer_context_update_view_matrix       ();
-            // renderer_direction_gizmo_draw             ();
+            //renderer_direction_gizmo_draw             ();
             
             if (elapsed_time == 0.0f) {
-                renderer_quad_draw();
+                renderer_context_draw_buffers();
 
                 // render gui
                 gui_render();
@@ -231,6 +232,10 @@ namespace ifb {
     eng_context_startup_renderer(
         const eng_mem_map* mem_map) {
 
+        const auto& cfg         = config_instance();
+        const u32   init_width  = cfg.window_start_width;
+        const u32   init_height = cfg.window_start_height;
+        
         // initialize the renderer
         memory mem_rndr;
         mem_rndr.ptr  = mem_map->rendering.ptr;
@@ -261,7 +266,7 @@ namespace ifb {
 
         // initialize shaders
         renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
+        //renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
 
         // close the shader files
         file_close(file_hnd_quad_vert);

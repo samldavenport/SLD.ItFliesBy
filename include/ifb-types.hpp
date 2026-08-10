@@ -40,6 +40,7 @@ namespace ifb {
     struct entity_archetype;
     struct handle;
     struct image;
+    struct orientation; 
     struct quad;
     struct strong_u32;
     struct rigid_body;
@@ -106,6 +107,12 @@ namespace ifb {
 
     struct drag {
         f32 normal_val;
+    };
+
+    struct orientation {
+        vec3 forward;
+        vec3 up;
+        vec3 right;
     };
 
     struct particle {

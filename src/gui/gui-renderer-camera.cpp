@@ -11,16 +11,16 @@ namespace ifb {
 
         if (!is_open) return;
 
-        static vec3         camera_target;
-        static vec3         camera_origin;
-        static vec3         camera_forward;
-        static vec3         camera_right;
-        static vec3         camera_up;
-        static mat4         camera_view_matrix;
+        static vec3 camera_target;
+        static vec3 camera_origin;
+        static vec3 camera_forward;
+        static vec3 camera_right;
+        static vec3 camera_up;
+        static mat4 camera_view_matrix;
 
         renderer_camera_get_target (camera_target);
         renderer_camera_get_origin (camera_origin);
-        renderer_camera_get_view   (camera_view_matrix);
+        renderer_camera_xform      (camera_view_matrix);
 
         camera_forward = xform_view_forward (camera_view_matrix);
         camera_right   = xform_view_right   (camera_view_matrix);
@@ -176,7 +176,7 @@ namespace ifb {
                         u32 col = 0; col < 4; ++col
                     ) {
 
-                        char txt[16];
+                        char txt[64];
                         memset(txt,0,sizeof(txt));
                         ImGui::TableSetColumnIndex(col);
                         const f32 val = camera_view_matrix.m[row + col];
