@@ -176,7 +176,7 @@ namespace ifb {
                         u32 col = 0; col < 4; ++col
                     ) {
 
-                        char txt[16];
+                        char txt[64];
                         memset(txt,0,sizeof(txt));
                         ImGui::TableSetColumnIndex(col);
                         const f32 val = camera_view_matrix.m[row + col];

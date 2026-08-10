@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-types.hpp"
 #include "renderer.hpp"
 #include "sld-math-vec3.hpp"
 #include "sld-math-xforms.hpp"
@@ -20,8 +21,8 @@ namespace ifb {
         auto cam = _renderer_ctx->memory.stack.push_struct<renderer_camera>();
         assert(cam);
 
-        cam->origin = { 0.5f, 0.5f, -0.5f };
-        cam->target = { 0.0f, 0.0f,  0.0f };
+        cam->origin = { 0.0f, 0.0f, 0.5f };
+        cam->target = { 0.0f, 0.0f, 0.0f };
     
         _renderer_ctx->cam = cam;
     }
@@ -121,8 +122,13 @@ namespace ifb {
        
         const vec3 target_sub_origin = vec3_subtract(cam->target, cam->origin);  
         o.forward  = vec3_normalize(target_sub_origin);         
-    
-         
+   
+        static const vec3 world_up = { 0.0f, 1.0f, 0.0f };
+        const vec3 forward_cross_world_up = vec3_cross(o.forward, world_up);
+        o.right = vec3_normalize(forward_cross_world_up);          
+       
+        const vec3 right_cross_forward = vec3_cross(o.right, o.forward);
+        o.up = vec3_normalize(right_cross_forward); 
     }
     
     IFB_INTERNAL void
@@ -133,10 +139,28 @@ namespace ifb {
 
         auto cam = _renderer_ctx->cam;
         assert(cam);
+        
+        orientation ori;
+        renderer_camera_get_orientation(ori);
 
-        xform = xform_view_look_at(
-            cam->origin,
-            cam->target
-        );
+        xform.r0c0 = ori.right.x;
+        xform.r0c1 = ori.right.y;
+        xform.r0c2 = ori.right.z;
+        xform.r0c3 = -vec3_dot(ori.right, cam->origin);
+
+        xform.r1c0 = ori.up.x;
+        xform.r1c1 = ori.up.y;
+        xform.r1c2 = ori.up.z;
+        xform.r1c3 = -vec3_dot(ori.up, cam->origin);
+        
+        xform.r2c0 = -ori.forward.x;
+        xform.r2c1 = -ori.forward.y;
+        xform.r2c2 = -ori.forward.z;
+        xform.r2c3 =  vec3_dot(ori.forward, cam->origin);
+    
+        xform.r3c0 = 0.0f; 
+        xform.r3c1 = 0.0f; 
+        xform.r3c2 = 0.0f; 
+        xform.r3c3 = 1.0f;
     }
 };
