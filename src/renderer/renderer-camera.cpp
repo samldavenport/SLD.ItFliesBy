@@ -2,6 +2,7 @@
 
 #include "ifb-types.hpp"
 #include "renderer.hpp"
+#include "sld-math-mat4.hpp"
 #include "sld-math-vec3.hpp"
 #include "sld-math-xforms.hpp"
 
@@ -131,9 +132,9 @@ namespace ifb {
         o.up = vec3_normalize(right_cross_forward); 
     }
     
-    IFB_INTERNAL void
+    IFB_INTERNAL mat4 
     renderer_camera_xform(
-        mat4& xform) {
+        void) {
 
         assert(_renderer_ctx);
 
@@ -142,6 +143,8 @@ namespace ifb {
         
         orientation ori;
         renderer_camera_get_orientation(ori);
+
+        mat4 xform = mat4_identity();
 
         xform.r0c0 = ori.right.x;
         xform.r0c1 = ori.right.y;
@@ -162,5 +165,7 @@ namespace ifb {
         xform.r3c1 = 0.0f; 
         xform.r3c2 = 0.0f; 
         xform.r3c3 = 1.0f;
+    
+        return(xform);
     }
 };

@@ -11,9 +11,8 @@ namespace ifb {
     // CONSTANTS 
     //--------------------------------------------------------------------
     
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW  = "u_mat4_view";
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_PROJ  = "u_mat4_proj";
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL = "u_mat4_model";
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ = "u_mat4_view_proj";
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL     = "u_mat4_model";
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -25,8 +24,7 @@ namespace ifb {
             gl_vertex  vertex;
             gl_buffer  buf_vertex;
             gl_buffer  buf_element;
-            gl_uniform unif_mat4_proj;
-            gl_uniform unif_mat4_view;
+            gl_uniform unif_mat4_view_proj;
             gl_uniform unif_mat4_model;
         } gl;
         struct {
@@ -118,13 +116,11 @@ namespace ifb {
         assert(gl_ok);
 
         // get uniform locations
-        shdr->gl.unif_mat4_proj  = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_PROJ);
-        shdr->gl.unif_mat4_view  = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_VIEW);
-        shdr->gl.unif_mat4_model = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_MODEL);
+        shdr->gl.unif_mat4_view_proj = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ);
+        shdr->gl.unif_mat4_model     = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_MODEL);
         gl_ok &= (
-            shdr->gl.unif_mat4_proj  != GL_UNIFORM_INVALID && 
-            shdr->gl.unif_mat4_view  != GL_UNIFORM_INVALID && 
-            shdr->gl.unif_mat4_model != GL_UNIFORM_INVALID 
+            shdr->gl.unif_mat4_view_proj != GL_UNIFORM_INVALID && 
+            shdr->gl.unif_mat4_model     != GL_UNIFORM_INVALID 
         );
         assert(gl_ok);
 
@@ -159,8 +155,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_quad_draw(
-        const mat4& view,
-        const mat4& proj) {
+        const mat4& view_proj_xform) {
 
         assert(_renderer_ctx);
         auto shdr = _renderer_ctx->shader.quad;
@@ -189,9 +184,8 @@ namespace ifb {
         mat4 v = mat4_identity();
         mat4 p = mat4_identity();
 
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_model, m.m);
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_view, view.m);
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_proj, proj.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_model,     m.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_view_proj, view_proj_xform.m);
 
         // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr->gl.program);

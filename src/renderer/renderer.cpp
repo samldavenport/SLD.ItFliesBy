@@ -6,6 +6,7 @@
 #include "renderer-projection.cpp"
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
+#include "sld-math.hpp"
 
 namespace ifb {
 
@@ -92,16 +93,27 @@ namespace ifb {
         return(mem);
     }
 
-    IFB_INTERNAL void
-    renderer_context_draw_buffers(
+    IFB_INTERNAL mat4
+    renderer_context_view_projection_xform(
         void) {
 
         // calculate view and projection matrices
         static mat4 proj = mat4_identity();
         static mat4 view = mat4_identity();
-        renderer_projection_xform (proj);
-        renderer_camera_xform     (view);
+        proj = renderer_projection_xform ();
+        view = renderer_camera_xform     ();
+       
+        // calculate view projection
+        const mat4 view_proj = mat4_multiply(view, proj);
+        return(view_proj);
+    }
     
-        renderer_quad_draw(view, proj);
+    IFB_INTERNAL void
+    renderer_context_draw_buffers(
+        void) {
+
+        const mat4 view_proj_xform = renderer_context_view_projection_xform(); 
+
+        renderer_quad_draw(view_proj_xform);
     }
 };
