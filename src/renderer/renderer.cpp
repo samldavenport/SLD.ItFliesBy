@@ -4,6 +4,7 @@
 #include "renderer-quad.cpp" 
 #include "renderer-camera.cpp"
 #include "renderer-projection.cpp"
+#include "renderer-grid.cpp"
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
 
@@ -68,6 +69,10 @@ namespace ifb {
         // we can pass the context to the function and use it that way
         // same for imgui, it can be initialized externally
 
+        // create shaders
+        renderer_grid_shader_create();
+
+
         // set global up
         _renderer_ctx->global_up = { 0.0f, 1.0f, 0.0f };
 
@@ -107,7 +112,7 @@ namespace ifb {
         static mat4 view = mat4_identity();
         renderer_projection_xform (proj);
         renderer_camera_xform     (view);
-    
+        //renderer_grid_draw(view, proj); 
         renderer_quad_draw(view, proj);
     }
     

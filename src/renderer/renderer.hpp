@@ -31,6 +31,7 @@ namespace ifb {
     struct renderer_quad_vertices;
     struct renderer_quad_elements;
     struct renderer_projection;
+    struct renderer_grid_shader;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -78,6 +79,11 @@ namespace ifb {
     // direction gizmo
     IFB_INTERNAL void  renderer_direciton_gizmo_shader_init (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL void  renderer_direction_gizmo_draw        (void);
+
+    // grid
+    IFB_INTERNAL void renderer_grid_shader_create (void);
+    IFB_INTERNAL void renderer_grid_shader_init   (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL void renderer_grid_draw          (void);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -182,6 +188,7 @@ namespace ifb {
         struct {
             renderer_quad_shader            quad;
             renderer_direction_gizmo_shader direction_gizmo;
+            renderer_grid_shader*           grid; 
         } shader;
     };
 };
