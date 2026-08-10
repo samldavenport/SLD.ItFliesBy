@@ -4,6 +4,7 @@
 #include "renderer-quad.cpp" 
 #include "renderer-camera.cpp"
 #include "renderer-projection.cpp"
+#include "renderer-direction-gizmo.cpp"
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
@@ -69,6 +70,7 @@ namespace ifb {
 
         // create shaders
         renderer_quad_shader_create();
+        renderer_direciton_gizmo_shader_create();
 
         // intialize camera
         renderer_projection_init();

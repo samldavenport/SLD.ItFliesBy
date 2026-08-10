@@ -149,17 +149,6 @@ namespace ifb {
         } data;
     };
 
-    struct renderer_direction_gizmo_shader {
-        gl_program program;
-        gl_shader  vert_shdr;
-        gl_shader  frag_shdr;
-        gl_vertex  vertex;
-        gl_buffer  vertex_buffer;
-        gl_uniform unif_mat4_view;
-        gl_uniform unif_mat4_proj;
-        gl_uniform unif_mat4_model;
-    };
-
     struct renderer_context {
         gl_context*          gl;
         renderer_memory      memory;
