@@ -4,6 +4,7 @@
 #include <sld-opengl.hpp>
 #include <files.hpp>
 
+#include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "quad.hpp"
 namespace ifb {
@@ -59,6 +60,7 @@ namespace ifb {
     IFB_INTERNAL void  renderer_camera_get_view             (mat4& v);
     IFB_INTERNAL void  renderer_camera_set_origin           (const vec3& origin);
     IFB_INTERNAL void  renderer_camera_set_target           (const vec3& target);
+    IFB_INTERNAL void  renderer_camera_get_orientation      (orientation& o);
     IFB_INTERNAL void  renderer_camera_xform                (mat4& xform);
 
     // projection
@@ -176,6 +178,7 @@ namespace ifb {
         renderer_memory      memory;
         renderer_camera*     cam;
         renderer_projection* proj;
+        vec3                 global_up;
         struct {
             renderer_quad_shader            quad;
             renderer_direction_gizmo_shader direction_gizmo;

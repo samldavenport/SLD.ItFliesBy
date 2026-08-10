@@ -98,7 +98,6 @@ namespace ifb {
 
 
         vec3 forward;
-        renderer_camera_get_forward(vec3 &forward); 
 
         const vec3 forward_cross_world_up = vec3_cross(forward, world_up);
     }
@@ -112,6 +111,20 @@ namespace ifb {
         assert(cam);
     }
 
+    IFB_INTERNAL void
+    renderer_camera_get_orientation(
+        orientation& o) {
+
+        assert(_renderer_ctx != NULL);
+        auto cam = _renderer_ctx->cam;
+        assert(cam);
+       
+        const vec3 target_sub_origin = vec3_subtract(cam->target, cam->origin);  
+        o.forward  = vec3_normalize(target_sub_origin);         
+    
+         
+    }
+    
     IFB_INTERNAL void
     renderer_camera_xform(
         mat4& xform) {

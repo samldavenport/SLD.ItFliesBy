@@ -68,10 +68,12 @@ namespace ifb {
         // we can pass the context to the function and use it that way
         // same for imgui, it can be initialized externally
 
+        // set global up
+        _renderer_ctx->global_up = { 0.0f, 1.0f, 0.0f };
+
         // initialize opengl and imgui
         pfm_graphics_init_opengl(_renderer_ctx->gl);
         pfm_graphics_init_imgui();
-
 
         // intialize camera
         renderer_projection_init();
