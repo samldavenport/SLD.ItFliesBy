@@ -7,6 +7,18 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // CONSTANTS 
+    //--------------------------------------------------------------------
+    
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW  = "u_mat4_view";
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_PROJ  = "u_mat4_proj";
+    static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL = "u_mat4_model";
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
+    
     struct renderer_quad_shader {
         struct {
             gl_program program;
@@ -24,9 +36,9 @@ namespace ifb {
         entity_list render_list;
     };
 
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW  = "u_mat4_view";
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_PROJ  = "u_mat4_proj";
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL = "u_mat4_model";
+    //--------------------------------------------------------------------
+    // METHODS 
+    //--------------------------------------------------------------------
 
     IFB_INTERNAL void
     renderer_quad_shader_create(
