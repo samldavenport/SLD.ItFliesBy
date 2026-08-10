@@ -10,12 +10,6 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // INLINE METHOD DECLARATIONS
-    //--------------------------------------------------------------------
-    
-    IFB_INLINE void renderer_init_quad_memory      (void);
-
-    //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
     
@@ -61,9 +55,6 @@ namespace ifb {
         assert(commit.address != 0); 
         _renderer_ctx->memory.stack.init(commit);
 
-        // initialize buffers
-        renderer_init_quad_memory();
-
         // NOTE(SAM): the renderer doesn't need to initialize the opengl context
         // we can pass the context to the function and use it that way
         // same for imgui, it can be initialized externally
@@ -74,6 +65,9 @@ namespace ifb {
         // initialize opengl and imgui
         pfm_graphics_init_opengl(_renderer_ctx->gl);
         pfm_graphics_init_imgui();
+
+        // create shaders
+        renderer_quad_shader_create();
 
         // intialize camera
         renderer_projection_init();
@@ -109,32 +103,5 @@ namespace ifb {
         renderer_camera_xform     (view);
     
         renderer_quad_draw(view, proj);
-    }
-    
-    //--------------------------------------------------------------------
-    // INLINE METHOD DEFINITIONS
-    //--------------------------------------------------------------------
-
-    IFB_INLINE void
-    renderer_init_quad_memory(
-        void) {
-
-        const auto& cfg     = config_instance();
-        auto&       buffers = _renderer_ctx->shader.quad.buffers;
-        auto&       list    = _renderer_ctx->shader.quad.render_list;
-
-        auto* quad_entities       = (entity_id*)renderer_context_memory_alloc(cfg.quad_capacity * sizeof(entity_id));
-        buffers.vertex.size       = (cfg.quad_capacity  * sizeof(renderer_quad_vertices)); 
-        buffers.vertex.data.vptr  = renderer_context_memory_alloc(buffers.vertex.size);
-        buffers.element.size      = (cfg.quad_capacity * sizeof(u32) * 6);
-        buffers.element.data.vptr = renderer_context_memory_alloc(buffers.element.size);
-
-        assert(buffers.vertex.size       != 0);
-        assert(buffers.vertex.data.vptr  != 0);
-        assert(buffers.element.size      != 0);
-        assert(buffers.element.data.vptr != 0);
-        assert(quad_entities             != NULL);
-
-        list.stack_init(_renderer_ctx->memory.stack);
     }
 };

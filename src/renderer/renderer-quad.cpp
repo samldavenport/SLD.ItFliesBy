@@ -7,10 +7,56 @@
 
 namespace ifb {
 
+    struct renderer_quad_shader {
+        struct {
+            gl_program program;
+            gl_vertex  vertex;
+            gl_buffer  buf_vertex;
+            gl_buffer  buf_element;
+            gl_uniform unif_mat4_proj;
+            gl_uniform unif_mat4_view;
+            gl_uniform unif_mat4_model;
+        } gl;
+        struct {
+            renderer_quad_vertex_buffer  vertex;
+            renderer_quad_element_buffer element;
+        } buffers;
+        entity_list render_list;
+    };
+
     static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW  = "u_mat4_view";
     static constexpr char* QUAD_UNIFORM_NAME_MAT4_PROJ  = "u_mat4_proj";
     static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL = "u_mat4_model";
 
+    IFB_INTERNAL void
+    renderer_quad_shader_create(
+        void) {
+
+        assert(_renderer_ctx);
+
+        auto shdr = _renderer_ctx->memory.stack.push_struct<renderer_quad_shader>();
+        assert(shdr); 
+        _renderer_ctx->shader.quad = shdr;
+
+        const auto& cfg     = config_instance();
+        auto&       buffers = shdr->buffers;
+        auto&       list    = shdr->render_list;
+
+        auto* quad_entities       = (entity_id*)renderer_context_memory_alloc(cfg.quad_capacity * sizeof(entity_id));
+        buffers.vertex.size       = (cfg.quad_capacity  * sizeof(renderer_quad_vertices)); 
+        buffers.vertex.data.vptr  = renderer_context_memory_alloc(buffers.vertex.size);
+        buffers.element.size      = (cfg.quad_capacity * sizeof(u32) * 6);
+        buffers.element.data.vptr = renderer_context_memory_alloc(buffers.element.size);
+
+        assert(buffers.vertex.size       != 0);
+        assert(buffers.vertex.data.vptr  != 0);
+        assert(buffers.element.size      != 0);
+        assert(buffers.element.data.vptr != 0);
+        assert(quad_entities             != NULL);
+
+        list.stack_init(_renderer_ctx->memory.stack); 
+    }
+    
     IFB_INTERNAL void
     renderer_quad_shader_init(
         const renderer_shader_source& src_vertex,
@@ -20,7 +66,7 @@ namespace ifb {
         assert(sizeof(vec3)           == 12);
         assert(sizeof(color_rgba_f32) == 16);
 
-        auto& shdr = _renderer_ctx->shader.quad;
+        auto shdr = _renderer_ctx->shader.quad;
 
         // set the element data
         const auto& cfg = config_instance();
@@ -30,7 +76,7 @@ namespace ifb {
             ++i) {
 
             const u32 offset   = (i * 4);
-            auto&     elements = shdr.buffers.element.data.elements[i];
+            auto&     elements = shdr->buffers.element.data.elements[i];
             elements.elmnt_0_index_0 = (offset);  
             elements.elmnt_1_index_1 = (offset + 1); 
             elements.elmnt_2_index_3 = (offset + 3); 
@@ -40,45 +86,45 @@ namespace ifb {
         }
 
         // create gl objects
-        shdr.gl.program          = gl_shader_program_create        (_renderer_ctx->gl);
-        shdr.gl.vertex           = gl_vertex_create                (_renderer_ctx->gl);
-        shdr.gl.buf_vertex       = gl_buffer_create                (_renderer_ctx->gl); 
-        shdr.gl.buf_element      = gl_buffer_create                (_renderer_ctx->gl);
-        const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (_renderer_ctx->gl);
-        const gl_shader shdr_frg = gl_shader_stage_create_fragment (_renderer_ctx->gl);
+        shdr->gl.program          = gl_shader_program_create        (_renderer_ctx->gl);
+        shdr->gl.vertex           = gl_vertex_create                (_renderer_ctx->gl);
+        shdr->gl.buf_vertex       = gl_buffer_create                (_renderer_ctx->gl); 
+        shdr->gl.buf_element      = gl_buffer_create                (_renderer_ctx->gl);
+        const gl_shader shdr_vtx  = gl_shader_stage_create_vertex   (_renderer_ctx->gl);
+        const gl_shader shdr_frg  = gl_shader_stage_create_fragment (_renderer_ctx->gl);
 
         bool gl_ok = true;
 
         // compile shader
         gl_ok &= gl_shader_stage_compile_from_source (_renderer_ctx->gl, shdr_vtx, src_vertex.data,   src_vertex.size);
         gl_ok &= gl_shader_stage_compile_from_source (_renderer_ctx->gl, shdr_frg, src_fragment.data, src_fragment.size);
-        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr.gl.program,  shdr_vtx);
-        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr.gl.program,  shdr_frg);
-        gl_ok &= gl_shader_program_link              (_renderer_ctx->gl, shdr.gl.program);
+        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr->gl.program,  shdr_vtx);
+        gl_ok &= gl_shader_program_attach_stage      (_renderer_ctx->gl, shdr->gl.program,  shdr_frg);
+        gl_ok &= gl_shader_program_link              (_renderer_ctx->gl, shdr->gl.program);
         gl_shader_stage_destroy                      (_renderer_ctx->gl, shdr_vtx);
         gl_shader_stage_destroy                      (_renderer_ctx->gl, shdr_frg);
         assert(gl_ok);
 
         // get uniform locations
-        shdr.gl.unif_mat4_proj  = gl_uniform_get_location(_renderer_ctx->gl, shdr.gl.program, QUAD_UNIFORM_NAME_MAT4_PROJ);
-        shdr.gl.unif_mat4_view  = gl_uniform_get_location(_renderer_ctx->gl, shdr.gl.program, QUAD_UNIFORM_NAME_MAT4_VIEW);
-        shdr.gl.unif_mat4_model = gl_uniform_get_location(_renderer_ctx->gl, shdr.gl.program, QUAD_UNIFORM_NAME_MAT4_MODEL);
+        shdr->gl.unif_mat4_proj  = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_PROJ);
+        shdr->gl.unif_mat4_view  = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_VIEW);
+        shdr->gl.unif_mat4_model = gl_uniform_get_location(_renderer_ctx->gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_MODEL);
         gl_ok &= (
-            shdr.gl.unif_mat4_proj  != GL_UNIFORM_INVALID && 
-            shdr.gl.unif_mat4_view  != GL_UNIFORM_INVALID && 
-            shdr.gl.unif_mat4_model != GL_UNIFORM_INVALID 
+            shdr->gl.unif_mat4_proj  != GL_UNIFORM_INVALID && 
+            shdr->gl.unif_mat4_view  != GL_UNIFORM_INVALID && 
+            shdr->gl.unif_mat4_model != GL_UNIFORM_INVALID 
         );
         assert(gl_ok);
 
         // define vertex
         const u32 vertex_size  = sizeof(vec3) + sizeof(vec4); 
-        gl_ok &= gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
-        gl_ok &= gl_context_set_buffer_vertex  (_renderer_ctx->gl, shdr.gl.buf_vertex);
-        gl_ok &= gl_context_set_buffer_element (_renderer_ctx->gl, shdr.gl.buf_element);
-        gl_ok &= gl_buffer_set_vertex_data     (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertex.data.bytes,  shdr.buffers.vertex.size);
-        gl_ok &= gl_buffer_set_element_data    (_renderer_ctx->gl, shdr.gl.buf_element, shdr.buffers.element.data.bytes, shdr.buffers.element.size);
-        gl_ok &= gl_vertex_add_attribute_f32x3 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 0, 0);
-        gl_ok &= gl_vertex_add_attribute_f32x4 (_renderer_ctx->gl, shdr.gl.vertex, vertex_size, 1, 12);
+        gl_ok &= gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
+        gl_ok &= gl_context_set_buffer_vertex  (_renderer_ctx->gl, shdr->gl.buf_vertex);
+        gl_ok &= gl_context_set_buffer_element (_renderer_ctx->gl, shdr->gl.buf_element);
+        gl_ok &= gl_buffer_set_vertex_data     (_renderer_ctx->gl, shdr->gl.buf_vertex,  shdr->buffers.vertex.data.bytes,  shdr->buffers.vertex.size);
+        gl_ok &= gl_buffer_set_element_data    (_renderer_ctx->gl, shdr->gl.buf_element, shdr->buffers.element.data.bytes, shdr->buffers.element.size);
+        gl_ok &= gl_vertex_add_attribute_f32x3 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 0, 0);
+        gl_ok &= gl_vertex_add_attribute_f32x4 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 1, 12);
         assert(gl_ok);
     
     }
@@ -87,12 +133,15 @@ namespace ifb {
     renderer_quad_push(
         const entity_id id) {
 
+        assert(_renderer_ctx);
         assert(id != ENTITY_ID_INVALID);
+        auto shdr = _renderer_ctx->shader.quad;
 
         const bool does_exist = quad_does_exist(id);
         assert(does_exist);
         
-        const bool did_add = _renderer_ctx->shader.quad.render_list.add(id);
+
+        const bool did_add = shdr->render_list.add(id);
         return(did_add);
     }
 
@@ -101,10 +150,12 @@ namespace ifb {
         const mat4& view,
         const mat4& proj) {
 
-        auto& shdr = _renderer_ctx->shader.quad;
+        assert(_renderer_ctx);
+        auto shdr = _renderer_ctx->shader.quad;
+        assert(shdr);
 
         // get the number of quads and elements
-        const u32 quad_count    = shdr.render_list.count();
+        const u32 quad_count    = shdr->render_list.count();
         const u32 element_count = (quad_count * 6);
         if (element_count == 0) {
             return;
@@ -116,8 +167,8 @@ namespace ifb {
             i < quad_count;
             ++i) {
 
-            const entity_id         quad_id  = shdr.render_list[i];
-            renderer_quad_vertices& vertices = shdr.buffers.vertex.data.vertices[i];
+            const entity_id         quad_id  = shdr->render_list[i];
+            renderer_quad_vertices& vertices = shdr->buffers.vertex.data.vertices[i];
 
             assert(renderer_quad_get_vertices(vertices, quad_id));
         }
@@ -126,18 +177,18 @@ namespace ifb {
         mat4 v = mat4_identity();
         mat4 p = mat4_identity();
 
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_model, m.m);
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_view, view.m);
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr.gl.unif_mat4_proj, proj.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_model, m.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_view, view.m);
+        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_proj, proj.m);
 
         // draw elements
-        gl_context_set_shader_program (_renderer_ctx->gl, shdr.gl.program);
-        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr.gl.vertex);
-        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr.gl.buf_vertex,  shdr.buffers.vertex.data.bytes,  shdr.buffers.vertex.size);
+        gl_context_set_shader_program (_renderer_ctx->gl, shdr->gl.program);
+        gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
+        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr->gl.buf_vertex,  shdr->buffers.vertex.data.bytes,  shdr->buffers.vertex.size);
         gl_context_draw_elements      (_renderer_ctx->gl, element_count);
 
         // reset the list
-        shdr.render_list.reset();
+        shdr->render_list.reset();
     }
     
     IFB_INTERNAL bool
