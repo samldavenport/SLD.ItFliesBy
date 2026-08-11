@@ -213,7 +213,7 @@ namespace ifb {
             // top right
             vertices.top_right.pos_x      = (quad_entity.pos.x + offset_width);
             vertices.top_right.pos_y      = (quad_entity.pos.y + offset_height);
-            vertices.top_right.pos_z      = 0.0f;
+            vertices.top_right.pos_z      = quad_entity.pos.z;
             vertices.top_right.color_r    = color.r;
             vertices.top_right.color_g    = color.g;
             vertices.top_right.color_b    = color.b;
@@ -222,7 +222,7 @@ namespace ifb {
             // bottom right
             vertices.bottom_right.pos_x   = (quad_entity.pos.x + offset_width);
             vertices.bottom_right.pos_y   = (quad_entity.pos.y - offset_height);
-            vertices.bottom_right.pos_z   = 0.0f;
+            vertices.bottom_right.pos_z   = quad_entity.pos.z;
             vertices.bottom_right.color_r = color.r;
             vertices.bottom_right.color_g = color.g;
             vertices.bottom_right.color_b = color.b;
@@ -231,7 +231,7 @@ namespace ifb {
             // bottom left
             vertices.bottom_left.pos_x    = (quad_entity.pos.x - offset_width);
             vertices.bottom_left.pos_y    = (quad_entity.pos.y - offset_height);
-            vertices.bottom_left.pos_z    = 0.0f;
+            vertices.bottom_left.pos_z    = quad_entity.pos.z;
             vertices.bottom_left.color_r  = color.r;
             vertices.bottom_left.color_g  = color.g;
             vertices.bottom_left.color_b  = color.b;
@@ -240,7 +240,7 @@ namespace ifb {
             // top left
             vertices.top_left.pos_x       = (quad_entity.pos.x - offset_width);
             vertices.top_left.pos_y       = (quad_entity.pos.y + offset_height);
-            vertices.top_left.pos_z       = 0.0f;
+            vertices.top_left.pos_z       = quad_entity.pos.z;
             vertices.top_left.color_r     = color.r;
             vertices.top_left.color_g     = color.g;
             vertices.top_left.color_b     = color.b;
