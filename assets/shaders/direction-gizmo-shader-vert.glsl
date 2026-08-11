@@ -1,7 +1,6 @@
 #version 330 core
 
-uniform mat4 u_mat4_proj;
-uniform mat4 u_mat4_view;
+uniform mat4 u_mat4_view_proj;
 uniform mat4 u_mat4_model;
 
 out vec4 vert_color;
@@ -24,9 +23,8 @@ void main() {
     vert_color    = directional_axes_colors [gl_VertexID]; 
 
     gl_Position = (
-        u_mat4_proj  *
-        u_mat4_view  *
-        u_mat4_model *
+        u_mat4_view_proj *
+        u_mat4_model     *
         vec4(vert_pos, 1.0)
     );
 }

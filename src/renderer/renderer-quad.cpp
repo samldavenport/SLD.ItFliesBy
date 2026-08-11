@@ -184,13 +184,13 @@ namespace ifb {
         mat4 v = mat4_identity();
         mat4 p = mat4_identity();
 
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_model,     m.m);
-        gl_uniform_set_mat4(_renderer_ctx->gl, shdr->gl.unif_mat4_view_proj, view_proj_xform.m);
-
         // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr->gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
+        gl_context_set_buffer_vertex  (_renderer_ctx->gl, shdr->gl.buf_vertex);
         gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr->gl.buf_vertex,  shdr->buffers.vertex.data.bytes,  shdr->buffers.vertex.size);
+        gl_uniform_set_mat4           (_renderer_ctx->gl, shdr->gl.unif_mat4_model,     m.m);
+        gl_uniform_set_mat4           (_renderer_ctx->gl, shdr->gl.unif_mat4_view_proj, view_proj_xform.m);
         gl_context_draw_elements      (_renderer_ctx->gl, element_count);
 
         // reset the list
