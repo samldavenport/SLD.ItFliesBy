@@ -28,8 +28,8 @@ namespace ifb {
         assert(proj);
 
         proj->fov_y     = trig_degrees_to_radians(60.0f);
-        proj->clip_near = 0.1f;
-        proj->clip_far  = 1000.0f;
+        proj->clip_near = 0.01f;
+        proj->clip_far  = 100.0f;
     
         _renderer_ctx->proj = proj;
     }

@@ -24,7 +24,7 @@ namespace ifb {
 
         cam->origin = { 0.0f, 0.0f, 0.5f };
         cam->target = { 0.0f, 0.0f, 0.0f };
-    
+
         _renderer_ctx->cam = cam;
     }
 
@@ -138,9 +138,10 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
-        auto cam = _renderer_ctx->cam;
+        auto& cam = _renderer_ctx->cam;
         assert(cam);
-        
+       
+        // get the orientation
         orientation ori;
         renderer_camera_get_orientation(ori);
 

@@ -100,8 +100,8 @@ namespace ifb {
         vec3 connor_force = {0};
         if (move_left)  connor_force.x -= 10.0f;
         if (move_right) connor_force.x += 10.0f;
-        if (move_up)    connor_force.y += 10.0f;
-        if (move_down)  connor_force.y -= 10.0f;
+        if (move_up)    connor_force.z -= 10.0f;
+        if (move_down)  connor_force.z += 10.0f;
         eng_entity_add_force (rig->connor_id, connor_force);
 
         // move jig's anchor point to follow connor
@@ -111,7 +111,7 @@ namespace ifb {
         assert(eng_entity_lookup_position(rig->connor_id,     pos_connor)); 
         pos_anchor.x = pos_connor.x - 0.175f;
         pos_anchor.y = pos_connor.y + 0.100f;
-        pos_anchor.z = 0.0f;
+        pos_anchor.z = pos_connor.z;
         assert(eng_entity_update_position(rig->jig_anchor_id, pos_anchor));
 
         // render quads

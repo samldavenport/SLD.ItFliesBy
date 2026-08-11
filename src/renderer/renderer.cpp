@@ -111,7 +111,7 @@ namespace ifb {
         view = renderer_camera_xform     ();
        
         // calculate view projection
-        const mat4 view_proj = mat4_multiply(view, proj);
+        const mat4 view_proj = mat4_multiply(proj, view);
         return(view_proj);
     }
     
