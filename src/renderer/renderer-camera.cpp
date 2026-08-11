@@ -22,8 +22,8 @@ namespace ifb {
         auto cam = _renderer_ctx->memory.stack.push_struct<renderer_camera>();
         assert(cam);
 
-        cam->origin = { 0.0f, 0.0f, 0.5f };
-        cam->target = { 0.0f, 0.0f, 0.0f };
+        cam->origin = { 0.0f, 0.3f, 0.6f };
+        cam->target = { 0.0f, 0.2f, 0.1f };
 
         _renderer_ctx->cam = cam;
     }
