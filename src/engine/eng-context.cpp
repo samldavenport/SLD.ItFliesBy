@@ -141,12 +141,10 @@ namespace ifb {
             // simulate physics
             physics_mngr_simulate(dt);
 
-            // render graphics
-            // renderer_context_update_projection_matrix ();
-            // renderer_context_update_view_matrix       ();
-            //renderer_direction_gizmo_draw             ();
             
             if (elapsed_time == 0.0f) {
+           
+                // render graphics
                 renderer_context_draw_buffers();
 
                 // render gui
@@ -277,7 +275,7 @@ namespace ifb {
         
         // initialize shaders
         renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
-        //renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
         renderer_grid_shader_init(file_src_grid_vert, file_src_grid_frag);
 
         // close the shader files

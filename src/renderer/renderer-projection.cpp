@@ -74,9 +74,9 @@ namespace ifb {
         return(aspect_ratio);
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL mat4 
     renderer_projection_xform(
-        mat4& xform) {
+        void) {
 
         assert(_renderer_ctx);
 
@@ -90,11 +90,13 @@ namespace ifb {
         const f32 near_add_far    = proj->clip_near + proj->clip_far;
         const f32 near_mul_far_x2 = proj->clip_near * proj->clip_far * 2;
 
-        xform      = mat4_identity();
+        mat4 xform = mat4_identity();
         xform.r0c0 = f_div_aspect;   
         xform.r1c1 = f; 
         xform.r2c2 = near_add_far    / near_sub_far;
         xform.r2c3 = near_mul_far_x2 / near_sub_far;
         xform.r3c2 = -1.0f;
+    
+        return(xform);
     }
 };
