@@ -123,5 +123,6 @@ namespace ifb {
 
         renderer_direction_gizmo_draw (view_proj_xform);
         renderer_quad_draw            (view_proj_xform);
+        renderer_grid_draw            (view_proj_xform);
     }
 };

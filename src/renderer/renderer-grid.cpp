@@ -93,8 +93,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_grid_draw(
-        mat4& view,
-        mat4& proj) {
+        const mat4& view_proj_xform) {
 
         assert(_renderer_ctx);
 
@@ -103,13 +102,12 @@ namespace ifb {
         assert(shdr);
         assert(gl);
 
-        const mat4 view_proj = mat4_multiply(view, proj);      
         mat4 ident = mat4_identity();
 
         gl_context_set_shader_program (gl, shdr->gl.program);
         gl_context_set_vertex_object  (gl, shdr->gl.vertex);
         gl_context_set_buffer_vertex  (gl, shdr->gl.buf_vertex);
-        gl_uniform_set_mat4           (gl, shdr->gl.u_mat4_view_proj, ident.m); 
+        gl_uniform_set_mat4           (gl, shdr->gl.u_mat4_view_proj, view_proj_xform.m); 
         gl_context_draw_vertices      (gl, _grid_vertices_count);
     }
 };

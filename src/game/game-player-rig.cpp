@@ -34,16 +34,18 @@ namespace ifb {
 
         quad_archetype quad_connor = {0};
         quad_connor.color.hex         = 0xB8BB26FF;     
-        quad_connor.dimensions.width  = 0.2;
-        quad_connor.dimensions.height = 0.2;
-        quad_connor.position          = {0};
+        quad_connor.dimensions.width  = 0.2; 
+        quad_connor.dimensions.height = 0.2; 
+        quad_connor.position.x        = 0.0f;
+        quad_connor.position.y        = 0.1f;
+        quad_connor.position.z        = 0.0f;
 
         quad_archetype quad_jig    = {0};
         quad_jig.color.hex         =  0x458588FF;     
         quad_jig.dimensions.width  =  0.1;
         quad_jig.dimensions.height =  0.1;
         quad_jig.position.x        = -0.175f;
-        quad_jig.position.y        =  0.1f;
+        quad_jig.position.y        =  0.2f;
         quad_jig.position.z        =  0.0f;
 
         term_velocity_3d tv;
