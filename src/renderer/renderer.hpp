@@ -86,7 +86,7 @@ namespace ifb {
     // grid
     IFB_INTERNAL void renderer_grid_shader_create (void);
     IFB_INTERNAL void renderer_grid_shader_init   (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL void renderer_grid_draw          (void);
+    IFB_INTERNAL void renderer_grid_draw          (const mat4& view_proj_xform);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

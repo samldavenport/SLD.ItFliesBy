@@ -10,7 +10,7 @@ out vec4 vert_color;
 
 void main() {
 
-    vert_color = in_color;
+vert_color = in_color;
 
     gl_Position = (
         u_mat4_view_proj *
