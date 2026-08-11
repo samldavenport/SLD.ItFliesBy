@@ -5,6 +5,7 @@
 #include "renderer-camera.cpp"
 #include "renderer-projection.cpp"
 #include "renderer-direction-gizmo.cpp"
+#include "renderer-grid.cpp"
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
@@ -60,6 +61,10 @@ namespace ifb {
         // NOTE(SAM): the renderer doesn't need to initialize the opengl context
         // we can pass the context to the function and use it that way
         // same for imgui, it can be initialized externally
+
+        // create shaders
+        renderer_grid_shader_create();
+
 
         // set global up
         _renderer_ctx->global_up = { 0.0f, 1.0f, 0.0f };
@@ -118,5 +123,6 @@ namespace ifb {
 
         renderer_direction_gizmo_draw (view_proj_xform);
         renderer_quad_draw            (view_proj_xform);
+        renderer_grid_draw            (view_proj_xform);
     }
 };
