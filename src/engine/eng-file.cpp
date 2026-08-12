@@ -4,125 +4,125 @@
 
 namespace ifb {
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_ro_create_new(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_ro_create_new(path);
+        eng_hnd_file hnd = file_ro_create_new(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_ro_open_existing(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_ro_open_existing(path);
+        eng_hnd_file hnd = file_ro_open_existing(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_ro_open_always(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_ro_open_always(path);
+        eng_hnd_file hnd = file_ro_open_always(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_ro_overwrite(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_ro_overwrite(path);
+        eng_hnd_file hnd = file_ro_overwrite(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_wo_create_new(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_wo_create_new(path);
+        eng_hnd_file hnd = file_wo_create_new(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_wo_open_existing(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_wo_open_existing(path);
+        eng_hnd_file hnd = file_wo_open_existing(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_wo_open_always(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_wo_open_always(path);
+        eng_hnd_file hnd = file_wo_open_always(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_wo_overwrite(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_wo_overwrite(path);
+        eng_hnd_file hnd = file_wo_overwrite(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_rw_create_new(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_rw_create_new(path);
+        eng_hnd_file hnd = file_rw_create_new(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_rw_open_existing(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_rw_open_existing(path);
+        eng_hnd_file hnd = file_rw_open_existing(path);
         return(hnd);
 
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_rw_open_always(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_rw_open_always(path);
+        eng_hnd_file hnd = file_rw_open_always(path);
         return(hnd);
     }
 
-    IFB_ENGINE_API eng_file_handle
+    IFB_ENGINE_API eng_hnd_file
     eng_file_rw_overwrite(
         const cchar* path) {
 
         assert(path);
-        eng_file_handle hnd = file_rw_overwrite(path);
+        eng_hnd_file hnd = file_rw_overwrite(path);
         return(hnd);
     }
 
     IFB_ENGINE_API void
     eng_file_close(
-        const eng_file_handle hnd) {
+        const eng_hnd_file hnd) {
 
         file_close(hnd.val);
     }
 
     IFB_ENGINE_API u32
     eng_file_get_size(
-        const eng_file_handle hnd) {
+        const eng_hnd_file hnd) {
 
         const u32 size = file_get_size(hnd.val);
         return(size);
@@ -130,7 +130,7 @@ namespace ifb {
 
     IFB_ENGINE_API void
     eng_file_set_cursor(
-        const eng_file_handle hnd,
+        const eng_hnd_file hnd,
         const u32             cursor) {
 
         file_set_cursor(hnd.val, cursor);
@@ -138,7 +138,7 @@ namespace ifb {
 
     IFB_ENGINE_API const cchar*
     eng_file_read(
-        const eng_file_handle hnd) {
+        const eng_hnd_file hnd) {
 
         const u32     buffer_size = file_get_size(hnd.val);
         const cchar* buffer_ptr  = file_read(
@@ -151,7 +151,7 @@ namespace ifb {
 
     IFB_ENGINE_API u32
     eng_file_write(
-        const eng_file_handle hnd,
+        const eng_hnd_file hnd,
         const u32             buffer_size,
         const byte*           buffer_ptr) {
 

@@ -5,21 +5,21 @@
 
 namespace ifb {
 
-    IFB_ENGINE_API eng_arena_handle
+    IFB_ENGINE_API eng_hnd_arena
     eng_arena_alloc(
         void) {
 
         const arena* a = arena_alloc();
         assert(a);
 
-        eng_arena_handle hnd = a->id;
+        eng_hnd_arena hnd = a->id;
         
         return(hnd);        
     }
 
     IFB_ENGINE_API void
     eng_arena_free(
-        const eng_arena_handle hnd) {
+        const eng_hnd_arena hnd) {
 
         arena* a = arena_from_handle(hnd);
         assert(a);
@@ -29,7 +29,7 @@ namespace ifb {
 
     IFB_ENGINE_API void
     eng_arena_reset(
-        const eng_arena_handle hnd) {
+        const eng_hnd_arena hnd) {
 
         arena* a = arena_from_handle(hnd);
         assert(a);
@@ -39,7 +39,7 @@ namespace ifb {
 
     IFB_ENGINE_API u32
     eng_arena_save(
-        const eng_arena_handle hnd) {
+        const eng_hnd_arena hnd) {
 
         arena* a = arena_from_handle(hnd);
         assert(a);
@@ -50,7 +50,7 @@ namespace ifb {
 
     IFB_ENGINE_API u32
     eng_arena_size_free(
-        const eng_arena_handle hnd) {
+        const eng_hnd_arena hnd) {
 
         arena* a = arena_from_handle(hnd);
         assert(a);
@@ -62,7 +62,7 @@ namespace ifb {
 
     IFB_ENGINE_API u32
     eng_arena_size_used(
-        const eng_arena_handle hnd) {
+        const eng_hnd_arena hnd) {
 
         arena* a = arena_from_handle(hnd);
         assert(a);
@@ -72,7 +72,7 @@ namespace ifb {
 
     IFB_ENGINE_API void
     eng_arena_revert(
-        const eng_arena_handle hnd,
+        const eng_hnd_arena hnd,
         const u32              save) {
 
         arena* a = arena_from_handle(hnd);
@@ -83,7 +83,7 @@ namespace ifb {
     
     IFB_ENGINE_API void*
     eng_arena_push(
-        const eng_arena_handle hnd,
+        const eng_hnd_arena hnd,
         const u32              size) {
 
         arena* a = arena_from_handle(hnd);

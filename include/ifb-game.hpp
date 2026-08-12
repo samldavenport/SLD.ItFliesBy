@@ -13,7 +13,7 @@ namespace ifb {
     }; 
 
     struct game_context {
-        eng_arena_handle global_arena;
+        eng_hnd_arena global_arena;
         player_rig*      player_rig; 
     };
 

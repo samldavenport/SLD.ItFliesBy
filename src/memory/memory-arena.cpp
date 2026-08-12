@@ -54,7 +54,7 @@ namespace ifb {
 
     IFB_INTERNAL arena*
     arena_from_handle(
-        const eng_arena_handle hnd) {
+        const eng_hnd_arena hnd) {
 
         arena_allocator_validate();
 

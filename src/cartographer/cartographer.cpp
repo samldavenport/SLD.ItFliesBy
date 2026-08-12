@@ -2,6 +2,8 @@
 
 #include "cartographer.hpp"
 #include "eng-internal.hpp"
+#include "cartographer-internal.cpp"
+#include "cartographer-memory.cpp"
 
 namespace ifb {
 

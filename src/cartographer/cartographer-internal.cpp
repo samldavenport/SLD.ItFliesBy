@@ -4,14 +4,37 @@
 
 namespace ifb {
 
+    struct cartographer_block_allocator; 
+    struct cartographer_memory_block;
+
     struct cartographer {
-        map* first_map; 
+        cartographer_block_allocator* block_alctr;
+        map*                          first_map; 
     };
 
     struct map {
         map*  next;
         map*  prev;
         tile* root_tile;
+    };
+
+    enum wall_direction_e {
+        wall_direction_e_north_south = 0,
+        wall_direction_e_east_west   = 1
+    };
+
+    using wall_direction = u32;
+
+    struct wall {
+        union {
+            tile* tile_north;
+            tile* tile_east;
+        };
+        union {
+            tile* tile_south;
+            tile* tile_west;
+        };
+        wall_direction dir;
     };
 
     struct tile{
@@ -51,14 +74,32 @@ namespace ifb {
     };
 
     struct cartographer_memory_block {
-        u32 block_index; 
-        u32 block_type;
+        struct {
+            cartographer_memory_block* next;
+            cartographer_memory_block* prev;
+            u32                        block_index; 
+            u32                        block_type;
+        } header;
         union {
-            map*       map;
-            tile*      tile;
-            wall*      wall;
-            atlas*     atlas;
-            atlas_key* atlas_key;
+            map       map;
+            tile      tile;
+            wall      wall;
+            atlas     atlas;
+            atlas_key atlas_key;
         } data;
     };
+
+    struct cartographer_block_allocator {
+         cartographer_memory_block* list_free;
+         cartographer_memory_block* list_used;
+         memory                     committed_memory;
+    };
+
+    IFB_INTERNAL void       cartographer_memory_init            (memory& reserved_memory);
+    IFB_INTERNAL map*       cartographer_memory_alloc_map       (void);  
+    IFB_INTERNAL tile*      cartographer_memory_alloc_tile      (void);  
+    IFB_INTERNAL wall*      cartographer_memory_alloc_wall      (void);  
+    IFB_INTERNAL atlas*     cartographer_memory_alloc_atlas     (void);  
+    IFB_INTERNAL atlas_key* cartographer_memory_alloc_atlas_key (void);  
+
 };

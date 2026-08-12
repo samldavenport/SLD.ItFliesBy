@@ -33,7 +33,7 @@ namespace ifb {
     struct cmpnt_quad;
     struct dimensions_2d;
     struct dimensions_3d;
-    struct eng_arena_handle;
+    struct eng_hnd_arena;
     struct entity;
     struct entity_id;
     struct entity_tag;

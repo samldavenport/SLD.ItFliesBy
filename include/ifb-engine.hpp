@@ -24,8 +24,13 @@ namespace ifb {
     // PRIMITIVE TYPES
     //--------------------------------------------------------------------
 
-    IFB_HANDLE(eng_arena_handle);
-    IFB_HANDLE(eng_file_handle);
+    IFB_HANDLE(eng_hnd_arena);
+    IFB_HANDLE(eng_hnd_file);
+    IFB_HANDLE(eng_hnd_map);
+    IFB_HANDLE(eng_hnd_map_tile);
+    IFB_HANDLE(eng_hnd_map_wall);
+    IFB_HANDLE(eng_hnd_map_atlas);
+    IFB_HANDLE(eng_hnd_map_atlas_key);
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -86,23 +91,23 @@ namespace ifb {
     // FILES
     //--------------------------------------------------------------------
     
-    IFB_ENGINE_API eng_file_handle eng_file_ro_create_new                (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_open_existing             (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_open_always               (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_ro_overwrite                 (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_create_new                (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_open_existing             (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_open_always               (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_wo_overwrite                 (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_create_new                (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_open_existing             (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_open_always               (const cchar* path);
-    IFB_ENGINE_API eng_file_handle eng_file_rw_overwrite                 (const cchar* path);
-    IFB_ENGINE_API void            eng_file_close                        (const eng_file_handle hnd);
-    IFB_ENGINE_API u32             eng_file_get_size                     (const eng_file_handle hnd);
-    IFB_ENGINE_API void            eng_file_set_cursor                   (const eng_file_handle hnd, const u32 cursor);
-    IFB_ENGINE_API const cchar*    eng_file_read                         (const eng_file_handle hnd, const u32 buffer_size);
-    IFB_ENGINE_API u32             eng_file_write                        (const eng_file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
+    IFB_ENGINE_API eng_hnd_file eng_file_ro_create_new                (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_ro_open_existing             (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_ro_open_always               (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_ro_overwrite                 (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_wo_create_new                (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_wo_open_existing             (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_wo_open_always               (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_wo_overwrite                 (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_rw_create_new                (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_rw_open_existing             (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_rw_open_always               (const cchar* path);
+    IFB_ENGINE_API eng_hnd_file eng_file_rw_overwrite                 (const cchar* path);
+    IFB_ENGINE_API void            eng_file_close                        (const eng_hnd_file hnd);
+    IFB_ENGINE_API u32             eng_file_get_size                     (const eng_hnd_file hnd);
+    IFB_ENGINE_API void            eng_file_set_cursor                   (const eng_hnd_file hnd, const u32 cursor);
+    IFB_ENGINE_API const cchar*    eng_file_read                         (const eng_hnd_file hnd, const u32 buffer_size);
+    IFB_ENGINE_API u32             eng_file_write                        (const eng_hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // CAMERA
@@ -159,22 +164,22 @@ namespace ifb {
     // ARENAS
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_arena_handle eng_arena_alloc     (void);
-    IFB_ENGINE_API void             eng_arena_free      (const eng_arena_handle arena);
-    IFB_ENGINE_API void             eng_arena_reset     (const eng_arena_handle arena);
-    IFB_ENGINE_API u32              eng_arena_save      (const eng_arena_handle arena);
-    IFB_ENGINE_API u32              eng_arena_size_free (const eng_arena_handle arena);
-    IFB_ENGINE_API u32              eng_arena_size_used (const eng_arena_handle arena);
-    IFB_ENGINE_API void             eng_arena_revert    (const eng_arena_handle arena, const u32 save);
-    IFB_ENGINE_API void*            eng_arena_push      (const eng_arena_handle arena, const u32 size);
+    IFB_ENGINE_API eng_hnd_arena eng_arena_alloc     (void);
+    IFB_ENGINE_API void             eng_arena_free      (const eng_hnd_arena arena);
+    IFB_ENGINE_API void             eng_arena_reset     (const eng_hnd_arena arena);
+    IFB_ENGINE_API u32              eng_arena_save      (const eng_hnd_arena arena);
+    IFB_ENGINE_API u32              eng_arena_size_free (const eng_hnd_arena arena);
+    IFB_ENGINE_API u32              eng_arena_size_used (const eng_hnd_arena arena);
+    IFB_ENGINE_API void             eng_arena_revert    (const eng_hnd_arena arena, const u32 save);
+    IFB_ENGINE_API void*            eng_arena_push      (const eng_hnd_arena arena, const u32 size);
 
     //--------------------------------------------------------------------
     // IMAGES
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API u32          eng_image_size           (const eng_file_handle img_file_hnd);
-    IFB_ENGINE_API const image* eng_image_load_to_arena  (const eng_file_handle img_file_hnd, const eng_arena_handle arena_hnd);
-    IFB_ENGINE_API const image* eng_image_load_to_memory (const eng_file_handle img_file_hnd, const memory& mem);
+    IFB_ENGINE_API u32          eng_image_size           (const eng_hnd_file img_file_hnd);
+    IFB_ENGINE_API const image* eng_image_load_to_arena  (const eng_hnd_file img_file_hnd, const eng_hnd_arena arena_hnd);
+    IFB_ENGINE_API const image* eng_image_load_to_memory (const eng_hnd_file img_file_hnd, const memory& mem);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

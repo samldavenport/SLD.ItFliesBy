@@ -25,7 +25,7 @@ namespace ifb {
     IFB_INTERNAL void         memory_mngr_shutdown (void);
 
     IFB_INTERNAL arena*       arena_alloc          (void);
-    IFB_INTERNAL arena*       arena_from_handle    (const eng_arena_handle hnd);
+    IFB_INTERNAL arena*       arena_from_handle    (const eng_hnd_arena hnd);
     IFB_INTERNAL void         arena_free           (arena* a);
     IFB_INTERNAL void         arena_reset          (arena* a);
     IFB_INTERNAL u32          arena_save           (arena* a);

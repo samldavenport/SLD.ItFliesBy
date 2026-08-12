@@ -6,7 +6,7 @@ namespace ifb {
 
     IFB_ENGINE_API u32
     eng_image_size(
-        const eng_file_handle file_hnd) {
+        const eng_hnd_file file_hnd) {
 
         const u32     file_size = eng_file_get_size (file_hnd); 
         const cchar* file_str  = eng_file_read     (file_hnd);
@@ -30,8 +30,8 @@ namespace ifb {
 
     IFB_ENGINE_API const image*
     eng_image_load_to_arena(
-        const eng_file_handle  file_hnd,
-        const eng_arena_handle arena) {
+        const eng_hnd_file  file_hnd,
+        const eng_hnd_arena arena) {
 
         // get image size
         const u32 img_size = eng_image_size(file_hnd);
@@ -82,7 +82,7 @@ namespace ifb {
 
     IFB_ENGINE_API const image*
     eng_image_load_to_memory(
-        const eng_file_handle file_hnd,
+        const eng_hnd_file file_hnd,
         const memory&         mem) {
 
         // get image size
