@@ -1,22 +1,39 @@
 #pragma once
 
 #include "cartographer.hpp"
+#include "sld.hpp"
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // DECLARATIONS 
+    //--------------------------------------------------------------------
+    
     struct cartographer_block_allocator; 
     struct cartographer_memory_block;
 
+    //--------------------------------------------------------------------
+    // CARTOGRAPHER CONTEXT 
+    //--------------------------------------------------------------------
+    
     struct cartographer {
         cartographer_block_allocator* block_alctr;
         map*                          first_map; 
     };
+
+    //--------------------------------------------------------------------
+    // MAP 
+    //--------------------------------------------------------------------
 
     struct map {
         map*  next;
         map*  prev;
         tile* root_tile;
     };
+
+    //--------------------------------------------------------------------
+    // WALL 
+    //--------------------------------------------------------------------
 
     enum wall_direction_e {
         wall_direction_e_north_south = 0,
@@ -35,19 +52,29 @@ namespace ifb {
             tile* tile_west;
         };
         wall_direction dir;
+        color_rgba_u32 color;
     };
 
+    //--------------------------------------------------------------------
+    // TILE 
+    //--------------------------------------------------------------------
+
     struct tile{
-        map*  map; 
-        tile* tile_north;
-        tile* tile_south;
-        tile* tile_east;
-        tile* tile_west;
-        wall* wall_north;
-        wall* wall_south;
-        wall* wall_east;
-        wall* wall_west;
+        map*           map; 
+        tile*          tile_north;
+        tile*          tile_south;
+        tile*          tile_east;
+        tile*          tile_west;
+        wall*          wall_north;
+        wall*          wall_south;
+        wall*          wall_east;
+        wall*          wall_west;
+        color_rgba_u32 color;
     };
+
+    //--------------------------------------------------------------------
+    // ATLAS 
+    //--------------------------------------------------------------------
 
     struct atlas {
         atlas_key* keys;
@@ -65,6 +92,10 @@ namespace ifb {
         u32    unit_width;
     };
 
+    //--------------------------------------------------------------------
+    // MEMORY 
+    //--------------------------------------------------------------------
+    
     enum cartographer_memory_block_type_e {
         cartographer_memory_block_type_e_map       = 0,
         cartographer_memory_block_type_e_tile      = 1,

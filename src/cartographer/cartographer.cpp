@@ -11,8 +11,13 @@ namespace ifb {
     cartographer_create(
         void) {
 
-        auto c = global_alloc<cartographer>();
-        assert(c != NULL);
+        auto c     = global_alloc<cartographer>();
+        auto alctr = global_alloc<cartographer_block_allocator>();
+        assert(c     != NULL);
+        assert(alctr != NULL);
+
+        c->block_alctr = alctr;
+        c->first_map   = NULL;
 
         return(c);
 
@@ -21,7 +26,8 @@ namespace ifb {
     IFB_INTERNAL void
     cartographer_startup(
         memory& mem) {
-        
+       
+        cartographer_memory_init(mem);
     }
 
     IFB_INTERNAL void
