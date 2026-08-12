@@ -3,6 +3,8 @@
 #define IFB_ENGINE_DLL_EXPORT
 #define IFB_API_DLL_EXPORT
 
+#include "cartographer.cpp"
+
 #include "collection-array-list.cpp"
 #include "collection-sparse-set.cpp"
 #include "collection-stack.cpp"

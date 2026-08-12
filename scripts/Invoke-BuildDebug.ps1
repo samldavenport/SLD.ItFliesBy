@@ -7,6 +7,7 @@ $EngCompile = @(
     "/Fo:" + @(Join-Path $ProjectRoot "build\debug\obj\ItFliesBy.Engine.obj")  
     "/I"   + @(Join-Path $ProjectRoot "include")
     "/I"   + @(Join-Path $ProjectRoot "src\collections")
+    "/I"   + @(Join-Path $ProjectRoot "src\cartographer")
     "/I"   + @(Join-Path $ProjectRoot "src\components")
     "/I"   + @(Join-Path $ProjectRoot "src\engine")
     "/I"   + @(Join-Path $ProjectRoot "src\entities")
