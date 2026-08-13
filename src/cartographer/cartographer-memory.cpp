@@ -38,7 +38,8 @@ namespace ifb {
         block->data.map.next      = NULL;
         block->data.map.prev      = NULL;
         block->data.map.root_tile = NULL;
-
+        block->data.map.tile_list = NULL;
+        
         return(&block->data.map);
     }  
 
@@ -176,5 +177,91 @@ namespace ifb {
         }
 
         alctr->list_free = block;
+    }
+    
+    IFB_INTERNAL void
+    cartographer_memory_free_map(
+        map* m) {
+
+        assert(m);
+        assert(_cartographer);
+        assert(_cartographer->block_alctr);
+    
+        const addr a = (addr)m;
+        const addr b = b - sizeof(cartographer_memory_block::header);
+       
+        auto block = (cartographer_memory_block*)b;
+        assert(&block->data.map == m);
+
+        cartographer_memory_block_free(block);
+    }
+
+    IFB_INTERNAL void
+    cartographer_memory_free_tile(
+        tile* t) {
+
+        assert(t);
+        assert(_cartographer);
+        assert(_cartographer->block_alctr);
+    
+        const addr a = (addr)t;
+        const addr b = b - sizeof(cartographer_memory_block::header);
+       
+        auto block = (cartographer_memory_block*)b;
+        assert(&block->data.tile == t);
+
+        cartographer_memory_block_free(block);
+    } 
+
+    IFB_INTERNAL void
+    cartographer_memory_free_wall(
+        wall* w) {
+
+        assert(w);
+        assert(_cartographer);
+        assert(_cartographer->block_alctr);
+    
+        const addr a = (addr)w;
+        const addr b = b - sizeof(cartographer_memory_block::header);
+       
+        auto block = (cartographer_memory_block*)b;
+        assert(&block->data.wall == w);
+
+        cartographer_memory_block_free(block);
+
+    }
+
+    IFB_INTERNAL void
+    cartographer_memory_free_atlas(
+        atlas* at) {
+
+        assert(at);
+        assert(_cartographer);
+        assert(_cartographer->block_alctr);
+    
+        const addr a = (addr)at;
+        const addr b = b - sizeof(cartographer_memory_block::header);
+       
+        auto block = (cartographer_memory_block*)b;
+        assert(&block->data.atlas == at);
+
+        cartographer_memory_block_free(block);
+    }
+
+    IFB_INTERNAL void
+    cartographer_memory_free_atlas_key(
+        atlas_key* ak) {
+
+        assert(ak);
+        assert(_cartographer);
+        assert(_cartographer->block_alctr);
+    
+        const addr a = (addr)ak;
+        const addr b = b - sizeof(cartographer_memory_block::header);
+       
+        auto block = (cartographer_memory_block*)b;
+        assert(&block->data.atlas_key == ak);
+
+        cartographer_memory_block_free(block);
     }
 };

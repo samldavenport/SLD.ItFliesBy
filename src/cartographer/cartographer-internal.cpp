@@ -29,6 +29,7 @@ namespace ifb {
         map*  next;
         map*  prev;
         tile* root_tile;
+        tile* tile_list;
     };
 
     //--------------------------------------------------------------------
@@ -61,6 +62,8 @@ namespace ifb {
 
     struct tile{
         map*           map; 
+        tile*          next;
+        tile*          prev;
         tile*          tile_north;
         tile*          tile_south;
         tile*          tile_east;
@@ -133,4 +136,9 @@ namespace ifb {
     IFB_INTERNAL atlas*     cartographer_memory_alloc_atlas     (void);  
     IFB_INTERNAL atlas_key* cartographer_memory_alloc_atlas_key (void);  
 
+    IFB_INTERNAL void       cartographer_memory_free_map        (map*       m);
+    IFB_INTERNAL void       cartographer_memory_free_tile       (tile*      t);
+    IFB_INTERNAL void       cartographer_memory_free_wall       (wall*      w);
+    IFB_INTERNAL void       cartographer_memory_free_atlas      (atlas*     a);
+    IFB_INTERNAL void       cartographer_memory_free_atlas_key  (atlas_key* ak);
 };

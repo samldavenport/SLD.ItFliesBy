@@ -57,8 +57,9 @@ namespace ifb {
 
     IFB_INTERNAL map*          cartographer_map_create           (void);    
     IFB_INTERNAL void          cartographer_map_destroy          (map* m);
-    IFB_INTERNAL void          cartographer_map_add_tile         (tile* t);
-    IFB_INTERNAL void          cartographer_map_remove_tile      (tile* t);
+    IFB_INTERNAL void          cartographer_map_add_tile         (map* m, tile* t);
+    IFB_INTERNAL void          cartographer_map_remove_tile      (map* m, tile* t);
+    IFB_INTERNAL void          cartographer_map_set_root_tile    (map* m, tile* t);
 
     IFB_INTERNAL wall*         cartographer_wall_create          (void);
     IFB_INTERNAL void          cartographer_wall_destroy         (wall* w);
