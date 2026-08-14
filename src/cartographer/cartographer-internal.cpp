@@ -73,6 +73,11 @@ namespace ifb {
         wall*          wall_east;
         wall*          wall_west;
         color_rgba_u32 color;
+        u32            unit_length;
+        u32            unit_width;
+        u32            unit_pos_x;
+        u32            unit_pos_y;
+
     };
 
     //--------------------------------------------------------------------

@@ -70,14 +70,15 @@ namespace ifb {
     IFB_INTERNAL void          cartographer_tile_destroy         (tile* t);
     IFB_INTERNAL void          cartogrpaher_tile_set_color       (tile* t, const color_rgba_u32 color); 
     IFB_INTERNAL void          cartographer_tile_set_atlas_image (tile* t, const atlas* a, const u32 index);
-    IFB_INTERNAL void          cartographer_tile_add_tile_north  (tile* t, const tile* n);
-    IFB_INTERNAL void          cartographer_tile_add_tile_south  (tile* t, const tile* s);
-    IFB_INTERNAL void          cartographer_tile_add_tile_east   (tile* t, const tile* e);
-    IFB_INTERNAL void          cartographer_tile_add_tile_west   (tile* t, const tile* w);
-    IFB_INTERNAL void          cartographer_tile_add_wall_north  (tile* t, const wall* n);
-    IFB_INTERNAL void          cartographer_tile_add_wall_south  (tile* t, const wall* s);
-    IFB_INTERNAL void          cartographer_tile_add_wall_east   (tile* t, const wall* e);
-    IFB_INTERNAL void          cartographer_tile_add_wall_west   (tile* t, const wall* w);
+    IFB_INTERNAL void          cartographer_tile_add_tile_north  (tile* t, tile* n);
+    IFB_INTERNAL void          cartographer_tile_add_tile_south  (tile* t, tile* s);
+    IFB_INTERNAL void          cartographer_tile_add_tile_east   (tile* t, tile* e);
+    IFB_INTERNAL void          cartographer_tile_add_tile_west   (tile* t, tile* w);
+    IFB_INTERNAL void          cartographer_tile_add_wall_north  (tile* t, wall* n);
+    IFB_INTERNAL void          cartographer_tile_add_wall_south  (tile* t, wall* s);
+    IFB_INTERNAL void          cartographer_tile_add_wall_east   (tile* t, wall* e);
+    IFB_INTERNAL void          cartographer_tile_add_wall_west   (tile* t, wall* w);
+    IFB_INTERNAL void          cartographer_set_unit_dimensions  (tile* t, const u32 unit_length, const u32 unit_width);
+    IFB_INTERNAL void          cartographer_set_unit_position    (tile* t, const u32 unit_pos_x,  const u32 unit_pos_y);
 };
-
 #endif //CARTOGRAPHER_HPP

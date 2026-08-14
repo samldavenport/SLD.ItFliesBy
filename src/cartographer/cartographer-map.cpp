@@ -132,5 +132,17 @@ namespace ifb {
             }
         }
 
+        if (should_add) {
+
+            tile* next = m->tile_list;
+            assert(next->prev == NULL);
+
+            t->next      = next;
+            t->prev      = NULL;
+            next->prev   = t;
+            m->tile_list = t;
+        }
+
+        m->root_tile = t;
     }
 };
