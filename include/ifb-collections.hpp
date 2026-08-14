@@ -119,8 +119,32 @@ namespace ifb {
         bool lookup          (const cchar* key, t&       val) const;
         void remove          (const cchar* key);
     };
-
     
+    //--------------------------------------------------------------------
+    // INDEX CACHE 
+    //--------------------------------------------------------------------
+
+    class index_cache {
+
+    private:
+
+        bool* _index;
+        u32   _capacity;
+
+    public:
+
+        void memory_init    (const u32 capacity, bool* index_array); 
+        void stack_init     (const u32 capacity, stack& s);
+        void reset          (void);     
+        void set_index_free (const u32 index);
+        u32  set_index_used (const u32 index);
+        void validate       (void)            const;
+        u32  get_next_free  (void)            const;
+        u32  count_used     (void)            const;
+        u32  count_free     (void)            const;
+        u32  capacity       (void)            const;
+        bool is_index_free  (const u32 index) const;
+    };
 };
 
 #endif //IFB_COLLECTIONS_HPP
