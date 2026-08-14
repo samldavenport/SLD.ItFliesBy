@@ -139,7 +139,7 @@ namespace ifb {
         void stack_init     (const u32 capacity, stack& s);
         void reset          (void);     
         void set_index_free (const u32 index);
-        u32  set_index_used (const u32 index);
+        void set_index_used (const u32 index);
         void validate       (void)            const;
         u32  get_next_free  (void)            const;
         u32  count_used     (void)            const;

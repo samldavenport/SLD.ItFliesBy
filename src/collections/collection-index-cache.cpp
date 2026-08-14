@@ -4,6 +4,12 @@
 
 namespace ifb {
 
+    //////////////////////////
+    // NOTE(SAM):
+    // true = used
+    // false = free
+    //////////////////////////
+
     void
     index_cache::memory_init(
         const u32 capacity,
@@ -48,7 +54,7 @@ namespace ifb {
         _index[index] = false;
     }
 
-    u32
+    void 
     index_cache::set_index_used(
         const u32 index) {
 

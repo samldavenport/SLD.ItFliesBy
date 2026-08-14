@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cartographer.hpp"
+#include "ifb-collections.hpp"
 #include "sld.hpp"
 
 namespace ifb {
@@ -129,8 +130,7 @@ namespace ifb {
 
     struct cartographer_block_allocator {
         cartographer_memory_block* block_array;
-        list_u32*                  indexes_free;
-        list_u32*                  indexes_used;
+        index_cache                indexes;
         u32                        capacity;
         u32                        count_free;
         memory                     committed_memory;

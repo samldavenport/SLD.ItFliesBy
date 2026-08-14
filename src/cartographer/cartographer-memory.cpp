@@ -5,6 +5,7 @@
 #include "ifb-platform.hpp"
 #include "ifb-types.hpp"
 #include "eng-internal.hpp"
+#include "sld.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -23,25 +24,25 @@ namespace ifb {
         auto alctr = _cartographer->block_alctr; 
         assert(alctr);
 
-        const u32 capacity = reserved_memory.size / sizeof(cartographer_memory_block);
+        const u32 block_req = sizeof(bool) + sizeof(cartographer_memory_block);
+        const u32 capacity  = (reserved_memory.size / block_req);
 
         alctr->committed_memory.size = reserved_memory.size;  
         alctr->committed_memory.ptr  = pfm_memory_commit(reserved_memory.ptr, 0, reserved_memory.size);
         alctr->block_array           = (cartographer_memory_block*)alctr->committed_memory.ptr; 
-        alctr->indexes_free          = global_alloc<u32>(capacity); 
-        alctr->indexes_used          = global_alloc<u32>(capacity); 
-        assert(alctr->committed_memory.ptr);
-        assert(alctr->indexes_free);
-        assert(alctr->indexes_used);
-
+    
+        bool* index_array = (bool*)(alctr->committed_memory.address + (capacity * sizeof(cartographer_memory_block)));
+        alctr->indexes.memory_init(capacity, index_array);    
+    
         for (
             u32 i = 0;
             i < capacity;
             ++i) {
 
-            alctr->block_array[i].data = {0};
-            alctr->block_array[i].header.block_index = i;
-            alctr->indexes_free[i] = i;
+            auto& block = alctr->block_array[i];
+            block.header.block_index = i;
+            block.header.block_type  = cartographer_memory_block_type_e_unused;
+            block.data               = {0};
         }
     }
 
@@ -141,21 +142,13 @@ namespace ifb {
         assert(alctr                        != NULL);
         assert(alctr->committed_memory.ptr  != NULL);
         assert(alctr->committed_memory.size != 0);
-
-        auto block           = alctr->list_free;
-        auto block_next_used = alctr->list_used;
-        if (!block) return(NULL);
-
-        assert(block->header.prev == NULL);
+    
+        const u32 index = alctr->indexes.get_next_free();
+        if (index == INVALID_INDEX) return(NULL);
         
-        if (block_next_used) {
-            block_next_used->header.prev = block;
-        } 
+        auto& block = alctr->block_array[index];
+        return(&block);
 
-        block->header.next = block_next_used; 
-        alctr->list_used   = block;
-
-        return(block);
     }
 
     inline void
@@ -169,32 +162,8 @@ namespace ifb {
         assert(alctr                        != NULL);
         assert(alctr->committed_memory.ptr  != NULL);
         assert(alctr->committed_memory.size != 0);
-       
-        auto used_next = block->header.next;
-        auto used_prev = block->header.prev;
-
-        if (alctr->list_used == block) {
-            assert(used_prev == NULL);
-            alctr->list_used = used_next;
-        }
-        else {
-            assert(used_prev != NULL);
-            used_prev->header.next = used_next;
-        }
-
-        if (used_next) {
-            used_next->header.prev = used_prev;
-        }
-
-        auto free_first = alctr->list_free;
-        block->header.prev = NULL;
-        block->header.next = free_first; 
-
-        if (free_first) {
-            free_first->header.prev = block;
-        }
-
-        alctr->list_free = block;
+    
+        alctr->indexes.set_index_free(block->header.block_index);
     }
     
     IFB_INTERNAL void

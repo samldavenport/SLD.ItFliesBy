@@ -182,6 +182,17 @@ namespace ifb {
     IFB_ENGINE_API const image* eng_image_load_to_memory (const eng_hnd_file img_file_hnd, const memory& mem);
 
     //--------------------------------------------------------------------
+    // MAPS 
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API eng_hnd_map      eng_map_create         (const u32 unit_size);
+    IFB_ENGINE_API void             eng_map_destroy        (const eng_hnd_map map);
+    IFB_ENGINE_API eng_hnd_map_tile eng_map_tile_create    (const eng_hnd_map map);
+    IFB_ENGINE_API eng_hnd_map_tile eng_map_tile_destroy   (const eng_hnd_map_tile tile);
+    IFB_ENGINE_API void             eng_map_tile_set_color (const eng_hnd_map_tile tile, const color_rgba_u32 color); 
+
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
