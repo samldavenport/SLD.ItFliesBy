@@ -8,6 +8,7 @@
 #include "collection-stack.cpp"
 #include "collection-entity-list.cpp"
 #include "collection-component-table.cpp"
+#include "collection-index-list.cpp"
 
 #include "component-manager.cpp"
 #include "component-tables.cpp"

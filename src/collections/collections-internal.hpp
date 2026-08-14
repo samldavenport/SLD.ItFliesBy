@@ -56,30 +56,5 @@ namespace ifb {
     };
 
     
-    //--------------------------------------------------------------------
-    // INDEX LIST 
-    //--------------------------------------------------------------------
-
-    class index_list {
-
-    private:
-
-        u32* _free;
-        u32* _used;
-        u32  _capacity;
-
-    public:
-
-        void memory_init    (const u32 capacity, const u32* index_array); 
-        void stack_init     (const u32 capacity, stack& s);
-        u32  set_index_free (const u32 index);
-        u32  set_index_used (const u32 index);
-        u32  get_next_free  (void)            const;
-        u32  count_used     (void)            const;
-        u32  count_free     (void)            const;
-        u32  capacity       (void)            const;
-        bool is_index_free  (const u32 index) const;
-    };
 };
-
 #endif //COLLECTIONS_INTERNAL_HPP
