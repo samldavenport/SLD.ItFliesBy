@@ -48,13 +48,21 @@ namespace ifb {
         _index[index] = false;
     }
 
-    u32
+    void 
     index_cache::set_index_used(
         const u32 index) {
 
         validate();
         
         _index[index] = true;
+    }
+
+    void
+    index_cache::validate(
+        void) const {
+
+        assert(_index);
+        assert(_capacity != 0);
     }
 
     u32
