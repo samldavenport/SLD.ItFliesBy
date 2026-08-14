@@ -21,6 +21,7 @@ namespace ifb {
         c->block_alctr = alctr;
         c->first_map   = NULL;
 
+        _cartographer = c;
         return(c);
 
     }

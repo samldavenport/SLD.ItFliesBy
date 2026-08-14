@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cartographer.cpp"
 #include "entity.cpp"
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
@@ -27,6 +28,7 @@ namespace ifb {
     IFB_INLINE void eng_context_startup_cmpnt_mngr      (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_quad_mngr       (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_phys_mngr       (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_cartographer    (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -66,6 +68,7 @@ namespace ifb {
         _eng_context->cmpnt_mngr    = cmpnt_mngr_create();  
         _eng_context->quad_mngr     = quad_mngr_create();
         _eng_context->phys_mngr     = physics_mngr_create();
+        _eng_context->crtgphr       = cartographer_create();
         _eng_context->mem_map       = mem_map;
 
         assert(
@@ -82,7 +85,8 @@ namespace ifb {
             _eng_context->cmpnt_mngr    != NULL &&
             _eng_context->quad_mngr     != NULL &&
             _eng_context->phys_mngr     != NULL &&
-            _eng_context->mem_map       != NULL
+            _eng_context->mem_map       != NULL &&
+            _eng_context->crtgphr       != NULL
         );
 
         return(_eng_context);
@@ -108,6 +112,7 @@ namespace ifb {
         eng_context_startup_phys_mngr       (mem_map);
         eng_context_startup_open_window     (config, system);
         eng_context_startup_renderer        (mem_map);
+        eng_context_startup_cartographer    (mem_map);
     }
 
     IFB_ENGINE_API void
@@ -317,4 +322,14 @@ namespace ifb {
         physics_mngr_startup(mem);
     }
 
+    IFB_INLINE void
+    eng_context_startup_cartographer(
+        const eng_mem_map* mem_map) {
+
+        memory mem;
+        mem.ptr  = mem_map->cartographer.ptr;
+        mem.size = mem_map->cartographer.size;
+
+        cartographer_startup(mem);
+    }
 };

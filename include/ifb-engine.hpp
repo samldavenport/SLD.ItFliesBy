@@ -214,6 +214,7 @@ namespace ifb {
         eng_mem components;
         eng_mem quads;
         eng_mem physics;
+        eng_mem cartographer;
     };
 
     struct eng_game_context {

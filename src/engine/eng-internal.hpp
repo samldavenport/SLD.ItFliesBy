@@ -1,6 +1,7 @@
 #ifndef IFB_ENG_INTERNAL_HPP
 #define IFB_ENG_INTERNAL_HPP
 
+#include "cartographer-internal.cpp"
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
 #include "ifb.hpp"
@@ -12,6 +13,7 @@
 #include "component.hpp"
 #include "quad.hpp"
 #include "physics.hpp"
+#include "cartographer.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -40,6 +42,7 @@ namespace ifb {
         cmpnt_mngr*        cmpnt_mngr;
         quad_mngr*         quad_mngr;
         physics_mngr*      phys_mngr;
+        cartographer*      crtgphr;
     } static * _eng_context;
 
     struct global_stack {
