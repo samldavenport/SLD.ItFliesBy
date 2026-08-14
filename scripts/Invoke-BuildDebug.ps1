@@ -12,6 +12,7 @@ $EngCompile = @(
     "/I"   + @(Join-Path $ProjectRoot "src\entities")
     "/I"   + @(Join-Path $ProjectRoot "src\files")
     "/I"   + @(Join-Path $ProjectRoot "src\gui")
+    "/I"   + @(Join-Path $ProjectRoot "src\json")
     "/I"   + @(Join-Path $ProjectRoot "src\memory")
     "/I"   + @(Join-Path $ProjectRoot "src\physics")
     "/I"   + @(Join-Path $ProjectRoot "src\quads")

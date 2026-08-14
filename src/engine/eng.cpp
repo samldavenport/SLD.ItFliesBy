@@ -41,6 +41,8 @@
 
 #include "gui.cpp"
 
+#include "json.cpp"
+
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
