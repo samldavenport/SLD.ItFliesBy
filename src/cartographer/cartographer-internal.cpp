@@ -105,19 +105,18 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     enum cartographer_memory_block_type_e {
-        cartographer_memory_block_type_e_map       = 0,
-        cartographer_memory_block_type_e_tile      = 1,
-        cartographer_memory_block_type_e_wall      = 2,
-        cartographer_memory_block_type_e_atlas     = 3,
-        cartographer_memory_block_type_e_atlas_key = 4,
+        cartographer_memory_block_type_e_unused    = 0,
+        cartographer_memory_block_type_e_map       = 1,
+        cartographer_memory_block_type_e_tile      = 2,
+        cartographer_memory_block_type_e_wall      = 3,
+        cartographer_memory_block_type_e_atlas     = 4,
+        cartographer_memory_block_type_e_atlas_key = 5,
     };
 
     struct cartographer_memory_block {
         struct {
-            cartographer_memory_block* next;
-            cartographer_memory_block* prev;
-            u32                        block_index; 
-            u32                        block_type;
+            u32 block_index; 
+            u32 block_type;
         } header;
         union {
             map       map;
@@ -129,9 +128,12 @@ namespace ifb {
     };
 
     struct cartographer_block_allocator {
-         cartographer_memory_block* list_free;
-         cartographer_memory_block* list_used;
-         memory                     committed_memory;
+        cartographer_memory_block* block_array;
+        list_u32*                  indexes_free;
+        list_u32*                  indexes_used;
+        u32                        capacity;
+        u32                        count_free;
+        memory                     committed_memory;
     };
 
     IFB_INTERNAL void       cartographer_memory_init            (memory& reserved_memory);

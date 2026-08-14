@@ -4,6 +4,7 @@
 #include "cartographer.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-types.hpp"
+#include "eng-internal.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -21,10 +22,27 @@ namespace ifb {
 
         auto alctr = _cartographer->block_alctr; 
         assert(alctr);
-        
+
+        const u32 capacity = reserved_memory.size / sizeof(cartographer_memory_block);
+
         alctr->committed_memory.size = reserved_memory.size;  
-        alctr->committed_memory.ptr = pfm_memory_commit(reserved_memory.ptr, 0, reserved_memory.size);
+        alctr->committed_memory.ptr  = pfm_memory_commit(reserved_memory.ptr, 0, reserved_memory.size);
+        alctr->block_array           = (cartographer_memory_block*)alctr->committed_memory.ptr; 
+        alctr->indexes_free          = global_alloc<u32>(capacity); 
+        alctr->indexes_used          = global_alloc<u32>(capacity); 
         assert(alctr->committed_memory.ptr);
+        assert(alctr->indexes_free);
+        assert(alctr->indexes_used);
+
+        for (
+            u32 i = 0;
+            i < capacity;
+            ++i) {
+
+            alctr->block_array[i].data = {0};
+            alctr->block_array[i].header.block_index = i;
+            alctr->indexes_free[i] = i;
+        }
     }
 
     IFB_INTERNAL map*

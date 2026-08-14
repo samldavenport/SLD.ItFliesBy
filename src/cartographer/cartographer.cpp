@@ -15,6 +15,7 @@ namespace ifb {
 
         auto c     = global_alloc<cartographer>();
         auto alctr = global_alloc<cartographer_block_allocator>();
+        
         assert(c     != NULL);
         assert(alctr != NULL);
 
@@ -23,7 +24,6 @@ namespace ifb {
 
         _cartographer = c;
         return(c);
-
     }
 
     IFB_INTERNAL void
@@ -37,5 +37,6 @@ namespace ifb {
     cartographer_shutdown(
         void) {
 
+        //TODO(SLD)
     }
 };
