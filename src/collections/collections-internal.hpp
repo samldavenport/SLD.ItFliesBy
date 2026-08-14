@@ -2,6 +2,7 @@
 #define COLLECTIONS_INTERNAL_HPP
 
 #include "ifb-config.hpp"
+#include "ifb-engine.hpp"
 #include "ifb.hpp"
 #include "memory.hpp"
 
@@ -53,6 +54,7 @@ namespace ifb {
         void lookup     (const u32 sparse_index, t&       cmpnt);
         void update     (const u32 sparse_index, const t& cmpnt);
     };
-};
 
+    
+};
 #endif //COLLECTIONS_INTERNAL_HPP
