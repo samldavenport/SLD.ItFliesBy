@@ -119,4 +119,41 @@ namespace ifb {
 
         return(can_get);
     }  
+    IFB_INTERNAL bool
+    json_doc_get_u32(
+        const json_document* doc,
+        const cchar*         name,
+        u32&                 val) {
+
+    }
+
+    IFB_INTERNAL bool
+    json_doc_get_s32(
+        const json_document* doc,
+        const cchar* name,
+        s32&         val) {
+
+    } 
+
+    IFB_INTERNAL bool
+    json_doc_get_u64(
+        const json_document* doc,
+        const cchar*         name,
+        u64&                 val){
+
+    }
+
+    IFB_INTERNAL bool
+    json_doc_get_s64(
+        const json_document* doc,
+        const cchar*         name,
+        s64&                 val) {
+
+    }
+
+    IFB_INTERNAL bool
+    json_doc_get_f64(
+        const json_document* doc,
+        const cchar* name,
+        f64& val);
 };
