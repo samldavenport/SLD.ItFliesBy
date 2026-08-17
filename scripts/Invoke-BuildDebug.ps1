@@ -99,18 +99,24 @@ $Win32Link = @(
 & .\SLD.Core\scripts\Build-SLDCoreDebug.ps1
 & .\SLD.OpenGL\scripts\Invoke-BuildDebug.ps1
 
+Remove-Item -Path @(Join-Path $ProjectRoot "build\debug\bin\*")
+Remove-Item -Path @(Join-Path $ProjectRoot "build\debug\lib\*")
+Remove-Item -Path @(Join-Path $ProjectRoot "build\debug\obj\*")
+
 Invoke-Expression $EngCompile
 Invoke-Expression $EngLink
 Invoke-Expression $Win32Compile
 Invoke-Expression $Win32Link
 
-$BinDst       = @(Join-Path $ProjectRoot "build\debug\bin") -join " "
-$BinSrcOpenGL = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll") -join " "
-$BinSrcCore   = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll") -join " "
-$ShdrSrc      = @(Join-Path $ProjectRoot "assets\shaders\*.glsl") -join " "
+$BinDst       = @(Join-Path $ProjectRoot "build\debug\bin")                       -join " "
+$BinSrcOpenGL = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll")      -join " "
+$BinSrcCore   = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll")        -join " "
+$ShdrSrc      = @(Join-Path $ProjectRoot "assets\shaders\*.glsl")                 -join " "
+$VcpkgSrc     = @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\bin\*.dll") -join " "
 
 Copy-Item -Path $BinSrcCore   -Destination $BinDst 
 Copy-Item -Path $BinSrcOpenGL -Destination $BinDst 
 Copy-Item -Path $ShdrSrc      -Destination $BinDst 
+Copy-Item -Path $VcpkgSrc     -Destination $BinDst 
 
 
