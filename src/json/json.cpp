@@ -119,12 +119,26 @@ namespace ifb {
 
         return(can_get);
     }  
+
     IFB_INTERNAL bool
     json_doc_get_u32(
         const json_document* doc,
         const cchar*         name,
         u32&                 val) {
 
+        assert(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsUint()
+        );
+
+        if (can_get) {
+            val = doc->base[name].GetUint();
+        }
+
+        return(can_get);
     }
 
     IFB_INTERNAL bool
@@ -133,6 +147,19 @@ namespace ifb {
         const cchar* name,
         s32&         val) {
 
+        assert(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsInt()
+        );
+
+        if (can_get) {
+            val = doc->base[name].GetInt();
+        }
+
+        return(can_get);
     } 
 
     IFB_INTERNAL bool
@@ -141,6 +168,19 @@ namespace ifb {
         const cchar*         name,
         u64&                 val){
 
+        assert(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsInt64()
+        );
+
+        if (can_get) {
+            val = doc->base[name].GetUint64();
+        }
+
+        return(can_get);
     }
 
     IFB_INTERNAL bool
