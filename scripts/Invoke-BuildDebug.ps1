@@ -118,5 +118,3 @@ Copy-Item -Path $BinSrcCore   -Destination $BinDst
 Copy-Item -Path $BinSrcOpenGL -Destination $BinDst 
 Copy-Item -Path $ShdrSrc      -Destination $BinDst 
 Copy-Item -Path $VcpkgSrc     -Destination $BinDst 
-
-
