@@ -1,12 +1,14 @@
 #ifndef JSON_HPP
 #define JSON_HPP
 
+#include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "memory.hpp"
 
 namespace ifb {
 
     struct json_document;
+    struct json_iterator;
 
     IFB_INTERNAL json_document* json_doc_create            (arena* a, const u32 json_cstr_length, const cchar* json_cstr_ptr);
     IFB_INTERNAL void           json_doc_validate          (const json_document* doc);         
@@ -19,7 +21,9 @@ namespace ifb {
     IFB_INTERNAL bool           json_doc_get_s64           (const json_document* doc, const cchar* name, s64& val);
     IFB_INTERNAL bool           json_doc_get_f32           (const json_document* doc, const cchar* name, f64& val);
     IFB_INTERNAL bool           json_doc_get_f64           (const json_document* doc, const cchar* name, f64& val);
-    
+  
+    IFB_INTERNAL json_iterator* json_doc_get_iter_first    (const json_document* doc, const cchar* name);
+    IFB_INTERNAL json_iterator* json_doc_get_iter_next
 };
 
 #endif //JSON_HPP

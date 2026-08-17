@@ -2,6 +2,7 @@
 
 #include <rapidjson/document.h>
 #include "json.hpp"
+#include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "rapidjson/allocators.h"
 #include "rapidjson/encodings.h"
@@ -189,11 +190,60 @@ namespace ifb {
         const cchar*         name,
         s64&                 val) {
 
+        assert(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsInt64()
+        );
+
+        if (can_get) {
+            val = doc->base[name].IsInt64();
+        }
+
+        return(can_get);
+    }
+
+    IFB_INTERNAL bool
+    json_doc_get_f32(
+        const json_document* doc,
+        const cchar* name,
+        f32& val) {
+
+        assert(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsFloat()
+        );
+
+        if (can_get) {
+            val = doc->base[name].GetFloat();
+        }
+
+        return(can_get);
     }
 
     IFB_INTERNAL bool
     json_doc_get_f64(
         const json_document* doc,
         const cchar* name,
-        f64& val);
+        f64& val) {
+
+        assert(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsDouble()
+        );
+
+        if (can_get) {
+            val = doc->base[name].GetDouble();
+        }
+
+        return(can_get);
+    }
 };
