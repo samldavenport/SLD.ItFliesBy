@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <rapidjson/document.h>
 #include "json.hpp"
 #include "ifb-types.hpp"
@@ -56,11 +57,17 @@ namespace ifb {
 
     using json_dom_allocator    = rapidjson::MemoryPoolAllocator<json_allocator>; 
     using json_generic_document = rapidjson::GenericDocument<rapidjson::UTF8<>, json_dom_allocator, json_allocator>;
+    using json_iter             = rapidjson::Value::ConstValueIterator;
 
     struct json_document {
         json_allocator        allocator;
         json_dom_allocator    dom_allocator;
         json_generic_document base;
+    };
+
+    struct json_object {
+        json_allocator allocator;
+        json_iter* iter;    
     };
 
     IFB_INTERNAL json_document*
@@ -99,6 +106,24 @@ namespace ifb {
         assert(doc->base.IsObject());
     }
     
+    IFB_INTERNAL json_object*
+    json_doc_get_object(
+        const json_document* doc,
+        const cchar*         name) {
+
+        json_doc_validate(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+        );
+
+          = doc->base[name].GetObject();
+        }
+
+
+    }
+
     IFB_INTERNAL bool
     json_doc_get_bool(
         const json_document* doc,
@@ -246,4 +271,37 @@ namespace ifb {
 
         return(can_get);
     }
+  
+    IFB_INTERNAL json_iterator*
+    json_iter_get_first(
+        const json_document* doc,
+        const cchar*         name) {
+
+        assert(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsArray()
+        );
+
+        if (can_get) {
+            val = doc->base[name].Begin();
+        }
+
+        return(can_get);
+        
+    }
+ 
+    IFB_INTERNAL json_iterator* json_iter_get_next            (const json_iterator* next);
+    IFB_INTERNAL json_object*   json_iter_get_object          (const json_iterator* iter, const cchar* name, u32&    val);
+    IFB_INTERNAL bool           json_iter_get_string_length   (const json_iterator* iter, const cchar* name, u32&    val);
+    IFB_INTERNAL bool           json_iter_get_string_val      (const json_iterator* iter, const cchar* name, cchar*& val);
+    IFB_INTERNAL bool           json_iter_get_bool            (const json_iterator* iter, const cchar* name, bool&   val); 
+    IFB_INTERNAL bool           json_iter_get_u32             (const json_iterator* iter, const cchar* name, u32& val);
+    IFB_INTERNAL bool           json_iter_get_s32             (const json_iterator* iter, const cchar* name, s32& val);
+    IFB_INTERNAL bool           json_iter_get_u64             (const json_iterator* iter, const cchar* name, u64& val);
+    IFB_INTERNAL bool           json_iter_get_s64             (const json_iterator* iter, const cchar* name, s64& val);
+    IFB_INTERNAL bool           json_iter_get_f32             (const json_iterator* iter, const cchar* name, f64& val);
+    IFB_INTERNAL bool           json_iter_get_f64             (const json_iterator* iter, const cchar* name, f64& val);
 };
