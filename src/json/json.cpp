@@ -56,10 +56,10 @@ namespace ifb {
         }
     };
 
-
     using json_dom_allocator    = rapidjson::MemoryPoolAllocator<json_allocator>; 
     using json_generic_document = rapidjson::GenericDocument<rapidjson::UTF8<>, json_dom_allocator, json_allocator>;
     using json_iter             = rapidjson::Value::ConstValueIterator;
+    using json_val              = rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<ifb::json_allocator>>;
 
     struct json_document {
         json_allocator        allocator;
@@ -68,8 +68,8 @@ namespace ifb {
     };
 
     struct json_object {
-        json_allocator allocator;
-        json_iter* iter;    
+        const json_val*      val;
+        const json_document* doc; 
     };
 
     IFB_INTERNAL json_document*
@@ -120,7 +120,18 @@ namespace ifb {
         json_doc_validate(doc);
         assert(name);
 
-        return(NULL);
+        auto member = doc->base.FindMember(name);
+
+        if (member == doc->base.MemberEnd()) return(NULL);
+        if (!member->value.IsObject())       return(NULL);
+
+        auto obj = arena_push<json_object>(doc->allocator.memory);
+        if (!obj) return(NULL);
+
+        obj->doc = doc;
+        obj->val = &member->value;
+
+        return(obj);
     }
 
     IFB_INTERNAL bool
@@ -269,37 +280,26 @@ namespace ifb {
 
         return(can_get);
     }
-  
-    IFB_INTERNAL json_iterator*
-    json_iter_get_first(
-        const json_document* doc,
-        const cchar*         name) {
-
-        assert(doc);
-        assert(name);
-
-        const bool can_get = (
-            doc->base.HasMember(name) &&
-            doc->base[name].IsArray()
-        );
-
-
-        return(NULL);
-        
-    }
- 
-    IFB_INTERNAL json_iterator* json_iter_get_next            (const json_iterator* next);
-    IFB_INTERNAL json_object*   json_iter_get_object          (const json_iterator* iter, const cchar* name, u32&    val);
-    IFB_INTERNAL bool           json_iter_get_string_length   (const json_iterator* iter, const cchar* name, u32&    val);
-    IFB_INTERNAL bool           json_iter_get_string_val      (const json_iterator* iter, const cchar* name, cchar*& val);
-    IFB_INTERNAL bool           json_iter_get_bool            (const json_iterator* iter, const cchar* name, bool&   val); 
-    IFB_INTERNAL bool           json_iter_get_u32             (const json_iterator* iter, const cchar* name, u32& val);
-    IFB_INTERNAL bool           json_iter_get_s32             (const json_iterator* iter, const cchar* name, s32& val);
-    IFB_INTERNAL bool           json_iter_get_u64             (const json_iterator* iter, const cchar* name, u64& val);
-    IFB_INTERNAL bool           json_iter_get_s64             (const json_iterator* iter, const cchar* name, s64& val);
-    IFB_INTERNAL bool           json_iter_get_f32             (const json_iterator* iter, const cchar* name, f64& val);
-    IFB_INTERNAL bool           json_iter_get_f64             (const json_iterator* iter, const cchar* name, f64& val);
     
+    IFB_INTERNAL json_object*
+    json_object_get_object(
+        const json_object* obj,
+        const cchar*       name) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+    }
+
+    IFB_INTERNAL bool           json_object_get_string_length (const json_object* obj, const cchar* name, u32&    val);
+    IFB_INTERNAL bool           json_object_get_string_val    (const json_object* obj, const cchar* name, cchar*& val);
+    IFB_INTERNAL bool           json_object_get_bool          (const json_object* obj, const cchar* name, bool&   val); 
+    IFB_INTERNAL bool           json_object_get_u32           (const json_object* obj, const cchar* name, u32& val);
+    IFB_INTERNAL bool           json_object_get_s32           (const json_object* obj, const cchar* name, s32& val);
+    IFB_INTERNAL bool           json_object_get_u64           (const json_object* obj, const cchar* name, u64& val);
+    IFB_INTERNAL bool           json_object_get_s64           (const json_object* obj, const cchar* name, s64& val);
+    IFB_INTERNAL bool           json_object_get_f32           (const json_object* obj, const cchar* name, f64& val);
+    IFB_INTERNAL bool           json_object_get_f64           (const json_object* obj, const cchar* name, f64& val);
+
     IFB_INTERNAL void
     json_test(
         void) {
