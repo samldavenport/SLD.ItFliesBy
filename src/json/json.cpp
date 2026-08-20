@@ -98,7 +98,9 @@ namespace ifb {
             1024,
             &doc->allocator
         );  
-       
+      
+        doc->base.Parse(json_cstr_ptr, json_cstr_length);
+
         return(doc);
     }
     
