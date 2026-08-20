@@ -3,6 +3,8 @@
 #include <cassert>
 #include <rapidjson/document.h>
 #include "json.hpp"
+#include "file-common.cpp"
+#include "file-ro.cpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "rapidjson/allocators.h"
@@ -71,7 +73,7 @@ namespace ifb {
     };
 
     IFB_INTERNAL json_document*
-    json_document_create(
+    json_doc_create(
         arena*       a,
         const u32    json_cstr_length,
         const cchar* json_cstr_ptr) {
@@ -82,7 +84,9 @@ namespace ifb {
     
         auto doc = arena_push<json_document>(a); 
         assert(doc != NULL);
-   
+  
+        doc->allocator.memory = a;
+
         new (&doc->dom_allocator) json_dom_allocator(
             RAPIDJSON_ALLOCATOR_DEFAULT_CHUNK_CAPACITY,
             &doc->allocator
@@ -114,14 +118,7 @@ namespace ifb {
         json_doc_validate(doc);
         assert(name);
 
-        const bool can_get = (
-            doc->base.HasMember(name) &&
-        );
-
-          = doc->base[name].GetObject();
-        }
-
-
+        return(NULL);
     }
 
     IFB_INTERNAL bool
@@ -155,10 +152,9 @@ namespace ifb {
         assert(doc);
         assert(name);
 
-        const bool can_get = (
-            doc->base.HasMember(name) &&
-            doc->base[name].IsUint()
-        );
+        bool can_get = true;
+        can_get &= doc->base.HasMember(name); 
+        can_get &= doc->base[name].IsUint();
 
         if (can_get) {
             val = doc->base[name].GetUint();
@@ -285,11 +281,8 @@ namespace ifb {
             doc->base[name].IsArray()
         );
 
-        if (can_get) {
-            val = doc->base[name].Begin();
-        }
 
-        return(can_get);
+        return(NULL);
         
     }
  
@@ -304,4 +297,26 @@ namespace ifb {
     IFB_INTERNAL bool           json_iter_get_s64             (const json_iterator* iter, const cchar* name, s64& val);
     IFB_INTERNAL bool           json_iter_get_f32             (const json_iterator* iter, const cchar* name, f64& val);
     IFB_INTERNAL bool           json_iter_get_f64             (const json_iterator* iter, const cchar* name, f64& val);
+    
+    IFB_INTERNAL void
+    json_test(
+        void) {
+
+        arena* a = arena_alloc();
+        assert(a != NULL);
+
+        const file_handle json_hnd = file_ro_open_existing("test.json");
+        const u32         size     = file_get_size(json_hnd);
+        const cchar*      data     = file_read(json_hnd, size);    
+
+        json_document* doc = json_doc_create(a, size, data);
+        bool result = true;
+        u32 version;
+        result &= json_doc_get_u32(doc, "version", version);
+        assert(result);
+
+        file_close(json_hnd);
+        arena_free(a);
+   
+    }
 };

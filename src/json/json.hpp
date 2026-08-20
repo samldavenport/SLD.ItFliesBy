@@ -47,6 +47,7 @@ namespace ifb {
     IFB_INTERNAL bool           json_object_get_f32           (const json_object* obj, const cchar* name, f64& val);
     IFB_INTERNAL bool           json_object_get_f64           (const json_object* obj, const cchar* name, f64& val);
 
+    IFB_INTERNAL void           json_test                     (void);
 };
 
 #endif //JSON_HPP
