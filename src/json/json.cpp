@@ -60,7 +60,8 @@ namespace ifb {
     using json_generic_document = rapidjson::GenericDocument<rapidjson::UTF8<>, json_dom_allocator, json_allocator>;
     using json_iter             = rapidjson::Value::ConstValueIterator;
     using json_object_base      = rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<ifb::json_allocator>>;
-    
+    using json_array_base       = json_generic_document::ConstArray;
+
     struct json_document {
         json_allocator        allocator;
         json_dom_allocator    dom_allocator;
@@ -68,6 +69,7 @@ namespace ifb {
     };
 
     struct json_object : json_object_base { };
+    struct json_array  : json_array_base  { };
 
     IFB_INTERNAL json_document*
     json_doc_create(
@@ -125,12 +127,43 @@ namespace ifb {
         return((const json_object*)&member->value);
     }
 
+    IFB_INTERNAL const json_array*
+    json_doc_get_array(
+        const json_document* doc,
+        const cchar*         name) {
+
+        json_doc_validate(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name),
+            doc->base[name].IsArray()
+        );
+            
+        return(NULL);
+    }
+
+    IFB_INTERNAL const cchar*
+    json_doc_get_string(
+        const json_document* doc,
+        const cchar*         name) {
+
+        json_doc_validate(doc);
+        assert(name);
+
+        const bool can_get = (
+            doc->base.HasMember(name) &&
+            doc->base[name].IsString()
+        );
+
+        return(doc->base[name].GetString()); 
+    }
+   
     IFB_INTERNAL bool
     json_doc_get_bool(
         const json_document* doc,
         const cchar*         name,
         bool&                val) {
-
 
         json_doc_validate(doc);
         assert(name);
@@ -300,8 +333,48 @@ namespace ifb {
         return(false);
     }
 
-    IFB_INTERNAL bool           json_object_get_string_val    (const json_object* obj, const cchar* name, cchar*& val);
-    IFB_INTERNAL bool           json_object_get_bool          (const json_object* obj, const cchar* name, bool&   val); 
+    IFB_INTERNAL bool
+    json_object_get_string_val(
+        const json_object* obj,
+        const cchar*       name,
+        const cchar*&      val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsString()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetString();
+        }
+
+        return(can_get);
+
+    }
+
+    IFB_INTERNAL bool
+    json_object_get_bool(
+        const json_object* obj,
+        const cchar*       name,
+        bool&              val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsBool()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetBool();
+        }
+
+        return(can_get);
+    } 
 
     IFB_INTERNAL bool
     json_object_get_u32(
@@ -309,12 +382,124 @@ namespace ifb {
         const cchar*       name,
         u32&               val) {
 
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsNumber()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetUint();
+        }
+
+        return(can_get);
     }
-    IFB_INTERNAL bool           json_object_get_s32           (const json_object* obj, const cchar* name, s32& val);
-    IFB_INTERNAL bool           json_object_get_u64           (const json_object* obj, const cchar* name, u64& val);
-    IFB_INTERNAL bool           json_object_get_s64           (const json_object* obj, const cchar* name, s64& val);
-    IFB_INTERNAL bool           json_object_get_f32           (const json_object* obj, const cchar* name, f64& val);
-    IFB_INTERNAL bool           json_object_get_f64           (const json_object* obj, const cchar* name, f64& val);
+    IFB_INTERNAL bool
+    json_object_get_s32(
+        const json_object* obj,
+        const cchar*       name,
+        s32&               val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsNumber()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetInt();
+        }
+
+        return(can_get);
+    }
+
+    IFB_INTERNAL bool
+    json_object_get_u64(
+        const json_object* obj,
+        const cchar*       name,
+        u64&               val) {
+   
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsNumber()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetUint64();
+        }
+
+        return(can_get);
+    }
+
+    IFB_INTERNAL bool
+    json_object_get_s64(
+        const json_object* obj,
+        const cchar*       name,
+        s64&               val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsNumber()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetInt64();
+        }
+
+        return(can_get);
+    }
+
+    IFB_INTERNAL bool
+    json_object_get_f32(
+        const json_object* obj,
+        const cchar*       name,
+        f64&               val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsFloat()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetFloat();
+        }
+
+        return(can_get);
+    }
+
+    IFB_INTERNAL bool
+    json_object_get_f64(
+        const json_object* obj,
+        const cchar*       name,
+        f64&               val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        const bool can_get = (
+            obj->HasMember(name) &&
+            (*obj)[name].IsDouble()
+        );
+
+        if (can_get) {
+            val = (*obj)[name].GetDouble();
+        }
+
+        return(can_get);
+    }
 
     IFB_INTERNAL void
     json_test(
@@ -339,7 +524,15 @@ namespace ifb {
         assert(settings   != NULL);
         assert(resolution != NULL);
         assert(test_obj   == NULL);
-         
+        
+        u32 width, height = 0;
+        result &= json_object_get_u32(resolution, "width",  width);
+        result &= json_object_get_u32(resolution, "height", height);
+        assert(result);
+        assert(width  == 1920);
+        assert(height == 1080);
+
+        const char* name = json_doc_get_string(doc, "name"); 
 
         file_close(json_hnd);
         arena_free(a);

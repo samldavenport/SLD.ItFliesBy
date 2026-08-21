@@ -99,10 +99,6 @@ $Win32Link = @(
 & .\SLD.Core\scripts\Build-SLDCoreDebug.ps1
 & .\SLD.OpenGL\scripts\Invoke-BuildDebug.ps1
 
-Remove-Item -Path @(Join-Path $ProjectRoot "build\debug\bin\*")
-Remove-Item -Path @(Join-Path $ProjectRoot "build\debug\lib\*")
-Remove-Item -Path @(Join-Path $ProjectRoot "build\debug\obj\*")
-
 Invoke-Expression $EngCompile
 Invoke-Expression $EngLink
 Invoke-Expression $Win32Compile
