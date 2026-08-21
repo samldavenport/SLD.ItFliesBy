@@ -12,6 +12,10 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
+    
     struct json_allocator {
         arena* memory;
         static constexpr bool kNeedFree = false;
@@ -58,20 +62,25 @@ namespace ifb {
 
     using json_dom_allocator    = rapidjson::MemoryPoolAllocator<json_allocator>; 
     using json_generic_document = rapidjson::GenericDocument<rapidjson::UTF8<>, json_dom_allocator, json_allocator>;
-    using json_iter             = rapidjson::Value::ConstValueIterator;
-    using json_object_base      = rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<ifb::json_allocator>>;
-    using json_array_base       = json_generic_document::ConstArray;
+    using json_itr_base         = rapidjson::Value::ValueIterator;
+    using json_obj_base         = rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<ifb::json_allocator>>;
+    using json_arr_base         = rapidjson::GenericArray<true, json_obj_base>;
 
-    struct json_document {
+    struct json_doc {
         json_allocator        allocator;
         json_dom_allocator    dom_allocator;
         json_generic_document base;
     };
 
-    struct json_object : json_object_base { };
-    struct json_array  : json_array_base  { };
+    struct json_obj : json_obj_base { };
+    struct json_arr : json_obj_base { };
+    struct json_itr;
 
-    IFB_INTERNAL json_document*
+    //--------------------------------------------------------------------
+    // DOCUMENT METHODS 
+    //--------------------------------------------------------------------
+    
+    IFB_INTERNAL json_doc*
     json_doc_create(
         arena*       a,
         const u32    json_cstr_length,
@@ -81,7 +90,7 @@ namespace ifb {
         assert(json_cstr_length != 0);
         assert(json_cstr_ptr    != NULL);
     
-        auto doc = arena_push<json_document>(a); 
+        auto doc = arena_push<json_doc>(a); 
         assert(doc != NULL);
   
         doc->allocator.memory = a;
@@ -105,16 +114,16 @@ namespace ifb {
     
     IFB_INTERNAL void 
     json_doc_validate(
-        const json_document* doc) {
+        const json_doc* doc) {
 
         assert(doc);
         assert(doc->base.IsObject());
     }
     
-    IFB_INTERNAL const json_object*
-    json_doc_get_object(
-        const json_document* doc,
-        const cchar*         name) {
+    IFB_INTERNAL const json_obj*
+    json_doc_get_obj(
+        const json_doc* doc,
+        const cchar*    name) {
 
         json_doc_validate(doc);
         assert(name);
@@ -124,28 +133,28 @@ namespace ifb {
         if (member == doc->base.MemberEnd()) return(NULL);
         if (!member->value.IsObject())       return(NULL);
 
-        return((const json_object*)&member->value);
+        return((const json_obj*)&member->value);
     }
 
-    IFB_INTERNAL const json_array*
-    json_doc_get_array(
-        const json_document* doc,
-        const cchar*         name) {
+    IFB_INTERNAL const json_arr*
+    json_doc_get_arr(
+        const json_doc* doc,
+        const cchar*    name) {
 
         json_doc_validate(doc);
         assert(name);
 
-        const bool can_get = (
-            doc->base.HasMember(name),
-            doc->base[name].IsArray()
-        );
-            
-        return(NULL);
+        auto member = doc->base.FindMember(name);
+        
+        if (member == doc->base.MemberEnd()) return(NULL);
+        if (!member->value.IsArray())        return(NULL);
+
+        return((const json_arr*)&member->value);
     }
 
     IFB_INTERNAL const cchar*
-    json_doc_get_string(
-        const json_document* doc,
+    json_doc_get_cstr(
+        const json_doc* doc,
         const cchar*         name) {
 
         json_doc_validate(doc);
@@ -161,7 +170,7 @@ namespace ifb {
    
     IFB_INTERNAL bool
     json_doc_get_bool(
-        const json_document* doc,
+        const json_doc* doc,
         const cchar*         name,
         bool&                val) {
 
@@ -182,7 +191,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     json_doc_get_u32(
-        const json_document* doc,
+        const json_doc* doc,
         const cchar*         name,
         u32&                 val) {
 
@@ -202,7 +211,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     json_doc_get_s32(
-        const json_document* doc,
+        const json_doc* doc,
         const cchar* name,
         s32&         val) {
 
@@ -223,7 +232,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     json_doc_get_u64(
-        const json_document* doc,
+        const json_doc* doc,
         const cchar*         name,
         u64&                 val){
 
@@ -244,7 +253,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     json_doc_get_s64(
-        const json_document* doc,
+        const json_doc* doc,
         const cchar*         name,
         s64&                 val) {
 
@@ -265,7 +274,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     json_doc_get_f32(
-        const json_document* doc,
+        const json_doc* doc,
         const cchar* name,
         f32& val) {
 
@@ -286,7 +295,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     json_doc_get_f64(
-        const json_document* doc,
+        const json_doc* doc,
         const cchar* name,
         f64& val) {
 
@@ -305,9 +314,13 @@ namespace ifb {
         return(can_get);
     }
     
-    IFB_INTERNAL const json_object*
-    json_object_get_object(
-        const json_object* obj,
+    //--------------------------------------------------------------------
+    // OBJECT METHODS 
+    //--------------------------------------------------------------------
+    
+    IFB_INTERNAL const json_obj*
+    json_obj_get_obj(
+        const json_obj* obj,
         const cchar*       name) {
 
         assert(obj  != NULL);
@@ -318,26 +331,13 @@ namespace ifb {
         if (member == obj->MemberEnd()) return(NULL);
         if (!member->value.IsObject())  return(NULL);
 
-        return((const json_object*)&member->value);
+        return((const json_obj*)&member->value);
     }
-
-    IFB_INTERNAL bool
-    json_object_get_string_length(
-        const json_object* obj,
-        const cchar*       name,
-        u32&               val) {
-
-        assert(obj  != NULL);
-        assert(name != NULL);
-        
-        return(false);
-    }
-
-    IFB_INTERNAL bool
-    json_object_get_string_val(
-        const json_object* obj,
-        const cchar*       name,
-        const cchar*&      val) {
+    
+    IFB_INTERNAL const cchar* 
+    json_obj_get_cstr(
+        const json_obj* obj,
+        const cchar*    name) {
 
         assert(obj  != NULL);
         assert(name != NULL);
@@ -347,19 +347,14 @@ namespace ifb {
             (*obj)[name].IsString()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetString();
-        }
-
-        return(can_get);
-
+        return((*obj)[name].GetString());
     }
 
     IFB_INTERNAL bool
-    json_object_get_bool(
-        const json_object* obj,
-        const cchar*       name,
-        bool&              val) {
+    json_obj_get_bool(
+        const json_obj* obj,
+        const cchar*    name,
+        bool&           val) {
 
         assert(obj  != NULL);
         assert(name != NULL);
@@ -377,8 +372,8 @@ namespace ifb {
     } 
 
     IFB_INTERNAL bool
-    json_object_get_u32(
-        const json_object* obj,
+    json_obj_get_u32(
+        const json_obj* obj,
         const cchar*       name,
         u32&               val) {
 
@@ -396,9 +391,10 @@ namespace ifb {
 
         return(can_get);
     }
+    
     IFB_INTERNAL bool
-    json_object_get_s32(
-        const json_object* obj,
+    json_obj_get_s32(
+        const json_obj* obj,
         const cchar*       name,
         s32&               val) {
 
@@ -418,8 +414,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    json_object_get_u64(
-        const json_object* obj,
+    json_obj_get_u64(
+        const json_obj* obj,
         const cchar*       name,
         u64&               val) {
    
@@ -439,8 +435,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    json_object_get_s64(
-        const json_object* obj,
+    json_obj_get_s64(
+        const json_obj* obj,
         const cchar*       name,
         s64&               val) {
 
@@ -460,8 +456,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    json_object_get_f32(
-        const json_object* obj,
+    json_obj_get_f32(
+        const json_obj* obj,
         const cchar*       name,
         f64&               val) {
 
@@ -481,8 +477,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    json_object_get_f64(
-        const json_object* obj,
+    json_obj_get_f64(
+        const json_obj* obj,
         const cchar*       name,
         f64&               val) {
 
@@ -501,38 +497,77 @@ namespace ifb {
         return(can_get);
     }
 
+    IFB_INTERNAL u32
+    json_arr_get_count(
+        const json_arr* arr) {
+
+        assert(arr && arr->IsArray());
+        auto arr_base = arr->GetArray();
+
+        return(arr_base.Size());
+    }
+    
+    IFB_INTERNAL const json_obj*
+    json_arr_get_obj(
+        const json_arr* arr,
+        const u32       index) {
+    
+        assert(arr && arr->IsArray()); 
+    }
+
+    IFB_INTERNAL bool            json_arr_get_bool  (const json_arr* arr, const u32 index, bool&   val); 
+    IFB_INTERNAL bool            json_arr_get_u32   (const json_arr* arr, const u32 index, u32& val);
+    IFB_INTERNAL bool            json_arr_get_s32   (const json_arr* arr, const u32 index, s32& val);
+    IFB_INTERNAL bool            json_arr_get_u64   (const json_arr* arr, const u32 index, u64& val);
+    IFB_INTERNAL bool            json_arr_get_s64   (const json_arr* arr, const u32 index, s64& val);
+    IFB_INTERNAL bool            json_arr_get_f32   (const json_arr* arr, const u32 index, f64& val);
+    IFB_INTERNAL bool            json_arr_get_f64   (const json_arr* arr, const u32 index, f64& val);
+   
     IFB_INTERNAL void
     json_test(
         void) {
 
+        // get arena
         arena* a = arena_alloc();
         assert(a != NULL);
 
+        // read the json data
         const file_handle json_hnd = file_ro_open_existing("test.json");
         const u32         size     = file_get_size(json_hnd);
         const cchar*      data     = file_read(json_hnd, size);    
 
-        json_document* doc = json_doc_create(a, size, data);
+        // create the document
+        json_doc* doc = json_doc_create(a, size, data);
         bool result = true;
         u32 version;
         result &= json_doc_get_u32(doc, "version", version);
         assert(result);
 
-        const json_object* settings   = json_doc_get_object    (doc,      "settings");
-        const json_object* resolution = json_object_get_object (settings, "resolution");
-        const json_object* test_obj   = json_object_get_object (settings, "test-obj");
+        // read nested objects
+        const json_obj* settings   = json_doc_get_obj(doc,      "settings");
+        const json_obj* resolution = json_obj_get_obj(settings, "resolution");
+        const json_obj* test_obj   = json_obj_get_obj(settings, "test-obj");
         assert(settings   != NULL);
         assert(resolution != NULL);
         assert(test_obj   == NULL);
-        
+       
+        // get object values
         u32 width, height = 0;
-        result &= json_object_get_u32(resolution, "width",  width);
-        result &= json_object_get_u32(resolution, "height", height);
+        result &= json_obj_get_u32(resolution, "width",  width);
+        result &= json_obj_get_u32(resolution, "height", height);
         assert(result);
         assert(width  == 1920);
         assert(height == 1080);
 
-        const char* name = json_doc_get_string(doc, "name"); 
+        // get string
+        const char* name = json_doc_get_cstr(doc, "name"); 
+
+        // get array count
+        const json_arr* items = json_doc_get_arr(doc, "items"); 
+        assert(items);
+        const u32 items_count = json_arr_get_count(items);
+        assert(items_count == 2);
+
 
         file_close(json_hnd);
         arena_free(a);

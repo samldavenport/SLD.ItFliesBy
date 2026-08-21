@@ -21,7 +21,7 @@ using namespace sld;
 #define IFB_U32(type) struct type : sld::strong_u32 { using strong_u32::strong_u32; };
 
 namespace ifb {
-    
+   
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
