@@ -12,6 +12,7 @@ $EngCompile = @(
     "/I"   + @(Join-Path $ProjectRoot "src\entities")
     "/I"   + @(Join-Path $ProjectRoot "src\files")
     "/I"   + @(Join-Path $ProjectRoot "src\gui")
+    "/I"   + @(Join-Path $ProjectRoot "src\json")
     "/I"   + @(Join-Path $ProjectRoot "src\memory")
     "/I"   + @(Join-Path $ProjectRoot "src\physics")
     "/I"   + @(Join-Path $ProjectRoot "src\quads")
@@ -103,13 +104,15 @@ Invoke-Expression $EngLink
 Invoke-Expression $Win32Compile
 Invoke-Expression $Win32Link
 
-$BinDst       = @(Join-Path $ProjectRoot "build\debug\bin") -join " "
-$BinSrcOpenGL = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll") -join " "
-$BinSrcCore   = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll") -join " "
-$ShdrSrc      = @(Join-Path $ProjectRoot "assets\shaders\*.glsl") -join " "
+$BinDst       = @(Join-Path $ProjectRoot "build\debug\bin")                       -join " "
+$BinSrcOpenGL = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll")      -join " "
+$BinSrcCore   = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll")        -join " "
+$ShdrSrc      = @(Join-Path $ProjectRoot "assets\shaders\*.glsl")                 -join " "
+$JsonSrc      = @(Join-Path $ProjectRoot "assets\json\*.json")                    -join " "
+$VcpkgSrc     = @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\bin\*.dll") -join " "
 
 Copy-Item -Path $BinSrcCore   -Destination $BinDst 
 Copy-Item -Path $BinSrcOpenGL -Destination $BinDst 
 Copy-Item -Path $ShdrSrc      -Destination $BinDst 
-
-
+Copy-Item -Path $VcpkgSrc     -Destination $BinDst 
+Copy-Item -Path $JsonSrc      -Destination $BinDst 

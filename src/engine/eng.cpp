@@ -8,7 +8,7 @@
 #include "collection-stack.cpp"
 #include "collection-entity-list.cpp"
 #include "collection-component-table.cpp"
-#include "collection-index-list.cpp"
+#include "collection-index-cache.cpp"
 
 #include "component-manager.cpp"
 #include "component-tables.cpp"
@@ -40,6 +40,8 @@
 #include "file-rw.cpp"
 
 #include "gui.cpp"
+
+#include "json.cpp"
 
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"

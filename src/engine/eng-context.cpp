@@ -11,6 +11,7 @@
 #include "quad.cpp"
 #include "renderer.cpp"
 #include "renderer.hpp"
+#include "json.hpp"
 
 namespace ifb {
 
@@ -114,6 +115,8 @@ namespace ifb {
     eng_context_run(void) {
 
         static f32 elapsed_time = 0.0f;
+
+        json_test(); 
 
         while(true) {
 

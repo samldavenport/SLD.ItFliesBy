@@ -1,0 +1,41 @@
+{
+    "name": "Test Document",
+    "version": 1,
+    "pi": 3.14159,
+    "enabled": true,
+    "description": "A simple JSON document for parser testing",
+    "numbers": {
+        "integer": 42,
+        "negative": -17,
+        "float": 12.5
+    },
+    "tags": [
+        "json",
+        "parser",
+        "test"
+    ],
+    "position": {
+        "x": 10.5,
+        "y": 20.0,
+        "z": -5.25
+    },
+    "items": [
+        {
+            "id": 1,
+            "name": "Sword",
+            "weight": 3.5
+        },
+        {
+            "id": 2,
+            "name": "Shield",
+            "weight": 7.25
+        }
+    ],
+    "settings": {
+        "resolution": {
+            "width": 1920,
+            "height": 1080
+        },
+        "fullscreen": false
+    }
+}
