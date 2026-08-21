@@ -59,7 +59,6 @@ namespace ifb {
     using json_dom_allocator    = rapidjson::MemoryPoolAllocator<json_allocator>; 
     using json_generic_document = rapidjson::GenericDocument<rapidjson::UTF8<>, json_dom_allocator, json_allocator>;
     using json_iter             = rapidjson::Value::ConstValueIterator;
-    using json_val              = rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<ifb::json_allocator>>;
 
     struct json_document {
         json_allocator        allocator;
@@ -67,9 +66,11 @@ namespace ifb {
         json_generic_document base;
     };
 
-    struct json_object {
-        const json_val*      val;
-        const json_document* doc; 
+    struct json_object :
+        rapidjson::GenericValue<
+            rapidjson::UTF8<char>,
+            rapidjson::MemoryPoolAllocator<ifb::json_allocator>
+        >{
     };
 
     IFB_INTERNAL json_document*
@@ -112,7 +113,7 @@ namespace ifb {
         assert(doc->base.IsObject());
     }
     
-    IFB_INTERNAL json_object*
+    IFB_INTERNAL const json_object*
     json_doc_get_object(
         const json_document* doc,
         const cchar*         name) {
@@ -125,13 +126,7 @@ namespace ifb {
         if (member == doc->base.MemberEnd()) return(NULL);
         if (!member->value.IsObject())       return(NULL);
 
-        auto obj = arena_push<json_object>(doc->allocator.memory);
-        if (!obj) return(NULL);
-
-        obj->doc = doc;
-        obj->val = &member->value;
-
-        return(obj);
+        return((const json_object*)&member->value);
     }
 
     IFB_INTERNAL bool
@@ -288,9 +283,23 @@ namespace ifb {
 
         assert(obj  != NULL);
         assert(name != NULL);
+
+        //TODO
+        return(NULL);
     }
 
-    IFB_INTERNAL bool           json_object_get_string_length (const json_object* obj, const cchar* name, u32&    val);
+    IFB_INTERNAL bool
+    json_object_get_string_length(
+        const json_object* obj,
+        const cchar*       name,
+        u32&               val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+        
+        return(false);
+    }
+
     IFB_INTERNAL bool           json_object_get_string_val    (const json_object* obj, const cchar* name, cchar*& val);
     IFB_INTERNAL bool           json_object_get_bool          (const json_object* obj, const cchar* name, bool&   val); 
     IFB_INTERNAL bool           json_object_get_u32           (const json_object* obj, const cchar* name, u32& val);
@@ -316,6 +325,10 @@ namespace ifb {
         u32 version;
         result &= json_doc_get_u32(doc, "version", version);
         assert(result);
+
+        const json_object* settings = json_doc_get_object(doc, "settings");
+        assert(settings);
+         
 
         file_close(json_hnd);
         arena_free(a);
