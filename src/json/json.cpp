@@ -497,6 +497,10 @@ namespace ifb {
         return(can_get);
     }
 
+    //--------------------------------------------------------------------
+    // ARRAY METHODS
+    //--------------------------------------------------------------------
+    
     IFB_INTERNAL u32
     json_arr_get_count(
         const json_arr* arr) {
@@ -513,15 +517,163 @@ namespace ifb {
         const u32       index) {
     
         assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto&     inst   = (*arr)[index]; 
+        const bool      is_obj = inst.IsObject(); 
+        const json_obj* obj    = is_obj ? (json_obj*)&inst : NULL;
+
+        return(obj);
     }
 
-    IFB_INTERNAL bool            json_arr_get_bool  (const json_arr* arr, const u32 index, bool&   val); 
-    IFB_INTERNAL bool            json_arr_get_u32   (const json_arr* arr, const u32 index, u32& val);
-    IFB_INTERNAL bool            json_arr_get_s32   (const json_arr* arr, const u32 index, s32& val);
-    IFB_INTERNAL bool            json_arr_get_u64   (const json_arr* arr, const u32 index, u64& val);
-    IFB_INTERNAL bool            json_arr_get_s64   (const json_arr* arr, const u32 index, s64& val);
-    IFB_INTERNAL bool            json_arr_get_f32   (const json_arr* arr, const u32 index, f64& val);
-    IFB_INTERNAL bool            json_arr_get_f64   (const json_arr* arr, const u32 index, f64& val);
+    IFB_INTERNAL bool
+    json_arr_get_bool(
+        const json_arr* arr,
+        const u32       index,
+        bool&           val) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst    = (*arr)[index]; 
+        const bool  is_bool = inst.IsBool(); 
+
+        if (is_bool) {
+            val = inst.GetBool();
+        }
+
+        return(is_bool);
+    } 
+
+    IFB_INTERNAL bool
+    json_arr_get_u32(
+        const json_arr* arr,
+        const u32       index,
+        u32&            val) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst   = (*arr)[index]; 
+        const bool  is_u32 = inst.IsUint(); 
+
+        if (is_u32) {
+            val = inst.GetUint();
+        }
+
+        return(is_u32);
+    }
+
+    IFB_INTERNAL bool
+    json_arr_get_s32(
+        const json_arr* arr,
+        const u32       index,
+        s32&            val) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst   = (*arr)[index]; 
+        const bool  is_u32 = inst.IsInt(); 
+
+        if (is_u32) {
+            val = inst.GetInt();
+        }
+
+        return(is_u32);
+    }
+
+    IFB_INTERNAL bool
+    json_arr_get_u64(
+        const json_arr* arr,
+        const u32       index,
+        u64&            val) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst   = (*arr)[index]; 
+        const bool  is_u64 = inst.IsUint64(); 
+
+        if (is_u64) {
+            val = inst.GetUint64();
+        }
+
+        return(is_u64);
+    }
+
+    IFB_INTERNAL bool
+    json_arr_get_s64(
+        const json_arr* arr,
+        const u32       index,
+        s64&            val) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst   = (*arr)[index]; 
+        const bool  is_s64 = inst.IsInt64(); 
+
+        if (is_s64) {
+            val = inst.GetInt64();
+        }
+
+        return(is_s64);
+    }
+
+    IFB_INTERNAL bool
+    json_arr_get_f32(
+        const json_arr* arr,
+        const u32       index,
+        f64&            val) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst   = (*arr)[index]; 
+        const bool  is_f32 = inst.IsFloat(); 
+
+        if (is_f32) {
+            val = inst.GetFloat();
+        }
+
+        return(is_f32);
+    }
+
+    IFB_INTERNAL bool
+    json_arr_get_f64(
+        const json_arr* arr,
+        const u32       index,
+        f64&            val) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst   = (*arr)[index]; 
+        const bool  is_f64 = inst.IsDouble(); 
+
+        if (is_f64) {
+            val = inst.GetDouble();
+        }
+
+        return(is_f64);
+    }
    
     IFB_INTERNAL void
     json_test(
@@ -568,7 +720,15 @@ namespace ifb {
         const u32 items_count = json_arr_get_count(items);
         assert(items_count == 2);
 
+        // get the second element
+        const json_obj* item_1 = json_arr_get_obj(items, 1);
+        assert(item_1);
 
+        // get the second element properties 
+        const cchar* item_1_name = json_obj_get_cstr(item_1, "name");
+        assert(item_1_name != NULL);
+
+        
         file_close(json_hnd);
         arena_free(a);
    

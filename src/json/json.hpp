@@ -61,22 +61,10 @@ namespace ifb {
     IFB_INTERNAL bool            json_arr_get_f64   (const json_arr* arr, const u32 index, f64& val);
 
     //--------------------------------------------------------------------
-    // ITERATOR METHODS 
+    // TEST METHODS
     //--------------------------------------------------------------------
     
-    IFB_INTERNAL json_itr*      json_itr_get_first (const json_doc* doc, const cchar* name);
-    IFB_INTERNAL json_itr*      json_itr_get_next  (const json_itr* next);
-    IFB_INTERNAL json_obj*      json_itr_get_obj   (const json_itr* iter, const cchar* name, u32&    val);
-    IFB_INTERNAL bool           json_itr_get_bool  (const json_itr* iter, const cchar* name, bool&   val); 
-    IFB_INTERNAL bool           json_itr_get_u32   (const json_itr* iter, const cchar* name, u32& val);
-    IFB_INTERNAL bool           json_itr_get_s32   (const json_itr* iter, const cchar* name, s32& val);
-    IFB_INTERNAL bool           json_itr_get_u64   (const json_itr* iter, const cchar* name, u64& val);
-    IFB_INTERNAL bool           json_itr_get_s64   (const json_itr* iter, const cchar* name, s64& val);
-    IFB_INTERNAL bool           json_itr_get_f32   (const json_itr* iter, const cchar* name, f64& val);
-    IFB_INTERNAL bool           json_itr_get_f64   (const json_itr* iter, const cchar* name, f64& val);
-
-
-    IFB_INTERNAL void            json_test                     (void);
+    IFB_INTERNAL void            json_test          (void);
 };
 
 #endif //JSON_HPP
