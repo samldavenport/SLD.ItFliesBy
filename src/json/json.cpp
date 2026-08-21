@@ -59,19 +59,15 @@ namespace ifb {
     using json_dom_allocator    = rapidjson::MemoryPoolAllocator<json_allocator>; 
     using json_generic_document = rapidjson::GenericDocument<rapidjson::UTF8<>, json_dom_allocator, json_allocator>;
     using json_iter             = rapidjson::Value::ConstValueIterator;
-
+    using json_object_base      = rapidjson::GenericValue<rapidjson::UTF8<char>, rapidjson::MemoryPoolAllocator<ifb::json_allocator>>;
+    
     struct json_document {
         json_allocator        allocator;
         json_dom_allocator    dom_allocator;
         json_generic_document base;
     };
 
-    struct json_object :
-        rapidjson::GenericValue<
-            rapidjson::UTF8<char>,
-            rapidjson::MemoryPoolAllocator<ifb::json_allocator>
-        >{
-    };
+    struct json_object : json_object_base { };
 
     IFB_INTERNAL json_document*
     json_doc_create(
@@ -276,7 +272,7 @@ namespace ifb {
         return(can_get);
     }
     
-    IFB_INTERNAL json_object*
+    IFB_INTERNAL const json_object*
     json_object_get_object(
         const json_object* obj,
         const cchar*       name) {
@@ -284,8 +280,12 @@ namespace ifb {
         assert(obj  != NULL);
         assert(name != NULL);
 
-        //TODO
-        return(NULL);
+        auto member = obj->FindMember(name);
+
+        if (member == obj->MemberEnd()) return(NULL);
+        if (!member->value.IsObject())  return(NULL);
+
+        return((const json_object*)&member->value);
     }
 
     IFB_INTERNAL bool
@@ -302,7 +302,14 @@ namespace ifb {
 
     IFB_INTERNAL bool           json_object_get_string_val    (const json_object* obj, const cchar* name, cchar*& val);
     IFB_INTERNAL bool           json_object_get_bool          (const json_object* obj, const cchar* name, bool&   val); 
-    IFB_INTERNAL bool           json_object_get_u32           (const json_object* obj, const cchar* name, u32& val);
+
+    IFB_INTERNAL bool
+    json_object_get_u32(
+        const json_object* obj,
+        const cchar*       name,
+        u32&               val) {
+
+    }
     IFB_INTERNAL bool           json_object_get_s32           (const json_object* obj, const cchar* name, s32& val);
     IFB_INTERNAL bool           json_object_get_u64           (const json_object* obj, const cchar* name, u64& val);
     IFB_INTERNAL bool           json_object_get_s64           (const json_object* obj, const cchar* name, s64& val);
@@ -326,8 +333,12 @@ namespace ifb {
         result &= json_doc_get_u32(doc, "version", version);
         assert(result);
 
-        const json_object* settings = json_doc_get_object(doc, "settings");
-        assert(settings);
+        const json_object* settings   = json_doc_get_object    (doc,      "settings");
+        const json_object* resolution = json_object_get_object (settings, "resolution");
+        const json_object* test_obj   = json_object_get_object (settings, "test-obj");
+        assert(settings   != NULL);
+        assert(resolution != NULL);
+        assert(test_obj   == NULL);
          
 
         file_close(json_hnd);

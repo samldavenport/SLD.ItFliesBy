@@ -36,7 +36,7 @@ namespace ifb {
     IFB_INTERNAL bool           json_iter_get_f32             (const json_iterator* iter, const cchar* name, f64& val);
     IFB_INTERNAL bool           json_iter_get_f64             (const json_iterator* iter, const cchar* name, f64& val);
 
-    IFB_INTERNAL json_object*   json_object_get_object        (const json_object* obj, const cchar* name);
+    IFB_INTERNAL const json_object*   json_object_get_object        (const json_object* obj, const cchar* name);
     IFB_INTERNAL bool           json_object_get_string_length (const json_object* obj, const cchar* name, u32&    val);
     IFB_INTERNAL bool           json_object_get_string_val    (const json_object* obj, const cchar* name, cchar*& val);
     IFB_INTERNAL bool           json_object_get_bool          (const json_object* obj, const cchar* name, bool&   val); 
