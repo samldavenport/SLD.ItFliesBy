@@ -6,6 +6,8 @@
 
 namespace ifb {
 
+    //NOTE(SAM):https://doc.mapeditor.org/en/stable/reference/json-map-format/#json-map-format 
+
     //--------------------------------------------------------------------
     // DECLARATIONS 
     //--------------------------------------------------------------------
