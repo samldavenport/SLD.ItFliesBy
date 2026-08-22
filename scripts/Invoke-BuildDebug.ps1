@@ -18,6 +18,7 @@ $EngCompile = @(
     "/I"   + @(Join-Path $ProjectRoot "src\quads")
     "/I"   + @(Join-Path $ProjectRoot "src\renderer")
     "/I"   + @(Join-Path $ProjectRoot "src\win32")
+    "/I"   + @(Join-Path $ProjectRoot "src\tiled")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.OpenGL\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Math\include")
