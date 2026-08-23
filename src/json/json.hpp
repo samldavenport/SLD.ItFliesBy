@@ -38,6 +38,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_INTERNAL const json_obj* json_obj_get_obj  (const json_obj* obj, const cchar* name);
+    IFB_INTERNAL const json_arr* json_obj_get_arr  (const json_obj* obj, const cchar* name);
     IFB_INTERNAL const cchar*    json_obj_get_cstr (const json_obj* obj, const cchar* name); 
     IFB_INTERNAL bool            json_obj_get_bool (const json_obj* obj, const cchar* name); 
     IFB_INTERNAL u32             json_obj_get_u32  (const json_obj* obj, const cchar* name);

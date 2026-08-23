@@ -312,6 +312,22 @@ namespace ifb {
         return((const json_obj*)&member->value);
     }
     
+    IFB_INTERNAL const json_arr*
+    json_obj_get_arr(
+        const json_obj* obj,
+        const cchar*    name) {
+
+        assert(obj);
+        assert(name);
+
+        auto member = obj->FindMember(name);
+        
+        if (member == obj->MemberEnd()) return(NULL);
+        if (!member->value.IsArray())   return(NULL);
+
+        return((const json_arr*)&member->value);
+    }
+    
     IFB_INTERNAL const cchar* 
     json_obj_get_cstr(
         const json_obj* obj,
@@ -631,10 +647,7 @@ namespace ifb {
 
         // create the document
         json_doc* doc = json_doc_create(a, size, data);
-        bool result = true;
-        u32 version;
-        result &= json_doc_get_u32(doc, "version", version);
-        assert(result);
+        u32 version = json_doc_get_u32(doc, "version");
 
         // read nested objects
         const json_obj* settings   = json_doc_get_obj(doc,      "settings");
@@ -645,10 +658,8 @@ namespace ifb {
         assert(test_obj   == NULL);
        
         // get object values
-        u32 width, height = 0;
-        result &= json_obj_get_u32(resolution, "width",  width);
-        result &= json_obj_get_u32(resolution, "height", height);
-        assert(result);
+        u32 width  = json_obj_get_u32(resolution, "width");
+        u32 height = json_obj_get_u32(resolution, "height");
         assert(width  == 1920);
         assert(height == 1080);
 

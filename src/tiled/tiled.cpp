@@ -7,6 +7,10 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // MAP METHODS 
+    //--------------------------------------------------------------------
+    
     IFB_INTERNAL tiled_map*
     tiled_map_create(
         arena*       a,
@@ -38,20 +42,28 @@ namespace ifb {
         assert(a);
         assert(obj);
 
-
-
         auto map = arena_push<tiled_map>(a);
         if (!map) return(NULL);
 
 
         bool result = true;
 
-        const cchar* background_color = json_obj_get_cstr(obj, "backgroundcolor");
+        const cchar*    background_color = json_obj_get_cstr (obj, "backgroundcolor");
+        const json_arr* arr_layer        = json_obj_get_arr  (obj, "layers"); 
+        const json_arr* arr_properties   = json_obj_get_arr  (obj, "properties"); 
+        const json_obj* obj_tileset = json_obj_get_obj(obj, "tileset");
+        
 
         map->map_class = json_obj_get_cstr(obj, "class");
-        map->compression_level = json_obj_get_s32(obj, "compressionlevel", );
+        map->compression_level = json_obj_get_s32(obj, "compressionlevel");
+        map->height = json_obj_get_s32(obj, "height");
+        map->hex_side_length = json_obj_get_s32(obj, "hexsidelength");
+        map->infinite = json_obj_get_bool((obj, "infinite");
+        map->next_layer_id = json_obj_get_bool((obj, "nextlayerid");
+        map->next_layer_id = json_obj_get_bool((obj, "nextlayerid");
+        
 
-    
+        return(NULL);
 
     }
 

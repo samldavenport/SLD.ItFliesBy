@@ -96,9 +96,9 @@ namespace ifb {
     using tiled_map_stagger_index_u32 = u32;
 
     struct tiled_map {
-        cchar*                      map_class;
-        cchar*                      tiled_version;
-        cchar*                      format_version;
+        const cchar*                map_class;
+        const cchar*                tiled_version;
+        const cchar*                format_version;
         tiled_layer*                layer_array;
         tiled_property*             property_array; 
         tiled_tileset*              tileset_array; 
