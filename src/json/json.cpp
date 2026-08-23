@@ -155,7 +155,7 @@ namespace ifb {
     IFB_INTERNAL const cchar*
     json_doc_get_cstr(
         const json_doc* doc,
-        const cchar*         name) {
+        const cchar*    name) {
 
         json_doc_validate(doc);
         assert(name);
@@ -171,70 +171,59 @@ namespace ifb {
     IFB_INTERNAL bool
     json_doc_get_bool(
         const json_doc* doc,
-        const cchar*         name,
-        bool&                val) {
+        const cchar*    name) {
 
         json_doc_validate(doc);
         assert(name);
 
-        const bool can_get = (
+        const bool is_bool = (
             doc->base.HasMember(name) &&
             doc->base[name].IsBool()
         );
 
-        if (can_get) {
-            val = doc->base[name].GetBool();             
-        }
+        assert(is_bool);
 
-        return(can_get);
+        return(doc->base[name].GetBool());
     }  
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL u32 
     json_doc_get_u32(
         const json_doc* doc,
-        const cchar*         name,
-        u32&                 val) {
+        const cchar*    name) {
 
         assert(doc);
         assert(name);
 
-        bool can_get = true;
-        can_get &= doc->base.HasMember(name); 
-        can_get &= doc->base[name].IsUint();
+        bool is_u32 = true;
+        is_u32 &= doc->base.HasMember(name); 
+        is_u32 &= doc->base[name].IsUint();
+        assert(is_u32);
 
-        if (can_get) {
-            val = doc->base[name].GetUint();
-        }
-
-        return(can_get);
+        return(doc->base[name].GetUint());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL s32 
     json_doc_get_s32(
         const json_doc* doc,
-        const cchar* name,
-        s32&         val) {
+        const cchar*    name) {
 
         assert(doc);
         assert(name);
 
-        const bool can_get = (
+        const bool is_s32 = (
             doc->base.HasMember(name) &&
             doc->base[name].IsInt()
         );
 
-        if (can_get) {
-            val = doc->base[name].GetInt();
-        }
+        assert(is_s32);
 
-        return(can_get);
+        return(doc->base[name].GetInt());
     } 
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL u64 
     json_doc_get_u64(
         const json_doc* doc,
-        const cchar*         name,
-        u64&                 val){
+        const cchar*    name){
 
         assert(doc);
         assert(name);
@@ -244,18 +233,15 @@ namespace ifb {
             doc->base[name].IsInt64()
         );
 
-        if (can_get) {
-            val = doc->base[name].GetUint64();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return(doc->base[name].GetUint64());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL s64 
     json_doc_get_s64(
         const json_doc* doc,
-        const cchar*         name,
-        s64&                 val) {
+        const cchar*    name) {
 
         assert(doc);
         assert(name);
@@ -265,18 +251,15 @@ namespace ifb {
             doc->base[name].IsInt64()
         );
 
-        if (can_get) {
-            val = doc->base[name].IsInt64();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return(doc->base[name].IsInt64());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL f32 
     json_doc_get_f32(
         const json_doc* doc,
-        const cchar* name,
-        f32& val) {
+        const cchar*    name) {
 
         assert(doc);
         assert(name);
@@ -286,18 +269,15 @@ namespace ifb {
             doc->base[name].IsFloat()
         );
 
-        if (can_get) {
-            val = doc->base[name].GetFloat();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return(doc->base[name].GetFloat());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL f64 
     json_doc_get_f64(
         const json_doc* doc,
-        const cchar* name,
-        f64& val) {
+        const cchar*    name) {
 
         assert(doc);
         assert(name);
@@ -307,11 +287,9 @@ namespace ifb {
             doc->base[name].IsDouble()
         );
 
-        if (can_get) {
-            val = doc->base[name].GetDouble();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return(doc->base[name].GetDouble());
     }
     
     //--------------------------------------------------------------------
@@ -353,8 +331,7 @@ namespace ifb {
     IFB_INTERNAL bool
     json_obj_get_bool(
         const json_obj* obj,
-        const cchar*    name,
-        bool&           val) {
+        const cchar*    name) {
 
         assert(obj  != NULL);
         assert(name != NULL);
@@ -364,18 +341,15 @@ namespace ifb {
             (*obj)[name].IsBool()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetBool();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return((*obj)[name].GetBool());
     } 
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL u32 
     json_obj_get_u32(
         const json_obj* obj,
-        const cchar*       name,
-        u32&               val) {
+        const cchar*    name) {
 
         assert(obj  != NULL);
         assert(name != NULL);
@@ -385,14 +359,12 @@ namespace ifb {
             (*obj)[name].IsNumber()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetUint();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return((*obj)[name].GetUint());
     }
     
-    IFB_INTERNAL bool
+    IFB_INTERNAL s32 
     json_obj_get_s32(
         const json_obj* obj,
         const cchar*       name,
@@ -406,18 +378,15 @@ namespace ifb {
             (*obj)[name].IsNumber()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetInt();
-        }
-
-        return(can_get);
+        assert(can_get);
+            
+        return((*obj)[name].GetInt());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL u64 
     json_obj_get_u64(
         const json_obj* obj,
-        const cchar*       name,
-        u64&               val) {
+        const cchar*    name) {
    
         assert(obj  != NULL);
         assert(name != NULL);
@@ -427,18 +396,15 @@ namespace ifb {
             (*obj)[name].IsNumber()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetUint64();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return((*obj)[name].GetUint64());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL s64
     json_obj_get_s64(
         const json_obj* obj,
-        const cchar*       name,
-        s64&               val) {
+        const cchar*    name) {
 
         assert(obj  != NULL);
         assert(name != NULL);
@@ -448,18 +414,15 @@ namespace ifb {
             (*obj)[name].IsNumber()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetInt64();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return((*obj)[name].GetInt64());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL f32 
     json_obj_get_f32(
         const json_obj* obj,
-        const cchar*       name,
-        f64&               val) {
+        const cchar*    name) {
 
         assert(obj  != NULL);
         assert(name != NULL);
@@ -469,18 +432,15 @@ namespace ifb {
             (*obj)[name].IsFloat()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetFloat();
-        }
-
-        return(can_get);
+        assert(can_get);
+            
+        return((*obj)[name].GetFloat());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL f64 
     json_obj_get_f64(
         const json_obj* obj,
-        const cchar*       name,
-        f64&               val) {
+        const cchar*    name) {
 
         assert(obj  != NULL);
         assert(name != NULL);
@@ -490,11 +450,9 @@ namespace ifb {
             (*obj)[name].IsDouble()
         );
 
-        if (can_get) {
-            val = (*obj)[name].GetDouble();
-        }
+        assert(can_get);
 
-        return(can_get);
+        return((*obj)[name].GetDouble());
     }
 
     //--------------------------------------------------------------------
@@ -531,8 +489,7 @@ namespace ifb {
     IFB_INTERNAL bool
     json_arr_get_bool(
         const json_arr* arr,
-        const u32       index,
-        bool&           val) {
+        const u32       index) {
 
         assert(arr && arr->IsArray()); 
 
@@ -542,18 +499,15 @@ namespace ifb {
         const auto& inst    = (*arr)[index]; 
         const bool  is_bool = inst.IsBool(); 
 
-        if (is_bool) {
-            val = inst.GetBool();
-        }
+        assert(is_bool);
 
-        return(is_bool);
+        return(inst.GetBool());
     } 
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL u32 
     json_arr_get_u32(
         const json_arr* arr,
-        const u32       index,
-        u32&            val) {
+        const u32       index) {
 
         assert(arr && arr->IsArray()); 
 
@@ -563,18 +517,15 @@ namespace ifb {
         const auto& inst   = (*arr)[index]; 
         const bool  is_u32 = inst.IsUint(); 
 
-        if (is_u32) {
-            val = inst.GetUint();
-        }
+        assert(is_u32);
 
-        return(is_u32);
+        return(inst.GetUint());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL s32 
     json_arr_get_s32(
         const json_arr* arr,
-        const u32       index,
-        s32&            val) {
+        const u32       index) {
 
         assert(arr && arr->IsArray()); 
 
@@ -584,18 +535,15 @@ namespace ifb {
         const auto& inst   = (*arr)[index]; 
         const bool  is_u32 = inst.IsInt(); 
 
-        if (is_u32) {
-            val = inst.GetInt();
-        }
+        assert(is_u32);
 
-        return(is_u32);
+        return(inst.GetInt());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL u64 
     json_arr_get_u64(
         const json_arr* arr,
-        const u32       index,
-        u64&            val) {
+        const u32       index) {
 
         assert(arr && arr->IsArray()); 
 
@@ -605,18 +553,15 @@ namespace ifb {
         const auto& inst   = (*arr)[index]; 
         const bool  is_u64 = inst.IsUint64(); 
 
-        if (is_u64) {
-            val = inst.GetUint64();
-        }
+        assert(is_u64);
 
-        return(is_u64);
+        return(inst.GetUint64());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL s64 
     json_arr_get_s64(
         const json_arr* arr,
-        const u32       index,
-        s64&            val) {
+        const u32       index) {
 
         assert(arr && arr->IsArray()); 
 
@@ -626,14 +571,12 @@ namespace ifb {
         const auto& inst   = (*arr)[index]; 
         const bool  is_s64 = inst.IsInt64(); 
 
-        if (is_s64) {
-            val = inst.GetInt64();
-        }
+        assert(is_s64);
 
-        return(is_s64);
+        return(inst.GetInt64());
     }
 
-    IFB_INTERNAL bool
+    IFB_INTERNAL f32 
     json_arr_get_f32(
         const json_arr* arr,
         const u32       index,
@@ -647,11 +590,9 @@ namespace ifb {
         const auto& inst   = (*arr)[index]; 
         const bool  is_f32 = inst.IsFloat(); 
 
-        if (is_f32) {
-            val = inst.GetFloat();
-        }
+        assert(is_f32);
 
-        return(is_f32);
+        return(inst.GetFloat());
     }
 
     IFB_INTERNAL bool

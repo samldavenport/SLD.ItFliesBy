@@ -3,6 +3,7 @@
 #include "tiled.hpp"
 #include "json.cpp"
 #include "json.hpp"
+#include "memory-arena.cpp"
 
 namespace ifb {
 
@@ -25,10 +26,35 @@ namespace ifb {
 
         // create the map
         tiled_map* map = tiled_map_parse(a, map_obj);
-        
+
+        return(map);
     }
 
-    IFB_INTERNAL tiled_map*              tiled_map_parse             (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_map*
+    tiled_map_parse(
+        arena* a,
+        const json_obj* obj) {
+        
+        assert(a);
+        assert(obj);
+
+
+
+        auto map = arena_push<tiled_map>(a);
+        if (!map) return(NULL);
+
+
+        bool result = true;
+
+        const cchar* background_color = json_obj_get_cstr(obj, "backgroundcolor");
+
+        map->map_class = json_obj_get_cstr(obj, "class");
+        map->compression_level = json_obj_get_s32(obj, "compressionlevel", );
+
+    
+
+    }
+
     IFB_INTERNAL tiled_layer*            tiled_layer_parse           (arena* a, const json_obj* obj);
     IFB_INTERNAL tiled_tile_layer*       tiled_tile_layer_parse      (arena* a, const json_obj* obj);
     IFB_INTERNAL tiled_object_layer*     tiled_object_layer_parse    (arena* a, const json_obj* obj);
