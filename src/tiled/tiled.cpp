@@ -6,9 +6,47 @@
 #include "json.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
+#include <stdlib.h>
+#include <stdint.h>
 
 using namespace sld;
 namespace ifb {
+
+    inline color_rgba_u32
+    tiled_parse_color_string(
+        const cchar* cstr) {
+
+        static const color_rgba_u32 invalid_color(0xFFFFFFFF);
+
+        if (!cstr) {
+            return(invalid_color);
+        }
+
+        const u32        length          = strnlen_s(cstr, 8);
+        static const u32 length_rrggbb   = 7;
+        static const u32 length_aarrggbb = 9;
+
+        color_rgba_u32 color = {0};
+
+        switch(length) {
+
+            case(length_rrggbb): {
+                color.hex   = strtoul(cstr + 1, NULL, 16);
+                color.hex >>= 8;
+                color.a     = 0xFF;
+            } break;
+
+            case(length_aarrggbb): {
+                color.hex = strtoul(cstr + 1, NULL, 16);
+            } break;
+        
+            default: {
+                assert(false && "invalid color string");
+            } break;
+        }
+
+        return(color);
+    };
 
     inline u32
     tiled_hash_string_member(
@@ -129,13 +167,14 @@ namespace ifb {
         map->column_width      = json_obj_get_s32   (obj, "width");
         map->property_count    = json_arr_get_count (arr_properties);
         map->layer_count       = json_arr_get_count (arr_layer);
-        map->orientation       = tiled_hash_string_member (orientation);
-        map->render_order      = tiled_hash_string_member (render_order);
-        map->stagger_axis      = tiled_hash_string_member (stagger_axis);
-        map->stagger_index     = tiled_hash_string_member (stagger_index);
-        map->layer_array       = tiled_layer_parse_array      (a, arr_layer,      map->layer_count);
-        map->property_array    = tiled_property_parse_array   (a, arr_properties, map->property_count); 
-        map->tileset_array     = tiled_tileset_parse_array    (a, arr_tileset,    map->tileset_count);
+        map->orientation       = tiled_hash_string_member   (orientation);
+        map->render_order      = tiled_hash_string_member   (render_order);
+        map->stagger_axis      = tiled_hash_string_member   (stagger_axis);
+        map->stagger_index     = tiled_hash_string_member   (stagger_index);
+        map->background_color  = tiled_parse_color_string   (background_color);
+        map->layer_array       = tiled_layer_parse_array    (a, arr_layer,      map->layer_count);
+        map->property_array    = tiled_property_parse_array (a, arr_properties, map->property_count); 
+        map->tileset_array     = tiled_tileset_parse_array  (a, arr_tileset,    map->tileset_count);
 
         return(map);
     }
@@ -250,12 +289,12 @@ namespace ifb {
             const json_obj* obj = json_arr_get_obj(arr, i);
             assert(obj);
 
-
+             
                     
 
         }
 
-        return(NULL);
+        return(tileset_array);
     }
 
     IFB_INTERNAL tiled_grid*

@@ -306,29 +306,37 @@ namespace ifb {
     // TEXT 
     //--------------------------------------------------------------------
 
-    enum tiled_text_horizontal_alignment_e {
-        tiled_text_horizontal_alignment_e_center  = 0,
-        tiled_text_horizontal_alignment_e_right   = 1,
-        tiled_text_horizontal_alignment_e_justify = 2,
-        tiled_text_horizontal_alignment_e_left    = 3
+    enum tiled_text_alignment_horizontal_e {
+        tiled_text_alignment_horizontal_e_center  = 0,
+        tiled_text_alignment_horizontal_e_right   = 1,
+        tiled_text_alignment_horizontal_e_justify = 2,
+        tiled_text_alignment_horizontal_e_left    = 3
     };
 
-    enum tiled_text_vertical_alignment_e {
-        tiled_text_vertical_alignment_e_center = 0,
-        tiled_text_vertical_alignment_e_bottom = 1,
-        tiled_text_vertical_alignment_e_top    = 2,
+    enum tiled_text_alignment_vertical_e {
+        tiled_text_alignment_vertical_e_center = 0,
+        tiled_text_alignment_vertical_e_bottom = 1,
+        tiled_text_alignment_vertical_e_top    = 2,
     };
 
-    using tiled_text_horizontal_alignment_u32 = u32;
-    using tiled_text_vertical_alignment_u32   = u32;
+    using tiled_text_alignment_horizontal_u32 = u32;
+    using tiled_text_alignment_vertical_u32   = u32;
+
+    struct tiled_text_hashes {
+        u32 center;
+        u32 right;
+        u32 justify;
+        u32 bottom;
+        u32 top;
+    };
 
     struct tiled_text {
         cchar*                              font_family;
         cchar*                              text;
         u32                                 pixel_size;
         color_rgba_u32                      color;
-        tiled_text_horizontal_alignment_u32 h_align;
-        tiled_text_vertical_alignment_u32   v_align;
+        tiled_text_alignment_horizontal_u32 h_align;
+        tiled_text_alignment_vertical_u32   v_align;
         bool                                bold;
         bool                                italic;
         bool                                kerning;
