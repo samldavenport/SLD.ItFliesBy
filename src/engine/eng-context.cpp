@@ -12,6 +12,7 @@
 #include "renderer.cpp"
 #include "renderer.hpp"
 #include "json.hpp"
+#include "tiled.hpp"
 
 namespace ifb {
 
@@ -39,6 +40,8 @@ namespace ifb {
         eng_game_proc      game_callback) {
 	
         const auto& config = config_instance();
+
+        const auto map_hashes = tiled_map_get_hashes(); 
 
 
         // stack memory

@@ -8,7 +8,7 @@
 
 namespace ifb {
 
-    //NOTE(SAM):https://doc.mapeditor.org/en/stable/reference/json-map-format/#json-map-format 
+    //NOTE(SLD): https://doc.mapeditor.org/en/stable/reference/json-map-format/#json-map-format 
 
     //--------------------------------------------------------------------
     // DECLARATIONS 
@@ -34,11 +34,13 @@ namespace ifb {
     struct tiled_object_template;
     struct tiled_property;
     struct tiled_point;
+    struct tiled_map_hashes;
 
     //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
     
+    IFB_INTERNAL const tiled_map_hashes& tiled_map_get_hashes            (void); 
     IFB_INTERNAL tiled_map*              tiled_map_create            (arena* a, const u32 json_src_length, const cchar* json_src_ptr);
     IFB_INTERNAL tiled_map*              tiled_map_parse             (arena* a, const json_obj* obj);
     IFB_INTERNAL tiled_layer*            tiled_layer_parse           (arena* a, const json_obj* obj);
@@ -66,16 +68,16 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     enum tiled_map_orientation_e {
-        tiled_map_orientation_e_orthogonal = 0,
-        tiled_map_orientation_e_isometric  = 1,
-        tiled_map_orientation_e_oblique    = 2,
-        tiled_map_orientation_e_staggered  = 3,
-        tiled_map_orientation_e_hexagonal  = 4
+        tiled_map_orientation_e_orthogonal = 0x12BB0B63,
+        tiled_map_orientation_e_isometric  = 0x2FC6069C,
+        tiled_map_orientation_e_oblique    = 0x467B3BFC,
+        tiled_map_orientation_e_staggered  = 0x035099B3,
+        tiled_map_orientation_e_hexagonal  = 0xE6766D97 
     };
 
     enum tiled_map_render_order_e {
-        tiled_map_render_order_e_right_down = 0, 
-        tiled_map_render_order_e_right_up   = 1, 
+        tiled_map_render_order_e_right_down = 0x61221820, 
+        tiled_map_render_order_e_right_up   = 0x0EEA0BC7, 
         tiled_map_render_order_e_left_down  = 2, 
         tiled_map_render_order_e_left_up    = 3
     };
@@ -107,24 +109,40 @@ namespace ifb {
         tiled_map_stagger_axis_u32  stagger_axis;
         tiled_map_stagger_index_u32 stagger_index;
         color_rgba_u32              background_color;
-        u32                         property_count;
-        u32                         layer_count;
-        u32                         compression_level;
-        u32                         height;
-        u32                         hex_side_length;
-        u32                         next_layer_id;
-        u32                         next_object_id;
-        u32                         parallax_origin_x;
-        u32                         parallax_origin_y;
-        u32                         skew_x;
-        u32                         skew_y;
-        u32                         tile_height;
-        u32                         tileset_count;
-        u32                         tile_width;
-        u32                         column_width;
+        s32                         property_count;
+        s32                         layer_count;
+        s32                         compression_level;
+        s32                         height;
+        s32                         hex_side_length;
+        s32                         next_layer_id;
+        s32                         next_object_id;
+        s32                         parallax_origin_x;
+        s32                         parallax_origin_y;
+        s32                         skew_x;
+        s32                         skew_y;
+        s32                         tile_height;
+        s32                         tileset_count;
+        s32                         tile_width;
+        s32                         column_width;
         bool                        infinite;
     };
-   
+  
+    struct tiled_map_hashes {
+        u32 orthogonal;
+        u32 isometric;
+        u32 oblique;
+        u32 staggered;
+        u32 hexagonal;
+        u32 right_down;
+        u32 right_up;
+        u32 left_down;
+        u32 left_up;
+        u32 x;
+        u32 y;
+        u32 odd;
+        u32 even;
+        u32 map;
+    };
 
     //--------------------------------------------------------------------
     // LAYER 

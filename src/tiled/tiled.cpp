@@ -4,12 +4,54 @@
 #include "json.cpp"
 #include "json.hpp"
 #include "memory-arena.cpp"
+#include "sld.hpp"
 
+using namespace sld;
 namespace ifb {
+
 
     //--------------------------------------------------------------------
     // MAP METHODS 
     //--------------------------------------------------------------------
+    
+    IFB_INTERNAL const tiled_map_hashes&
+    tiled_map_get_hashes(
+        void) {
+
+        static tiled_map_hashes hashes = {0};
+    
+        static const cchar cstr_orthogonal [16] = "orthogonal";
+        static const cchar cstr_isometric  [16] = "isometric";
+        static const cchar cstr_oblique    [16] = "oblique";
+        static const cchar cstr_staggered  [16] = "staggered";
+        static const cchar cstr_hexagonal  [16] = "hexagonal";
+        static const cchar cstr_right_down [16] = "right_down";
+        static const cchar cstr_right_up   [16] = "right_up";
+        static const cchar cstr_left_down  [16] = "left_down";
+        static const cchar cstr_left_up    [16] = "left_up";
+        static const cchar cstr_x          [16] = "x";
+        static const cchar cstr_y          [16] = "y";
+        static const cchar cstr_odd        [16] = "odd";
+        static const cchar cstr_even       [16] = "even";
+        static const cchar cstr_map        [16] = "map";
+
+        hashes.orthogonal = hash_u32((void*)cstr_orthogonal, 16);
+        hashes.isometric  = hash_u32((void*)cstr_isometric,  16);
+        hashes.oblique    = hash_u32((void*)cstr_oblique,    16);
+        hashes.staggered  = hash_u32((void*)cstr_staggered,  16);
+        hashes.hexagonal  = hash_u32((void*)cstr_hexagonal,  16);
+        hashes.right_down = hash_u32((void*)cstr_right_down, 16);
+        hashes.right_up   = hash_u32((void*)cstr_right_up,   16);
+        hashes.left_down  = hash_u32((void*)cstr_left_down,  16);
+        hashes.left_up    = hash_u32((void*)cstr_left_up,    16);
+        hashes.x          = hash_u32((void*)cstr_x,          16);
+        hashes.y          = hash_u32((void*)cstr_y,          16);
+        hashes.odd        = hash_u32((void*)cstr_odd,        16);
+        hashes.even       = hash_u32((void*)cstr_even,       16);
+        hashes.map        = hash_u32((void*)cstr_map,        16);
+
+        return(hashes);
+    } 
     
     IFB_INTERNAL tiled_map*
     tiled_map_create(
@@ -38,7 +80,7 @@ namespace ifb {
     tiled_map_parse(
         arena* a,
         const json_obj* obj) {
-        
+
         assert(a);
         assert(obj);
 
@@ -51,17 +93,15 @@ namespace ifb {
         const cchar*    background_color = json_obj_get_cstr (obj, "backgroundcolor");
         const json_arr* arr_layer        = json_obj_get_arr  (obj, "layers"); 
         const json_arr* arr_properties   = json_obj_get_arr  (obj, "properties"); 
-        const json_obj* obj_tileset = json_obj_get_obj(obj, "tileset");
-        
+        const json_obj* obj_tileset      = json_obj_get_obj  (obj, "tileset");
 
-        map->map_class = json_obj_get_cstr(obj, "class");
-        map->compression_level = json_obj_get_s32(obj, "compressionlevel");
-        map->height = json_obj_get_s32(obj, "height");
-        map->hex_side_length = json_obj_get_s32(obj, "hexsidelength");
-        map->infinite = json_obj_get_bool((obj, "infinite");
-        map->next_layer_id = json_obj_get_bool((obj, "nextlayerid");
-        map->next_layer_id = json_obj_get_bool((obj, "nextlayerid");
-        
+        map->map_class         = json_obj_get_cstr (obj, "class");
+        map->compression_level = json_obj_get_s32  (obj, "compressionlevel");
+        map->height            = json_obj_get_s32  (obj, "height");
+        map->hex_side_length   = json_obj_get_s32  (obj, "hexsidelength");
+        map->infinite          = json_obj_get_bool (obj, "infinite");
+        map->next_layer_id     = json_obj_get_s32  (obj, "nextlayerid");
+        map->next_object_id    = json_obj_get_s32  (obj, "nextobjectid");
 
         return(NULL);
 

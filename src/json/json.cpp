@@ -383,8 +383,7 @@ namespace ifb {
     IFB_INTERNAL s32 
     json_obj_get_s32(
         const json_obj* obj,
-        const cchar*       name,
-        s32&               val) {
+        const cchar*    name) {
 
         assert(obj  != NULL);
         assert(name != NULL);
