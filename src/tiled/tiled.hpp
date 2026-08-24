@@ -35,61 +35,61 @@ namespace ifb {
     struct tiled_property;
     struct tiled_point;
     struct tiled_map_hashes;
+    struct tiled_property_hashes;
+    struct tiled_layer_hashes;
 
     //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
     
-    IFB_INTERNAL const tiled_map_hashes& tiled_map_get_hashes            (void); 
-    IFB_INTERNAL tiled_map*              tiled_map_create            (arena* a, const u32 json_src_length, const cchar* json_src_ptr);
-    IFB_INTERNAL tiled_map*              tiled_map_parse             (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_layer*            tiled_layer_parse           (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_tile_layer*       tiled_tile_layer_parse      (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_object_layer*     tiled_object_layer_parse    (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_object *          tiled_object_parse          (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_chunk*            tiled_chunk_parse           (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_text*             tiled_text_parse            (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_tileset*          tiled_tileset_parse         (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_grid*             tiled_grid_parse            (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_tile_offset*      tiled_tile_offset_parse     (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_transformations*  tiled_transformations_parse (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_tile*             tiled_tile_parse            (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_frame*            tiled_frame_parse           (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_terrain*          tiled_terrain_parse         (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_wang_set*         tiled_wang_set_parse        (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_wang_color*       tiled_wang_color_parse      (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_wang_tile*        tiled_wang_tile_parse       (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_object_template*  tiled_object_template_parse (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_property*         tiled_property_parse        (arena* a, const json_obj* obj);
-    IFB_INTERNAL tiled_point*            tiled_point_parse           (arena* a, const json_obj* obj);
+    IFB_INTERNAL const tiled_map_hashes&      tiled_map_get_hashes         (void); 
+    IFB_INTERNAL tiled_map*                   tiled_map_create             (arena* a, const u32 json_src_length, const cchar* json_src_ptr);
+    IFB_INTERNAL tiled_map*                   tiled_map_parse              (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_layer*                 tiled_layer_parse_array      (arena* a, const json_arr* arr, s32& count);
+    IFB_INTERNAL const tiled_layer_hashes&    tiled_layer_get_hashes       (void);
+    IFB_INTERNAL tiled_object_layer*          tiled_object_layer_parse     (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_object *               tiled_object_parse           (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_chunk*                 tiled_chunk_parse            (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_text*                  tiled_text_parse             (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_tileset*               tiled_tileset_parse_array    (arena* a, const json_arr* arr, s32& count);
+    IFB_INTERNAL tiled_grid*                  tiled_grid_parse             (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_tile_offset*           tiled_tile_offset_parse      (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_transformations*       tiled_transformations_parse  (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_tile*                  tiled_tile_parse             (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_frame*                 tiled_frame_parse            (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_terrain*               tiled_terrain_parse          (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_set*              tiled_wang_set_parse         (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_color*            tiled_wang_color_parse       (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_tile*             tiled_wang_tile_parse        (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_object_template*       tiled_object_template_parse  (arena* a, const json_obj* obj);
+    IFB_INTERNAL const tiled_property_hashes& tiled_property_get_hashes    (void);
+    IFB_INTERNAL tiled_property*              tiled_property_parse_array   (arena* a, const json_arr* arr, s32& count);
+    IFB_INTERNAL tiled_point*                 tiled_point_parse            (arena* a, const json_obj* obj);
 
     //--------------------------------------------------------------------
     // MAP 
     //--------------------------------------------------------------------
 
     enum tiled_map_orientation_e {
-        tiled_map_orientation_e_orthogonal = 0x12BB0B63,
-        tiled_map_orientation_e_isometric  = 0x2FC6069C,
-        tiled_map_orientation_e_oblique    = 0x467B3BFC,
-        tiled_map_orientation_e_staggered  = 0x035099B3,
-        tiled_map_orientation_e_hexagonal  = 0xE6766D97 
+        tiled_map_orientation_e_orthogonal  = 0x12BB0B63,
+        tiled_map_orientation_e_isometric   = 0x2FC6069C,
+        tiled_map_orientation_e_oblique     = 0x467B3BFC,
+        tiled_map_orientation_e_staggered   = 0x035099B3,
+        tiled_map_orientation_e_hexagonal   = 0xE6766D97 
     };
-
     enum tiled_map_render_order_e {
-        tiled_map_render_order_e_right_down = 0x61221820, 
+        tiled_map_render_order_e_right_down = 0xC2942155, 
         tiled_map_render_order_e_right_up   = 0x0EEA0BC7, 
-        tiled_map_render_order_e_left_down  = 2, 
-        tiled_map_render_order_e_left_up    = 3
+        tiled_map_render_order_e_left_down  = 0xF258F6B1, 
+        tiled_map_render_order_e_left_up    = 0x7A7381BB
     };
-
     enum tiled_map_stagger_axis_e {
-        tiled_map_stagger_axis_e_x = 0,
-        tiled_map_stagger_axis_e_y = 1,
+        tiled_map_stagger_axis_e_x          = 0xA7F43A53,
+        tiled_map_stagger_axis_e_y          = 0xBFA8D354,
     };
-
     enum tiled_map_stagger_index_e {
-        tiled_map_stagger_index_e_odd  = 0,
-        tiled_map_stagger_index_e_even = 1
+        tiled_map_stagger_index_e_odd       = 0x09E1C8FB,
+        tiled_map_stagger_index_e_even      = 0x7A7381BB
     };
 
     using tiled_map_orientation_u32   = u32;
@@ -149,42 +149,65 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     enum tiled_layer_compression_e {
-        tiled_layer_compression_e_zlib = 0,
-        tiled_layer_compression_e_gzip = 1,
-        tiled_layer_compression_e_zstd = 2
+        tiled_layer_compression_e_zlib   = 0xF9257EA4,
+        tiled_layer_compression_e_gzip   = 0xF93C5443,
+        tiled_layer_compression_e_zstd   = 0x50CD24E5
     };
-
     enum tiled_layer_mode_e {
-        tiled_layer_mode_e_normal      = 0,  
-        tiled_layer_mode_e_add         = 1,  
-        tiled_layer_mode_e_multiply    = 2,  
-        tiled_layer_mode_e_screen      = 3,  
-        tiled_layer_mode_e_overlay     = 4,  
-        tiled_layer_mode_e_darken      = 5,  
-        tiled_layer_mode_e_lighten     = 6,  
-        tiled_layer_mode_e_color_dodge = 7,  
-        tiled_layer_mode_e_color_burn  = 8,  
-        tiled_layer_mode_e_hard_light  = 9,  
-        tiled_layer_mode_e_soft_light  = 10,  
-        tiled_layer_mode_e_difference  = 11,  
-        tiled_layer_mode_e_exclusion   = 12
+        tiled_layer_mode_e_normal        = 0x72A9CD76,  
+        tiled_layer_mode_e_add           = 0xC90D323B,  
+        tiled_layer_mode_e_multiply      = 0xC2F44BCD,  
+        tiled_layer_mode_e_screen        = 0xC5AEDF1F,  
+        tiled_layer_mode_e_overlay       = 0x6D352B55,  
+        tiled_layer_mode_e_darken        = 0x2E44E797,  
+        tiled_layer_mode_e_lighten       = 0x1577E851,  
+        tiled_layer_mode_e_color_dodge   = 0xD6C9D08A,  
+        tiled_layer_mode_e_color_burn    = 0x91EEB1D7,  
+        tiled_layer_mode_e_hard_light    = 0x250C9C80,  
+        tiled_layer_mode_e_soft_light    = 0xE1CEA135,  
+        tiled_layer_mode_e_difference    = 0x9CF3240E,  
+        tiled_layer_mode_e_exclusion     = 0x37254412
     };
-
     enum tiled_layer_draw_order_e {
-        tiled_layer_draw_order_e_topdown = 0,
-        tiled_layer_draw_order_e_index   = 1,
+        tiled_layer_draw_order_e_topdown = 0xCC1E5512,
+        tiled_layer_draw_order_e_index   = 0x321E5D22
     };
-
     enum tiled_layer_encoding_e {
-        tiled_layer_encoding_e_csv   = 0,
-        tiled_layer_encoding_e_index = 1
+        tiled_layer_encoding_e_csv       = 0xDD754C84,
+        tiled_layer_encoding_e_base64    = 0x9EA384E8
+    };
+    enum tiled_layer_type_e {
+        tiled_layer_type_e_tile_layer    = 0x2C1E501D,
+        tiled_layer_type_e_object_group  = 0x37E58231,
+        tiled_layer_type_e_image_layer   = 0x05F104B9,
+        tiled_layer_type_e_group         = 0xD6DA3E2D
     };
 
-    enum tiled_layer_type_e {
-        tiled_layer_type_e_tile_layer = 0,
-        tiled_layer_type_e_object_group = 1,
-        eiled_layer_type_e_image_layer = 2,
-        tiled_layer_type_e_group = 3
+    struct tiled_layer_hashes {
+        u32 zlib;
+        u32 gzip;
+        u32 zstd;
+        u32 normal;
+        u32 add;
+        u32 multiply;
+        u32 screen;
+        u32 overlay;
+        u32 darken;
+        u32 lighten;
+        u32 color_dodge;
+        u32 color_burn;
+        u32 hard_light;
+        u32 soft_light;
+        u32 difference;
+        u32 exclusion;
+        u32 topdown;
+        u32 index;
+        u32 csv;
+        u32 base64;
+        u32 tile_layer;
+        u32 object_group;
+        u32 image_layer;
+        u32 group;
     };
 
     using tiled_layer_compression_u32 = u32;
@@ -401,7 +424,7 @@ namespace ifb {
     // TILE OFFSET 
     //--------------------------------------------------------------------
 
-    struct tiled_offset {
+    struct tiled_tile_offset {
         u32 x;
         u32 y;
     };
@@ -410,7 +433,7 @@ namespace ifb {
     // TRANSFORMATION 
     //--------------------------------------------------------------------
     
-    struct tiled_transformation {
+    struct tiled_transformations {
         bool h_flip;
         bool v_flip;
         bool rotate;
@@ -446,8 +469,8 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     struct tiled_frame {
-        u32 duration;
-        u32 tile_id;
+        s32 duration;
+        s32 tile_id;
     };
 
     //--------------------------------------------------------------------
@@ -455,10 +478,10 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     struct tiled_terrain {
-        cchar*          name;
+        const cchar*    name;
         tiled_property* property_array;
-        u32             property_count;
-        u32             tile;
+        s32             property_count;
+        s32             tile;
     };
 
     //--------------------------------------------------------------------
@@ -521,22 +544,34 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     enum tiled_property_type_e {
-        tiled_property_type_e_string = 0, 
-        tiled_property_type_e_int    = 1, 
-        tiled_property_type_e_float  = 2, 
-        tiled_property_type_e_bool   = 3, 
-        tiled_property_type_e_color  = 4, 
-        tiled_property_type_e_file   = 5, 
-        tiled_property_type_e_object = 6, 
-        tiled_property_type_e_class  = 7 
+        tiled_property_type_e_string = 0x94EA6DBD, 
+        tiled_property_type_e_int    = 0x75E45150, 
+        tiled_property_type_e_float  = 0x431258A2, 
+        tiled_property_type_e_bool   = 0xC9B342D2, 
+        tiled_property_type_e_color  = 0xA3FC54BB, 
+        tiled_property_type_e_file   = 0x8D3916A1, 
+        tiled_property_type_e_object = 0xFEFECA2D, 
+        tiled_property_type_e_class  = 0xE67F2ABB 
+    };
+
+    struct tiled_property_hashes {
+        u32 type_string;
+        u32 type_int;
+        u32 type_float;
+        u32 type_bool;
+        u32 type_color;
+        u32 type_file;
+        u32 type_object;
+        u32 type_class;
     };
 
     using tiled_property_type_u32 = u32;
 
     struct tiled_property {
-        cchar*                  name;
+        //TODO(SLD): need to do something with custom/non-primitive types
+        const cchar*            name;
+        const cchar*            custom_type;
         tiled_property_type_u32 type;
-        cchar*                  property_type;
         union {
             u32    as_u32;
             s32    as_s32;
@@ -544,8 +579,8 @@ namespace ifb {
             s64    as_s64;
             f32    as_f32;
             f64    as_f64;
-            cchar* as_cstr;
-            void*  as_vptr;
+            bool   as_bool;
+            const cchar* as_cstr;
         } value;
     };
 
