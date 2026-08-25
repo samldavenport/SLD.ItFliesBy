@@ -6,6 +6,7 @@
 #include "renderer-projection.cpp"
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-grid.cpp"
+#include "renderer-tile.cpp"
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"

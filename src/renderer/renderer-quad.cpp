@@ -12,8 +12,8 @@ namespace ifb {
     // CONSTANTS 
     //--------------------------------------------------------------------
     
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ  = "u_mat4_view_proj";
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL      = "u_mat4_model";
+    static constexpr char QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ [] = "u_mat4_view_proj";
+    static constexpr char QUAD_UNIFORM_NAME_MAT4_MODEL     [] = "u_mat4_model";
 
     //--------------------------------------------------------------------
     // DEFINITIONS
