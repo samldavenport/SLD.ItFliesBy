@@ -113,7 +113,9 @@ namespace ifb {
         size.x = width;
         size.y = height;
 
-        const bool did_set = gl_uniform_set_f32x2(gl_ctx, shdr->gl.u_vec2_tile_size, size.v); 
+        bool did_set = true;
+        did_set &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
+        did_set &= gl_uniform_set_f32x2          (gl_ctx, shdr->gl.u_vec2_tile_size, size.v); 
         assert(did_set);
     } 
 
@@ -135,7 +137,9 @@ namespace ifb {
         dims.x = count_rows;
         dims.y = count_cols;
 
-        const bool did_set = gl_uniform_set_f32x2(gl_ctx, shdr->gl.u_vec2_map_dimensions, dims.v); 
+        bool did_set = true; 
+        did_set &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
+        did_set &= gl_uniform_set_f32x2          (gl_ctx, shdr->gl.u_vec2_map_dimensions, dims.v); 
         assert(did_set);
     }
 
