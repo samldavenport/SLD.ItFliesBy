@@ -10,7 +10,6 @@ namespace ifb {
     struct tile_id {
         union {
             struct {
-                byte is_navigable;
                 byte grid_id;
                 byte index;
             };
@@ -33,11 +32,20 @@ namespace ifb {
         tile_grid_id id;
         u32          count_rows;
         u32          count_columns;
+        tile_id*     tile_id_array;
     };
 
     struct tile_map_id {
         u32 val;  
     };
+
+    struct tile_map {
+        u32           grid_count;
+        tile_grid_id* grid_id_array;
+    };
+
+
+
 
     IFB_INTERNAL tile_map_id  tile_map_create         (const cchar* name,     const u32 grid_count);
     IFB_INTERNAL tile_grid_id tile_grid_create        (const cchar* name,     const u32 map_id, const u32 row_count, const u32 col_count);

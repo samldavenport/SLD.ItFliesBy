@@ -3,7 +3,8 @@
 
 #include "ifb-types.hpp"
 #include "ifb-collections.hpp"
-#include "collections-internal.hpp"
+#include "ifb-entity.hpp"
+#include "sld.hpp"
 
 namespace ifb {
 
@@ -14,6 +15,7 @@ namespace ifb {
     struct quad_mngr;
     struct quad_entity;
     struct quad_vertex;
+    struct quad_tile;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -41,13 +43,51 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct quad_mngr {
-        stack          stack_mem;
+        stack stack_mem;
     };
 
     struct quad_entity : entity {
         color_rgba_u32 color;
         dimensions_2d  dims;
         position_3d    pos;
+    };
+
+    struct quad_tile_id {
+        union {
+            struct {
+                u32 grid_id;
+                u16 row_index;
+                u16 col_index;
+            };
+            u32 val;
+        };
+    };
+
+    struct quad_tile {
+        quad_tile_id   id;
+        color_rgba_u32 color; 
+        u32            texture_coord_x;
+        u32            texture_coord_y;
+    };
+
+    struct quad_tile_grid_id {
+        u32 val;
+    };
+
+    struct quad_tile_map_id {
+        u32 val;
+    };
+
+    struct quad_tile_grid {
+        quad_tile_grid_id grid_id;
+        quad_tile_map_id  map_id;
+        u32               count_rows;
+        u32               count_cols;
+        quad_tile*        tile_array;
+    };
+
+    struct quad_tile_map {
+
     };
 };
 
