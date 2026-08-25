@@ -74,8 +74,8 @@ namespace ifb {
         gl_ok &= gl_shader_program_attach_stage      (gl_ctx, shdr->gl.program, shdr_vtx); 
         gl_ok &= gl_shader_program_attach_stage      (gl_ctx, shdr->gl.program, shdr_frg); 
         gl_ok &= gl_shader_program_link              (gl_ctx, shdr->gl.program);
-        gl_shader_stage_destroy(gl_ctx, shdr_vtx);
-        gl_shader_stage_destroy(gl_ctx, shdr_frg);
+        gl_shader_stage_destroy                      (gl_ctx, shdr_vtx);
+        gl_shader_stage_destroy                      (gl_ctx, shdr_frg);
         assert(gl_ok);
 
         // get uniform locations

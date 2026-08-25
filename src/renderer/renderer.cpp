@@ -76,7 +76,9 @@ namespace ifb {
 
         // create shaders
         renderer_quad_shader_create();
+        renderer_tile_shader_create();
         renderer_direciton_gizmo_shader_create();
+        
 
         // intialize camera
         renderer_projection_init();
