@@ -1,0 +1,605 @@
+#ifndef TILED_HPP
+#define TILED_HPP
+
+#include "ifb.hpp"
+#include "memory.hpp"
+#include "sld.hpp"
+#include "json.hpp"
+
+namespace ifb {
+
+    //NOTE(SLD): https://doc.mapeditor.org/en/stable/reference/json-map-format/#json-map-format 
+
+    //--------------------------------------------------------------------
+    // DECLARATIONS 
+    //--------------------------------------------------------------------
+    
+    struct tiled_map;
+    struct tiled_layer;
+    struct tiled_tile_layer;
+    struct tiled_object_layer;
+    struct tiled_object; 
+    struct tiled_chunk;
+    struct tiled_text;
+    struct tiled_tileset;
+    struct tiled_grid;
+    struct tiled_tile_offset;
+    struct tiled_transformations;
+    struct tiled_tile;
+    struct tiled_frame;
+    struct tiled_terrain;
+    struct tiled_wang_set;
+    struct tiled_wang_color;
+    struct tiled_wang_tile;
+    struct tiled_object_template;
+    struct tiled_property;
+    struct tiled_point;
+    struct tiled_map_hashes;
+    struct tiled_property_hashes;
+    struct tiled_layer_hashes;
+
+    //--------------------------------------------------------------------
+    // METHODS 
+    //--------------------------------------------------------------------
+    
+    IFB_INTERNAL const tiled_map_hashes&      tiled_map_get_hashes         (void); 
+    IFB_INTERNAL tiled_map*                   tiled_map_create             (arena* a, const u32 json_src_length, const cchar* json_src_ptr);
+    IFB_INTERNAL tiled_map*                   tiled_map_parse              (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_layer*                 tiled_layer_parse_array      (arena* a, const json_arr* arr, s32& count);
+    IFB_INTERNAL const tiled_layer_hashes&    tiled_layer_get_hashes       (void);
+    IFB_INTERNAL tiled_object_layer*          tiled_object_layer_parse     (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_object *               tiled_object_parse           (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_chunk*                 tiled_chunk_parse            (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_text*                  tiled_text_parse             (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_tileset*               tiled_tileset_parse_array    (arena* a, const json_arr* arr, s32& count);
+    IFB_INTERNAL tiled_grid*                  tiled_grid_parse             (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_tile_offset*           tiled_tile_offset_parse      (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_transformations*       tiled_transformations_parse  (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_tile*                  tiled_tile_parse             (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_frame*                 tiled_frame_parse            (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_terrain*               tiled_terrain_parse          (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_set*              tiled_wang_set_parse         (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_color*            tiled_wang_color_parse       (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_tile*             tiled_wang_tile_parse        (arena* a, const json_obj* obj);
+    IFB_INTERNAL tiled_object_template*       tiled_object_template_parse  (arena* a, const json_obj* obj);
+    IFB_INTERNAL const tiled_property_hashes& tiled_property_get_hashes    (void);
+    IFB_INTERNAL tiled_property*              tiled_property_parse_array   (arena* a, const json_arr* arr, s32& count);
+    IFB_INTERNAL tiled_point*                 tiled_point_parse            (arena* a, const json_obj* obj);
+
+    //--------------------------------------------------------------------
+    // MAP 
+    //--------------------------------------------------------------------
+
+    enum tiled_map_orientation_e {
+        tiled_map_orientation_e_orthogonal  = 0x12BB0B63,
+        tiled_map_orientation_e_isometric   = 0x2FC6069C,
+        tiled_map_orientation_e_oblique     = 0x467B3BFC,
+        tiled_map_orientation_e_staggered   = 0x035099B3,
+        tiled_map_orientation_e_hexagonal   = 0xE6766D97 
+    };
+    enum tiled_map_render_order_e {
+        tiled_map_render_order_e_right_down = 0xC2942155, 
+        tiled_map_render_order_e_right_up   = 0x0EEA0BC7, 
+        tiled_map_render_order_e_left_down  = 0xF258F6B1, 
+        tiled_map_render_order_e_left_up    = 0x7A7381BB
+    };
+    enum tiled_map_stagger_axis_e {
+        tiled_map_stagger_axis_e_x          = 0xA7F43A53,
+        tiled_map_stagger_axis_e_y          = 0xBFA8D354,
+    };
+    enum tiled_map_stagger_index_e {
+        tiled_map_stagger_index_e_odd       = 0x09E1C8FB,
+        tiled_map_stagger_index_e_even      = 0x7A7381BB
+    };
+
+    using tiled_map_orientation_u32   = u32;
+    using tiled_map_render_order_u32  = u32;
+    using tiled_map_stagger_axis_u32  = u32;
+    using tiled_map_stagger_index_u32 = u32;
+
+    struct tiled_map {
+        const cchar*                map_class;
+        const cchar*                tiled_version;
+        const cchar*                format_version;
+        tiled_layer*                layer_array;
+        tiled_property*             property_array; 
+        tiled_tileset*              tileset_array; 
+        tiled_map_orientation_u32   orientation;
+        tiled_map_render_order_u32  render_order;
+        tiled_map_stagger_axis_u32  stagger_axis;
+        tiled_map_stagger_index_u32 stagger_index;
+        color_rgba_u32              background_color;
+        s32                         property_count;
+        s32                         layer_count;
+        s32                         compression_level;
+        s32                         height;
+        s32                         hex_side_length;
+        s32                         next_layer_id;
+        s32                         next_object_id;
+        s32                         parallax_origin_x;
+        s32                         parallax_origin_y;
+        s32                         skew_x;
+        s32                         skew_y;
+        s32                         tile_height;
+        s32                         tileset_count;
+        s32                         tile_width;
+        s32                         column_width;
+        bool                        infinite;
+    };
+  
+    struct tiled_map_hashes {
+        u32 orthogonal;
+        u32 isometric;
+        u32 oblique;
+        u32 staggered;
+        u32 hexagonal;
+        u32 right_down;
+        u32 right_up;
+        u32 left_down;
+        u32 left_up;
+        u32 x;
+        u32 y;
+        u32 odd;
+        u32 even;
+        u32 map;
+    };
+
+    //--------------------------------------------------------------------
+    // LAYER 
+    //--------------------------------------------------------------------
+
+    enum tiled_layer_compression_e {
+        tiled_layer_compression_e_zlib   = 0xF9257EA4,
+        tiled_layer_compression_e_gzip   = 0xF93C5443,
+        tiled_layer_compression_e_zstd   = 0x50CD24E5
+    };
+    enum tiled_layer_mode_e {
+        tiled_layer_mode_e_normal        = 0x72A9CD76,  
+        tiled_layer_mode_e_add           = 0xC90D323B,  
+        tiled_layer_mode_e_multiply      = 0xC2F44BCD,  
+        tiled_layer_mode_e_screen        = 0xC5AEDF1F,  
+        tiled_layer_mode_e_overlay       = 0x6D352B55,  
+        tiled_layer_mode_e_darken        = 0x2E44E797,  
+        tiled_layer_mode_e_lighten       = 0x1577E851,  
+        tiled_layer_mode_e_color_dodge   = 0xD6C9D08A,  
+        tiled_layer_mode_e_color_burn    = 0x91EEB1D7,  
+        tiled_layer_mode_e_hard_light    = 0x250C9C80,  
+        tiled_layer_mode_e_soft_light    = 0xE1CEA135,  
+        tiled_layer_mode_e_difference    = 0x9CF3240E,  
+        tiled_layer_mode_e_exclusion     = 0x37254412
+    };
+    enum tiled_layer_draw_order_e {
+        tiled_layer_draw_order_e_topdown = 0xCC1E5512,
+        tiled_layer_draw_order_e_index   = 0x321E5D22
+    };
+    enum tiled_layer_encoding_e {
+        tiled_layer_encoding_e_csv       = 0xDD754C84,
+        tiled_layer_encoding_e_base64    = 0x9EA384E8
+    };
+    enum tiled_layer_type_e {
+        tiled_layer_type_e_tile_layer    = 0x2C1E501D,
+        tiled_layer_type_e_object_group  = 0x37E58231,
+        tiled_layer_type_e_image_layer   = 0x05F104B9,
+        tiled_layer_type_e_group         = 0xD6DA3E2D
+    };
+
+    struct tiled_layer_hashes {
+        u32 zlib;
+        u32 gzip;
+        u32 zstd;
+        u32 normal;
+        u32 add;
+        u32 multiply;
+        u32 screen;
+        u32 overlay;
+        u32 darken;
+        u32 lighten;
+        u32 color_dodge;
+        u32 color_burn;
+        u32 hard_light;
+        u32 soft_light;
+        u32 difference;
+        u32 exclusion;
+        u32 topdown;
+        u32 index;
+        u32 csv;
+        u32 base64;
+        u32 tile_layer;
+        u32 object_group;
+        u32 image_layer;
+        u32 group;
+    };
+
+    using tiled_layer_compression_u32 = u32;
+    using tiled_layer_mode_u32        = u32;
+    using tiled_layer_draw_order_u32  = u32;
+    using tiled_layer_encoding_u32    = u32;
+    using tiled_layer_type_u32        = u32;
+
+    struct tiled_layer {
+        union {
+            u32*   gid_array;
+            cchar* base_64_encoded_cstr;
+        } data;
+        cchar*                      name;
+        cchar*                      layer_class;
+        tiled_chunk*                chunk_array;
+        cchar*                      image;
+        tiled_layer*                layer_array;
+        tiled_object*               object_array;
+        tiled_property*             property_array;
+        f64                         offset_x;
+        f64                         offset_y;
+        f64                         opacity;
+        f64                         parallax_x;
+        f64                         parallax_y;
+        u32                         id;
+        u32                         chunk_count;
+        u32                         layer_count;
+        u32                         object_count;
+        u32                         property_count;
+        u32                         height;
+        u32                         width;
+        u32                         image_height;
+        u32                         image_width;
+        u32                         start_x;
+        u32                         start_y;
+        u32                         x;
+        u32                         y;
+        color_rgba_u32              tint_color;
+        color_rgba_u32              transparent_color;
+        tiled_layer_compression_u32 compression;
+        tiled_layer_mode_u32        mode;
+        tiled_layer_draw_order_u32  draw_order;
+        tiled_layer_encoding_u32    encoding;
+        tiled_layer_type_u32        type;
+        bool                        locked;
+        bool                        repeat_x;
+        bool                        repeat_y;
+        bool                        visible;
+    };
+    
+    //--------------------------------------------------------------------
+    // CHUNK 
+    //--------------------------------------------------------------------
+
+    struct tiled_chunk {
+        union {
+            u32*   gid_array;
+            cchar* base_64_encoded_cstr;
+        } data;
+        u32 width;
+        u32 height;
+        u32 x;
+        u32 y;
+    };
+    
+    //--------------------------------------------------------------------
+    // OBJECT 
+    //--------------------------------------------------------------------
+    
+    struct tiled_object {
+        union {
+            tiled_point* polygon;
+            tiled_point* polyline;
+        };
+        cchar*          name;
+        cchar*          type;
+        tiled_property* property_array;
+        tiled_text*     text;
+        f64             width;
+        f64             height;
+        f64             x;
+        f64             y;
+        f64             opacity;
+        f64             rotation;
+        u32             gid;
+        u32             id;
+        u32             property_count;
+        bool            capsule;
+        bool            ellipse;
+        bool            point;
+        bool            visible;
+    };
+    
+    //--------------------------------------------------------------------
+    // TEXT 
+    //--------------------------------------------------------------------
+
+    enum tiled_text_alignment_horizontal_e {
+        tiled_text_alignment_horizontal_e_center  = 0,
+        tiled_text_alignment_horizontal_e_right   = 1,
+        tiled_text_alignment_horizontal_e_justify = 2,
+        tiled_text_alignment_horizontal_e_left    = 3
+    };
+
+    enum tiled_text_alignment_vertical_e {
+        tiled_text_alignment_vertical_e_center = 0,
+        tiled_text_alignment_vertical_e_bottom = 1,
+        tiled_text_alignment_vertical_e_top    = 2,
+    };
+
+    using tiled_text_alignment_horizontal_u32 = u32;
+    using tiled_text_alignment_vertical_u32   = u32;
+
+    struct tiled_text_hashes {
+        u32 center;
+        u32 right;
+        u32 justify;
+        u32 bottom;
+        u32 top;
+    };
+
+    struct tiled_text {
+        cchar*                              font_family;
+        cchar*                              text;
+        u32                                 pixel_size;
+        color_rgba_u32                      color;
+        tiled_text_alignment_horizontal_u32 h_align;
+        tiled_text_alignment_vertical_u32   v_align;
+        bool                                bold;
+        bool                                italic;
+        bool                                kerning;
+        bool                                strikeout;
+        bool                                underline;
+        bool                                wrap;
+    };
+    
+    //--------------------------------------------------------------------
+    // TILESET 
+    //--------------------------------------------------------------------
+
+    enum tiled_tileset_fill_mode_e {
+        tiled_tileset_fill_mode_e_stretch                = 0,
+        tiled_tileset_fill_mode_e_perspectice_aspect_fit = 1,
+    };
+    
+    enum tiled_tileset_object_alignment_e {
+        tiled_tileset_objec_alignment_e_unspecified   = 0,    
+        tiled_tileset_object_alignment_e_top_left     = 1,    
+        tiled_tileset_object_alignment_e_top          = 2,    
+        tiled_tileset_object_alignment_e_top_right    = 3,    
+        tiled_tileset_object_alignment_e_left         = 4,    
+        tiled_tileset_object_alignment_e_center       = 5,    
+        tiled_tileset_object_alignment_e_right        = 6,    
+        tiled_tileset_object_alignment_e_bottom_left  = 7,    
+        tiled_tileset_object_alignment_e_bottom       = 8,    
+        tiled_tileset_object_alignment_e_bottom_right = 9,    
+    };
+    
+    enum tiled_tileet_render_size_e {
+        tiled_tileset_render_size_e_tile = 0,
+        tiled_tileset_render_size_e_grid = 1,
+    };
+
+    using tiled_tileset_fill_mode_u32         = u32;
+    using tiled_tileset_object_alignment_u32 = u32;
+    using tiled_tileet_render_size_u32       = u32;
+
+    struct tiled_tileset {
+        cchar*                             tileset_class;
+        cchar*                             image;
+        cchar*                             name;
+        cchar*                             source;
+        cchar*                             tiled_version;
+        cchar*                             type;
+        cchar*                             version;
+        tiled_grid*                        grid;
+        tiled_property*                    property_array;
+        tiled_terrain*                     terrain_array;
+        tiled_tile_offset*                 tile_offset;
+        tiled_tile*                        tile_array;
+        tiled_transformations*             transformation_array;
+        tiled_wang_set*                    wang_set_array;
+        color_rgba_u32                     background_color;
+        color_rgba_u32                     transparent_color;
+        u32                                columns;
+        u32                                first_grid;
+        u32                                image_height;
+        u32                                image_width;
+        u32                                margin;
+        u32                                property_count;
+        u32                                spacing;
+        u32                                terrain_count;
+        u32                                tile_count;
+        u32                                tile_height;
+        u32                                tile_width;
+        u32                                transformation_count;
+        u32                                wang_set_count;
+        tiled_tileset_fill_mode_u32        fill_mode;        
+        tiled_tileset_object_alignment_u32 object_alignment;
+        tiled_tileet_render_size_u32       render_size;
+    };
+    
+    //--------------------------------------------------------------------
+    // GRID 
+    //--------------------------------------------------------------------
+    
+    enum tiled_grid_orientation_e {
+        tiled_grid_orientation_e_orthogonal = 0,
+        tiled_grid_orientation_e_isometric  = 1
+    };
+
+    using tiled_grid_orientation_u32 = u32;
+
+    struct tiled_grid {
+        u32                        height;
+        u32                        width;
+        tiled_grid_orientation_u32 orientation;
+    };
+    
+    //--------------------------------------------------------------------
+    // TILE OFFSET 
+    //--------------------------------------------------------------------
+
+    struct tiled_tile_offset {
+        u32 x;
+        u32 y;
+    };
+    
+    //--------------------------------------------------------------------
+    // TRANSFORMATION 
+    //--------------------------------------------------------------------
+    
+    struct tiled_transformations {
+        bool h_flip;
+        bool v_flip;
+        bool rotate;
+        bool prefer_untransformed;
+    }; 
+    
+    //--------------------------------------------------------------------
+    // TILE
+    //--------------------------------------------------------------------
+
+    struct tiled_tile {
+        cchar*          image;
+        cchar*          type;
+        tiled_frame*    frame_array;
+        tiled_layer*    object_group;
+        tiled_property* property_array;
+        tiled_terrain*  terrain_array;
+        f64             probability;
+        u32             id;
+        u32             image_height;
+        u32             image_width;
+        u32             x;
+        u32             y;
+        u32             width;
+        u32             height;
+        u32             frame_count;
+        u32             property_count;
+        u32             terrain_count;
+    };
+
+    //--------------------------------------------------------------------
+    // FRAME 
+    //--------------------------------------------------------------------
+    
+    struct tiled_frame {
+        s32 duration;
+        s32 tile_id;
+    };
+
+    //--------------------------------------------------------------------
+    // TERRAIN 
+    //--------------------------------------------------------------------
+    
+    struct tiled_terrain {
+        const cchar*    name;
+        tiled_property* property_array;
+        s32             property_count;
+        s32             tile;
+    };
+
+    //--------------------------------------------------------------------
+    // WANG SET 
+    //--------------------------------------------------------------------
+    
+    enum tiled_wang_set_type_e {
+        tiled_wang_set_type_e_corner = 0,
+        tiled_wang_set_type_e_edge   = 1,
+        tiled_wang_set_type_e_mixed  = 2
+    };
+
+    using tiled_wang_set_type_u32 = u32;
+
+    struct tiled_wang_set {
+        cchar*                  wang_set_class;
+        tiled_wang_color*       wang_color_array;
+        tiled_property*         property_array;
+        tiled_wang_tile*        wang_tile_array;
+        tiled_wang_set_type_u32 type;
+        u32                     wang_color_count;
+        u32                     property_count;
+        u32                     tile;
+    };
+
+    //--------------------------------------------------------------------
+    // WANG COLOR 
+    //--------------------------------------------------------------------
+    
+    struct tiled_wang_color {
+        cchar*          name;
+        cchar*          tiled_wang_color_class;
+        tiled_property* property_array;
+        f64             probability;
+        color_rgba_u32  color;
+        u32             property_count;
+        u32             tile;
+    };
+
+    //--------------------------------------------------------------------
+    // WANG TILE 
+    //--------------------------------------------------------------------
+    
+    struct tiled_wang_tile {
+        u32  tile_id;
+        byte wang_id[8];
+    };
+
+    //--------------------------------------------------------------------
+    // OBJECT TEMPLATE
+    //--------------------------------------------------------------------
+    
+    struct tiled_object_template {
+        tiled_tileset* tile_set;
+        tiled_object*  object;
+    };
+   
+    //--------------------------------------------------------------------
+    // PROPERTY 
+    //--------------------------------------------------------------------
+    
+    enum tiled_property_type_e {
+        tiled_property_type_e_string = 0x94EA6DBD, 
+        tiled_property_type_e_int    = 0x75E45150, 
+        tiled_property_type_e_float  = 0x431258A2, 
+        tiled_property_type_e_bool   = 0xC9B342D2, 
+        tiled_property_type_e_color  = 0xA3FC54BB, 
+        tiled_property_type_e_file   = 0x8D3916A1, 
+        tiled_property_type_e_object = 0xFEFECA2D, 
+        tiled_property_type_e_class  = 0xE67F2ABB 
+    };
+
+    struct tiled_property_hashes {
+        u32 type_string;
+        u32 type_int;
+        u32 type_float;
+        u32 type_bool;
+        u32 type_color;
+        u32 type_file;
+        u32 type_object;
+        u32 type_class;
+    };
+
+    using tiled_property_type_u32 = u32;
+
+    struct tiled_property {
+        //TODO(SLD): need to do something with custom/non-primitive types
+        const cchar*            name;
+        const cchar*            custom_type;
+        tiled_property_type_u32 type;
+        union {
+            u32    as_u32;
+            s32    as_s32;
+            u64    as_u64;
+            s64    as_s64;
+            f32    as_f32;
+            f64    as_f64;
+            bool   as_bool;
+            const cchar* as_cstr;
+        } value;
+    };
+
+    //--------------------------------------------------------------------
+    // POINT 
+    //--------------------------------------------------------------------
+    
+    struct tiled_point {
+        f32 x;
+        f32 y;
+    };
+};
+
+#endif //TILED_HPP

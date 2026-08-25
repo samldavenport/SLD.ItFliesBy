@@ -59,6 +59,8 @@
 
 #include "renderer.cpp"
 
+#include "tiled.cpp"
+
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"
 #include "win32-input.cpp"
