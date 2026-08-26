@@ -2,10 +2,9 @@
 
 in vec2 vert_uv;
 
-
 out vec4 frag_color;
 
 void main() {
 
-    frag_color = texture(u_texture, vert_uv);
+    frag_color = vec4(0.0);
 }

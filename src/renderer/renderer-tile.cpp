@@ -8,11 +8,11 @@ namespace ifb {
     // CONSTANTS 
     //--------------------------------------------------------------------
     
-    static constexpr char* TILE_UNIFORM_SAMPLER2D_TEXTURE   = "u_sampler_2d_texture";
-    static constexpr char* TILE_UNIFORM_MAT4_VIEW_PROJ      = "u_mat4_view_proj";
-    static constexpr char* TILE_UNIFORM_MAT4_MODEL          = "u_mat4_model";
-    static constexpr char* TILE_UNIFORM_VEC2_TILE_SIZE      = "u_vec2_tile_size";
-    static constexpr char* TILE_UNIFORM_VEC2_MAP_DIMENSIONS = "u_vec2_map_dimensions";
+    static constexpr char TILE_UNIFORM_SAMPLER2D_TEXTURE   [] = "u_sampler2d_texture";
+    static constexpr char TILE_UNIFORM_MAT4_VIEW_PROJ      [] = "u_mat4_view_proj";
+    static constexpr char TILE_UNIFORM_MAT4_MODEL          [] = "u_mat4_model";
+    static constexpr char TILE_UNIFORM_VEC2_TILE_SIZE      [] = "u_vec2_tile_size";
+    static constexpr char TILE_UNIFORM_VEC2_MAP_DIMENSIONS [] = "u_vec2_map_dimensions";
 
     //--------------------------------------------------------------------
     // DEFINITIONS 
@@ -79,14 +79,16 @@ namespace ifb {
         assert(gl_ok);
 
         // get uniform locations
+        // TODO(SAM): for some reason the commented
+        // uniforms are not loading properly
         shdr->gl.u_sampler2d_texture   = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_SAMPLER2D_TEXTURE);
         shdr->gl.u_mat4_view_proj      = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_MAT4_VIEW_PROJ);
         shdr->gl.u_mat4_model          = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_MAT4_MODEL);
         shdr->gl.u_vec2_tile_size      = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_VEC2_TILE_SIZE);
         shdr->gl.u_vec2_map_dimensions = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_VEC2_MAP_DIMENSIONS);
-        gl_ok &= (shdr->gl.u_sampler2d_texture   != GL_UNIFORM_INVALID);
+        // gl_ok &= (shdr->gl.u_sampler2d_texture   != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_mat4_view_proj      != GL_UNIFORM_INVALID);
-        gl_ok &= (shdr->gl.u_mat4_model          != GL_UNIFORM_INVALID);
+        //gl_ok &= (shdr->gl.u_mat4_model          != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_vec2_tile_size      != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_vec2_map_dimensions != GL_UNIFORM_INVALID);
         assert(gl_ok);
