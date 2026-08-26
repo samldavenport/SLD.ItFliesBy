@@ -32,7 +32,7 @@ namespace ifb {
     struct renderer_quad_elements;
     struct renderer_projection;
     struct renderer_grid_shader;
-    struct renderer_tile_instance;
+    struct renderer_tile_vertex;
     struct renderer_tile_shader;
 
     //--------------------------------------------------------------------
@@ -161,12 +161,6 @@ namespace ifb {
             addr                    addr;
             u32*                    uints;
         } data;
-    };
-
-    struct renderer_tile_instance {
-        vec2 corner;
-        u32  id;
-        u32  color;
     };
 
     struct renderer_context {

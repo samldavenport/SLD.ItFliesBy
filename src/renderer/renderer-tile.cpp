@@ -14,15 +14,50 @@ namespace ifb {
     static constexpr char TILE_UNIFORM_VEC2_TILE_SIZE      [] = "u_vec2_tile_size";
     static constexpr char TILE_UNIFORM_VEC2_MAP_DIMENSIONS [] = "u_vec2_map_dimensions";
 
+    static constexpr renderer_tile_vertex TILE_VERTICES [] = {
+        { 0.0f, 0.0f },
+        { 1.0f, 0.0f },
+        { 1.0f, 1.0f },
+        { 0.0f, 1.0f },
+    };
+
+    static constexpr u32 TILE_INDICES[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
     //--------------------------------------------------------------------
     // DEFINITIONS 
     //--------------------------------------------------------------------
-    
+   
+    struct renderer_tile_vertex {
+        vec2 corner;
+    };
+
+    struct renderer_tile_instance {
+        u32 id;
+        u32 color;
+    };
+
+    struct renderer_tile_instance_buffer {
+        u32                     capacity;
+        u32                     count;
+        union {
+            renderer_tile_instance* data; 
+            byte*                   bytes;
+            void*                   vptr;
+            f32*                    floats;
+            addr                    addr;
+        } data;
+    };
+
     struct renderer_tile_shader {
        struct {
            gl_program program;
            gl_vertex  vertex;
-           gl_buffer  buf_vertex;
+           gl_buffer  buf_vertices;
+           gl_buffer  buf_instances;
+           gl_buffer  buf_elements;
            gl_uniform u_sampler2d_texture;
            gl_uniform u_mat4_view_proj;
            gl_uniform u_mat4_model;
@@ -63,6 +98,9 @@ namespace ifb {
         // create gl objects
         shdr->gl.program         = gl_shader_program_create        (gl_ctx);
         shdr->gl.vertex          = gl_vertex_create                (gl_ctx); 
+        shdr->gl.buf_vertices    = gl_buffer_create                (gl_ctx);
+        shdr->gl.buf_instances   = gl_buffer_create                (gl_ctx);
+        shdr->gl.buf_elements    = gl_buffer_create                (gl_ctx);
         const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (gl_ctx);
         const gl_shader shdr_frg = gl_shader_stage_create_fragment (gl_ctx);
         
@@ -95,6 +133,8 @@ namespace ifb {
 
         // define vertex
         //TODO(SAM): need to finalize vertex definition
+        const u32 size_vtx  = sizeof(renderer_tile_vertex);
+        const u32 size_inst = sizeof(renderer_tile_instance);
     }
 
     IFB_INTERNAL void
