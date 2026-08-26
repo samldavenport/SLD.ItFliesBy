@@ -5,6 +5,50 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
+   
+    struct renderer_tile_vertex {
+        vec2 corner;
+    };
+
+    struct renderer_tile_instance {
+        u32 id;
+        u32 color;
+    };
+
+    struct renderer_tile_instance_buffer {
+        u32 data_size;
+        u32 data_length;
+        union {
+            renderer_tile_instance* array; 
+            byte*                   bytes;
+            void*                   vptr;
+            f32*                    floats;
+            addr                    addr;
+        } data;
+    };
+
+    struct renderer_tile_shader {
+       struct {
+           gl_program program;
+           gl_vertex  vertex;
+           gl_buffer  buf_vertices;
+           gl_buffer  buf_instances;
+           gl_buffer  buf_elements;
+           gl_uniform u_sampler2d_texture;
+           gl_uniform u_mat4_view_proj;
+           gl_uniform u_mat4_model;
+           gl_uniform u_vec2_tile_size;
+           gl_uniform u_vec2_map_dimensions;
+       } gl;
+       struct {
+           renderer_tile_instance_buffer instance;
+       } buffers;
+
+    };
+
+    //--------------------------------------------------------------------
     // CONSTANTS 
     //--------------------------------------------------------------------
     
@@ -27,46 +71,6 @@ namespace ifb {
     };
 
     //--------------------------------------------------------------------
-    // DEFINITIONS 
-    //--------------------------------------------------------------------
-   
-    struct renderer_tile_vertex {
-        vec2 corner;
-    };
-
-    struct renderer_tile_instance {
-        u32 id;
-        u32 color;
-    };
-
-    struct renderer_tile_instance_buffer {
-        u32                     capacity;
-        u32                     count;
-        union {
-            renderer_tile_instance* data; 
-            byte*                   bytes;
-            void*                   vptr;
-            f32*                    floats;
-            addr                    addr;
-        } data;
-    };
-
-    struct renderer_tile_shader {
-       struct {
-           gl_program program;
-           gl_vertex  vertex;
-           gl_buffer  buf_vertices;
-           gl_buffer  buf_instances;
-           gl_buffer  buf_elements;
-           gl_uniform u_sampler2d_texture;
-           gl_uniform u_mat4_view_proj;
-           gl_uniform u_mat4_model;
-           gl_uniform u_vec2_tile_size;
-           gl_uniform u_vec2_map_dimensions;
-       } gl;
-    };
-
-    //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
 
@@ -76,12 +80,19 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
+        const auto& cfg = config_instance();
+        
+        // allocate shader
         auto shdr = _renderer_ctx->memory.stack.push_struct<renderer_tile_shader>();
         assert(shdr);
-
         _renderer_ctx->shader.tile = shdr;
 
-        //TODO(SLD): need to create buffers for the tiles
+        // allocate buffer memory
+        shdr->buffers.instance.data_size   = cfg.tile_capacity * sizeof(renderer_tile_instance); 
+        shdr->buffers.instance.data_length = 0;
+        shdr->buffers.instance.data.vptr   = renderer_context_memory_alloc(shdr->buffers.instance.data_size);   
+        assert(shdr->buffers.instance.data_size != 0);
+        assert(shdr->buffers.instance.data.vptr != NULL);
     }
 
     IFB_INTERNAL void
@@ -91,8 +102,9 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
-        auto shdr   = _renderer_ctx->shader.tile;
-        auto gl_ctx = _renderer_ctx->gl;
+        const auto& cfg    = config_instance();
+        auto        shdr   = _renderer_ctx->shader.tile;
+        auto        gl_ctx = _renderer_ctx->gl;
         assert(shdr);
 
         // create gl objects
@@ -135,6 +147,19 @@ namespace ifb {
         //TODO(SAM): need to finalize vertex definition
         const u32 size_vtx  = sizeof(renderer_tile_vertex);
         const u32 size_inst = sizeof(renderer_tile_instance);
+       
+        gl_ok &= gl_context_set_vertex_object  (gl_ctx, shdr->gl.vertex);
+        gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.buf_vertices,  shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
+        gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.buf_instances, (byte*)TILE_VERTICES, sizeof(TILE_VERTICES));
+        gl_ok &= gl_vertex_add_attribute_f32x2 (gl_ctx, shdr->gl.vertex, size_vtx,  0, offsetof(renderer_tile_vertex, corner)); 
+        gl_ok &= gl_vertex_add_attribute_u32x1 (gl_ctx, shdr->gl.vertex, size_inst, 1, offsetof(renderer_tile_instance, id));
+        gl_ok &= gl_vertex_add_attribute_u32x1 (gl_ctx, shdr->gl.vertex, size_inst, 2, offsetof(renderer_tile_instance, color));
+        gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 0, 0);
+        gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 1, 1);
+        gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 2, 1);
+        assert(gl_ok);
+
+
     }
 
     IFB_INTERNAL void
