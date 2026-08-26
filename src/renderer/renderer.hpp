@@ -95,6 +95,7 @@ namespace ifb {
     IFB_INTERNAL void renderer_tile_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL void renderer_tile_shader_set_tile_size     (const f32 width,      const f32 height); 
     IFB_INTERNAL void renderer_tile_shader_set_map_size      (const f32 count_rows, const f32 count_cols); 
+    IFB_INTERNAL void renderer_tile_draw                     (const mat4& view_proj_xform);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

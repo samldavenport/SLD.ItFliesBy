@@ -183,9 +183,6 @@ namespace ifb {
 
         mat4 m = mat4_identity();
 
-        orientation cam_ori;
-        renderer_camera_get_orientation(cam_ori);
-
         // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr->gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
