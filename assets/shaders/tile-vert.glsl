@@ -6,11 +6,10 @@ layout(location = 1) in uint in_tile_id;
 layout(location = 2) in uint in_background_color;
 
 // uniforms
-uniform vec2      u_vec2_tile_size;
-uniform vec2      u_vec2_map_dimensions;
-uniform mat4      u_mat4_view_proj;
-uniform mat4      u_mat4_model;
-uniform sampler2D u_sampler2d_texture;
+uniform vec2 u_vec2_tile_size;
+uniform vec2 u_vec2_map_dimensions;
+uniform mat4 u_mat4_view_proj;
+uniform mat4 u_mat4_model;
 
 // vertex output
 out vec2      vert_uv;
@@ -43,6 +42,9 @@ main() {
     vert_background_color = in_background_color;
     
     // set position
-    gl_Position = u_mat4_view_proj * vec4(world_position, 1.0);
+    gl_Position = 
+        u_mat4_view_proj *
+        u_mat4_model     *
+        vec4(world_position, 1.0);
 }
 

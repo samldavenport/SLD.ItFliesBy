@@ -138,16 +138,14 @@ namespace ifb {
         shdr->gl.u_vec2_map_dimensions = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_VEC2_MAP_DIMENSIONS);
         // gl_ok &= (shdr->gl.u_sampler2d_texture   != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_mat4_view_proj      != GL_UNIFORM_INVALID);
-        //gl_ok &= (shdr->gl.u_mat4_model          != GL_UNIFORM_INVALID);
+        gl_ok &= (shdr->gl.u_mat4_model          != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_vec2_tile_size      != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_vec2_map_dimensions != GL_UNIFORM_INVALID);
         assert(gl_ok);
 
         // define vertex
-        //TODO(SAM): need to finalize vertex definition
         const u32 size_vtx  = sizeof(renderer_tile_vertex);
         const u32 size_inst = sizeof(renderer_tile_instance);
-       
         gl_ok &= gl_context_set_vertex_object  (gl_ctx, shdr->gl.vertex);
         gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.buf_vertices,  shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
         gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.buf_instances, (byte*)TILE_VERTICES, sizeof(TILE_VERTICES));
@@ -158,8 +156,6 @@ namespace ifb {
         gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 1, 1);
         gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 2, 1);
         assert(gl_ok);
-
-
     }
 
     IFB_INTERNAL void
