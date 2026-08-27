@@ -32,6 +32,8 @@ namespace ifb {
     struct renderer_quad_elements;
     struct renderer_projection;
     struct renderer_grid_shader;
+    struct renderer_tile_vertex;
+    struct renderer_tile_shader;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -84,9 +86,16 @@ namespace ifb {
     IFB_INTERNAL void renderer_direction_gizmo_draw          (void);
 
     // grid
-    IFB_INTERNAL void renderer_grid_shader_create (void);
-    IFB_INTERNAL void renderer_grid_shader_init   (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL void renderer_grid_draw          (const mat4& view_proj_xform);
+    IFB_INTERNAL void renderer_grid_shader_create            (void);
+    IFB_INTERNAL void renderer_grid_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL void renderer_grid_draw                     (const mat4& view_proj_xform);
+
+    // tile
+    IFB_INTERNAL void renderer_tile_shader_create            (void);
+    IFB_INTERNAL void renderer_tile_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL void renderer_tile_shader_set_tile_size     (const f32 width,      const f32 height); 
+    IFB_INTERNAL void renderer_tile_shader_set_map_size      (const f32 count_rows, const f32 count_cols); 
+    IFB_INTERNAL void renderer_tile_draw                     (const mat4& view_proj_xform);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -164,7 +173,8 @@ namespace ifb {
         struct {
             renderer_quad_shader*            quad;
             renderer_direction_gizmo_shader* direction_gizmo;
-            renderer_grid_shader*           grid; 
+            renderer_grid_shader*            grid; 
+            renderer_tile_shader*            tile;
         } shader;
     };
 };
