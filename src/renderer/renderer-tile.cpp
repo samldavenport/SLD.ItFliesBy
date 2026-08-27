@@ -149,7 +149,7 @@ namespace ifb {
         gl_ok &= gl_buffer_set_vertex_data      (gl_ctx, shdr->gl.buf_vertices,  shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
         gl_ok &= gl_buffer_set_vertex_data      (gl_ctx, shdr->gl.buf_instances, (byte*)TILE_VERTICES, sizeof(TILE_VERTICES));
         // TODO(SLD): why the FUCK does adding this mess with the quad shader? Jig no longer renders
-        gl_ok &= gl_buffer_set_element_data     (gl_ctx, shdr->gl.buf_elements, (byte*)TILE_INDICES, sizeof(TILE_INDICES));
+        //gl_ok &= gl_buffer_set_element_data     (gl_ctx, shdr->gl.buf_elements, (byte*)TILE_INDICES, sizeof(TILE_INDICES));
         gl_ok &= gl_vertex_add_attribute_f32x2  (gl_ctx, shdr->gl.vertex, size_vtx,  0, offsetof(renderer_tile_vertex, corner)); 
         gl_ok &= gl_vertex_add_attribute_u32x1  (gl_ctx, shdr->gl.vertex, size_inst, 1, offsetof(renderer_tile_instance, id));
         gl_ok &= gl_vertex_add_attribute_u32x1  (gl_ctx, shdr->gl.vertex, size_inst, 2, offsetof(renderer_tile_instance, color));
