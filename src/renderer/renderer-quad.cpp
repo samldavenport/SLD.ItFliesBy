@@ -12,8 +12,8 @@ namespace ifb {
     // CONSTANTS 
     //--------------------------------------------------------------------
     
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ  = "u_mat4_view_proj";
-    static constexpr char* QUAD_UNIFORM_NAME_MAT4_MODEL      = "u_mat4_model";
+    static constexpr char QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ [] = "u_mat4_view_proj";
+    static constexpr char QUAD_UNIFORM_NAME_MAT4_MODEL     [] = "u_mat4_model";
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -182,9 +182,6 @@ namespace ifb {
         }
 
         mat4 m = mat4_identity();
-
-        orientation cam_ori;
-        renderer_camera_get_orientation(cam_ori);
 
         // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr->gl.program);
