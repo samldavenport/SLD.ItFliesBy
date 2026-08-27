@@ -130,13 +130,11 @@ namespace ifb {
 
         // get uniform locations
         // TODO(SAM): for some reason the commented
-        // uniforms are not loading properly
         shdr->gl.u_sampler2d_texture   = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_SAMPLER2D_TEXTURE);
         shdr->gl.u_mat4_view_proj      = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_MAT4_VIEW_PROJ);
         shdr->gl.u_mat4_model          = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_MAT4_MODEL);
         shdr->gl.u_vec2_tile_size      = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_VEC2_TILE_SIZE);
         shdr->gl.u_vec2_map_dimensions = gl_uniform_get_location (gl_ctx, shdr->gl.program, TILE_UNIFORM_VEC2_MAP_DIMENSIONS);
-        // gl_ok &= (shdr->gl.u_sampler2d_texture   != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_mat4_view_proj      != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_mat4_model          != GL_UNIFORM_INVALID);
         gl_ok &= (shdr->gl.u_vec2_tile_size      != GL_UNIFORM_INVALID);
@@ -146,10 +144,12 @@ namespace ifb {
         // define vertex
         const u32 size_vtx  = sizeof(renderer_tile_vertex);
         const u32 size_inst = sizeof(renderer_tile_instance);
+        gl_ok &= gl_context_set_shader_program  (gl_ctx, shdr->gl.program);     
         gl_ok &= gl_context_set_vertex_object   (gl_ctx, shdr->gl.vertex);
         gl_ok &= gl_buffer_set_vertex_data      (gl_ctx, shdr->gl.buf_vertices,  shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
         gl_ok &= gl_buffer_set_vertex_data      (gl_ctx, shdr->gl.buf_instances, (byte*)TILE_VERTICES, sizeof(TILE_VERTICES));
-        gl_ok &= gl_buffer_set_element_data     (gl_ctx, shdr->gl.buf_instances, (byte*)TILE_INDICES,  sizeof(TILE_INDICES));
+        // TODO(SLD): why the FUCK does adding this mess with the quad shader? Jig no longer renders
+        gl_ok &= gl_buffer_set_element_data     (gl_ctx, shdr->gl.buf_elements, (byte*)TILE_INDICES, sizeof(TILE_INDICES));
         gl_ok &= gl_vertex_add_attribute_f32x2  (gl_ctx, shdr->gl.vertex, size_vtx,  0, offsetof(renderer_tile_vertex, corner)); 
         gl_ok &= gl_vertex_add_attribute_u32x1  (gl_ctx, shdr->gl.vertex, size_inst, 1, offsetof(renderer_tile_instance, id));
         gl_ok &= gl_vertex_add_attribute_u32x1  (gl_ctx, shdr->gl.vertex, size_inst, 2, offsetof(renderer_tile_instance, color));
