@@ -88,6 +88,8 @@ mem_map_init(
     mem_map.quads.ptr       = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.physics.size    = SIZE_RESERVATION;
     mem_map.physics.ptr     = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.tiles.size      = SIZE_RESERVATION;
+    mem_map.tiles.ptr       = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
 
     assert(
         mem_map.stack.ptr      != NULL &&        
@@ -98,6 +100,7 @@ mem_map_init(
         mem_map.gui.ptr        != NULL &&
         mem_map.components.ptr != NULL &&
         mem_map.quads.ptr      != NULL &&
-        mem_map.physics.ptr    != NULL
+        mem_map.physics.ptr    != NULL &&
+        mem_map.tiles.ptr      != NULL
     );
 }

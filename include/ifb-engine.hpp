@@ -209,6 +209,7 @@ namespace ifb {
         eng_mem components;
         eng_mem quads;
         eng_mem physics;
+        eng_mem tiles;
     };
 
     struct eng_game_context {

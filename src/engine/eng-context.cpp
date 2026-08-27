@@ -12,6 +12,7 @@
 #include "renderer.cpp"
 #include "renderer.hpp"
 #include "json.hpp"
+#include "tile.hpp"
 #include "tiled.hpp"
 
 namespace ifb {
@@ -29,6 +30,7 @@ namespace ifb {
     IFB_INLINE void eng_context_startup_cmpnt_mngr      (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_quad_mngr       (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_phys_mngr       (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_tile_mngr       (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -73,6 +75,7 @@ namespace ifb {
         _eng_context->cmpnt_mngr    = cmpnt_mngr_create();  
         _eng_context->quad_mngr     = quad_mngr_create();
         _eng_context->phys_mngr     = physics_mngr_create();
+        _eng_context->tile_mngr     = tile_mngr_create();
         _eng_context->mem_map       = mem_map;
 
         assert(
@@ -112,6 +115,7 @@ namespace ifb {
         eng_context_startup_memory_mngr     (mem_map);
         eng_context_startup_cmpnt_mngr      (mem_map);
         eng_context_startup_quad_mngr       (mem_map);
+        eng_context_startup_tile_mngr       (mem_map);
         eng_context_startup_phys_mngr       (mem_map);
         eng_context_startup_open_window     (config, system);
         eng_context_startup_renderer        (mem_map);
@@ -339,4 +343,13 @@ namespace ifb {
         physics_mngr_startup(mem);
     }
 
+    IFB_INLINE void
+    eng_context_startup_tile_mngr(
+        const eng_mem_map* mem_map) {
+
+        memory mem;
+        mem.ptr  = mem_map->tiles.ptr;
+        mem.size = mem_map->tiles.size;
+        tile_mngr_startup(mem);
+    }
 };

@@ -1,57 +1,160 @@
 #ifndef TILE_HPP
 #define TILE_HPP
 
-#include "ifb.hpp"
+#include "ifb-types.hpp"
+#include "memory.hpp"
+#include "sld.hpp"
 
 using namespace sld;
 
 namespace ifb {
 
-    struct tile_id {
-        union {
-            struct {
-                byte grid_id;
-                byte index;
-            };
-            u32 val;
-        };
+    //--------------------------------------------------------------------
+    // DECLARATIONS
+    //--------------------------------------------------------------------
+    
+    IFB_U32(tile_id_u32);
+    IFB_U32(tile_map_id_u32);
+    IFB_U32(tile_flags_u32);
+
+    struct tile_mngr;
+    struct tile;
+    struct tile_map;
+    struct tile_table;
+    struct tile_map_table;
+    struct tile_render_context;
+    struct tile_render_buffer;
+    struct tile_map_name;
+
+    //--------------------------------------------------------------------
+    // GLOBALS 
+    //--------------------------------------------------------------------
+   
+    static tile_mngr* _tile_mngr; 
+
+    //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+    
+    static constexpr u32 TILE_MAP_NAME_LENGTH = 16;
+
+    //--------------------------------------------------------------------
+    // ENUMS 
+    //--------------------------------------------------------------------
+  
+    enum tile_map_flag_e {
+        tile_map_flag_e_navigable  = bit_value(0),
+        tile_map_flag_e_wall_north = bit_value(1),
+        tile_map_flag_e_wall_south = bit_value(2),
+        tile_map_flag_e_wall_east  = bit_value(3),
+        tile_map_flag_e_wall_west  = bit_value(4),
     };
+
+    //--------------------------------------------------------------------
+    // METHODS 
+    //--------------------------------------------------------------------
+
+    IFB_INTERNAL tile_mngr* tile_mngr_create   (void);
+    IFB_INTERNAL void       tile_mngr_startup  (memory& res);
+    IFB_INTERNAL void       tile_mngr_shutdown (void);
+
+    IFB_INTERNAL tile_map_id_u32
+    tile_map_create(
+        const cchar* name,
+        const f32    tile_width,
+        const f32    tile_height,
+        const u32    count_rows,
+        const u32    count_col
+    );
+
+    IFB_INTERNAL void tile_map_destroy           (const tile_map_id_u32 map_id);
+    IFB_INTERNAL u32  tile_map_tile_count        (const tile_map_id_u32 map_id);
+    IFB_INTERNAL void tile_map_set_color         (const tile_map_id_u32 map_id, const tile_id_u32* id, const color_rgba_u32* color, const u32 count);
+    IFB_INTERNAL void tile_map_set_flags         (const tile_map_id_u32 map_id, const tile_id_u32* id, const tile_flags_u32* flags, const u32 count);
+    IFB_INTERNAL bool tile_map_get_render_buffer (const tile_map_id_u32 map_id, tile_render_buffer* render_buffer, arena* a);
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
 
     struct tile {
-        tile_id id;
-        u32     color_rgba;
-        u32     texture_coord_x;
-        u32     texture_coord_y;
-    }; 
-
-    struct tile_grid_id {
-        u32 id;
+        union {
+            struct {
+                u16 row;
+                u16 col;
+            };
+            tile_id_u32 id;
+        };
+        u32             map_id;
+        color_rgba_u32  color;
+        tile_flags_u32  flags;
     };
 
-    struct tile_grid {
-        tile_grid_id id;
-        u32          count_rows;
-        u32          count_columns;
-        tile_id*     tile_id_array;
+    struct tile_mngr {
+        stack           mem_stack;
+        tile_table*     tbl_tiles;
+        tile_map_table* tbl_map;
     };
 
-    struct tile_map_id {
-        u32 val;  
+    struct tile_map_name {
+        cchar cstr[TILE_MAP_NAME_LENGTH];
     };
 
     struct tile_map {
-        u32           grid_count;
-        tile_grid_id* grid_id_array;
+        tile_map_id_u32 id;
+        f32             tile_width;
+        f32             tile_height;
+        u32             count_rows;
+        u32             count_cols;
+        tile_map_name   name;
     };
 
+    struct tile_map_table {
+        u32 capacity;
+        u32 count;
+        struct {
+            tile_map_id_u32* map_id;
+            f32*             tile_width;
+            f32*             tile_height;
+            u32*             count_rows;
+            u32*             count_cols;
+            tile_map_name*   name;
+        } data;
+    };
 
+    struct tile_table {
+        u32 capacity;
+        u32 count;
+        tile_map_id_u32* map_id_array; // this array is map capacity
+        struct {
+            u16*             row;
+            u16*             col;
+            color_rgba_u32*  color;
+            tile_flags_u32*  flags;
+        } data; // data elements are max tile capacity
+    };
 
+    struct tile_render_context {
+        union {
+            struct {
+                vec2 corner;
+                u32  id;
+                u32  color;
+            };
+            byte data[12];
+        };
+    };
 
-    IFB_INTERNAL tile_map_id  tile_map_create         (const cchar* name,     const u32 grid_count);
-    IFB_INTERNAL tile_grid_id tile_grid_create        (const cchar* name,     const u32 map_id, const u32 row_count, const u32 col_count);
-    IFB_INTERNAL void         tile_grid_set_navigable (const u32* tile_index, const u32 tile_count = 1);
-
-
+    struct tile_render_buffer {
+        u32 data_size;
+        u32 tile_count;
+        union {
+            tile_render_context* ctx_array;
+            byte*                bytes;
+            void*                vptr;
+            addr                 address;
+        } data;
+    };
 };
 
 #endif //TILE_HPP
