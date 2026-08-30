@@ -6,6 +6,7 @@
 #include "memory-arena.cpp"
 #include "tile.hpp"
 #include <cassert>
+#include <sld-strings.hpp>
 
 namespace ifb {
    
@@ -120,13 +121,15 @@ namespace ifb {
 
         // store the name and calculate hash
         auto& map_name = tbl->data.name[index];
-        const u32 name_len = strnlen_s(name, 16);
-        cchar* dst = &map_name.cstr[0];
+        
+        const u32 name_len = cstr_nvar_length(name, 16);
 
-        (void)strcpy_s(
-            dst,
-            16,
-            name
+
+        const u32 length_copied = cstr_nvar_copy(
+            name,
+            name_len,
+            map_name.cstr,
+            16
         );
 
         const u32 map_id = tile_map_name_hash(map_name);

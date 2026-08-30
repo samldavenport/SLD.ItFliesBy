@@ -23,6 +23,7 @@ $EngCompile = @(
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.OpenGL\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Math\include")
+    "/I"   + @(Join-Path $ProjectRoot "SLD.Strings\include")
     "/I"   + @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\include")
     "/nologo"             # startup banner disabled
     "/c"                  # compile without linking
@@ -43,6 +44,7 @@ $EngLink = @(
     "ItFliesBy.Engine.obj"
     "SLD.OpenGL.lib"
     "SLD.Core.lib"
+    "SLD.Strings.lib"
     "user32.lib"
     "Gdi32.lib"
     "opengl32.lib"
@@ -52,6 +54,8 @@ $EngLink = @(
     "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.Core\build\debug\obj")
     "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\lib")
     "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\obj")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.Strings\build\debug\lib")
+    "/LIBPATH:" + @(Join-Path $ProjectRoot "SLD.Strings\build\debug\obj")
     "/LIBPATH:" + @(Join-Path $ProjectRoot "build\debug\lib")
     "/LIBPATH:" + @(Join-Path $ProjectRoot "build\debug\obj")
     "/LIBPATH:" + @(Join-Path $ProjectRoot "vcpkg_installed/x64-windows/lib")
@@ -70,6 +74,7 @@ $Win32Compile = @(
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Opengl\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Math\include")
+    "/I"   + @(Join-Path $ProjectRoot "SLD.Strings\include")
     "/I"   + @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\include")
     "/nologo"             # startup banner disabled
     "/c"                  # compile without linking
@@ -100,21 +105,24 @@ $Win32Link = @(
 
 & .\SLD.Core\scripts\Build-SLDCoreDebug.ps1
 & .\SLD.OpenGL\scripts\Invoke-BuildDebug.ps1
+& .\SLD.Strings\scripts\Invoke-SLDStringsBuild.ps1
 
 Invoke-Expression $EngCompile
 Invoke-Expression $EngLink
 Invoke-Expression $Win32Compile
 Invoke-Expression $Win32Link
 
-$BinDst       = @(Join-Path $ProjectRoot "build\debug\bin")                       -join " "
-$BinSrcOpenGL = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll")      -join " "
-$BinSrcCore   = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll")        -join " "
-$ShdrSrc      = @(Join-Path $ProjectRoot "assets\shaders\*.glsl")                 -join " "
-$JsonSrc      = @(Join-Path $ProjectRoot "assets\json\*.json")                    -join " "
-$VcpkgSrc     = @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\bin\*.dll") -join " "
+$BinDst        = @(Join-Path $ProjectRoot "build\debug\bin")                       -join " "
+$BinSrcOpenGL  = @(Join-Path $ProjectRoot "SLD.OpenGL\build\debug\bin\*.dll")      -join " "
+$BinSrcCore    = @(Join-Path $ProjectRoot "SLD.Core\build\debug\bin\*.dll")        -join " "
+$BinSrcStrings = @(Join-Path $ProjectRoot "SLD.Strings\build\debug\bin\*.dll")     -join " "
+$ShdrSrc       = @(Join-Path $ProjectRoot "assets\shaders\*.glsl")                 -join " "
+$JsonSrc       = @(Join-Path $ProjectRoot "assets\json\*.json")                    -join " "
+$VcpkgSrc      = @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\bin\*.dll") -join " "
 
-Copy-Item -Path $BinSrcCore   -Destination $BinDst 
-Copy-Item -Path $BinSrcOpenGL -Destination $BinDst 
-Copy-Item -Path $ShdrSrc      -Destination $BinDst 
-Copy-Item -Path $VcpkgSrc     -Destination $BinDst 
-Copy-Item -Path $JsonSrc      -Destination $BinDst 
+Copy-Item -Path $BinSrcCore    -Destination $BinDst 
+Copy-Item -Path $BinSrcStrings -Destination $BinDst 
+Copy-Item -Path $BinSrcOpenGL  -Destination $BinDst 
+Copy-Item -Path $ShdrSrc       -Destination $BinDst 
+Copy-Item -Path $VcpkgSrc      -Destination $BinDst 
+Copy-Item -Path $JsonSrc       -Destination $BinDst 
