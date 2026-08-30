@@ -119,11 +119,10 @@ namespace ifb {
         }
         const u32 index = tbl->count;
 
-        const u32 name_len = cstr_nvar_length(name, 16);
-
         // store the name and calculate hash
-        tile_map_name& map_name = tbl->data.name[index];
-        const u32 length_copied = cstr_nvar_copy(
+        const u32      name_len      = cstr_nvar_length(name, 16);
+        tile_map_name& map_name      = tbl->data.name[index];
+        const u32      length_copied = cstr_nvar_copy(
             name,
             name_len,
             map_name.cstr,
