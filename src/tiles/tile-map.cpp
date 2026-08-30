@@ -45,7 +45,7 @@ namespace ifb {
                 result = index;
                 break;
             }
-            }
+        }
 
         return(result);
     }
@@ -119,19 +119,16 @@ namespace ifb {
         }
         const u32 index = tbl->count;
 
-        // store the name and calculate hash
-        auto& map_name = tbl->data.name[index];
-        
         const u32 name_len = cstr_nvar_length(name, 16);
 
-
+        // store the name and calculate hash
+        tile_map_name& map_name = tbl->data.name[index];
         const u32 length_copied = cstr_nvar_copy(
             name,
             name_len,
             map_name.cstr,
             16
         );
-
         const u32 map_id = tile_map_name_hash(map_name);
         assert(map_id != INVALID_HASH_32);
 

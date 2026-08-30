@@ -52,11 +52,12 @@ namespace ifb {
         // allocate map table memory
         tbl_map->capacity         = cfg.tile_map_capacity; 
         tbl_map->count            = 0; 
-        tbl_map->data.map_id      = _tile_mngr->mem_stack.push_struct<tile_map_id_u32>(cfg.tile_map_capacity);
-        tbl_map->data.tile_width  = _tile_mngr->mem_stack.push_struct<f32>(cfg.tile_map_capacity);
-        tbl_map->data.tile_height = _tile_mngr->mem_stack.push_struct<f32>(cfg.tile_map_capacity);
-        tbl_map->data.count_rows  = _tile_mngr->mem_stack.push_struct<u32>(cfg.tile_map_capacity);
-        tbl_map->data.count_cols  = _tile_mngr->mem_stack.push_struct<u32>(cfg.tile_map_capacity);
+        tbl_map->data.map_id      = _tile_mngr->mem_stack.push_struct<tile_map_id_u32> (cfg.tile_map_capacity);
+        tbl_map->data.tile_width  = _tile_mngr->mem_stack.push_struct<f32>             (cfg.tile_map_capacity);
+        tbl_map->data.tile_height = _tile_mngr->mem_stack.push_struct<f32>             (cfg.tile_map_capacity);
+        tbl_map->data.count_rows  = _tile_mngr->mem_stack.push_struct<u32>             (cfg.tile_map_capacity);
+        tbl_map->data.count_cols  = _tile_mngr->mem_stack.push_struct<u32>             (cfg.tile_map_capacity);
+        tbl_map->data.name        = _tile_mngr->mem_stack.push_struct<tile_map_name>   (cfg.tile_map_capacity);
         assert(tbl_map->data.map_id      != NULL); 
         assert(tbl_map->data.tile_width  != NULL); 
         assert(tbl_map->data.tile_height != NULL); 
