@@ -25,6 +25,7 @@
 #include "eng-image.cpp"
 #include "eng-system.cpp"
 #include "eng-keycode.cpp"
+#include "eng-tile-map.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"

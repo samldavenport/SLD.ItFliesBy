@@ -39,7 +39,6 @@ namespace ifb {
         commit.ptr  = pfm_memory_commit(res.ptr, 0, res.size); 
         assert(commit.ptr);
         _tile_mngr->mem_stack.init(commit); 
-       
 
         // cache the tables
         auto tbl_map   = _tile_mngr->tbl_map; 
@@ -77,6 +76,9 @@ namespace ifb {
         assert(tbl_tiles->data.col     != NULL);    
         assert(tbl_tiles->data.color   != NULL);  
         assert(tbl_tiles->data.flags   != NULL);  
+
+        // set the map id array to invalid
+        memset(tbl_tiles->map_id_array, 0xFF, sizeof(tile_map_id_u32) * cfg.tile_map_capacity);
     }
 
     IFB_INTERNAL void

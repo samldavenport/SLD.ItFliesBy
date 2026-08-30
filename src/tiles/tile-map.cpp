@@ -1,12 +1,24 @@
 #pragma once
 
+#include "files.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "tile.hpp"
+#include <cassert>
 
 namespace ifb {
    
+    struct tile_id_composite {
+        union {
+            struct {
+                u16 row;
+                u16 col;
+            };
+            u32 id;
+        };
+    };
+
     inline u32
     tile_map_name_hash(
         tile_map_name& name) {
@@ -32,9 +44,29 @@ namespace ifb {
                 result = index;
                 break;
             }
-        }
+            }
 
         return(result);
+    }
+
+    inline u32
+    tile_get_index(
+        const tile_table* tbl_tile,
+        const u32         tile_row,
+        const u32         tile_col,
+        const u32         map_count_row,
+        const u32         map_count_col,
+        const u32         offset) {
+    
+        bool is_valid = true;
+        is_valid &= tile_row < map_count_row;
+        is_valid &= tile_col < map_count_col;
+
+        const u32 index = is_valid 
+            ? offset + tile_col + (tile_row * map_count_row)
+            : INVALID_INDEX;
+
+        return(index);
     }
 
     inline u32
@@ -63,32 +95,6 @@ namespace ifb {
         return(result);
     }
 
-    struct tile_id_composite {
-        union {
-            struct {
-                u16 row;
-                u16 col;
-            };
-            u32 id;
-        };
-    };
-
-    inline u32
-    tile_table_get_id (
-        const tile_table* tile_tbl,
-        const u32         tile_index) {
-
-        assert(tile_tbl);
-        assert(tile_tbl->data.row);
-        assert(tile_tbl->data.col);
-      
-        tile_id_composite composite;
-        composite.row = tile_tbl->data.row[tile_index];
-        composite.col = tile_tbl->data.col[tile_index];
-     
-        return(composite.id);
-    }
-
     IFB_INTERNAL tile_map_id_u32
     tile_map_create(
         const cchar* name,
@@ -114,7 +120,15 @@ namespace ifb {
 
         // store the name and calculate hash
         auto& map_name = tbl->data.name[index];
-        (void)strncpy_s(map_name.cstr, TILE_MAP_NAME_LENGTH, name, TILE_MAP_NAME_LENGTH);
+        const u32 name_len = strnlen_s(name, 16);
+        cchar* dst = &map_name.cstr[0];
+
+        (void)strcpy_s(
+            dst,
+            16,
+            name
+        );
+
         const u32 map_id = tile_map_name_hash(map_name);
         assert(map_id != INVALID_HASH_32);
 
@@ -132,22 +146,114 @@ namespace ifb {
         return(map_id); 
     }
 
-    IFB_INTERNAL void tile_map_destroy           (const tile_map_id_u32 map_id);
+    IFB_INTERNAL void
+    tile_map_destroy(
+        const tile_map_id_u32 map_id) {
+
+        //TODO
+    }
 
     IFB_INTERNAL u32
     tile_map_tile_count(
         const tile_map_id_u32 map_id) {
 
-
         assert(map_id != INVALID_HASH_32);
 
-        // get the index for the map
-        
+        auto tbl = _tile_mngr->tbl_map;
+        assert(tbl != NULL);
 
+        // get the index for the map
+        const u32 index = tile_map_index(tbl, map_id);
+        assert(index != INVALID_INDEX);
+
+        const u32 rows  = tbl->data.count_rows[index];
+        const u32 cols  = tbl->data.count_cols[index];
+        const u32 count = rows * cols;
+
+        return(count);
     }
 
-    IFB_INTERNAL void tile_map_set_color         (const tile_map_id_u32 map_id, const tile_id_u32* id, const color_rgba_u32* color, const u32 count);
-    IFB_INTERNAL void tile_map_set_flags         (const tile_map_id_u32 map_id, const tile_id_u32* id, const tile_flags_u32* flags, const u32 count);
+    IFB_INTERNAL void
+    tile_map_set_color(
+        const tile_map_id_u32 map_id,
+        const u32*            row,
+        const u32*            col,
+        const color_rgba_u32* color,
+        const u32             count) {
+
+        assert(map_id     != INVALID_HASH_32);
+        assert(row        != NULL);
+        assert(col        != NULL);
+        assert(color      != NULL);
+        assert(count      != 0);
+        assert(_tile_mngr != NULL); 
+       
+        auto tbl_map  = _tile_mngr->tbl_map;
+        auto tbl_tile = _tile_mngr->tbl_tiles;
+        assert(tbl_map);
+        assert(tbl_tile);
+
+        const u32 index      = tile_map_index    (tbl_map, map_id);
+        const u32 offset     = tile_table_offset (tbl_tile, map_id);
+        const u32 count_rows = tbl_map->data.count_rows[index];                
+        const u32 count_cols = tbl_map->data.count_cols[index];
+
+        for (
+            u32 i = 0;
+            i < count;
+            ++i) {
+       
+            const u32 curr_row = row[i];
+            const u32 curr_col = col[i];
+            assert(curr_row < count_rows);
+            assert(curr_col < count_cols);
+
+            const u32 id = ((count_rows * curr_row) + curr_col) + offset;
+
+            tbl_tile->data.color[id] = color[i];
+        }
+    }
+
+    IFB_INTERNAL void
+    tile_map_set_flags(
+        const tile_map_id_u32 map_id,
+        const u32*            row,
+        const u32*            col,
+        const tile_flags_u32* flags,
+        const u32             count) {
+
+        assert(map_id     != INVALID_HASH_32);
+        assert(row        != NULL);
+        assert(col        != NULL);
+        assert(flags      != NULL);
+        assert(count      != 0);
+        assert(_tile_mngr != NULL); 
+       
+        auto tbl_map  = _tile_mngr->tbl_map;
+        auto tbl_tile = _tile_mngr->tbl_tiles;
+        assert(tbl_map);
+        assert(tbl_tile);
+
+        const u32 index      = tile_map_index    (tbl_map, map_id);
+        const u32 offset     = tile_table_offset (tbl_tile, map_id);
+        const u32 count_rows = tbl_map->data.count_rows[index];                
+        const u32 count_cols = tbl_map->data.count_cols[index];
+
+        for (
+            u32 i = 0;
+            i < count;
+            ++i) {
+       
+            const u32 curr_row = row[i];
+            const u32 curr_col = col[i];
+            assert(curr_row < count_rows);
+            assert(curr_col < count_cols);
+
+            const u32 id = ((count_rows * curr_row) + curr_col) + offset;
+
+            tbl_tile->data.flags[id] = flags[i];
+        }
+    }
 
     IFB_INTERNAL bool
     tile_map_get_render_buffer(
@@ -194,14 +300,14 @@ namespace ifb {
         const u32 tile_index_max = tile_offset + cfg.tile_capacity;
 
         for (
-            u32 tile_index = 0;
-            tile_index <  render_buffer->tile_count;
-            ++tile_index) {
+            u32 index = 0;
+            index <  render_buffer->tile_count;
+            ++index) {
 
-            const u32 tbl_index = tile_index + tile_offset;
-           
-            auto& ctx = render_buffer->data.ctx_array[tile_index]; 
-            ctx.id     = tile_table_get_id(tbl_tile, tbl_index);
+            const u32 tbl_index = tile_offset + index; 
+
+            auto& ctx = render_buffer->data.ctx_array[index]; 
+            ctx.id     = index;
             ctx.color  = tbl_tile->data.color[tbl_index].hex;
             ctx.corner = {0}; // TODO(SLD): need to figure out corner
         }

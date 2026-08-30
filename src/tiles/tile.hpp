@@ -39,18 +39,6 @@ namespace ifb {
     static constexpr u32 TILE_MAP_NAME_LENGTH = 16;
 
     //--------------------------------------------------------------------
-    // ENUMS 
-    //--------------------------------------------------------------------
-  
-    enum tile_map_flag_e {
-        tile_map_flag_e_navigable  = bit_value(0),
-        tile_map_flag_e_wall_north = bit_value(1),
-        tile_map_flag_e_wall_south = bit_value(2),
-        tile_map_flag_e_wall_east  = bit_value(3),
-        tile_map_flag_e_wall_west  = bit_value(4),
-    };
-
-    //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
 
@@ -69,8 +57,8 @@ namespace ifb {
 
     IFB_INTERNAL void tile_map_destroy           (const tile_map_id_u32 map_id);
     IFB_INTERNAL u32  tile_map_tile_count        (const tile_map_id_u32 map_id);
-    IFB_INTERNAL void tile_map_set_color         (const tile_map_id_u32 map_id, const tile_id_u32* id, const color_rgba_u32* color, const u32 count);
-    IFB_INTERNAL void tile_map_set_flags         (const tile_map_id_u32 map_id, const tile_id_u32* id, const tile_flags_u32* flags, const u32 count);
+    IFB_INTERNAL void tile_map_set_color         (const tile_map_id_u32 map_id, const u32* row, const u32* col, const color_rgba_u32* color, const u32 count);
+    IFB_INTERNAL void tile_map_set_flags         (const tile_map_id_u32 map_id, const u32* row, const u32* col, const tile_flags_u32* flags, const u32 count);
     IFB_INTERNAL bool tile_map_get_render_buffer (const tile_map_id_u32 map_id, tile_render_buffer* render_buffer, arena* a);
 
     //--------------------------------------------------------------------
