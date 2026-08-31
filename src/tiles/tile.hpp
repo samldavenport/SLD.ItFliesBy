@@ -15,7 +15,6 @@ namespace ifb {
     
     IFB_U32(tile_id_u32);
     IFB_U32(tile_map_id_u32);
-    IFB_U32(tile_flags_u32);
 
     struct tile_mngr;
     struct tile;
@@ -57,8 +56,8 @@ namespace ifb {
 
     IFB_INTERNAL void tile_map_destroy           (const tile_map_id_u32 map_id);
     IFB_INTERNAL u32  tile_map_tile_count        (const tile_map_id_u32 map_id);
-    IFB_INTERNAL void tile_map_set_color         (const tile_map_id_u32 map_id, const u32* row, const u32* col, const color_rgba_u32* color, const u32 count);
-    IFB_INTERNAL void tile_map_set_flags         (const tile_map_id_u32 map_id, const u32* row, const u32* col, const tile_flags_u32* flags, const u32 count);
+    IFB_INTERNAL void tile_map_set_color         (const tile_map_id_u32 map_id, const tile_coords* coords, const color_rgba_u32* color, const u32 count);
+    IFB_INTERNAL void tile_map_set_flags         (const tile_map_id_u32 map_id, const tile_coords* coords, const tile_flags_u32* flags, const u32 count);
     IFB_INTERNAL bool tile_map_get_render_buffer (const tile_map_id_u32 map_id, tile_render_buffer* render_buffer, arena* a);
 
     //--------------------------------------------------------------------

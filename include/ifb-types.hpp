@@ -48,6 +48,7 @@ namespace ifb {
     struct spring;
     struct tag;
     struct flags;
+    struct tile_coords;
 
     using position_3d      = vec3;
     using velocity_3d      = vec3;
@@ -63,7 +64,8 @@ namespace ifb {
     IFB_U32(handle);
     IFB_U32(entity_id);
     IFB_U32(component_type);
-
+    IFB_U32(tile_flags_u32);
+    
     //--------------------------------------------------------------------
     // CONSTANTS
     //--------------------------------------------------------------------
@@ -200,6 +202,11 @@ namespace ifb {
         hash(void) {
             return(hash_u32((void*)cstr, 16));
         }
+    };
+
+    struct tile_coords {
+        u16 row;
+        u16 col;
     };
 };
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "files.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
@@ -177,14 +176,12 @@ namespace ifb {
     IFB_INTERNAL void
     tile_map_set_color(
         const tile_map_id_u32 map_id,
-        const u32*            row,
-        const u32*            col,
+        const tile_coords*    coords,
         const color_rgba_u32* color,
         const u32             count) {
 
         assert(map_id     != INVALID_HASH_32);
-        assert(row        != NULL);
-        assert(col        != NULL);
+        assert(coords     != NULL);
         assert(color      != NULL);
         assert(count      != 0);
         assert(_tile_mngr != NULL); 
@@ -203,29 +200,26 @@ namespace ifb {
             u32 i = 0;
             i < count;
             ++i) {
-       
-            const u32 curr_row = row[i];
-            const u32 curr_col = col[i];
-            assert(curr_row < count_rows);
-            assert(curr_col < count_cols);
+      
+            const tile_coords& curr_coords = coords[i];
+            assert(curr_coords.row < count_rows);
+            assert(curr_coords.col < count_cols);
 
-            const u32 id = ((count_rows * curr_row) + curr_col) + offset;
+            const u32 tile_index = ((count_rows * curr_coords.row) + curr_coords.col) + offset;
 
-            tbl_tile->color[id] = color[i];
+            tbl_tile->color[tile_index] = color[i];
         }
     }
 
     IFB_INTERNAL void
     tile_map_set_flags(
         const tile_map_id_u32 map_id,
-        const u32*            row,
-        const u32*            col,
+        const tile_coords*    coords,
         const tile_flags_u32* flags,
         const u32             count) {
 
         assert(map_id     != INVALID_HASH_32);
-        assert(row        != NULL);
-        assert(col        != NULL);
+        assert(coords     != NULL);
         assert(flags      != NULL);
         assert(count      != 0);
         assert(_tile_mngr != NULL); 
@@ -244,15 +238,14 @@ namespace ifb {
             u32 i = 0;
             i < count;
             ++i) {
-       
-            const u32 curr_row = row[i];
-            const u32 curr_col = col[i];
-            assert(curr_row < count_rows);
-            assert(curr_col < count_cols);
+      
+            const tile_coords& curr_coords = coords[i];
+            assert(curr_coords.row < count_rows);
+            assert(curr_coords.col < count_cols);
 
-            const u32 id = ((count_rows * curr_row) + curr_col) + offset;
+            const u32 tile_index = ((count_rows * curr_coords.row) + curr_coords.col) + offset;
 
-            tbl_tile->flags[id] = flags[i];
+            tbl_tile->flags[tile_index] = flags[i];
         }
     }
 

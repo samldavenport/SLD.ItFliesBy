@@ -157,7 +157,7 @@ namespace ifb {
     IFB_ENGINE_API void                eng_tile_map_destroy    (const eng_tile_map_handle tile_map);
     IFB_ENGINE_API void                eng_tile_map_render     (const eng_tile_map_handle tile_map);
     IFB_ENGINE_API void                eng_tile_map_set_colors (const eng_tile_map_handle tile_map, const u32* row, const u32* col, const color_rgba_u32* color, const u32 count); 
-    IFB_ENGINE_API void                eng_tile_map_set_flags  (const eng_tile_map_handle tile_map, const u32* row, const u32* col, const u32*            flags, const u32 count); 
+    IFB_ENGINE_API void                eng_tile_map_set_flags  (const eng_tile_map_handle tile_map, const u32* row, const u32* col, const tile_flags_u32* flags, const u32 count); 
 
     //--------------------------------------------------------------------
     // IMAGES

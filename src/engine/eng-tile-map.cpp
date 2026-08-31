@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ifb-engine.hpp"
+#include "ifb-types.hpp"
 #include "tile-map.cpp"
 #include "tile.hpp"
 
@@ -51,20 +52,42 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_tile_map_set_colors(
         const eng_tile_map_handle tile_map,
-        const u32*                row,
-        const u32*                col,
+        const tile_coords*        coords,
         const color_rgba_u32*     color,
         const u32                 count) {
 
+        assert(tile_map != INVALID_HANDLE);
+        assert(coords   != NULL);
+        assert(color    != NULL);
+        assert(count    != 0);
+
+        tile_map_id_u32 map_id = { tile_map.val };
+        tile_map_set_color(
+            map_id,
+            coords,
+            color,
+            count
+        );
     } 
 
     IFB_ENGINE_API void
     eng_tile_map_set_flags(
         const eng_tile_map_handle tile_map,
-        const u32*                row,
-        const u32*                col,
-        const u32*                flags,
+        const tile_coords*        coords,
+        const tile_flags_u32*     flags,
         const u32                 count) {
 
+        assert(tile_map != INVALID_HANDLE);
+        assert(coords   != NULL);
+        assert(flags    != NULL);
+        assert(count    != 0);
+
+        tile_map_id_u32 map_id = { tile_map.val };
+        tile_map_set_flags(
+            map_id,
+            coords,
+            flags,
+            count
+        );
     } 
 };
