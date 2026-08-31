@@ -71,7 +71,8 @@ namespace ifb {
     constexpr u32 INVALID_INDEX     = 0xFFFFFFFF;
     constexpr u32 INVALID_HASH_32   = 0xFFFFFFFF;
     constexpr u32 ENTITY_ID_INVALID = 0xFFFFFFFF;
-    constexpr u32 INVALID_HANDLE = 0xFFFFFFFF;
+    constexpr u32 INVALID_HANDLE    = 0xFFFFFFFF;
+    constexpr u32 INVALID_ID        = 0xFFFFFFFF;
     constexpr u32 ENTITY_TAG_SIZE   = 16;
 
     //--------------------------------------------------------------------

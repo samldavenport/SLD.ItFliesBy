@@ -82,6 +82,8 @@ namespace ifb {
         stack           mem_stack;
         tile_table*     tbl_tiles;
         tile_map_table* tbl_map;
+        u32             map_capacity;
+        u32             tiles_per_map;
     };
 
     struct tile_map_name {
@@ -98,28 +100,17 @@ namespace ifb {
     };
 
     struct tile_map_table {
-        u32 capacity;
-        u32 count;
-        struct {
-            tile_map_id_u32* map_id;
-            f32*             tile_width;
-            f32*             tile_height;
-            u32*             count_rows;
-            u32*             count_cols;
-            tile_map_name*   name;
-        } data;
+        tile_map_id_u32* map_id;
+        f32*             tile_width;
+        f32*             tile_height;
+        u32*             count_rows;
+        u32*             count_cols;
+        tile_map_name*   name;
     };
 
     struct tile_table {
-        u32 capacity;
-        u32 count;
-        tile_map_id_u32* map_id_array; // this array is map capacity
-        struct {
-            u16*             row;
-            u16*             col;
-            color_rgba_u32*  color;
-            tile_flags_u32*  flags;
-        } data; // data elements are max tile capacity
+        color_rgba_u32* color;
+        tile_flags_u32* flags;
     };
 
     struct tile_render_context {

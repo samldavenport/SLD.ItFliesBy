@@ -30,18 +30,21 @@ namespace ifb {
 
     inline u32
     tile_map_index(
-        const tile_map_table* tile_map_tbl,
-        const tile_map_id_u32 map_id) {
+        const tile_map_table* map_tbl,
+        const tile_map_id_u32 map_id,
+        const u32             map_count) {
     
-        assert(tile_map_tbl); 
+        assert(map_tbl   != NULL); 
+        assert(map_id    != INVALID_ID); 
+        assert(map_count != 0); 
 
         u32 result = INVALID_INDEX;
         for (
             u32 index = 0;
-            index < tile_map_tbl->count;
+            index < map_count;
             ++index) {
 
-            if (tile_map_tbl->data.map_id[index] == map_id) {
+            if (map_tbl->map_id[index] == map_id) {
                 result = index;
                 break;
             }
@@ -72,28 +75,12 @@ namespace ifb {
 
     inline u32
     tile_table_offset(
-        const tile_table*     tile_tbl,
-        const tile_map_id_u32 map_id) {
-
-        const auto cfg = config_instance();
-
-        assert(map_id   != INVALID_HASH_32); 
-        assert(tile_tbl != NULL);
+        const u32  map_index,
+        const u32  map_tile_capacity) {
     
-        u32 result = INVALID_INDEX;
+        const u32 offset = map_index * map_tile_capacity;
 
-        for (
-            u32 index = 0;
-            index < tile_tbl->count;
-            ++index) {
-
-            if (map_id == tile_tbl->map_id_array[index]) {
-                result = index * cfg.tile_capacity;
-                break;
-            }
-        }
-
-        return(result);
+        return(offset);
     }
 
     IFB_INTERNAL tile_map_id_u32
@@ -111,17 +98,33 @@ namespace ifb {
         assert(count_rows  != 0);
         assert(count_col   != 0);
 
-        // make sure we can create the map and
-        // get the new index
-        auto tbl = _tile_mngr->tbl_map;
-        if (tbl->count == tbl->capacity) {
-            return(INVALID_HASH_32);
+        // cache tables
+        auto tbl_map  = _tile_mngr->tbl_map;
+        auto tbl_tile = _tile_mngr->tbl_tiles;
+
+
+        // find a free spot in the map id array of the tile table
+        u32  map_index = INVALID_INDEX;
+        for (
+            u32 i = 0;
+            i < _tile_mngr->map_capacity; 
+            ++i) {
+
+            if (tbl_map->map_id[i] == INVALID_ID) {
+                map_index = i;
+                break;
+            }
         }
-        const u32 index = tbl->count;
+        if (map_index == INVALID_INDEX) {
+            return(INVALID_ID);
+        }
+
+        // calculate the offset in the tile table
+        const u32 offset = _tile_mngr->tiles_per_map * map_index; 
 
         // store the name and calculate hash
         const u32      name_len      = cstr_nvar_length(name, 16);
-        tile_map_name& map_name      = tbl->data.name[index];
+        tile_map_name& map_name      = tbl_map->name[map_index];
         const u32      length_copied = cstr_nvar_copy(
             name,
             name_len,
@@ -129,17 +132,15 @@ namespace ifb {
             16
         );
         const u32 map_id = tile_map_name_hash(map_name);
-        assert(map_id != INVALID_HASH_32);
+        assert(map_id != INVALID_ID);
 
         // write the values to the table
-        tbl->data.map_id      [index] = map_id;
-        tbl->data.tile_width  [index] = tile_width;
-        tbl->data.tile_height [index] = tile_height;
-        tbl->data.count_rows  [index] = count_rows;
-        tbl->data.count_cols  [index] = count_col;
+        tbl_map->map_id      [map_index] = map_id;
+        tbl_map->tile_width  [map_index] = tile_width;
+        tbl_map->tile_height [map_index] = tile_height;
+        tbl_map->count_rows  [map_index] = count_rows;
+        tbl_map->count_cols  [map_index] = count_col;
 
-        // TODO(SLD):
-        // need to calculate the stride/offset for the tile table
 
         //return the id
         return(map_id); 
@@ -156,17 +157,18 @@ namespace ifb {
     tile_map_tile_count(
         const tile_map_id_u32 map_id) {
 
+
         assert(map_id != INVALID_HASH_32);
 
         auto tbl = _tile_mngr->tbl_map;
         assert(tbl != NULL);
 
         // get the index for the map
-        const u32 index = tile_map_index(tbl, map_id);
+        const u32 index = tile_map_index(tbl, map_id, _tile_mngr->map_capacity);
         assert(index != INVALID_INDEX);
 
-        const u32 rows  = tbl->data.count_rows[index];
-        const u32 cols  = tbl->data.count_cols[index];
+        const u32 rows  = tbl->count_rows[index];
+        const u32 cols  = tbl->count_cols[index];
         const u32 count = rows * cols;
 
         return(count);
@@ -186,16 +188,16 @@ namespace ifb {
         assert(color      != NULL);
         assert(count      != 0);
         assert(_tile_mngr != NULL); 
-       
-        auto tbl_map  = _tile_mngr->tbl_map;
-        auto tbl_tile = _tile_mngr->tbl_tiles;
+      
+        auto        tbl_map  = _tile_mngr->tbl_map;
+        auto        tbl_tile = _tile_mngr->tbl_tiles;
         assert(tbl_map);
         assert(tbl_tile);
 
-        const u32 index      = tile_map_index    (tbl_map, map_id);
-        const u32 offset     = tile_table_offset (tbl_tile, map_id);
-        const u32 count_rows = tbl_map->data.count_rows[index];                
-        const u32 count_cols = tbl_map->data.count_cols[index];
+        const u32 index      = tile_map_index    (tbl_map, map_id, _tile_mngr->map_capacity);
+        const u32 offset     = tile_table_offset (index, _tile_mngr->tiles_per_map);
+        const u32 count_rows = tbl_map->count_rows[index];                
+        const u32 count_cols = tbl_map->count_cols[index];
 
         for (
             u32 i = 0;
@@ -209,7 +211,7 @@ namespace ifb {
 
             const u32 id = ((count_rows * curr_row) + curr_col) + offset;
 
-            tbl_tile->data.color[id] = color[i];
+            tbl_tile->color[id] = color[i];
         }
     }
 
@@ -233,10 +235,10 @@ namespace ifb {
         assert(tbl_map);
         assert(tbl_tile);
 
-        const u32 index      = tile_map_index    (tbl_map, map_id);
-        const u32 offset     = tile_table_offset (tbl_tile, map_id);
-        const u32 count_rows = tbl_map->data.count_rows[index];                
-        const u32 count_cols = tbl_map->data.count_cols[index];
+        const u32 index      = tile_map_index    (tbl_map, map_id, _tile_mngr->map_capacity);
+        const u32 offset     = tile_table_offset (index,   _tile_mngr->tiles_per_map);
+        const u32 count_rows = tbl_map->count_rows[index];                
+        const u32 count_cols = tbl_map->count_cols[index];
 
         for (
             u32 i = 0;
@@ -250,7 +252,7 @@ namespace ifb {
 
             const u32 id = ((count_rows * curr_row) + curr_col) + offset;
 
-            tbl_tile->data.flags[id] = flags[i];
+            tbl_tile->flags[id] = flags[i];
         }
     }
 
@@ -270,12 +272,12 @@ namespace ifb {
         assert(tbl_tile);
 
         // get the map index
-        const u32 map_index = tile_map_index(tbl_map, map_id);  
+        const u32 map_index = tile_map_index(tbl_map, map_id, _tile_mngr->map_capacity);  
         assert(map_index != INVALID_HASH_32);
 
         // get row and column count
-        const u32 count_rows  = tbl_map->data.count_rows[map_index];  
-        const u32 count_cols  = tbl_map->data.count_cols[map_index];  
+        const u32 count_rows  = tbl_map->count_rows[map_index];  
+        const u32 count_cols  = tbl_map->count_cols[map_index];  
         assert(count_rows != 0);
         assert(count_cols != 0);
 
@@ -293,7 +295,7 @@ namespace ifb {
         arena_commit(a, save);
 
         // get the tile table offset
-        const u32 tile_offset = tile_table_offset(tbl_tile, map_id);
+        const u32 tile_offset = tile_table_offset(map_index, _tile_mngr->tiles_per_map);
         assert(tile_offset != INVALID_INDEX);
         const auto& cfg = config_instance();
         const u32 tile_index_max = tile_offset + cfg.tile_capacity;
@@ -307,7 +309,7 @@ namespace ifb {
 
             auto& ctx = render_buffer->data.ctx_array[index]; 
             ctx.id     = index;
-            ctx.color  = tbl_tile->data.color[tbl_index].hex;
+            ctx.color  = tbl_tile->color[tbl_index].hex;
             ctx.corner = {0}; // TODO(SLD): need to figure out corner
         }
 
