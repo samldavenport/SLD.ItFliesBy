@@ -1,50 +1,62 @@
 #version 330 core
 
+const vec2 position_array[6] = vec2[](
+
+    vec2(0.0, 0.0),
+    vec2(1.0, 0.0),
+    vec2(1.0, 1.0),
+
+    vec2(1.0, 1.0),
+    vec2(0.0, 1.0),
+    vec2(0.0, 0.0)
+);
+
 // vertex attributes
-layout(location = 0) in vec2 in_corner;
-layout(location = 1) in uint in_tile_id;
-layout(location = 2) in uint in_background_color;
+layout(location = 0) in uint in_color;
 
 // uniforms
-uniform vec2 u_vec2_tile_size;
-uniform vec2 u_vec2_map_dimensions;
-uniform mat4 u_mat4_view_proj;
-uniform mat4 u_mat4_model;
+uniform mat4  u_view_proj;
+uniform uint  u_map_count_rows;
+uniform uint  u_map_count_cols;
+uniform float u_tile_width;
+uniform float u_tile_height;
 
 // vertex output
-out vec2      vert_uv;
-flat out uint vert_tile_id;
-flat out uint vert_background_color;
+flat out vec4 vert_color;
 
 void
 main() {
 
-    uint inst_id         = uint(gl_InstanceID);
-    uint map_dims_width  = uint(u_vec2_map_dimensions.x);
-    uint map_dims_height = uint(u_vec2_map_dimensions.y);
-    
-    // gl_InstanceID gives us the tile's index in the map.
-    uint column = inst_id % map_dims_width;
-    uint row    = inst_id / map_dims_width;
-
-    // Map coordinates become X/Z world coordinates.
-    vec2 tile_position  = vec2(column, row) * u_vec2_tile_size;
-    vec2 corner         = (in_corner - 0.5) * u_vec2_tile_size;
-    vec3 world_position = vec3(
-        tile_position.x + corner.x,
-        0.0,
-        tile_position.y + corner.y
+    // calculate the normalized color
+    vert_color = vec4(
+        float((in_color >> 24u) & 0xFFu) / 255.0,
+        float((in_color >> 16u) & 0xFFu) / 255.0,
+        float((in_color >>  8u) & 0xFFu) / 255.0,
+        float( in_color         & 0xFFu) / 255.0
     );
 
-    // set outputs
-    vert_uv               = in_corner;
-    vert_tile_id          = in_tile_id;
-    vert_background_color = in_background_color;
-    
-    // set position
-    gl_Position = 
-        u_mat4_view_proj *
-        u_mat4_model     *
-        vec4(world_position, 1.0);
+    // get the position and tile index
+    uint index_position = uint(gl_VertexID);
+    uint index_tile     = uint(gl_InstanceID);
+
+    // get the position from the array
+    vec2 position = position_array[index_position];
+
+    // get the row and column
+    uint col = index_tile % u_map_count_cols; 
+    uint row = index_tile / u_map_count_rows; 
+
+    // calculate the tile position
+    vec2 tile_position = vec2(col, row) * vec2(u_tile_width, u_tile_height); 
+
+    // calculate the world position
+    vec3 world_position = vec3(
+        tile_position.x + position.x * u_tile_width,
+        0.0,
+        tile_position.y + position.y * u_tile_height
+    );
+
+    // set the output 
+    gl_Position = u_view_proj * vec4(world_position, 1.0f);
 }
 

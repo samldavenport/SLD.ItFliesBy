@@ -87,7 +87,7 @@ namespace ifb {
         gl_ok &= gl_context_set_vertex_object  (gl, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex  (gl, shdr->gl.buf_vertex);
         gl_ok &= gl_buffer_set_vertex_data     (gl, shdr->gl.buf_vertex, (byte*)_grid_coordinates, sizeof(_grid_coordinates));
-        gl_ok &= gl_vertex_add_attribute_f32x3 (gl, shdr->gl.vertex, sizeof(vec3), 0, 0);
+        gl_ok &= gl_vertex_add_f32x3 (gl, shdr->gl.vertex, sizeof(vec3), 0, 0);
         assert(gl_ok);
     }
 
