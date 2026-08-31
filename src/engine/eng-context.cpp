@@ -255,15 +255,17 @@ namespace ifb {
         renderer_context_startup        (mem_rndr);
 
         // open shader files
-        const file_handle file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
-        const file_handle file_hnd_quad_frag    = file_ro_open_existing ("quad-shader-fragment.glsl");
-        const file_handle file_hnd_dir_giz_vert = file_ro_open_existing ("direction-gizmo-shader-vert.glsl");
-        const file_handle file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
-        const file_handle file_hnd_grid_vert    = file_ro_open_existing ("grid-vert.glsl");
-        const file_handle file_hnd_grid_frag    = file_ro_open_existing ("grid-frag.glsl");
-        const file_handle file_hnd_tile_vert    = file_ro_open_existing ("tile-vert.glsl");
-        const file_handle file_hnd_tile_frag    = file_ro_open_existing ("tile-frag.glsl");
-
+        const file_handle file_hnd_quad_vert      = file_ro_open_existing ("quad-shader-vertex.glsl");
+        const file_handle file_hnd_quad_frag      = file_ro_open_existing ("quad-shader-fragment.glsl");
+        const file_handle file_hnd_dir_giz_vert   = file_ro_open_existing ("direction-gizmo-shader-vert.glsl");
+        const file_handle file_hnd_dir_giz_frag   = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
+        const file_handle file_hnd_grid_vert      = file_ro_open_existing ("grid-vert.glsl");
+        const file_handle file_hnd_grid_frag      = file_ro_open_existing ("grid-frag.glsl");
+        const file_handle file_hnd_tile_vert      = file_ro_open_existing ("tile-vert.glsl");
+        const file_handle file_hnd_tile_frag      = file_ro_open_existing ("tile-frag.glsl");
+        const file_handle file_hnd_quad_inst_vert = file_ro_open_existing ("quad_inst-vert.glsl");
+        const file_handle file_hnd_quad_inst_frag = file_ro_open_existing ("quad_inst-frag.glsl");
+        
         // read quad shaders        
         renderer_shader_source file_src_quad_vert;
         renderer_shader_source file_src_quad_frag;
@@ -296,11 +298,20 @@ namespace ifb {
         file_src_tile_frag.size = file_get_size (file_hnd_tile_frag);
         file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
         
+        // read grid shaders
+        renderer_shader_source file_src_quad_inst_vert;
+        renderer_shader_source file_src_quad_inst_frag;
+        file_src_quad_inst_vert.size = file_get_size (file_hnd_tile_vert); 
+        file_src_quad_inst_vert.data = file_read     (file_hnd_tile_vert, file_src_quad_inst_vert.size);
+        file_src_quad_inst_frag.size = file_get_size (file_hnd_tile_frag);
+        file_src_quad_inst_frag.data = file_read     (file_hnd_tile_frag, file_src_quad_inst_frag.size); 
+        
         // initialize shaders
-        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
-        renderer_grid_shader_init            (file_src_grid_vert,    file_src_grid_frag);
-        renderer_tile_shader_init            (file_src_tile_vert,    file_src_tile_frag);
+        renderer_quad_shader_init            (file_src_quad_vert,      file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert,   file_src_dir_giz_frag);
+        renderer_grid_shader_init            (file_src_grid_vert,      file_src_grid_frag);
+        renderer_tile_shader_init            (file_src_tile_vert,      file_src_tile_frag);
+        renderer_quad_inst_shader_init       (file_src_quad_inst_vert, file_src_quad_inst_frag);
 
         // close the shader files
         file_close(file_hnd_quad_vert);
@@ -311,6 +322,8 @@ namespace ifb {
         file_close(file_hnd_grid_frag);
         file_close(file_hnd_tile_vert);
         file_close(file_hnd_tile_frag);
+        file_close(file_hnd_quad_inst_vert);
+        file_close(file_hnd_quad_inst_frag);
     }
 
     IFB_INLINE void
