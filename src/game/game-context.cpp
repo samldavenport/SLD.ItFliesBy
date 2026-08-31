@@ -5,6 +5,7 @@
 #include "ifb-types.hpp"
 
 #include "game-player-rig.cpp"
+#include "game-map.cpp"
 
 namespace ifb {
 
@@ -15,16 +16,20 @@ namespace ifb {
         eng_arena_handle arena_h = eng_arena_alloc();
         assert(arena_h != INVALID_INDEX);
 
-        auto ctx = (game_context*)eng_arena_push(arena_h, sizeof(game_context));
-        auto rig =   (player_rig*)eng_arena_push(arena_h, sizeof(player_rig));
+        auto ctx =    (game_context*)eng_arena_push(arena_h, sizeof(game_context));
+        auto rig = (game_player_rig*)eng_arena_push(arena_h, sizeof(game_player_rig));
+        auto map =        (game_map*)eng_arena_push(arena_h, sizeof(game_map));
 
         assert(ctx != NULL);
         assert(rig != NULL);
+        assert(map != NULL);
 
         ctx->global_arena = arena_h;
         ctx->player_rig   = rig;
+        ctx->map          =  map; 
 
-        player_rig_init(ctx->player_rig);
+        game_player_rig_init (ctx->player_rig);
+        game_map_init        (ctx->map);
 
         return(ctx);      
     }
@@ -44,7 +49,7 @@ namespace ifb {
 
         game_context_validate(ctx);
 
-        player_rig_update_and_render(ctx->player_rig);
+        game_player_rig_update_and_render(ctx->player_rig);
     }
 };
 

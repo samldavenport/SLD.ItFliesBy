@@ -11,6 +11,7 @@ $Win32Command     = @(
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Opengl\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Math\include")
+    "/I"   + @(Join-Path $ProjectRoot "SLD.Strings\include")
     "/I"   + @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\include")
     "/nologo"             # startup banner disabled
     "/c"                  # compile without linking
@@ -43,10 +44,12 @@ $EngCommand     = @(
     "/I"   + @(Join-Path $ProjectRoot "src\quads")
     "/I"   + @(Join-Path $ProjectRoot "src\renderer")
     "/I"   + @(Join-Path $ProjectRoot "src\tiled")
+    "/I"   + @(Join-Path $ProjectRoot "src\tiles")
     "/I"   + @(Join-Path $ProjectRoot "src\win32")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.OpenGL\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Math\include")
+    "/I"   + @(Join-Path $ProjectRoot "SLD.Strings\include")
     "/I"   + @(Join-Path $ProjectRoot "vcpkg_installed\x64-windows\include")
     "/nologo"             # startup banner disabled
     "/c"                  # compile without linking

@@ -18,7 +18,8 @@ using namespace sld;
 #   define IFB_API __declspec(dllimport)
 #endif
 
-#define IFB_U32(type) struct type : sld::strong_u32 { using strong_u32::strong_u32; };
+#define IFB_U32(type)     struct type : sld::strong_u32 { using strong_u32::strong_u32; };
+#define IFB_FLAGS32(type) struct type : flags           { using flags;                  };
 
 namespace ifb {
    
@@ -45,6 +46,9 @@ namespace ifb {
     struct strong_u32;
     struct rigid_body;
     struct spring;
+    struct tag;
+    struct flags;
+    struct tile_coords;
 
     using position_3d      = vec3;
     using velocity_3d      = vec3;
@@ -60,7 +64,8 @@ namespace ifb {
     IFB_U32(handle);
     IFB_U32(entity_id);
     IFB_U32(component_type);
-
+    IFB_U32(tile_flags_u32);
+    
     //--------------------------------------------------------------------
     // CONSTANTS
     //--------------------------------------------------------------------
@@ -68,8 +73,22 @@ namespace ifb {
     constexpr u32 INVALID_INDEX     = 0xFFFFFFFF;
     constexpr u32 INVALID_HASH_32   = 0xFFFFFFFF;
     constexpr u32 ENTITY_ID_INVALID = 0xFFFFFFFF;
+    constexpr u32 INVALID_HANDLE    = 0xFFFFFFFF;
+    constexpr u32 INVALID_ID        = 0xFFFFFFFF;
     constexpr u32 ENTITY_TAG_SIZE   = 16;
 
+    //--------------------------------------------------------------------
+    // ENUMS 
+    //--------------------------------------------------------------------
+    
+    enum tile_map_flag_e {
+        tile_map_flag_e_navigable  = bit_value(0),
+        tile_map_flag_e_wall_north = bit_value(1),
+        tile_map_flag_e_wall_south = bit_value(2),
+        tile_map_flag_e_wall_east  = bit_value(3),
+        tile_map_flag_e_wall_west  = bit_value(4),
+    };
+    
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
@@ -134,7 +153,7 @@ namespace ifb {
 
     struct flags {
 
-            s32 val;
+        s32 val;
 
         flags() = default;
         flags(s32 v) : val(v) { }
@@ -162,6 +181,32 @@ namespace ifb {
         u32 pixel_width;
         u32 pixel_height;
         u32 pixel_count;
+    };
+
+    struct tag {
+        cchar cstr[16];
+        
+        tag(const cchar* cstr) {
+            memset((void*)this->cstr, 0, ENTITY_TAG_SIZE);
+            const u32 len = strnlen_s(cstr, ENTITY_TAG_SIZE);
+            (void)strncpy_s(this->cstr, cstr, len);
+        }
+        inline void
+        init(
+            const cchar* tag_cstr)  {
+            assert(cstr != NULL);
+            (void)strncpy_s(cstr, 16, tag_cstr, 16);
+        }
+
+        inline u32
+        hash(void) {
+            return(hash_u32((void*)cstr, 16));
+        }
+    };
+
+    struct tile_coords {
+        u16 row;
+        u16 col;
     };
 };
 

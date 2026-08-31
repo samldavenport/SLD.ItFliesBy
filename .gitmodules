@@ -7,3 +7,6 @@
 [submodule "SLD.Math"]
 	path = SLD.Math
 	url = https://github.com/samldavenport/SLD.Math
+[submodule "SLD.Strings"]
+	path = SLD.Strings
+	url = https://github.com/samldavenport/SLD.Strings
