@@ -47,11 +47,12 @@ namespace ifb {
 
     IFB_INTERNAL tile_map_id_u32
     tile_map_create(
-        const cchar* name,
-        const f32    tile_width,
-        const f32    tile_height,
-        const u32    count_rows,
-        const u32    count_col
+        const cchar*         name,
+        const f32            tile_width,
+        const f32            tile_height,
+        const u32            count_rows,
+        const u32            count_col,
+        const color_rgba_u32 base_color
     );
 
     IFB_INTERNAL void tile_map_destroy           (const tile_map_id_u32 map_id);

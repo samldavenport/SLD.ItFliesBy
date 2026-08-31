@@ -2,6 +2,7 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
+#include "sld.hpp"
 
 namespace ifb {
 
@@ -11,8 +12,12 @@ namespace ifb {
 
         assert(map);
 
-        map->eng_hnd = eng_tile_map_create("DEV MAP", 0.2f, 0.2f, 4, 4);
+        const color_rgba_u32 base_color(0xB16286); 
+
+        map->eng_hnd = eng_tile_map_create("DEV MAP", 0.2f, 0.2f, 4, 4, base_color);
         assert(map->eng_hnd != INVALID_HANDLE);
+
+          
     }
     
 };

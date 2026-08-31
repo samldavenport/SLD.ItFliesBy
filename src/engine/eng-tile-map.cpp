@@ -2,6 +2,7 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
+#include "sld.hpp"
 #include "tile-map.cpp"
 #include "tile.hpp"
 
@@ -9,11 +10,12 @@ namespace ifb {
 
     IFB_ENGINE_API eng_tile_map_handle
     eng_tile_map_create(
-        const cchar* name,
-        const f32    tile_width,
-        const f32    tile_height,
-        const u32    count_rows,
-        const u32    count_cols) {
+        const cchar*         name,
+        const f32            tile_width,
+        const f32            tile_height,
+        const u32            count_rows,
+        const u32            count_cols,
+        const color_rgba_u32 base_color) {
 
         assert(name        != NULL);
         assert(tile_width  >  0.0f);
@@ -26,7 +28,8 @@ namespace ifb {
             tile_width,
             tile_height,
             count_rows,
-            count_cols
+            count_cols,
+            base_color
         );
 
         const eng_tile_map_handle hnd = {id.val};

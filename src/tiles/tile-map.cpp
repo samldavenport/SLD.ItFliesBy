@@ -3,6 +3,7 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
+#include "sld.hpp"
 #include "tile.hpp"
 #include <cassert>
 #include <sld-strings.hpp>
@@ -84,11 +85,13 @@ namespace ifb {
 
     IFB_INTERNAL tile_map_id_u32
     tile_map_create(
-        const cchar* name,
-        const f32    tile_width,
-        const f32    tile_height,
-        const u32    count_rows,
-        const u32    count_col) {
+        const cchar*         name,
+        const f32            tile_width,
+        const f32            tile_height,
+        const u32            count_rows,
+        const u32            count_col,
+        const color_rgba_u32 base_color
+        ) {
 
         assert(_tile_mngr  != NULL);
         assert(name        != NULL);
@@ -140,6 +143,15 @@ namespace ifb {
         tbl_map->count_rows  [map_index] = count_rows;
         tbl_map->count_cols  [map_index] = count_col;
 
+        // write the base color to the table
+        const u32 tile_count = count_rows * count_col; 
+        for (
+            u32 tile_index = 0;
+                tile_index < tile_count;
+              ++tile_index) {
+
+            tbl_tile->color[tile_index] = base_color;
+        }
 
         //return the id
         return(map_id); 

@@ -153,7 +153,7 @@ namespace ifb {
     // TILE MAPS 
     //--------------------------------------------------------------------
    
-    IFB_ENGINE_API eng_tile_map_handle eng_tile_map_create     (const cchar* name, const f32 tile_width, const f32 tile_height, const u32 count_rows, const u32 count_cols); 
+    IFB_ENGINE_API eng_tile_map_handle eng_tile_map_create     (const cchar* name, const f32 tile_width, const f32 tile_height, const u32 count_rows, const u32 count_cols, const color_rgba_u32 base_color); 
     IFB_ENGINE_API void                eng_tile_map_destroy    (const eng_tile_map_handle tile_map);
     IFB_ENGINE_API void                eng_tile_map_render     (const eng_tile_map_handle tile_map);
     IFB_ENGINE_API void                eng_tile_map_set_colors (const eng_tile_map_handle tile_map, const u32* row, const u32* col, const color_rgba_u32* color, const u32 count); 
