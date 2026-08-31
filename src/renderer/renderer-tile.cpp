@@ -13,7 +13,6 @@ namespace ifb {
     };
 
     struct renderer_tile_instance {
-        u32 id;
         u32 color;
     };
 
@@ -33,6 +32,7 @@ namespace ifb {
        struct {
            gl_program program;
            gl_vertex  vertex;
+           gl_buffer  instance_buffer;
            gl_uniform u_view_proj;
            gl_uniform u_map_count_rows;
            gl_uniform u_map_count_cols;
@@ -89,12 +89,17 @@ namespace ifb {
         // create gl objects
         shdr->gl.program         = gl_shader_program_create        (gl_ctx);
         shdr->gl.vertex          = gl_vertex_create                (gl_ctx); 
+        shdr->gl.instance_buffer = gl_buffer_create                (gl_ctx);
         const gl_shader shdr_vtx = gl_shader_stage_create_vertex   (gl_ctx);
         const gl_shader shdr_frg = gl_shader_stage_create_fragment (gl_ctx);
-        
-        bool gl_ok = true;
+        assert(shdr->gl.program         != GL_ID_INVALID);
+        assert(shdr->gl.vertex          != GL_ID_INVALID);
+        assert(shdr->gl.instance_buffer != GL_ID_INVALID);
+        assert(shdr_vtx                 != GL_ID_INVALID);
+        assert(shdr_frg                 != GL_ID_INVALID);
 
         // compile shader
+        bool gl_ok = true;
         gl_ok &= gl_shader_stage_compile_from_source (gl_ctx, shdr_vtx, src_vertex.data,   src_vertex.size);
         gl_ok &= gl_shader_stage_compile_from_source (gl_ctx, shdr_frg, src_fragment.data, src_fragment.size);
         gl_ok &= gl_shader_program_attach_stage      (gl_ctx, shdr->gl.program, shdr_vtx); 
@@ -105,22 +110,25 @@ namespace ifb {
         assert(gl_ok);
 
         // get uniform locations
-        assert(gl_ok);
         shdr->gl.u_view_proj      = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_view_proj"); 
         shdr->gl.u_map_count_rows = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_rows"); 
         shdr->gl.u_map_count_cols = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_cols"); 
         shdr->gl.u_tile_width     = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_tile_width"); 
         shdr->gl.u_tile_height    = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_tile_height"); 
-
-
-
-
-
-
-
-
+        assert(shdr->gl.u_view_proj      != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_map_count_rows != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_map_count_cols != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_tile_width     != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_tile_height    != GL_UNIFORM_INVALID);
 
         // define vertex
+        gl_ok &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
+        gl_ok &= gl_context_set_vertex_object  (gl_ctx, shdr->gl.vertex);
+        gl_ok &= gl_context_set_buffer_vertex  (gl_ctx, shdr->gl.instance_buffer);
+        gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.instance_buffer, shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
+        gl_ok &= gl_vertex_add_u32x1           (gl_ctx, shdr->gl.vertex, sizeof(renderer_tile_instance), 0, 0);
+        gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 0, 1);
+        assert(gl_ok);
     }
 
     IFB_INTERNAL void
