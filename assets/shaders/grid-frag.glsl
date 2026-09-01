@@ -12,11 +12,11 @@ grid(vec3 frag_pos, float scale) {
     vec2 derivative = fwidth(coord);
     vec2 grid       = abs(fract(coord - 0.5) - 0.5) / derivative;
     
-    float line     = min(grid.x, grid.y);
-    float minimumz = min(derivative.y, 1);
-    float minimumx = min(derivative.x, 1);
+    float line      = min(grid.x, grid.y);
+    float minimumz  = min(derivative.y, 1);
+    float minimumx  = min(derivative.x, 1);
 
-    vec4 color     = vec4(0.19608, 0.18824, 0.18431, 1.0 - min(line, 1.0));
+    vec4 color      = vec4(0.19608, 0.18824, 0.18431, 1.0 - min(line, 1.0));
 
     // z axis
     if(frag_pos.x > -0.1 * minimumx && frag_pos.x < 0.1 * minimumx) {
@@ -76,7 +76,7 @@ main() {
     float linear_depth = compute_linear_depth(frag_pos);
     float fading       = max(0, (0.5 - linear_depth));
     
-    vec4 grid_color = (grid(frag_pos, 10) + grid(frag_pos, 1)) * float(t > 0); // adding multiple resolution for the grid
+    vec4 grid_color = (grid(frag_pos, 5) + grid(frag_pos, 1)) * float(t > 0); // adding multiple resolution for the grid
     gl_FragColor = grid_color; 
     gl_FragColor.a *= fading;
 

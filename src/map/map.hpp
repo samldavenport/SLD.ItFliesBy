@@ -74,11 +74,11 @@ namespace ifb {
     };
 
     struct map_mngr {
-        stack           mem_stack;
-        tile_table*     tbl_tiles;
-        map_table* tbl_map;
-        u32             map_capacity;
-        u32             tiles_per_map;
+        stack       mem_stack;
+        tile_table* tbl_tiles;
+        map_table*  tbl_map;
+        u32         map_capacity;
+        u32         tiles_per_map;
     };
 
     struct map_name {
