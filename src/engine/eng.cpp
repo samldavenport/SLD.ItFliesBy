@@ -62,9 +62,8 @@
 
 #include "tiled.cpp"
 
-#include "tile.cpp"
-#include "tile-mngr.cpp"
-#include "tile-map.cpp"
+#include "map.cpp"
+#include "map-mngr.cpp"
 
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"

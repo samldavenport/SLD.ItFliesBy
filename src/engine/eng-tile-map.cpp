@@ -4,8 +4,8 @@
 #include "ifb-types.hpp"
 #include "renderer.hpp"
 #include "sld.hpp"
-#include "tile-map.cpp"
-#include "tile.hpp"
+#include "map.cpp"
+#include "map.hpp"
 
 namespace ifb {
 

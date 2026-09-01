@@ -1,8 +1,8 @@
 #include "ifb-types.hpp"
 #include "renderer.hpp"
 #include "sld-opengl.hpp"
-#include "tile.hpp"
-#include "tile-map.cpp"
+#include "map.hpp"
+#include "map.cpp"
 #include <cassert>
 
 namespace ifb {

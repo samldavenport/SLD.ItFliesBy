@@ -13,7 +13,6 @@ namespace ifb {
     // DECLARATIONS
     //--------------------------------------------------------------------
     
-    IFB_U32(tile_id_u32);
     IFB_U32(tile_map_id_u32);
 
     struct tile_mngr;
@@ -68,14 +67,9 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct tile {
-        union {
-            struct {
-                u16 row;
-                u16 col;
-            };
-            tile_id_u32 id;
-        };
-        u32             map_id;
+        u32             row;
+        u32             col;
+        u32             index;
         color_rgba_u32  color;
         tile_flags_u32  flags;
     };

@@ -1,6 +1,6 @@
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
-#include "tile.hpp"
+#include "map.hpp"
 #include "eng-stack.cpp"
 
 namespace ifb {

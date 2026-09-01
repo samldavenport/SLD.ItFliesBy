@@ -12,7 +12,7 @@
 #include "component.hpp"
 #include "quad.hpp"
 #include "physics.hpp"
-#include "tile.hpp"
+#include "map.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static

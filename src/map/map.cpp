@@ -4,7 +4,7 @@
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
-#include "tile.hpp"
+#include "map.hpp"
 #include <cassert>
 #include <sld-strings.hpp>
 

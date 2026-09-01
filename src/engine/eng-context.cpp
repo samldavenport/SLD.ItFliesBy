@@ -12,7 +12,7 @@
 #include "renderer.cpp"
 #include "renderer.hpp"
 #include "json.hpp"
-#include "tile.hpp"
+#include "map.hpp"
 #include "tiled.hpp"
 
 namespace ifb {
