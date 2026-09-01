@@ -13,7 +13,7 @@ namespace ifb {
 
         assert(map);
 
-        const color_rgba_u32 base_color(0xB16286); 
+        const color_rgba_u32 base_color(0xB16286FF); 
 
         map->eng_hnd = eng_tile_map_create("DEV MAP", 0.2f, 0.2f, 4, 4, base_color);
         assert(map->eng_hnd != INVALID_HANDLE);

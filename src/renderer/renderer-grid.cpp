@@ -16,7 +16,7 @@ namespace ifb {
         -1.0f,  1.0f, 0.0f,
         -1.0f, -1.0f, 0.0f,
          1.0f,  1.0f, 0.0f,
-         1.0f, -1.0f, 0.0f
+         1.0f, -1.0f, 0.0f 
     };
 
     static const u32 _grid_vertices_count = 6;

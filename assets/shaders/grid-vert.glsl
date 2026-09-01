@@ -23,8 +23,9 @@ unproject_point(
 void
 main() {
 
-    near_point = unproject_point(vertex_position.x, vertex_position.y, 0.0).xyz;
-    far_point  = unproject_point(vertex_position.x, vertex_position.y, 1.0).xyz;
+    near_point = unproject_point(vertex_position.x, vertex_position.y, -1.0).xyz;
+    far_point  = unproject_point(vertex_position.x, vertex_position.y,  1.0).xyz;
 
-    gl_Position = vec4(vertex_position, 1.0);
+    vec4 pos_new = vec4(vertex_position,1.0);
+    gl_Position = pos_new;
 }
