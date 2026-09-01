@@ -2,6 +2,7 @@
 #include "renderer.hpp"
 #include "sld-opengl.hpp"
 #include "tile.hpp"
+#include "tile-map.cpp"
 #include <cassert>
 
 namespace ifb {
@@ -195,6 +196,9 @@ namespace ifb {
         auto shdr   = _renderer_ctx->shader.tile;
         auto gl_ctx = _renderer_ctx->gl;
 
+        assert(gl_ctx);
+        assert(shdr);
+
         // look up the map
         tile_map map;
         const bool found_map = tile_map_get_info(shdr->map_id, map);
@@ -214,13 +218,13 @@ namespace ifb {
                 shdr->buffers.instance.data_size,
                 shdr->buffers.instance.data.bytes
         );
-    
-        gl_context_set_shader_program (gl_ctx, shdr->gl.program);
-        gl_context_set_vertex_object  (gl_ctx, shdr->gl.vertex);
-        gl_uniform_set_mat4           (gl_ctx, shdr->gl.u_view_proj, view_proj_xform.m);
-        
-
-        assert(gl_ctx);
-        assert(shdr);
+   
+        const u32 tile_count = map.count_rows * map.count_cols;
+        gl_context_set_shader_program      (gl_ctx, shdr->gl.program);
+        gl_context_set_vertex_object       (gl_ctx, shdr->gl.vertex);
+        gl_context_set_buffer_vertex       (gl_ctx, shdr->gl.instance_buffer);
+        gl_buffer_update_vertex_data       (gl_ctx, shdr->gl.instance_buffer, shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
+        gl_uniform_set_mat4                (gl_ctx, shdr->gl.u_view_proj, view_proj_xform.m);
+        gl_context_draw_vertices_instanced (gl_ctx, 6, tile_count);
     }
 };
