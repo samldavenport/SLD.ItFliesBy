@@ -55,11 +55,13 @@ namespace ifb {
         const color_rgba_u32 base_color
     );
 
-    IFB_INTERNAL void tile_map_destroy           (const tile_map_id_u32 map_id);
-    IFB_INTERNAL u32  tile_map_tile_count        (const tile_map_id_u32 map_id);
-    IFB_INTERNAL void tile_map_set_color         (const tile_map_id_u32 map_id, const tile_coords* coords, const color_rgba_u32* color, const u32 count);
-    IFB_INTERNAL void tile_map_set_flags         (const tile_map_id_u32 map_id, const tile_coords* coords, const tile_flags_u32* flags, const u32 count);
-    IFB_INTERNAL bool tile_map_get_render_buffer (const tile_map_id_u32 map_id, tile_render_buffer* render_buffer, arena* a);
+    IFB_INTERNAL void tile_map_destroy                (const tile_map_id_u32 map_id);
+    IFB_INTERNAL u32  tile_map_tile_count             (const tile_map_id_u32 map_id);
+    IFB_INTERNAL void tile_map_set_color              (const tile_map_id_u32 map_id, const tile_coords* coords, const color_rgba_u32* color, const u32 count);
+    IFB_INTERNAL void tile_map_set_flags              (const tile_map_id_u32 map_id, const tile_coords* coords, const tile_flags_u32* flags, const u32 count);
+    IFB_INTERNAL u32  tile_map_get_render_buffer_size (const tile_map_id_u32 map_id);
+    IFB_INTERNAL u32  tile_map_get_render_buffer_data (const tile_map_id_u32 map_id, const u32 buffer_size, byte* buffer_data);
+    IFB_INTERNAL bool tile_map_get_info               (const tile_map_id_u32 map_id, tile_map& map);
 
     //--------------------------------------------------------------------
     // DEFINITIONS 
@@ -96,7 +98,7 @@ namespace ifb {
         f32             tile_height;
         u32             count_rows;
         u32             count_cols;
-        tile_map_name   name;
+        tile_map_name*  name;
     };
 
     struct tile_map_table {
@@ -116,11 +118,9 @@ namespace ifb {
     struct tile_render_context {
         union {
             struct {
-                vec2 corner;
-                u32  id;
                 u32  color;
             };
-            byte data[12];
+            byte data[4];
         };
     };
 

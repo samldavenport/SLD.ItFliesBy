@@ -1,5 +1,7 @@
+#include "ifb-types.hpp"
 #include "renderer.hpp"
 #include "sld-opengl.hpp"
+#include "tile.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -7,10 +9,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS 
     //--------------------------------------------------------------------
-   
-    struct renderer_tile_vertex {
-        vec2 corner;
-    };
 
     struct renderer_tile_instance {
         u32 color;
@@ -42,7 +40,7 @@ namespace ifb {
        struct {
            renderer_tile_instance_buffer instance;
        } buffers;
-
+       tile_map_id_u32 map_id;
     };
 
     //--------------------------------------------------------------------
@@ -136,49 +134,58 @@ namespace ifb {
         const f32 width,
         const f32 height) {
 
-        // assert(_renderer_ctx);
-        //
-        // auto shdr   = _renderer_ctx->shader.tile;
-        // auto gl_ctx = _renderer_ctx->gl;
-        // assert(gl_ctx);
-        // assert(shdr);
-        // assert(shdr->gl.program     != GL_ID_INVALID);
-        // assert(shdr->gl.u_tile_size != GL_UNIFORM_INVALID);
-        //
-        // vec2 size;
-        // size.x = width;
-        // size.y = height;
-        //
-        // bool did_set = true;
-        // did_set &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
-        // did_set &= gl_uniform_set_f32x2          (gl_ctx, shdr->gl.u_tile_size, size.v); 
-        // assert(did_set);
+        assert(_renderer_ctx);
+
+        auto shdr   = _renderer_ctx->shader.tile;
+        auto gl_ctx = _renderer_ctx->gl;
+        assert(gl_ctx);
+        assert(shdr);
+        assert(shdr->gl.program       != GL_ID_INVALID);
+        assert(shdr->gl.u_tile_width  != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_tile_height != GL_UNIFORM_INVALID);
+
+        bool did_set = true;
+        did_set &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
+        did_set &= gl_uniform_set_f32x1          (gl_ctx, shdr->gl.u_tile_width,  width); 
+        did_set &= gl_uniform_set_f32x1          (gl_ctx, shdr->gl.u_tile_height, height); 
+        assert(did_set);
     } 
 
     IFB_INTERNAL void
     renderer_tile_shader_set_map_size(
-        const f32 count_rows,
-        const f32 count_cols) {
+        const u32 count_rows,
+        const u32 count_cols) {
 
-        // assert(_renderer_ctx);
-        //
-        // auto shdr   = _renderer_ctx->shader.tile;
-        // auto gl_ctx = _renderer_ctx->gl;
-        // assert(gl_ctx);
-        // assert(shdr);
-        // assert(shdr->gl.program          != GL_ID_INVALID);
-        // assert(shdr->gl.u_map_dimensions != GL_UNIFORM_INVALID);
-        //
-        // vec2 dims;
-        // dims.x = count_rows;
-        // dims.y = count_cols;
-        //
-        // bool did_set = true; 
-        // did_set &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
-        // did_set &= gl_uniform_set_f32x2          (gl_ctx, shdr->gl.u_map_dimensions, dims.v); 
-        // assert(did_set);
+        assert(_renderer_ctx);
+
+        auto shdr   = _renderer_ctx->shader.tile;
+        auto gl_ctx = _renderer_ctx->gl;
+        assert(gl_ctx);
+        assert(shdr);
+        assert(shdr->gl.program       != GL_ID_INVALID);
+        assert(shdr->gl.u_tile_width  != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_tile_height != GL_UNIFORM_INVALID);
+
+        bool did_set = true;
+        did_set &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
+        did_set &= gl_uniform_set_u32x1          (gl_ctx, shdr->gl.u_map_count_rows, count_rows); 
+        did_set &= gl_uniform_set_u32x1          (gl_ctx, shdr->gl.u_map_count_cols, count_cols); 
+        assert(did_set);
     }
 
+    IFB_INTERNAL void
+    renderer_tile_set_map(
+        const tile_map_id_u32 map_id) {
+
+        assert(map_id != INVALID_ID);
+        assert(_renderer_ctx);
+       
+        auto shdr = _renderer_ctx->shader.tile;
+        assert(shdr);
+
+        shdr->map_id = map_id;
+    }
+    
     IFB_INTERNAL void
     renderer_tile_draw(
         const mat4& view_proj_xform) {
@@ -188,14 +195,32 @@ namespace ifb {
         auto shdr   = _renderer_ctx->shader.tile;
         auto gl_ctx = _renderer_ctx->gl;
 
-        mat4 m = mat4_identity();
+        // look up the map
+        tile_map map;
+        const bool found_map = tile_map_get_info(shdr->map_id, map);
+        assert(found_map);
+
+        // set map info uniforms
+        renderer_tile_shader_set_map_size  (map.count_rows, map.count_cols);
+        renderer_tile_shader_set_tile_size (map.tile_width, map.tile_height);
+
+        // check our render buffer is large enough
+        const u32 buffer_size_required = tile_map_get_render_buffer_size(shdr->map_id);
+        assert(shdr->buffers.instance.data_size >= buffer_size_required);
+
+        // copy the render buffer data
+        const u32 buffer_size_actual = tile_map_get_render_buffer_data(
+                shdr->map_id,
+                shdr->buffers.instance.data_size,
+                shdr->buffers.instance.data.bytes
+        );
     
         gl_context_set_shader_program (gl_ctx, shdr->gl.program);
         gl_context_set_vertex_object  (gl_ctx, shdr->gl.vertex);
         gl_uniform_set_mat4           (gl_ctx, shdr->gl.u_view_proj, view_proj_xform.m);
+        
 
         assert(gl_ctx);
         assert(shdr);
-        
     }
 };

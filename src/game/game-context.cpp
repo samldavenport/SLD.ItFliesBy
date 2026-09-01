@@ -49,7 +49,8 @@ namespace ifb {
 
         game_context_validate(ctx);
 
-        game_player_rig_update_and_render(ctx->player_rig);
+        game_player_rig_update_and_render (ctx->player_rig);
+        game_map_update_and_render        (ctx->map);
     }
 };
 

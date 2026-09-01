@@ -2,6 +2,7 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
+#include "renderer.hpp"
 #include "sld.hpp"
 #include "tile-map.cpp"
 #include "tile.hpp"
@@ -49,7 +50,9 @@ namespace ifb {
     eng_tile_map_render(
         const eng_tile_map_handle tile_map) {
 
-        //TODO(SLD)
+        const tile_map_id_u32 id = { tile_map.val };
+
+        renderer_tile_set_map(id);
     }
 
     IFB_ENGINE_API void

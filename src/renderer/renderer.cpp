@@ -124,8 +124,10 @@ namespace ifb {
 
         const mat4 view_proj_xform = renderer_context_view_projection_xform(); 
 
-//        renderer_direction_gizmo_draw (view_proj_xform);
+        //renderer_direction_gizmo_draw (view_proj_xform);
         renderer_quad_draw            (view_proj_xform);
         renderer_grid_draw            (view_proj_xform);
+        renderer_tile_draw            (view_proj_xform);
     }
 };
+          

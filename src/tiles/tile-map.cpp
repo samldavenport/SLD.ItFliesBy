@@ -261,15 +261,9 @@ namespace ifb {
         }
     }
 
-    IFB_INTERNAL bool
-    tile_map_get_render_buffer(
-        const tile_map_id_u32 map_id,
-        tile_render_buffer*   render_buffer,
-        arena*                a) {
-
-        assert(map_id        != INVALID_HASH_32); 
-        assert(render_buffer != NULL);
-        assert(a             != NULL);
+    IFB_INTERNAL u32
+    tile_map_get_render_buffer_size(
+        const tile_map_id_u32 map_id) {
 
         const auto tbl_map  = _tile_mngr->tbl_map;
         const auto tbl_tile = _tile_mngr->tbl_tiles;
@@ -286,39 +280,87 @@ namespace ifb {
         assert(count_rows != 0);
         assert(count_cols != 0);
 
-        // initialize the render buffer
-        const u32 save = arena_save(a); 
-        render_buffer->tile_count = count_rows * count_cols;
-        render_buffer->data_size  = render_buffer->tile_count * sizeof(tile_render_context);  
-        render_buffer->data.vptr  = arena_push(a, render_buffer->data_size);
+        const u32 tile_count  = count_rows * count_cols;
+        const u32 buffer_size = sizeof(tile_render_context) * tile_count;
 
-        // return if we failed to initialize
-        if (!render_buffer->data.vptr) {
-            arena_revert(a, save);
-            return(false);
-        }
-        arena_commit(a, save);
+        return(buffer_size);
+    }
+   
+    IFB_INTERNAL u32 
+    tile_map_get_render_buffer_data(
+        const tile_map_id_u32 map_id,
+        const u32             buffer_size,
+        byte*                 buffer_data) {
 
-        // get the tile table offset
-        const u32 tile_offset = tile_table_offset(map_index, _tile_mngr->tiles_per_map);
-        assert(tile_offset != INVALID_INDEX);
-        const auto& cfg = config_instance();
-        const u32 tile_index_max = tile_offset + cfg.tile_capacity;
+        assert(map_id      != INVALID_ID);
+        assert(buffer_size != 0);
+        assert(buffer_data != NULL);
+
+        const auto tbl_map  = _tile_mngr->tbl_map;
+        const auto tbl_tile = _tile_mngr->tbl_tiles;
+        assert(tbl_map);
+        assert(tbl_tile);
+
+        // get the map index
+        const u32 map_index = tile_map_index(tbl_map, map_id, _tile_mngr->map_capacity);  
+        assert(map_index != INVALID_HASH_32);
+
+        // get row and column count
+        const u32 count_rows  = tbl_map->count_rows[map_index];  
+        const u32 count_cols  = tbl_map->count_cols[map_index];  
+        assert(count_rows != 0);
+        assert(count_cols != 0);
+
+        const u32 tile_count = count_rows * count_cols;
+        const u32 size_min   = tile_count * sizeof(tile_render_context);
+        assert(buffer_size >= size_min);
+
+        auto ctx_buff = (tile_render_context*)buffer_data;
 
         for (
-            u32 index = 0;
-            index <  render_buffer->tile_count;
-            ++index) {
+            u32 i = 0;
+            i < tile_count;
+            ++i) {
 
-            const u32 tbl_index = tile_offset + index; 
-
-            auto& ctx = render_buffer->data.ctx_array[index]; 
-            ctx.id     = index;
-            ctx.color  = tbl_tile->color[tbl_index].hex;
-            ctx.corner = {0}; // TODO(SLD): need to figure out corner
+            auto& ctx = ctx_buff[i];
+            ctx.color = tbl_tile->color[i].hex;
         }
 
-        return(true);
+        // return the actual size we copied
+        return(size_min);
     }
 
+    IFB_INTERNAL bool
+    tile_map_get_info(
+        const tile_map_id_u32 map_id,
+        tile_map&             map) {
+
+        assert(map_id != INVALID_ID);
+        assert(_tile_mngr);
+
+        auto tbl_map = _tile_mngr->tbl_map;
+        assert(tbl_map != NULL);
+
+        bool found = false;
+        for (
+            u32 i = 0;
+            i < _tile_mngr->map_capacity;
+            ++i) {
+
+            if (map_id == tbl_map->map_id[i]) {
+               
+                map.id          =  map_id;
+                map.tile_width  =  tbl_map->tile_width  [i];
+                map.tile_height =  tbl_map->tile_height [i];
+                map.count_rows  =  tbl_map->count_rows  [i];
+                map.count_cols  =  tbl_map->count_cols  [i];
+                map.name        = &tbl_map->name        [i];
+                
+                found = true;
+                break;
+            } 
+        }
+
+        return(found);
+    }
 };
