@@ -134,8 +134,8 @@ namespace ifb {
         gl_ok &= gl_context_set_buffer_element (_renderer_ctx->gl, shdr->gl.buf_element);
         gl_ok &= gl_buffer_set_vertex_data     (_renderer_ctx->gl, shdr->gl.buf_vertex,  shdr->buffers.vertex.data.bytes,  shdr->buffers.vertex.size);
         gl_ok &= gl_buffer_set_element_data    (_renderer_ctx->gl, shdr->gl.buf_element, shdr->buffers.element.data.bytes, shdr->buffers.element.size);
-        gl_ok &= gl_vertex_add_attribute_f32x3 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 0, 0);
-        gl_ok &= gl_vertex_add_attribute_f32x4 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 1, 12);
+        gl_ok &= gl_vertex_add_f32x3 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 0, 0);
+        gl_ok &= gl_vertex_add_f32x4 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 1, 12);
         assert(gl_ok);
     
     }

@@ -30,6 +30,7 @@ namespace ifb {
     IFB_INTERNAL void          game_player_rig_update_and_render (game_player_rig* player_rig);
 
     IFB_INTERNAL void          game_map_init                     (game_map* map);
+    IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
 };
 
 #endif //IFB_GAME_HPP
