@@ -74,19 +74,19 @@ namespace ifb {
         u32 val;
     };
 
-    struct quad_tile_map_id {
+    struct quad_map_id {
         u32 val;
     };
 
     struct quad_tile_grid {
         quad_tile_grid_id grid_id;
-        quad_tile_map_id  map_id;
+        quad_map_id  map_id;
         u32               count_rows;
         u32               count_cols;
         quad_tile*        tile_array;
     };
 
-    struct quad_tile_map {
+    struct quad_map {
 
     };
 };

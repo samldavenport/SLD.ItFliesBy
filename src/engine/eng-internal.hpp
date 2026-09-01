@@ -41,7 +41,7 @@ namespace ifb {
         cmpnt_mngr*        cmpnt_mngr;
         quad_mngr*         quad_mngr;
         physics_mngr*      phys_mngr;
-        tile_mngr*         tile_mngr;
+        map_mngr*         map_mngr;
     } static * _eng_context;
 
     struct global_stack {

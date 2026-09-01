@@ -15,7 +15,7 @@ namespace ifb {
 
         const color_rgba_u32 base_color(0xB16286FF); 
 
-        map->eng_hnd = eng_tile_map_create("DEV MAP", 0.2f, 0.2f, 4, 4, base_color);
+        map->eng_hnd = eng_map_create("DEV MAP", 0.2f, 0.2f, 4, 4, base_color);
         assert(map->eng_hnd != INVALID_HANDLE);
     }
 
@@ -25,6 +25,6 @@ namespace ifb {
 
         assert(map);
 
-        eng_tile_map_render(map->eng_hnd);
+        eng_map_render(map->eng_hnd);
     } 
 };

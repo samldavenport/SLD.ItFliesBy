@@ -81,12 +81,12 @@ namespace ifb {
     // ENUMS 
     //--------------------------------------------------------------------
     
-    enum tile_map_flag_e {
-        tile_map_flag_e_navigable  = bit_value(0),
-        tile_map_flag_e_wall_north = bit_value(1),
-        tile_map_flag_e_wall_south = bit_value(2),
-        tile_map_flag_e_wall_east  = bit_value(3),
-        tile_map_flag_e_wall_west  = bit_value(4),
+    enum map_flag_e {
+        map_flag_e_navigable  = bit_value(0),
+        map_flag_e_wall_north = bit_value(1),
+        map_flag_e_wall_south = bit_value(2),
+        map_flag_e_wall_east  = bit_value(3),
+        map_flag_e_wall_west  = bit_value(4),
     };
     
     //--------------------------------------------------------------------

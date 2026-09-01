@@ -13,7 +13,7 @@ namespace ifb {
     }; 
 
     struct game_map {
-        eng_tile_map_handle eng_hnd;
+        eng_map_handle eng_hnd;
     };
 
     struct game_context {

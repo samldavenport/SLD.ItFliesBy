@@ -62,7 +62,7 @@ namespace ifb {
         static constexpr u32   physics_world_size       = IFB_CONFIG_PHYSICS_WORLD_SIZE;
         static constexpr u32   physics_world_count      = IFB_CONFIG_PHYSICS_WORLD_COUNT;
         static constexpr u32   tile_capacity            = IFB_CONFIG_TILE_CAPACITY;
-        static constexpr u32   tile_map_capacity        = IFB_CONFIG_TILE_MAP_CAPACITY;
+        static constexpr u32   map_capacity        = IFB_CONFIG_TILE_MAP_CAPACITY;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 
