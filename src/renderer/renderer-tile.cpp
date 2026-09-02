@@ -181,6 +181,8 @@ namespace ifb {
         gl_ok &= gl_context_set_shader_program      (gl_ctx, shdr->gl.program);
         gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_rows, map.count_rows); 
         gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols, map.count_cols); 
+        gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_rows, map.offset_row); 
+        gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_cols, map.offset_col); 
         gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_unit_size, tile_unit_size); 
         gl_ok &= gl_uniform_set_mat4                (gl_ctx, shdr->gl.u_view_proj, view_proj_xform.m);
         gl_ok &= gl_context_set_vertex_object       (gl_ctx, shdr->gl.vertex);

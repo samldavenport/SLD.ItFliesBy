@@ -37,20 +37,18 @@ main() {
     );
 
     // get the position and tile index
-    uint index_position = uint(gl_VertexID);
-    uint index_tile     = uint(gl_InstanceID);
+    int index_position = gl_VertexID;
+    int index_tile     = gl_InstanceID;
 
     // get the position from the array
     vec2 position = position_array[index_position];
 
     // get the row and column
-    uint col = index_tile % u_map_count_cols; 
-    uint row = index_tile / u_map_count_rows; 
+    int col = (index_tile % int(u_map_count_cols)) + u_map_offset_cols; 
+    int row = (index_tile / int(u_map_count_rows)) + u_map_offset_rows; 
 
     // calculate the tile position
     vec2 tile_position = vec2(col, row) * vec2(u_tile_unit_size, u_tile_unit_size); 
-    tile_position.x += (u_tile_unit_size * u_map_offset_cols);
-    tile_position.y += (u_tile_unit_size * u_map_offset_rows);
 
     // calculate the world position
     vec3 world_position = vec3(

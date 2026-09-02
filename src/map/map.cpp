@@ -344,9 +344,11 @@ namespace ifb {
             if (map_id == tbl_map->map_id[i]) {
                
                 map.id          =  map_id;
-                map.count_rows  =  tbl_map->count_rows  [i];
-                map.count_cols  =  tbl_map->count_cols  [i];
-                map.name        = &tbl_map->name        [i];
+                map.count_rows  =  tbl_map->count_rows [i];
+                map.count_cols  =  tbl_map->count_cols [i];
+                map.offset_row   = tbl_map->offset_row [i];
+                map.offset_col   = tbl_map->offset_col [i];
+                map.name        = &tbl_map->name       [i];
                 
                 found = true;
                 break;
