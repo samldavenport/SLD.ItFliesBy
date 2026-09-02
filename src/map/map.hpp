@@ -40,17 +40,18 @@ namespace ifb {
     // METHODS 
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL map_mngr* map_mngr_create   (void);
-    IFB_INTERNAL void      map_mngr_startup  (memory& res);
-    IFB_INTERNAL void      map_mngr_shutdown (void);
+    IFB_INTERNAL map_mngr* map_mngr_create             (void);
+    IFB_INTERNAL void      map_mngr_startup            (memory& res);
+    IFB_INTERNAL void      map_mngr_shutdown           (void);
+    IFB_INTERNAL f32       map_mngr_get_tile_unit_size (void);
 
     IFB_INTERNAL map_id_u32
     map_create(
         const cchar*         name,
-        const f32            tile_width,
-        const f32            tile_height,
         const u32            count_rows,
         const u32            count_col,
+        const s32            offset_row,
+        const s32            offset_col,
         const color_rgba_u32 base_color
     );
 
@@ -79,6 +80,7 @@ namespace ifb {
         map_table*  tbl_map;
         u32         map_capacity;
         u32         tiles_per_map;
+        f32         tile_unit_size;
     };
 
     struct map_name {
@@ -87,19 +89,19 @@ namespace ifb {
 
     struct map {
         map_id_u32 id;
-        f32        tile_width;
-        f32        tile_height;
         u32        count_rows;
         u32        count_cols;
+        s32        offset_row;
+        s32        offset_col;
         map_name*  name;
     };
 
     struct map_table {
         map_id_u32* map_id;
-        f32*        tile_width;
-        f32*        tile_height;
         u32*        count_rows;
         u32*        count_cols;
+        s32*        offset_row;
+        s32*        offset_col;
         map_name*   name;
     };
 

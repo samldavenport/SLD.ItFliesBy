@@ -51,20 +51,20 @@ namespace ifb {
        
         // allocate map table memory
         tbl_map->map_id      = _map_mngr->mem_stack.push_struct<map_id_u32> (cfg.map_capacity);
-        tbl_map->tile_width  = _map_mngr->mem_stack.push_struct<f32>             (cfg.map_capacity);
-        tbl_map->tile_height = _map_mngr->mem_stack.push_struct<f32>             (cfg.map_capacity);
-        tbl_map->count_rows  = _map_mngr->mem_stack.push_struct<u32>             (cfg.map_capacity);
-        tbl_map->count_cols  = _map_mngr->mem_stack.push_struct<u32>             (cfg.map_capacity);
+        tbl_map->count_rows  = _map_mngr->mem_stack.push_struct<u32>        (cfg.map_capacity);
+        tbl_map->count_cols  = _map_mngr->mem_stack.push_struct<u32>        (cfg.map_capacity);
+        tbl_map->offset_row  = _map_mngr->mem_stack.push_struct<s32>        (cfg.map_capacity);
+        tbl_map->offset_col  = _map_mngr->mem_stack.push_struct<s32>        (cfg.map_capacity);
         tbl_map->name        = _map_mngr->mem_stack.push_struct<map_name>   (cfg.map_capacity);
-        assert(tbl_map->map_id      != NULL); 
-        assert(tbl_map->tile_width  != NULL); 
-        assert(tbl_map->tile_height != NULL); 
-        assert(tbl_map->count_rows  != NULL); 
-        assert(tbl_map->count_cols  != NULL); 
+        assert(tbl_map->map_id     != NULL); 
+        assert(tbl_map->count_rows != NULL); 
+        assert(tbl_map->count_cols != NULL); 
+        assert(tbl_map->offset_row != NULL); 
+        assert(tbl_map->offset_col != NULL); 
     
         // allocate tile table memory
-        tbl_tiles->color   = _map_mngr->mem_stack.push_struct<color_rgba_u32 >(tile_count_max);  
-        tbl_tiles->flags   = _map_mngr->mem_stack.push_struct<tile_flags_u32 >(tile_count_max);
+        tbl_tiles->color   = _map_mngr->mem_stack.push_struct<color_rgba_u32>(tile_count_max);  
+        tbl_tiles->flags   = _map_mngr->mem_stack.push_struct<tile_flags_u32>(tile_count_max);
         assert(tbl_tiles->color   != NULL);  
         assert(tbl_tiles->flags   != NULL);  
 
@@ -72,8 +72,9 @@ namespace ifb {
         memset(tbl_map->map_id, 0xFF, sizeof(map_id_u32) * cfg.map_capacity);
    
         // store capacities
-        _map_mngr->map_capacity  = cfg.map_capacity;
-        _map_mngr->tiles_per_map = cfg.tile_capacity;
+        _map_mngr->map_capacity   = cfg.map_capacity;
+        _map_mngr->tiles_per_map  = cfg.tile_capacity;
+        _map_mngr->tile_unit_size = cfg.tile_unit_size;
     }
 
     IFB_INTERNAL void
@@ -83,4 +84,10 @@ namespace ifb {
         //TODO(SLD)
     }
 
+    IFB_INTERNAL f32
+    map_mngr_get_tile_unit_size(
+        void) {
+
+        return(_map_mngr->tile_unit_size);
+    }
 };

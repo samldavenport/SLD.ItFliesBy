@@ -86,24 +86,20 @@ namespace ifb {
     IFB_INTERNAL map_id_u32
     map_create(
         const cchar*         name,
-        const f32            tile_width,
-        const f32            tile_height,
         const u32            count_rows,
         const u32            count_col,
-        const color_rgba_u32 base_color
-        ) {
+        const s32            offset_row,
+        const s32            offset_col,
+        const color_rgba_u32 base_color) {
 
         assert(_map_mngr  != NULL);
-        assert(name        != NULL);
-        assert(tile_width  != 0.0f);
-        assert(tile_height != 0.0f);
-        assert(count_rows  != 0);
-        assert(count_col   != 0);
+        assert(name       != NULL);
+        assert(count_rows != 0);
+        assert(count_col  != 0);
 
         // cache tables
         auto tbl_map  = _map_mngr->tbl_map;
         auto tbl_tile = _map_mngr->tbl_tiles;
-
 
         // find a free spot in the map id array of the tile table
         u32 map_index = INVALID_INDEX;
@@ -137,11 +133,11 @@ namespace ifb {
         assert(map_id != INVALID_ID);
 
         // write the values to the table
-        tbl_map->map_id      [map_index] = map_id;
-        tbl_map->tile_width  [map_index] = tile_width;
-        tbl_map->tile_height [map_index] = tile_height;
-        tbl_map->count_rows  [map_index] = count_rows;
-        tbl_map->count_cols  [map_index] = count_col;
+        tbl_map->map_id     [map_index] = map_id;
+        tbl_map->count_rows [map_index] = count_rows;
+        tbl_map->count_cols [map_index] = count_col;
+        tbl_map->offset_row [map_index] = offset_row;
+        tbl_map->offset_col [map_index] = offset_col;
 
         // write the base color to the table
         const u32 tile_count = count_rows * count_col; 
@@ -350,8 +346,6 @@ namespace ifb {
             if (map_id == tbl_map->map_id[i]) {
                
                 map.id          =  map_id;
-                map.tile_width  =  tbl_map->tile_width  [i];
-                map.tile_height =  tbl_map->tile_height [i];
                 map.count_rows  =  tbl_map->count_rows  [i];
                 map.count_cols  =  tbl_map->count_cols  [i];
                 map.name        = &tbl_map->name        [i];

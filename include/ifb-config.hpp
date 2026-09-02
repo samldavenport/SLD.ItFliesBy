@@ -28,6 +28,7 @@ using namespace sld;
 #define IFB_CONFIG_PHYSICS_WORLD_COUNT       8
 #define IFB_CONFIG_TILE_CAPACITY             65536
 #define IFB_CONFIG_TILE_MAP_CAPACITY         64 
+#define IFB_CONFIG_TILE_UNIT_SIZE            0.2
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -62,7 +63,8 @@ namespace ifb {
         static constexpr u32   physics_world_size       = IFB_CONFIG_PHYSICS_WORLD_SIZE;
         static constexpr u32   physics_world_count      = IFB_CONFIG_PHYSICS_WORLD_COUNT;
         static constexpr u32   tile_capacity            = IFB_CONFIG_TILE_CAPACITY;
-        static constexpr u32   map_capacity        = IFB_CONFIG_TILE_MAP_CAPACITY;
+        static constexpr u32   map_capacity             = IFB_CONFIG_TILE_MAP_CAPACITY;
+        static constexpr f32   tile_unit_size           = IFB_CONFIG_TILE_UNIT_SIZE;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

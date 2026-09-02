@@ -45,10 +45,6 @@ namespace ifb {
     };
 
     //--------------------------------------------------------------------
-    // CONSTANTS 
-    //--------------------------------------------------------------------
-    
-    //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
 
@@ -132,8 +128,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_tile_shader_set_tile_size(
-        const f32 width,
-        const f32 height) {
+        const f32 unit_size) {
 
         assert(_renderer_ctx);
 
@@ -147,8 +142,8 @@ namespace ifb {
 
         bool did_set = true;
         did_set &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
-        did_set &= gl_uniform_set_f32x1          (gl_ctx, shdr->gl.u_tile_width,  width); 
-        did_set &= gl_uniform_set_f32x1          (gl_ctx, shdr->gl.u_tile_height, height); 
+        did_set &= gl_uniform_set_f32x1          (gl_ctx, shdr->gl.u_tile_width,  unit_size); 
+        did_set &= gl_uniform_set_f32x1          (gl_ctx, shdr->gl.u_tile_height, unit_size); 
         assert(did_set);
     } 
 
@@ -205,8 +200,10 @@ namespace ifb {
         assert(found_map);
 
         // set map info uniforms
+        const f32 tile_unit_size = map_mngr_get_tile_unit_size();
+
         renderer_tile_shader_set_map_size  (map.count_rows, map.count_cols);
-        renderer_tile_shader_set_tile_size (map.tile_width, map.tile_height);
+        renderer_tile_shader_set_tile_size (tile_unit_size);
 
         // check our render buffer is large enough
         const u32 buffer_size_required = map_get_render_buffer_size(shdr->map_id);

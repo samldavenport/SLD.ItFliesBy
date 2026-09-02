@@ -12,24 +12,22 @@ namespace ifb {
     IFB_ENGINE_API eng_map_handle
     eng_map_create(
         const cchar*         name,
-        const f32            tile_width,
-        const f32            tile_height,
         const u32            count_rows,
         const u32            count_cols,
+        const s32            offset_row,
+        const s32            offset_col,
         const color_rgba_u32 base_color) {
 
         assert(name        != NULL);
-        assert(tile_width  >  0.0f);
-        assert(tile_height >  0.0f);
         assert(count_rows  != 0);
         assert(count_cols  != 0);
 
         const map_id_u32 id = map_create(
             name,
-            tile_width,
-            tile_height,
             count_rows,
             count_cols,
+            offset_row,
+            offset_col,
             base_color
         );
 
@@ -57,10 +55,10 @@ namespace ifb {
 
     IFB_ENGINE_API void
     eng_map_set_colors(
-        const eng_map_handle map,
-        const tile_coords*        coords,
-        const color_rgba_u32*     color,
-        const u32                 count) {
+        const eng_map_handle  map,
+        const tile_coords*    coords,
+        const color_rgba_u32* color,
+        const u32             count) {
 
         assert(map != INVALID_HANDLE);
         assert(coords   != NULL);
