@@ -56,7 +56,7 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_map_set_colors(
         const eng_map_handle  map,
-        const tile_coords*    coords,
+        const map_coords*    coords,
         const color_rgba_u32* color,
         const u32             count) {
 
@@ -77,7 +77,7 @@ namespace ifb {
     IFB_ENGINE_API void
     eng_map_set_flags(
         const eng_map_handle map,
-        const tile_coords*        coords,
+        const map_coords*        coords,
         const tile_flags_u32*     flags,
         const u32                 count) {
 
@@ -94,4 +94,16 @@ namespace ifb {
             count
         );
     } 
+    
+    IFB_ENGINE_API bool 
+    eng_map_get_entity_coords(
+        const eng_map_handle map,
+        const entity_id      eid,
+        map_coords&          coords) {
+
+        const map_id_u32 map_id = { map.val };
+
+        const bool did_find = map_get_entity_tile_coordinates(map_id, eid, coords);
+        return(did_find);
+    }
 };

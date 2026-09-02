@@ -120,4 +120,20 @@ namespace ifb {
         eng_entity_render(player_rig->connor_id);
         eng_entity_render(player_rig->jig_id);
     }
+    
+    IFB_INTERNAL bool 
+    game_player_rig_get_map_coords(
+        const game_player_rig* player_rig,
+        map_coords&            coords) {
+
+        assert(player_rig);
+
+        const bool did_find = eng_map_get_entity_coords(
+            player_rig->current_map_id,
+            player_rig->connor_id,
+            coords
+        );
+
+        return(did_find);
+    }
 };

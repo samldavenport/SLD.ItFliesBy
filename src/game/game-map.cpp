@@ -13,9 +13,9 @@ namespace ifb {
 
         assert(map);
 
-        const color_rgba_u32 base_color(0xB16286FF); 
+        const color_rgba_u32 base_color(0x504945FF); 
 
-        map->eng_hnd = eng_map_create("DEV MAP", 5, 5, -2, -2, base_color);
+        map->eng_hnd = eng_map_create("DEV MAP", 10, 10, -5, -5, base_color);
         assert(map->eng_hnd != INVALID_HANDLE);
     }
 

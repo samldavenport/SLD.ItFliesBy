@@ -48,7 +48,7 @@ namespace ifb {
     struct spring;
     struct tag;
     struct flags;
-    struct tile_coords;
+    struct map_coords;
 
     using position_3d      = vec3;
     using velocity_3d      = vec3;
@@ -204,7 +204,7 @@ namespace ifb {
         }
     };
 
-    struct tile_coords {
+    struct map_coords {
         u16 row;
         u16 col;
     };

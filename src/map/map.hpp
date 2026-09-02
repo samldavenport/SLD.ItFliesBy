@@ -16,7 +16,7 @@ namespace ifb {
     IFB_U32(map_id_u32);
 
     struct map_mngr;
-    struct tile;
+    struct map_tile;
     struct map;
     struct tile_table;
     struct map_table;
@@ -55,19 +55,23 @@ namespace ifb {
         const color_rgba_u32 base_color
     );
 
-    IFB_INTERNAL void map_destroy                (const map_id_u32 map_id);
-    IFB_INTERNAL u32  map_tile_count             (const map_id_u32 map_id);
-    IFB_INTERNAL void map_set_color              (const map_id_u32 map_id, const tile_coords* coords, const color_rgba_u32* color, const u32 count);
-    IFB_INTERNAL void map_set_flags              (const map_id_u32 map_id, const tile_coords* coords, const tile_flags_u32* flags, const u32 count);
-    IFB_INTERNAL u32  map_get_render_buffer_size (const map_id_u32 map_id);
-    IFB_INTERNAL u32  map_get_render_buffer_data (const map_id_u32 map_id, const u32 buffer_size, byte* buffer_data);
-    IFB_INTERNAL bool map_get_info               (const map_id_u32 map_id, map& map);
+    IFB_INTERNAL void map_destroy                     (const map_id_u32 map_id);
+    IFB_INTERNAL u32  map_tile_count                  (const map_id_u32 map_id);
+    IFB_INTERNAL void map_set_color                   (const map_id_u32 map_id, const map_coords* coords, const color_rgba_u32* color, const u32 count);
+    IFB_INTERNAL void map_set_flags                   (const map_id_u32 map_id, const map_coords* coords, const tile_flags_u32* flags, const u32 count);
+    IFB_INTERNAL u32  map_get_render_buffer_size      (const map_id_u32 map_id);
+    IFB_INTERNAL u32  map_get_render_buffer_data      (const map_id_u32 map_id, const u32 buffer_size, byte* buffer_data);
+    IFB_INTERNAL bool map_get_info                    (const map_id_u32 map_id, map& map);
+    IFB_INTERNAL bool map_get_world_position          (const map_id_u32 map_id, const u32 row, const u32 col, position_3d& pos);
+    IFB_INTERNAL bool map_get_tile_coordinates        (const map_id_u32 map_id, const position_3d& pos, map_coords& coords);
+    IFB_INTERNAL bool map_get_entity_tile_coordinates (const map_id_u32 map_id, const entity_id e, map_coords& coords); 
 
     //--------------------------------------------------------------------
     // DEFINITIONS 
     //--------------------------------------------------------------------
 
-    struct tile {
+    struct map_tile {
+        map_id_u32      map_id;
         u32             row;
         u32             col;
         color_rgba_u32  color;
@@ -93,6 +97,8 @@ namespace ifb {
         u32        count_cols;
         s32        offset_row;
         s32        offset_col;
+        f32        origin_x;
+        f32        origin_z;
         map_name*  name;
     };
 

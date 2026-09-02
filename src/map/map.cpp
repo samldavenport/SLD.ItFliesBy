@@ -1,5 +1,7 @@
 #pragma once
 
+#include "component-tables.cpp"
+#include "entity.cpp"
 #include "ifb-types.hpp"
 #include "sld.hpp"
 #include "map.hpp"
@@ -182,7 +184,7 @@ namespace ifb {
     IFB_INTERNAL void
     map_set_color(
         const map_id_u32 map_id,
-        const tile_coords*    coords,
+        const map_coords*    coords,
         const color_rgba_u32* color,
         const u32             count) {
 
@@ -207,7 +209,7 @@ namespace ifb {
             i < count;
             ++i) {
       
-            const tile_coords& curr_coords = coords[i];
+            const map_coords& curr_coords = coords[i];
             assert(curr_coords.row < count_rows);
             assert(curr_coords.col < count_cols);
 
@@ -220,7 +222,7 @@ namespace ifb {
     IFB_INTERNAL void
     map_set_flags(
         const map_id_u32 map_id,
-        const tile_coords*    coords,
+        const map_coords*    coords,
         const tile_flags_u32* flags,
         const u32             count) {
 
@@ -245,7 +247,7 @@ namespace ifb {
             i < count;
             ++i) {
       
-            const tile_coords& curr_coords = coords[i];
+            const map_coords& curr_coords = coords[i];
             assert(curr_coords.row < count_rows);
             assert(curr_coords.col < count_cols);
 
@@ -342,14 +344,19 @@ namespace ifb {
             ++i) {
 
             if (map_id == tbl_map->map_id[i]) {
+        
+                // get table records
+                map.id         =  map_id;
+                map.count_rows =  tbl_map->count_rows [i];
+                map.count_cols =  tbl_map->count_cols [i];
+                map.offset_row =  tbl_map->offset_row [i];
+                map.offset_col =  tbl_map->offset_col [i];
+                map.name       = &tbl_map->name       [i];
                
-                map.id          =  map_id;
-                map.count_rows  =  tbl_map->count_rows [i];
-                map.count_cols  =  tbl_map->count_cols [i];
-                map.offset_row   = tbl_map->offset_row [i];
-                map.offset_col   = tbl_map->offset_col [i];
-                map.name        = &tbl_map->name       [i];
-                
+                // calculate origin
+                map.origin_x = _map_mngr->tile_unit_size * map.offset_col;
+                map.origin_z = _map_mngr->tile_unit_size * map.offset_row;
+
                 found = true;
                 break;
             } 
@@ -357,4 +364,85 @@ namespace ifb {
 
         return(found);
     }
+    
+    IFB_INTERNAL bool
+    map_get_world_position(
+        const map_id_u32 map_id,
+        const u32        row,
+        const u32        col,
+        position_3d&     pos) {
+
+        map m;
+        const bool found = map_get_info(map_id, m);
+        if (found) {
+
+            assert(row < m.count_rows);
+            assert(col < m.count_cols);
+            
+            pos = {0};
+
+            const s32 row_adj = (s32)row + m.offset_row;
+            const s32 col_adj = (s32)col + m.offset_col;
+
+            pos.x = col * _map_mngr->tile_unit_size; 
+            pos.y = 0; 
+            pos.z = row * _map_mngr->tile_unit_size; 
+        }
+        return(found);
+    }
+
+    IFB_INTERNAL bool
+    map_get_tile_coordinates(
+        const map_id_u32   map_id,
+        const position_3d& pos,
+        map_coords&       coords) {
+
+        map m;
+        const bool found = map_get_info(map_id, m);  
+        if (found) {
+   
+            // calculate bounds
+            const f32 map_width  = _map_mngr->tile_unit_size * m.count_cols;
+            const f32 map_height = _map_mngr->tile_unit_size * m.count_rows;
+            const f32 max_x      = m.origin_x + map_width;
+            const f32 max_z      = m.origin_z + map_height;
+
+            // determine if the position is inside the map
+            bool is_valid = true;
+            is_valid &= pos.x >= m.origin_x;
+            is_valid &= pos.x <= max_x;
+            is_valid &= pos.z >= m.origin_z;
+            is_valid &= pos.z <= max_z;
+            if (!is_valid) return(false);
+
+            const f32 local_x = pos.x - m.origin_x;
+            const f32 local_z = pos.z - m.origin_z;
+
+            coords.col = (u32)(local_x / _map_mngr->tile_unit_size);
+            coords.row = (u32)(local_z / _map_mngr->tile_unit_size);
+
+            coords.col += m.offset_col;
+            coords.row += m.offset_row;
+        }
+        return(found);
+    }
+
+    IFB_INTERNAL bool
+    map_get_entity_tile_coordinates(
+        const map_id_u32 map_id,
+        const entity_id  e,
+        map_coords&     coords) {
+
+        // get the sparse index
+        const u32 sparse_index = entity_lookup_sparse_index(e);  
+        if (sparse_index == INVALID_INDEX) return(false); 
+
+        // get the position
+        position_3d pos;
+        cmpnt_lookup_position(sparse_index, pos);
+
+        // get the coordinates
+        const bool did_get = map_get_tile_coordinates(map_id, pos, coords);
+        return(did_get);
+    } 
 };
