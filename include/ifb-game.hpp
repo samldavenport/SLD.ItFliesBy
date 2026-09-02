@@ -24,7 +24,6 @@ namespace ifb {
         game_map*           map;
     };
 
-
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
     IFB_INTERNAL void          game_context_update_and_render    (game_context* ctx);
 
