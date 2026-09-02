@@ -18,10 +18,9 @@ layout(location = 0) in uint in_color;
 uniform mat4  u_view_proj;
 uniform uint  u_map_count_rows;
 uniform uint  u_map_count_cols;
-uniform int   u_map_offset_row;
-uniform int   u_map_offset_col;
-uniform float u_tile_width;
-uniform float u_tile_height;
+uniform int   u_map_offset_rows;
+uniform int   u_map_offset_cols;
+uniform float u_tile_unit_size;
 
 // vertex output
 flat out vec4 vert_color;
@@ -49,15 +48,15 @@ main() {
     uint row = index_tile / u_map_count_rows; 
 
     // calculate the tile position
-    vec2 tile_position = vec2(col, row) * vec2(u_tile_width, u_tile_height); 
-    tile_position.x += (u_tile_width  * u_map_offset_col);
-    tile_position.y += (u_tile_height * u_map_offset_row);
+    vec2 tile_position = vec2(col, row) * vec2(u_tile_unit_size, u_tile_unit_size); 
+    tile_position.x += (u_tile_unit_size * u_map_offset_cols);
+    tile_position.y += (u_tile_unit_size * u_map_offset_rows);
 
     // calculate the world position
     vec3 world_position = vec3(
-        tile_position.x + position.x * u_tile_width,
+        tile_position.x + position.x * u_tile_unit_size,
         0.0,
-        tile_position.y + position.y * u_tile_height
+        tile_position.y + position.y * u_tile_unit_size
     );
 
     // set the output 

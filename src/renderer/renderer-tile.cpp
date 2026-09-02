@@ -35,8 +35,9 @@ namespace ifb {
            gl_uniform u_view_proj;
            gl_uniform u_map_count_rows;
            gl_uniform u_map_count_cols;
-           gl_uniform u_tile_width;
-           gl_uniform u_tile_height;
+           gl_uniform u_map_offset_rows;
+           gl_uniform u_map_offset_cols;
+           gl_uniform u_tile_unit_size;
        } gl;
        struct {
            renderer_tile_instance_buffer instance;
@@ -105,16 +106,18 @@ namespace ifb {
         assert(gl_ok);
 
         // get uniform locations
-        shdr->gl.u_view_proj      = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_view_proj"); 
-        shdr->gl.u_map_count_rows = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_rows"); 
-        shdr->gl.u_map_count_cols = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_cols"); 
-        shdr->gl.u_tile_width     = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_tile_width"); 
-        shdr->gl.u_tile_height    = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_tile_height"); 
-        assert(shdr->gl.u_view_proj      != GL_UNIFORM_INVALID);
-        assert(shdr->gl.u_map_count_rows != GL_UNIFORM_INVALID);
-        assert(shdr->gl.u_map_count_cols != GL_UNIFORM_INVALID);
-        assert(shdr->gl.u_tile_width     != GL_UNIFORM_INVALID);
-        assert(shdr->gl.u_tile_height    != GL_UNIFORM_INVALID);
+        shdr->gl.u_view_proj       = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_view_proj"); 
+        shdr->gl.u_map_count_rows  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_rows"); 
+        shdr->gl.u_map_count_cols  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_cols"); 
+        shdr->gl.u_map_offset_rows = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_offset_rows"); 
+        shdr->gl.u_map_offset_cols = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_offset_cols"); 
+        shdr->gl.u_tile_unit_size  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_tile_unit_size"); 
+        assert(shdr->gl.u_view_proj       != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_map_count_rows  != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_map_count_cols  != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_map_offset_rows != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_map_offset_cols != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_tile_unit_size  != GL_UNIFORM_INVALID);
 
         // define vertex
         gl_ok &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
@@ -178,12 +181,11 @@ namespace ifb {
         gl_ok &= gl_context_set_shader_program      (gl_ctx, shdr->gl.program);
         gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_rows, map.count_rows); 
         gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols, map.count_cols); 
-        gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_width,  tile_unit_size); 
-        gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_height, tile_unit_size); 
+        gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_unit_size, tile_unit_size); 
+        gl_ok &= gl_uniform_set_mat4                (gl_ctx, shdr->gl.u_view_proj, view_proj_xform.m);
         gl_ok &= gl_context_set_vertex_object       (gl_ctx, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex       (gl_ctx, shdr->gl.instance_buffer);
         gl_ok &= gl_buffer_update_vertex_data       (gl_ctx, shdr->gl.instance_buffer, shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
-        gl_ok &= gl_uniform_set_mat4                (gl_ctx, shdr->gl.u_view_proj, view_proj_xform.m);
         gl_ok &= gl_context_draw_vertices_instanced (gl_ctx, 6, tile_count);
         assert(gl_ok);
     }
