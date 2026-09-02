@@ -26,7 +26,7 @@ namespace ifb {
 
     IFB_HANDLE(eng_arena_handle);
     IFB_HANDLE(eng_file_handle);
-    IFB_HANDLE(eng_tile_map_handle);
+    IFB_HANDLE(eng_map_handle);
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -153,11 +153,20 @@ namespace ifb {
     // TILE MAPS 
     //--------------------------------------------------------------------
    
-    IFB_ENGINE_API eng_tile_map_handle eng_tile_map_create     (const cchar* name, const f32 tile_width, const f32 tile_height, const u32 count_rows, const u32 count_cols, const color_rgba_u32 base_color); 
-    IFB_ENGINE_API void                eng_tile_map_destroy    (const eng_tile_map_handle tile_map);
-    IFB_ENGINE_API void                eng_tile_map_render     (const eng_tile_map_handle tile_map);
-    IFB_ENGINE_API void                eng_tile_map_set_colors (const eng_tile_map_handle tile_map, const u32* row, const u32* col, const color_rgba_u32* color, const u32 count); 
-    IFB_ENGINE_API void                eng_tile_map_set_flags  (const eng_tile_map_handle tile_map, const u32* row, const u32* col, const tile_flags_u32* flags, const u32 count); 
+    IFB_ENGINE_API eng_map_handle
+    eng_map_create(
+        const cchar*         name,
+        const u32            count_rows,
+        const u32            count_cols,
+        const s32            offset_row,
+        const s32            offset_col,
+        const color_rgba_u32 base_color); 
+
+    IFB_ENGINE_API void           eng_map_destroy           (const eng_map_handle map);
+    IFB_ENGINE_API void           eng_map_render            (const eng_map_handle map);
+    IFB_ENGINE_API void           eng_map_set_colors        (const eng_map_handle map, const u32* row, const u32* col, const color_rgba_u32* color, const u32 count); 
+    IFB_ENGINE_API void           eng_map_set_flags         (const eng_map_handle map, const u32* row, const u32* col, const tile_flags_u32* flags, const u32 count); 
+    IFB_ENGINE_API bool           eng_map_get_entity_coords (const eng_map_handle map, const entity_id eid, map_coords& coords);
 
     //--------------------------------------------------------------------
     // IMAGES

@@ -25,7 +25,7 @@
 #include "eng-image.cpp"
 #include "eng-system.cpp"
 #include "eng-keycode.cpp"
-#include "eng-tile-map.cpp"
+#include "eng-map.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"
@@ -62,9 +62,8 @@
 
 #include "tiled.cpp"
 
-#include "tile.cpp"
-#include "tile-mngr.cpp"
-#include "tile-map.cpp"
+#include "map.cpp"
+#include "map-mngr.cpp"
 
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"

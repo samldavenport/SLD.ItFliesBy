@@ -49,8 +49,19 @@ namespace ifb {
 
         game_context_validate(ctx);
 
+        auto player_rig = ctx->player_rig;
+        auto map        = ctx->map;
+
         game_player_rig_update_and_render (ctx->player_rig);
         game_map_update_and_render        (ctx->map);
+
+
+        map_coords coords;
+        const bool did_find = eng_map_get_entity_coords(
+            map->eng_hnd,
+            player_rig->connor_id,
+            coords
+        );
     }
 };
 
