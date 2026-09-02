@@ -5,7 +5,9 @@
 #include "gui-entity-manager.cpp"
 #include "gui-renderer-camera.cpp"
 #include "gui-controls.cpp"
-#include "gui-quad-manager.cpp"
+#include "gui-quad-manager.cpp"            
+#include "gui-game-player-rig.cpp"
+#include "imgui.h"
 
 static bool _gui_is_open;
 
@@ -46,6 +48,7 @@ namespace ifb {
         static bool rndr_camera    = false; 
         static bool entity_manager = false;
         static bool quad_manager   = false;
+        static bool player_rig     = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -53,6 +56,12 @@ namespace ifb {
 
                 ImGui::MenuItem (_gui_str->menu_engine_item_imgui_demo, NULL, &eng_imgui_demo);
                 ImGui::MenuItem (_gui_str->menu_engine_item_system,     NULL, &eng_system);
+                ImGui::EndMenu  ();
+            }
+
+            if (ImGui::BeginMenu(_gui_str->menu_game)) {
+
+                ImGui::MenuItem (_gui_str->menu_game_item_player_rig, NULL, &player_rig);
                 ImGui::EndMenu  ();
             }
 
@@ -64,7 +73,6 @@ namespace ifb {
             }
 
             if (ImGui::BeginMenu(_gui_str->menu_renderer)) {
-
                 ImGui::MenuItem (_gui_str->menu_renderer_item_camera, NULL, &rndr_camera);
                 ImGui::EndMenu  ();
             }
@@ -76,5 +84,6 @@ namespace ifb {
         gui_renderer_camera   (rndr_camera);
         gui_entity_manager    (entity_manager);
         gui_quad_manager      (quad_manager);
+        gui_game_player_rig   (player_rig);
     }
 };

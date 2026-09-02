@@ -33,6 +33,9 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_imgui_demo  (bool& is_open);
     IFB_INTERNAL void  gui_engine_system      (bool& is_open);
 
+    // game
+    IFB_INTERNAL void  gui_game_player_rig    (bool& is_open);
+
     // entities
     IFB_INTERNAL void  gui_entity_manager     (bool& is_open);
     IFB_INTERNAL void  gui_quad_manager       (bool& is_open);
@@ -58,8 +61,9 @@ namespace ifb {
         inline static const char* window_renderer_camera      = "Renderer Camera";
         inline static const char* camera_origin               = "Camera Origin";
         inline static const char* camera_target               = "Camera Target";
-        inline static const char* menu_entity_item_quad_mngr     = "Quad Manager";
-
+        inline static const char* menu_entity_item_quad_mngr  = "Quad Manager";
+        inline static const char* menu_game                   = "Game";
+        inline static const char* menu_game_item_player_rig   = "Player Rig";
     } static * _gui_str;
 
 };
