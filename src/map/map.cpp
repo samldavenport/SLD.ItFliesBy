@@ -1,8 +1,6 @@
 #pragma once
 
-#include "ifb-config.hpp"
 #include "ifb-types.hpp"
-#include "memory-arena.cpp"
 #include "sld.hpp"
 #include "map.hpp"
 #include <cassert>
@@ -32,7 +30,7 @@ namespace ifb {
     map_get_index(
         const map_table* map_tbl,
         const map_id_u32 map_id,
-        const u32             map_count) {
+        const u32        map_count) {
     
         assert(map_tbl   != NULL); 
         assert(map_id    != INVALID_ID); 
