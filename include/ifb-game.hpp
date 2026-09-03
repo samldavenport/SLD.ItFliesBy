@@ -7,9 +7,9 @@
 namespace ifb {
 
     struct game_player_rig {
-        entity_id      connor_id;
-        entity_id      jig_id;
-        entity_id      jig_anchor_id;
+        entity_id  connor_id;
+        entity_id  jig_id;
+        entity_id  jig_anchor_id;
         map_handle starting_map_id;
         map_handle current_map_id;
     }; 
