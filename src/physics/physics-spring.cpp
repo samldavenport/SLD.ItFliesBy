@@ -32,15 +32,14 @@ namespace ifb {
         f32*       rest_length;
     };
 
-    inline bool spring_calculator_create            (spring_calculator& calc, arena* a);
-    inline bool spring_calculator_load_components   (spring_calculator& calc, arena* a);
+    inline bool spring_calculator_create            (spring_calculator& calc, const eng_arena_handle a);
+    inline bool spring_calculator_load_components   (spring_calculator& calc, const eng_arena_handle a);
     inline void spring_calculator_load_exec         (spring_calculator& calc);
 
     IFB_INTERNAL void 
     physics_spring_calculate_forces(
-        arena* a) {
+        const eng_arena_handle a) {
 
-        assert(a);
 
         const u32 save = arena_save(a);
 
@@ -63,7 +62,7 @@ namespace ifb {
     inline bool 
     spring_calculator_create(
         spring_calculator& calc,
-        arena* a) {
+        const eng_arena_handle a) {
 
         const auto& cfg = config_instance();
     
@@ -104,8 +103,8 @@ namespace ifb {
     
     inline bool 
     spring_calculator_load_components(
-        spring_calculator& calc,
-        arena* a) {
+        spring_calculator&     calc,
+        const eng_arena_handle a) {
 
         entity_list list;
         if (!list.arena_init(a)) {

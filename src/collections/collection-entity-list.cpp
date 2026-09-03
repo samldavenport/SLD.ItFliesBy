@@ -8,9 +8,7 @@ namespace ifb {
 
     bool
     entity_list::arena_init(
-        arena* a) {
-    
-        assert(a);
+        const eng_arena_handle a) {
 
         const u32 save = arena_save(a);
 
