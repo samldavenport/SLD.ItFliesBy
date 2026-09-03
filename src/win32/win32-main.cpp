@@ -6,10 +6,12 @@
 #include "ifb-game.hpp"
 #include "ifb-input.hpp"
 #include "ifb-types.hpp"
+#include "ifb-gui.hpp"
 #include "ifb.hpp"
 
 #include "game-context.cpp"
 #include "game-player-rig.cpp"
+#include "gui.cpp"
 
 using namespace ifb;
 
@@ -43,14 +45,20 @@ wWinMain(
 
     // engine startup 
     eng_context_startup();
-    eng_gui_open();
 
     // create the game context
     game_ctx = game_context_create_and_init();
     assert(game_ctx);
 
+    // open the gui
+    gui_open();
+
     // run the engine
-    eng_context_run();
+    bool running = true;
+    while (running) {
+        running &= eng_context_run();
+
+    }
 
     return(0);
 }

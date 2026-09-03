@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gui.hpp"
+#include "ifb-gui.hpp"
 #include "gui-engine.cpp"
 #include "gui-entity-manager.cpp"
 #include "gui-renderer-camera.cpp"

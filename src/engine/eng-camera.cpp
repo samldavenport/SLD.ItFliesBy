@@ -33,4 +33,10 @@ namespace ifb {
         renderer_camera_set_target(target);
     }
 
+    IFB_ENGINE_API void
+    eng_camera_get_xform(
+        mat4& xform) {
+
+        xform = renderer_camera_xform();
+    }
 };

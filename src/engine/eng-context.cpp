@@ -121,57 +121,47 @@ namespace ifb {
         eng_context_startup_renderer        (mem_map);
     }
 
-    IFB_ENGINE_API void
+    IFB_ENGINE_API bool 
     eng_context_run(void) {
 
         static f32 elapsed_time = 0.0f;
 
-        json_test(); 
+        // get delta time
+        eng_system_update_time();
+        const f32 dt =  eng_system_get_delta_time_s();
 
-        while(true) {
-
-            // get delta time
-            eng_system_update_time();
-            const f32 dt =  eng_system_get_delta_time_s();
-
-            elapsed_time += dt;
-            if (elapsed_time >= _eng_context->seconds_per_frame) {
-                elapsed_time = 0.0f;
-            }
-
-            //TODO(SAM): pass the opengl context to the platform
-            // start new frame
-            if (elapsed_time == 0.0f) {
-                pfm_window_frame_start   ();
-                pfm_window_process_events();
-            }
-
-            // game callback    
-            _eng_context->game_callback(
-                _eng_context->game_ctx
-            );
-
-            // simulate physics
-            physics_mngr_simulate(dt);
-
-            
-            if (elapsed_time == 0.0f) {
-           
-                // render graphics
-                renderer_context_draw_buffers();
-
-                // render gui
-                gui_render();
-
-                // render frame
-                pfm_window_frame_render();
-            }
-
-            // check if quit received
-            const bool quit = pfm_window_quit_received();
-            if (quit) break;
-
+        elapsed_time += dt;
+        if (elapsed_time >= _eng_context->seconds_per_frame) {
+            elapsed_time = 0.0f;
         }
+
+        //TODO(SAM): pass the opengl context to the platform
+        // start new frame
+        if (elapsed_time == 0.0f) {
+            pfm_window_frame_start   ();
+            pfm_window_process_events();
+        }
+
+        // game callback    
+        _eng_context->game_callback(
+            _eng_context->game_ctx
+        );
+
+        // simulate physics
+        physics_mngr_simulate(dt);
+        
+        if (elapsed_time == 0.0f) {
+       
+            // render graphics
+            renderer_context_draw_buffers();
+
+            // render frame
+            pfm_window_frame_render();
+        }
+
+        // check if quit received
+        const bool quit = pfm_window_quit_received();
+        return (quit ? false : true);
     }
     
     IFB_ENGINE_API void

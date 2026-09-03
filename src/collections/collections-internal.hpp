@@ -22,15 +22,15 @@ namespace ifb {
 
     public:
 
-        bool             arena_init           (arena* a);
-        bool             stack_init           (stack& s);
-        bool             add                  (const entity_id id);
-        bool             remove               (const entity_id id);
-        void             reset                (void);
-        void             validate             (void)                  const;
-        u32              capacity             (void)                  const;
-        u32              count                (void)                  const;
-        bool             contains             (const entity_id id) const;
+        bool arena_init (arena* a);
+        bool stack_init (stack& s);
+        bool add        (const entity_id id);
+        bool remove     (const entity_id id);
+        void reset      (void);
+        void validate   (void)                  const;
+        u32  capacity   (void)                  const;
+        u32  count      (void)                  const;
+        bool contains   (const entity_id id) const;
 
         inline entity_id
         operator[](const u32 index) {

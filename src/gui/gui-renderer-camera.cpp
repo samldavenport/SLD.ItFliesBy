@@ -1,8 +1,9 @@
 #pragma once
 
-#include "gui.hpp"
-#include "eng-internal.hpp"
+#include "ifb-engine.hpp"
+#include "ifb-gui.hpp"
 #include "stdio.h"
+
 namespace ifb {
 
     IFB_INTERNAL void
@@ -18,9 +19,9 @@ namespace ifb {
         static vec3 camera_up;
         static mat4 camera_view_matrix;
 
-        renderer_camera_get_target (camera_target);
-        renderer_camera_get_origin (camera_origin);
-        camera_view_matrix = renderer_camera_xform();
+        eng_camera_get_target (camera_target);
+        eng_camera_get_origin (camera_origin);
+        eng_camera_get_xform  (camera_view_matrix);
 
         camera_forward = xform_view_forward (camera_view_matrix);
         camera_right   = xform_view_right   (camera_view_matrix);
@@ -191,8 +192,8 @@ namespace ifb {
             ImGui::End();
         }
 
-        renderer_camera_set_target(camera_target);
-        renderer_camera_set_origin(camera_origin);
+        eng_camera_set_target(camera_target);
+        eng_camera_set_origin(camera_origin);
     }
 };
 

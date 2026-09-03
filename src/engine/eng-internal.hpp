@@ -7,7 +7,6 @@
 #include "files.hpp"
 #include "renderer.hpp"
 #include "entity.hpp"
-#include "gui.hpp"
 #include "memory.hpp"
 #include "component.hpp"
 #include "quad.hpp"

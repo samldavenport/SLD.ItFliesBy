@@ -141,4 +141,12 @@ namespace ifb {
         
         return(_entity_mngr->capacity.sparse);
     }
+
+    IFB_INTERNAL u32
+    entity_mngr_get_count(
+        void) {
+
+        entity_mngr_validate();
+        return(_entity_mngr->count);
+    }
 };

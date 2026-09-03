@@ -1,6 +1,8 @@
 #pragma once
 
 #include "component.hpp"
+#include "entity-lookup.cpp"
+#include "entity-manager.cpp"
 #include "entity.cpp"
 #include "entity-component.cpp"
 #include "ifb-component.hpp"
@@ -30,6 +32,13 @@ namespace ifb {
 
         const bool did_destroy = entity_destroy(id);
         return(did_destroy);
+    }
+
+    IFB_ENGINE_API u32
+    eng_entity_get_count(
+        void) {
+
+        return(entity_mngr_get_count());
     }
 
     IFB_ENGINE_API bool
@@ -68,6 +77,15 @@ namespace ifb {
         return(did_add);
     }
 
+    IFB_ENGINE_API bool 
+    eng_entity_lookup_by_dense_index(
+        const u32 dense_index,
+        entity&   e) {
+
+        const bool did_find = entity_lookup_by_index_dense(e, dense_index);
+        return(did_find);
+    }
+    
     IFB_ENGINE_API bool
     eng_entity_lookup_position(
         const entity_id id,

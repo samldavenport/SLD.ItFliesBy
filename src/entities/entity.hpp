@@ -32,6 +32,7 @@ namespace ifb {
     IFB_INTERNAL void             entity_mngr_shutdown             (void);
     IFB_INTERNAL u32              entity_mngr_capacity_dense       (void);
     IFB_INTERNAL u32              entity_mngr_capacity_sparse      (void);
+    IFB_INTERNAL u32              entity_mngr_get_count            (void);
 
     // entity
     IFB_INTERNAL entity_id        entity_create                    (const cchar* tag_cstr);

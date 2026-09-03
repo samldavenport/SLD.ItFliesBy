@@ -1,9 +1,8 @@
 #pragma once
 
-#include "entity.hpp"
-#include "gui.hpp"
 #include "ifb-entity.hpp"
-#include "quad.hpp"
+#include "ifb-gui.hpp"
+#include "ifb-entity.hpp"
 
 namespace ifb {
 

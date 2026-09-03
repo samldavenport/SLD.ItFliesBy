@@ -50,7 +50,7 @@ namespace ifb {
 
     IFB_ENGINE_API eng_context* eng_context_create                       (const eng_mem_map* mem_map, eng_game_proc game_callback);
     IFB_ENGINE_API void         eng_context_startup                      (void);
-    IFB_ENGINE_API void         eng_context_run                          (void);
+    IFB_ENGINE_API bool         eng_context_run                          (void);
     IFB_ENGINE_API void         eng_context_shutdown                     (void);
     IFB_ENGINE_API void         eng_context_destroy                      (eng_context* ctx);
 
@@ -113,41 +113,44 @@ namespace ifb {
     IFB_ENGINE_API void eng_camera_get_target (vec3& target);
     IFB_ENGINE_API void eng_camera_set_origin (const vec3& origin);
     IFB_ENGINE_API void eng_camera_set_target (const vec3& target);
+    IFB_ENGINE_API void eng_camera_get_xform  (mat4& xform);
 
     //--------------------------------------------------------------------
     // ENTITIES
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API entity_id    eng_entity_create               (const cchar*    tag);
-    IFB_ENGINE_API bool         eng_entity_destroy_by_id        (const entity_id id);
-    IFB_ENGINE_API bool         eng_entity_destroy_by_tag       (const cchar*    tag);
-    IFB_ENGINE_API const cchar* eng_entity_get_tag              (const entity_id id);
-    IFB_ENGINE_API const bool   eng_entity_add_components       (const entity_id id, const component_type    type);
-    IFB_ENGINE_API const bool   eng_entity_remove_components    (const entity_id id, const component_type    type);
+    IFB_ENGINE_API entity_id    eng_entity_create                (const cchar*    tag);
+    IFB_ENGINE_API bool         eng_entity_destroy_by_id         (const entity_id id);
+    IFB_ENGINE_API bool         eng_entity_destroy_by_tag        (const cchar*    tag);
+    IFB_ENGINE_API u32          eng_entity_get_count             (void);
+    IFB_ENGINE_API const cchar* eng_entity_get_tag               (const entity_id id);
+    IFB_ENGINE_API const bool   eng_entity_add_components        (const entity_id id, const component_type    type);
+    IFB_ENGINE_API const bool   eng_entity_remove_components     (const entity_id id, const component_type    type);
+    IFB_ENGINE_API bool         eng_entity_lookup_by_dense_index (const u32 dense_index, entity& e);
 
-    IFB_ENGINE_API bool         eng_entity_lookup_position      (const entity_id id, position_3d&      pos);
-    IFB_ENGINE_API bool         eng_entity_lookup_velocity      (const entity_id id, velocity_3d&      vel);
-    IFB_ENGINE_API bool         eng_entity_lookup_acceleration  (const entity_id id, acceleration_3d&  acc);
-    IFB_ENGINE_API bool         eng_entity_lookup_term_velocity (const entity_id id, term_velocity_3d& tv);
-    IFB_ENGINE_API bool         eng_entity_lookup_inv_mass      (const entity_id id, f32&               inv_mass);
-    IFB_ENGINE_API bool         eng_entity_lookup_mass          (const entity_id id, f32&               mass);
-    IFB_ENGINE_API bool         eng_entity_lookup_drag          (const entity_id id, f32&               drag);
-    IFB_ENGINE_API bool         eng_entity_lookup_quad          (const entity_id id, quad&  q);
-    IFB_ENGINE_API bool         eng_entity_lookup_color         (const entity_id id, color_rgba_u32&   color);
-    IFB_ENGINE_API bool         eng_entity_lookup_spring        (const entity_id id, spring&           spr);
+    IFB_ENGINE_API bool         eng_entity_lookup_position       (const entity_id id, position_3d&      pos);
+    IFB_ENGINE_API bool         eng_entity_lookup_velocity       (const entity_id id, velocity_3d&      vel);
+    IFB_ENGINE_API bool         eng_entity_lookup_acceleration   (const entity_id id, acceleration_3d&  acc);
+    IFB_ENGINE_API bool         eng_entity_lookup_term_velocity  (const entity_id id, term_velocity_3d& tv);
+    IFB_ENGINE_API bool         eng_entity_lookup_inv_mass       (const entity_id id, f32&               inv_mass);
+    IFB_ENGINE_API bool         eng_entity_lookup_mass           (const entity_id id, f32&               mass);
+    IFB_ENGINE_API bool         eng_entity_lookup_drag           (const entity_id id, f32&               drag);
+    IFB_ENGINE_API bool         eng_entity_lookup_quad           (const entity_id id, quad&  q);
+    IFB_ENGINE_API bool         eng_entity_lookup_color          (const entity_id id, color_rgba_u32&   color);
+    IFB_ENGINE_API bool         eng_entity_lookup_spring         (const entity_id id, spring&           spr);
 
-    IFB_ENGINE_API const bool   eng_entity_update_position      (const entity_id id, const position_3d&      pos);
-    IFB_ENGINE_API const bool   eng_entity_update_velocity      (const entity_id id, const velocity_3d&      vel);
-    IFB_ENGINE_API const bool   eng_entity_update_acceleration  (const entity_id id, const acceleration_3d&  acc);
-    IFB_ENGINE_API const bool   eng_entity_update_term_velocity (const entity_id id, const term_velocity_3d& tv);
-    IFB_ENGINE_API const bool   eng_entity_update_inv_mass      (const entity_id id, const f32               inv_mass);
-    IFB_ENGINE_API const bool   eng_entity_update_mass          (const entity_id id, const f32               mass);
-    IFB_ENGINE_API const bool   eng_entity_update_drag          (const entity_id id, const f32               drag);
-    IFB_ENGINE_API const bool   eng_entity_update_quad          (const entity_id id, const quad_archetype&   quad);
-    IFB_ENGINE_API const bool   eng_entity_update_color         (const entity_id id, const color_rgba_u32&   color);
-    IFB_ENGINE_API const bool   eng_entity_update_spring        (const entity_id id, const spring&           spr);
-    IFB_ENGINE_API const bool   eng_entity_render               (const entity_id id);
-    IFB_ENGINE_API const bool   eng_entity_add_force            (const entity_id id, const vec3& force);
+    IFB_ENGINE_API const bool   eng_entity_update_position       (const entity_id id, const position_3d&      pos);
+    IFB_ENGINE_API const bool   eng_entity_update_velocity       (const entity_id id, const velocity_3d&      vel);
+    IFB_ENGINE_API const bool   eng_entity_update_acceleration   (const entity_id id, const acceleration_3d&  acc);
+    IFB_ENGINE_API const bool   eng_entity_update_term_velocity  (const entity_id id, const term_velocity_3d& tv);
+    IFB_ENGINE_API const bool   eng_entity_update_inv_mass       (const entity_id id, const f32               inv_mass);
+    IFB_ENGINE_API const bool   eng_entity_update_mass           (const entity_id id, const f32               mass);
+    IFB_ENGINE_API const bool   eng_entity_update_drag           (const entity_id id, const f32               drag);
+    IFB_ENGINE_API const bool   eng_entity_update_quad           (const entity_id id, const quad_archetype&   quad);
+    IFB_ENGINE_API const bool   eng_entity_update_color          (const entity_id id, const color_rgba_u32&   color);
+    IFB_ENGINE_API const bool   eng_entity_update_spring         (const entity_id id, const spring&           spr);
+    IFB_ENGINE_API const bool   eng_entity_render                (const entity_id id);
+    IFB_ENGINE_API const bool   eng_entity_add_force             (const entity_id id, const vec3& force);
 
     //--------------------------------------------------------------------
     // TILE MAPS 
