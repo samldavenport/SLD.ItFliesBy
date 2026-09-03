@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity.cpp"
+#include "ifb-collections.hpp"
 #include "ifb-entity.hpp"
 #include "quad.hpp"
 
@@ -46,27 +47,25 @@ namespace ifb {
     update_quads(
         void) {
 
-        arena* a = arena_alloc();
-        assert(a);
+        const eng_arena_handle a = arena_alloc();
 
-        entity_list quad_list;
-        const bool did_init = quad_list.arena_init(a);
-        assert(did_init);
+        entity_list* quad_list = entity_list_arena_create(a);
+        assert(quad_list);
 
         entity_query query = {0};
         query.has_all.val = ENTITY_ARCHETYPE_QUAD.val;
         entity_lookup_list(quad_list, query);
             
-
+        const u32 quad_list_count = entity_list_count(quad_list);
         for (
             u32 index = 0;
-                index < quad_list.count();
+                index < quad_list_count;
               ++index
         ) {
 
-
             quad_entity q;
-            const bool did_find = quad_lookup_by_id(q, quad_list[index]);
+            const entity_id quad_id  = entity_list_index(quad_list, index);
+            const bool      did_find = quad_lookup_by_id(q, quad_id);
             assert(did_find);
 
             q.color.hex    =  0xFFFFFFFF;

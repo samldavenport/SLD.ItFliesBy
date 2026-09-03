@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.hpp"
-#include "collections-internal.hpp"
+#include "ifb-collections.hpp"
 #include "entity-manager.cpp"
 #include "ifb-types.hpp"
 
@@ -9,11 +9,12 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_lookup_list(
-        entity_list&        list,
+        entity_list*        list,
         const entity_query& query) {
 
-        entity_mngr_validate();
-        list.validate();
+        entity_mngr_validate ();
+        entity_list_validate (list);
+        entity_list_reset    (list);
 
         for (
             u32 dense_index = 0;
@@ -28,15 +29,16 @@ namespace ifb {
             const bool             is_match   = (
                 has_all &&
                 has_any &&
-                has_none                
+                has_none
             );
 
             if (is_match) {
-                list.add(curr_id);
+                entity_list_add(list, curr_id);
             }
         }
 
-        return(list.count() > 0);
+        const u32 count_added = entity_list_count(list); 
+        return(count_added > 0);
     }
 
     IFB_INTERNAL bool

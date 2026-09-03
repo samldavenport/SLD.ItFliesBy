@@ -79,15 +79,14 @@ namespace ifb {
 
             quad_entity q;
 
-            static arena*       a;
-            static entity_list quad_list;
+            static eng_arena_handle a;
+            static entity_list* quad_list;
             if (a == NULL) {
                 a = arena_alloc();
-                quad_list.arena_init(a);
+                quad_list = entity_list_arena_create(a);
             }
-
             assert(a != NULL);
-            quad_list.validate();
+            entity_list_validate(quad_list);
 
             entity_query query;
             query.has_all.val = ENTITY_ARCHETYPE_QUAD.val;
@@ -96,13 +95,14 @@ namespace ifb {
                 return;
             }
 
+            const u32 quad_list_count = entity_list_count(quad_list);
             for (
                 u32 index = 0;
-                    index < quad_list.count();
+                    index < quad_list_count;  
                   ++index
             ) {
 
-                const entity_id id       = quad_list[index]; 
+                const entity_id id       = entity_list_index(quad_list, index); 
                 const bool      did_find = quad_lookup_by_id(q, id);
                 assert(did_find);
                 ImGui::TableNextRow();
