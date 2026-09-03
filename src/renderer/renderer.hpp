@@ -94,7 +94,7 @@ namespace ifb {
     // tile
     IFB_INTERNAL void renderer_tile_shader_create            (void);
     IFB_INTERNAL void renderer_tile_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL void renderer_tile_set_map                  (const map_id_u32 map_id);
+    IFB_INTERNAL void renderer_tile_set_map                  (const map_handle map_hnd);
     IFB_INTERNAL void renderer_tile_draw                     (const mat4& view_proj_xform);
 
     //--------------------------------------------------------------------

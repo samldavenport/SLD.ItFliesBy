@@ -22,7 +22,7 @@ namespace ifb {
         assert(count_rows  != 0);
         assert(count_cols  != 0);
 
-        const map_id_u32 id = map_create(
+        const map_handle hnd = map_create(
             name,
             count_rows,
             count_cols,
@@ -31,7 +31,6 @@ namespace ifb {
             base_color
         );
 
-        const map_handle hnd = {id.val};
         return(hnd);
     } 
 
@@ -39,24 +38,21 @@ namespace ifb {
     eng_map_destroy(
         const map_handle map) {
 
-        const map_id_u32 id = { map.val };
 
-        map_destroy(id);
+        map_destroy(map);
     }
 
     IFB_ENGINE_API void
     eng_map_render(
         const map_handle map) {
 
-        const map_id_u32 id = { map.val };
-
-        renderer_tile_set_map(id);
+        renderer_tile_set_map(map);
     }
 
     IFB_ENGINE_API void
     eng_map_set_colors(
-        const map_handle  map,
-        const map_coords*    coords,
+        const map_handle      map,
+        const map_coords*     coords,
         const color_rgba_u32* color,
         const u32             count) {
 
@@ -65,9 +61,8 @@ namespace ifb {
         assert(color    != NULL);
         assert(count    != 0);
 
-        map_id_u32 map_id = { map.val };
         map_set_color(
-            map_id,
+            map,
             coords,
             color,
             count
@@ -86,9 +81,9 @@ namespace ifb {
         assert(flags    != NULL);
         assert(count    != 0);
 
-        map_id_u32 map_id = { map.val };
+        map_handle map_hnd = { map.val };
         map_set_flags(
-            map_id,
+            map_hnd,
             coords,
             flags,
             count
@@ -98,12 +93,10 @@ namespace ifb {
     IFB_ENGINE_API bool 
     eng_map_get_entity_coords(
         const map_handle map,
-        const entity_id      eid,
-        map_coords&          coords) {
+        const entity_id  eid,
+        map_coords&      coords) {
 
-        const map_id_u32 map_id = { map.val };
-
-        const bool did_find = map_get_entity_tile_coordinates(map_id, eid, coords);
+        const bool did_find = map_get_entity_tile_coordinates(map, eid, coords);
         return(did_find);
     }
 };

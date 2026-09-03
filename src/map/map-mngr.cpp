@@ -50,13 +50,13 @@ namespace ifb {
         const u32 tile_count_max = cfg.map_capacity * cfg.tile_capacity; 
        
         // allocate map table memory
-        tbl_map->map_id      = _map_mngr->mem_stack.push_struct<map_id_u32> (cfg.map_capacity);
+        tbl_map->map_hnd      = _map_mngr->mem_stack.push_struct<map_handle> (cfg.map_capacity);
         tbl_map->count_rows  = _map_mngr->mem_stack.push_struct<u32>        (cfg.map_capacity);
         tbl_map->count_cols  = _map_mngr->mem_stack.push_struct<u32>        (cfg.map_capacity);
         tbl_map->offset_row  = _map_mngr->mem_stack.push_struct<s32>        (cfg.map_capacity);
         tbl_map->offset_col  = _map_mngr->mem_stack.push_struct<s32>        (cfg.map_capacity);
         tbl_map->name        = _map_mngr->mem_stack.push_struct<map_name>   (cfg.map_capacity);
-        assert(tbl_map->map_id     != NULL); 
+        assert(tbl_map->map_hnd     != NULL); 
         assert(tbl_map->count_rows != NULL); 
         assert(tbl_map->count_cols != NULL); 
         assert(tbl_map->offset_row != NULL); 
@@ -69,7 +69,7 @@ namespace ifb {
         assert(tbl_tiles->flags   != NULL);  
 
         // set the map id array to invalid
-        memset(tbl_map->map_id, 0xFF, sizeof(map_id_u32) * cfg.map_capacity);
+        memset(tbl_map->map_hnd, 0xFF, sizeof(map_handle) * cfg.map_capacity);
    
         // store capacities
         _map_mngr->map_capacity   = cfg.map_capacity;

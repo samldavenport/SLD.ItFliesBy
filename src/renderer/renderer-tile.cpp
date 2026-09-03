@@ -42,7 +42,7 @@ namespace ifb {
        struct {
            renderer_tile_instance_buffer instance;
        } buffers;
-       map_id_u32 map_id;
+       map_handle map_hnd;
     };
 
     //--------------------------------------------------------------------
@@ -131,15 +131,15 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_tile_set_map(
-        const map_id_u32 map_id) {
+        const map_handle map_hnd) {
 
-        assert(map_id != INVALID_ID);
+        assert(map_hnd != INVALID_ID);
         assert(_renderer_ctx);
        
         auto shdr = _renderer_ctx->shader.tile;
         assert(shdr);
 
-        shdr->map_id = map_id;
+        shdr->map_hnd = map_hnd;
     }
     
     IFB_INTERNAL void
@@ -156,14 +156,14 @@ namespace ifb {
 
         // look up the map
         map map;
-        const bool found_map = map_get_info(shdr->map_id, map);
+        const bool found_map = map_get_info(shdr->map_hnd, map);
         assert(found_map);
 
         // get the tile size
         const f32 tile_unit_size = map_mngr_get_tile_unit_size();
 
         // check our render buffer is large enough
-        const u32 buffer_size_required = map_get_render_buffer_size(shdr->map_id);
+        const u32 buffer_size_required = map_get_render_buffer_size(shdr->map_hnd);
         assert(shdr->buffers.instance.data_size >= buffer_size_required);
 
         // calculate tile count
@@ -171,7 +171,7 @@ namespace ifb {
         
         // copy the render buffer data
         const u32 buffer_size_actual = map_get_render_buffer_data(
-                shdr->map_id,
+                shdr->map_hnd,
                 shdr->buffers.instance.data_size,
                 shdr->buffers.instance.data.bytes
         );
