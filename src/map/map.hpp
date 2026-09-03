@@ -23,6 +23,7 @@ namespace ifb {
     struct tile_render_context;
     struct tile_render_buffer;
     struct map_name;
+    struct map_chunk;
 
     //--------------------------------------------------------------------
     // GLOBALS 
@@ -100,6 +101,15 @@ namespace ifb {
         f32        origin_x;
         f32        origin_z;
         map_name*  name;
+    };
+
+    struct map_chunk {
+        map_handle map;
+        u32        index;
+        u32        rows;
+        u32        cols;
+        u32        offset_row;
+        u32        offset_col;
     };
 
     struct map_table {
