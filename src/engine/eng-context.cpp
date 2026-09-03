@@ -41,7 +41,8 @@ namespace ifb {
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map,
-        eng_game_proc      game_callback) {
+        eng_game_proc      game_callback,
+        eng_render_proc    render_callback) {
 	
         const auto& config = config_instance();
 
@@ -64,21 +65,22 @@ namespace ifb {
         );
 
         // set context properties        
-        _eng_context                = eng_ctx;
-        _eng_context->mem_map       = mem_map;
-        _eng_context->game_callback = game_callback;
-        _eng_context->game_ctx      = game_ctx;
-        _eng_context->system        = sys_info;  
-        _eng_context->keyboard      = keyboard_input_create(); 
-        _eng_context->renderer      = renderer_context_create(); 
-        _eng_context->file_mngr     = file_mngr_create(); 
-        _eng_context->entity_mngr   = entity_mngr_create(); 
-        _eng_context->memory_mngr   = memory_mngr_create(); 
-        _eng_context->cmpnt_mngr    = cmpnt_mngr_create();  
-        _eng_context->quad_mngr     = quad_mngr_create();
-        _eng_context->phys_mngr     = physics_mngr_create();
-        _eng_context->map_mngr     = map_mngr_create();
-        _eng_context->mem_map       = mem_map;
+        _eng_context                  = eng_ctx;
+        _eng_context->mem_map         = mem_map;
+        _eng_context->game_callback   = game_callback;
+        _eng_context->render_callback = render_callback;
+        _eng_context->game_ctx        = game_ctx;
+        _eng_context->system          = sys_info;  
+        _eng_context->keyboard        = keyboard_input_create(); 
+        _eng_context->renderer        = renderer_context_create(); 
+        _eng_context->file_mngr       = file_mngr_create(); 
+        _eng_context->entity_mngr     = entity_mngr_create(); 
+        _eng_context->memory_mngr     = memory_mngr_create(); 
+        _eng_context->cmpnt_mngr      = cmpnt_mngr_create();  
+        _eng_context->quad_mngr       = quad_mngr_create();
+        _eng_context->phys_mngr       = physics_mngr_create();
+        _eng_context->map_mngr        = map_mngr_create();
+        _eng_context->mem_map         = mem_map;
 
         assert(
             _eng_context->mem_map       != NULL &&
@@ -156,6 +158,8 @@ namespace ifb {
        
             // render graphics
             renderer_context_draw_buffers();
+
+            _eng_context->render_callback();
 
             // render frame
             pfm_window_frame_render();

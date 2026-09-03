@@ -30,6 +30,7 @@ namespace ifb {
         f32                seconds_per_frame;
         const eng_mem_map* mem_map;
         eng_game_proc      game_callback;
+        eng_render_proc    render_callback;
         eng_game_context*  game_ctx;
         eng_system_info*   system;
         keyboard_input*    keyboard;

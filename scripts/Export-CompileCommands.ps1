@@ -8,6 +8,7 @@ $Win32Command     = @(
     "/I"   + @(Join-Path $ProjectRoot "src\win32")
     "/I"   + @(Join-Path $ProjectRoot "src\game")
     "/I"   + @(Join-Path $ProjectRoot "src\gui")
+    "/I"   + @(Join-Path $ProjectRoot "src\collections")
     "/I"   + @(Join-Path $ProjectRoot "include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Opengl\include")

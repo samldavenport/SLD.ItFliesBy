@@ -26,7 +26,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
-
+    
     struct eng_system_info;
     struct eng_context;
     struct eng_mem;
@@ -37,13 +37,20 @@ namespace ifb {
     // FUNCTION POINTERS 
     //--------------------------------------------------------------------
 
-  typedef bool (*eng_game_proc)(eng_game_context* game_ctx); 
+  typedef bool (*eng_game_proc)   (eng_game_context* game_ctx); 
+  typedef void (*eng_render_proc) (void); 
 
     //--------------------------------------------------------------------
     // CONTEXT
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API eng_context*  eng_context_create                       (const eng_mem_map* mem_map, eng_game_proc game_callback);
+    IFB_ENGINE_API eng_context*
+    eng_context_create(
+        const eng_mem_map* mem_map,
+        eng_game_proc      game_callback,
+        eng_render_proc    render_callback
+    );
+
     IFB_ENGINE_API void          eng_context_startup                      (void);
     IFB_ENGINE_API bool          eng_context_run                          (void);
     IFB_ENGINE_API void          eng_context_shutdown                     (void);

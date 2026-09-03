@@ -22,14 +22,11 @@ static const u32 SIZE_RESERVATION = size_megabytes(64);
 
 static byte _stack_mem[SIZE_STACK];
 
-static entity_id q_id_0;
-static entity_id q_id_1;
-static entity_id q_id_2;
-
 static game_context* game_ctx;
 
-bool game_proc (eng_game_context* ctx);
-void mem_map_init  (eng_mem_map& mem_map);
+bool game_proc    (eng_game_context* ctx);
+void render_proc  (void);
+void mem_map_init (eng_mem_map& mem_map);
 
 int WINAPI
 wWinMain(
@@ -43,7 +40,11 @@ wWinMain(
     mem_map_init(mem_map);
 
     // create the engine context
-    eng_context* ctx = eng_context_create(&mem_map, game_proc);
+    eng_context* ctx = eng_context_create(
+        &mem_map,
+        game_proc,
+        render_proc
+    );
 
     // engine startup 
     eng_context_startup();
@@ -61,7 +62,6 @@ wWinMain(
     bool running = true;
     while (running) {
         running &= eng_context_run();
-        gui_render(); 
     }
 
     return(0);
@@ -74,6 +74,13 @@ game_proc(
     game_context_update_and_render(game_ctx);
 
     return(true);
+}
+
+static void 
+render_proc(
+    void) {
+
+    gui_render();
 }
 
 inline void
