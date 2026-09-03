@@ -7,9 +7,9 @@
 namespace ifb {
 
     struct game_player_rig {
-        entity_id      connor_id;
-        entity_id      jig_id;
-        entity_id      jig_anchor_id;
+        entity_id  connor_id;
+        entity_id  jig_id;
+        entity_id  jig_anchor_id;
         map_handle starting_map_id;
         map_handle current_map_id;
     }; 
@@ -30,10 +30,10 @@ namespace ifb {
     IFB_INTERNAL void          game_player_rig_validate          (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_init              (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_update_and_render (game_player_rig* player_rig);
-    IFB_INTERNAL bool          game_player_rig_get_map_coords    (const game_player_rig* player_rig, map_coords& coords);
 
     IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
+
 };
 
 #endif //IFB_GAME_HPP

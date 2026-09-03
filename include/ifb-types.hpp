@@ -81,6 +81,7 @@ namespace ifb {
     constexpr u32 INVALID_HANDLE    = 0xFFFFFFFF;
     constexpr u32 INVALID_ID        = 0xFFFFFFFF;
     constexpr u32 ENTITY_TAG_SIZE   = 16;
+    constexpr u16 MAP_COORD_INVALID = 0xFFFF;
 
     //--------------------------------------------------------------------
     // ENUMS 

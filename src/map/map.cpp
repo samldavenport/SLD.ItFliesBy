@@ -412,17 +412,18 @@ namespace ifb {
             is_valid &= pos.x >= m.origin_x;
             is_valid &= pos.x <= max_x;
             is_valid &= pos.z >= m.origin_z;
-            is_valid &= pos.z <= max_z;
-            if (!is_valid) return(false);
+            is_valid &= pos.z <= max_z; 
+            if (!is_valid) {
+                coords.row = MAP_COORD_INVALID;
+                coords.col = MAP_COORD_INVALID;
+                return(false);
+            }
 
             const f32 local_x = pos.x - m.origin_x;
             const f32 local_z = pos.z - m.origin_z;
 
             coords.col = (u32)(local_x / _map_mngr->tile_unit_size);
             coords.row = (u32)(local_z / _map_mngr->tile_unit_size);
-
-            coords.col += m.offset_col;
-            coords.row += m.offset_row;
         }
         return(found);
     }

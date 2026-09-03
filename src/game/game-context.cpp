@@ -9,6 +9,8 @@
 
 namespace ifb {
 
+    static game_context* _game_ctx;
+
     IFB_INTERNAL game_context*
     game_context_create_and_init(
         void) {
@@ -30,6 +32,8 @@ namespace ifb {
 
         game_player_rig_init (ctx->player_rig);
         game_map_init        (ctx->map);
+
+        _game_ctx = ctx;
 
         return(ctx);      
     }
@@ -62,6 +66,14 @@ namespace ifb {
             player_rig->connor_id,
             coords
         );
+    }
+    
+    IFB_INTERNAL game_context*
+    game_context_get_instance(
+        void) {
+
+        assert(_game_ctx);
+        return(_game_ctx);
     }
 };
 
