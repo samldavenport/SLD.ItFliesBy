@@ -13,7 +13,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct entity_mngr;
-    struct entity_query;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -32,6 +31,7 @@ namespace ifb {
     IFB_INTERNAL void             entity_mngr_shutdown             (void);
     IFB_INTERNAL u32              entity_mngr_capacity_dense       (void);
     IFB_INTERNAL u32              entity_mngr_capacity_sparse      (void);
+    IFB_INTERNAL u32              entity_mngr_get_count            (void);
 
     // entity
     IFB_INTERNAL entity_id        entity_create                    (const cchar* tag_cstr);
@@ -78,12 +78,6 @@ namespace ifb {
         } capacity;
         memory  mem;
         u32     count;
-    };
-
-    struct entity_query {
-        component_type has_all;
-        component_type has_any;
-        component_type has_none;
     };
 };
 

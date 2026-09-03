@@ -11,13 +11,13 @@ namespace ifb {
 
     inline void   arena_allocator_validate (void);
     inline void   arena_validate           (const arena* a);
-    inline arena* arena_from_handle        (const eng_arena_handle hnd);
+    inline arena* arena_from_handle        (const arena_handle hnd);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL eng_arena_handle
+    IFB_INTERNAL arena_handle
     arena_alloc(
         void) {
 
@@ -51,13 +51,13 @@ namespace ifb {
         a->save     = 0;
         a->position = 0;
         
-        eng_arena_handle hnd = {a->id};
+        arena_handle hnd = {a->id};
         return(hnd);
     }
 
     IFB_INTERNAL void
     arena_free(
-        const eng_arena_handle hnd) {
+        const arena_handle hnd) {
 
         arena_allocator_validate();
 
@@ -85,7 +85,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     arena_reset(
-        const eng_arena_handle hnd) {
+        const arena_handle hnd) {
 
         arena_allocator_validate();
 
@@ -97,7 +97,7 @@ namespace ifb {
 
     IFB_INTERNAL u32
     arena_save(
-        const eng_arena_handle hnd) {
+        const arena_handle hnd) {
 
         arena_allocator_validate();
 
@@ -110,7 +110,7 @@ namespace ifb {
 
     IFB_INTERNAL void*
     arena_push(
-        const eng_arena_handle hnd,
+        const arena_handle hnd,
         const u32              size) {
 
         arena_allocator_validate();
@@ -136,7 +136,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     arena_revert(
-        const eng_arena_handle hnd,
+        const arena_handle hnd,
         const u32              save) {
 
         arena_allocator_validate();
@@ -150,7 +150,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     arena_commit(
-        const eng_arena_handle hnd,
+        const arena_handle hnd,
         const u32              save) {
 
         arena_allocator_validate();
@@ -163,7 +163,7 @@ namespace ifb {
     template<typename t>
     IFB_INTERNAL t*
     arena_push(
-        const eng_arena_handle hnd,
+        const arena_handle hnd,
         const u32              count) {
 
         assert(count != 0);
@@ -177,7 +177,7 @@ namespace ifb {
 
     IFB_INTERNAL u32
     arena_size_free(
-        const eng_arena_handle hnd) {
+        const arena_handle hnd) {
    
         arena_allocator_validate();
 
@@ -190,7 +190,7 @@ namespace ifb {
 
     IFB_INTERNAL u32
     arena_size_used(
-        const eng_arena_handle hnd) {
+        const arena_handle hnd) {
 
         arena* a = arena_from_handle(hnd); 
         return(a->position);
@@ -244,7 +244,7 @@ namespace ifb {
 
     inline arena*
     arena_from_handle(
-        const eng_arena_handle hnd) {
+        const arena_handle hnd) {
 
         arena_allocator_validate();
 

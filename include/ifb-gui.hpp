@@ -58,10 +58,8 @@ namespace ifb {
         inline static const char* window_renderer_camera      = "Renderer Camera";
         inline static const char* camera_origin               = "Camera Origin";
         inline static const char* camera_target               = "Camera Target";
-        inline static const char* menu_entity_item_quad_mngr     = "Quad Manager";
-
+        inline static const char* menu_entity_item_quad_mngr  = "Quad Manager";
     } static * _gui_str;
-
 };
 
 #endif //GUI_HPP

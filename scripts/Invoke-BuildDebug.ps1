@@ -11,7 +11,6 @@ $EngCompile = @(
     "/I"   + @(Join-Path $ProjectRoot "src\engine")
     "/I"   + @(Join-Path $ProjectRoot "src\entities")
     "/I"   + @(Join-Path $ProjectRoot "src\files")
-    "/I"   + @(Join-Path $ProjectRoot "src\gui")
     "/I"   + @(Join-Path $ProjectRoot "src\json")
     "/I"   + @(Join-Path $ProjectRoot "src\map")
     "/I"   + @(Join-Path $ProjectRoot "src\memory")
@@ -68,8 +67,10 @@ $Win32Compile = @(
     "cl.exe"
     $Win32SrcFile
     "/Fo:" + @(Join-Path $ProjectRoot "build\debug\obj\ItFliesBy.obj")  
+    "/I"   + @(Join-Path $ProjectRoot "src\collections")
     "/I"   + @(Join-Path $ProjectRoot "src\win32")
     "/I"   + @(Join-Path $ProjectRoot "src\game")
+    "/I"   + @(Join-Path $ProjectRoot "src\gui")
     "/I"   + @(Join-Path $ProjectRoot "include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Core\include")
     "/I"   + @(Join-Path $ProjectRoot "SLD.Opengl\include")

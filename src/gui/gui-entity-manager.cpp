@@ -1,7 +1,8 @@
 #pragma once
 
-#include "gui.hpp"
-#include "entity.hpp"
+#include "ifb-engine.hpp"
+#include "ifb-gui.hpp"
+#include "ifb-entity.hpp"
 
 namespace ifb {
 
@@ -59,7 +60,7 @@ namespace ifb {
         ImGui::InputText("Entity Tag", _input_tag, ENTITY_TAG_SIZE, ImGuiInputFlags_None);
         ImGui::SameLine();
         if (ImGui::Button("Create Entity")) {
-            const entity_id id_new  = entity_create(_input_tag);
+            const entity_id id_new  = eng_entity_create(_input_tag);
             assert(id_new != ENTITY_ID_INVALID);
             memset(_input_tag, 0, ENTITY_TAG_SIZE);
         }
@@ -92,15 +93,16 @@ namespace ifb {
             // DATA ROWS
             //---------------------------
 
+            const u32 entity_count = eng_entity_get_count();
             entity e;
             for (
                 u32 index = 0;
-                    index < _entity_mngr->count;
+                    index < entity_count;
                     ++index
             ) {
 
                 // get the entity and start the next row
-                entity_lookup_by_index_dense(e, index);
+                eng_entity_lookup_by_dense_index(index, e);
                 ImGui::TableNextRow();
 
                 //---------------------------
@@ -214,7 +216,7 @@ namespace ifb {
 
         if (ImGui::Button("Destroy Entity")) {
             _selected_row = INVALID_INDEX;
-            entity_destroy(_selected_entity.tag);
+            eng_entity_destroy_by_tag(_selected_entity.tag);
         }
     }
 };

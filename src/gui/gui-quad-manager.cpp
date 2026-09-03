@@ -1,10 +1,9 @@
 #pragma once
 
-#include "entity.hpp"
-#include "gui.hpp"
+#include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
-#include "quad.hpp"
-#include "ifb-collections.hpp"
+#include "ifb-gui.hpp"
+#include "ifb-entity.hpp"
 
 namespace ifb {
 
@@ -81,10 +80,10 @@ namespace ifb {
 
             quad_entity q;
 
-            static eng_arena_handle a;
+            static arena_handle a;
             static entity_list* quad_list;
             if (a == NULL) {
-                a = arena_alloc();
+                a = eng_arena_alloc();
                 quad_list = entity_list_arena_create(a);
             }
             assert(a != NULL);
@@ -92,7 +91,7 @@ namespace ifb {
 
             entity_query query;
             query.has_all.val = ENTITY_ARCHETYPE_QUAD.val;
-            const bool has_entities = entity_lookup_list(quad_list, query);    
+            const bool has_entities = eng_entity_query(quad_list, query);    
             if (!has_entities) {
                 return;
             }
@@ -105,7 +104,7 @@ namespace ifb {
             ) {
 
                 const entity_id id       = entity_list_index(quad_list, index); 
-                const bool      did_find = quad_lookup_by_id(q, id);
+                const bool      did_find = eng_entity_quad_lookup(q, id);
                 assert(did_find);
                 ImGui::TableNextRow();
 

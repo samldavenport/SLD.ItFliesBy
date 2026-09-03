@@ -106,7 +106,7 @@ namespace ifb {
     
     IFB_INTERNAL tiled_map*
     tiled_map_create(
-        eng_arena_handle       a,
+        arena_handle       a,
         const u32    json_src_length,
         const cchar* json_src_ptr) {
 
@@ -128,7 +128,7 @@ namespace ifb {
 
     IFB_INTERNAL tiled_map*
     tiled_map_parse(
-        eng_arena_handle a,
+        arena_handle a,
         const json_obj* obj) {
 
         assert(obj);
@@ -238,7 +238,7 @@ namespace ifb {
 
     IFB_INTERNAL tiled_layer*
     tiled_layer_parse_array(
-        eng_arena_handle          a,
+        arena_handle          a,
         const json_arr* arr,
         s32&            count) {
 
@@ -260,15 +260,15 @@ namespace ifb {
 
     }
 
-    IFB_INTERNAL tiled_object_layer*     tiled_object_layer_parse    (eng_arena_handle a, const json_obj* obj);
-    IFB_INTERNAL tiled_object *          tiled_object_parse          (eng_arena_handle a, const json_obj* obj);
-    IFB_INTERNAL tiled_chunk*            tiled_chunk_parse           (eng_arena_handle a, const json_obj* obj);
-    IFB_INTERNAL tiled_text*             tiled_text_parse            (eng_arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_object_layer*     tiled_object_layer_parse    (arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_object *          tiled_object_parse          (arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_chunk*            tiled_chunk_parse           (arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_text*             tiled_text_parse            (arena_handle a, const json_obj* obj);
 
 
     IFB_INTERNAL tiled_tileset*
     tiled_tileset_parse_array(
-        eng_arena_handle          a,
+        arena_handle          a,
         const json_arr* arr,
         s32&            count) {
 
@@ -296,7 +296,7 @@ namespace ifb {
 
     IFB_INTERNAL tiled_grid*
     tiled_grid_parse(
-        eng_arena_handle a,
+        arena_handle a,
         const json_obj* obj) {
 
         //TODO(SLD)
@@ -305,7 +305,7 @@ namespace ifb {
 
     IFB_INTERNAL tiled_tile_offset*
     tiled_tile_offset_parse(
-        eng_arena_handle a,
+        arena_handle a,
         const json_obj* obj) {
 
 
@@ -322,7 +322,7 @@ namespace ifb {
 
     IFB_INTERNAL tiled_transformations*
     tiled_transformations_parse(
-        eng_arena_handle a,
+        arena_handle a,
         const json_obj* obj) {
 
         if (obj == NULL) return(NULL);
@@ -338,11 +338,11 @@ namespace ifb {
         return(xform);
     }
 
-    IFB_INTERNAL tiled_tile*             tiled_tile_parse            (eng_arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_tile*             tiled_tile_parse            (arena_handle a, const json_obj* obj);
 
     IFB_INTERNAL tiled_frame*
     tiled_frame_parse(
-        eng_arena_handle a,
+        arena_handle a,
         const json_obj* obj) {
 
         if (obj == NULL) return(NULL);
@@ -356,7 +356,7 @@ namespace ifb {
     
     IFB_INTERNAL tiled_terrain*
     tiled_terrain_parse(
-        eng_arena_handle a,
+        arena_handle a,
         const json_obj* obj) {
 
         if (obj == NULL) return(NULL);
@@ -373,10 +373,10 @@ namespace ifb {
         return(terrain);
     }
 
-    IFB_INTERNAL tiled_wang_set*         tiled_wang_set_parse        (eng_arena_handle a, const json_obj* obj);
-    IFB_INTERNAL tiled_wang_color*       tiled_wang_color_parse      (eng_arena_handle a, const json_obj* obj);
-    IFB_INTERNAL tiled_wang_tile*        tiled_wang_tile_parse       (eng_arena_handle a, const json_obj* obj);
-    IFB_INTERNAL tiled_object_template*  tiled_object_template_parse (eng_arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_set*         tiled_wang_set_parse        (arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_color*       tiled_wang_color_parse      (arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_wang_tile*        tiled_wang_tile_parse       (arena_handle a, const json_obj* obj);
+    IFB_INTERNAL tiled_object_template*  tiled_object_template_parse (arena_handle a, const json_obj* obj);
 
     IFB_INTERNAL const tiled_property_hashes&
     tiled_property_get_hashes(
@@ -407,7 +407,7 @@ namespace ifb {
 
     IFB_INTERNAL tiled_property*
     tiled_property_parse_array(
-        eng_arena_handle          a,
+        arena_handle          a,
         const json_arr* arr,
         s32&            count) {
 
@@ -450,7 +450,7 @@ namespace ifb {
 
     IFB_INTERNAL tiled_point*
     tiled_point_parse(
-        eng_arena_handle          a,
+        arena_handle          a,
         const json_obj* obj) {
 
         if (obj == NULL) return(NULL);

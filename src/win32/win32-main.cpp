@@ -6,10 +6,14 @@
 #include "ifb-game.hpp"
 #include "ifb-input.hpp"
 #include "ifb-types.hpp"
+#include "ifb-gui.hpp"
 #include "ifb.hpp"
 
+#include "collections.cpp"
 #include "game-context.cpp"
 #include "game-player-rig.cpp"
+#include "gui.cpp"
+#include "imgui.h"
 
 using namespace ifb;
 
@@ -18,14 +22,11 @@ static const u32 SIZE_RESERVATION = size_megabytes(64);
 
 static byte _stack_mem[SIZE_STACK];
 
-static entity_id q_id_0;
-static entity_id q_id_1;
-static entity_id q_id_2;
-
 static game_context* game_ctx;
 
-bool game_proc (eng_game_context* ctx);
-void mem_map_init  (eng_mem_map& mem_map);
+bool game_proc    (eng_game_context* ctx);
+void render_proc  (void);
+void mem_map_init (eng_mem_map& mem_map);
 
 int WINAPI
 wWinMain(
@@ -39,18 +40,29 @@ wWinMain(
     mem_map_init(mem_map);
 
     // create the engine context
-    eng_context* ctx = eng_context_create(&mem_map, game_proc);
+    eng_context* ctx = eng_context_create(
+        &mem_map,
+        game_proc,
+        render_proc
+    );
 
     // engine startup 
     eng_context_startup();
-    eng_gui_open();
 
     // create the game context
     game_ctx = game_context_create_and_init();
     assert(game_ctx);
 
+    // open the gui
+    ImGuiContext* imgui = eng_context_get_imgui();
+    ImGui::SetCurrentContext(imgui);
+    gui_open();
+
     // run the engine
-    eng_context_run();
+    bool running = true;
+    while (running) {
+        running &= eng_context_run();
+    }
 
     return(0);
 }
@@ -62,6 +74,13 @@ game_proc(
     game_context_update_and_render(game_ctx);
 
     return(true);
+}
+
+static void 
+render_proc(
+    void) {
+
+    gui_render();
 }
 
 inline void

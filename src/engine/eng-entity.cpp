@@ -1,11 +1,14 @@
 #pragma once
 
 #include "component.hpp"
+#include "entity-lookup.cpp"
+#include "entity-manager.cpp"
 #include "entity.cpp"
 #include "entity-component.cpp"
 #include "ifb-component.hpp"
 #include "ifb-types.hpp"
 #include "physics-entity.cpp"
+#include "quad.cpp"
 #include "renderer.hpp"
 #include <cassert>
 
@@ -30,6 +33,13 @@ namespace ifb {
 
         const bool did_destroy = entity_destroy(id);
         return(did_destroy);
+    }
+
+    IFB_ENGINE_API u32
+    eng_entity_get_count(
+        void) {
+
+        return(entity_mngr_get_count());
     }
 
     IFB_ENGINE_API bool
@@ -68,6 +78,34 @@ namespace ifb {
         return(did_add);
     }
 
+    IFB_ENGINE_API bool 
+    eng_entity_lookup_by_dense_index(
+        const u32 dense_index,
+        entity&   e) {
+
+        const bool did_find = entity_lookup_by_index_dense(e, dense_index);
+        return(did_find);
+    }
+    
+    IFB_ENGINE_API bool
+    eng_entity_query(
+        entity_list*       list,
+        const entity_query query) {
+
+        assert(list);
+        const bool result = entity_lookup_list(list, query);
+        return(result);
+    }
+    
+    IFB_ENGINE_API bool
+    eng_entity_quad_lookup(
+        quad_entity& q,
+        const entity_id id) {
+
+        const bool result = quad_lookup_by_id(q, id);
+        return(result);
+    }
+    
     IFB_ENGINE_API bool
     eng_entity_lookup_position(
         const entity_id id,

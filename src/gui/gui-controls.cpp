@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gui.hpp"
+#include "ifb-gui.hpp"
 #include "stdio.h"
 #include "string.h"
 

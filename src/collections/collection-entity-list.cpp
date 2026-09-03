@@ -1,8 +1,11 @@
 #pragma once
 
-#include "entity.hpp"
+#include "ifb-engine.hpp"
+#include "ifb-entity.hpp"
 #include "ifb-collections.hpp"
 #include "ifb-types.hpp"
+#include "ifb-config.hpp"
+
 
 namespace ifb {
 
@@ -22,20 +25,20 @@ namespace ifb {
     
     IFB_INTERNAL entity_list* 
     entity_list_arena_create(
-        const eng_arena_handle a) {
+        const arena_handle a) {
 
-        const u32 save = arena_save(a);
+        const u32 save = eng_arena_save(a);
 
         const auto& cfg = config_instance();
 
-        auto list = arena_push<entity_list>(a);
-        auto ids  = arena_push<entity_id>  (a, cfg.entity_capacity);
+        auto list = ifb_eng_arena_push_struct(a, entity_list, 1);
+        auto ids  = ifb_eng_arena_push_struct(a, entity_id, cfg.entity_capacity);
         
         if (list == NULL || ids == NULL) {
-            arena_revert(a, save);
+            eng_arena_revert(a, save);
             return(NULL);
         }
-        arena_commit(a, save);
+        eng_arena_commit(a, save);
 
         list->ids      = ids;
         list->capacity = cfg.entity_capacity;

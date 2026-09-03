@@ -25,18 +25,18 @@ namespace ifb {
     IFB_INTERNAL void         memory_mngr_startup  (memory& mem_reserved_arenas);
     IFB_INTERNAL void         memory_mngr_shutdown (void);
 
-    IFB_INTERNAL eng_arena_handle arena_alloc      (void);
-    IFB_INTERNAL void             arena_free       (const eng_arena_handle arena);
-    IFB_INTERNAL void             arena_reset      (const eng_arena_handle arena);
-    IFB_INTERNAL u32              arena_save       (const eng_arena_handle arena);
-    IFB_INTERNAL void*            arena_push       (const eng_arena_handle arena, const u32 size);
-    IFB_INTERNAL void             arena_revert     (const eng_arena_handle arena, const u32 save);
-    IFB_INTERNAL void             arena_commit     (const eng_arena_handle arena, const u32 save);        
-    IFB_INTERNAL u32              arena_size_free  (const eng_arena_handle arena);
-    IFB_INTERNAL u32              arena_size_used  (const eng_arena_handle arena);
+    IFB_INTERNAL arena_handle arena_alloc      (void);
+    IFB_INTERNAL void             arena_free       (const arena_handle arena);
+    IFB_INTERNAL void             arena_reset      (const arena_handle arena);
+    IFB_INTERNAL u32              arena_save       (const arena_handle arena);
+    IFB_INTERNAL void*            arena_push       (const arena_handle arena, const u32 size);
+    IFB_INTERNAL void             arena_revert     (const arena_handle arena, const u32 save);
+    IFB_INTERNAL void             arena_commit     (const arena_handle arena, const u32 save);        
+    IFB_INTERNAL u32              arena_size_free  (const arena_handle arena);
+    IFB_INTERNAL u32              arena_size_used  (const arena_handle arena);
 
     template<typename t>
-    IFB_INTERNAL t*           arena_push           (const eng_arena_handle arena, const u32 count = 1);
+    IFB_INTERNAL t*           arena_push           (const arena_handle arena, const u32 count = 1);
 
     IFB_INTERNAL u32          block_alctr_mem_requriement (const u32 granularity, const u32 block_count);
     IFB_INTERNAL void         block_alctr_init            (block_allocator* alctr, memory mem, const u32 granularity);
