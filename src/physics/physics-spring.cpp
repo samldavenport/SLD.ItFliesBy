@@ -1,6 +1,6 @@
 #pragma once
 
-#include "collections-internal.hpp"
+#include "ifb-collections.hpp"
 #include "component-tables.cpp"
 #include "ifb-component.hpp"
 #include "ifb-config.hpp"
@@ -106,8 +106,8 @@ namespace ifb {
         spring_calculator&     calc,
         const eng_arena_handle a) {
 
-        entity_list list;
-        if (!list.arena_init(a)) {
+        entity_list* list = entity_list_arena_create(a);
+        if (list == NULL) {
             return(false);
         }
 
@@ -117,7 +117,7 @@ namespace ifb {
             cmpnt_type_e_spring
         );
 
-        if (!entity_lookup_list(list, query) || list.count() == 0) {
+        if (!entity_lookup_list(list, query) || entity_list_count(list) == 0) {
             return(false);
         }
 
@@ -128,13 +128,15 @@ namespace ifb {
         position_3d pos_spr;
         position_3d pos_anchor;
         velocity_3d vel_spr;
+
+        const u32 list_count = entity_list_count(list);
         for (
             u32 entity_index = 0;
-                entity_index < list.count();
+                entity_index < list_count;
               ++entity_index 
         ) {
             // get the spring id and sparse index
-            const entity_id spring_id           = list[entity_index];
+            const entity_id spring_id           = entity_list_index(list, entity_index);
             const u32       spring_sparse_index = entity_lookup_sparse_index(spring_id);
            
             // look up the spring info
@@ -169,7 +171,7 @@ namespace ifb {
     
         assert(
             calc.count <= calc.capacity && 
-            calc.count <= list.count()
+            calc.count <= entity_list_count(list) 
         );
 
         return(true);

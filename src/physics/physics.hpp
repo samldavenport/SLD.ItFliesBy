@@ -4,7 +4,7 @@
 #include "ifb-component.hpp"
 #include "ifb-types.hpp"
 #include "memory.hpp"
-#include "collections-internal.hpp"
+#include "ifb-collections.hpp"
 
 namespace ifb {
 
