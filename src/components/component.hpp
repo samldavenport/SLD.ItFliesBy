@@ -2,7 +2,7 @@
 #define COMPONENTS_HPP
 
 #include "ifb-types.hpp"
-#include "collections-internal.hpp"
+#include "ifb-collections.hpp"
 
 namespace ifb {
 

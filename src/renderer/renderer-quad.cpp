@@ -6,7 +6,7 @@
 #include "sld-math-mat4.hpp"
 #include "sld-opengl.hpp"
 #include <cassert>
-#include "collections-internal.hpp"
+#include "ifb-collections.hpp"
 
 namespace ifb {
 
@@ -34,7 +34,7 @@ namespace ifb {
             renderer_quad_vertex_buffer  vertex;
             renderer_quad_element_buffer element;
         } buffers;
-        entity_list render_list;
+        entity_list* render_list;
     };
 
     //--------------------------------------------------------------------
@@ -53,7 +53,6 @@ namespace ifb {
 
         const auto& cfg     = config_instance();
         auto&       buffers = shdr->buffers;
-        auto&       list    = shdr->render_list;
 
         auto* quad_entities       = (entity_id*)renderer_context_memory_alloc(cfg.quad_capacity * sizeof(entity_id));
         buffers.vertex.size       = (cfg.quad_capacity  * sizeof(renderer_quad_vertices)); 
@@ -67,7 +66,8 @@ namespace ifb {
         assert(buffers.element.data.vptr != 0);
         assert(quad_entities             != NULL);
 
-        list.stack_init(_renderer_ctx->memory.stack); 
+        shdr->render_list = entity_list_stack_create(_renderer_ctx->memory.stack);
+        assert(shdr->render_list);
     }
     
     IFB_INTERNAL void
@@ -152,7 +152,7 @@ namespace ifb {
         assert(does_exist);
         
 
-        const bool did_add = shdr->render_list.add(id);
+        const bool did_add = entity_list_add(shdr->render_list, id);
         return(did_add);
     }
 
@@ -165,7 +165,7 @@ namespace ifb {
         assert(shdr);
 
         // get the number of quads and elements
-        const u32 quad_count    = shdr->render_list.count();
+        const u32 quad_count    = entity_list_count(shdr->render_list);
         const u32 element_count = (quad_count * 6);
         if (element_count == 0) {
             return;
@@ -177,7 +177,7 @@ namespace ifb {
             i < quad_count;
             ++i) {
 
-            const entity_id         quad_id  = shdr->render_list[i];
+            const entity_id         quad_id  = entity_list_index(shdr->render_list, i); 
             renderer_quad_vertices& vertices = shdr->buffers.vertex.data.vertices[i];
 
             assert(renderer_quad_get_vertices(vertices, quad_id));
@@ -198,7 +198,7 @@ namespace ifb {
         gl_context_draw_elements      (_renderer_ctx->gl, element_count);
 
         // reset the list
-        shdr->render_list.reset();
+        entity_list_reset(shdr->render_list);
     }
     
     IFB_INTERNAL bool

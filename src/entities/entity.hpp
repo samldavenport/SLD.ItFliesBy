@@ -4,7 +4,7 @@
 #include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "memory.hpp"
-#include "collections-internal.hpp"
+#include "ifb-collections.hpp"
 
 namespace ifb {
 
@@ -41,7 +41,7 @@ namespace ifb {
     IFB_INTERNAL bool             entity_has_component             (const entity& e, const component_type type);
 
     // lookup
-    IFB_INTERNAL bool             entity_lookup_list               (entity_list& list, const entity_query& query);
+    IFB_INTERNAL bool             entity_lookup_list               (entity_list* list, const entity_query& query);
     IFB_INTERNAL bool             entity_lookup_by_tag             (entity& e, const cchar* tag_cstr);
     IFB_INTERNAL bool             entity_lookup_by_index_dense     (entity& e, const u32    index);
     IFB_INTERNAL bool             entity_lookup_by_id              (entity& e, const entity_id id);
