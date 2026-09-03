@@ -13,7 +13,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct entity_mngr;
-    struct entity_query;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -79,12 +78,6 @@ namespace ifb {
         } capacity;
         memory  mem;
         u32     count;
-    };
-
-    struct entity_query {
-        component_type has_all;
-        component_type has_any;
-        component_type has_none;
     };
 };
 

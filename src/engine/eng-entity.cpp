@@ -8,6 +8,7 @@
 #include "ifb-component.hpp"
 #include "ifb-types.hpp"
 #include "physics-entity.cpp"
+#include "quad.cpp"
 #include "renderer.hpp"
 #include <cassert>
 
@@ -84,6 +85,25 @@ namespace ifb {
 
         const bool did_find = entity_lookup_by_index_dense(e, dense_index);
         return(did_find);
+    }
+    
+    IFB_ENGINE_API bool
+    eng_entity_query(
+        entity_list*       list,
+        const entity_query query) {
+
+        assert(list);
+        const bool result = entity_lookup_list(list, query);
+        return(result);
+    }
+    
+    IFB_ENGINE_API bool
+    eng_entity_quad_lookup(
+        quad_entity& q,
+        const entity_id id) {
+
+        const bool result = quad_lookup_by_id(q, id);
+        return(result);
     }
     
     IFB_ENGINE_API bool

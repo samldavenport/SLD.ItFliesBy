@@ -13,7 +13,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct quad_mngr;
-    struct quad_entity;
     struct quad_vertex;
     struct quad_tile;
 
@@ -46,11 +45,6 @@ namespace ifb {
         stack stack_mem;
     };
 
-    struct quad_entity : entity {
-        color_rgba_u32 color;
-        dimensions_2d  dims;
-        position_3d    pos;
-    };
 
     struct quad_tile_id {
         union {

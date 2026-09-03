@@ -4,8 +4,10 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
+#include "ifb-gui.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "imgui.h"
 #include "physics-manager.cpp"
 #include "physics.hpp"
 #include "quad.cpp"
@@ -168,6 +170,16 @@ namespace ifb {
     eng_context_shutdown(
         void) {
 
+        //TODO(SLD)
+    }
+
+    IFB_ENGINE_API ImGuiContext*
+    eng_context_get_imgui(
+        void) {
+
+        ImGuiContext* ctx = ImGui::GetCurrentContext();
+        assert(ctx);
+        return(ctx);
     }
 
     //--------------------------------------------------------------------

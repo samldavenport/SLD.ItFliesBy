@@ -13,7 +13,7 @@ namespace ifb {
     game_context_create_and_init(
         void) {
 
-        eng_arena_handle arena_h = eng_arena_alloc();
+        arena_handle arena_h = eng_arena_alloc();
         assert(arena_h != INVALID_INDEX);
 
         auto ctx =    (game_context*)eng_arena_push(arena_h, sizeof(game_context));

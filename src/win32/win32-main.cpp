@@ -9,9 +9,11 @@
 #include "ifb-gui.hpp"
 #include "ifb.hpp"
 
+#include "collections.cpp"
 #include "game-context.cpp"
 #include "game-player-rig.cpp"
 #include "gui.cpp"
+#include "imgui.h"
 
 using namespace ifb;
 
@@ -51,13 +53,15 @@ wWinMain(
     assert(game_ctx);
 
     // open the gui
+    ImGuiContext* imgui = eng_context_get_imgui();
+    ImGui::SetCurrentContext(imgui);
     gui_open();
 
     // run the engine
     bool running = true;
     while (running) {
         running &= eng_context_run();
-
+        gui_render(); 
     }
 
     return(0);

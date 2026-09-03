@@ -3,12 +3,7 @@
 #define IFB_ENGINE_DLL_EXPORT
 #define IFB_API_DLL_EXPORT
 
-#include "collection-array-list.cpp"
-#include "collection-sparse-set.cpp"
-#include "collection-stack.cpp"
-#include "collection-entity-list.cpp"
-#include "collection-component-table.cpp"
-#include "collection-index-cache.cpp"
+#include "collections.cpp"
 
 #include "component-manager.cpp"
 #include "component-tables.cpp"

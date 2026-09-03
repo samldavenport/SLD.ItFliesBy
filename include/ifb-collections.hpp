@@ -12,7 +12,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     template<typename t>
-    class IFB_API array_list {
+    class array_list {
     
     private:
         
@@ -45,7 +45,7 @@ namespace ifb {
     // STACK
     //--------------------------------------------------------------------
 
-    class IFB_API stack {
+    class stack {
     
     private:
 
@@ -78,7 +78,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     template<typename t>
-    class IFB_API sparse_set {
+    class sparse_set {
 
     private:
 
@@ -152,7 +152,7 @@ namespace ifb {
 
     struct entity_list;
 
-    entity_list* entity_list_arena_create (const eng_arena_handle arena_hnd);
+    entity_list* entity_list_arena_create (const arena_handle arena_hnd);
     entity_list* entity_list_stack_create (stack& s);
     bool         entity_list_add          (entity_list* el, const entity_id id);
     bool         entity_list_remove       (entity_list* el, const entity_id id);
