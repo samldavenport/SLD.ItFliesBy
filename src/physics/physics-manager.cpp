@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "physics.hpp"
 #include "eng-internal.hpp"
@@ -57,7 +58,7 @@ namespace ifb {
         _phys_mngr->force_accumulator = physics_accumulator_init(phys_mem->stack);
 
         phys_mem->simulation_arena = arena_alloc();
-        assert(phys_mem->simulation_arena != NULL);
+        assert(phys_mem->simulation_arena != INVALID_HANDLE);
     }
 
     IFB_INTERNAL void

@@ -16,8 +16,7 @@ namespace ifb {
         void) {
 
         // allocate arena 
-        arena* a = arena_alloc();
-        assert(a);
+        const eng_arena_handle a = arena_alloc();
 
         entity_list entity_list;
         entity_list.arena_init(a);

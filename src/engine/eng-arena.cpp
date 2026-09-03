@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-engine.hpp"
 #include "ifb.hpp"
 #include "memory.hpp"
 
@@ -9,11 +10,7 @@ namespace ifb {
     eng_arena_alloc(
         void) {
 
-        const arena* a = arena_alloc();
-        assert(a);
-
-        eng_arena_handle hnd = a->id;
-        
+        const eng_arena_handle hnd = arena_alloc();
         return(hnd);        
     }
 
@@ -21,53 +18,35 @@ namespace ifb {
     eng_arena_free(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
-
-        arena_free(a);
+        arena_free(hnd);
     }
 
     IFB_ENGINE_API void
     eng_arena_reset(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
-
-        arena_reset(a);
+        arena_reset(hnd);
     }
 
     IFB_ENGINE_API u32
     eng_arena_save(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
-
-        const u32 save = arena_save(a);
-        return(save);
+        return(arena_save(hnd));
     }
 
     IFB_ENGINE_API u32
     eng_arena_size_free(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
-
-        const arena_allocator* alctr     = a->alctr;
-        const u32              size_free = (alctr->arena_size - a->position); 
-        return(size_free);
+        return(arena_size_free(hnd));
     }
 
     IFB_ENGINE_API u32
     eng_arena_size_used(
         const eng_arena_handle hnd) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
-
-        return(a->position);
+        return(arena_size_used(hnd));
     }
 
     IFB_ENGINE_API void
@@ -75,10 +54,7 @@ namespace ifb {
         const eng_arena_handle hnd,
         const u32              save) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
-
-        arena_revert(a, save);
+        arena_revert(hnd, save);
     }
     
     IFB_ENGINE_API void*
@@ -86,10 +62,6 @@ namespace ifb {
         const eng_arena_handle hnd,
         const u32              size) {
 
-        arena* a = arena_from_handle(hnd);
-        assert(a);
-
-        void* mem = arena_push(a, size);
-        return(mem);
+        return(arena_push(hnd, size));
     }
 };
