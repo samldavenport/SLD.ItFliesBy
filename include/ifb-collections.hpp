@@ -12,7 +12,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     template<typename t>
-    class IFB_API array_list {
+    class array_list {
     
     private:
         
@@ -45,7 +45,7 @@ namespace ifb {
     // STACK
     //--------------------------------------------------------------------
 
-    class IFB_API stack {
+    class stack {
     
     private:
 
@@ -78,7 +78,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     template<typename t>
-    class IFB_API sparse_set {
+    class sparse_set {
 
     private:
 
@@ -144,6 +144,40 @@ namespace ifb {
         u32  count_free     (void)            const;
         u32  capacity       (void)            const;
         bool is_index_free  (const u32 index) const;
+    };
+    
+    //--------------------------------------------------------------------
+    // ENTITY ID LIST 
+    //--------------------------------------------------------------------
+
+    struct entity_list;
+
+    entity_list* entity_list_arena_create (const arena_handle arena_hnd);
+    entity_list* entity_list_stack_create (stack& s);
+    bool         entity_list_add          (entity_list* el, const entity_id id);
+    bool         entity_list_remove       (entity_list* el, const entity_id id);
+    void         entity_list_reset        (entity_list* el);
+    void         entity_list_validate     (const entity_list* el);
+    u32          entity_list_capacity     (const entity_list* el);
+    u32          entity_list_count        (const entity_list* el);
+    bool         entity_list_contains     (const entity_list* el, const entity_id);
+    entity_id    entity_list_index        (entity_list* el, const u32 index);
+
+    //--------------------------------------------------------------------
+    // COMPONENT TABLE 
+    //--------------------------------------------------------------------
+   
+    template<typename t>
+    class component_table {
+    
+    private:
+        t* _cmpnt;
+
+    public:
+       
+        void stack_init (stack& s);
+        void lookup     (const u32 sparse_index, t&       cmpnt);
+        void update     (const u32 sparse_index, const t& cmpnt);
     };
 };
 

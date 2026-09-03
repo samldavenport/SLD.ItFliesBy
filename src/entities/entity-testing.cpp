@@ -1,11 +1,11 @@
 #pragma once
 
-#include "collections-internal.hpp"
+#include "ifb-collections.hpp"
 #include "entity.hpp"
 namespace ifb {
 
     inline void test_create         (void);
-    inline void test_lookups        (entity_list& list);
+    inline void test_lookups        (entity_list* list);
     inline void test_identical_tags (void);
     inline void test_destroy        (void);
     inline void test_destroy_all    (void);
@@ -16,16 +16,14 @@ namespace ifb {
         void) {
 
         // allocate arena 
-        arena* a = arena_alloc();
-        assert(a);
+        const arena_handle a = arena_alloc();
 
-        entity_list entity_list;
-        entity_list.arena_init(a);
-
+        entity_list* list = entity_list_arena_create(a);
+        assert(list);
 
         test_create         ();
         test_identical_tags ();
-        test_lookups        (entity_list);
+        test_lookups        (list);
         
 
         arena_free(a);
@@ -82,13 +80,13 @@ namespace ifb {
 
     inline void
     test_lookups(
-        entity_list& list) {
+        entity_list* list) {
 
         entity_query query = {0};
         query.has_any = cmpnt_type_e_color;
 
         const bool did_find_colored_entities =  entity_lookup_list(list, query);
-        assert(did_find_colored_entities && list.count() == 4);
+        assert(did_find_colored_entities && entity_list_count(list) == 4);
 
         entity entity_8;
         const bool did_find_entity_8 = entity_lookup_by_tag(entity_8, "TEST-8");

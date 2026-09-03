@@ -65,7 +65,6 @@ namespace ifb {
         inline static const char* menu_game                   = "Game";
         inline static const char* menu_game_item_player_rig   = "Player Rig";
     } static * _gui_str;
-
 };
 
 #endif //GUI_HPP

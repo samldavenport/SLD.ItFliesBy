@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-engine.hpp"
 #include "memory.hpp"
 
 namespace ifb {
@@ -8,14 +9,15 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    inline void arena_allocator_validate (void);
-    inline void arena_validate           (const arena* a);
+    inline void   arena_allocator_validate (void);
+    inline void   arena_validate           (const arena* a);
+    inline arena* arena_from_handle        (const arena_handle hnd);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL arena*
+    IFB_INTERNAL arena_handle
     arena_alloc(
         void) {
 
@@ -48,35 +50,18 @@ namespace ifb {
 
         a->save     = 0;
         a->position = 0;
-        return(a);
+        
+        arena_handle hnd = {a->id};
+        return(hnd);
     }
-
-
-    IFB_INTERNAL arena*
-    arena_from_handle(
-        const eng_arena_handle hnd) {
-
-        arena_allocator_validate();
-
-        const u32              arena_id = hnd.val;
-        const arena_allocator* alctr    = _memory_mngr->arena_alctr;
-
-        const addr   start  = alctr->mem.address;
-        const u32    offset = (arena_id * alctr->arena_size);
-        arena*       a      = (arena*)(start + offset);  
-
-        arena_validate(a);
-        return(a);
-    }
-
 
     IFB_INTERNAL void
     arena_free(
-        arena* a) {
+        const arena_handle hnd) {
 
         arena_allocator_validate();
-        arena_validate(a);
 
+        arena*           a         = arena_from_handle(hnd); 
         arena_allocator* alctr     = _memory_mngr->arena_alctr;
         arena*           used_next = a->next;
         arena*           used_prev = a->prev;
@@ -100,10 +85,11 @@ namespace ifb {
 
     IFB_INTERNAL void
     arena_reset(
-        arena* a) {
+        const arena_handle hnd) {
 
         arena_allocator_validate();
-        arena_validate(a);
+
+        arena* a = arena_from_handle(hnd);
 
         a->position = 0;
         a->save     = 0;
@@ -111,10 +97,11 @@ namespace ifb {
 
     IFB_INTERNAL u32
     arena_save(
-        arena* a) {
+        const arena_handle hnd) {
 
         arena_allocator_validate();
-        arena_validate(a);
+
+        arena* a = arena_from_handle(hnd);
 
         assert(a->save == 0);
         a->save = a->position;
@@ -123,12 +110,12 @@ namespace ifb {
 
     IFB_INTERNAL void*
     arena_push(
-        arena*    a,
-        const u32 size) {
+        const arena_handle hnd,
+        const u32              size) {
 
         arena_allocator_validate();
-        arena_validate(a);
-        
+        arena* a = arena_from_handle(hnd); 
+
         const arena_allocator* alctr           = _memory_mngr->arena_alctr;
         const u32              space_remaining = (alctr->arena_size - a->position); 
 
@@ -149,12 +136,12 @@ namespace ifb {
 
     IFB_INTERNAL void
     arena_revert(
-        arena*    a,
-        const u32 save) {
+        const arena_handle hnd,
+        const u32              save) {
 
         arena_allocator_validate();
-        arena_validate(a);
 
+        arena* a = arena_from_handle(hnd);
         assert(a->save == save);
 
         a->position = a->save;
@@ -163,11 +150,11 @@ namespace ifb {
 
     IFB_INTERNAL void
     arena_commit(
-        arena*    a,
-        const u32 save) {
+        const arena_handle hnd,
+        const u32              save) {
 
         arena_allocator_validate();
-        arena_validate(a);
+        arena* a = arena_from_handle(hnd);
 
         assert(save == a->save);
         a->save = 0;
@@ -176,17 +163,39 @@ namespace ifb {
     template<typename t>
     IFB_INTERNAL t*
     arena_push(
-        arena*    a,
-        const u32 count) {
+        const arena_handle hnd,
+        const u32              count) {
 
         assert(count != 0);
-        
+        arena* a = arena_from_handle(hnd);
+
         const u32 size = count * sizeof(t);
-        auto      mem  = (t*)arena_push(a, size);
+        auto      mem  = (t*)arena_push(hnd, size);
 
         return(mem);
     }
 
+    IFB_INTERNAL u32
+    arena_size_free(
+        const arena_handle hnd) {
+   
+        arena_allocator_validate();
+
+        const arena*           a         = arena_from_handle(hnd);
+        const arena_allocator* alctr     = a->alctr;
+        const u32              size_free = (alctr->arena_size - a->position); 
+    
+        return(size_free);
+    }
+
+    IFB_INTERNAL u32
+    arena_size_used(
+        const arena_handle hnd) {
+
+        arena* a = arena_from_handle(hnd); 
+        return(a->position);
+    }
+    
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
@@ -233,5 +242,20 @@ namespace ifb {
         );
     }
 
+    inline arena*
+    arena_from_handle(
+        const arena_handle hnd) {
 
+        arena_allocator_validate();
+
+        const u32              arena_id = hnd.val;
+        const arena_allocator* alctr    = _memory_mngr->arena_alctr;
+
+        const addr   start  = alctr->mem.address;
+        const u32    offset = (arena_id * alctr->arena_size);
+        arena*       a      = (arena*)(start + offset);  
+
+        arena_validate(a);
+        return(a);
+    }
 };

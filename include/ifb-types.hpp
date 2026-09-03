@@ -20,6 +20,7 @@ using namespace sld;
 
 #define IFB_U32(type)     struct type : sld::strong_u32 { using strong_u32::strong_u32; };
 #define IFB_FLAGS32(type) struct type : flags           { using flags;                  };
+#define IFB_HANDLE(hnd)   struct hnd  : handle          { using handle::handle; };
 
 namespace ifb {
    
@@ -34,7 +35,7 @@ namespace ifb {
     struct cmpnt_quad;
     struct dimensions_2d;
     struct dimensions_3d;
-    struct eng_arena_handle;
+    struct arena_handle;
     struct entity;
     struct entity_id;
     struct entity_tag;
@@ -66,6 +67,10 @@ namespace ifb {
     IFB_U32(component_type);
     IFB_U32(tile_flags_u32);
     
+    IFB_HANDLE(arena_handle);
+    IFB_HANDLE(file_handle);
+    IFB_HANDLE(map_handle);
+   
     //--------------------------------------------------------------------
     // CONSTANTS
     //--------------------------------------------------------------------
@@ -208,6 +213,7 @@ namespace ifb {
         u16 row;
         u16 col;
     };
+    
 };
 
 #endif //IFB_TYPES_HPP

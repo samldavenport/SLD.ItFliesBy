@@ -92,16 +92,24 @@ namespace ifb {
         }
     };
 
-    //--------------------------------------------------------------------
-    // ENTITY
-    //--------------------------------------------------------------------
-
     struct entity {
         const char*      tag;             
         entity_id        id;
         entity_archetype archetype;
         u32              index_sparse;
         u32              index_dense;
+    };
+
+    struct quad_entity : entity {
+        color_rgba_u32 color;
+        dimensions_2d  dims;
+        position_3d    pos;
+    };
+
+    struct entity_query {
+        component_type has_all;
+        component_type has_any;
+        component_type has_none;
     };
 };
 

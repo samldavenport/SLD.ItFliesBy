@@ -10,16 +10,16 @@ namespace ifb {
         entity_id      connor_id;
         entity_id      jig_id;
         entity_id      jig_anchor_id;
-        eng_map_handle starting_map_id;
-        eng_map_handle current_map_id;
+        map_handle starting_map_id;
+        map_handle current_map_id;
     }; 
 
     struct game_map {
-        eng_map_handle eng_hnd;
+        map_handle eng_hnd;
     };
 
     struct game_context {
-        eng_arena_handle    global_arena;
+        arena_handle    global_arena;
         game_player_rig*    player_rig; 
         game_map*           map;
     };

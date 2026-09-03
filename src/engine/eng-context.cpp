@@ -4,8 +4,10 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
+#include "ifb-gui.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "imgui.h"
 #include "physics-manager.cpp"
 #include "physics.hpp"
 #include "quad.cpp"
@@ -39,7 +41,8 @@ namespace ifb {
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map,
-        eng_game_proc      game_callback) {
+        eng_game_proc      game_callback,
+        eng_render_proc    render_callback) {
 	
         const auto& config = config_instance();
 
@@ -62,21 +65,22 @@ namespace ifb {
         );
 
         // set context properties        
-        _eng_context                = eng_ctx;
-        _eng_context->mem_map       = mem_map;
-        _eng_context->game_callback = game_callback;
-        _eng_context->game_ctx      = game_ctx;
-        _eng_context->system        = sys_info;  
-        _eng_context->keyboard      = keyboard_input_create(); 
-        _eng_context->renderer      = renderer_context_create(); 
-        _eng_context->file_mngr     = file_mngr_create(); 
-        _eng_context->entity_mngr   = entity_mngr_create(); 
-        _eng_context->memory_mngr   = memory_mngr_create(); 
-        _eng_context->cmpnt_mngr    = cmpnt_mngr_create();  
-        _eng_context->quad_mngr     = quad_mngr_create();
-        _eng_context->phys_mngr     = physics_mngr_create();
-        _eng_context->map_mngr     = map_mngr_create();
-        _eng_context->mem_map       = mem_map;
+        _eng_context                  = eng_ctx;
+        _eng_context->mem_map         = mem_map;
+        _eng_context->game_callback   = game_callback;
+        _eng_context->render_callback = render_callback;
+        _eng_context->game_ctx        = game_ctx;
+        _eng_context->system          = sys_info;  
+        _eng_context->keyboard        = keyboard_input_create(); 
+        _eng_context->renderer        = renderer_context_create(); 
+        _eng_context->file_mngr       = file_mngr_create(); 
+        _eng_context->entity_mngr     = entity_mngr_create(); 
+        _eng_context->memory_mngr     = memory_mngr_create(); 
+        _eng_context->cmpnt_mngr      = cmpnt_mngr_create();  
+        _eng_context->quad_mngr       = quad_mngr_create();
+        _eng_context->phys_mngr       = physics_mngr_create();
+        _eng_context->map_mngr        = map_mngr_create();
+        _eng_context->mem_map         = mem_map;
 
         assert(
             _eng_context->mem_map       != NULL &&
@@ -121,63 +125,65 @@ namespace ifb {
         eng_context_startup_renderer        (mem_map);
     }
 
-    IFB_ENGINE_API void
+    IFB_ENGINE_API bool 
     eng_context_run(void) {
 
         static f32 elapsed_time = 0.0f;
 
-        json_test(); 
+        // get delta time
+        eng_system_update_time();
+        const f32 dt =  eng_system_get_delta_time_s();
 
-        while(true) {
-
-            // get delta time
-            eng_system_update_time();
-            const f32 dt =  eng_system_get_delta_time_s();
-
-            elapsed_time += dt;
-            if (elapsed_time >= _eng_context->seconds_per_frame) {
-                elapsed_time = 0.0f;
-            }
-
-            //TODO(SAM): pass the opengl context to the platform
-            // start new frame
-            if (elapsed_time == 0.0f) {
-                pfm_window_frame_start   ();
-                pfm_window_process_events();
-            }
-
-            // game callback    
-            _eng_context->game_callback(
-                _eng_context->game_ctx
-            );
-
-            // simulate physics
-            physics_mngr_simulate(dt);
-
-            
-            if (elapsed_time == 0.0f) {
-           
-                // render graphics
-                renderer_context_draw_buffers();
-
-                // render gui
-                gui_render();
-
-                // render frame
-                pfm_window_frame_render();
-            }
-
-            // check if quit received
-            const bool quit = pfm_window_quit_received();
-            if (quit) break;
-
+        elapsed_time += dt;
+        if (elapsed_time >= _eng_context->seconds_per_frame) {
+            elapsed_time = 0.0f;
         }
+
+        //TODO(SAM): pass the opengl context to the platform
+        // start new frame
+        if (elapsed_time == 0.0f) {
+            pfm_window_frame_start   ();
+            pfm_window_process_events();
+        }
+
+        // game callback    
+        _eng_context->game_callback(
+            _eng_context->game_ctx
+        );
+
+        // simulate physics
+        physics_mngr_simulate(dt);
+        
+        if (elapsed_time == 0.0f) {
+       
+            // render graphics
+            renderer_context_draw_buffers();
+
+            _eng_context->render_callback();
+
+            // render frame
+            pfm_window_frame_render();
+        }
+
+        // check if quit received
+        const bool quit = pfm_window_quit_received();
+        return (quit ? false : true);
     }
     
     IFB_ENGINE_API void
     eng_context_shutdown(
         void) {
 
+        //TODO(SLD)
+    }
+
+    IFB_ENGINE_API ImGuiContext*
+    eng_context_get_imgui(
+        void) {
+
+        ImGuiContext* ctx = ImGui::GetCurrentContext();
+        assert(ctx);
+        return(ctx);
     }
 
     //--------------------------------------------------------------------
