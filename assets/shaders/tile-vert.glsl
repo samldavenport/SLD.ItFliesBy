@@ -21,6 +21,7 @@ uniform uint  u_map_count_cols;
 uniform int   u_map_offset_rows;
 uniform int   u_map_offset_cols;
 uniform float u_tile_unit_size;
+uniform vec4  u_color_table[16];
 
 // vertex output
 flat out vec4 vert_color;
@@ -29,12 +30,7 @@ void
 main() {
 
     // calculate the normalized color
-    vert_color = vec4(
-        float((in_color >> 24u) & 0xFFu) / 255.0,
-        float((in_color >> 16u) & 0xFFu) / 255.0,
-        float((in_color >>  8u) & 0xFFu) / 255.0,
-        float( in_color         & 0xFFu) / 255.0
-    );
+    vert_color = u_color_table[4]; 
 
     // get the position and tile index
     int index_position = gl_VertexID;

@@ -3,6 +3,7 @@
 #include "sld-opengl.hpp"
 #include "map.hpp"
 #include "map.cpp"
+#include "sld.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -38,6 +39,7 @@ namespace ifb {
            gl_uniform u_map_offset_rows;
            gl_uniform u_map_offset_cols;
            gl_uniform u_tile_unit_size;
+           gl_uniform u_color_table;
        } gl;
        struct {
            renderer_tile_instance_buffer instance;
@@ -112,12 +114,14 @@ namespace ifb {
         shdr->gl.u_map_offset_rows = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_offset_rows"); 
         shdr->gl.u_map_offset_cols = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_offset_cols"); 
         shdr->gl.u_tile_unit_size  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_tile_unit_size"); 
+        shdr->gl.u_color_table     = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_color_table"); 
         assert(shdr->gl.u_view_proj       != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_map_count_rows  != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_map_count_cols  != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_map_offset_rows != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_map_offset_cols != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_tile_unit_size  != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_color_table     != GL_UNIFORM_INVALID);
 
         // define vertex
         gl_ok &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
@@ -154,6 +158,15 @@ namespace ifb {
         assert(gl_ctx);
         assert(shdr);
 
+        // get the color table
+        const auto& color_tbl   = map_mngr_get_color_table();
+        const u32*  color_array = (u32*)&color_tbl;
+        const u32   color_count = sizeof(map_color_table) / sizeof(color_rgba_u32); 
+        color_rgba_f32 color_vec4_array[color_count];
+        for (u32 i = 0; i < color_count; ++i) {
+            color_vec4_array[i] = color_rgba_f32(color_array[i]);
+        }
+
         // look up the map
         map map;
         const bool found_map = map_get_info(shdr->map_hnd, map);
@@ -179,12 +192,13 @@ namespace ifb {
         // update the shader and draw vertices
         bool gl_ok = true;
         gl_ok &= gl_context_set_shader_program      (gl_ctx, shdr->gl.program);
-        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_rows, map.count_rows); 
-        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols, map.count_cols); 
+        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_rows,  map.count_rows); 
+        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols,  map.count_cols); 
         gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_rows, map.offset_row); 
         gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_cols, map.offset_col); 
-        gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_unit_size, tile_unit_size); 
-        gl_ok &= gl_uniform_set_mat4                (gl_ctx, shdr->gl.u_view_proj, view_proj_xform.m);
+        gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_unit_size,  tile_unit_size); 
+        gl_ok &= gl_uniform_set_mat4                (gl_ctx, shdr->gl.u_view_proj,       view_proj_xform.m);
+        gl_ok &= gl_uniform_set_f32_array           (gl_ctx, shdr->gl.u_color_table,     (f32*)color_vec4_array, color_count);
         gl_ok &= gl_context_set_vertex_object       (gl_ctx, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex       (gl_ctx, shdr->gl.instance_buffer);
         gl_ok &= gl_buffer_update_vertex_data       (gl_ctx, shdr->gl.instance_buffer, shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
