@@ -45,12 +45,12 @@ namespace ifb {
 
     inline u32
     tile_get_index(
-        const tile_table* tbl_tile,
-        const u32         tile_row,
-        const u32         tile_col,
-        const u32         map_count_row,
-        const u32         map_count_col,
-        const u32         offset) {
+        const map_tile_table* tbl_tile,
+        const u32             tile_row,
+        const u32             tile_col,
+        const u32             map_count_row,
+        const u32             map_count_col,
+        const u32             offset) {
     
         bool is_valid = true;
         is_valid &= tile_row < map_count_row;

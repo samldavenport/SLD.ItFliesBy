@@ -16,7 +16,8 @@ namespace ifb {
     struct map_mngr;
     struct map_tile;
     struct map;
-    struct tile_table;
+    struct map_tile_table;
+    struct map_chunk_table;
     struct map_table;
     struct tile_render_context;
     struct tile_render_buffer;
@@ -78,12 +79,12 @@ namespace ifb {
     };
 
     struct map_mngr {
-        stack       mem_stack;
-        tile_table* tbl_tiles;
-        map_table*  tbl_map;
-        u32         map_capacity;
-        u32         tiles_per_map;
-        f32         tile_unit_size;
+        stack           mem_stack;
+        map_tile_table* tbl_tiles;
+        map_table*      tbl_map;
+        u32             map_capacity;
+        u32             tiles_per_map;
+        f32             tile_unit_size;
     };
 
     struct map_name {
@@ -119,7 +120,7 @@ namespace ifb {
         map_name*   name;
     };
 
-    struct tile_table {
+    struct map_tile_table { 
         color_rgba_u32* color;
         tile_flags_u32* flags;
     };

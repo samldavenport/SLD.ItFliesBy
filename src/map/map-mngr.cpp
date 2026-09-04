@@ -13,7 +13,7 @@ namespace ifb {
 
         assert(_map_mngr);
 
-        _map_mngr->tbl_tiles = global_alloc<tile_table>();
+        _map_mngr->tbl_tiles = global_alloc<map_tile_table>();
         _map_mngr->tbl_map   = global_alloc<map_table>();
         assert(_map_mngr->tbl_tiles != NULL); 
         assert(_map_mngr->tbl_map   != NULL); 
