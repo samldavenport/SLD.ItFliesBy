@@ -23,6 +23,7 @@ namespace ifb {
     struct tile_render_buffer;
     struct map_name;
     struct map_chunk;
+    struct map_color_table;
 
     //--------------------------------------------------------------------
     // GLOBALS 
@@ -40,10 +41,12 @@ namespace ifb {
     // METHODS 
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL map_mngr* map_mngr_create             (void);
-    IFB_INTERNAL void      map_mngr_startup            (memory& res);
-    IFB_INTERNAL void      map_mngr_shutdown           (void);
-    IFB_INTERNAL f32       map_mngr_get_tile_unit_size (void);
+    IFB_INTERNAL map_mngr*              map_mngr_create             (void);
+    IFB_INTERNAL void                   map_mngr_startup            (memory& res);
+    IFB_INTERNAL void                   map_mngr_shutdown           (void);
+    IFB_INTERNAL const map_color_table& map_mngr_get_color_table  (void);
+    IFB_INTERNAL f32                    map_mngr_get_tile_unit_size (void);
+
 
     IFB_INTERNAL map_handle
     map_create(
@@ -75,15 +78,6 @@ namespace ifb {
         u32             col;
         color_rgba_u32  color;
         tile_flags_u32  flags;
-    };
-
-    struct map_mngr {
-        stack           mem_stack;
-        map_tile_table* tbl_tiles;
-        map_table*      tbl_map;
-        u32             map_capacity;
-        u32             tiles_per_map;
-        f32             tile_unit_size;
     };
 
     struct map_name {
@@ -141,6 +135,25 @@ namespace ifb {
             void*                vptr;
             addr                 address;
         } data;
+    };
+    
+    struct map_color_table {
+        color_rgba_u32 red_light;
+        color_rgba_u32 red_dark;
+        color_rgba_u32 orange_light;
+        color_rgba_u32 orange_dark;
+        color_rgba_u32 yellow_light;
+        color_rgba_u32 yellow_dark;
+        color_rgba_u32 green_light;
+        color_rgba_u32 green_dark;
+        color_rgba_u32 aqua_light;
+        color_rgba_u32 aqua_dark;
+        color_rgba_u32 blue_light;
+        color_rgba_u32 blue_dark;
+        color_rgba_u32 purple_light;
+        color_rgba_u32 purple_dark;
+        color_rgba_u32 gray_light;
+        color_rgba_u32 gray_dark;
     };
 };
 

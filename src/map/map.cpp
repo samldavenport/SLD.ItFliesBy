@@ -1,5 +1,6 @@
 #pragma once
 
+#include "map-internal.hpp"
 #include "component-tables.cpp"
 #include "entity.cpp"
 #include "ifb-types.hpp"
