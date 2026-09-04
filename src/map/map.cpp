@@ -209,44 +209,6 @@ namespace ifb {
         }
     }
 
-    IFB_INTERNAL void
-    map_set_flags(
-        const map_handle map_hnd,
-        const map_coords*    coords,
-        const tile_flags_u32* flags,
-        const u32             count) {
-
-        assert(map_hnd     != INVALID_HASH_32);
-        assert(coords     != NULL);
-        assert(flags      != NULL);
-        assert(count      != 0);
-        assert(_map_mngr != NULL); 
-       
-        auto tbl_map  = _map_mngr->tbl_map;
-        auto tbl_tile = _map_mngr->tbl_tiles;
-        assert(tbl_map);
-        assert(tbl_tile);
-
-        const u32 index      = map_get_index     (tbl_map, map_hnd, _map_mngr->map_capacity);
-        const u32 offset     = tile_table_offset (index,   _map_mngr->tiles_per_map);
-        const u32 count_rows = tbl_map->count_rows[index];                
-        const u32 count_cols = tbl_map->count_cols[index];
-                                
-        for (
-            u32 i = 0;
-            i < count;
-            ++i) {
-      
-            const map_coords& curr_coords = coords[i];
-            assert(curr_coords.row < count_rows);
-            assert(curr_coords.col < count_cols);
-
-            const u32 tile_index = ((count_rows * curr_coords.row) + curr_coords.col) + offset;
-
-            tbl_tile->flags[tile_index] = flags[i];
-        }
-    }
-
     IFB_INTERNAL u32
     map_get_render_buffer_size(
         const map_handle map_hnd) {

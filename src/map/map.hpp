@@ -58,7 +58,6 @@ namespace ifb {
     IFB_INTERNAL void map_destroy                     (const map_handle map_hnd);
     IFB_INTERNAL u32  map_tile_count                  (const map_handle map_hnd);
     IFB_INTERNAL void map_set_color                   (const map_handle map_hnd, const map_coords* coords, const color_rgba_u32* color, const u32 count);
-    IFB_INTERNAL void map_set_flags                   (const map_handle map_hnd, const map_coords* coords, const tile_flags_u32* flags, const u32 count);
     IFB_INTERNAL u32  map_get_render_buffer_size      (const map_handle map_hnd);
     IFB_INTERNAL u32  map_get_render_buffer_data      (const map_handle map_hnd, const u32 buffer_size, byte* buffer_data);
     IFB_INTERNAL bool map_get_info                    (const map_handle map_hnd, map& map);
@@ -122,13 +121,12 @@ namespace ifb {
 
     struct map_tile_table { 
         color_rgba_u32* color;
-        tile_flags_u32* flags;
     };
 
     struct tile_render_context {
         union {
             struct {
-                u32  color;
+                u32 color;
             };
             byte data[4];
         };

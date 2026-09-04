@@ -64,9 +64,7 @@ namespace ifb {
     
         // allocate tile table memory
         tbl_tiles->color   = _map_mngr->mem_stack.push_struct<color_rgba_u32>(tile_count_max);  
-        tbl_tiles->flags   = _map_mngr->mem_stack.push_struct<tile_flags_u32>(tile_count_max);
         assert(tbl_tiles->color   != NULL);  
-        assert(tbl_tiles->flags   != NULL);  
 
         // set the map id array to invalid
         memset(tbl_map->map_hnd, 0xFF, sizeof(map_handle) * cfg.map_capacity);

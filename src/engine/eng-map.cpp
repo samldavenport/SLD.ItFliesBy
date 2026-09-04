@@ -69,27 +69,6 @@ namespace ifb {
         );
     } 
 
-    IFB_ENGINE_API void
-    eng_map_set_flags(
-        const map_handle map,
-        const map_coords*        coords,
-        const tile_flags_u32*     flags,
-        const u32                 count) {
-
-        assert(map != INVALID_HANDLE);
-        assert(coords   != NULL);
-        assert(flags    != NULL);
-        assert(count    != 0);
-
-        map_handle map_hnd = { map.val };
-        map_set_flags(
-            map_hnd,
-            coords,
-            flags,
-            count
-        );
-    } 
-    
     IFB_ENGINE_API bool 
     eng_map_get_entity_coords(
         const map_handle map,
