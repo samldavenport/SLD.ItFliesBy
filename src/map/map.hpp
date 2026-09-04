@@ -20,7 +20,7 @@ namespace ifb {
     struct map_chunk_table;
     struct map_table;
     struct tile_render_context;
-    struct tile_render_buffer;
+    struct map_render_buffer;
     struct map_name;
     struct map_chunk;
     struct map_color_table;
@@ -118,15 +118,10 @@ namespace ifb {
     };
 
     struct tile_render_context {
-        union {
-            struct {
-                u32 color;
-            };
-            byte data[4];
-        };
+        u32 color;
     };
 
-    struct tile_render_buffer {
+    struct map_render_buffer {
         u32 data_size;
         u32 tile_count;
         union {
