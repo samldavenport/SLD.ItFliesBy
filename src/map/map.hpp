@@ -44,19 +44,8 @@ namespace ifb {
     IFB_INTERNAL map_mngr*              map_mngr_create             (void);
     IFB_INTERNAL void                   map_mngr_startup            (memory& res);
     IFB_INTERNAL void                   map_mngr_shutdown           (void);
-    IFB_INTERNAL const map_color_table& map_mngr_get_color_table  (void);
+    IFB_INTERNAL const map_color_table& map_mngr_get_color_table    (void);
     IFB_INTERNAL f32                    map_mngr_get_tile_unit_size (void);
-
-
-    IFB_INTERNAL map_handle
-    map_create(
-        const cchar*             name,
-        const u32                count_rows,
-        const u32                count_col,
-        const s32                offset_row,
-        const s32                offset_col,
-        const map_tile_color_u32 base_color 
-    );  
 
     IFB_INTERNAL map_handle map_create(const cchar* name);
     
