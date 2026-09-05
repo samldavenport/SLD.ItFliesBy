@@ -2,7 +2,6 @@
 #include "renderer.hpp"
 #include "sld-opengl.hpp"
 #include "map.hpp"
-#include "map.cpp"
 #include "sld.hpp"
 #include <cassert>
 
