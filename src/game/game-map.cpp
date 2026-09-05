@@ -13,8 +13,6 @@ namespace ifb {
 
         assert(map);
 
-        map->eng_hnd = eng_map_create("DEV MAP", 10, 10, -5, -5, map_tile_color_e_gray_dark);
-        assert(map->eng_hnd != INVALID_HANDLE);
     }
 
     IFB_INTERNAL void

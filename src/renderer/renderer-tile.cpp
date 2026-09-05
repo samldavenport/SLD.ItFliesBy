@@ -149,7 +149,7 @@ namespace ifb {
     IFB_INTERNAL void
     renderer_tile_draw(
         const mat4& view_proj_xform) {
-
+/*
         assert(_renderer_ctx);
 
         auto shdr   = _renderer_ctx->shader.tile;
@@ -204,5 +204,7 @@ namespace ifb {
         gl_ok &= gl_buffer_update_vertex_data       (gl_ctx, shdr->gl.instance_buffer, shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
         gl_ok &= gl_context_draw_vertices_instanced (gl_ctx, 6, tile_count);
         assert(gl_ok);
-    }
+ 
+*/
+        }
 };

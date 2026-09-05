@@ -54,7 +54,6 @@
 
 #include "tiled.cpp"
 
-#include "map-mngr.cpp"
 
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"
