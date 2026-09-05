@@ -50,13 +50,13 @@ namespace ifb {
 
     IFB_INTERNAL map_handle
     map_create(
-        const cchar*         name,
-        const u32            count_rows,
-        const u32            count_col,
-        const s32            offset_row,
-        const s32            offset_col,
-        const color_rgba_u32 base_color
-    );
+        const cchar*             name,
+        const u32                count_rows,
+        const u32                count_col,
+        const s32                offset_row,
+        const s32                offset_col,
+        const map_tile_color_u32 base_color 
+    );  
 
     IFB_INTERNAL void map_destroy                     (const map_handle map_hnd);
     IFB_INTERNAL u32  map_tile_count                  (const map_handle map_hnd);
