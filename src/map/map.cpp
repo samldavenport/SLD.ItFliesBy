@@ -26,7 +26,7 @@ namespace ifb {
         const u32        map_count) {
     
         assert(map_tbl   != NULL); 
-        assert(map_hnd    != INVALID_ID); 
+        assert(map_hnd   != INVALID_ID); 
         assert(map_count != 0); 
 
         u32 result = INVALID_INDEX;

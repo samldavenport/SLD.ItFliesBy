@@ -1,5 +1,5 @@
-#ifndef TILE_HPP
-#define TILE_HPP
+#ifndef MAP_HPP
+#define MAP_HPP
 
 #include "ifb-types.hpp"
 #include "memory.hpp"
@@ -58,6 +58,9 @@ namespace ifb {
         const map_tile_color_u32 base_color 
     );  
 
+    IFB_INTERNAL map_handle map_create(const cchar* name);
+    
+
     IFB_INTERNAL void map_destroy                     (const map_handle map_hnd);
     IFB_INTERNAL u32  map_tile_count                  (const map_handle map_hnd);
     IFB_INTERNAL void map_set_color                   (const map_handle map_hnd, const map_coords* coords, const color_rgba_u32* color, const u32 count);
@@ -77,7 +80,6 @@ namespace ifb {
         u32             row;
         u32             col;
         color_rgba_u32  color;
-        tile_flags_u32  flags;
     };
 
     struct map_name {
@@ -152,4 +154,4 @@ namespace ifb {
     };
 };
 
-#endif //TILE_HPP
+#endif //MAP_HPP
