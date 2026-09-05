@@ -1,5 +1,6 @@
 #pragma once
 
+#include "map-internal.hpp"
 #include "component-tables.cpp"
 #include "entity.cpp"
 #include "ifb-types.hpp"
@@ -10,16 +11,6 @@
 
 namespace ifb {
    
-    struct tile_id_composite {
-        union {
-            struct {
-                u16 row;
-                u16 col;
-            };
-            u32 id;
-        };
-    };
-
     inline u32
     map_name_hash(
         map_name& name) {
@@ -31,11 +22,11 @@ namespace ifb {
     inline u32
     map_get_index(
         const map_table* map_tbl,
-        const map_id_u32 map_id,
+        const map_handle map_hnd,
         const u32        map_count) {
     
         assert(map_tbl   != NULL); 
-        assert(map_id    != INVALID_ID); 
+        assert(map_hnd   != INVALID_ID); 
         assert(map_count != 0); 
 
         u32 result = INVALID_INDEX;
@@ -44,7 +35,7 @@ namespace ifb {
             index < map_count;
             ++index) {
 
-            if (map_tbl->map_id[index] == map_id) {
+            if (map_tbl->map_hnd[index] == map_hnd) {
                 result = index;
                 break;
             }
@@ -55,12 +46,12 @@ namespace ifb {
 
     inline u32
     tile_get_index(
-        const tile_table* tbl_tile,
-        const u32         tile_row,
-        const u32         tile_col,
-        const u32         map_count_row,
-        const u32         map_count_col,
-        const u32         offset) {
+        const map_tile_table* tbl_tile,
+        const u32             tile_row,
+        const u32             tile_col,
+        const u32             map_count_row,
+        const u32             map_count_col,
+        const u32             offset) {
     
         bool is_valid = true;
         is_valid &= tile_row < map_count_row;
@@ -83,14 +74,14 @@ namespace ifb {
         return(offset);
     }
 
-    IFB_INTERNAL map_id_u32
+    IFB_INTERNAL map_handle
     map_create(
-        const cchar*         name,
-        const u32            count_rows,
-        const u32            count_col,
-        const s32            offset_row,
-        const s32            offset_col,
-        const color_rgba_u32 base_color) {
+        const cchar*             name,
+        const u32                count_rows,
+        const u32                count_col,
+        const s32                offset_row,
+        const s32                offset_col,
+        const map_tile_color_u32 base_color) {
 
         assert(_map_mngr  != NULL);
         assert(name       != NULL);
@@ -108,7 +99,7 @@ namespace ifb {
             i < _map_mngr->map_capacity; 
             ++i) {
 
-            if (tbl_map->map_id[i] == INVALID_ID) {
+            if (tbl_map->map_hnd[i] == INVALID_ID) {
                 map_index = i;
                 break;
             }
@@ -129,11 +120,11 @@ namespace ifb {
             map_name.cstr,
             16
         );
-        const u32 map_id = map_name_hash(map_name);
-        assert(map_id != INVALID_ID);
+        const u32 map_hnd = map_name_hash(map_name);
+        assert(map_hnd != INVALID_ID);
 
         // write the values to the table
-        tbl_map->map_id     [map_index] = map_id;
+        tbl_map->map_hnd     [map_index] = map_hnd;
         tbl_map->count_rows [map_index] = count_rows;
         tbl_map->count_cols [map_index] = count_col;
         tbl_map->offset_row [map_index] = offset_row;
@@ -146,32 +137,32 @@ namespace ifb {
                 tile_index < tile_count;
               ++tile_index) {
 
-            tbl_tile->color[tile_index] = base_color;
+            tbl_tile->color[tile_index] = base_color.val;
         }
 
         //return the id
-        return(map_id); 
+        return(map_hnd); 
     }
 
     IFB_INTERNAL void
     map_destroy(
-        const map_id_u32 map_id) {
+        const map_handle map_hnd) {
 
         //TODO
     }
 
     IFB_INTERNAL u32
     map_tile_count(
-        const map_id_u32 map_id) {
+        const map_handle map_hnd) {
 
 
-        assert(map_id != INVALID_HASH_32);
+        assert(map_hnd != INVALID_HASH_32);
 
         auto tbl = _map_mngr->tbl_map;
         assert(tbl != NULL);
 
         // get the index for the map
-        const u32 index = map_get_index(tbl, map_id, _map_mngr->map_capacity);
+        const u32 index = map_get_index(tbl, map_hnd, _map_mngr->map_capacity);
         assert(index != INVALID_INDEX);
 
         const u32 rows  = tbl->count_rows[index];
@@ -183,12 +174,12 @@ namespace ifb {
 
     IFB_INTERNAL void
     map_set_color(
-        const map_id_u32 map_id,
+        const map_handle map_hnd,
         const map_coords*    coords,
         const color_rgba_u32* color,
         const u32             count) {
 
-        assert(map_id     != INVALID_HASH_32);
+        assert(map_hnd     != INVALID_HASH_32);
         assert(coords     != NULL);
         assert(color      != NULL);
         assert(count      != 0);
@@ -199,7 +190,7 @@ namespace ifb {
         assert(tbl_map);
         assert(tbl_tile);
 
-        const u32 index      = map_get_index     (tbl_map, map_id, _map_mngr->map_capacity);
+        const u32 index      = map_get_index     (tbl_map, map_hnd, _map_mngr->map_capacity);
         const u32 offset     = tile_table_offset (index, _map_mngr->tiles_per_map);
         const u32 count_rows = tbl_map->count_rows[index];                
         const u32 count_cols = tbl_map->count_cols[index];
@@ -219,47 +210,9 @@ namespace ifb {
         }
     }
 
-    IFB_INTERNAL void
-    map_set_flags(
-        const map_id_u32 map_id,
-        const map_coords*    coords,
-        const tile_flags_u32* flags,
-        const u32             count) {
-
-        assert(map_id     != INVALID_HASH_32);
-        assert(coords     != NULL);
-        assert(flags      != NULL);
-        assert(count      != 0);
-        assert(_map_mngr != NULL); 
-       
-        auto tbl_map  = _map_mngr->tbl_map;
-        auto tbl_tile = _map_mngr->tbl_tiles;
-        assert(tbl_map);
-        assert(tbl_tile);
-
-        const u32 index      = map_get_index     (tbl_map, map_id, _map_mngr->map_capacity);
-        const u32 offset     = tile_table_offset (index,   _map_mngr->tiles_per_map);
-        const u32 count_rows = tbl_map->count_rows[index];                
-        const u32 count_cols = tbl_map->count_cols[index];
-                                
-        for (
-            u32 i = 0;
-            i < count;
-            ++i) {
-      
-            const map_coords& curr_coords = coords[i];
-            assert(curr_coords.row < count_rows);
-            assert(curr_coords.col < count_cols);
-
-            const u32 tile_index = ((count_rows * curr_coords.row) + curr_coords.col) + offset;
-
-            tbl_tile->flags[tile_index] = flags[i];
-        }
-    }
-
     IFB_INTERNAL u32
     map_get_render_buffer_size(
-        const map_id_u32 map_id) {
+        const map_handle map_hnd) {
 
         const auto tbl_map  = _map_mngr->tbl_map;
         const auto tbl_tile = _map_mngr->tbl_tiles;
@@ -267,7 +220,7 @@ namespace ifb {
         assert(tbl_tile);
 
         // get the map index
-        const u32 map_index = map_get_index(tbl_map, map_id, _map_mngr->map_capacity);  
+        const u32 map_index = map_get_index(tbl_map, map_hnd, _map_mngr->map_capacity);  
         assert(map_index != INVALID_HASH_32);
 
         // get row and column count
@@ -284,11 +237,11 @@ namespace ifb {
    
     IFB_INTERNAL u32 
     map_get_render_buffer_data(
-        const map_id_u32 map_id,
+        const map_handle map_hnd,
         const u32             buffer_size,
         byte*                 buffer_data) {
 
-        assert(map_id      != INVALID_ID);
+        assert(map_hnd      != INVALID_ID);
         assert(buffer_size != 0);
         assert(buffer_data != NULL);
 
@@ -298,7 +251,7 @@ namespace ifb {
         assert(tbl_tile);
 
         // get the map index
-        const u32 map_index = map_get_index(tbl_map, map_id, _map_mngr->map_capacity);  
+        const u32 map_index = map_get_index(tbl_map, map_hnd, _map_mngr->map_capacity);  
         assert(map_index != INVALID_HASH_32);
 
         // get row and column count
@@ -328,10 +281,10 @@ namespace ifb {
 
     IFB_INTERNAL bool
     map_get_info(
-        const map_id_u32 map_id,
+        const map_handle map_hnd,
         map&             map) {
 
-        assert(map_id != INVALID_ID);
+        assert(map_hnd != INVALID_ID);
         assert(_map_mngr);
 
         auto tbl_map = _map_mngr->tbl_map;
@@ -343,10 +296,10 @@ namespace ifb {
             i < _map_mngr->map_capacity;
             ++i) {
 
-            if (map_id == tbl_map->map_id[i]) {
+            if (map_hnd == tbl_map->map_hnd[i]) {
         
                 // get table records
-                map.id         =  map_id;
+                map.id         =  map_hnd;
                 map.count_rows =  tbl_map->count_rows [i];
                 map.count_cols =  tbl_map->count_cols [i];
                 map.offset_row =  tbl_map->offset_row [i];
@@ -367,13 +320,13 @@ namespace ifb {
     
     IFB_INTERNAL bool
     map_get_world_position(
-        const map_id_u32 map_id,
+        const map_handle map_hnd,
         const u32        row,
         const u32        col,
         position_3d&     pos) {
 
         map m;
-        const bool found = map_get_info(map_id, m);
+        const bool found = map_get_info(map_hnd, m);
         if (found) {
 
             assert(row < m.count_rows);
@@ -393,12 +346,12 @@ namespace ifb {
 
     IFB_INTERNAL bool
     map_get_tile_coordinates(
-        const map_id_u32   map_id,
+        const map_handle   map_hnd,
         const position_3d& pos,
         map_coords&       coords) {
 
         map m;
-        const bool found = map_get_info(map_id, m);  
+        const bool found = map_get_info(map_hnd, m);  
         if (found) {
    
             // calculate bounds
@@ -430,7 +383,7 @@ namespace ifb {
 
     IFB_INTERNAL bool
     map_get_entity_tile_coordinates(
-        const map_id_u32 map_id,
+        const map_handle map_hnd,
         const entity_id  e,
         map_coords&     coords) {
 
@@ -443,7 +396,7 @@ namespace ifb {
         cmpnt_lookup_position(sparse_index, pos);
 
         // get the coordinates
-        const bool did_get = map_get_tile_coordinates(map_id, pos, coords);
+        const bool did_get = map_get_tile_coordinates(map_hnd, pos, coords);
         return(did_get);
     } 
 };

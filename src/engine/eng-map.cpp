@@ -11,18 +11,18 @@ namespace ifb {
 
     IFB_ENGINE_API map_handle
     eng_map_create(
-        const cchar*         name,
-        const u32            count_rows,
-        const u32            count_cols,
-        const s32            offset_row,
-        const s32            offset_col,
-        const color_rgba_u32 base_color) {
+        const cchar*             name,
+        const u32                count_rows,
+        const u32                count_cols,
+        const s32                offset_row,
+        const s32                offset_col,
+        const map_tile_color_u32 base_color) {
 
         assert(name        != NULL);
         assert(count_rows  != 0);
         assert(count_cols  != 0);
 
-        const map_id_u32 id = map_create(
+        const map_handle hnd = map_create(
             name,
             count_rows,
             count_cols,
@@ -31,7 +31,6 @@ namespace ifb {
             base_color
         );
 
-        const map_handle hnd = {id.val};
         return(hnd);
     } 
 
@@ -39,24 +38,21 @@ namespace ifb {
     eng_map_destroy(
         const map_handle map) {
 
-        const map_id_u32 id = { map.val };
 
-        map_destroy(id);
+        map_destroy(map);
     }
 
     IFB_ENGINE_API void
     eng_map_render(
         const map_handle map) {
 
-        const map_id_u32 id = { map.val };
-
-        renderer_tile_set_map(id);
+        renderer_tile_set_map(map);
     }
 
     IFB_ENGINE_API void
     eng_map_set_colors(
-        const map_handle  map,
-        const map_coords*    coords,
+        const map_handle      map,
+        const map_coords*     coords,
         const color_rgba_u32* color,
         const u32             count) {
 
@@ -65,45 +61,21 @@ namespace ifb {
         assert(color    != NULL);
         assert(count    != 0);
 
-        map_id_u32 map_id = { map.val };
         map_set_color(
-            map_id,
+            map,
             coords,
             color,
             count
         );
     } 
 
-    IFB_ENGINE_API void
-    eng_map_set_flags(
-        const map_handle map,
-        const map_coords*        coords,
-        const tile_flags_u32*     flags,
-        const u32                 count) {
-
-        assert(map != INVALID_HANDLE);
-        assert(coords   != NULL);
-        assert(flags    != NULL);
-        assert(count    != 0);
-
-        map_id_u32 map_id = { map.val };
-        map_set_flags(
-            map_id,
-            coords,
-            flags,
-            count
-        );
-    } 
-    
     IFB_ENGINE_API bool 
     eng_map_get_entity_coords(
         const map_handle map,
-        const entity_id      eid,
-        map_coords&          coords) {
+        const entity_id  eid,
+        map_coords&      coords) {
 
-        const map_id_u32 map_id = { map.val };
-
-        const bool did_find = map_get_entity_tile_coordinates(map_id, eid, coords);
+        const bool did_find = map_get_entity_tile_coordinates(map, eid, coords);
         return(did_find);
     }
 };

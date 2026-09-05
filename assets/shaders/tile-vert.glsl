@@ -11,6 +11,8 @@ const vec2 position_array[6] = vec2[](
     vec2(0.0, 0.0)
 );
 
+const vec4 default_color = vec4(0.0, 0.0, 0.0, 1.0);
+
 // vertex attributes
 layout(location = 0) in uint in_color;
 
@@ -21,6 +23,7 @@ uniform uint  u_map_count_cols;
 uniform int   u_map_offset_rows;
 uniform int   u_map_offset_cols;
 uniform float u_tile_unit_size;
+uniform vec4  u_color_table[16];
 
 // vertex output
 flat out vec4 vert_color;
@@ -29,12 +32,9 @@ void
 main() {
 
     // calculate the normalized color
-    vert_color = vec4(
-        float((in_color >> 24u) & 0xFFu) / 255.0,
-        float((in_color >> 16u) & 0xFFu) / 255.0,
-        float((in_color >>  8u) & 0xFFu) / 255.0,
-        float( in_color         & 0xFFu) / 255.0
-    );
+    vert_color = (in_color < uint(16))
+        ? u_color_table[in_color]
+        : default_color;
 
     // get the position and tile index
     int index_position = gl_VertexID;
