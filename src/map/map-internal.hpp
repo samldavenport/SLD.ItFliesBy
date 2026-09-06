@@ -32,16 +32,24 @@ namespace ifb {
         stack             stack;
     };
 
-    struct map_memory : memory {
+    struct map_memory_block_list {
         map_memory_block* free;
         map_memory_block* used;
         u32               block_count; 
         u32               block_size; 
     };
 
+    struct map_memory : memory {
+        map_memory_block_list* block_list;
+    };
+
     //--------------------------------------------------------------------
     // MAP 
     //--------------------------------------------------------------------
+
+    struct map {
+
+    };
 };
 
 #endif //MAP_INTERNAL_HPP

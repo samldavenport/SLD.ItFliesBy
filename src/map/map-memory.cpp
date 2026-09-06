@@ -13,11 +13,15 @@ namespace ifb {
     IFB_INTERNAL map_memory*
     map_memory_create(void) {
 
-        auto memory = global_alloc<map_memory>();
-        assert(memory != NULL);
+        auto memory     = global_alloc<map_memory>();
+        auto block_list = global_alloc<map_memory_block_list>();
+        assert(memory     != NULL);
+        assert(block_list != NULL);
 
-        zero_memory((void*)memory, sizeof(map_memory));
+        zero_memory((void*)memory,     sizeof(map_memory));
+        zero_memory((void*)block_list, sizeof(map_memory_block_list));
 
+        memory->block_list = block_list;
         return(memory);
     }
     
@@ -35,21 +39,24 @@ namespace ifb {
         assert(map_mem->ptr  != 0);
     
         const auto& cfg = config_instance();  
-    
+   
+        auto block_list = map_mem->block_list;
+        assert(block_list);
+
         // determine block size and count
-        map_mem->block_size  = cfg.map_block_size;
-        map_mem->block_count = map_mem->size / map_mem->block_size;
-        assert(map_mem->block_size);
-        assert(map_mem->block_count);
+        block_list->block_size  = cfg.map_block_size;
+        block_list->block_count = map_mem->size / block_list->block_size;
+        assert(block_list->block_size);
+        assert(block_list->block_count);
 
         // set used block list to null
-        map_mem->used = NULL;
+        block_list->used = NULL;
 
         // initialize free block list
         memory stack_memory = {0};
-        map_mem->free = (map_memory_block*)map_mem->ptr;
+        block_list->free = (map_memory_block*)map_mem->ptr;
         map_memory_block* curr = NULL;
-        map_memory_block* prev = map_mem->free;
+        map_memory_block* prev = block_list->free;
         stack_memory.address = (addr)prev          + sizeof(map_memory_block);
         stack_memory.size    = map_mem->block_size - sizeof(map_memory_block); 
         prev->stack.init(stack_memory);
@@ -77,23 +84,25 @@ namespace ifb {
         map_memory* map_mem) {
 
         assert(map_mem);
+        auto block_list = map_mem->block_list;
+        assert(block_list);
 
         // get the next free block
-        map_memory_block* block = map_mem->free;
+        map_memory_block* block = block_list->free;
         if (block == NULL) return(NULL);
 
         // initialize the block
-        map_mem->free = block->next; 
+        block_list->free = block->next; 
         block->prev   = NULL;
-        block->next   = map_mem->used;
+        block->next   = block_list->used;
         block->stack.reset();
 
         // update the next used block
-        map_memory_block* next_used = map_mem->used;
+        map_memory_block* next_used = block_list->used;
         next_used->prev             = block;
 
         // add the block to the used list
-        map_mem->used = block;
+        block_list->used = block;
     
         return(block);
     }  
@@ -105,20 +114,22 @@ namespace ifb {
 
         assert(map_mem);
         assert(block);
+        auto block_list = map_mem->block_list;
+        assert(block_list);
 
         auto next_used = block->next;
         auto prev_used = block->prev;
 
         // remove the block from the used list
-        if (next_used)              next_used->prev = prev_used;
-        if (prev_used)              prev_used->next = next_used;
-        if (block == map_mem->used) map_mem->used   = next_used;
+        if (next_used)                 next_used->prev = prev_used;
+        if (prev_used)                 prev_used->next = next_used;
+        if (block == block_list->used) block_list->used   = next_used;
 
         // add it to the free list
-        auto next_free = map_mem->free;
+        auto next_free = block_list->free;
         if (next_free) next_free->prev = block;
         block->next   = next_free;
-        map_mem->free = block;
+        block_list->free = block;
     } 
 
     IFB_INTERNAL void
