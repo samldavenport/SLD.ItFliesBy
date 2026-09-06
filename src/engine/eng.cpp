@@ -36,6 +36,9 @@
 
 #include "json.cpp"
 
+#include "map-mngr.cpp"
+#include "map-memory.cpp"
+
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
@@ -54,7 +57,7 @@
 
 #include "tiled.cpp"
 
-#include "map-mngr.cpp"
+
 
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"

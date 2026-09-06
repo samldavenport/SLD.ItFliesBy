@@ -23,7 +23,7 @@ namespace ifb {
 
         assert(_map_mngr);
 
-        _map_mngr->memory    = global_alloc<map_memory>();
+        _map_mngr->memory = map_memory_create();
         assert(_map_mngr->memory    != NULL); 
 
         return(_map_mngr);
@@ -42,12 +42,7 @@ namespace ifb {
         const auto& cfg = config_instance();
         
         // initialize memory
-        map_memory* map_mem = _map_mngr->memory;
-        map_mem->size = res.size;
-        map_mem->ptr  = pfm_memory_commit(res.ptr, 0, res.size); 
-        assert(map_mem->ptr != NULL);
-
-        // cache the tables
+        map_memory_init(_map_mngr->memory, res); 
 
         // calculate max tiles
         const u32 tile_count_max = cfg.map_capacity * cfg.tile_capacity; 
