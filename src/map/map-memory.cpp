@@ -57,17 +57,17 @@ namespace ifb {
         block_list->free = (map_memory_block*)map_mem->ptr;
         map_memory_block* curr = NULL;
         map_memory_block* prev = block_list->free;
-        stack_memory.address = (addr)prev          + sizeof(map_memory_block);
-        stack_memory.size    = map_mem->block_size - sizeof(map_memory_block); 
+        stack_memory.address = (addr)prev             + sizeof(map_memory_block);
+        stack_memory.size    = block_list->block_size - sizeof(map_memory_block); 
         prev->stack.init(stack_memory);
         prev->prev = NULL;
 
         for (
             u32 block_index = 0;
-            block_index < map_mem->block_count - 1;
+            block_index < block_list->block_count - 1;
             ++block_index
         ) {
-            curr       = (map_memory_block*)((addr)prev + map_mem->block_size);
+            curr       = (map_memory_block*)((addr)prev + block_list->block_size);
             curr->next = NULL;
             curr->prev = prev;
 
