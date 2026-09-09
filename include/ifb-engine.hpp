@@ -2,7 +2,6 @@
 #define IFB_ENGINE_HPP
 
 #include "ifb-entity.hpp"
-#include "map-internal.hpp"
 #include "sld.hpp"
 #include "ifb-types.hpp"
 #include "ifb-platform.hpp"
@@ -174,7 +173,13 @@ namespace ifb {
         const u32                offset_cols,
         const map_tile_color_u32 base_color
     );
-
+    
+    IFB_ENGINE_API bool
+    eng_map_get_entity_coords(
+        const map_handle map,
+        const entity_id eid,
+        map_coords& coords
+    );
 
     //--------------------------------------------------------------------
     // IMAGES
