@@ -10,19 +10,33 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // INLINE METHOD DECLARATIONS 
+    //--------------------------------------------------------------------
+
+    inline u32  map_memory_stack_capacity (map_memory_stack_list* stack_list);
+    inline addr map_memory_stack_start    (map_memory_stack*      stack);
+    inline addr map_memory_stack_push     (map_memory* map_mem, map_memory_stack*      stack, const u32 size);
+
+    //--------------------------------------------------------------------
+    // INTERNAL METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+    
     IFB_INTERNAL map_memory*
-    map_memory_create(void) {
+    map_memory_create(
+        void) {
+   
+        auto map_mem    = global_alloc<map_memory>();
+        auto stack_list = global_alloc<map_memory_stack_list>();
 
-        auto memory     = global_alloc<map_memory>();
-        auto block_list = global_alloc<map_memory_block_list>();
-        assert(memory     != NULL);
-        assert(block_list != NULL);
+        assert(map_mem    != NULL);
+        assert(stack_list != NULL);
+       
+        map_mem->address    = 0;
+        map_mem->size       = 0;
+        map_mem->stack_list = stack_list;
 
-        zero_memory((void*)memory,     sizeof(map_memory));
-        zero_memory((void*)block_list, sizeof(map_memory_block_list));
-
-        memory->block_list = block_list;
-        return(memory);
+        return(map_mem);
     }
     
     IFB_INTERNAL void
@@ -30,126 +44,165 @@ namespace ifb {
         map_memory*   map_mem,
         const memory& res) {
 
-        assert(map_mem != NULL);
+        assert(map_mem      != NULL);
+        assert(res.size     != 0);
+        assert(res.address  != 0);
 
-        // commit memory
-        map_mem->size = res.size;
-        map_mem->ptr  = pfm_memory_commit(res.ptr, 0, res.size);
-        assert(map_mem->size != 0);
-        assert(map_mem->ptr  != 0);
-    
-        const auto& cfg = config_instance();  
+        const auto& cfg = config_instance();
+
+        auto stack_list = map_mem->stack_list;
+        assert(stack_list != NULL);
+
+        // initialize the stack list
+        stack_list->stack_count = cfg.map_capacity;
+        stack_list->stack_size  = cfg.map_stack_size;
+        assert(stack_list->stack_count != 0);
+        assert(stack_list->stack_size  != 0);
    
-        auto block_list = map_mem->block_list;
-        assert(block_list);
+        // make sure we have enough memory
+        const u32 size_min = stack_list->stack_count * stack_list->stack_size; 
+        assert(res.size >= size_min);
 
-        // determine block size and count
-        block_list->block_size  = cfg.map_block_size;
-        block_list->block_count = map_mem->size / block_list->block_size;
-        assert(block_list->block_size);
-        assert(block_list->block_count);
-
-        // set used block list to null
-        block_list->used = NULL;
-
-        // initialize free block list
-        memory stack_memory = {0};
-        block_list->free = (map_memory_block*)map_mem->ptr;
-        map_memory_block* curr = NULL;
-        map_memory_block* prev = block_list->free;
-        stack_memory.address = (addr)prev             + sizeof(map_memory_block);
-        stack_memory.size    = block_list->block_size - sizeof(map_memory_block); 
-        prev->stack.init(stack_memory);
-        prev->prev = NULL;
-
+        // commit stack memory
+        map_mem->size = size_min;
+        map_mem->ptr  = pfm_memory_commit(res.ptr, 0, size_min); 
+        assert(map_mem->ptr != NULL);
+  
+        // initialize the stacks
+        map_memory_stack* prev = (map_memory_stack*)map_mem->ptr;
+        map_memory_stack* curr = NULL;
         for (
-            u32 block_index = 0;
-            block_index < block_list->block_count - 1;
-            ++block_index
-        ) {
-            curr       = (map_memory_block*)((addr)prev + block_list->block_size);
-            curr->next = NULL;
-            curr->prev = prev;
+            u32 stack_index = 0;
+            stack_index < stack_list->stack_count;
+            ++stack_index) {
 
-            stack_memory.address = (addr)curr + sizeof(map_memory_block);
-            curr->stack.init(stack_memory);
+            curr       = (map_memory_stack*)((addr)prev + stack_list->stack_size); 
+            curr->prev = prev;
+            curr->next = NULL; 
+            curr->pos  = 0;
 
             prev->next = curr;
-            prev       = curr;
         }
     } 
     
-    IFB_INTERNAL map_memory_block*
-    map_memory_alloc(
+    IFB_INTERNAL map_memory_stack*
+    map_memory_stack_alloc(
         map_memory* map_mem) {
 
-        assert(map_mem);
-        auto block_list = map_mem->block_list;
-        assert(block_list);
+        assert(map_mem != NULL);
 
-        // get the next free block
-        map_memory_block* block = block_list->free;
-        if (block == NULL) return(NULL);
+        auto stack_list = map_mem->stack_list;
+        assert(stack_list);
+        
+        map_memory_stack* new_stack = stack_list->free;
+        if (!new_stack) return(NULL);
 
-        // initialize the block
-        block_list->free = block->next; 
-        block->prev   = NULL;
-        block->next   = block_list->used;
-        block->stack.reset();
+        map_memory_stack* next_used = stack_list->used;
 
-        // update the next used block
-        map_memory_block* next_used = block_list->used;
-        next_used->prev             = block;
+        new_stack->prev = NULL;
+        new_stack->next = next_used;
+        new_stack->pos  = 0;
 
-        // add the block to the used list
-        block_list->used = block;
-    
-        return(block);
+        next_used->prev  = new_stack;
+        stack_list->used = next_used;
+
+        return(next_used);
     }  
 
     IFB_INTERNAL void
-    map_memory_free(
+    map_memory_stack_free(
         map_memory*       map_mem,
-        map_memory_block* block) {
+        map_memory_stack* stack) {
 
-        assert(map_mem);
-        assert(block);
-        auto block_list = map_mem->block_list;
-        assert(block_list);
+        assert(map_mem != NULL);
+        assert(stack   != NULL);
 
-        auto next_used = block->next;
-        auto prev_used = block->prev;
+        map_memory_stack_list* stack_list = map_mem->stack_list;
+        assert(stack_list);
 
-        // remove the block from the used list
-        if (next_used)                 next_used->prev = prev_used;
-        if (prev_used)                 prev_used->next = next_used;
-        if (block == block_list->used) block_list->used   = next_used;
+        map_memory_stack* next_used = stack->next;
+        map_memory_stack* prev_used = stack->prev;
+        map_memory_stack* next_free = stack_list->free; 
 
-        // add it to the free list
-        auto next_free = block_list->free;
-        if (next_free) next_free->prev = block;
-        block->next   = next_free;
-        block_list->free = block;
-    } 
+        if (next_used)                 next_used->prev  = prev_used;  
+        if (prev_used)                 prev_used->next  = next_used;
+        if (next_free)                 next_free->prev  = stack;
+        if (stack_list->used == stack) stack_list->used = next_used;
 
-    IFB_INTERNAL void
-    map_memory_block_reset(
-        map_memory_block* block) {
+        stack->next      = next_free;
+        stack_list->free = stack;
+    }
 
-        assert(block); 
-        block->stack.reset();
+    IFB_INTERNAL map*
+    map_memory_stack_push_map(
+        map_memory*       map_mem,
+        map_memory_stack* stack) {
+
+        assert(map_mem != NULL);
+        assert(stack   != NULL);        
+
+        auto m = (map*)map_memory_stack_push(map_mem, stack, sizeof(map_memory));
+        if (m != NULL) {
+            m->stack       = stack;
+            m->first_chunk = NULL;
+        }
+
+        return(m);
+    }
+
+    IFB_INTERNAL map_chunk*
+    map_memory_stack_push_chunk(
+        map_memory*       map_mem,
+        map_memory_stack* stack) {
+
+        assert(map_mem != NULL);
+        assert(stack   != NULL);        
+
+        auto chunk = (map_chunk*)map_memory_stack_push(map_mem, stack, sizeof(map_chunk));
+        if (chunk != NULL) {
+            *chunk = {0};
+        }
+
+        return(chunk);
     }
     
-    IFB_INTERNAL void*
-    map_memory_block_push(
-        map_memory_block* block,
-        const u32         size) {
+    //--------------------------------------------------------------------
+    // INLINE METHOD DEFINITIONS 
+    //--------------------------------------------------------------------
+    
+    inline u32
+    map_memory_stack_capacity(
+        map_memory_stack_list* stack_list) {
 
-        assert(block != NULL);   
-        assert(size  != 0);
-
-        void* ptr = block->stack.push(size);
-        return(ptr); 
+        const u32 capacity = stack_list->stack_size - sizeof(map_memory_stack);
+        return(capacity);
     }
 
+    inline addr
+    map_memory_stack_start(
+        map_memory_stack* stack) {
+
+        addr start = (addr)((addr)stack + sizeof(map_memory_stack));
+        return(start);
+    }
+    
+    inline addr
+    map_memory_stack_push(
+        map_memory*       map_mem,
+        map_memory_stack* stack,
+        const u32         size) {
+
+        const u32  capacity = map_memory_stack_capacity (map_mem->stack_list);
+        const addr start    = map_memory_stack_start    (stack); 
+    
+        assert(stack->pos < capacity); 
+
+        const u32 pos_new = stack->pos + sizeof(map);
+        if (pos_new > capacity) return(NULL);
+
+        addr push = (start + stack->pos);
+        stack->pos = pos_new;
+
+        return(push);
+    }
 };

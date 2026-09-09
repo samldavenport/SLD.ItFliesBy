@@ -3,6 +3,7 @@
 #include "map-internal.hpp"
 #include "eng-stack.cpp"
 #include "map.hpp"
+#include "map-memory.cpp"
 
 namespace ifb {
     
@@ -43,9 +44,6 @@ namespace ifb {
         
         // initialize memory
         map_memory_init(_map_mngr->memory, res); 
-
-        // calculate max tiles
-        const u32 tile_count_max = cfg.map_capacity * cfg.tile_capacity; 
     }
 
     IFB_INTERNAL void
