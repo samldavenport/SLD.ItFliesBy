@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ifb-platform.hpp>
 #include "win32.hpp"
 
 namespace ifb {
@@ -32,5 +33,16 @@ namespace ifb {
         const bool did_free = VirtualFree((void*)cmt, size, MEM_DECOMMIT);
         
         assert(did_free);
+    }
+    
+    IFB_PLATFORM_API void
+    pfm_memory_get_info(
+        pfm_memory_info& mem_info) {
+
+        SYSTEM_INFO sys_info;
+        GetSystemInfo(&sys_info);
+    
+        mem_info.size_page        = sys_info.dwPageSize;
+        mem_info.size_granularity = sys_info.dwAllocationGranularity;
     }
 };

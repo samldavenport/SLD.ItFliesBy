@@ -32,6 +32,7 @@ namespace ifb {
     struct pfm_file_buffer;
     struct pfm_monitor_info;
     struct pfm_monitor_area;
+    struct pfm_memory_info;
 
     //--------------------------------------------------------------------
     // ENUMS
@@ -102,8 +103,9 @@ namespace ifb {
     // MEMORY
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void* pfm_memory_commit             (const void* res, const u32 offset, const u32 size);
-    IFB_PLATFORM_API void  pfm_memory_decommit           (const void* cmt, const u32 size);
+    IFB_PLATFORM_API void* pfm_memory_commit   (const void* res, const u32 offset, const u32 size);
+    IFB_PLATFORM_API void  pfm_memory_decommit (const void* cmt, const u32 size);
+    IFB_PLATFORM_API void  pfm_memory_get_info (pfm_memory_info& mem_info);
 
     //--------------------------------------------------------------------
     // FILES
@@ -184,6 +186,11 @@ namespace ifb {
     struct pfm_monitor_area {
         u32 virtual_pixel_width;
         u32 virtual_pixel_height;
+    };
+
+    struct pfm_memory_info {
+        u32 size_page;
+        u32 size_granularity;
     };
 };
 
