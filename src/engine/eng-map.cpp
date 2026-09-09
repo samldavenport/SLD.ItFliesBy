@@ -18,7 +18,7 @@ namespace ifb {
         return(hnd);
     } 
     
-    IFB_ENGINE_API map_handle
+    IFB_ENGINE_API map_chunk_handle 
     eng_map_chunk_create(
         const map_handle         map_hnd,
         const u32                count_rows,

@@ -24,9 +24,6 @@ namespace ifb {
 
         assert(_map_mngr);
 
-        _map_mngr->memory = map_memory_create();
-        assert(_map_mngr->memory    != NULL); 
-
         return(_map_mngr);
     }
 
@@ -42,8 +39,6 @@ namespace ifb {
 
         const auto& cfg = config_instance();
         
-        // initialize memory
-        map_memory_init(_map_mngr->memory, res); 
     }
 
     IFB_INTERNAL void

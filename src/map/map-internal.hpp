@@ -61,21 +61,34 @@ namespace ifb {
     // MAP 
     //--------------------------------------------------------------------
 
+    struct map_chunk_table {
+        u32*                count_rows;
+        u32*                count_cols;
+        u32*                offset_row;
+        u32*                offset_col;
+        map_tile_color_u32* base_color;
+        map_tile*           tile_array;
+    };
+
     struct map {
         map_memory_stack* stack;
-        map_chunk*        first_chunk;
         map_handle        hnd;
         cstr_c16          name;
     };
-    
+   
+
+    struct map_table {
+        u32              capacity;
+        map_handle*      hnd;
+        cstr_c16*        name;
+        map_chunk_table* chunk_table;  
+    };
+
     //--------------------------------------------------------------------
     // MAP 
     //--------------------------------------------------------------------
 
     struct map_chunk {
-        map*               map;
-        map_chunk*         next;
-        map_chunk*         prev;
         map_tile_color_u32 base_color;
         u32                count_rows;
         u32                count_cols;
