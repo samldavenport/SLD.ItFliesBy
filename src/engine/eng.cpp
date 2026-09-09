@@ -38,6 +38,7 @@
 
 #include "map-mngr.cpp"
 #include "map-memory.cpp"
+#include "map.cpp"
 
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"
@@ -56,8 +57,6 @@
 #include "renderer.cpp"
 
 #include "tiled.cpp"
-
-
 
 #include "win32-file.cpp"
 #include "win32-graphics.cpp"

@@ -65,12 +65,13 @@ namespace ifb {
     IFB_U32(handle);
     IFB_U32(entity_id);
     IFB_U32(component_type);
-    IFB_U32(tile_flags_u32);
+    IFB_U32(map_tile_flags_u32);
     IFB_U32(map_tile_color_u32);
     
     IFB_HANDLE(arena_handle);
     IFB_HANDLE(file_handle);
     IFB_HANDLE(map_handle);
+    IFB_HANDLE(map_chunk_handle);
    
     //--------------------------------------------------------------------
     // CONSTANTS
@@ -88,12 +89,12 @@ namespace ifb {
     // ENUMS 
     //--------------------------------------------------------------------
     
-    enum map_flag_e {
-        map_flag_e_navigable  = bit_value(0),
-        map_flag_e_wall_north = bit_value(1),
-        map_flag_e_wall_south = bit_value(2),
-        map_flag_e_wall_east  = bit_value(3),
-        map_flag_e_wall_west  = bit_value(4),
+    enum map_tile_flag_e {
+        map_tile_flag_e_navigable  = bit_value(0),
+        map_tile_flag_e_wall_north = bit_value(1),
+        map_tile_flag_e_wall_south = bit_value(2),
+        map_tile_flag_e_wall_east  = bit_value(3),
+        map_tile_flag_e_wall_west  = bit_value(4),
     };
 
     enum map_tile_color_e {

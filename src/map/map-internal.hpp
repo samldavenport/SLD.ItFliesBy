@@ -3,6 +3,7 @@
 
 #include "ifb-types.hpp"
 #include "map.hpp"
+#include "sld-strings.hpp"
 
 namespace ifb {
 
@@ -29,7 +30,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // MAP MEMORY
     //--------------------------------------------------------------------
-   
 
     IFB_INTERNAL map_memory*       map_memory_create           (void);
     IFB_INTERNAL void              map_memory_init             (map_memory* map_mem, const memory& res);  
@@ -37,6 +37,8 @@ namespace ifb {
     IFB_INTERNAL void              map_memory_stack_free       (map_memory* map_mem, map_memory_stack* stack);  
     IFB_INTERNAL map*              map_memory_stack_push_map   (map_memory* map_mem, map_memory_stack* stack);
     IFB_INTERNAL map_chunk*        map_memory_stack_push_chunk (map_memory* map_mem, map_memory_stack* stack);
+    IFB_INTERNAL handle            map_memory_handle_from_ptr  (map_memory* map_mem, const void*  ptr);
+    IFB_INTERNAL void*             map_memory_ptr_from_handle  (map_memory* map_mem, const handle hnd);
 
     struct map_memory_stack {
         map_memory_stack* next;
@@ -62,6 +64,8 @@ namespace ifb {
     struct map {
         map_memory_stack* stack;
         map_chunk*        first_chunk;
+        map_handle        hnd;
+        cstr_c16          name;
     };
     
     //--------------------------------------------------------------------

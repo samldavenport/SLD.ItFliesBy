@@ -2,6 +2,7 @@
 #define IFB_ENGINE_HPP
 
 #include "ifb-entity.hpp"
+#include "map-internal.hpp"
 #include "sld.hpp"
 #include "ifb-types.hpp"
 #include "ifb-platform.hpp"
@@ -163,10 +164,17 @@ namespace ifb {
    
     IFB_ENGINE_API map_handle     eng_map_create            (const cchar* name); 
     IFB_ENGINE_API void           eng_map_destroy           (const map_handle map);
-    IFB_ENGINE_API void           eng_map_render            (const map_handle map);
-    IFB_ENGINE_API void           eng_map_set_colors        (const map_handle map, const u32* row, const u32* col, const color_rgba_u32* color, const u32 count); 
-    IFB_ENGINE_API void           eng_map_set_flags         (const map_handle map, const u32* row, const u32* col, const tile_flags_u32* flags, const u32 count); 
-    IFB_ENGINE_API bool           eng_map_get_entity_coords (const map_handle map, const entity_id eid, map_coords& coords);
+    
+    IFB_ENGINE_API map_chunk_handle
+    eng_map_chunk_create(
+        const map_handle         map_hnd,
+        const u32                count_rows,
+        const u32                count_cols,
+        const u32                offset_rows,
+        const u32                offset_cols,
+        const map_tile_color_u32 base_color
+    );
+
 
     //--------------------------------------------------------------------
     // IMAGES

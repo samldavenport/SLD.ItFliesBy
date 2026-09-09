@@ -1,11 +1,12 @@
 #pragma once
 
 #include "eng-internal.hpp"
-#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
+#include "ifb-types.hpp"
 #include "map-internal.hpp"
 #include "map.hpp"
+#include "sld-strings.hpp"
 #include "sld.hpp"
 
 namespace ifb {
@@ -166,6 +167,33 @@ namespace ifb {
         return(chunk);
     }
     
+    IFB_INTERNAL handle
+    map_memory_handle_from_ptr(
+        map_memory* map_mem,
+        const void* ptr) {
+
+        assert(map_mem != NULL);
+        assert(ptr     != NULL);
+
+        const addr a = (addr)ptr;
+        assert(a > map_mem->address);
+
+        const handle hnd = (handle)(a - map_mem->address);
+        return(hnd);
+    }
+
+    IFB_INTERNAL void*
+    map_memory_ptr_from_handle(
+        map_memory*  map_mem,
+        const handle hnd) {
+
+        assert(map_mem != NULL);
+        assert(hnd     != INVALID_HANDLE);
+    
+        void* ptr = (void*)(map_mem->address + (addr)hnd.val);
+        return(ptr);
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS 
     //--------------------------------------------------------------------
