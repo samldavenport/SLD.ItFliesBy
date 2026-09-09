@@ -2,6 +2,7 @@
 #define MEMORY_HPP
 
 #include "ifb-engine.hpp"
+#include "ifb-platform.hpp"
 #include "ifb.hpp"
 
 namespace ifb {

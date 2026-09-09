@@ -212,6 +212,7 @@ namespace ifb {
             u64 timestamp_prev;
             u64 frequency;
         } time;
+        pfm_memory_info mem_info;
     };
 
     struct eng_mem {

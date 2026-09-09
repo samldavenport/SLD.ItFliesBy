@@ -113,6 +113,8 @@ namespace ifb {
     
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
 
+        system_refresh_info();
+
         eng_context_startup_get_system_info (_eng_context->system);
         eng_context_startup_file_mngr       (mem_map);
         eng_context_startup_entity_mngr     (mem_map);
@@ -129,10 +131,12 @@ namespace ifb {
     eng_context_run(void) {
 
         static f32 elapsed_time = 0.0f;
+    
+        system_refresh_info();
 
         // get delta time
-        eng_system_update_time();
-        const f32 dt =  eng_system_get_delta_time_s();
+        system_update_time();
+        const f32 dt =  system_get_delta_time_s();
 
         elapsed_time += dt;
         if (elapsed_time >= _eng_context->seconds_per_frame) {
