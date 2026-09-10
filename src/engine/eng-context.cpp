@@ -44,10 +44,8 @@ namespace ifb {
         eng_game_proc      game_callback,
         eng_render_proc    render_callback) {
 	
-        const auto& config = config_instance();
-
+        const auto& config       = config_instance();
         const auto& map_hashes   = tiled_map_get_hashes(); 
-        
         const auto& prop_hashes  = tiled_property_get_hashes();
         const auto& layer_hashes = tiled_layer_get_hashes();
 
