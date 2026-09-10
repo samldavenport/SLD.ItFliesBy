@@ -16,6 +16,7 @@
 #include "json.hpp"
 #include "map.hpp"
 #include "tiled.hpp"
+#include "memory.hpp"
 
 namespace ifb {
 
@@ -222,12 +223,9 @@ namespace ifb {
     eng_context_startup_file_mngr(
         const eng_mem_map* mem_map) {
 
-        const u32 file_granularity = size_kilobytes(64);
-        file_mngr_startup(
-            mem_map->files.size,
-            file_granularity,
-            mem_map->files.ptr
-        );
+        reservation* res = reservation_create(mem_map->files);
+
+        file_mngr_startup(res);
     }
 
     IFB_INLINE void

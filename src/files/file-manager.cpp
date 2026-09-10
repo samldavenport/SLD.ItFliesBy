@@ -2,6 +2,8 @@
 
 #include "files.hpp"
 #include "eng-internal.hpp"
+#include "ifb-config.hpp"
+#include "memory-reservation.cpp"
 
 namespace ifb {
 
@@ -35,26 +37,27 @@ namespace ifb {
         _file_mngr->array.cursor          = cursor; 
         _file_mngr->array.paths           = paths; 
         _file_mngr->file_count_max        = cfg.file_count;
+        _file_mngr->file_granularity      = cfg.file_granularity;
 
         return(_file_mngr);
     }
 
     IFB_INTERNAL void
     file_mngr_startup(
-        const u32     mem_size,
-        const u32     mem_granularity,
-        void*         mem_ptr) {
+        reservation* res) {
 
-        assert(
-            _file_mngr      != NULL &&
-            mem_size        != 0    &&
-            mem_granularity != 0    &&
-            mem_ptr         != NULL
-        );
+        assert(_file_mngr != NULL);
+        assert(res        != NULL);
+       
+        const auto& cfg = config_instance();
 
-        _file_mngr->memory.start       = (byte*)mem_ptr;
-        _file_mngr->memory.size        = mem_size;
-        _file_mngr->memory.granularity = mem_granularity;
+        const u32 file_data_size = _file_mngr->file_granularity * _file_mngr->file_count_max;
+
+        _file_mngr->res              = res;
+        _file_mngr->file_granularity = cfg.file_granularity;
+        _file_mngr->file_data        = (byte*)reservation_push_bytes(res, file_data_size); 
+    
+        assert(_file_mngr->file_data);
     }
     
     IFB_INTERNAL void
@@ -69,15 +72,12 @@ namespace ifb {
         void) {
 
         assert(
-            _file_mngr                        != NULL                    &&
-            _file_mngr->memory.start          != NULL                    &&
-            _file_mngr->memory.size           != 0                       &&
-            _file_mngr->memory.granularity    != 0                       &&
-            _file_mngr->memory.granularity    <  _file_mngr->memory.size &&
-            _file_mngr->array.handle_internal != NULL                    &&
-            _file_mngr->array.handle_platform != NULL                    &&
-            _file_mngr->array.io_length       != NULL                    &&
-            _file_mngr->array.cursor          != NULL                    &&
+            _file_mngr                        != NULL &&
+            _file_mngr->file_granularity      != 0    &&
+            _file_mngr->array.handle_internal != NULL &&
+            _file_mngr->array.handle_platform != NULL &&
+            _file_mngr->array.io_length       != NULL &&
+            _file_mngr->array.cursor          != NULL &&
             _file_mngr->array.paths           != NULL
         );
     }
@@ -160,8 +160,8 @@ namespace ifb {
         file_mngr_assert_valid();
         assert(index < IFB_CONFIG_FILE_COUNT);
 
-        const u32 offset = (index * _file_mngr->memory.granularity);
-        byte* buffer     = &_file_mngr->memory.start[offset];
+        const u32 offset = (index * _file_mngr->file_granularity);
+        byte* buffer     = &_file_mngr->file_data[offset];
 
         return(buffer);
     }
@@ -190,13 +190,9 @@ namespace ifb {
         const file_handle hnd_ifb     = hash_u32  ((void*)&cfg->path[0], path_length);
 
         // commit memory
-        const u32 offset = (index * _file_mngr->memory.granularity);
-        void*     data   =  pfm_memory_commit(
-            (void*)_file_mngr->memory.start,
-            offset,
-            _file_mngr->memory.granularity
-        );
-        assert(data);
+        const u32 offset = (index * _file_mngr->file_granularity);
+        void*     data   = (void*)&_file_mngr->file_data[offset]; 
+
 
         // update the table
         _file_mngr->array.handle_internal [index] = hnd_ifb;

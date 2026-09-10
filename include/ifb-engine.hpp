@@ -215,23 +215,19 @@ namespace ifb {
         pfm_memory_info mem_info;
     };
 
-    struct eng_mem {
-        void* ptr;
-        u64   size;
-    };
 
     struct eng_mem_map {
-        eng_mem stack;
-        eng_mem files;
-        eng_mem core;
-        eng_mem rendering;
-        eng_mem entities;
-        eng_mem gui;
-        eng_mem arenas;
-        eng_mem components;
-        eng_mem quads;
-        eng_mem physics;
-        eng_mem tiles;
+        memory stack;
+        memory files;
+        memory core;
+        memory rendering;
+        memory entities;
+        memory gui;
+        memory arenas;
+        memory components;
+        memory quads;
+        memory physics;
+        memory tiles;
     };
 
     struct eng_game_context {
