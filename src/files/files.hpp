@@ -2,6 +2,7 @@
 #define IFB_FILES_HPP
 
 #include "ifb.hpp"
+#include "memory.hpp"
 
 namespace ifb {
 
@@ -35,7 +36,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_INTERNAL file_mngr*    file_mngr_create                   (void);
-    IFB_INTERNAL void          file_mngr_startup                  (const u32 mem_size, const u32 mem_granularity, void* mem_ptr);
+    IFB_INTERNAL void          file_mngr_startup                  (reservation* res);
     IFB_INTERNAL void          file_mngr_shutdown                 (void);
     IFB_INTERNAL void          file_mngr_assert_valid             (void);
     IFB_INTERNAL u32           file_mngr_index_of_next_free       (void);
@@ -71,18 +72,16 @@ namespace ifb {
 
     struct file_mngr {
         struct {
-            byte* start;
-            u32   size;
-            u32   granularity;
-        } memory;
-        struct {
             file_handle*     handle_internal; 
             pfm_file_handle* handle_platform;
             u32*             io_length;
             u32*             cursor;
             file_path*       paths;
         } array;
-        u32 file_count_max;
+        reservation* res;
+        byte*        file_data;
+        u32          file_count_max;
+        u32          file_granularity;
     };
 };
 

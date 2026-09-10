@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-config.hpp"
 #include "memory.hpp"
 #include "eng-internal.hpp"
 #include "sld.hpp"
@@ -12,29 +13,30 @@ namespace ifb {
         const reservation* res) {
 
         assert(res);
-        assert(res->size       != 0);
-        assert(res->address    != 0);
-        assert(res->page_count != 0);
+        assert(res->start         != 0);
+        assert(res->page_capacity != 0);
+        assert(res->page_count    <= res->page_capacity);
     }
 
     IFB_INTERNAL reservation*
     reservation_create(
-        memory& mem) {
+        const memory& mem) {
 
-        auto res            = global_alloc<reservation>(); 
-        const u32 page_size = system_get_memory_page_size();
+        auto res = global_alloc<reservation>(); 
 
         assert(res);
         assert(mem.size    != 0);
         assert(mem.address != 0);
-        assert(page_size   != 0);
 
-        res->size       = mem.size;
-        res->address    = mem.address;
-        res->page_count = res->size / page_size; 
-    
-        assert(res->page_count != 0);
-    
+        const u32 page_size = system_get_memory_page_size();
+        assert(size_is_pow_2(page_size));
+        assert(page_size > 0);
+
+        res->start         = mem.ptr;
+        res->page_count    = 0; 
+        res->page_capacity = mem.size / page_size; 
+        assert(res->page_capacity > 0);
+
         return(res);
     }
 
@@ -45,6 +47,8 @@ namespace ifb {
 
         reservation_validate(res);
         assert(size_min != 0);
+
+        const auto& cfg = config_instance();
 
         // get the page and aligned sizes
         const u32 size_aligned = system_align_to_memory_page_size(size_min);
@@ -58,11 +62,11 @@ namespace ifb {
 
         // make sure we can push these pages
         const u32 page_count_new = res->page_count + page_count_push;
-        if (page_count_new > res->page_count) return(NULL);
+        if (page_count_new > res->page_capacity) return(NULL);
 
         // commit memory
         const u32 commit_offset = res->page_count * page_size;
-        void* cmt = pfm_memory_commit(res->ptr, commit_offset, size_aligned);
+        void*     cmt           = pfm_memory_commit(res->start, commit_offset, size_aligned);
         assert(cmt != NULL);
 
         // update the reservation and
@@ -91,7 +95,7 @@ namespace ifb {
 
         // commit memory
         const u32 commit_offset = res->page_count * size_page;
-        void* cmt = pfm_memory_commit(res->ptr, commit_offset, size_aligned);
+        void* cmt = pfm_memory_commit(res->start, commit_offset, size_aligned);
         assert(cmt != NULL);
 
         // update the reservation and
@@ -124,7 +128,7 @@ namespace ifb {
 
         // commit memory
         const u32 commit_offset = res->page_count * page_size;
-        void* cmt = pfm_memory_commit(res->ptr, commit_offset, size_aligned);
+        void* cmt = pfm_memory_commit(res->start, commit_offset, size_aligned);
         assert(cmt != NULL);
 
         // update the reservation
@@ -159,7 +163,7 @@ namespace ifb {
 
         // commit memory
         const u32 commit_offset = res->page_count * size_page;
-        void* cmt = pfm_memory_commit(res->ptr, commit_offset, size_aligned);
+        void* cmt = pfm_memory_commit(res->start, commit_offset, size_aligned);
         assert(cmt != NULL);
 
         // update the reservation

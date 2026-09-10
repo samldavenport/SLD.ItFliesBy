@@ -27,7 +27,7 @@ namespace ifb {
     IFB_INTERNAL void         memory_mngr_startup  (memory& mem_reserved_arenas);
     IFB_INTERNAL void         memory_mngr_shutdown (void);
 
-    IFB_INTERNAL reservation* reservation_create           (memory& mem);
+    IFB_INTERNAL reservation* reservation_create           (const memory& mem);
     IFB_INTERNAL void*        reservation_push_bytes       (reservation* res, const u32 size_min); 
     IFB_INTERNAL void*        reservation_push_pages       (reservation* res, const u32 page_count); 
     IFB_INTERNAL stack*       reservation_push_stack_bytes (reservation* res, const u32 size_min);
@@ -88,8 +88,10 @@ namespace ifb {
         u32              save;
     };
 
-    struct reservation : memory {
-        u32 page_count;
+    struct reservation {
+        void* start;
+        u32   page_capacity;
+        u32   page_count;
     };
 
     struct memory_mngr {
