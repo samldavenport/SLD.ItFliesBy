@@ -33,7 +33,7 @@ namespace ifb {
     IFB_INLINE void eng_context_startup_cmpnt_mngr      (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_quad_mngr       (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_phys_mngr       (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_map_mngr       (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_map_mngr        (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -240,10 +240,8 @@ namespace ifb {
     eng_context_startup_memory_mngr(
         const eng_mem_map* mem_map) {
 
-        memory arena_mem;
-        arena_mem.size = mem_map->arenas.size;
-        arena_mem.ptr  = mem_map->arenas.ptr;
-        memory_mngr_startup(arena_mem);
+        reservation* res = reservation_create(mem_map->arenas);
+        memory_mngr_startup(res);
     }
 
     IFB_INLINE void
