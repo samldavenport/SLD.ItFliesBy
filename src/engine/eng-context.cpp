@@ -321,10 +321,8 @@ namespace ifb {
     eng_context_startup_cmpnt_mngr(
         const eng_mem_map* mem_map) {
 
-        memory mem;
-        mem.ptr  = mem_map->components.ptr;
-        mem.size = mem_map->components.size;
-        cmpnt_mngr_startup(mem);
+        reservation* res = reservation_create(mem_map->components);
+        cmpnt_mngr_startup(res);
     }
 
     IFB_INLINE void

@@ -30,9 +30,10 @@ namespace ifb {
     IFB_INTERNAL reservation* reservation_create              (const memory& mem);
     IFB_INTERNAL void*        reservation_push_bytes          (reservation* res, const u32 size_min); 
     IFB_INTERNAL void*        reservation_push_pages          (reservation* res, const u32 page_count); 
+    IFB_INTERNAL void*        reservation_push_all            (reservation* res);
     IFB_INTERNAL stack*       reservation_push_stack_bytes    (reservation* res, const u32 size_min);
     IFB_INTERNAL stack*       reservation_push_stack_pages    (reservation* res, const u32 page_count);
-    IFB_INTERNAL void*        reservation_push_all            (reservation* res);
+    IFB_INTERNAL stack*       reservation_push_stack_all      (reservation* res);
     IFB_INTERNAL void         reservation_decommit            (reservation* res);
     IFB_INTERNAL u32          reservation_get_size_used       (const reservation* res);
     IFB_INTERNAL u32          reservation_get_page_count_used (const reservation* res);
@@ -48,9 +49,8 @@ namespace ifb {
     IFB_INTERNAL void         arena_commit     (const arena_handle arena, const u32 save);        
     IFB_INTERNAL u32          arena_size_free  (const arena_handle arena);
     IFB_INTERNAL u32          arena_size_used  (const arena_handle arena);
-
     template<typename t>
-    IFB_INTERNAL t*           arena_push           (const arena_handle arena, const u32 count = 1);
+    IFB_INTERNAL t*           arena_push       (const arena_handle arena, const u32 count = 1);
 
     IFB_INTERNAL u32          block_alctr_mem_requriement (const u32 granularity, const u32 block_count);
     IFB_INTERNAL void         block_alctr_init            (block_allocator* alctr, memory mem, const u32 granularity);
@@ -60,17 +60,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------
-
-    struct arena_allocator {
-        memory mem;
-        u32    arena_size;
-        u32    arena_count_total;
-        u32    arena_count_free;
-        struct {
-            arena* free;
-            arena* used;
-        } list;
-    };
 
     struct block_allocator {
         addr start;
@@ -83,21 +72,6 @@ namespace ifb {
     struct block_memory {
         block_allocator* alctr;
         u32              id;
-    };
-
-    struct arena {
-        arena_allocator* alctr;
-        arena*           next;
-        arena*           prev;
-        u32              id;
-        u32              position;
-        u32              save;
-    };
-
-    struct reservation {
-        void* start;
-        u32   page_capacity;
-        u32   page_count;
     };
 
     struct memory_mngr {

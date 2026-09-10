@@ -3,6 +3,7 @@
 
 #include "ifb-types.hpp"
 #include "ifb-collections.hpp"
+#include "memory.hpp"
 
 namespace ifb {
 
@@ -44,7 +45,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_INTERNAL cmpnt_mngr* cmpnt_mngr_create          (void);
-    IFB_INTERNAL void        cmpnt_mngr_startup         (memory& mem_res);
+    IFB_INTERNAL void        cmpnt_mngr_startup         (reservation* res);
     
     IFB_INTERNAL void        cmpnt_lookup_position      (const u32 sparse_index, position_3d&      pos);
     IFB_INTERNAL void        cmpnt_lookup_color         (const u32 sparse_index, color_rgba_u32&   clr);
@@ -73,8 +74,8 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct cmpnt_mngr {
-        stack mem;
-        u32   capacity;
+        stack* mem;
+        u32    capacity;
         struct {
             cmpnt_tbl_position      position;
             cmpnt_tbl_color         color;

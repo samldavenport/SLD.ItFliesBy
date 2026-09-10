@@ -175,7 +175,7 @@ namespace ifb {
 
     public:
        
-        void stack_init (stack& s);
+        void stack_init (stack* s);
         void lookup     (const u32 sparse_index, t&       cmpnt);
         void update     (const u32 sparse_index, const t& cmpnt);
     };

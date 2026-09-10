@@ -8,10 +8,11 @@
 namespace ifb {
 
     CMPNT_TBL_FUNC 
-    stack_init(stack& s) -> void {
+    stack_init(stack* s) -> void {
 
+        assert(s);
         static const u32 capacity = config_instance().entity_capacity;
-        _cmpnt = s.push_struct<t>(capacity);
+        _cmpnt = s->push_struct<t>(capacity);
         assert(_cmpnt != NULL);
     }
 

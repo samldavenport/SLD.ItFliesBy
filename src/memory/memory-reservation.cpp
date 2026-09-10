@@ -9,6 +9,20 @@
 
 namespace ifb {
    
+    //--------------------------------------------------------------------
+    // TYPE DEFINITIONS
+    //--------------------------------------------------------------------
+    
+    struct reservation {
+        void* start;
+        u32   page_capacity;
+        u32   page_count;
+    };
+
+    //--------------------------------------------------------------------
+    // INTERNAL METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+    
     inline void
     reservation_validate(
         const reservation* res) {
@@ -176,6 +190,26 @@ namespace ifb {
         stack_mem.address = (addr)cmt    + sizeof(stack);
         stack_mem.size    = size_aligned - sizeof(stack);
         s->init(stack_mem);
+        return(s);
+    }
+    
+    IFB_INTERNAL stack*
+    reservation_push_stack_all(
+        reservation* res) {
+
+        reservation_validate(res);
+
+        auto s = (stack*)reservation_push_all(res);
+        assert(s);
+        const u32 size_res = reservation_get_capacity(res);
+        assert(size_res != 0);
+
+        memory mem;
+        mem.size    = size_res - sizeof(stack);
+        mem.address = (addr)s  + sizeof(stack);
+
+        s->init(mem);
+
         return(s);
     }
     
