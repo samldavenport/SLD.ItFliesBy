@@ -2,6 +2,7 @@
 
 #include "entity.hpp"
 #include "eng-internal.hpp"
+#include "memory-reservation.cpp"
 
 namespace ifb {
 
@@ -101,6 +102,8 @@ namespace ifb {
         void) {
 
         entity_mngr_validate();
+    
+        reservation_decommit(_entity_mngr->res);
 
         _entity_mngr->capacity.dense          = 0;
         _entity_mngr->count                   = 0;

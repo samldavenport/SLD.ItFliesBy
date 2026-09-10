@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ifb-config.hpp"
+#include "ifb-platform.hpp"
 #include "memory.hpp"
 #include "eng-internal.hpp"
 #include "sld.hpp"
@@ -186,5 +187,16 @@ namespace ifb {
 
         void* mem = reservation_push_pages(res, res->page_capacity);
         return(mem);
+    }
+    
+    IFB_INTERNAL void
+    reservation_decommit(
+        reservation* res) {
+
+        reservation_validate(res);
+
+        const u32 size_page    = system_get_memory_page_size();
+        const u32 size_deommit = size_page * res->page_count;
+        pfm_memory_decommit(res->start, size_deommit);
     }
 };
