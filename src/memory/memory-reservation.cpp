@@ -92,7 +92,7 @@ namespace ifb {
 
         // make sure we can push these pages
         const u32 page_count_new = res->page_count + page_count;
-        if (page_count_new > res->page_count) return(NULL);
+        if (page_count_new > res->page_capacity) return(NULL);
 
         // commit memory
         const u32 commit_offset = res->page_count * size_page;
@@ -125,7 +125,7 @@ namespace ifb {
 
         // make sure we can push these pages
         const u32 page_count_new = res->page_count + page_count_push;
-        if (page_count_new > res->page_count) return(NULL);
+        if (page_count_new > res->page_capacity) return(NULL);
 
         // commit memory
         const u32 commit_offset = res->page_count * page_size;
@@ -160,7 +160,7 @@ namespace ifb {
 
         // make sure we can push these pages
         const u32 page_count_new = res->page_count + page_count;
-        if (page_count_new > res->page_count) return(NULL);
+        if (page_count_new > res->page_capacity) return(NULL);
 
         // commit memory
         const u32 commit_offset = res->page_count * size_page;
@@ -198,5 +198,44 @@ namespace ifb {
         const u32 size_page    = system_get_memory_page_size();
         const u32 size_deommit = size_page * res->page_count;
         pfm_memory_decommit(res->start, size_deommit);
+    }
+
+    IFB_INTERNAL u32
+    reservation_get_size_used(
+        const reservation* res) {
+
+        reservation_validate(res);
+
+        const u32 size_page = system_get_memory_page_size();
+        const u32 size_used = size_page * res->page_count;
+
+        return(size_used);
+    }
+
+    IFB_INTERNAL u32
+    reservation_get_page_count_used(
+        const reservation* res) {
+
+        reservation_validate(res);
+        return(res->page_count);
+    }
+
+    IFB_INTERNAL u32
+    reservation_get_capacity(
+        const reservation* res) {
+
+        reservation_validate(res);
+        
+        const u32 size_page     = system_get_memory_page_size();
+        const u32 size_capacity = size_page * res->page_capacity;
+        return(size_capacity);
+    }
+
+    IFB_INTERNAL u32
+    reservation_get_page_capacity(
+        const reservation* res) {
+
+        reservation_validate(res);
+        return(res->page_capacity);
     }
 };
