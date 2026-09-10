@@ -31,7 +31,6 @@ namespace ifb {
     IFB_INLINE void eng_context_startup_memory_mngr     (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_renderer        (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_cmpnt_mngr      (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_quad_mngr       (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_phys_mngr       (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_map_mngr        (const eng_mem_map* mem_map);
 
@@ -78,7 +77,6 @@ namespace ifb {
         _eng_context->entity_mngr     = entity_mngr_create(); 
         _eng_context->memory_mngr     = memory_mngr_create(); 
         _eng_context->cmpnt_mngr      = cmpnt_mngr_create();  
-        _eng_context->quad_mngr       = quad_mngr_create();
         _eng_context->phys_mngr       = physics_mngr_create();
         _eng_context->map_mngr        = map_mngr_create();
         _eng_context->mem_map         = mem_map;
@@ -95,7 +93,6 @@ namespace ifb {
             _eng_context->entity_mngr   != NULL &&
             _eng_context->memory_mngr   != NULL &&
             _eng_context->cmpnt_mngr    != NULL &&
-            _eng_context->quad_mngr     != NULL &&
             _eng_context->phys_mngr     != NULL &&
             _eng_context->mem_map       != NULL
         );
@@ -121,7 +118,6 @@ namespace ifb {
         eng_context_startup_entity_mngr     (mem_map);
         eng_context_startup_memory_mngr     (mem_map);
         eng_context_startup_cmpnt_mngr      (mem_map);
-        eng_context_startup_quad_mngr       (mem_map);
         eng_context_startup_map_mngr        (mem_map);
         eng_context_startup_phys_mngr       (mem_map);
         eng_context_startup_open_window     (config, system);
@@ -323,16 +319,6 @@ namespace ifb {
 
         reservation* res = reservation_create(mem_map->components);
         cmpnt_mngr_startup(res);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_quad_mngr(
-        const eng_mem_map* mem_map) {
-
-        memory mem;
-        mem.ptr  = mem_map->quads.ptr;
-        mem.size = mem_map->quads.size;
-        quad_mngr_startup(mem);
     }
 
     IFB_INLINE void
