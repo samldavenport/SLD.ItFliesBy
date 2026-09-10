@@ -122,7 +122,7 @@ namespace ifb {
         eng_context_startup_memory_mngr     (mem_map);
         eng_context_startup_cmpnt_mngr      (mem_map);
         eng_context_startup_quad_mngr       (mem_map);
-        eng_context_startup_map_mngr       (mem_map);
+        eng_context_startup_map_mngr        (mem_map);
         eng_context_startup_phys_mngr       (mem_map);
         eng_context_startup_open_window     (config, system);
         eng_context_startup_renderer        (mem_map);
@@ -232,10 +232,8 @@ namespace ifb {
     eng_context_startup_entity_mngr(
         const eng_mem_map* mem_map) {
 
-        memory entity_mem;
-        entity_mem.size = mem_map->entities.size;
-        entity_mem.ptr  = mem_map->entities.ptr;
-        entity_mngr_startup(entity_mem);
+        reservation* res = reservation_create(mem_map->entities);
+        entity_mngr_startup(res);
     }
 
     IFB_INLINE void

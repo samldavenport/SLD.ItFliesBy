@@ -20,8 +20,7 @@ namespace ifb {
         _entity_mngr->capacity.dense          = 0;
         _entity_mngr->capacity.sparse         = 0;
         _entity_mngr->count                   = 0;
-        _entity_mngr->mem.address             = 0;
-        _entity_mngr->mem.size                = 0;
+        _entity_mngr->res                     = NULL;
         
         return(_entity_mngr);
     }
@@ -45,19 +44,10 @@ namespace ifb {
 
     IFB_INTERNAL void
     entity_mngr_startup(
-        const memory& mem_res) {
+        reservation* res) {
 
-        assert(
-            mem_res.size != 0    &&
-            mem_res.ptr  != NULL
-        );
-
-        // commit memory
-        _entity_mngr->mem.ptr  = pfm_memory_commit(mem_res.ptr, 0, mem_res.size);
-        _entity_mngr->mem.size = mem_res.size;
-        assert(_entity_mngr->mem.ptr);
-
-        // get config value(s)
+        assert(res);
+        
         const config& cfg = config_instance();
         _entity_mngr->capacity.dense  = cfg.entity_capacity;
         _entity_mngr->capacity.sparse = cfg.entity_capacity / cfg.sparse_set_max_load_p100;
@@ -65,23 +55,24 @@ namespace ifb {
         assert(_entity_mngr->capacity.sparse != 0);
         
         // cast pointers
-        const u32  size_entity_ids  = (sizeof(entity_id)        * _entity_mngr->capacity.dense);
-        const u32  size_entity_tags = (sizeof(entity_tag)       * _entity_mngr->capacity.dense);
-        const u32  size_entity_arch = (sizeof(entity_archetype) * _entity_mngr->capacity.dense); 
-        const u32  size_index       = (sizeof(u32)              * _entity_mngr->capacity.dense); 
-        const addr addr_ids         = _entity_mngr->mem.address;
-        const addr addr_tags        = (addr_ids    + size_entity_ids);
-        const addr addr_arch        = (addr_tags   + size_entity_tags);
-        const addr addr_sparse      = (addr_arch   + size_entity_arch);
-        const addr addr_dense       = (addr_sparse + size_index); 
+        const u32  size_entity_ids   = (sizeof(entity_id)        * _entity_mngr->capacity.dense);
+        const u32  size_entity_tags  = (sizeof(entity_tag)       * _entity_mngr->capacity.dense);
+        const u32  size_entity_arch  = (sizeof(entity_archetype) * _entity_mngr->capacity.dense); 
+        const u32  size_index_sparse = (sizeof(u32)              * _entity_mngr->capacity.dense); 
+        const u32  size_index_dense  = (sizeof(u32)              * _entity_mngr->capacity.sparse); 
 
         // set the properties
-        _entity_mngr->data.dense.id           =        (entity_id*)addr_ids;
-        _entity_mngr->data.dense.tag          =       (entity_tag*)addr_tags;
-        _entity_mngr->data.dense.archetype    = (entity_archetype*)addr_arch;
-        _entity_mngr->data.dense.sparse_index =              (u32*)addr_sparse;
-        _entity_mngr->data.sparse.dense_index =              (u32*)addr_dense;
+        _entity_mngr->data.dense.id           =        (entity_id*)reservation_push_bytes(res, size_entity_ids);
+        _entity_mngr->data.dense.tag          =       (entity_tag*)reservation_push_bytes(res, size_entity_tags);
+        _entity_mngr->data.dense.archetype    = (entity_archetype*)reservation_push_bytes(res, size_entity_arch);
+        _entity_mngr->data.dense.sparse_index =              (u32*)reservation_push_bytes(res, size_index_sparse);
+        _entity_mngr->data.sparse.dense_index =              (u32*)reservation_push_bytes(res, size_index_dense);
 
+        assert(_entity_mngr->data.dense.id);
+        assert(_entity_mngr->data.dense.tag);
+        assert(_entity_mngr->data.dense.archetype);
+        assert(_entity_mngr->data.dense.sparse_index);
+        assert(_entity_mngr->data.sparse.dense_index);
 
         // initialize values
         for (
@@ -111,8 +102,6 @@ namespace ifb {
 
         entity_mngr_validate();
 
-        pfm_memory_decommit(_entity_mngr->mem.ptr, _entity_mngr->mem.size);
-
         _entity_mngr->capacity.dense          = 0;
         _entity_mngr->count                   = 0;
         _entity_mngr->data.dense.id           = NULL;
@@ -120,8 +109,7 @@ namespace ifb {
         _entity_mngr->data.dense.archetype    = NULL;
         _entity_mngr->data.dense.sparse_index = NULL;
         _entity_mngr->data.sparse.dense_index = NULL;
-        _entity_mngr->mem.address             = 0;
-        _entity_mngr->mem.size                = 0;
+        _entity_mngr->res                     = NULL;
     }
 
     IFB_INTERNAL u32

@@ -32,6 +32,7 @@ namespace ifb {
     IFB_INTERNAL void*        reservation_push_pages       (reservation* res, const u32 page_count); 
     IFB_INTERNAL stack*       reservation_push_stack_bytes (reservation* res, const u32 size_min);
     IFB_INTERNAL stack*       reservation_push_stack_pages (reservation* res, const u32 page_count);
+    IFB_INTERNAL void*        reservation_push_all         (reservation* res);
 
     IFB_INTERNAL arena_handle arena_alloc      (void);
     IFB_INTERNAL void         arena_free       (const arena_handle arena);
