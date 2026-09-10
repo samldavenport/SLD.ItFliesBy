@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ifb-config.hpp"
+#include "ifb-platform.hpp"
 #include "memory.hpp"
 #include "eng-internal.hpp"
 #include "sld.hpp"
@@ -71,7 +72,7 @@ namespace ifb {
 
         // update the reservation and
         // return the committed memory
-        res->page_count += page_count_new;
+        res->page_count = page_count_new;
         return(cmt);
     }
 
@@ -100,7 +101,7 @@ namespace ifb {
 
         // update the reservation and
         // return the committed memory
-        res->page_count += page_count_new;
+        res->page_count = page_count_new;
         return(cmt);
     } 
 
@@ -132,7 +133,7 @@ namespace ifb {
         assert(cmt != NULL);
 
         // update the reservation
-        res->page_count += page_count_new;
+        res->page_count = page_count_new;
     
         // create the stack
         auto s = (stack*)cmt;
@@ -167,7 +168,7 @@ namespace ifb {
         assert(cmt != NULL);
 
         // update the reservation
-        res->page_count += page_count_new;
+        res->page_count = page_count_new;
     
         // create the stack
         auto s = (stack*)cmt;
@@ -176,5 +177,26 @@ namespace ifb {
         stack_mem.size    = size_aligned - sizeof(stack);
         s->init(stack_mem);
         return(s);
+    }
+    
+    IFB_INTERNAL void*
+    reservation_push_all(
+        reservation* res) {
+
+        reservation_validate(res);
+
+        void* mem = reservation_push_pages(res, res->page_capacity);
+        return(mem);
+    }
+    
+    IFB_INTERNAL void
+    reservation_decommit(
+        reservation* res) {
+
+        reservation_validate(res);
+
+        const u32 size_page    = system_get_memory_page_size();
+        const u32 size_deommit = size_page * res->page_count;
+        pfm_memory_decommit(res->start, size_deommit);
     }
 };

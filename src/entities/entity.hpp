@@ -27,7 +27,7 @@ namespace ifb {
     // entity manager
     IFB_INTERNAL entity_mngr*     entity_mngr_create               (void);
     IFB_INTERNAL void             entity_mngr_validate             (void);
-    IFB_INTERNAL void             entity_mngr_startup              (const memory& mem_res);
+    IFB_INTERNAL void             entity_mngr_startup              (reservation* res);
     IFB_INTERNAL void             entity_mngr_shutdown             (void);
     IFB_INTERNAL u32              entity_mngr_capacity_dense       (void);
     IFB_INTERNAL u32              entity_mngr_capacity_sparse      (void);
@@ -76,8 +76,8 @@ namespace ifb {
             u32 dense;
             u32 sparse;
         } capacity;
-        memory  mem;
-        u32     count;
+        reservation* res;
+        u32          count;
     };
 };
 
