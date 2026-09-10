@@ -2,6 +2,7 @@
 
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
+#include "memory-reservation.cpp"
 #include "physics.hpp"
 
 namespace ifb {
@@ -25,13 +26,13 @@ namespace ifb {
 
     IFB_INTERNAL physics_accumulator*
     physics_accumulator_init(
-        stack& s) {
+        reservation* res) {
 
         const auto& cfg = config_instance();
 
-        auto accum = s.push_struct<physics_accumulator> ();
-        auto ids   = s.push_struct<entity_id>           (cfg.entity_capacity);  
-        auto vec   = s.push_struct<vec3>                (cfg.entity_capacity);  
+        auto accum = global_alloc<physics_accumulator>();
+        auto ids   = (entity_id*)reservation_push_bytes(res, sizeof(entity_id) * cfg.entity_capacity); 
+        auto vec   =      (vec3*)reservation_push_bytes(res, sizeof(vec3)      * cfg.entity_capacity);
    
         assert(accum != NULL);         
         assert(ids   != NULL);         
