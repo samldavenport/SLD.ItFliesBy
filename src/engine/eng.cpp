@@ -48,7 +48,6 @@
 #include "physics-spring.cpp"
 
 #include "quad.cpp"
-#include "quad-manager.cpp"
 #include "quad-tests.cpp"
 
 #include "renderer.cpp"
