@@ -247,10 +247,8 @@ namespace ifb {
         const u32   init_height = cfg.window_start_height;
         
         // initialize the renderer
-        memory mem_rndr;
-        mem_rndr.ptr  = mem_map->rendering.ptr;
-        mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup        (mem_rndr);
+        reservation* res = reservation_create(mem_map->rendering);
+        renderer_context_startup(res);
 
         // open shader files
         const file_handle file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");

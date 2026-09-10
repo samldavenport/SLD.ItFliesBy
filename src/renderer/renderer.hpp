@@ -48,7 +48,7 @@ namespace ifb {
 
     // renderer context
     IFB_INTERNAL renderer_context* renderer_context_create                   (void);
-    IFB_INTERNAL void              renderer_context_startup                  (memory& reserved_memory);
+    IFB_INTERNAL void              renderer_context_startup                  (reservation* res);
     IFB_INTERNAL void              renderer_context_shutdown                 (void);
     IFB_INTERNAL void              renderer_context_update_view_matrix       (void);
     IFB_INTERNAL void*             renderer_context_memory_alloc             (const u32 size);
@@ -102,7 +102,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     struct renderer_memory {
-        stack stack;
+        reservation* res;
     };
 
     struct renderer_shader_source {

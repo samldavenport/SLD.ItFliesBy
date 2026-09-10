@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "memory-reservation.cpp"
 #include "renderer-quad.cpp" 
 #include "renderer-camera.cpp"
 #include "renderer-projection.cpp"
@@ -41,23 +42,12 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_context_startup(
-        memory& reserved_memory) {
+        reservation* res) {
 
         const auto& cfg = config_instance();
 
-        assert(
-            _renderer_ctx        != NULL &&
-            reserved_memory.size != 0    &&
-            reserved_memory.ptr  != NULL          
-        );
-
-        // create the stack
-        memory commit;
-        commit.size = reserved_memory.size;
-        commit.ptr  = pfm_memory_commit(reserved_memory.ptr, 0, commit.size);
-        assert(commit.size    != 0); 
-        assert(commit.address != 0); 
-        _renderer_ctx->memory.stack.init(commit);
+        assert(_renderer_ctx);
+        assert(res);
 
         // NOTE(SAM): the renderer doesn't need to initialize the opengl context
         // we can pass the context to the function and use it that way
@@ -98,8 +88,7 @@ namespace ifb {
         const u32 size) {
 
         assert(size != 0);
-
-        void* mem = _renderer_ctx->memory.stack.push(size);
+        void* mem = reservation_push_bytes(_renderer_ctx->memory.res, size);
         return(mem);
     }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "eng-internal.hpp"
 #include "ifb-types.hpp"
 #include "ifb-collections.hpp"
 #include "renderer.hpp"
@@ -7,6 +8,7 @@
 #include "sld-opengl.hpp"
 #include <cassert>
 #include "ifb-collections.hpp"
+#include "quad.hpp"
 
 namespace ifb {
 
@@ -47,7 +49,7 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
-        auto shdr = _renderer_ctx->memory.stack.push_struct<renderer_quad_shader>();
+        auto shdr = global_alloc<renderer_quad_shader>();
         assert(shdr); 
         _renderer_ctx->shader.quad = shdr;
 
