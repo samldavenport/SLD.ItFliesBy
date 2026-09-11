@@ -44,34 +44,21 @@ namespace ifb {
     //--------------------------------------------------------------------
     // STACK
     //--------------------------------------------------------------------
+      
+    struct stack;
 
-    class stack {
-    
-    private:
-
-        memory _mem;
-        u32    _pos;
-        u32    _save;
-
-    public:
-
-        // instance methods
-        void  init       (memory& mem);
-        void  validate   (void) const;
-        u32   size_total (void) const;
-        u32   size_used  (void) const;
-        u32   size_free  (void) const;
-        void* head       (void) const;
-        void* tail       (void) const;
-        u32   save       (void);
-        void  reset      (void);
-        void* push       (const u32 size);
-        void  pull       (const u32 size);
-        void  revert     (const u32 save);
-
-        template<typename t>
-        t* push_struct(const u32 count = 1);
-    };
+    u32     stack_memory_requirement (const u32 capacity);
+    stack*  stack_memory_create      (const u32 capacity, memory& mem);
+    stack*  stack_arena_create       (const u32 capacity, const arena_handle arena_hnd);
+    u32     stack_get_capacity       (const stack* s);
+    u32     stack_get_position       (const stack* s);
+    void*   stack_get_head           (const stack* s);
+    void*   stack_get_tail           (const stack* s);
+    u32     stack_save               (stack* s);
+    void    stack_reset              (stack* s);
+    void*   stack_push               (stack* s, const u32 size);
+    void    stack_pull               (stack* s, const u32 size);
+    void    stack_revert             (stack* s, const u32 save);
 
     //--------------------------------------------------------------------
     // SPARSE SET

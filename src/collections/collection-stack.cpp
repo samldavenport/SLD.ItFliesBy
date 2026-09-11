@@ -1,147 +1,184 @@
 #pragma once
 
 #include "ifb-collections.hpp"
+#include "ifb-types.hpp"
+#include "ifb-engine.hpp"
 
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // STATIC METHODS
+    // STACK 
     //--------------------------------------------------------------------
+    
+    struct stack {
+        addr start;
+        u32  capacity;
+        u32  position;
+        u32  save;
+    };
 
-    void
-    stack::init(
-        memory& mem) {
+    //--------------------------------------------------------------------
+    // INLINE METHODS 
+    //--------------------------------------------------------------------
+   
+    inline void
+    stack_validate(
+        const stack* s) {
 
-        assert(
-            mem.size    != 0 &&
-            mem.address != 0
-        );
-
-        zero_memory(mem);
-        _mem.size    = mem.size;        
-        _mem.address = mem.address;
+        assert(s);
+        assert(s->start    != 0);
+        assert(s->capacity != 0);
+        assert(s->position <= s->capacity);
+        assert(s->save     <= s->position);
     }
 
+    //--------------------------------------------------------------------
+    // PUBLIC METHODS 
+    //--------------------------------------------------------------------
+    
+    u32
+    stack_memory_requirement(
+        const u32 capacity) {
+
+        const u32 size_struct = sizeof(stack);
+        const u32 size_req    = size_struct + capacity;
+        return(size_req);
+    }
+
+    stack*
+    stack_memory_create(
+        const u32 capacity,
+        memory&   mem) {
+
+        assert(capacity    != 0);
+        assert(mem.size    != 0);
+        assert(mem.address != 0);
+    
+        const u32 size_min = stack_memory_requirement(capacity);
+
+        stack* s = (stack*)mem.ptr;
+        s->start    = mem.address + sizeof(stack);
+        s->capacity = capacity;
+        s->position = 0;
+        s->save     = 0;
+    
+        return(s);
+    }
+
+    stack* 
+    stack_arena_create(
+        const u32          capacity,
+        const arena_handle arena_hnd) {
+   
+        assert(capacity  != 0);
+        assert(arena_hnd != INVALID_HANDLE);
+
+        memory mem;
+        mem.size = stack_memory_requirement(capacity);
+        mem.ptr  = eng_arena_push(arena_hnd, mem.size);
+    
+        stack* s = stack_memory_create(capacity, mem); 
+        assert(s);
+
+        return(s);
+    }
+
+    u32
+    stack_size_get_capacity(
+        const stack* s) {
+
+        stack_validate(s);
+        return(s->capacity);
+    }
+
+    u32
+    stack_get_position(
+        const stack* s) {
+
+        stack_validate(s);
+        return(s->position);
+    }
+
+    void*
+    stack_get_head(
+        const stack* s) {
+
+        stack_validate(s);
+        return((void*)s->start);
+    }
+
+    void*
+    stack_get_tail(
+        const stack* s) {
+
+        stack_validate(s);
+        return((void*)(s->start + s->position));
+    }
+    
     //--------------------------------------------------------------------
     // PUBLIC METHODS
     //--------------------------------------------------------------------
 
-    void stack::
-    validate(
-        void) const {
+    u32 
+    stack_save(stack* s) {
 
-        assert(
-            _mem.address != 0         &&
-            _mem.size    != 0         &&
-            _pos         <= _mem.size &&
-            _save        <= _pos
-        );
+        stack_validate(s);
+
+        assert(s->save == 0);
+        s->save = s->position;
+       
+        return(s->save);
     }
 
-    u32 stack::
-    size_total(void) const {
+    void 
+    stack_reset(
+        stack* s) {
 
-        validate();
-        return(_mem.size);
+        stack_validate(s);
+        s->position = 0;
+        s->save     = 0;
     }
 
-    u32 stack::
-    size_used(void) const {
-
-        validate();
-        return(_pos);
-    }
-
-    u32 stack::
-    size_free(void) const {
-
-        validate();
-        return(_mem.size - _pos);
-    }
-
-    void* stack::
-    head(void) const {
-
-        validate();
-        return((void*)(_mem.address + _pos));
-    }
-
-    void* stack::
-    tail(void) const {
-
-        validate();
-        return(_mem.ptr);
-    }
-
-    u32 stack::
-    save(void) {
-
-        validate();
-        assert(_save == 0);
-
-        _save = _pos;
-        return(_save);
-    }
-
-    void stack::
-    reset(void) {
-
-        validate();
-        _pos  = 0;
-        _save = 0;
-    }
-
-    void* stack::
-    push(
+    void* 
+    stack_push(
+        stack* s,
         const u32 size) {
 
-        validate();
+        stack_validate(s);
 
         void* push_mem = NULL;
 
-        const u32 new_position = (_pos + size);
-        if (new_position <= _mem.size) {
+        const u32 new_position = (s->position + size);
+        if (new_position <= s->capacity) {
 
-            push_mem = (void*)(_mem.address + _pos);
-            _pos = new_position;
+            push_mem = (void*)(s->start + s->position);
+            s->position = new_position;
         }
 
         return(push_mem);
     }
 
-    void stack::
-    pull(
+    void
+    stack_pull(
+        stack*    s,
         const u32 size) {
 
-        validate();
+        stack_validate(s);
 
-        if (size <= _pos) {
-            _pos -= size;
+        if (size <= s->position) {
+            s->position -= size;
         }
     }
 
-    void stack::
-    revert(
+    void
+    stack_revert(
+        stack* s,
         const u32 save) {
 
-        validate();
+        stack_validate(s);
 
-        assert(save == _save);
-
-        _pos  = _save;
-        _save = 0;
-
-    }
-
-    template<typename t>
-    t* stack:: 
-    push_struct(
-        const u32 count) {
-
-        const u32 size = (count * sizeof(t));
-        auto      mem  = (t*)push(size);
-        assert(mem);
-
-        return(mem);
+        assert(s->save == save);
+        s->position  = s->save;
+        s->save      = 0;
     }
 };
