@@ -9,7 +9,7 @@ namespace ifb {
     // INTERNAL METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    IFB_INLINE void init_arena_allocator (arena_allocator* alctr, memory& res, const u32 granularity);
+    IFB_INLINE void init_arena_allocator (arena_allocator* alctr, reservation* res, const u32 granularity);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -34,18 +34,15 @@ namespace ifb {
 
     IFB_INTERNAL void
     memory_mngr_startup(
-        memory& mem_reserved_arenas) {
+        reservation* res) {
 
-        assert(
-            mem_reserved_arenas.size    != 0 &&
-            mem_reserved_arenas.address != 0 
-        );
+        assert(res);
 
         const config& cfg = config_instance();
 
         init_arena_allocator(
             _memory_mngr->arena_alctr,
-            mem_reserved_arenas,
+            res,
             cfg.arena_granularity
         );
           
@@ -64,26 +61,26 @@ namespace ifb {
     IFB_INLINE void
     init_arena_allocator(
         arena_allocator* alctr,
-        memory&          res,
-        const u32 granularity) {
+        reservation*     res,
+        const u32        granularity) {
 
         assert(
             alctr       != NULL &&
-            res.address != 0    &&
-            res.size    != 0
+            res         != NULL &
+            granularity != 0
         );
 
         // initial properties
-        alctr->mem.ptr           = pfm_memory_commit(res.ptr, 0, res.size);
-        alctr->mem.size          = res.size;  
+        alctr->mem.ptr           = reservation_push_all     (res); 
+        alctr->mem.size          = reservation_get_capacity (res);  
         alctr->arena_size        = granularity;
-        alctr->arena_count_total = res.size / granularity;
+        alctr->arena_count_total = alctr->mem.size / granularity;
         alctr->arena_count_free  = alctr->arena_count_total; 
         alctr->list.used         = NULL;
         alctr->list.free         = (arena*)(alctr->mem.ptr); 
         assert(
-            alctr->mem.address       == res.address &&
-            alctr->arena_size        != 0           &&
+            alctr->mem.ptr           != NULL &&
+            alctr->arena_size        != 0    &&
             alctr->arena_count_total != 0
         );
 

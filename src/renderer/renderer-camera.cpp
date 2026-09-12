@@ -19,7 +19,9 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
-        auto cam = _renderer_ctx->memory.stack.push_struct<renderer_camera>();
+        auto cam = (renderer_camera*)renderer_context_memory_alloc(sizeof(renderer_camera));
+
+
         assert(cam);
 
         cam->origin = { 0.0f, 0.3f, 0.6f };

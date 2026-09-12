@@ -16,6 +16,7 @@
 #include "json.hpp"
 #include "map.hpp"
 #include "tiled.hpp"
+#include "memory.hpp"
 
 namespace ifb {
 
@@ -30,9 +31,8 @@ namespace ifb {
     IFB_INLINE void eng_context_startup_memory_mngr     (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_renderer        (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_cmpnt_mngr      (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_quad_mngr       (const eng_mem_map* mem_map);
     IFB_INLINE void eng_context_startup_phys_mngr       (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_map_mngr       (const eng_mem_map* mem_map);
+    IFB_INLINE void eng_context_startup_map_mngr        (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -44,10 +44,8 @@ namespace ifb {
         eng_game_proc      game_callback,
         eng_render_proc    render_callback) {
 	
-        const auto& config = config_instance();
-
+        const auto& config       = config_instance();
         const auto& map_hashes   = tiled_map_get_hashes(); 
-        
         const auto& prop_hashes  = tiled_property_get_hashes();
         const auto& layer_hashes = tiled_layer_get_hashes();
 
@@ -77,7 +75,6 @@ namespace ifb {
         _eng_context->entity_mngr     = entity_mngr_create(); 
         _eng_context->memory_mngr     = memory_mngr_create(); 
         _eng_context->cmpnt_mngr      = cmpnt_mngr_create();  
-        _eng_context->quad_mngr       = quad_mngr_create();
         _eng_context->phys_mngr       = physics_mngr_create();
         _eng_context->map_mngr        = map_mngr_create();
         _eng_context->mem_map         = mem_map;
@@ -94,7 +91,6 @@ namespace ifb {
             _eng_context->entity_mngr   != NULL &&
             _eng_context->memory_mngr   != NULL &&
             _eng_context->cmpnt_mngr    != NULL &&
-            _eng_context->quad_mngr     != NULL &&
             _eng_context->phys_mngr     != NULL &&
             _eng_context->mem_map       != NULL
         );
@@ -113,13 +109,14 @@ namespace ifb {
     
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
 
+        system_refresh_info();
+
         eng_context_startup_get_system_info (_eng_context->system);
         eng_context_startup_file_mngr       (mem_map);
         eng_context_startup_entity_mngr     (mem_map);
         eng_context_startup_memory_mngr     (mem_map);
         eng_context_startup_cmpnt_mngr      (mem_map);
-        eng_context_startup_quad_mngr       (mem_map);
-        eng_context_startup_map_mngr       (mem_map);
+        eng_context_startup_map_mngr        (mem_map);
         eng_context_startup_phys_mngr       (mem_map);
         eng_context_startup_open_window     (config, system);
         eng_context_startup_renderer        (mem_map);
@@ -129,10 +126,12 @@ namespace ifb {
     eng_context_run(void) {
 
         static f32 elapsed_time = 0.0f;
+    
+        system_refresh_info();
 
         // get delta time
-        eng_system_update_time();
-        const f32 dt =  eng_system_get_delta_time_s();
+        system_update_time();
+        const f32 dt =  system_get_delta_time_s();
 
         elapsed_time += dt;
         if (elapsed_time >= _eng_context->seconds_per_frame) {
@@ -218,32 +217,25 @@ namespace ifb {
     eng_context_startup_file_mngr(
         const eng_mem_map* mem_map) {
 
-        const u32 file_granularity = size_kilobytes(64);
-        file_mngr_startup(
-            mem_map->files.size,
-            file_granularity,
-            mem_map->files.ptr
-        );
+        reservation* res = reservation_create(mem_map->files);
+
+        file_mngr_startup(res);
     }
 
     IFB_INLINE void
     eng_context_startup_entity_mngr(
         const eng_mem_map* mem_map) {
 
-        memory entity_mem;
-        entity_mem.size = mem_map->entities.size;
-        entity_mem.ptr  = mem_map->entities.ptr;
-        entity_mngr_startup(entity_mem);
+        reservation* res = reservation_create(mem_map->entities);
+        entity_mngr_startup(res);
     }
 
     IFB_INLINE void
     eng_context_startup_memory_mngr(
         const eng_mem_map* mem_map) {
 
-        memory arena_mem;
-        arena_mem.size = mem_map->arenas.size;
-        arena_mem.ptr  = mem_map->arenas.ptr;
-        memory_mngr_startup(arena_mem);
+        reservation* res = reservation_create(mem_map->arenas);
+        memory_mngr_startup(res);
     }
 
     IFB_INLINE void
@@ -255,10 +247,8 @@ namespace ifb {
         const u32   init_height = cfg.window_start_height;
         
         // initialize the renderer
-        memory mem_rndr;
-        mem_rndr.ptr  = mem_map->rendering.ptr;
-        mem_rndr.size = mem_map->rendering.size;
-        renderer_context_startup        (mem_rndr);
+        reservation* res = reservation_create(mem_map->rendering);
+        renderer_context_startup(res);
 
         // open shader files
         const file_handle file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
@@ -323,39 +313,23 @@ namespace ifb {
     eng_context_startup_cmpnt_mngr(
         const eng_mem_map* mem_map) {
 
-        memory mem;
-        mem.ptr  = mem_map->components.ptr;
-        mem.size = mem_map->components.size;
-        cmpnt_mngr_startup(mem);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_quad_mngr(
-        const eng_mem_map* mem_map) {
-
-        memory mem;
-        mem.ptr  = mem_map->quads.ptr;
-        mem.size = mem_map->quads.size;
-        quad_mngr_startup(mem);
+        reservation* res = reservation_create(mem_map->components);
+        cmpnt_mngr_startup(res);
     }
 
     IFB_INLINE void
     eng_context_startup_phys_mngr(
         const eng_mem_map* mem_map) {
 
-        memory mem;
-        mem.ptr  = mem_map->physics.ptr;
-        mem.size = mem_map->physics.size;
-        physics_mngr_startup(mem);
+        reservation* res = reservation_create(mem_map->physics);
+        physics_mngr_startup(res);
     }
 
     IFB_INLINE void
     eng_context_startup_map_mngr(
         const eng_mem_map* mem_map) {
 
-        memory mem;
-        mem.ptr  = mem_map->tiles.ptr;
-        mem.size = mem_map->tiles.size;
-        map_mngr_startup(mem);
+        reservation* res = reservation_create(mem_map->tiles);
+        map_mngr_startup(res);
     }
 };

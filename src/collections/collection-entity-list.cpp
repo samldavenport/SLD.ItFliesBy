@@ -22,7 +22,38 @@ namespace ifb {
     //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
-    
+
+    IFB_INTERNAL u32
+    entity_list_mem_req(
+        void) {
+
+        const auto& cfg = config_instance();
+
+        const u32 size_struct = sizeof(entity_list);
+        const u32 size_data   = sizeof(entity_id) * cfg.entity_capacity;
+        const u32 size_total  = size_struct + size_data;
+
+        return(size_total);
+    }
+
+    IFB_INTERNAL entity_list*
+    entity_list_memory_create(
+        const memory& mem) {
+
+        const auto& cfg    = config_instance();
+        const u32 size_min = entity_list_mem_req();
+       
+        assert(mem.address != 0);
+        assert(mem.size >= size_min);
+
+        auto list = (entity_list*)mem.address;
+        list->ids      = (entity_id*)(mem.address + sizeof(entity_list));
+        list->capacity = cfg.entity_capacity;
+        list->count    = 0;
+
+        return(list);
+    }
+
     IFB_INTERNAL entity_list* 
     entity_list_arena_create(
         const arena_handle a) {
@@ -47,27 +78,6 @@ namespace ifb {
         return(list);
     }
 
-    IFB_INTERNAL entity_list* 
-    entity_list_stack_create(
-        stack& s) {
-
-        const auto& cfg  = config_instance();
-        const u32   save = s.save();
-       
-        auto list = s.push_struct<entity_list>();
-        auto ids  = s.push_struct<entity_id>(cfg.entity_capacity);
-        
-        if (list == NULL || ids == NULL) {
-            s.revert(save);
-            return(NULL);
-        }
-
-        list->ids      = ids;
-        list->capacity = cfg.entity_capacity;
-        list->count    = 0;
-   
-        return(list);
-    }
 
     IFB_INTERNAL bool
     entity_list_add(

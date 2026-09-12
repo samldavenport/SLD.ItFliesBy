@@ -3,13 +3,11 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
-#include "ifb.hpp"
 #include "files.hpp"
 #include "renderer.hpp"
 #include "entity.hpp"
 #include "memory.hpp"
 #include "component.hpp"
-#include "quad.hpp"
 #include "physics.hpp"
 #include "map.hpp"
 
@@ -39,7 +37,6 @@ namespace ifb {
         entity_mngr*       entity_mngr;
         memory_mngr*       memory_mngr;
         cmpnt_mngr*        cmpnt_mngr;
-        quad_mngr*         quad_mngr;
         physics_mngr*      phys_mngr;
         map_mngr*         map_mngr;
     } static * _eng_context;
@@ -62,8 +59,13 @@ namespace ifb {
     template<typename t>
     IFB_ENG_INTERNAL t*    global_alloc                 (const u32 count = 1);
 
-    IFB_ENG_INTERNAL void eng_system_update_time      (void);
-    IFB_ENG_INTERNAL f32  eng_system_get_delta_time_s (void);
+    IFB_ENG_INTERNAL void system_refresh_info                (void);
+    IFB_ENG_INTERNAL void system_update_time                 (void);
+    IFB_ENG_INTERNAL f32  system_get_delta_time_s            (void);
+    IFB_ENG_INTERNAL u32  system_get_memory_page_size        (void);
+    IFB_ENG_INTERNAL u32  system_get_memory_granularity      (void);
+    IFB_ENG_INTERNAL u32  system_align_to_memory_page_size   (const u32 size);
+    IFB_ENG_INTERNAL u32  system_align_to_memory_granularity (const u32 size);
 };
 
 #endif //IFB_ENG_INTERNAL_HPP

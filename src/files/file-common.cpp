@@ -58,7 +58,7 @@ namespace ifb {
 
         pfm_file_buffer file_buffer;
         file_buffer.data   = file_mngr_get_buffer(index); 
-        file_buffer.size   = _file_mngr->memory.granularity; 
+        file_buffer.size   = _file_mngr->file_granularity; 
         file_buffer.length = 0;
         file_buffer.offset = 0;
         file_buffer.cursor = _file_mngr->array.cursor[index];

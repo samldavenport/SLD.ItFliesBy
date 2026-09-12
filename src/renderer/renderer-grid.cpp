@@ -35,7 +35,10 @@ namespace ifb {
       
         assert(_renderer_ctx);
 
-        _renderer_ctx->shader.grid = _renderer_ctx->memory.stack.push_struct<renderer_grid_shader>();
+        
+        _renderer_ctx->shader.grid = (renderer_grid_shader*)
+            renderer_context_memory_alloc(sizeof(renderer_grid_shader)
+        );
        assert(_renderer_ctx->shader.grid); 
     }
 

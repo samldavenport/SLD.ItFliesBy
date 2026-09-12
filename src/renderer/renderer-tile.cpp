@@ -59,7 +59,10 @@ namespace ifb {
         const auto& cfg = config_instance();
         
         // allocate shader
-        auto shdr = _renderer_ctx->memory.stack.push_struct<renderer_tile_shader>();
+        auto shdr = (renderer_tile_shader*)renderer_context_memory_alloc(
+                sizeof(renderer_tile_shader)
+        ); 
+
         assert(shdr);
         _renderer_ctx->shader.tile = shdr;
 

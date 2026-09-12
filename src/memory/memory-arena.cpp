@@ -6,6 +6,30 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
+    // INTERNAL TYPE DEFINITIONS 
+    //--------------------------------------------------------------------
+    
+    struct arena_allocator {
+        memory mem;
+        u32    arena_size;
+        u32    arena_count_total;
+        u32    arena_count_free;
+        struct {
+            arena* free;
+            arena* used;
+        } list;
+    };
+    
+    struct arena {
+        arena_allocator* alctr;
+        arena*           next;
+        arena*           prev;
+        u32              id;
+        u32              position;
+        u32              save;
+    };
+   
+    //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 

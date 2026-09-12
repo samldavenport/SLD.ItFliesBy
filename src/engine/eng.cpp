@@ -43,6 +43,7 @@
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
+#include "memory-reservation.cpp"
 
 #include "physics-manager.cpp"
 #include "physics-accumulator.cpp"
@@ -51,7 +52,6 @@
 #include "physics-spring.cpp"
 
 #include "quad.cpp"
-#include "quad-manager.cpp"
 #include "quad-tests.cpp"
 
 #include "renderer.cpp"

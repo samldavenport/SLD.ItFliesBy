@@ -44,34 +44,22 @@ namespace ifb {
     //--------------------------------------------------------------------
     // STACK
     //--------------------------------------------------------------------
+      
+    struct stack;
 
-    class stack {
-    
-    private:
-
-        memory _mem;
-        u32    _pos;
-        u32    _save;
-
-    public:
-
-        // instance methods
-        void  init       (memory& mem);
-        void  validate   (void) const;
-        u32   size_total (void) const;
-        u32   size_used  (void) const;
-        u32   size_free  (void) const;
-        void* head       (void) const;
-        void* tail       (void) const;
-        u32   save       (void);
-        void  reset      (void);
-        void* push       (const u32 size);
-        void  pull       (const u32 size);
-        void  revert     (const u32 save);
-
-        template<typename t>
-        t* push_struct(const u32 count = 1);
-    };
+    u32     stack_memory_requirement (const u32 capacity);
+    stack*  stack_memory_create      (const u32 capacity, memory& mem);
+    stack*  stack_memory_create      (memory& mem);
+    stack*  stack_arena_create       (const u32 capacity, const arena_handle arena_hnd);
+    u32     stack_get_capacity       (const stack* s);
+    u32     stack_get_position       (const stack* s);
+    void*   stack_get_head           (const stack* s);
+    void*   stack_get_tail           (const stack* s);
+    u32     stack_save               (stack* s);
+    void    stack_reset              (stack* s);
+    void*   stack_push               (stack* s, const u32 size);
+    void    stack_pull               (stack* s, const u32 size);
+    void    stack_revert             (stack* s, const u32 save);
 
     //--------------------------------------------------------------------
     // SPARSE SET
@@ -124,27 +112,19 @@ namespace ifb {
     // INDEX CACHE 
     //--------------------------------------------------------------------
 
-    class index_cache {
+    struct index_cache;
 
-    private:
-
-        bool* _index;
-        u32   _capacity;
-
-    public:
-
-        void memory_init    (const u32 capacity, bool* index_array); 
-        void stack_init     (const u32 capacity, stack& s);
-        void reset          (void);     
-        void set_index_free (const u32 index);
-        void set_index_used (const u32 index);
-        void validate       (void)            const;
-        u32  get_next_free  (void)            const;
-        u32  count_used     (void)            const;
-        u32  count_free     (void)            const;
-        u32  capacity       (void)            const;
-        bool is_index_free  (const u32 index) const;
-    };
+    u32          index_cache_memory_size    (const u32 capacity);
+    index_cache* index_cache_memory_create  (const u32 capacity, memory& mem); 
+    index_cache* index_cache_arena_create   (const u32 capacity, const arena_handle arena_hnd);
+    void         index_cache_reset          (index_cache* cache);     
+    void         index_cache_set_index_free (index_cache* cache, const u32 index);
+    void         index_cache_set_index_used (index_cache* cache, const u32 index);
+    u32          index_cache_get_next_free  (index_cache* cache);
+    u32          index_cache_count_used     (const index_cache* cache);
+    u32          index_cache_count_free     (const index_cache* cache);
+    u32          index_cache_capacity       (const index_cache* cache);
+    bool         index_cache_is_index_free  (const index_cache* cache, const u32 index);
     
     //--------------------------------------------------------------------
     // ENTITY ID LIST 
@@ -152,16 +132,17 @@ namespace ifb {
 
     struct entity_list;
 
-    entity_list* entity_list_arena_create (const arena_handle arena_hnd);
-    entity_list* entity_list_stack_create (stack& s);
-    bool         entity_list_add          (entity_list* el, const entity_id id);
-    bool         entity_list_remove       (entity_list* el, const entity_id id);
-    void         entity_list_reset        (entity_list* el);
-    void         entity_list_validate     (const entity_list* el);
-    u32          entity_list_capacity     (const entity_list* el);
-    u32          entity_list_count        (const entity_list* el);
-    bool         entity_list_contains     (const entity_list* el, const entity_id);
-    entity_id    entity_list_index        (entity_list* el, const u32 index);
+    u32          entity_list_mem_req       (void);
+    entity_list* entity_list_memory_create (const memory& mem);
+    entity_list* entity_list_arena_create  (const arena_handle arena_hnd);
+    bool         entity_list_add           (entity_list* el, const entity_id id);
+    bool         entity_list_remove        (entity_list* el, const entity_id id);
+    void         entity_list_reset         (entity_list* el);
+    void         entity_list_validate      (const entity_list* el);
+    u32          entity_list_capacity      (const entity_list* el);
+    u32          entity_list_count         (const entity_list* el);
+    bool         entity_list_contains      (const entity_list* el, const entity_id);
+    entity_id    entity_list_index         (entity_list* el, const u32 index);
 
     //--------------------------------------------------------------------
     // COMPONENT TABLE 
@@ -175,7 +156,7 @@ namespace ifb {
 
     public:
        
-        void stack_init (stack& s);
+        void stack_init (stack* s);
         void lookup     (const u32 sparse_index, t&       cmpnt);
         void update     (const u32 sparse_index, const t& cmpnt);
     };

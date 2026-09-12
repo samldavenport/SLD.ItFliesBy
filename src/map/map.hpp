@@ -28,7 +28,7 @@ namespace ifb {
 
     // map manager
     IFB_INTERNAL map_mngr*              map_mngr_create             (void);
-    IFB_INTERNAL void                   map_mngr_startup            (memory& res);
+    IFB_INTERNAL void                   map_mngr_startup            (reservation* res);
     IFB_INTERNAL void                   map_mngr_shutdown           (void);
     IFB_INTERNAL const map_color_table& map_mngr_get_color_table    (void);
     IFB_INTERNAL f32                    map_mngr_get_tile_unit_size (void);

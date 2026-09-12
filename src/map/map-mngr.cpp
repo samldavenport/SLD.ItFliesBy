@@ -3,7 +3,8 @@
 #include "map-internal.hpp"
 #include "eng-stack.cpp"
 #include "map.hpp"
-#include "map-memory.cpp"
+#include "memory-reservation.cpp"
+#include "sld.hpp"
 
 namespace ifb {
     
@@ -29,16 +30,50 @@ namespace ifb {
 
     IFB_INTERNAL void
     map_mngr_startup(
-        memory& res) {
+        reservation* res) {
 
-        assert(
-            _map_mngr  != NULL && 
-            res.size    != 0    &&
-            res.address != 0
-        );
+        assert(_map_mngr != NULL);
+        assert(res       != NULL);
 
         const auto& cfg = config_instance();
         
+        // initialize memory
+        _map_mngr->mem_stack = reservation_push_stack_all(res); 
+        assert(_map_mngr->mem_stack != NULL);
+
+        // cache the tables
+        auto tbl_map   = _map_mngr->tbl_map; 
+        auto tbl_tiles = _map_mngr->tbl_tiles; 
+        assert(tbl_map);
+        assert(tbl_tiles);
+
+        // calculate max tiles
+        const u32 tile_count_max = cfg.map_capacity * cfg.tile_capacity; 
+       
+        // allocate map table memory
+        tbl_map->map_hnd     = (map_handle*)stack_push(_map_mngr->mem_stack, sizeof(map_handle) * cfg.map_capacity);
+        tbl_map->count_rows  =        (u32*)stack_push(_map_mngr->mem_stack, sizeof(u32)        * cfg.map_capacity);
+        tbl_map->count_cols  =        (u32*)stack_push(_map_mngr->mem_stack, sizeof(u32)        * cfg.map_capacity);
+        tbl_map->offset_row  =        (s32*)stack_push(_map_mngr->mem_stack, sizeof(s32)        * cfg.map_capacity);
+        tbl_map->offset_col  =        (s32*)stack_push(_map_mngr->mem_stack, sizeof(s32)        * cfg.map_capacity);
+        tbl_map->name        =   (map_name*)stack_push(_map_mngr->mem_stack, sizeof(map_name)   * cfg.map_capacity);
+        assert(tbl_map->map_hnd     != NULL); 
+        assert(tbl_map->count_rows  != NULL); 
+        assert(tbl_map->count_cols  != NULL); 
+        assert(tbl_map->offset_row  != NULL); 
+        assert(tbl_map->offset_col  != NULL); 
+    
+        // allocate tile table memory
+        tbl_tiles->color   = (color_rgba_u32*)stack_push(_map_mngr->mem_stack, sizeof(color_rgba_u32) * tile_count_max);
+        assert(tbl_tiles->color   != NULL);  
+
+        // set the map id array to invalid
+        memset(tbl_map->map_hnd, 0xFF, sizeof(map_handle) * cfg.map_capacity);
+   
+        // store capacities
+        _map_mngr->map_capacity   = cfg.map_capacity;
+        _map_mngr->tiles_per_map  = cfg.tile_capacity;
+        _map_mngr->tile_unit_size = cfg.tile_unit_size;
     }
 
     IFB_INTERNAL void

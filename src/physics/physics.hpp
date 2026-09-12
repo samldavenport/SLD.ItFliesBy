@@ -28,11 +28,11 @@ namespace ifb {
     //--------------------------------------------------------------------
     IFB_INTERNAL physics_mngr*        physics_mngr_create             (void);
     IFB_INTERNAL void                 physics_mngr_validate           (void);
-    IFB_INTERNAL void                 physics_mngr_startup            (memory& memory);
+    IFB_INTERNAL void                 physics_mngr_startup            (reservation* res);
     IFB_INTERNAL void                 physics_mngr_shutdown           (void);
     IFB_INTERNAL void                 physics_mngr_simulate           (const f32 dt);
 
-    IFB_INTERNAL physics_accumulator* physics_accumulator_init        (stack& s);
+    IFB_INTERNAL physics_accumulator* physics_accumulator_init        (reservation* res);
     IFB_INTERNAL void                 physics_accumulator_validate    (physics_accumulator* const accum);
     IFB_INTERNAL void                 physics_accumulator_add         (physics_accumulator* const accum, const entity_id id, const vec3& v);
     IFB_INTERNAL bool                 physics_accumulator_lookup      (physics_accumulator* const accum, const entity_id id, vec3& v);
@@ -54,9 +54,9 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct physics_memory {
-        stack            stack;
+        reservation*     res;
         block_allocator  world_allocator;
-        arena_handle simulation_arena;
+        arena_handle     simulation_arena;
     };
 
     struct physics_entity : entity {
