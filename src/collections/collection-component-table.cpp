@@ -12,7 +12,8 @@ namespace ifb {
 
         assert(s);
         static const u32 capacity = config_instance().entity_capacity;
-        _cmpnt = s->push_struct<t>(capacity);
+       
+        _cmpnt = (t*)stack_push(s, (sizeof(t) * capacity));
         assert(_cmpnt != NULL);
     }
 

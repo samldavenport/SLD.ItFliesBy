@@ -74,8 +74,8 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct cmpnt_mngr {
-        stack* mem;
-        u32    capacity;
+        stack*       mem;
+        u32          capacity;
         struct {
             cmpnt_tbl_position      position;
             cmpnt_tbl_color         color;

@@ -6,7 +6,7 @@
 namespace ifb {
 
     struct map_mngr {
-        stack           mem_stack;
+        stack*          mem_stack;
         map_tile_table* tbl_tiles;
         map_table*      tbl_map;
         u32             map_capacity;
