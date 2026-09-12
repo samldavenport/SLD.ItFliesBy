@@ -24,7 +24,7 @@ namespace ifb {
         assert(_renderer_ctx); 
         assert(_renderer_ctx->proj == NULL); 
 
-        auto proj = _renderer_ctx->memory.stack.push_struct<renderer_projection>();
+        auto proj = (renderer_projection*)renderer_context_memory_alloc(sizeof(renderer_projection)); 
         assert(proj);
 
         proj->fov_y     = trig_degrees_to_radians(60.0f);

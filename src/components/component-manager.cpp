@@ -74,10 +74,10 @@ namespace ifb {
 
         stack* s = _cmpnt_mngr->mem;
 
-        auto tbl   = s->push_struct<cmpnt_table_position>();
-        auto col_x = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_y = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_z = s->push_struct<f32>(_cmpnt_mngr->capacity);
+        auto tbl   = (cmpnt_table_position*)stack_push(s, sizeof(cmpnt_table_position));
+        auto col_x =                  (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
+        auto col_y =                  (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
+        auto col_z =                  (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
     
         assert(
             tbl   != NULL &&
@@ -99,8 +99,8 @@ namespace ifb {
 
         stack* s = _cmpnt_mngr->mem;
         
-        auto tbl     = s->push_struct<cmpnt_table_color>();
-        auto col_hex = s->push_struct<u32>(_cmpnt_mngr->capacity);
+        auto tbl     = (cmpnt_table_color*)stack_push(s, sizeof(cmpnt_table_color));
+        auto col_hex =               (u32*)stack_push(s, sizeof(u32) * _cmpnt_mngr->capacity);
 
         assert(
             tbl     != NULL &&
@@ -118,9 +118,9 @@ namespace ifb {
 
         auto s = _cmpnt_mngr->mem;
 
-        auto tbl    = s->push_struct<cmpnt_table_quad> ();
-        auto width  = s->push_struct<f32>              (_cmpnt_mngr->capacity);
-        auto height = s->push_struct<f32>              (_cmpnt_mngr->capacity);
+        auto tbl    = (cmpnt_table_quad*)stack_push(s, sizeof(cmpnt_table_quad));
+        auto width  =              (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
+        auto height =              (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
 
         assert(
             tbl    != NULL &&
@@ -138,13 +138,13 @@ namespace ifb {
     create_tbl_rigid_body(
         void) {
 
-        auto mem          = _cmpnt_mngr->mem;
-        auto tbl          = mem->push_struct<cmpnt_table_rigid_body>();
-        auto col_origin_x = mem->push_struct<f32>(_cmpnt_mngr->capacity); 
-        auto col_origin_y = mem->push_struct<f32>(_cmpnt_mngr->capacity); 
-        auto col_origin_z = mem->push_struct<f32>(_cmpnt_mngr->capacity); 
-        auto col_width    = mem->push_struct<f32>(_cmpnt_mngr->capacity); 
-        auto col_height   = mem->push_struct<f32>(_cmpnt_mngr->capacity); 
+        auto s            = _cmpnt_mngr->mem;
+        auto tbl          = (cmpnt_table_rigid_body*)stack_push(s, sizeof(cmpnt_table_rigid_body));
+        auto col_origin_x =                    (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity); 
+        auto col_origin_y =                    (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity); 
+        auto col_origin_z =                    (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity); 
+        auto col_width    =                    (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity); 
+        auto col_height   =                    (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity); 
 
         assert(
             tbl          != NULL &&
@@ -170,10 +170,10 @@ namespace ifb {
 
         auto s = _cmpnt_mngr->mem;
 
-        auto tbl   = s->push_struct<cmpnt_table_velocity>();
-        auto col_x = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_y = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_z = s->push_struct<f32>(_cmpnt_mngr->capacity);
+        auto tbl   = (cmpnt_table_velocity*)stack_push(s, sizeof(cmpnt_table_velocity));
+        auto col_x =                  (f32*)stack_push(s, sizeof(f32)* _cmpnt_mngr->capacity);
+        auto col_y =                  (f32*)stack_push(s, sizeof(f32)* _cmpnt_mngr->capacity);
+        auto col_z =                  (f32*)stack_push(s, sizeof(f32)* _cmpnt_mngr->capacity);
     
         assert(
             tbl   != NULL &&
@@ -195,10 +195,10 @@ namespace ifb {
        
         auto s = _cmpnt_mngr->mem;
 
-        auto tbl   = s->push_struct<cmpnt_table_acceleration>();
-        auto col_x = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_y = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_z = s->push_struct<f32>(_cmpnt_mngr->capacity);
+        auto tbl   = (cmpnt_table_acceleration*)stack_push(s, sizeof(cmpnt_table_acceleration));
+        auto col_x =                      (f32*)stack_push(s, sizeof(f32)* _cmpnt_mngr->capacity);
+        auto col_y =                      (f32*)stack_push(s, sizeof(f32)* _cmpnt_mngr->capacity);
+        auto col_z =                      (f32*)stack_push(s, sizeof(f32)* _cmpnt_mngr->capacity);
     
         assert(
             tbl   != NULL &&
@@ -220,8 +220,8 @@ namespace ifb {
 
         auto s = _cmpnt_mngr->mem;
 
-        auto tbl     = s->push_struct<cmpnt_table_inv_mass>();
-        auto col_val = s->push_struct<f32>(_cmpnt_mngr->capacity);
+        auto tbl     = (cmpnt_table_inv_mass*)stack_push(s, sizeof(cmpnt_table_inv_mass));
+        auto col_val =                  (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
     
         assert(tbl);
         assert(col_val);
@@ -237,8 +237,8 @@ namespace ifb {
 
         auto s = _cmpnt_mngr->mem;
 
-        auto tbl     = s->push_struct<cmpnt_table_drag>();
-        auto col_val = s->push_struct<f32>(_cmpnt_mngr->capacity);
+        auto tbl     = (cmpnt_table_drag*)stack_push(s, sizeof(cmpnt_table_drag));
+        auto col_val =              (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
     
         assert(tbl);
         assert(col_val);
@@ -254,10 +254,10 @@ namespace ifb {
        
         auto s = _cmpnt_mngr->mem;
 
-        auto tbl   = s->push_struct<cmpnt_table_term_velocity>();
-        auto col_x = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_y = s->push_struct<f32>(_cmpnt_mngr->capacity);
-        auto col_z = s->push_struct<f32>(_cmpnt_mngr->capacity);
+        auto tbl   = (cmpnt_table_term_velocity*)stack_push(s, sizeof(cmpnt_table_term_velocity));
+        auto col_x =                       (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
+        auto col_y =                       (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
+        auto col_z =                       (f32*)stack_push(s, sizeof(f32) * _cmpnt_mngr->capacity);
     
         assert(
             tbl   != NULL &&
@@ -279,11 +279,11 @@ namespace ifb {
 
         auto s = _cmpnt_mngr->mem;
 
-        auto tbl    = s->push_struct<cmpnt_table_spring>();
-        auto anchor = s->push_struct<entity_id> (_cmpnt_mngr->capacity);
-        auto stiff  = s->push_struct<f32>       (_cmpnt_mngr->capacity);
-        auto damp   = s->push_struct<f32>       (_cmpnt_mngr->capacity);
-        auto rest   = s->push_struct<f32>       (_cmpnt_mngr->capacity);
+        auto tbl    = (cmpnt_table_spring*)stack_push(s, sizeof(cmpnt_table_spring));
+        auto anchor =          (entity_id*)stack_push(s, sizeof(entity_id)* _cmpnt_mngr->capacity);
+        auto stiff  =                (f32*)stack_push(s, sizeof(f32)      * _cmpnt_mngr->capacity);
+        auto damp   =                (f32*)stack_push(s, sizeof(f32)      * _cmpnt_mngr->capacity);
+        auto rest   =                (f32*)stack_push(s, sizeof(f32)      * _cmpnt_mngr->capacity);
 
         assert(tbl    != NULL);
         assert(anchor != NULL);

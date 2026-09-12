@@ -36,11 +36,10 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
-        _renderer_ctx->shader.direction_gizmo =
-            _renderer_ctx->memory.stack.push_struct<
-                renderer_direction_gizmo_shader
-            >();
-    
+        _renderer_ctx->shader.direction_gizmo = 
+            (renderer_direction_gizmo_shader*)renderer_context_memory_alloc(
+                    sizeof(renderer_direction_gizmo_shader)
+        );
         assert(_renderer_ctx->shader.direction_gizmo);
     }
     

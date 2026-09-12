@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
 #include "memory.hpp"
@@ -128,7 +129,8 @@ namespace ifb {
         assert(size_min != 0);
 
         // get the page and aligned sizes
-        const u32 size_aligned = system_align_to_memory_page_size(size_min);
+        const u32 size_stack   = stack_memory_requirement(size_min); 
+        const u32 size_aligned = system_align_to_memory_page_size(size_stack);
         const u32 page_size    = system_get_memory_page_size();
         assert(size_aligned != 0);
         assert(page_size    != 0);
@@ -150,11 +152,12 @@ namespace ifb {
         res->page_count = page_count_new;
     
         // create the stack
-        auto s = (stack*)cmt;
         memory stack_mem;
-        stack_mem.address = (addr)cmt    + sizeof(stack);
-        stack_mem.size    = size_aligned - sizeof(stack);
-        s->init(stack_mem);
+        stack_mem.address = (addr)cmt;
+        stack_mem.size    = size_aligned;
+        auto* s = stack_memory_create(stack_mem);   
+        assert(s);
+
         return(s);
     }
 
@@ -185,11 +188,11 @@ namespace ifb {
         res->page_count = page_count_new;
     
         // create the stack
-        auto s = (stack*)cmt;
         memory stack_mem;
-        stack_mem.address = (addr)cmt    + sizeof(stack);
-        stack_mem.size    = size_aligned - sizeof(stack);
-        s->init(stack_mem);
+        stack_mem.address = (addr)cmt;
+        stack_mem.size    = size_aligned;
+        
+        stack* s = stack_memory_create(stack_mem);
         return(s);
     }
     
@@ -199,16 +202,11 @@ namespace ifb {
 
         reservation_validate(res);
 
-        auto s = (stack*)reservation_push_all(res);
-        assert(s);
-        const u32 size_res = reservation_get_capacity(res);
-        assert(size_res != 0);
-
         memory mem;
-        mem.size    = size_res - sizeof(stack);
-        mem.address = (addr)s  + sizeof(stack);
+        mem.size  = reservation_get_capacity (res);
+        mem.ptr   = reservation_push_all     (res);
 
-        s->init(mem);
+        stack* s = stack_memory_create(mem);
 
         return(s);
     }

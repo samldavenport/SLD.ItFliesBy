@@ -65,6 +65,22 @@ namespace ifb {
         return(s);
     }
 
+    stack*
+    stack_memory_create(
+        memory& mem) {
+
+        assert(mem.size > sizeof(stack));   
+        assert(mem.address != 0);
+
+        auto s = (stack*)mem.address;
+        s->start    = mem.address + sizeof(stack);
+        s->capacity = mem.size - sizeof(stack);
+        s->position = 0;
+        s->save     = 0;
+
+        return(s);
+    }
+    
     stack* 
     stack_arena_create(
         const u32          capacity,

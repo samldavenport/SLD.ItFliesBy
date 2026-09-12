@@ -7,6 +7,7 @@
 #include "sld-opengl.hpp"
 #include <cassert>
 #include "ifb-collections.hpp"
+#include "quad.hpp"
 
 namespace ifb {
 
@@ -47,7 +48,7 @@ namespace ifb {
 
         assert(_renderer_ctx);
 
-        auto shdr = _renderer_ctx->memory.stack.push_struct<renderer_quad_shader>();
+        auto shdr = (renderer_quad_shader*)renderer_context_memory_alloc(sizeof(renderer_quad_shader));
         assert(shdr); 
         _renderer_ctx->shader.quad = shdr;
 
@@ -66,7 +67,12 @@ namespace ifb {
         assert(buffers.element.data.vptr != 0);
         assert(quad_entities             != NULL);
 
-        shdr->render_list = entity_list_stack_create(_renderer_ctx->memory.stack);
+        memory mem;
+        mem.size = entity_list_mem_req(); 
+        mem.ptr  = renderer_context_memory_alloc(mem.size); 
+        assert(mem.size    != 0);
+        assert(mem.address != 0);
+        shdr->render_list = entity_list_memory_create(mem);
         assert(shdr->render_list);
     }
     
