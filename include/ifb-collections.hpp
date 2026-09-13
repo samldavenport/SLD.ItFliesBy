@@ -8,40 +8,6 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // ARRAY LIST
-    //--------------------------------------------------------------------
-
-    template<typename t>
-    class array_list {
-    
-    private:
-        
-        t*  _elmnt;
-        u32 _capacity;
-        u32 _count;
-
-    public:
-
-        void init      (t* elmnts, const u32 capacity);
-        void validate  (void)                        const;
-        u32  capacity  (void)                        const;
-        u32  count     (void)                        const;
-        bool is_full   (void)                        const;
-        bool index_of  (const t& elmnt, u32& index)  const;
-        bool contains  (const t& elmnt)              const;
-        void reset     (void);
-        t&   get       (const u32 index);
-        bool add       (const t&  elmnt);
-        void remove    (const t&  elmnt);
-        void remove_at (const u32 index);
-
-        inline t& operator[] (const u32 index) {
-            assert(index < _count);
-            return(_elmnt[index]);
-        }
-    };
-
-    //--------------------------------------------------------------------
     // STACK
     //--------------------------------------------------------------------
       
