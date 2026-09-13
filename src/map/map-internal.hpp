@@ -16,6 +16,8 @@ namespace ifb {
     struct map_memory;
     struct map_chunk;
     struct map;
+    struct map_chunk_table;
+    struct map_table;
 
     //--------------------------------------------------------------------
     // MAP MANAGER 
@@ -23,7 +25,7 @@ namespace ifb {
 
     struct map_mngr {
         stack*          mem_stack;
-        map_tile_table* tbl_tiles;
+        map_chunk_table* tbl_tiles;
         map_table*      tbl_map;
         u32             map_capacity;
         u32             tiles_per_map;

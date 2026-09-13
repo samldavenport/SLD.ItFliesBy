@@ -47,7 +47,6 @@ namespace ifb {
         const u32            offset_cols,
         const color_rgba_u32 base_color
     );
-
     IFB_INTERNAL void
     map_chunk_destroy(
         const map_handle map_hnd,

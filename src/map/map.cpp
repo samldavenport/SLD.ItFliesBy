@@ -16,19 +16,7 @@ namespace ifb {
 
         assert(map_name);
 
-        map_memory_stack* stack = map_memory_stack_alloc(_map_mngr->memory);
-        if (!stack) return(INVALID_HANDLE);
-
-        map* m = map_memory_stack_push_map(_map_mngr->memory, stack);
-        if (!m) return(INVALID_HANDLE);
-
-        const u32 name_length = cstr_c16_init(&m->name, map_name);
-        assert(name_length != 0);
-    
-        const handle h = map_memory_handle_from_ptr(_map_mngr->memory, (void*)m);
-        m->hnd.val = h.val;
-
-        return(m->hnd);
+        return(INVALID_HANDLE);
     }
 
     IFB_INTERNAL void
