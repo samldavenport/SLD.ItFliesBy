@@ -62,23 +62,7 @@ namespace ifb {
     u32          entity_list_count         (const entity_list* el);
     bool         entity_list_contains      (const entity_list* el, const entity_id);
     entity_id    entity_list_index         (entity_list* el, const u32 index);
-
-    //--------------------------------------------------------------------
-    // COMPONENT TABLE 
-    //--------------------------------------------------------------------
    
-    template<typename t>
-    class component_table {
-    
-    private:
-        t* _cmpnt;
-
-    public:
-       
-        void stack_init (stack* s);
-        void lookup     (const u32 sparse_index, t&       cmpnt);
-        void update     (const u32 sparse_index, const t& cmpnt);
-    };
 };
 
 #endif //IFB_COLLECTIONS_HPP

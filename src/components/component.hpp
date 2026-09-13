@@ -23,6 +23,9 @@ namespace ifb {
     struct cmpnt_table_term_velocity;
     struct cmpnt_table_spring;
 
+    template<typename t>
+    class component_table;
+
     using cmpnt_tbl_position      = component_table<position_3d>; 
     using cmpnt_tbl_color         = component_table<color_rgba_u32>; 
     using cmpnt_tbl_quad          = component_table<quad>; 
@@ -70,29 +73,21 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_update_spring        (const u32 sparse_index, const spring&           s);
 
     //--------------------------------------------------------------------
-    // COMPONENT MANAGER
-    //--------------------------------------------------------------------
-
-    struct cmpnt_mngr {
-        stack*       mem;
-        u32          capacity;
-        struct {
-            cmpnt_tbl_position      position;
-            cmpnt_tbl_color         color;
-            cmpnt_tbl_quad          quad;
-            cmpnt_tbl_rigid_body    rigid_body;
-            cmpnt_tbl_velocity      velocity;
-            cmpnt_tbl_acceleration  acceleration;
-            cmpnt_tbl_inv_mass      inv_mass;
-            cmpnt_tbl_drag          drag;
-            cmpnt_tbl_term_velocity term_velocity;
-            cmpnt_tbl_spring        spring;
-        } tbl;
-    };
-
-    //--------------------------------------------------------------------
     // TABLE DEFINITIONS
     //--------------------------------------------------------------------
+
+    template<typename t>
+    class component_table {
+    
+    private:
+        t* _cmpnt;
+
+    public:
+       
+        void stack_init (stack* s);
+        void lookup     (const u32 sparse_index, t&       cmpnt);
+        void update     (const u32 sparse_index, const t& cmpnt);
+    };
 
     struct cmpnt_table_position {
         f32* x;
@@ -149,6 +144,28 @@ namespace ifb {
         f32*       damping;
         f32*       rest_length;
     };
+    
+    //--------------------------------------------------------------------
+    // COMPONENT MANAGER
+    //--------------------------------------------------------------------
+
+    struct cmpnt_mngr {
+        stack*       mem;
+        u32          capacity;
+        struct {
+            cmpnt_tbl_position      position;
+            cmpnt_tbl_color         color;
+            cmpnt_tbl_quad          quad;
+            cmpnt_tbl_rigid_body    rigid_body;
+            cmpnt_tbl_velocity      velocity;
+            cmpnt_tbl_acceleration  acceleration;
+            cmpnt_tbl_inv_mass      inv_mass;
+            cmpnt_tbl_drag          drag;
+            cmpnt_tbl_term_velocity term_velocity;
+            cmpnt_tbl_spring        spring;
+        } tbl;
+    };
+
 };
 
 #endif //COMPONENTS_HPP
