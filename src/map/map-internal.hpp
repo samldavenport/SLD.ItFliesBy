@@ -24,12 +24,12 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct map_mngr {
-        stack*          mem_stack;
-        map_chunk_table* tbl_tiles;
-        map_table*      tbl_map;
-        u32             map_capacity;
-        u32             tiles_per_map;
-        f32             tile_unit_size;
+        stack*           mem_stack;
+        map_chunk_table* tbl_chunk;
+        map_table*       tbl_map;
+        u32              map_capacity;
+        u32              tiles_per_map;
+        f32              tile_unit_size;
     } static * _map_mngr;
 
     //--------------------------------------------------------------------
