@@ -3,8 +3,48 @@
 #include "component.hpp"
 #include "ifb-types.hpp"
 
+#define CMPNT_TBL_FUNC template<typename t> auto component_table<t>::
+
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // COMPONENT TABLE
+    //--------------------------------------------------------------------
+    
+    CMPNT_TBL_FUNC 
+    stack_init(stack* s) -> void {
+
+        assert(s);
+        static const u32 capacity = config_instance().entity_capacity;
+       
+        _cmpnt = (t*)stack_push(s, (sizeof(t) * capacity));
+        assert(_cmpnt != NULL);
+    }
+
+    CMPNT_TBL_FUNC
+    lookup(
+        const u32 sparse_index,
+        t& cmpnt) -> void {
+
+        static const u32 capacity = config_instance().entity_capacity;
+        assert(_cmpnt);
+        assert(sparse_index < capacity);
+
+        cmpnt = _cmpnt[sparse_index];
+    }
+
+    CMPNT_TBL_FUNC
+    update(
+        const u32 sparse_index,
+        const t&  cmpnt) -> void {
+
+        static const u32 capacity = config_instance().entity_capacity;
+        assert(_cmpnt);
+        assert(sparse_index < capacity);
+
+        _cmpnt[sparse_index] = cmpnt;
+    }
+    
     //--------------------------------------------------------------------
     // LOOKUP METHODS 
     //--------------------------------------------------------------------
