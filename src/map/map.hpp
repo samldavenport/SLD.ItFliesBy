@@ -31,23 +31,26 @@ namespace ifb {
     IFB_INTERNAL void                   map_mngr_startup            (reservation* res);
     IFB_INTERNAL void                   map_mngr_shutdown           (void);
     IFB_INTERNAL const map_color_table& map_mngr_get_color_table    (void);
-    IFB_INTERNAL f32                    map_mngr_get_tile_unit_size (void);
 
     // map
-    IFB_INTERNAL map_handle map_create  (const cchar* map_name);
-    IFB_INTERNAL void       map_destroy (const map_handle map_hnd);
+    IFB_INTERNAL map_handle map_create(
+        const cchar* map_name,
+        const u32    count_rows,
+        const u32    count_cols
+    );
+    IFB_INTERNAL bool map_destroy (const map_handle map_hnd);
 
     // map chunk
     IFB_INTERNAL u32
     map_chunk_create(
         const map_handle     map_hnd,
+        const u32            origin_row,
+        const u32            origin_col,
         const u32            count_rows,
         const u32            count_cols,
-        const u32            offset_rows,
-        const u32            offset_cols,
         const color_rgba_u32 base_color
     );
-    IFB_INTERNAL void
+    IFB_INTERNAL bool 
     map_chunk_destroy(
         const map_handle map_hnd,
         const u32        chunk_index

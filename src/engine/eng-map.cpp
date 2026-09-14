@@ -10,11 +10,20 @@ namespace ifb {
 
     IFB_ENGINE_API map_handle
     eng_map_create(
-        const cchar* name) {
+        const cchar* name,
+        const u32    count_rows,
+        const u32    count_cols) {
 
-        assert(name != NULL);
+        assert(name       != NULL);
+        assert(count_rows != 0);
+        assert(count_cols != 0);
 
-        const map_handle hnd = map_create(name);
+        const map_handle hnd = map_create(
+            name,
+            count_rows,
+            count_cols
+        );
+
         return(hnd);
     } 
     

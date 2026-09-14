@@ -1,9 +1,12 @@
 #ifndef MAP_INTERNAL_HPP
 #define MAP_INTERNAL_HPP
 
+#include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "map.hpp"
+#include "memory-reservation.cpp"
 #include "sld-strings.hpp"
+#include "sld.hpp"
 
 namespace ifb {
 
@@ -11,94 +14,58 @@ namespace ifb {
     // INTERNAL TYPES 
     //--------------------------------------------------------------------
    
-    struct map_memory_stack;
-    struct map_memory_stack_list;
-    struct map_memory;
-    struct map_chunk;
     struct map;
+    struct map_dimensions;
     struct map_chunk_table;
     struct map_table;
+    struct map_chunk;
 
     //--------------------------------------------------------------------
     // MAP MANAGER 
     //--------------------------------------------------------------------
 
     struct map_mngr {
-        stack*           mem_stack;
-        map_chunk_table* tbl_chunk;
-        map_table*       tbl_map;
-        u32              map_capacity;
-        u32              tiles_per_map;
-        f32              tile_unit_size;
+        reservation* res;
+        map_table*   tbl_map;
     } static * _map_mngr;
 
     //--------------------------------------------------------------------
-    // MAP MEMORY
+    // MAP
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL map_memory*       map_memory_create           (void);
-    IFB_INTERNAL void              map_memory_init             (map_memory* map_mem, const memory& res);  
-    IFB_INTERNAL map_memory_stack* map_memory_stack_alloc      (map_memory* map_mem);  
-    IFB_INTERNAL void              map_memory_stack_free       (map_memory* map_mem, map_memory_stack* stack);  
-    IFB_INTERNAL map*              map_memory_stack_push_map   (map_memory* map_mem, map_memory_stack* stack);
-    IFB_INTERNAL map_chunk*        map_memory_stack_push_chunk (map_memory* map_mem, map_memory_stack* stack);
-    IFB_INTERNAL handle            map_memory_handle_from_ptr  (map_memory* map_mem, const void*  ptr);
-    IFB_INTERNAL void*             map_memory_ptr_from_handle  (map_memory* map_mem, const handle hnd);
+    IFB_INTERNAL u32             map_lookup_index   (const map_handle map_hnd);
+    IFB_INTERNAL map_dimensions& map_get_dimensions (const u32 map_index);
+    IFB_INTERNAL map_chunk&      map_get_chunk      (const u32 map_index, const u32 chunk_index);
 
-    struct map_memory_stack {
-        map_memory_stack* next;
-        map_memory_stack* prev;
-        u32               pos; 
-    };
-
-    struct map_memory_stack_list {
-        map_memory_stack* free;
-        map_memory_stack* used;
-        u32               stack_count; 
-        u32               stack_size; 
-    };
-
-    struct map_memory : memory {
-        map_memory_stack_list* stack_list;
-    };
-
-    //--------------------------------------------------------------------
-    // MAP 
-    //--------------------------------------------------------------------
-
-    struct map_chunk_table {
-        u32*                count_rows;
-        u32*                count_cols;
-        u32*                offset_row;
-        u32*                offset_col;
-        map_tile_color_u32* base_color;
-        map_tile*           tile_array;
+    struct map_dimensions {
+        u32 count_rows;
+        u32 count_cols;
+        u32 count_chunks;
     };
 
     struct map {
-        map_memory_stack* stack;
-        map_handle        hnd;
-        cstr_c16          name;
+        cstr_c16*      name;
+        map_handle     hnd;
+        map_dimensions dims;
     };
-   
-
-    struct map_table {
-        u32              capacity;
-        map_handle*      hnd;
-        cstr_c16*        name;
-        map_chunk_table* chunk_table;  
-    };
-
-    //--------------------------------------------------------------------
-    // MAP 
-    //--------------------------------------------------------------------
 
     struct map_chunk {
-        map_tile_color_u32 base_color;
-        u32                count_rows;
-        u32                count_cols;
-        u32                offset_rows;
-        u32                offset_cols;
+        u32            origin_row;
+        u32            origin_col;
+        u32            count_rows;
+        u32            count_cols;
+        color_rgba_u32 base_color;
+    };
+
+    struct map_chunk_array {
+        map_chunk chunks [IFB_CONFIG_MAP_CHUNK_CAPACITY];
+    };
+
+    struct map_table {
+        map_handle*      hnd;
+        map_dimensions*  dims;
+        cstr_c16*        name;
+        map_chunk_array* chunk_array;
     };
 };
 

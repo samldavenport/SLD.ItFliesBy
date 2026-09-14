@@ -161,8 +161,13 @@ namespace ifb {
     // TILE MAPS 
     //--------------------------------------------------------------------
    
-    IFB_ENGINE_API map_handle     eng_map_create            (const cchar* name); 
-    IFB_ENGINE_API void           eng_map_destroy           (const map_handle map);
+    IFB_ENGINE_API map_handle
+    eng_map_create(
+        const cchar* name,
+        const u32    count_rows,
+        const u32    count_cols
+    ); 
+    IFB_ENGINE_API void eng_map_destroy (const map_handle map);
     
     IFB_ENGINE_API map_chunk_handle
     eng_map_chunk_create(
