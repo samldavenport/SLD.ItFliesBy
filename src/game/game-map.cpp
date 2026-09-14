@@ -21,6 +21,6 @@ namespace ifb {
 
         assert(map);
 
-        eng_map_render(map->eng_hnd);
+        // eng_map_render(map->eng_hnd);
     } 
 };

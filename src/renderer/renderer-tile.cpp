@@ -2,7 +2,6 @@
 #include "renderer.hpp"
 #include "sld-opengl.hpp"
 #include "map.hpp"
-#include "map.cpp"
 #include "sld.hpp"
 #include <cassert>
 
@@ -68,7 +67,7 @@ namespace ifb {
         _renderer_ctx->shader.tile = shdr;
 
         // allocate buffer memory
-        shdr->buffers.instance.data_size   = cfg.tile_capacity * sizeof(renderer_tile_instance); 
+        shdr->buffers.instance.data_size   = cfg.map_tile_capacity * cfg.map_capacity * sizeof(renderer_tile_instance); 
         shdr->buffers.instance.data_length = 0;
         shdr->buffers.instance.data.vptr   = renderer_context_memory_alloc(shdr->buffers.instance.data_size);   
         assert(shdr->buffers.instance.data_size != 0);
