@@ -9,12 +9,12 @@ namespace ifb {
 
     IFB_INTERNAL u32
     map_chunk_create(
-        const map_handle     map_hnd,
-        const u32            origin_row,
-        const u32            origin_col,
-        const u32            count_rows,
-        const u32            count_cols,
-        const color_rgba_u32 base_color) {
+        const map_handle         map_hnd,
+        const u32                count_rows,
+        const u32                count_cols,
+        const u32                origin_row,
+        const u32                origin_col,
+        const map_tile_color_u32 base_color) {
 
         const auto& cfg = config_instance();
 
@@ -47,7 +47,7 @@ namespace ifb {
         chunk.count_cols = count_cols;
         chunk.base_color = base_color;
 
-        //TODO(SLD): we need to make sure this chunk does not overlap
+        // TODO(SLD): we need to make sure this chunk does not overlap
         // with any other existing chunks
 
         return(chunk_index);

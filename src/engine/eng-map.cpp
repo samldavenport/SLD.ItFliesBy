@@ -32,9 +32,10 @@ namespace ifb {
         const map_handle         map_hnd,
         const u32                count_rows,
         const u32                count_cols,
-        const s32                offset_row,
-        const s32                offset_col,
-        const map_tile_color_u32 base_color) {
+        const u32                origin_row,
+        const u32                origin_col,
+        const map_tile_color_u32 base_color
+    ) {
 
         assert(map_hnd     != INVALID_HANDLE);
         assert(count_rows  != 0);

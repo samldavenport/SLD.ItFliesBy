@@ -158,9 +158,12 @@ namespace ifb {
     map_get_render_buffer(
         const map_handle   map_hnd,
         const arena_handle arena_hnd) {
-        
-        assert(map_hnd   != INVALID_HANDLE);
-        assert(arena_hnd != INVALID_HANDLE);
+       
+        // validate
+        assert(map_hnd            != INVALID_HANDLE);
+        assert(arena_hnd          != INVALID_HANDLE);
+        assert(_map_mngr          != NULL);
+        assert(_map_mngr->tbl_map != NULL);
 
         // get the map index
         const u32 map_index = map_lookup_index(map_hnd);

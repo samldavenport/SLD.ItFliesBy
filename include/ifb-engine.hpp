@@ -174,8 +174,8 @@ namespace ifb {
         const map_handle         map_hnd,
         const u32                count_rows,
         const u32                count_cols,
-        const u32                offset_rows,
-        const u32                offset_cols,
+        const u32                origin_row,
+        const u32                origin_col,
         const map_tile_color_u32 base_color
     );
     

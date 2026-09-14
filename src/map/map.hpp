@@ -50,12 +50,12 @@ namespace ifb {
     // map chunk
     IFB_INTERNAL u32
     map_chunk_create(
-        const map_handle     map_hnd,
-        const u32            origin_row,
-        const u32            origin_col,
-        const u32            count_rows,
-        const u32            count_cols,
-        const color_rgba_u32 base_color
+        const map_handle         map_hnd,
+        const u32                count_rows,
+        const u32                count_cols,
+        const u32                origin_row,
+        const u32                origin_col,
+        const map_tile_color_u32 base_color
     );
     IFB_INTERNAL bool 
     map_chunk_destroy(
