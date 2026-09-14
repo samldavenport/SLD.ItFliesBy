@@ -3,6 +3,7 @@
 #include "ifb-config.hpp"
 #include "map-internal.hpp"
 #include "ifb-types.hpp"
+#include "memory-arena.cpp"
 #include "sld.hpp"
 #include "map.hpp"
 #include <cassert>
@@ -147,9 +148,86 @@ namespace ifb {
         assert(chunk_index < cfg.map_chunk_capacity);
         assert(map_tbl->hnd[map_index] != INVALID_HANDLE);
 
-        map_chunk_array& chunk_array = chunk_arrays [map_index];
-        map_chunk&       chunk       = chunk_array  [chunk_index];
-        
+        map_chunk_array& chunk_array = chunk_arrays      [map_index];
+        map_chunk&       chunk       = chunk_array.chunks[chunk_index];
+    
         return(chunk);
     }
+    
+    IFB_INTERNAL const map_render_buffer*
+    map_get_render_buffer(
+        const map_handle   map_hnd,
+        const arena_handle arena_hnd) {
+        
+        assert(map_hnd   != INVALID_HANDLE);
+        assert(arena_hnd != INVALID_HANDLE);
+
+        // get the map index
+        const u32 map_index = map_lookup_index(map_hnd);
+        if (map_index == INVALID_INDEX) {
+            return(NULL);
+        }
+
+        // get the map dimensions
+        const map_dimensions& dims = map_get_dimensions(map_index);
+
+        // count the tiles
+        u32 tile_count = 0;
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            const map_chunk& chunk = map_get_chunk(map_index, chunk_index);
+            tile_count += (chunk.count_rows * chunk.count_cols);
+        }
+        if (tile_count == 0) {
+            return(NULL);
+        }
+
+        // allocate buffer
+        const u32 save        = arena_save(arena_hnd);
+        const u32 size_struct = sizeof(map_render_buffer);
+        const u32 size_data   = sizeof(map_tile) * tile_count; 
+        auto*     buffer       = (map_render_buffer*)arena_push(arena_hnd, size_struct);
+        auto*     tile_array   =          (map_tile*)arena_push(arena_hnd, size_data);
+        if (buffer == NULL || tile_array == NULL) {
+            arena_revert(arena_hnd, save);
+            return(NULL);
+        }
+        arena_commit(arena_hnd, save);
+      
+        // initialize buffer
+        buffer->map             = map_hnd;
+        buffer->data_size       = size_data;
+        buffer->data.tile_array = tile_array;
+
+        // fill out the render buffer
+        u32 tile_index = 0;
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            const map_chunk& chunk            = map_get_chunk(map_index, chunk_index);
+            const u32        chunk_tile_count = chunk.count_rows * chunk.count_cols;
+            for (
+                u32 chunk_tile_index = 0;
+                    chunk_tile_index < chunk_tile_count;
+                  ++chunk_tile_index) {
+
+                // calculate the row and column
+                const u32 row = (chunk_tile_index / chunk.count_rows) + chunk.origin_row;
+                const u32 col = (chunk_tile_index % chunk.count_cols) + chunk.origin_col;
+
+                // get the next tile
+                map_tile& tile = buffer->data.tile_array[tile_index++]; 
+
+                // initialize the tile
+                tile.index = (row * dims.count_cols) + col;
+                tile.color = (u8)chunk.base_color.val;
+            }
+        }
+        return(buffer);
+    } 
 };

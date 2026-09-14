@@ -56,6 +56,9 @@ namespace ifb {
     IFB_INTERNAL bool 
     map_chunk_destroy(
         const map_handle map_hnd,
-        const u32        chunk_index
-    );
+        const u32        chunk_index) {
+
+        //TODO
+        return(false);
+    }
 };

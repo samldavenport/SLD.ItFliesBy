@@ -16,9 +16,9 @@ namespace ifb {
    
     struct map;
     struct map_dimensions;
-    struct map_chunk_table;
     struct map_table;
     struct map_chunk;
+    struct map_chunk_array;
 
     //--------------------------------------------------------------------
     // MAP MANAGER 
@@ -50,11 +50,11 @@ namespace ifb {
     };
 
     struct map_chunk {
-        u32            origin_row;
-        u32            origin_col;
-        u32            count_rows;
-        u32            count_cols;
-        color_rgba_u32 base_color;
+        u32                origin_row;
+        u32                origin_col;
+        u32                count_rows;
+        u32                count_cols;
+        map_tile_color_u32 base_color;
     };
 
     struct map_chunk_array {

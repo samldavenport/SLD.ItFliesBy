@@ -117,7 +117,13 @@ namespace ifb {
     };
 
     struct map_tile {
-        u32 val;
+        union {
+            u32 val;
+            struct {
+                u16 index;
+                u8  color; 
+            };
+        };
     };
 
     //--------------------------------------------------------------------

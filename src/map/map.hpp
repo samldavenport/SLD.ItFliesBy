@@ -15,6 +15,7 @@ namespace ifb {
     
     struct map_mngr;
     struct map_color_table;
+    struct map_render_buffer;
 
     //--------------------------------------------------------------------
     // CONSTANTS
@@ -33,11 +34,17 @@ namespace ifb {
     IFB_INTERNAL const map_color_table& map_mngr_get_color_table    (void);
 
     // map
-    IFB_INTERNAL map_handle map_create(
+    IFB_INTERNAL map_handle
+    map_create(
         const cchar* map_name,
         const u32    count_rows,
         const u32    count_cols
     );
+    IFB_INTERNAL const map_render_buffer*
+    map_get_render_buffer(
+        const map_handle   map_hnd,
+        const arena_handle arena_hnd
+    ); 
     IFB_INTERNAL bool map_destroy (const map_handle map_hnd);
 
     // map chunk
@@ -60,6 +67,17 @@ namespace ifb {
     // DEFINITIONS 
     //--------------------------------------------------------------------
 
+    struct map_render_buffer {
+        map_handle map;
+        u32        count_rows; 
+        u32        count_cols;
+        u32        data_size;
+        union {
+            map_tile* tile_array;
+            byte*     bytes;
+        } data;
+    };
+
     struct map_color_table {
         color_rgba_u32 red_light;
         color_rgba_u32 red_dark;
@@ -79,5 +97,6 @@ namespace ifb {
         color_rgba_u32 gray_dark;
     };
 };
+
 
 #endif //MAP_HPP
