@@ -1,3 +1,4 @@
+#include "eng-internal.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "map-internal.hpp"
@@ -20,8 +21,10 @@ namespace ifb {
         _map_mngr = global_alloc<map_mngr>();
         assert(_map_mngr);
 
-        _map_mngr->tbl_map = global_alloc<map_table>();
+        _map_mngr->tbl_map       = global_alloc<map_table>();
+        _map_mngr->render_buffer = global_alloc<map_render_buffer>();
         assert(_map_mngr->tbl_map);
+        assert(_map_mngr->render_buffer);
 
         return(_map_mngr);
     }
@@ -42,18 +45,22 @@ namespace ifb {
         const u32 size_name   = cfg.map_capacity * sizeof(cstr_c16);
         const u32 size_chunks = cfg.map_capacity * sizeof(map_chunk_array);
 
-        // allocate table memory
+        // allocate memory
         auto tbl_map = _map_mngr->tbl_map; 
+        auto buffer  = _map_mngr->render_buffer;
         assert(tbl_map);
+        assert(buffer);
         tbl_map->hnd         =      (map_handle*)reservation_push_bytes(_map_mngr->res, size_hnds);
         tbl_map->dims        =  (map_dimensions*)reservation_push_bytes(_map_mngr->res, size_dims);
         tbl_map->name        =        (cstr_c16*)reservation_push_bytes(_map_mngr->res, size_name);
         tbl_map->chunk_array = (map_chunk_array*)reservation_push_bytes(_map_mngr->res, size_chunks);
+        buffer->data.bytes   =            (byte*)reservation_push_bytes(_map_mngr->res, cfg.map_render_buffer_size); 
+        buffer->data_size    = 0;
         assert(tbl_map->hnd);
         assert(tbl_map->dims);
         assert(tbl_map->name);
         assert(tbl_map->chunk_array);
-    
+        assert(buffer->data.bytes); 
         for (
             u32 map_index = 0;
                 map_index < cfg.map_capacity;
@@ -99,4 +106,15 @@ namespace ifb {
         }
         return(color_tbl);
     }
+    
+    IFB_INTERNAL const map_render_buffer*
+    map_mngr_get_render_buffer(
+        void) {
+
+        assert(_map_mngr);
+        const map_render_buffer* buffer = _map_mngr->render_buffer;
+        assert(buffer);
+        assert(buffer->data.bytes != NULL);
+        return(buffer);
+    } 
 };

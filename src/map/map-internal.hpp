@@ -15,7 +15,6 @@ namespace ifb {
     //--------------------------------------------------------------------
    
     struct map;
-    struct map_dimensions;
     struct map_table;
     struct map_chunk;
     struct map_chunk_array;
@@ -25,8 +24,9 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct map_mngr {
-        reservation* res;
-        map_table*   tbl_map;
+        reservation*       res;
+        map_table*         tbl_map;
+        map_render_buffer* render_buffer;
     } static * _map_mngr;
 
     //--------------------------------------------------------------------
@@ -37,11 +37,6 @@ namespace ifb {
     IFB_INTERNAL map_dimensions& map_get_dimensions (const u32 map_index);
     IFB_INTERNAL map_chunk&      map_get_chunk      (const u32 map_index, const u32 chunk_index);
 
-    struct map_dimensions {
-        u32 count_rows;
-        u32 count_cols;
-        u32 count_chunks;
-    };
 
     struct map {
         cstr_c16*      name;
@@ -50,11 +45,11 @@ namespace ifb {
     };
 
     struct map_chunk {
-        u32                origin_row;
-        u32                origin_col;
-        u32                count_rows;
-        u32                count_cols;
-        map_tile_color_u32 base_color;
+        u32           origin_row;
+        u32           origin_col;
+        u32           count_rows;
+        u32           count_cols;
+        map_color_u32 base_color;
     };
 
     struct map_chunk_array {

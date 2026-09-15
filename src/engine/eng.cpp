@@ -38,6 +38,7 @@
 
 #include "map-mngr.cpp"
 #include "map.cpp"
+#include "map-chunk.cpp"
 
 #include "memory-manager.cpp"
 #include "memory-arena.cpp"

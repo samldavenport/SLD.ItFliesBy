@@ -66,7 +66,7 @@ namespace ifb {
     IFB_U32(entity_id);
     IFB_U32(component_type);
     IFB_U32(map_tile_flags_u32);
-    IFB_U32(map_tile_color_u32);
+    IFB_U32(map_color_u32);
     
     IFB_HANDLE(arena_handle);
     IFB_HANDLE(file_handle);
@@ -97,23 +97,23 @@ namespace ifb {
         map_tile_flag_e_wall_west  = bit_value(4),
     };
 
-    enum map_tile_color_e {
-        map_tile_color_e_red_light    = 0,
-        map_tile_color_e_red_dark     = 1,
-        map_tile_color_e_orange_light = 2,
-        map_tile_color_e_orange_dark  = 3,
-        map_tile_color_e_yellow_light = 4,
-        map_tile_color_e_yellow_dark  = 5,
-        map_tile_color_e_green_light  = 6,
-        map_tile_color_e_green_dark   = 7,
-        map_tile_color_e_aqua_light   = 8,
-        map_tile_color_e_aqua_dark    = 9,
-        map_tile_color_e_blue_light   = 10,
-        map_tile_color_e_blue_dark    = 11,
-        map_tile_color_e_purple_light = 12,
-        map_tile_color_e_purple_dark  = 13,
-        map_tile_color_e_gray_light   = 14,
-        map_tile_color_e_gray_dark    = 15,
+    enum map_color_e {
+        map_color_e_red_light    = 0,
+        map_color_e_red_dark     = 1,
+        map_color_e_orange_light = 2,
+        map_color_e_orange_dark  = 3,
+        map_color_e_yellow_light = 4,
+        map_color_e_yellow_dark  = 5,
+        map_color_e_green_light  = 6,
+        map_color_e_green_dark   = 7,
+        map_color_e_aqua_light   = 8,
+        map_color_e_aqua_dark    = 9,
+        map_color_e_blue_light   = 10,
+        map_color_e_blue_dark    = 11,
+        map_color_e_purple_light = 12,
+        map_color_e_purple_dark  = 13,
+        map_color_e_gray_light   = 14,
+        map_color_e_gray_dark    = 15,
     };
 
     struct map_tile {

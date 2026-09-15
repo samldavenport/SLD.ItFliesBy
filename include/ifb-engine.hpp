@@ -169,21 +169,21 @@ namespace ifb {
     ); 
     IFB_ENGINE_API void eng_map_destroy (const map_handle map);
     
-    IFB_ENGINE_API map_chunk_handle
+    IFB_ENGINE_API u32 
     eng_map_chunk_create(
         const map_handle         map_hnd,
         const u32                count_rows,
         const u32                count_cols,
         const u32                origin_row,
         const u32                origin_col,
-        const map_tile_color_u32 base_color
+        const map_color_u32 base_color
     );
     
     IFB_ENGINE_API bool
     eng_map_get_entity_coords(
         const map_handle map,
-        const entity_id eid,
-        map_coords& coords
+        const entity_id  eid,
+        map_coords&      coords
     );
 
     //--------------------------------------------------------------------

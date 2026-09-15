@@ -16,6 +16,7 @@ namespace ifb {
     struct map_mngr;
     struct map_color_table;
     struct map_render_buffer;
+    struct map_dimensions;
 
     //--------------------------------------------------------------------
     // CONSTANTS
@@ -28,36 +29,29 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // map manager
-    IFB_INTERNAL map_mngr*              map_mngr_create             (void);
-    IFB_INTERNAL void                   map_mngr_startup            (reservation* res);
-    IFB_INTERNAL void                   map_mngr_shutdown           (void);
-    IFB_INTERNAL const map_color_table& map_mngr_get_color_table    (void);
+    IFB_INTERNAL map_mngr*                map_mngr_create             (void);
+    IFB_INTERNAL void                     map_mngr_startup            (reservation* res);
+    IFB_INTERNAL void                     map_mngr_shutdown           (void);
+    IFB_INTERNAL const map_color_table&   map_mngr_get_color_table    (void);
+    IFB_INTERNAL const map_render_buffer* map_mngr_get_render_buffer  (void);
 
     // map
-    IFB_INTERNAL map_handle
-    map_create(
-        const cchar* map_name,
-        const u32    count_rows,
-        const u32    count_cols
-    );
-    IFB_INTERNAL const map_render_buffer*
-    map_get_render_buffer(
-        const map_handle   map_hnd,
-        const arena_handle arena_hnd
-    ); 
-    IFB_INTERNAL bool map_destroy (const map_handle map_hnd);
+    IFB_INTERNAL map_handle               map_create            (const cchar* map_name, const u32 count_rows, const u32 count_cols);
+    IFB_INTERNAL bool                     map_destroy           (const map_handle map_hnd);
+    IFB_INTERNAL bool                     map_render            (const map_handle map_hnd);
+    IFB_INTERNAL bool                     map_get_dimensions    (const map_handle map_hnd, map_dimensions&  dims);
 
     // map chunk
     IFB_INTERNAL u32
     map_chunk_create(
-        const map_handle         map_hnd,
-        const u32                count_rows,
-        const u32                count_cols,
-        const u32                origin_row,
-        const u32                origin_col,
-        const map_tile_color_u32 base_color
+        const map_handle    map_hnd,
+        const u32           count_rows,
+        const u32           count_cols,
+        const u32           origin_row,
+        const u32           origin_col,
+        const map_color_u32 base_color
     );
-    IFB_INTERNAL bool 
+    IFB_INTERNAL bool
     map_chunk_destroy(
         const map_handle map_hnd,
         const u32        chunk_index
@@ -68,14 +62,17 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct map_render_buffer {
-        map_handle map;
-        u32        count_rows; 
-        u32        count_cols;
-        u32        data_size;
+        u32 data_size;
         union {
             map_tile* tile_array;
             byte*     bytes;
         } data;
+    };
+
+    struct map_dimensions {
+        u32 count_rows;
+        u32 count_cols;
+        u32 count_chunks;
     };
 
     struct map_color_table {

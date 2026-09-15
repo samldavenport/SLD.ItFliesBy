@@ -4,17 +4,18 @@
 #include "ifb-types.hpp"
 #include "map-internal.hpp"
 #include "map.hpp"
+#include "map.cpp"
 
 namespace ifb {
 
     IFB_INTERNAL u32
     map_chunk_create(
-        const map_handle         map_hnd,
-        const u32                count_rows,
-        const u32                count_cols,
-        const u32                origin_row,
-        const u32                origin_col,
-        const map_tile_color_u32 base_color) {
+        const map_handle    map_hnd,
+        const u32           count_rows,
+        const u32           count_cols,
+        const u32           origin_row,
+        const u32           origin_col,
+        const map_color_u32 base_color) {
 
         const auto& cfg = config_instance();
 
@@ -31,14 +32,14 @@ namespace ifb {
 
         // get the map dimensions
         // if we are at capacity, we're done
-        map_dimensions& dims = map_get_dimensions(map_index);
+        const map_dimensions& dims = map_get_dimensions(map_index);
         if (dims.count_chunks == cfg.map_capacity) {
             return(INVALID_INDEX);
         }
     
         // get the chunk
         const u32  chunk_index = dims.count_chunks;
-        map_chunk& chunk       = map_get_chunk(map_index, chunk_index);
+        map_chunk& chunk = map_get_chunk(map_index, chunk_index);
     
         // set the chunk properties
         chunk.origin_row = origin_row;

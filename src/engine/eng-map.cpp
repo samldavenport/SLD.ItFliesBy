@@ -27,28 +27,36 @@ namespace ifb {
         return(hnd);
     } 
     
-    IFB_ENGINE_API map_chunk_handle 
+    IFB_ENGINE_API u32 
     eng_map_chunk_create(
-        const map_handle         map_hnd,
-        const u32                count_rows,
-        const u32                count_cols,
-        const u32                origin_row,
-        const u32                origin_col,
-        const map_tile_color_u32 base_color
-    ) {
+        const map_handle    map_hnd,
+        const u32           count_rows,
+        const u32           count_cols,
+        const u32           origin_row,
+        const u32           origin_col,
+        const map_color_u32 base_color) {
 
         assert(map_hnd     != INVALID_HANDLE);
         assert(count_rows  != 0);
         assert(count_cols  != 0);
-        
-        return(0);
+       
+        const u32 chunk_index = map_chunk_create(
+            map_hnd,
+            count_rows,
+            count_cols,
+            origin_row,
+            origin_col,
+            base_color
+        );
+
+        return(chunk_index);
     } 
 
     IFB_ENGINE_API void
     eng_map_destroy(
         const map_handle map) {
 
-
+        assert(map != INVALID_HANDLE);
     }
 
     IFB_ENGINE_API void
