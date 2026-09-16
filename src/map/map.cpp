@@ -101,17 +101,6 @@ namespace ifb {
         return(map_tbl->dims[map_index]);
     }
     
-    IFB_INTERNAL const map_render_buffer*
-    map_get_render_buffer(
-        void) {
-
-        assert(_map_mngr);
-        const map_render_buffer* buffer = _map_mngr->render_buffer;
-        assert(buffer);
-        assert(buffer->data.bytes != NULL);
-        return(buffer);
-    } 
-
     IFB_INTERNAL bool
     map_render(
         const map_handle map_hnd) {
@@ -151,8 +140,8 @@ namespace ifb {
         assert(size_data <= cfg.map_render_buffer_size);
 
         // initialize buffer
-        map_render_buffer* buffer = _map_mngr->render_buffer;
-        buffer->data_size         = size_data;
+        map_render_buffer& buffer = _map_mngr->render_buffer;
+        buffer.data_size          = size_data;
 
         // fill out the render buffer
         u32 tile_index = 0;
@@ -173,7 +162,7 @@ namespace ifb {
                 const u32 col = (chunk_tile_index % chunk.count_cols) + chunk.origin_col;
 
                 // get the next tile
-                map_tile& tile = buffer->data.tile_array[tile_index++]; 
+                map_tile& tile = buffer.data.tile_array[tile_index++]; 
 
                 // initialize the tile
                 tile.index = (row * dims.count_cols) + col;

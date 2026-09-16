@@ -32,7 +32,7 @@ namespace ifb {
 
         // get the map dimensions
         // if we are at capacity, we're done
-        const map_dimensions& dims = map_get_dimensions(map_index);
+        map_dimensions& dims = map_get_dimensions(map_index);
         if (dims.count_chunks == cfg.map_capacity) {
             return(INVALID_INDEX);
         }
@@ -48,8 +48,12 @@ namespace ifb {
         chunk.count_cols = count_cols;
         chunk.base_color = base_color;
 
+        // update the chunk count
+        ++dims.count_chunks;
+        
         // TODO(SLD): we need to make sure this chunk does not overlap
         // with any other existing chunks
+
 
         return(chunk_index);
     }

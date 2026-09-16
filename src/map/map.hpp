@@ -33,7 +33,7 @@ namespace ifb {
     IFB_INTERNAL void                     map_mngr_startup            (reservation* res);
     IFB_INTERNAL void                     map_mngr_shutdown           (void);
     IFB_INTERNAL const map_color_table&   map_mngr_get_color_table    (void);
-    IFB_INTERNAL const map_render_buffer* map_mngr_get_render_buffer  (void);
+    IFB_INTERNAL const map_render_buffer& map_mngr_get_render_buffer  (void);
 
     // map
     IFB_INTERNAL map_handle               map_create            (const cchar* map_name, const u32 count_rows, const u32 count_cols);

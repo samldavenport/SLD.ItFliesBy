@@ -59,10 +59,12 @@ namespace ifb {
         assert(map != INVALID_HANDLE);
     }
 
-    IFB_ENGINE_API void
+    IFB_ENGINE_API bool 
     eng_map_render(
-        const map_handle map) {
+        const map_handle map_hnd) {
 
+        const bool result = renderer_tile_set_map(map_hnd);
+        return(result);
     }
 
     IFB_ENGINE_API void

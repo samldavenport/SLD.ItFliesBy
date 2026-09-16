@@ -1,3 +1,4 @@
+#include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "renderer.hpp"
@@ -43,7 +44,6 @@ namespace ifb {
        } gl;
        map_handle               map_hnd;
        arena_handle             arena;
-       const map_render_buffer* render_buffer;
     };
 
     //--------------------------------------------------------------------
@@ -84,8 +84,6 @@ namespace ifb {
 
         // set the map info
         shdr->map_hnd       = INVALID_HANDLE;
-        shdr->render_buffer = map_mngr_get_render_buffer();
-        assert(shdr->render_buffer);
 
         // create gl objects
         shdr->gl.program         = gl_shader_program_create        (gl_ctx);
@@ -126,17 +124,20 @@ namespace ifb {
         assert(shdr->gl.u_tile_unit_size  != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_color_table     != GL_UNIFORM_INVALID);
 
-        // define vertex
+        // define verte
+        auto& render_buffer = map_mngr_get_render_buffer();
+        assert(render_buffer.data.bytes   != NULL);
+        assert(cfg.map_render_buffer_size != 0);
         gl_ok &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
         gl_ok &= gl_context_set_vertex_object  (gl_ctx, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex  (gl_ctx, shdr->gl.instance_buffer);
-        // gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.instance_buffer, shdr->render_buffer->data.bytes, shdr->render_buffer->data_size);
+        gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.instance_buffer, render_buffer.data.bytes, cfg.map_render_buffer_size);
         gl_ok &= gl_vertex_add_u32x1           (gl_ctx, shdr->gl.vertex, sizeof(renderer_tile_instance), 0, 0);
         gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 0, 1);
         assert(gl_ok);
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL bool 
     renderer_tile_set_map(
         const map_handle map_hnd) {
 
@@ -147,11 +148,12 @@ namespace ifb {
         assert(shdr);
 
         if (map_hnd == shdr->map_hnd) {
-            return;
+            return(true);
         }
 
         shdr->map_hnd = map_hnd;
-        map_render(map_hnd);
+        const bool result = map_render(map_hnd);
+        return(result);
     }
     
     IFB_INTERNAL void
