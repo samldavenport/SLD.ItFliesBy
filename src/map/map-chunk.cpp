@@ -39,7 +39,7 @@ namespace ifb {
     
         // get the chunk
         const u32  chunk_index = dims.count_chunks;
-        map_chunk& chunk = map_get_chunk(map_index, chunk_index);
+        map_chunk& chunk       = map_get_chunk(map_index, chunk_index);
     
         // set the chunk properties
         chunk.origin_row = origin_row;
@@ -53,7 +53,6 @@ namespace ifb {
         
         // TODO(SLD): we need to make sure this chunk does not overlap
         // with any other existing chunks
-
 
         return(chunk_index);
     }

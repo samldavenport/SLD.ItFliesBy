@@ -172,6 +172,8 @@ namespace ifb {
         }
 
         // get the color table
+        // TODO(SLD): we probably only need to do this
+        // once on startup
         const auto& color_tbl   = map_mngr_get_color_table();
         const u32*  color_array = (u32*)&color_tbl;
         const u32   color_count = sizeof(map_color_table) / sizeof(color_rgba_u32); 
@@ -179,11 +181,18 @@ namespace ifb {
         for (u32 i = 0; i < color_count; ++i) {
             color_vec4_array[i] = color_rgba_f32(color_array[i]);
         }
-        
+       
+        // get the map dimensions
         map_dimensions map_dims;
         map_get_dimensions(shdr->map_hnd, map_dims);
 
-        
+        // count the tiles
+        const u32 tile_count = map_dims.count_rows * map_dims.count_cols;
+
+        const auto& cfg = config_instance();
+
+        const auto& buffer = map_mngr_get_render_buffer();
+
 
         /*
 
