@@ -20,7 +20,8 @@ namespace ifb {
         cmpnt_type_e_inv_mass      = bit_value(6),
         cmpnt_type_e_drag          = bit_value(7),
         cmpnt_type_e_term_velocity = bit_value(8),
-        cmpnt_type_e_spring        = bit_value(9)
+        cmpnt_type_e_spring        = bit_value(9),
+        cmpnt_type_e_map_coords    = bit_value(10)
     };
 
 };

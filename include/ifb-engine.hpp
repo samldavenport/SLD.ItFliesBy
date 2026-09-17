@@ -90,23 +90,23 @@ namespace ifb {
     // FILES
     //--------------------------------------------------------------------
     
-    IFB_ENGINE_API file_handle eng_file_ro_create_new                (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_ro_open_existing             (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_ro_open_always               (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_ro_overwrite                 (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_wo_create_new                (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_wo_open_existing             (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_wo_open_always               (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_wo_overwrite                 (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_rw_create_new                (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_rw_open_existing             (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_rw_open_always               (const cchar* path);
-    IFB_ENGINE_API file_handle eng_file_rw_overwrite                 (const cchar* path);
-    IFB_ENGINE_API void            eng_file_close                        (const file_handle hnd);
-    IFB_ENGINE_API u32             eng_file_get_size                     (const file_handle hnd);
-    IFB_ENGINE_API void            eng_file_set_cursor                   (const file_handle hnd, const u32 cursor);
-    IFB_ENGINE_API const cchar*    eng_file_read                         (const file_handle hnd, const u32 buffer_size);
-    IFB_ENGINE_API u32             eng_file_write                        (const file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
+    IFB_ENGINE_API file_handle  eng_file_ro_create_new                (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_ro_open_existing             (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_ro_open_always               (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_ro_overwrite                 (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_wo_create_new                (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_wo_open_existing             (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_wo_open_always               (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_wo_overwrite                 (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_rw_create_new                (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_rw_open_existing             (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_rw_open_always               (const cchar* path);
+    IFB_ENGINE_API file_handle  eng_file_rw_overwrite                 (const cchar* path);
+    IFB_ENGINE_API void         eng_file_close                        (const file_handle hnd);
+    IFB_ENGINE_API u32          eng_file_get_size                     (const file_handle hnd);
+    IFB_ENGINE_API void         eng_file_set_cursor                   (const file_handle hnd, const u32 cursor);
+    IFB_ENGINE_API const cchar* eng_file_read                         (const file_handle hnd, const u32 buffer_size);
+    IFB_ENGINE_API u32          eng_file_write                        (const file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // CAMERA
@@ -137,12 +137,13 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_lookup_velocity       (const entity_id id, velocity_3d&      vel);
     IFB_ENGINE_API bool         eng_entity_lookup_acceleration   (const entity_id id, acceleration_3d&  acc);
     IFB_ENGINE_API bool         eng_entity_lookup_term_velocity  (const entity_id id, term_velocity_3d& tv);
-    IFB_ENGINE_API bool         eng_entity_lookup_inv_mass       (const entity_id id, f32&               inv_mass);
-    IFB_ENGINE_API bool         eng_entity_lookup_mass           (const entity_id id, f32&               mass);
-    IFB_ENGINE_API bool         eng_entity_lookup_drag           (const entity_id id, f32&               drag);
-    IFB_ENGINE_API bool         eng_entity_lookup_quad           (const entity_id id, quad&  q);
+    IFB_ENGINE_API bool         eng_entity_lookup_inv_mass       (const entity_id id, f32&              inv_mass);
+    IFB_ENGINE_API bool         eng_entity_lookup_mass           (const entity_id id, f32&              mass);
+    IFB_ENGINE_API bool         eng_entity_lookup_drag           (const entity_id id, f32&              drag);
+    IFB_ENGINE_API bool         eng_entity_lookup_quad           (const entity_id id, quad&             q);
     IFB_ENGINE_API bool         eng_entity_lookup_color          (const entity_id id, color_rgba_u32&   color);
     IFB_ENGINE_API bool         eng_entity_lookup_spring         (const entity_id id, spring&           spr);
+    IFB_ENGINE_API bool         eng_entity_lookup_map_coords     (const entity_id id, map_coords&       coords);
 
     IFB_ENGINE_API const bool   eng_entity_update_position       (const entity_id id, const position_3d&      pos);
     IFB_ENGINE_API const bool   eng_entity_update_velocity       (const entity_id id, const velocity_3d&      vel);
@@ -154,6 +155,7 @@ namespace ifb {
     IFB_ENGINE_API const bool   eng_entity_update_quad           (const entity_id id, const quad_archetype&   quad);
     IFB_ENGINE_API const bool   eng_entity_update_color          (const entity_id id, const color_rgba_u32&   color);
     IFB_ENGINE_API const bool   eng_entity_update_spring         (const entity_id id, const spring&           spr);
+    IFB_ENGINE_API const bool   eng_entity_update_map_coords     (const entity_id id, const map_coords&       coords);
     IFB_ENGINE_API const bool   eng_entity_render                (const entity_id id);
     IFB_ENGINE_API const bool   eng_entity_add_force             (const entity_id id, const vec3& force);
 
