@@ -314,6 +314,27 @@ namespace ifb {
 
     }
 
+    IFB_ENGINE_API bool
+    eng_entity_lookup_map_coords(
+        const entity_id id,
+        map_coords&     coords) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        bool result = true;
+
+        entity e;
+        result  &= entity_lookup_by_id  (e, id);
+        result  &= entity_has_component (e, cmpnt_type_e_map_coords);        
+           
+        if (result) {
+            cmpnt_lookup_map_coords(e.index_sparse, coords);
+        }
+
+        return(result);
+
+    }
+    
     IFB_ENGINE_API const bool
     eng_entity_remove_components(
         const entity_id      id,
@@ -523,6 +544,25 @@ namespace ifb {
 
         if (can_update) {
             cmpnt_update_spring(e.index_sparse, spr);
+        }
+
+        return(can_update);
+    }
+    
+    IFB_ENGINE_API const bool
+    eng_entity_update_map_coords(
+        const entity_id   id,
+        const map_coords& coords) {
+
+        assert(id != ENTITY_ID_INVALID); 
+
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = entity_has_component (e, cmpnt_type_e_map_coords); 
+        const bool can_update    = (does_exist && has_component); 
+
+        if (can_update) {
+            cmpnt_update_map_coords(e.index_sparse, coords);
         }
 
         return(can_update);

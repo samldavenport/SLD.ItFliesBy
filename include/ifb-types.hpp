@@ -242,8 +242,8 @@ namespace ifb {
     };
 
     struct map_coords {
-        u16 row;
-        u16 col;
+        f32 row_x;
+        f32 col_z;
     };
     
 };
