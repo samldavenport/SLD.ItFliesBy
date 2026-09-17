@@ -1,4 +1,6 @@
+#include "ifb-config.hpp"
 #include "ifb-types.hpp"
+#include "memory-arena.cpp"
 #include "renderer.hpp"
 #include "sld-opengl.hpp"
 #include "map.hpp"
@@ -40,10 +42,8 @@ namespace ifb {
            gl_uniform u_tile_unit_size;
            gl_uniform u_color_table;
        } gl;
-       struct {
-           renderer_tile_instance_buffer instance;
-       } buffers;
-       map_handle map_hnd;
+       map_handle               map_hnd;
+       arena_handle             arena;
     };
 
     //--------------------------------------------------------------------
@@ -67,11 +67,7 @@ namespace ifb {
         _renderer_ctx->shader.tile = shdr;
 
         // allocate buffer memory
-        shdr->buffers.instance.data_size   = cfg.map_tile_capacity * cfg.map_capacity * sizeof(renderer_tile_instance); 
-        shdr->buffers.instance.data_length = 0;
-        shdr->buffers.instance.data.vptr   = renderer_context_memory_alloc(shdr->buffers.instance.data_size);   
-        assert(shdr->buffers.instance.data_size != 0);
-        assert(shdr->buffers.instance.data.vptr != NULL);
+        shdr->arena = arena_alloc();
     }
 
     IFB_INTERNAL void
@@ -85,6 +81,9 @@ namespace ifb {
         auto        shdr   = _renderer_ctx->shader.tile;
         auto        gl_ctx = _renderer_ctx->gl;
         assert(shdr);
+
+        // set the map info
+        shdr->map_hnd       = INVALID_HANDLE;
 
         // create gl objects
         shdr->gl.program         = gl_shader_program_create        (gl_ctx);
@@ -125,17 +124,20 @@ namespace ifb {
         assert(shdr->gl.u_tile_unit_size  != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_color_table     != GL_UNIFORM_INVALID);
 
-        // define vertex
+        // define verte
+        auto& render_buffer = map_mngr_get_render_buffer();
+        assert(render_buffer.data.bytes   != NULL);
+        assert(cfg.map_render_buffer_size != 0);
         gl_ok &= gl_context_set_shader_program (gl_ctx, shdr->gl.program);
         gl_ok &= gl_context_set_vertex_object  (gl_ctx, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex  (gl_ctx, shdr->gl.instance_buffer);
-        gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.instance_buffer, shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
+        gl_ok &= gl_buffer_set_vertex_data     (gl_ctx, shdr->gl.instance_buffer, render_buffer.data.bytes, cfg.map_render_buffer_size);
         gl_ok &= gl_vertex_add_u32x1           (gl_ctx, shdr->gl.vertex, sizeof(renderer_tile_instance), 0, 0);
         gl_ok &= gl_vertex_divisor             (gl_ctx, shdr->gl.vertex, 0, 1);
         assert(gl_ok);
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL bool 
     renderer_tile_set_map(
         const map_handle map_hnd) {
 
@@ -145,13 +147,18 @@ namespace ifb {
         auto shdr = _renderer_ctx->shader.tile;
         assert(shdr);
 
+        if (map_hnd == shdr->map_hnd) {
+            return(true);
+        }
+
         shdr->map_hnd = map_hnd;
+        const bool result = map_render(map_hnd);
+        return(result);
     }
     
     IFB_INTERNAL void
     renderer_tile_draw(
         const mat4& view_proj_xform) {
-/*
         assert(_renderer_ctx);
 
         auto shdr   = _renderer_ctx->shader.tile;
@@ -160,7 +167,13 @@ namespace ifb {
         assert(gl_ctx);
         assert(shdr);
 
+        if (shdr->map_hnd == INVALID_HANDLE) {
+            return;
+        }
+
         // get the color table
+        // TODO(SLD): we probably only need to do this
+        // once on startup
         const auto& color_tbl   = map_mngr_get_color_table();
         const u32*  color_array = (u32*)&color_tbl;
         const u32   color_count = sizeof(map_color_table) / sizeof(color_rgba_u32); 
@@ -168,45 +181,31 @@ namespace ifb {
         for (u32 i = 0; i < color_count; ++i) {
             color_vec4_array[i] = color_rgba_f32(color_array[i]);
         }
+       
+        // get the map dimensions
+        map_dimensions map_dims;
+        map_get_dimensions(shdr->map_hnd, map_dims);
 
-        // look up the map
-        map map;
-        const bool found_map = map_get_info(shdr->map_hnd, map);
-        assert(found_map);
+        // get tile count, buffer, and config for tile size    
+        const u32   tile_count = map_dims.count_rows * map_dims.count_cols;
+        const auto& buffer     = map_mngr_get_render_buffer();
+        const auto& cfg        = config_instance();
 
-        // get the tile size
-        const f32 tile_unit_size = map_mngr_get_tile_unit_size();
-
-        // check our render buffer is large enough
-        const u32 buffer_size_required = map_get_render_buffer_size(shdr->map_hnd);
-        assert(shdr->buffers.instance.data_size >= buffer_size_required);
-
-        // calculate tile count
-        const u32 tile_count = map.count_rows * map.count_cols;
-        
-        // copy the render buffer data
-        const u32 buffer_size_actual = map_get_render_buffer_data(
-                shdr->map_hnd,
-                shdr->buffers.instance.data_size,
-                shdr->buffers.instance.data.bytes
-        );
- 
         // update the shader and draw vertices
         bool gl_ok = true;
         gl_ok &= gl_context_set_shader_program      (gl_ctx, shdr->gl.program);
-        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_rows,  map.count_rows); 
-        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols,  map.count_cols); 
-        gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_rows, map.offset_row); 
-        gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_cols, map.offset_col); 
-        gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_unit_size,  tile_unit_size); 
+        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_rows,  map_dims.count_rows);
+        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols,  map_dims.count_cols); 
+        gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_rows, 0);
+        gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_cols, 0);
+        gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_unit_size,  cfg.map_tile_unit_size);
         gl_ok &= gl_uniform_set_mat4                (gl_ctx, shdr->gl.u_view_proj,       view_proj_xform.m);
         gl_ok &= gl_uniform_set_f32_array           (gl_ctx, shdr->gl.u_color_table,     (f32*)color_vec4_array, color_count);
         gl_ok &= gl_context_set_vertex_object       (gl_ctx, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex       (gl_ctx, shdr->gl.instance_buffer);
-        gl_ok &= gl_buffer_update_vertex_data       (gl_ctx, shdr->gl.instance_buffer, shdr->buffers.instance.data.bytes, shdr->buffers.instance.data_size);
+        gl_ok &= gl_buffer_update_vertex_data       (gl_ctx, shdr->gl.instance_buffer, buffer.data.bytes, buffer.data_size); 
         gl_ok &= gl_context_draw_vertices_instanced (gl_ctx, 6, tile_count);
         assert(gl_ok);
- 
-*/
+
         }
 };

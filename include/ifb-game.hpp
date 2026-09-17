@@ -16,6 +16,7 @@ namespace ifb {
 
     struct game_map {
         map_handle eng_hnd;
+        u32        chunk_count;
     };
 
     struct game_context {
