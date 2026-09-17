@@ -129,6 +129,14 @@ namespace ifb {
         _cmpnt_mngr->tbl.spring.lookup(sparse_index, s);     
     }
 
+    IFB_INTERNAL void
+    cmpnt_lookup_map_coords(
+        const u32   sparse_index,
+        map_coords& mc) {
+  
+        _cmpnt_mngr->tbl.map_coords.lookup(sparse_index, mc);     
+    }
+
     //--------------------------------------------------------------------
     // UPDATE METHODS 
     //--------------------------------------------------------------------
@@ -211,5 +219,13 @@ namespace ifb {
         const spring& s){
     
         _cmpnt_mngr->tbl.spring.update(sparse_index, s);
+    }
+    
+    IFB_INTERNAL void
+    cmpnt_update_map_coords(
+        const u32     sparse_index,
+        const map_coords& mc){
+    
+        _cmpnt_mngr->tbl.map_coords.update(sparse_index, mc);
     }
 };
