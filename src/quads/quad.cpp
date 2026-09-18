@@ -31,7 +31,7 @@ namespace ifb {
         q.index_sparse = e.index_sparse;
         q.index_dense  = e.index_dense;
 
-        quad q_;
+        cmpnt_quad q_;
         cmpnt_lookup_position (q.index_sparse, q.pos);
         cmpnt_lookup_color    (q.index_sparse, q.color);
         cmpnt_lookup_quad     (q.index_sparse, q_);
@@ -52,7 +52,7 @@ namespace ifb {
             q.tag != NULL 
         );
 
-        quad q_;
+        cmpnt_quad q_;
         q_.width  = q.dims.width;
         q_.height = q.dims.height;
         cmpnt_update_position (q.index_sparse, q.pos);
@@ -62,8 +62,8 @@ namespace ifb {
 
     IFB_INTERNAL void
     quad_update(
-        const entity_id id,
-        const quad&     q) {
+        const entity_id   id,
+        const cmpnt_quad& q) {
 
         assert(id != ENTITY_ID_INVALID);
 

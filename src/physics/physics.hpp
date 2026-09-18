@@ -43,7 +43,7 @@ namespace ifb {
     IFB_INTERNAL bool                 physics_entity_remove_all_force (const entity_id id);
     IFB_INTERNAL void                 physics_entity_set_mass         (const entity_id id, const f32 mass);
     IFB_INTERNAL void                 physics_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
-    IFB_INTERNAL void                 physics_entity_set_rigid_body   (const entity_id id, const rigid_body& rb);
+    IFB_INTERNAL void                 physics_entity_set_rigid_body   (const entity_id id, const cmpnt_rigid_body& rb);
 
     IFB_INTERNAL void                 physics_integrate_forces        (const f32 dt, const arena_handle arena_hnd);
 
@@ -60,12 +60,12 @@ namespace ifb {
     };
 
     struct physics_entity : entity {
-        rigid_body      rb;
-        position        pos;
-        velocity_3d     vel;
-        acceleration_3d acc;
-        inv_mass        im;
-        drag            drag;
+        cmpnt_rigid_body   rb;
+        cmpnt_position     pos;
+        cmpnt_velocity     vel;
+        cmpnt_acceleration acc;
+        cmpnt_inv_mass     im;
+        cmpnt_drag         drag;
     };
 
     struct physics_mngr {

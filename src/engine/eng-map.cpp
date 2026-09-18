@@ -69,10 +69,10 @@ namespace ifb {
 
     IFB_ENGINE_API void
     eng_map_set_colors(
-        const map_handle      map,
-        const map_coords*     coords,
-        const color_rgba_u32* color,
-        const u32             count) {
+        const map_handle        map,
+        const cmpnt_map_coords* coords,
+        const color_rgba_u32*   color,
+        const u32               count) {
 
         assert(map != INVALID_HANDLE);
         assert(coords   != NULL);
@@ -83,9 +83,9 @@ namespace ifb {
 
     IFB_ENGINE_API bool 
     eng_map_get_entity_coords(
-        const map_handle map,
-        const entity_id  eid,
-        map_coords&      coords) {
+        const map_handle  map,
+        const entity_id   eid,
+        cmpnt_map_coords& coords) {
 
         return(false);
     }

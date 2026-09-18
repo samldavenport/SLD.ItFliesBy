@@ -150,12 +150,12 @@ namespace ifb {
             if (!should_integrate) continue;
 
             // look up the components
-            position_3d      pos;
-            velocity_3d      vel;
-            acceleration_3d  acc;
-            inv_mass         inv;
-            drag             drg;
-            term_velocity_3d tv;
+            cmpnt_position      pos;
+            cmpnt_velocity      vel;
+            cmpnt_acceleration  acc;
+            cmpnt_inv_mass      inv;
+            cmpnt_drag             drg;
+            cmpnt_term_velocity tv;
             cmpnt_lookup_position      (e.index_sparse, pos);            
             cmpnt_lookup_velocity      (e.index_sparse, vel);            
             cmpnt_lookup_acceleration  (e.index_sparse, acc);            
@@ -242,11 +242,11 @@ namespace ifb {
     physics_force_integrator_update_components(
         physics_force_integrator& i) {
         
-        position_3d     pos;
-        velocity_3d     vel;
-        acceleration_3d acc;
-        inv_mass        inv;
-        drag            drg;
+        cmpnt_position     pos;
+        cmpnt_velocity     vel;
+        cmpnt_acceleration acc;
+        cmpnt_inv_mass     inv;
+        cmpnt_drag         drg;
 
         for (
             u32 index = 0;

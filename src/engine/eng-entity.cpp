@@ -31,7 +31,7 @@ namespace ifb {
 
         assert(id != ENTITY_ID_INVALID);
 
-        const bool did_destroy = entity_destroy(id);
+        bool did_destroy = entity_destroy(id);
         return(did_destroy);
     }
 
@@ -48,7 +48,7 @@ namespace ifb {
     
         assert(tag);
 
-        const bool did_destroy = entity_destroy(tag);
+        bool did_destroy = entity_destroy(tag);
         return(did_destroy);
     }
 
@@ -67,14 +67,14 @@ namespace ifb {
         return(tag);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_add_components(
         const entity_id      id,
         const component_type type) {
    
         assert(id != ENTITY_ID_INVALID);
         
-        const bool did_add = entity_component_add(id, type);
+        bool did_add = entity_component_add(id, type);
         return(did_add);
     }
 
@@ -83,7 +83,7 @@ namespace ifb {
         const u32 dense_index,
         entity&   e) {
 
-        const bool did_find = entity_lookup_by_index_dense(e, dense_index);
+        bool did_find = entity_lookup_by_index_dense(e, dense_index);
         return(did_find);
     }
     
@@ -93,7 +93,7 @@ namespace ifb {
         const entity_query query) {
 
         assert(list);
-        const bool result = entity_lookup_list(list, query);
+        bool result = entity_lookup_list(list, query);
         return(result);
     }
     
@@ -102,14 +102,14 @@ namespace ifb {
         quad_entity& q,
         const entity_id id) {
 
-        const bool result = quad_lookup_by_id(q, id);
+        bool result = quad_lookup_by_id(q, id);
         return(result);
     }
     
     IFB_ENGINE_API bool
     eng_entity_lookup_position(
         const entity_id id,
-        position_3d&    pos) {
+        cmpnt_position&    pos) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -129,7 +129,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_velocity(
         const entity_id id,
-        velocity_3d&    vel) {
+        cmpnt_velocity&    vel) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -149,7 +149,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_acceleration(
         const entity_id  id,
-        acceleration_3d& acc) {
+        cmpnt_acceleration& acc) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -169,7 +169,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_term_velocity(
         const entity_id   id,
-        term_velocity_3d& tv) {
+        cmpnt_term_velocity& tv) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -200,7 +200,7 @@ namespace ifb {
         result  &= entity_has_component (e, cmpnt_type_e_term_velocity);        
            
         if (result) {
-            inv_mass im_;
+            cmpnt_inv_mass im_;
             cmpnt_lookup_inv_mass(e.index_sparse, im_);
             im = im_.normal_val;
         }
@@ -222,7 +222,7 @@ namespace ifb {
         result  &= entity_has_component (e, cmpnt_type_e_inv_mass);        
            
         if (result) {
-            inv_mass im;
+            cmpnt_inv_mass im;
             cmpnt_lookup_inv_mass(e.index_sparse, im);
             mass = 1.0f / im.normal_val;
         }
@@ -244,7 +244,7 @@ namespace ifb {
         result  &= entity_has_component (e, cmpnt_type_e_drag);        
            
         if (result) {
-            drag d_;
+            cmpnt_drag d_;
             cmpnt_lookup_drag(e.index_sparse, d_);
             d = d_.normal_val;
         }
@@ -255,7 +255,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_quad(
         const entity_id id,
-        quad&           q) {
+        cmpnt_quad&     q) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -266,7 +266,7 @@ namespace ifb {
         result  &= entity_has_component (e, cmpnt_type_e_quad);        
            
         if (result) {
-            drag d_;
+            cmpnt_drag d_;
             cmpnt_lookup_quad(e.index_sparse, q);
         }
 
@@ -296,7 +296,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_spring(
         const entity_id id,
-        spring&         spr) {
+        cmpnt_spring&   spr) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -316,8 +316,8 @@ namespace ifb {
 
     IFB_ENGINE_API bool
     eng_entity_lookup_map_coords(
-        const entity_id id,
-        map_coords&     coords) {
+        const entity_id   id,
+        cmpnt_map_coords& coords) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -335,28 +335,28 @@ namespace ifb {
 
     }
     
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_remove_components(
         const entity_id      id,
         const component_type type) {
     
         assert(id != ENTITY_ID_INVALID); 
 
-        const bool did_remove = entity_component_remove(id, type);
+        bool did_remove = entity_component_remove(id, type);
         return(did_remove);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_position(
         const entity_id    id,
-        const position_3d& pos) {
+        const cmpnt_position& pos) {
     
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, cmpnt_type_e_position); 
-        const bool can_update    = (does_exist && has_component); 
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e, cmpnt_type_e_position); 
+        bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
             cmpnt_update_position(e.index_sparse, pos);   
@@ -365,10 +365,10 @@ namespace ifb {
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_velocity(
         const entity_id    id,
-        const velocity_3d& vel) {
+        const cmpnt_velocity& vel) {
 
         assert(id != ENTITY_ID_INVALID); 
    
@@ -384,10 +384,10 @@ namespace ifb {
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_acceleration(
         const entity_id        id,
-        const acceleration_3d& acc) {
+        const cmpnt_acceleration& acc) {
         
         assert(id != ENTITY_ID_INVALID); 
    
@@ -403,17 +403,17 @@ namespace ifb {
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_term_velocity(
         const entity_id         id,
-        const term_velocity_3d& tv) {
+        const cmpnt_term_velocity& tv) {
 
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, cmpnt_type_e_term_velocity); 
-        const bool can_update    = (does_exist && has_component); 
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e, cmpnt_type_e_term_velocity); 
+        bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
             cmpnt_update_term_velocity(e.index_sparse, tv);
@@ -422,7 +422,7 @@ namespace ifb {
         return(can_update);
     }
     
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_inv_mass(
         const entity_id id,
         const f32       inv_mass) {
@@ -430,20 +430,20 @@ namespace ifb {
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, cmpnt_type_e_inv_mass); 
-        const bool can_update    = (does_exist && has_component); 
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e, cmpnt_type_e_inv_mass); 
+        bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
 
-            struct inv_mass im = {inv_mass};
+            struct cmpnt_inv_mass im = {inv_mass};
             cmpnt_update_inv_mass(e.index_sparse, im);
         }
 
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_mass(
         const entity_id id,
         const f32       mass) {
@@ -451,20 +451,20 @@ namespace ifb {
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, cmpnt_type_e_inv_mass); 
-        const bool can_update    = (does_exist && has_component); 
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e, cmpnt_type_e_inv_mass); 
+        bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
 
-            struct inv_mass im = {1 / mass};
+            struct cmpnt_inv_mass im = {1 / mass};
             cmpnt_update_inv_mass(e.index_sparse, im);
         }
 
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_drag(
         const entity_id id,
         const f32       drag) {
@@ -472,36 +472,36 @@ namespace ifb {
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, cmpnt_type_e_drag); 
-        const bool can_update    = (does_exist && has_component); 
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e, cmpnt_type_e_drag); 
+        bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
 
-            struct drag d = { drag };
+            struct cmpnt_drag d = { drag };
             cmpnt_update_drag(e.index_sparse, d);
         }
 
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_quad(
         const entity_id       id,
-        const quad_archetype& quad_atype) {
+        const atype_quad& quad_atype) {
     
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, cmpnt_type_e_quad); 
-        const bool can_update    = (does_exist && has_component); 
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e, cmpnt_type_e_quad); 
+        bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
 
-            quad q;
-            q.height = quad_atype.dimensions.height;
-            q.width  = quad_atype.dimensions.width;
+            cmpnt_quad q;
+            q.height = quad_atype.quad.height;
+            q.width  = quad_atype.quad.width;
 
             cmpnt_update_quad     (e.index_sparse, q);
             cmpnt_update_color    (e.index_sparse, quad_atype.color);
@@ -511,7 +511,7 @@ namespace ifb {
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_color(
         const entity_id       id,
         const color_rgba_u32& color) {
@@ -530,10 +530,10 @@ namespace ifb {
         return(can_update);
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_spring(
-        const entity_id id,
-        const spring&   spr) {
+        const entity_id     id,
+        const cmpnt_spring& spr) {
 
         assert(id != ENTITY_ID_INVALID); 
 
@@ -549,10 +549,10 @@ namespace ifb {
         return(can_update);
     }
     
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_update_map_coords(
-        const entity_id   id,
-        const map_coords& coords) {
+        const entity_id         id,
+        const cmpnt_map_coords& coords) {
 
         assert(id != ENTITY_ID_INVALID); 
 
@@ -568,15 +568,15 @@ namespace ifb {
         return(can_update);
     }
     
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_render(
         const entity_id id) {
 
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e,
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e,
                 cmpnt_type_e_quad  |
                 cmpnt_type_e_color |
                 cmpnt_type_e_position
@@ -591,7 +591,7 @@ namespace ifb {
 
     }
 
-    IFB_ENGINE_API const bool
+    IFB_ENGINE_API bool
     eng_entity_add_force(
         const entity_id id,
         const vec3&     force) {
@@ -599,8 +599,8 @@ namespace ifb {
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
-        const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e,
+        bool does_exist    = entity_lookup_by_id  (e, id);
+        bool has_component = entity_has_component (e,
            cmpnt_type_e_position     |
            cmpnt_type_e_velocity     |
            cmpnt_type_e_acceleration |

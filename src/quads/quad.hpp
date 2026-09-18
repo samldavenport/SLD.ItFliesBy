@@ -28,7 +28,7 @@ namespace ifb {
     IFB_INTERNAL bool       quad_lookup_by_id   (quad_entity& q, const entity_id id);
     IFB_INTERNAL bool       quad_does_exist     (const entity_id    id);
     IFB_INTERNAL void       quad_update         (const quad_entity& q);
-    IFB_INTERNAL void       quad_update         (const entity_id id, const quad& q);
+    IFB_INTERNAL void       quad_update         (const entity_id id, const cmpnt_quad& q);
     IFB_INTERNAL void       quad_tests          (void);
     //--------------------------------------------------------------------
     // STRUCTURE DEFINITIONS
