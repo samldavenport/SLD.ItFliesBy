@@ -1,50 +1,36 @@
 #pragma once
 
+#include <cassert>
 #include "component.hpp"
 #include "ifb-types.hpp"
-
-#define CMPNT_TBL_FUNC template<typename t> auto component_table<t>::
+#include "component-internal.hpp"
 
 namespace ifb {
+   
+    inline cmpnt_table*
+    cmpnt_table_get_and_validate(
+        const u32 sparse_index) {
 
-    //--------------------------------------------------------------------
-    // COMPONENT TABLE
-    //--------------------------------------------------------------------
+        assert(_cmpnt_mngr);
+        assert(_cmpnt_mngr->capacity > sparse_index);
+
+        cmpnt_table* tbl = _cmpnt_mngr->cmpnt_tbl;
+        assert(tbl);
+        assert(tbl->array_position);
+        assert(tbl->array_color);
+        assert(tbl->array_quad);
+        assert(tbl->array_rigid_body);
+        assert(tbl->array_velocity);
+        assert(tbl->array_acceleration);
+        assert(tbl->array_inv_mass);
+        assert(tbl->array_drag);
+        assert(tbl->array_term_velocity);
+        assert(tbl->array_spring);
+        assert(tbl->array_map_coords);
     
-    CMPNT_TBL_FUNC 
-    stack_init(stack* s) -> void {
-
-        assert(s);
-        static const u32 capacity = config_instance().entity_capacity;
-       
-        _cmpnt = (t*)stack_push(s, (sizeof(t) * capacity));
-        assert(_cmpnt != NULL);
+        return(tbl);
     }
 
-    CMPNT_TBL_FUNC
-    lookup(
-        const u32 sparse_index,
-        t& cmpnt) -> void {
-
-        static const u32 capacity = config_instance().entity_capacity;
-        assert(_cmpnt);
-        assert(sparse_index < capacity);
-
-        cmpnt = _cmpnt[sparse_index];
-    }
-
-    CMPNT_TBL_FUNC
-    update(
-        const u32 sparse_index,
-        const t&  cmpnt) -> void {
-
-        static const u32 capacity = config_instance().entity_capacity;
-        assert(_cmpnt);
-        assert(sparse_index < capacity);
-
-        _cmpnt[sparse_index] = cmpnt;
-    }
-    
     //--------------------------------------------------------------------
     // LOOKUP METHODS 
     //--------------------------------------------------------------------
@@ -54,7 +40,8 @@ namespace ifb {
         const u32    sparse_index,
         position_3d& pos) {
 
-        _cmpnt_mngr->tbl.position.lookup(sparse_index, pos);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        pos = tbl->array_position[sparse_index];
     }
     
     IFB_INTERNAL void
@@ -62,7 +49,8 @@ namespace ifb {
         const u32       sparse_index,
         color_rgba_u32& clr) {
 
-        _cmpnt_mngr->tbl.color.lookup(sparse_index, clr);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        clr = tbl->array_color[sparse_index]; 
     }
 
     IFB_INTERNAL void
@@ -70,7 +58,8 @@ namespace ifb {
         const u32 sparse_index,
         quad& q) {
   
-        _cmpnt_mngr->tbl.quad.lookup(sparse_index, q);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        q = tbl->array_quad[sparse_index];
     }
    
     IFB_INTERNAL void
@@ -78,7 +67,8 @@ namespace ifb {
         const u32 sparse_index,
         rigid_body&       rb) {
   
-        _cmpnt_mngr->tbl.rigid_body.lookup(sparse_index, rb);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        rb = tbl->array_rigid_body[sparse_index];
     }
    
     IFB_INTERNAL void
@@ -86,31 +76,35 @@ namespace ifb {
         const u32 sparse_index,
         velocity_3d&      vel) {
   
-        _cmpnt_mngr->tbl.velocity.lookup(sparse_index, vel);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        vel = tbl->array_velocity[sparse_index];
     }
    
     IFB_INTERNAL void
-    cmpnt_lookup_acceleration  (
+    cmpnt_lookup_acceleration(
         const u32 sparse_index,
         acceleration_3d&  acc) {
   
-        _cmpnt_mngr->tbl.acceleration.lookup(sparse_index, acc);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        acc = tbl->array_acceleration[sparse_index];
     }
    
     IFB_INTERNAL void
-    cmpnt_lookup_inv_mass      (
+    cmpnt_lookup_inv_mass(
         const u32 sparse_index,
-        inv_mass&         im) {
+        inv_mass& im) {
   
-        _cmpnt_mngr->tbl.inv_mass.lookup(sparse_index, im);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        im = tbl->array_inv_mass[sparse_index];
     }
    
     IFB_INTERNAL void
-    cmpnt_lookup_drag          (
+    cmpnt_lookup_drag(
         const u32 sparse_index,
         drag&             d) {
   
-        _cmpnt_mngr->tbl.drag.lookup(sparse_index, d);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        d = tbl->array_drag[sparse_index];
     }
    
     IFB_INTERNAL void
@@ -118,15 +112,17 @@ namespace ifb {
         const u32 sparse_index,
         term_velocity_3d& tv) {
   
-        _cmpnt_mngr->tbl.term_velocity.lookup(sparse_index, tv);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tv = tbl->array_term_velocity[sparse_index];
     }
    
     IFB_INTERNAL void
     cmpnt_lookup_spring        (
         const u32 sparse_index,
-        spring&           s) {
+        spring&   s) {
   
-        _cmpnt_mngr->tbl.spring.lookup(sparse_index, s);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        s = tbl->array_spring[sparse_index];
     }
 
     IFB_INTERNAL void
@@ -134,7 +130,8 @@ namespace ifb {
         const u32   sparse_index,
         map_coords& mc) {
   
-        _cmpnt_mngr->tbl.map_coords.lookup(sparse_index, mc);     
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        mc = tbl->array_map_coords[sparse_index];
     }
 
     //--------------------------------------------------------------------
@@ -146,7 +143,8 @@ namespace ifb {
         const u32          sparse_index,
         const position_3d& pos){
    
-        _cmpnt_mngr->tbl.position.update(sparse_index, pos);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_position[sparse_index] = pos;
     }       
      
     IFB_INTERNAL void
@@ -154,7 +152,8 @@ namespace ifb {
         const u32             sparse_index,
         const color_rgba_u32& clr){
     
-        _cmpnt_mngr->tbl.color.update(sparse_index, clr);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_color[sparse_index] = clr;
     } 
      
     IFB_INTERNAL void
@@ -162,15 +161,18 @@ namespace ifb {
         const u32   sparse_index,
         const quad& q) {
     
-        _cmpnt_mngr->tbl.quad.update(sparse_index, q);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_quad[sparse_index] = q;
     }
+
 
     IFB_INTERNAL void
     cmpnt_update_rigid_body(
         const u32         sparse_index,
         const rigid_body& rb){
         
-        _cmpnt_mngr->tbl.rigid_body.update(sparse_index, rb);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_rigid_body[sparse_index] = rb;
     }   
      
     IFB_INTERNAL void
@@ -178,7 +180,8 @@ namespace ifb {
         const u32          sparse_index,
         const velocity_3d& vel){
     
-        _cmpnt_mngr->tbl.velocity.update(sparse_index, vel);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_velocity[sparse_index] = vel;
     } 
      
     IFB_INTERNAL void
@@ -186,7 +189,8 @@ namespace ifb {
         const u32              sparse_index,
         const acceleration_3d& acc){
     
-        _cmpnt_mngr->tbl.acceleration.update(sparse_index, acc);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_acceleration[sparse_index] = acc;
     } 
      
     IFB_INTERNAL void
@@ -194,7 +198,8 @@ namespace ifb {
         const u32       sparse_index,
         const inv_mass& im){
     
-        _cmpnt_mngr->tbl.inv_mass.update(sparse_index, im);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_inv_mass[sparse_index] = im;
     } 
      
     IFB_INTERNAL void
@@ -202,7 +207,8 @@ namespace ifb {
         const u32   sparse_index,
         const drag& d){
        
-        _cmpnt_mngr->tbl.drag.update(sparse_index,d);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_drag[sparse_index] = d;
     }
      
     IFB_INTERNAL void
@@ -210,7 +216,8 @@ namespace ifb {
         const u32               sparse_index,
         const term_velocity_3d& tv){
     
-        _cmpnt_mngr->tbl.term_velocity.update(sparse_index, tv);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_term_velocity[sparse_index] = tv;
     }
    
     IFB_INTERNAL void
@@ -218,14 +225,16 @@ namespace ifb {
         const u32     sparse_index,
         const spring& s){
     
-        _cmpnt_mngr->tbl.spring.update(sparse_index, s);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_spring[sparse_index] = s;
     }
     
     IFB_INTERNAL void
     cmpnt_update_map_coords(
-        const u32     sparse_index,
+        const u32         sparse_index,
         const map_coords& mc){
     
-        _cmpnt_mngr->tbl.map_coords.update(sparse_index, mc);
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_map_coords[sparse_index] = mc;
     }
 };

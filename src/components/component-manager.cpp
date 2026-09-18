@@ -1,8 +1,11 @@
 #pragma once
 
+#include <cassert>
+
 #include "component.hpp"
 #include "eng-internal.hpp"
 #include "memory-reservation.cpp"
+#include "component-internal.hpp"
 
 namespace ifb {
 
@@ -16,6 +19,9 @@ namespace ifb {
 
         _cmpnt_mngr = global_alloc<cmpnt_mngr>();
         assert(_cmpnt_mngr);
+
+        _cmpnt_mngr->cmpnt_tbl = global_alloc<cmpnt_table>();
+        assert(_cmpnt_mngr->cmpnt_tbl); 
 
         return(_cmpnt_mngr);
     }
@@ -32,21 +38,32 @@ namespace ifb {
         _cmpnt_mngr->capacity = (cfg.entity_capacity / cfg.sparse_set_max_load_p100);
         assert(_cmpnt_mngr->capacity != 0);
 
-        // commit memory to a stack
-        _cmpnt_mngr->mem = reservation_push_stack_all(res);
-        assert(_cmpnt_mngr->mem);
+        auto* tbl = _cmpnt_mngr->cmpnt_tbl;
+        assert(tbl);
 
-        // create tables
-        _cmpnt_mngr->tbl.position.stack_init      (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.color.stack_init         (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.quad.stack_init          (_cmpnt_mngr->mem); 
-        _cmpnt_mngr->tbl.rigid_body.stack_init    (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.velocity.stack_init      (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.acceleration.stack_init  (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.inv_mass.stack_init      (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.drag.stack_init          (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.term_velocity.stack_init (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.spring.stack_init        (_cmpnt_mngr->mem);
-        _cmpnt_mngr->tbl.map_coords.stack_init    (_cmpnt_mngr->mem);
+        tbl->array_position      =      (position_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(position_3d));      
+        tbl->array_color         =   (color_rgba_u32*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(color_rgba_u32));         
+        tbl->array_quad          =             (quad*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(quad));          
+        tbl->array_rigid_body    =       (rigid_body*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(rigid_body));    
+        tbl->array_velocity      =      (velocity_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(velocity_3d));      
+        tbl->array_acceleration  =  (acceleration_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(acceleration_3d));  
+        tbl->array_inv_mass      =         (inv_mass*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(inv_mass));      
+        tbl->array_drag          =             (drag*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(drag));          
+        tbl->array_term_velocity = (term_velocity_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(term_velocity_3d)); 
+        tbl->array_spring        =           (spring*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(spring));        
+        tbl->array_map_coords    =       (map_coords*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(map_coords));    
+    
+        assert(tbl->array_position);
+        assert(tbl->array_color);
+        assert(tbl->array_quad);
+        assert(tbl->array_rigid_body);
+        assert(tbl->array_velocity);
+        assert(tbl->array_acceleration);
+        assert(tbl->array_inv_mass);
+        assert(tbl->array_drag);
+        assert(tbl->array_term_velocity);
+        assert(tbl->array_spring);
+        assert(tbl->array_map_coords);
+
     }
 };
