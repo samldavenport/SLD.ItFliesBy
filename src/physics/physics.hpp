@@ -62,8 +62,8 @@ namespace ifb {
     struct physics_entity : entity {
         rigid_body      rb;
         position        pos;
-        velocity_3d     vel;
-        acceleration_3d acc;
+        cmpnt_velocity     vel;
+        cmpnt_acceleration acc;
         inv_mass        im;
         drag            drag;
     };

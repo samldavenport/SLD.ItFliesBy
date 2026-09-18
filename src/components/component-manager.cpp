@@ -41,15 +41,15 @@ namespace ifb {
         auto* tbl = _cmpnt_mngr->cmpnt_tbl;
         assert(tbl);
 
-        tbl->array_position      =      (position_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(position_3d));      
+        tbl->array_position      =      (cmpnt_position*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_position));      
         tbl->array_color         =   (color_rgba_u32*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(color_rgba_u32));         
         tbl->array_quad          =             (quad*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(quad));          
         tbl->array_rigid_body    =       (rigid_body*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(rigid_body));    
-        tbl->array_velocity      =      (velocity_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(velocity_3d));      
-        tbl->array_acceleration  =  (acceleration_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(acceleration_3d));  
+        tbl->array_velocity      =      (cmpnt_velocity*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_velocity));      
+        tbl->array_acceleration  =  (cmpnt_acceleration*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_acceleration));  
         tbl->array_inv_mass      =         (inv_mass*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(inv_mass));      
         tbl->array_drag          =             (drag*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(drag));          
-        tbl->array_term_velocity = (term_velocity_3d*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(term_velocity_3d)); 
+        tbl->array_term_velocity = (term_cmpnt_velocity*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(term_cmpnt_velocity)); 
         tbl->array_spring        =           (spring*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(spring));        
         tbl->array_map_coords    =       (map_coords*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(map_coords));    
     

@@ -109,7 +109,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_position(
         const entity_id id,
-        position_3d&    pos) {
+        cmpnt_position&    pos) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -129,7 +129,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_velocity(
         const entity_id id,
-        velocity_3d&    vel) {
+        cmpnt_velocity&    vel) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -149,7 +149,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_acceleration(
         const entity_id  id,
-        acceleration_3d& acc) {
+        cmpnt_acceleration& acc) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -169,7 +169,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_lookup_term_velocity(
         const entity_id   id,
-        term_velocity_3d& tv) {
+        term_cmpnt_velocity& tv) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -349,7 +349,7 @@ namespace ifb {
     IFB_ENGINE_API const bool
     eng_entity_update_position(
         const entity_id    id,
-        const position_3d& pos) {
+        const cmpnt_position& pos) {
     
         assert(id != ENTITY_ID_INVALID); 
    
@@ -368,7 +368,7 @@ namespace ifb {
     IFB_ENGINE_API const bool
     eng_entity_update_velocity(
         const entity_id    id,
-        const velocity_3d& vel) {
+        const cmpnt_velocity& vel) {
 
         assert(id != ENTITY_ID_INVALID); 
    
@@ -387,7 +387,7 @@ namespace ifb {
     IFB_ENGINE_API const bool
     eng_entity_update_acceleration(
         const entity_id        id,
-        const acceleration_3d& acc) {
+        const cmpnt_acceleration& acc) {
         
         assert(id != ENTITY_ID_INVALID); 
    
@@ -406,7 +406,7 @@ namespace ifb {
     IFB_ENGINE_API const bool
     eng_entity_update_term_velocity(
         const entity_id         id,
-        const term_velocity_3d& tv) {
+        const term_cmpnt_velocity& tv) {
 
         assert(id != ENTITY_ID_INVALID); 
    

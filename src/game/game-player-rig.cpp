@@ -48,7 +48,7 @@ namespace ifb {
         quad_jig.position.y        =  0.2f;
         quad_jig.position.z        =  0.0f;
 
-        term_velocity_3d tv;
+        term_cmpnt_velocity tv;
         tv.x = 1.00f;
         tv.y = 1.00f;
         tv.z = 1.00f;
@@ -60,7 +60,7 @@ namespace ifb {
         jig_spring.damping     = 5.0f; 
         jig_spring.rest_length = 0.001f;
 
-        position_3d anchor_pos;
+        cmpnt_position anchor_pos;
         anchor_pos.x = -0.175f;
         anchor_pos.y =  0.1f;
         anchor_pos.z =  0.0f;
@@ -107,8 +107,8 @@ namespace ifb {
         eng_entity_add_force (player_rig->connor_id, connor_force);
 
         // move jig's anchor point to follow connor
-        position_3d pos_anchor;
-        position_3d pos_connor;
+        cmpnt_position pos_anchor;
+        cmpnt_position pos_connor;
         assert(eng_entity_lookup_position(player_rig->jig_anchor_id, pos_anchor));
         assert(eng_entity_lookup_position(player_rig->connor_id,     pos_connor)); 
         pos_anchor.x = pos_connor.x - 0.175f;

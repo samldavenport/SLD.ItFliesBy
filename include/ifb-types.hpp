@@ -30,9 +30,6 @@ namespace ifb {
 
     struct asset;
     struct component_type;
-    struct cmpnt_position;
-    struct cmpnt_color;
-    struct cmpnt_quad;
     struct dimensions_2d;
     struct dimensions_3d;
     struct arena_handle;
@@ -50,11 +47,14 @@ namespace ifb {
     struct tag;
     struct flags;
     struct map_coords;
-
-    using position_3d      = vec3;
-    using velocity_3d      = vec3;
-    using acceleration_3d  = vec3;
-    using term_velocity_3d = vec3;
+ 
+    struct cmpnt_color;
+    struct cmpnt_quad;
+    using  cmpnt_position      = vec3;
+    using  cmpnt_velocity      = vec3;
+    using  cmpnt_acceleration  = vec3;
+    
+    using term_cmpnt_velocity = vec3;
     using origin_3d        = vec3;       
     using pixel            = color_rgba_u32;
 
@@ -137,7 +137,7 @@ namespace ifb {
 
     struct dimensions_3d {
         f32 width;
-        f32 height;
+        cmpnt_position    position;
         f32 depth;
     };
 
@@ -174,8 +174,8 @@ namespace ifb {
     struct particle {
         rigid_body      rb;
         position        pos;
-        velocity_3d     vel;
-        acceleration_3d acc;
+        cmpnt_velocity     vel;
+        cmpnt_acceleration acc;
         inv_mass        im;
         drag            drg;
     };

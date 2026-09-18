@@ -103,7 +103,7 @@ namespace ifb {
     struct quad_entity : entity {
         color_rgba_u32 color;
         dimensions_2d  dims;
-        position_3d    pos;
+        cmpnt_position    pos;
     };
 
     struct entity_query {

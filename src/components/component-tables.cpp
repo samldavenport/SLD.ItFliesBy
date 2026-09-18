@@ -38,7 +38,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_lookup_position(
         const u32    sparse_index,
-        position_3d& pos) {
+        cmpnt_position& pos) {
 
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         pos = tbl->array_position[sparse_index];
@@ -74,7 +74,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_lookup_velocity      (
         const u32 sparse_index,
-        velocity_3d&      vel) {
+        cmpnt_velocity&      vel) {
   
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         vel = tbl->array_velocity[sparse_index];
@@ -83,7 +83,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_lookup_acceleration(
         const u32 sparse_index,
-        acceleration_3d&  acc) {
+        cmpnt_acceleration&  acc) {
   
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         acc = tbl->array_acceleration[sparse_index];
@@ -110,7 +110,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_lookup_term_velocity (
         const u32 sparse_index,
-        term_velocity_3d& tv) {
+        term_cmpnt_velocity& tv) {
   
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tv = tbl->array_term_velocity[sparse_index];
@@ -141,7 +141,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_update_position(
         const u32          sparse_index,
-        const position_3d& pos){
+        const cmpnt_position& pos){
    
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tbl->array_position[sparse_index] = pos;
@@ -178,7 +178,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_update_velocity(
         const u32          sparse_index,
-        const velocity_3d& vel){
+        const cmpnt_velocity& vel){
     
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tbl->array_velocity[sparse_index] = vel;
@@ -187,7 +187,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_update_acceleration(
         const u32              sparse_index,
-        const acceleration_3d& acc){
+        const cmpnt_acceleration& acc){
     
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tbl->array_acceleration[sparse_index] = acc;
@@ -214,7 +214,7 @@ namespace ifb {
     IFB_INTERNAL void
     cmpnt_update_term_velocity(
         const u32               sparse_index,
-        const term_velocity_3d& tv){
+        const term_cmpnt_velocity& tv){
     
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tbl->array_term_velocity[sparse_index] = tv;
