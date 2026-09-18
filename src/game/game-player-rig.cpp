@@ -32,28 +32,28 @@ namespace ifb {
         assert(player_rig->jig_id        != ENTITY_ID_INVALID);
         assert(player_rig->jig_anchor_id != ENTITY_ID_INVALID);
 
-        quad_archetype quad_connor = {0};
-        quad_connor.color.hex         = 0xB8BB26FF;     
-        quad_connor.dimensions.width  = 0.2; 
-        quad_connor.dimensions.height = 0.2; 
-        quad_connor.position.x        = 0.0f;
-        quad_connor.position.y        = 0.1f;
-        quad_connor.position.z        = 0.0f;
+        atype_quad quad_connor  = {0};
+        quad_connor.color.hex   = 0xB8BB26FF;     
+        quad_connor.quad.width  = 0.2; 
+        quad_connor.quad.height = 0.2; 
+        quad_connor.position.x  = 0.0f;
+        quad_connor.position.y  = 0.1f;
+        quad_connor.position.z  = 0.0f;
 
-        quad_archetype quad_jig    = {0};
-        quad_jig.color.hex         =  0x458588FF;     
-        quad_jig.dimensions.width  =  0.1;
-        quad_jig.dimensions.height =  0.1;
-        quad_jig.position.x        = -0.175f;
-        quad_jig.position.y        =  0.2f;
-        quad_jig.position.z        =  0.0f;
+        atype_quad quad_jig  = {0};
+        quad_jig.color.hex   =  0x458588FF;     
+        quad_jig.quad.width  =  0.1;
+        quad_jig.quad.height =  0.1;
+        quad_jig.position.x  = -0.175f;
+        quad_jig.position.y  =  0.2f;
+        quad_jig.position.z  =  0.0f;
 
-        term_cmpnt_velocity tv;
+        cmpnt_term_velocity tv;
         tv.x = 1.00f;
         tv.y = 1.00f;
         tv.z = 1.00f;
       
-        spring jig_spring;
+        cmpnt_spring jig_spring;
         jig_spring.id          = player_rig->jig_id;
         jig_spring.anchor      = player_rig->jig_anchor_id;
         jig_spring.stiffness   = 40.0f;

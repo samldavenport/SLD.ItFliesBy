@@ -27,16 +27,16 @@ namespace ifb {
 
     struct cmpnt_table {
         cmpnt_position*      array_position; 
-        color_rgba_u32*   array_color;
-        quad*             array_quad; 
-        rigid_body*       array_rigid_body;
+        cmpnt_color*         array_color;
+        cmpnt_quad*          array_quad; 
+        cmpnt_rigid_body*    array_rigid_body;
         cmpnt_velocity*      array_velocity; 
         cmpnt_acceleration*  array_acceleration;
-        inv_mass*         array_inv_mass;
-        drag*             array_drag;
-        term_cmpnt_velocity* array_term_velocity; 
-        spring*           array_spring; 
-        map_coords*       array_map_coords; 
+        cmpnt_inv_mass*      array_inv_mass;
+        cmpnt_drag*          array_drag;
+        cmpnt_term_velocity* array_term_velocity; 
+        cmpnt_spring*        array_spring; 
+        cmpnt_map_coords*    array_map_coords; 
     };
     
     //--------------------------------------------------------------------

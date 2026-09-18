@@ -22,7 +22,7 @@ namespace ifb {
             const u32 col_value    = 1;
 
             // get map coordinates
-            map_coords coords;
+            cmpnt_map_coords coords;
             const bool did_find = eng_map_get_entity_coords(
                 map->eng_hnd,
                 player_rig->connor_id,

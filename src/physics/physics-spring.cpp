@@ -124,7 +124,7 @@ namespace ifb {
         // we have entities with springs
         // so now we have to find their
         // anchor entities
-        spring spr;     
+        cmpnt_spring spr;     
         cmpnt_position pos_spr;
         cmpnt_position pos_anchor;
         cmpnt_velocity vel_spr;

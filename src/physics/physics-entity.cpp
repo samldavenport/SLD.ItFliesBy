@@ -44,7 +44,7 @@ namespace ifb {
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
 
-        inv_mass im;
+        cmpnt_inv_mass im;
         im.normal_val = 1.0f / mass;
 
         cmpnt_lookup_inv_mass(sparse_index, im);
@@ -60,7 +60,7 @@ namespace ifb {
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
 
-        inv_mass im;
+        cmpnt_inv_mass im;
         im.normal_val = 1.0f / i_mass;
 
         cmpnt_update_inv_mass(sparse_index, im);
@@ -69,7 +69,7 @@ namespace ifb {
     IFB_INTERNAL void 
     physics_entity_set_rigid_body(
         const entity_id   id,
-        const rigid_body& rb) {
+        const cmpnt_rigid_body& rb) {
 
         assert(id != ENTITY_ID_INVALID);
    
