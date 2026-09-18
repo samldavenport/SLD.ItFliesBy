@@ -4,6 +4,7 @@
 #include "ifb-types.hpp"
 #include "ifb-collections.hpp"
 #include "memory.hpp"
+#include "sld.hpp"
 
 namespace ifb {
 
@@ -12,27 +13,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct cmpnt_mngr;
-
-    template<typename t>
-    class component_table;
-
-    using cmpnt_tbl_position      = component_table<position_3d>; 
-    using cmpnt_tbl_color         = component_table<color_rgba_u32>; 
-    using cmpnt_tbl_quad          = component_table<quad>; 
-    using cmpnt_tbl_rigid_body    = component_table<rigid_body>; 
-    using cmpnt_tbl_velocity      = component_table<velocity_3d>; 
-    using cmpnt_tbl_acceleration  = component_table<acceleration_3d>; 
-    using cmpnt_tbl_inv_mass      = component_table<inv_mass>; 
-    using cmpnt_tbl_drag          = component_table<drag>; 
-    using cmpnt_tbl_term_velocity = component_table<term_velocity_3d>; 
-    using cmpnt_tbl_spring        = component_table<spring>; 
-    using cmpnt_tbl_map_coords    = component_table<map_coords>; 
-
-    //--------------------------------------------------------------------
-    // GLOBALS
-    //--------------------------------------------------------------------
-
-    static cmpnt_mngr* _cmpnt_mngr;
 
     //--------------------------------------------------------------------
     // INTERNAL METHODS
@@ -64,45 +44,6 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_update_term_velocity (const u32 sparse_index, const term_velocity_3d& tv);
     IFB_INTERNAL void        cmpnt_update_spring        (const u32 sparse_index, const spring&           s);
     IFB_INTERNAL void        cmpnt_update_map_coords    (const u32 sparse_index, const map_coords&       mc);
-
-    //--------------------------------------------------------------------
-    // TABLE DEFINITIONS
-    //--------------------------------------------------------------------
-
-    template<typename t>
-    class component_table {
-    
-    private:
-        t* _cmpnt;
-
-    public:
-       
-        void stack_init (stack* s);
-        void lookup     (const u32 sparse_index, t&       cmpnt);
-        void update     (const u32 sparse_index, const t& cmpnt);
-    };
-    
-    //--------------------------------------------------------------------
-    // COMPONENT MANAGER
-    //--------------------------------------------------------------------
-
-    struct cmpnt_mngr {
-        stack*       mem;
-        u32          capacity;
-        struct {
-            cmpnt_tbl_position      position;
-            cmpnt_tbl_color         color;
-            cmpnt_tbl_quad          quad;
-            cmpnt_tbl_rigid_body    rigid_body;
-            cmpnt_tbl_velocity      velocity;
-            cmpnt_tbl_acceleration  acceleration;
-            cmpnt_tbl_inv_mass      inv_mass;
-            cmpnt_tbl_drag          drag;
-            cmpnt_tbl_term_velocity term_velocity;
-            cmpnt_tbl_spring        spring;
-            cmpnt_tbl_map_coords    map_coords;
-        } tbl;
-    };
 
 };
 
