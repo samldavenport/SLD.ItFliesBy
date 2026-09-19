@@ -2,7 +2,6 @@
 
 #include "ifb-collections.hpp"
 #include "component-tables.cpp"
-#include "ifb-component.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "physics.hpp"

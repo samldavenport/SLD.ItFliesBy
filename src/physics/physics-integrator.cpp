@@ -3,7 +3,6 @@
 #include <math.h>
 
 #include "component.hpp"
-#include "ifb-component.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"

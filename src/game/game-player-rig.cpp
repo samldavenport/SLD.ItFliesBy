@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ifb-component.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
 #include "ifb-types.hpp"

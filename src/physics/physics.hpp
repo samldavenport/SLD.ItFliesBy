@@ -1,7 +1,6 @@
 #ifndef PHYSICS_HPP
 #define PHYSICS_HPP
 
-#include "ifb-component.hpp"
 #include "ifb-types.hpp"
 #include "memory.hpp"
 #include "ifb-collections.hpp"
