@@ -6,7 +6,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     file_close(
-        const file_handle hnd) {
+        const hnd_file hnd) {
 
         file_mngr_assert_valid();
         assert(hnd != FILE_HANDLE_INVALID);
@@ -17,14 +17,14 @@ namespace ifb {
 
     IFB_INTERNAL u32
     file_get_size(
-        const file_handle hnd) {
+        const hnd_file hnd) {
 
         file_mngr_assert_valid();
         assert(hnd != FILE_HANDLE_INVALID);
 
         const u32 index = file_mngr_index_of_internal_handle(hnd);
 
-        const pfm_file_handle pfm_hnd = _file_mngr->array.handle_platform[index];
+        const pfm_hnd_file pfm_hnd = _file_mngr->array.handle_platform[index];
         const u32             size    = pfm_file_size(pfm_hnd);
     
         return(size);
@@ -32,7 +32,7 @@ namespace ifb {
 
     IFB_INTERNAL void
     file_set_cursor(
-        const file_handle hnd,
+        const hnd_file hnd,
         const u32         cursor) {
 
         file_mngr_assert_valid();
@@ -45,7 +45,7 @@ namespace ifb {
 
     IFB_INTERNAL const cchar*
     file_read(
-        const file_handle hnd,
+        const hnd_file hnd,
         const u32         buffer_size) {
 
         file_mngr_assert_valid();
@@ -63,7 +63,7 @@ namespace ifb {
         file_buffer.offset = 0;
         file_buffer.cursor = _file_mngr->array.cursor[index];
 
-        const pfm_file_handle hnd_pfm   = _file_mngr->array.handle_platform[index];
+        const pfm_hnd_file hnd_pfm   = _file_mngr->array.handle_platform[index];
         const u32             io_length = pfm_file_read(hnd_pfm, &file_buffer);
 
         _file_mngr->array.io_length[index] = io_length;
@@ -81,7 +81,7 @@ namespace ifb {
 
     IFB_INTERNAL u32 
     file_write(
-        const file_handle hnd,
+        const hnd_file hnd,
         const u32         buffer_size,
         const byte*       buffer_ptr) {
 
@@ -101,7 +101,7 @@ namespace ifb {
         file_buffer.offset = 0;
         file_buffer.cursor = _file_mngr->array.cursor[index];
 
-        const pfm_file_handle hnd_pfm   = _file_mngr->array.handle_platform[index];
+        const pfm_hnd_file hnd_pfm   = _file_mngr->array.handle_platform[index];
         const u32             io_length = pfm_file_read(hnd_pfm, &file_buffer);
 
         _file_mngr->array.io_length[index] = io_length;

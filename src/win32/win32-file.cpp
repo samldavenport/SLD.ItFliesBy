@@ -5,7 +5,7 @@
 namespace ifb {
 
 
-    IFB_WIN32_API_FUNC pfm_file_handle
+    IFB_WIN32_API_FUNC pfm_hnd_file
     pfm_file_open(
         const pfm_file_config* cfg) {
 
@@ -58,7 +58,7 @@ namespace ifb {
         mode            = OPEN_EXISTING;
         template_handle = NULL;
 
-        const HANDLE file_handle = CreateFile(
+        const HANDLE hnd_file = CreateFile(
             cfg->path,
             access,
             share,
@@ -67,13 +67,13 @@ namespace ifb {
             flags,
             template_handle
         );
-        assert(file_handle);
-        return(file_handle);
+        assert(hnd_file);
+        return(hnd_file);
     }
 
     IFB_WIN32_API_FUNC u32 
     pfm_file_size(
-        const pfm_file_handle file) {
+        const pfm_hnd_file file) {
 
         LARGE_INTEGER size;
         assert(file && GetFileSizeEx(file, &size));
@@ -83,14 +83,14 @@ namespace ifb {
 
     IFB_WIN32_API_FUNC void 
     pfm_file_close(
-        const pfm_file_handle file) {
+        const pfm_hnd_file file) {
 
         assert(file && CloseHandle(file));
     }
 
     IFB_WIN32_API_FUNC u32
     pfm_file_read(
-        const pfm_file_handle file,
+        const pfm_hnd_file file,
         pfm_file_buffer*      buffer) {
 
         // check args and clear error
@@ -139,7 +139,7 @@ namespace ifb {
 
     IFB_WIN32_API_FUNC u32
     pfm_file_write(
-        const pfm_file_handle file,
+        const pfm_hnd_file file,
         pfm_file_buffer*      buffer) {
 
         // check args and clear error
@@ -185,7 +185,7 @@ namespace ifb {
 
     IFB_WIN32_API_FUNC u32
     pfm_file_async_read(
-        const pfm_file_handle file,
+        const pfm_hnd_file file,
         pfm_file_buffer*      buffer) {
 
         return(0);
@@ -193,7 +193,7 @@ namespace ifb {
 
     IFB_WIN32_API_FUNC u32
     pfm_file_async_write(
-        const pfm_file_handle file,
+        const pfm_hnd_file file,
         pfm_file_buffer*      buffer) {
 
         return(0);

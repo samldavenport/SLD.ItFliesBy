@@ -15,7 +15,7 @@ namespace ifb {
     // PUBLIC METHODS 
     //--------------------------------------------------------------------
     
-    IFB_INTERNAL map_handle
+    IFB_INTERNAL hnd_map
     map_create(
         const cchar* map_name,
         const u32    count_rows,
@@ -49,7 +49,7 @@ namespace ifb {
         }
 
         // get the map properties
-        map_handle&      hnd    = tbl_map->hnd         [index];
+        hnd_map&      hnd    = tbl_map->hnd         [index];
         map_dimensions&  dims   = tbl_map->dims        [index]; 
         cstr_c16&        name   = tbl_map->name        [index];
         map_chunk_array& chunks = tbl_map->chunk_array [index];
@@ -65,7 +65,7 @@ namespace ifb {
 
     IFB_INTERNAL bool 
     map_destroy(
-        const map_handle map_hnd) {
+        const hnd_map map_hnd) {
 
         const auto& cfg = config_instance();
        
@@ -103,7 +103,7 @@ namespace ifb {
     
     IFB_INTERNAL bool
     map_render(
-        const map_handle map_hnd) {
+        const hnd_map map_hnd) {
        
         // validate
         assert(map_hnd            != INVALID_HANDLE);
@@ -178,7 +178,7 @@ namespace ifb {
     
     IFB_INTERNAL u32
     map_lookup_index(
-        const map_handle map_hnd) {
+        const hnd_map map_hnd) {
 
         assert(_map_mngr);
         const map_table* tbl_map = _map_mngr->tbl_map;
@@ -228,7 +228,7 @@ namespace ifb {
     
     IFB_INTERNAL bool 
     map_get_dimensions(
-        const map_handle map_hnd,
+        const hnd_map map_hnd,
         map_dimensions&  dims) {
       
         const u32 map_index = map_lookup_index(map_hnd);

@@ -10,7 +10,7 @@ namespace ifb {
 
     IFB_INTERNAL u32
     map_chunk_create(
-        const map_handle    map_hnd,
+        const hnd_map    map_hnd,
         const u32           count_rows,
         const u32           count_cols,
         const u32           origin_row,
@@ -59,7 +59,7 @@ namespace ifb {
 
     IFB_INTERNAL bool 
     map_chunk_destroy(
-        const map_handle map_hnd,
+        const hnd_map map_hnd,
         const u32        chunk_index) {
 
         //TODO

@@ -16,8 +16,8 @@ namespace ifb {
 
         // allocate memory
         auto mngr              = global_alloc<file_mngr>    ();
-        auto hnd_file_internal = global_alloc<file_handle>     (cfg.file_count);
-        auto hnd_file_platform = global_alloc<pfm_file_handle> (cfg.file_count);
+        auto hnd_file_internal = global_alloc<hnd_file>     (cfg.file_count);
+        auto hnd_file_platform = global_alloc<pfm_hnd_file> (cfg.file_count);
         auto io_length         = global_alloc<u32>             (cfg.file_count);
         auto cursor            = global_alloc<u32>             (cfg.file_count);
         auto paths             = global_alloc<file_path>       (cfg.file_count);
@@ -111,7 +111,7 @@ namespace ifb {
 
     IFB_INTERNAL u32
     file_mngr_index_of_internal_handle(
-        const file_handle hnd) {
+        const hnd_file hnd) {
 
         file_mngr_assert_valid();
 
@@ -133,7 +133,7 @@ namespace ifb {
 
     IFB_INTERNAL u32
     file_mngr_index_of_platform_handle(
-        const pfm_file_handle hnd) {
+        const pfm_hnd_file hnd) {
 
         file_mngr_assert_valid();
 
@@ -166,7 +166,7 @@ namespace ifb {
         return(buffer);
     }
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_mngr_commit(
         const pfm_file_config* cfg) {
 
@@ -180,14 +180,14 @@ namespace ifb {
         }
 
         // open the file 
-        const pfm_file_handle hnd_pfm = pfm_file_open(cfg);
+        const pfm_hnd_file hnd_pfm = pfm_file_open(cfg);
         if (hnd_pfm == NULL) {
             return(FILE_HANDLE_INVALID);
         }
 
         // create the file handle from the path
         const u32         path_length = strnlen_s (cfg->path, IFB_CONFIG_FILE_PATH_SIZE);
-        const file_handle hnd_ifb     = hash_u32  ((void*)&cfg->path[0], path_length);
+        const hnd_file hnd_ifb     = hash_u32  ((void*)&cfg->path[0], path_length);
 
         // commit memory
         const u32 offset = (index * _file_mngr->file_granularity);

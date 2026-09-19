@@ -41,8 +41,8 @@ namespace ifb {
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map,
-        eng_game_proc      game_callback,
-        eng_render_proc    render_callback) {
+        fptr_eng_game      game_callback,
+        fptr_eng_render    render_callback) {
 	
         const auto& config       = config_instance();
         const auto& map_hashes   = tiled_map_get_hashes(); 
@@ -251,14 +251,14 @@ namespace ifb {
         renderer_context_startup(res);
 
         // open shader files
-        const file_handle file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
-        const file_handle file_hnd_quad_frag    = file_ro_open_existing ("quad-shader-fragment.glsl");
-        const file_handle file_hnd_dir_giz_vert = file_ro_open_existing ("direction-gizmo-shader-vert.glsl");
-        const file_handle file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
-        const file_handle file_hnd_grid_vert    = file_ro_open_existing ("grid-vert.glsl");
-        const file_handle file_hnd_grid_frag    = file_ro_open_existing ("grid-frag.glsl");
-        const file_handle file_hnd_tile_vert    = file_ro_open_existing ("tile-vert.glsl");
-        const file_handle file_hnd_tile_frag    = file_ro_open_existing ("tile-frag.glsl");
+        const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
+        const hnd_file file_hnd_quad_frag    = file_ro_open_existing ("quad-shader-fragment.glsl");
+        const hnd_file file_hnd_dir_giz_vert = file_ro_open_existing ("direction-gizmo-shader-vert.glsl");
+        const hnd_file file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
+        const hnd_file file_hnd_grid_vert    = file_ro_open_existing ("grid-vert.glsl");
+        const hnd_file file_hnd_grid_frag    = file_ro_open_existing ("grid-frag.glsl");
+        const hnd_file file_hnd_tile_vert    = file_ro_open_existing ("tile-vert.glsl");
+        const hnd_file file_hnd_tile_frag    = file_ro_open_existing ("tile-frag.glsl");
 
         // read quad shaders        
         renderer_shader_source file_src_quad_vert;

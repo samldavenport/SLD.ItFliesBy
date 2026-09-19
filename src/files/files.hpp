@@ -40,27 +40,27 @@ namespace ifb {
     IFB_INTERNAL void          file_mngr_shutdown                 (void);
     IFB_INTERNAL void          file_mngr_assert_valid             (void);
     IFB_INTERNAL u32           file_mngr_index_of_next_free       (void);
-    IFB_INTERNAL u32           file_mngr_index_of_internal_handle (const file_handle     hnd);
-    IFB_INTERNAL u32           file_mngr_index_of_platform_handle (const pfm_file_handle hnd);
+    IFB_INTERNAL u32           file_mngr_index_of_internal_handle (const hnd_file     hnd);
+    IFB_INTERNAL u32           file_mngr_index_of_platform_handle (const pfm_hnd_file hnd);
     IFB_INTERNAL byte*         file_mngr_get_buffer               (const u32 index);
-    IFB_INTERNAL file_handle   file_mngr_commit                   (const pfm_file_config* cfg);
-    IFB_INTERNAL file_handle   file_ro_create_new                 (const cchar*     path);
-    IFB_INTERNAL file_handle   file_ro_open_existing              (const cchar*     path);
-    IFB_INTERNAL file_handle   file_ro_open_always                (const cchar*     path);
-    IFB_INTERNAL file_handle   file_ro_overwrite                  (const cchar*     path);
-    IFB_INTERNAL file_handle   file_wo_create_new                 (const cchar*     path);
-    IFB_INTERNAL file_handle   file_wo_open_existing              (const cchar*     path);
-    IFB_INTERNAL file_handle   file_wo_open_always                (const cchar*     path);
-    IFB_INTERNAL file_handle   file_wo_overwrite                  (const cchar*     path);
-    IFB_INTERNAL file_handle   file_rw_create_new                 (const cchar*     path);
-    IFB_INTERNAL file_handle   file_rw_open_existing              (const cchar*     path);
-    IFB_INTERNAL file_handle   file_rw_open_always                (const cchar*     path);
-    IFB_INTERNAL file_handle   file_rw_overwrite                  (const cchar*     path);
-    IFB_INTERNAL void          file_close                         (const file_handle hnd);
-    IFB_INTERNAL u32           file_get_size                      (const file_handle hnd);
-    IFB_INTERNAL void          file_set_cursor                    (const file_handle hnd, const u32 cursor);
-    IFB_INTERNAL const cchar*  file_read                          (const file_handle hnd, const u32 buffer_size);
-    IFB_INTERNAL u32           file_write                         (const file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
+    IFB_INTERNAL hnd_file   file_mngr_commit                   (const pfm_file_config* cfg);
+    IFB_INTERNAL hnd_file   file_ro_create_new                 (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_ro_open_existing              (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_ro_open_always                (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_ro_overwrite                  (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_wo_create_new                 (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_wo_open_existing              (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_wo_open_always                (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_wo_overwrite                  (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_rw_create_new                 (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_rw_open_existing              (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_rw_open_always                (const cchar*     path);
+    IFB_INTERNAL hnd_file   file_rw_overwrite                  (const cchar*     path);
+    IFB_INTERNAL void          file_close                         (const hnd_file hnd);
+    IFB_INTERNAL u32           file_get_size                      (const hnd_file hnd);
+    IFB_INTERNAL void          file_set_cursor                    (const hnd_file hnd, const u32 cursor);
+    IFB_INTERNAL const cchar*  file_read                          (const hnd_file hnd, const u32 buffer_size);
+    IFB_INTERNAL u32           file_write                         (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // DEFINITIONS 
@@ -72,8 +72,8 @@ namespace ifb {
 
     struct file_mngr {
         struct {
-            file_handle*     handle_internal; 
-            pfm_file_handle* handle_platform;
+            hnd_file*     handle_internal; 
+            pfm_hnd_file* handle_platform;
             u32*             io_length;
             u32*             cursor;
             file_path*       paths;

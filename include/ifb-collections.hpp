@@ -16,7 +16,7 @@ namespace ifb {
     u32     stack_memory_requirement (const u32 capacity);
     stack*  stack_memory_create      (const u32 capacity, memory& mem);
     stack*  stack_memory_create      (memory& mem);
-    stack*  stack_arena_create       (const u32 capacity, const arena_handle arena_hnd);
+    stack*  stack_arena_create       (const u32 capacity, const hnd_arena arena_hnd);
     u32     stack_get_capacity       (const stack* s);
     u32     stack_get_position       (const stack* s);
     void*   stack_get_head           (const stack* s);
@@ -35,7 +35,7 @@ namespace ifb {
 
     u32          index_cache_memory_size    (const u32 capacity);
     index_cache* index_cache_memory_create  (const u32 capacity, memory& mem); 
-    index_cache* index_cache_arena_create   (const u32 capacity, const arena_handle arena_hnd);
+    index_cache* index_cache_arena_create   (const u32 capacity, const hnd_arena arena_hnd);
     void         index_cache_reset          (index_cache* cache);     
     void         index_cache_set_index_free (index_cache* cache, const u32 index);
     void         index_cache_set_index_used (index_cache* cache, const u32 index);
@@ -53,7 +53,7 @@ namespace ifb {
 
     u32          entity_list_mem_req       (void);
     entity_list* entity_list_memory_create (const memory& mem);
-    entity_list* entity_list_arena_create  (const arena_handle arena_hnd);
+    entity_list* entity_list_arena_create  (const hnd_arena arena_hnd);
     bool         entity_list_add           (entity_list* el, const entity_id id);
     bool         entity_list_remove        (entity_list* el, const entity_id id);
     void         entity_list_reset         (entity_list* el);

@@ -36,15 +36,15 @@ namespace ifb {
     IFB_INTERNAL const map_render_buffer& map_mngr_get_render_buffer  (void);
 
     // map
-    IFB_INTERNAL map_handle               map_create            (const cchar* map_name, const u32 count_rows, const u32 count_cols);
-    IFB_INTERNAL bool                     map_destroy           (const map_handle map_hnd);
-    IFB_INTERNAL bool                     map_render            (const map_handle map_hnd);
-    IFB_INTERNAL bool                     map_get_dimensions    (const map_handle map_hnd, map_dimensions&  dims);
+    IFB_INTERNAL hnd_map               map_create            (const cchar* map_name, const u32 count_rows, const u32 count_cols);
+    IFB_INTERNAL bool                     map_destroy           (const hnd_map map_hnd);
+    IFB_INTERNAL bool                     map_render            (const hnd_map map_hnd);
+    IFB_INTERNAL bool                     map_get_dimensions    (const hnd_map map_hnd, map_dimensions&  dims);
 
     // map chunk
     IFB_INTERNAL u32
     map_chunk_create(
-        const map_handle    map_hnd,
+        const hnd_map    map_hnd,
         const u32           count_rows,
         const u32           count_cols,
         const u32           origin_row,
@@ -53,7 +53,7 @@ namespace ifb {
     );
     IFB_INTERNAL bool
     map_chunk_destroy(
-        const map_handle map_hnd,
+        const hnd_map map_hnd,
         const u32        chunk_index
     );
 

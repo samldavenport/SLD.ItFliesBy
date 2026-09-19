@@ -47,7 +47,7 @@ namespace ifb {
     update_quads(
         void) {
 
-        const arena_handle a = arena_alloc();
+        const hnd_arena a = arena_alloc();
 
         entity_list* quad_list = entity_list_arena_create(a);
         assert(quad_list);

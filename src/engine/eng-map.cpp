@@ -8,7 +8,7 @@
 
 namespace ifb {
 
-    IFB_ENGINE_API map_handle
+    IFB_ENGINE_API hnd_map
     eng_map_create(
         const cchar* name,
         const u32    count_rows,
@@ -18,7 +18,7 @@ namespace ifb {
         assert(count_rows != 0);
         assert(count_cols != 0);
 
-        const map_handle hnd = map_create(
+        const hnd_map hnd = map_create(
             name,
             count_rows,
             count_cols
@@ -29,7 +29,7 @@ namespace ifb {
     
     IFB_ENGINE_API u32 
     eng_map_chunk_create(
-        const map_handle    map_hnd,
+        const hnd_map    map_hnd,
         const u32           count_rows,
         const u32           count_cols,
         const u32           origin_row,
@@ -54,14 +54,14 @@ namespace ifb {
 
     IFB_ENGINE_API void
     eng_map_destroy(
-        const map_handle map) {
+        const hnd_map map) {
 
         assert(map != INVALID_HANDLE);
     }
 
     IFB_ENGINE_API bool 
     eng_map_render(
-        const map_handle map_hnd) {
+        const hnd_map map_hnd) {
 
         const bool result = renderer_tile_set_map(map_hnd);
         return(result);
@@ -69,7 +69,7 @@ namespace ifb {
 
     IFB_ENGINE_API void
     eng_map_set_colors(
-        const map_handle        map,
+        const hnd_map        map,
         const cmpnt_map_coords* coords,
         const color_rgba_u32*   color,
         const u32               count) {
@@ -83,7 +83,7 @@ namespace ifb {
 
     IFB_ENGINE_API bool 
     eng_map_get_entity_coords(
-        const map_handle  map,
+        const hnd_map  map,
         const entity_id   eid,
         cmpnt_map_coords& coords) {
 

@@ -38,7 +38,7 @@ namespace ifb {
 
         const auto& cfg = config_instance();
 
-        const u32 size_hnds   = cfg.map_capacity * sizeof(map_handle);
+        const u32 size_hnds   = cfg.map_capacity * sizeof(hnd_map);
         const u32 size_dims   = cfg.map_capacity * sizeof(map_dimensions);
         const u32 size_name   = cfg.map_capacity * sizeof(cstr_c16);
         const u32 size_chunks = cfg.map_capacity * sizeof(map_chunk_array);
@@ -47,7 +47,7 @@ namespace ifb {
         auto  tbl_map = _map_mngr->tbl_map; 
         auto& buffer  = _map_mngr->render_buffer;
         assert(tbl_map);
-        tbl_map->hnd         =      (map_handle*)reservation_push_bytes(_map_mngr->res, size_hnds);
+        tbl_map->hnd         =      (hnd_map*)reservation_push_bytes(_map_mngr->res, size_hnds);
         tbl_map->dims        =  (map_dimensions*)reservation_push_bytes(_map_mngr->res, size_dims);
         tbl_map->name        =        (cstr_c16*)reservation_push_bytes(_map_mngr->res, size_name);
         tbl_map->chunk_array = (map_chunk_array*)reservation_push_bytes(_map_mngr->res, size_chunks);

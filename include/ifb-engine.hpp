@@ -22,7 +22,7 @@ using namespace sld;
 
 
 namespace ifb {
-
+    
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
@@ -37,8 +37,8 @@ namespace ifb {
     // FUNCTION POINTERS 
     //--------------------------------------------------------------------
 
-  typedef bool (*eng_game_proc)   (eng_game_context* game_ctx); 
-  typedef void (*eng_render_proc) (void); 
+  typedef bool (*fptr_eng_game)   (eng_game_context* game_ctx); 
+  typedef void (*fptr_eng_render) (void); 
 
     //--------------------------------------------------------------------
     // CONTEXT
@@ -47,24 +47,24 @@ namespace ifb {
     IFB_ENGINE_API eng_context*
     eng_context_create(
         const eng_mem_map* mem_map,
-        eng_game_proc      game_callback,
-        eng_render_proc    render_callback
+        fptr_eng_game      game_callback,
+        fptr_eng_render    render_callback
     );
 
-    IFB_ENGINE_API void          eng_context_startup                      (void);
-    IFB_ENGINE_API bool          eng_context_run                          (void);
-    IFB_ENGINE_API void          eng_context_shutdown                     (void);
-    IFB_ENGINE_API void          eng_context_destroy                      (eng_context* ctx);
-    IFB_ENGINE_API ImGuiContext* eng_context_get_imgui                    (void);
+    IFB_ENGINE_API void          eng_context_startup   (void);
+    IFB_ENGINE_API bool          eng_context_run       (void);
+    IFB_ENGINE_API void          eng_context_shutdown  (void);
+    IFB_ENGINE_API void          eng_context_destroy   (eng_context* ctx);
+    IFB_ENGINE_API ImGuiContext* eng_context_get_imgui (void);
 
     //--------------------------------------------------------------------
     // WINDOW
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API void eng_window_open                                  (void);
-    IFB_ENGINE_API void eng_window_did_close                             (void);
-    IFB_ENGINE_API void eng_window_set_pos                               (const u32 pos_x, const u32 window_pos_y);
-    IFB_ENGINE_API void eng_window_set_size                              (const u32 width, const u32 height);
+    IFB_ENGINE_API void eng_window_open      (void);
+    IFB_ENGINE_API void eng_window_did_close (void);
+    IFB_ENGINE_API void eng_window_set_pos   (const u32 pos_x, const u32 window_pos_y);
+    IFB_ENGINE_API void eng_window_set_size  (const u32 width, const u32 height);
     
     //--------------------------------------------------------------------
     // GUI
@@ -77,36 +77,36 @@ namespace ifb {
     // INPUT
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API void eng_input_set_key_down                           (const input_keycode key_ptr);
-    IFB_ENGINE_API void eng_input_set_key_up                             (const input_keycode key_ptr);
-    IFB_ENGINE_API bool eng_input_is_key_down                            (const input_keycode keycode);
-    IFB_ENGINE_API void eng_input_mouse_click_left_down                  (void);
-    IFB_ENGINE_API void eng_input_mouse_click_left_up                    (void);
-    IFB_ENGINE_API void eng_input_mouse_click_right_down                 (void);
-    IFB_ENGINE_API void eng_input_mouse_click_right_up                   (void);
-    IFB_ENGINE_API void eng_input_mouse_move                             (const u32 x, const u32 y);
+    IFB_ENGINE_API void eng_input_set_key_down           (const input_keycode key_ptr);
+    IFB_ENGINE_API void eng_input_set_key_up             (const input_keycode key_ptr);
+    IFB_ENGINE_API bool eng_input_is_key_down            (const input_keycode keycode);
+    IFB_ENGINE_API void eng_input_mouse_click_left_down  (void);
+    IFB_ENGINE_API void eng_input_mouse_click_left_up    (void);
+    IFB_ENGINE_API void eng_input_mouse_click_right_down (void);
+    IFB_ENGINE_API void eng_input_mouse_click_right_up   (void);
+    IFB_ENGINE_API void eng_input_mouse_move             (const u32 x, const u32 y);
 
     //--------------------------------------------------------------------
     // FILES
     //--------------------------------------------------------------------
     
-    IFB_ENGINE_API file_handle  eng_file_ro_create_new                (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_ro_open_existing             (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_ro_open_always               (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_ro_overwrite                 (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_wo_create_new                (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_wo_open_existing             (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_wo_open_always               (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_wo_overwrite                 (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_rw_create_new                (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_rw_open_existing             (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_rw_open_always               (const cchar* path);
-    IFB_ENGINE_API file_handle  eng_file_rw_overwrite                 (const cchar* path);
-    IFB_ENGINE_API void         eng_file_close                        (const file_handle hnd);
-    IFB_ENGINE_API u32          eng_file_get_size                     (const file_handle hnd);
-    IFB_ENGINE_API void         eng_file_set_cursor                   (const file_handle hnd, const u32 cursor);
-    IFB_ENGINE_API const cchar* eng_file_read                         (const file_handle hnd, const u32 buffer_size);
-    IFB_ENGINE_API u32          eng_file_write                        (const file_handle hnd, const u32 buffer_size, const byte* buffer_ptr);
+    IFB_ENGINE_API hnd_file     eng_file_ro_create_new    (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_ro_open_existing (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_ro_open_always   (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_ro_overwrite     (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_wo_create_new    (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_wo_open_existing (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_wo_open_always   (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_wo_overwrite     (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_rw_create_new    (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_rw_open_existing (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_rw_open_always   (const cchar* path);
+    IFB_ENGINE_API hnd_file     eng_file_rw_overwrite     (const cchar* path);
+    IFB_ENGINE_API void         eng_file_close            (const hnd_file hnd);
+    IFB_ENGINE_API u32          eng_file_get_size         (const hnd_file hnd);
+    IFB_ENGINE_API void         eng_file_set_cursor       (const hnd_file hnd, const u32 cursor);
+    IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd, const u32 buffer_size);
+    IFB_ENGINE_API u32          eng_file_write            (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // CAMERA
@@ -163,7 +163,7 @@ namespace ifb {
     // TILE MAPS 
     //--------------------------------------------------------------------
    
-    IFB_ENGINE_API map_handle
+    IFB_ENGINE_API hnd_map
     eng_map_create(
         const cchar* name,
         const u32    count_rows,
@@ -171,7 +171,7 @@ namespace ifb {
     ); 
     IFB_ENGINE_API u32 
     eng_map_chunk_create(
-        const map_handle    map_hnd,
+        const hnd_map       map_hnd,
         const u32           count_rows,
         const u32           count_cols,
         const u32           origin_row,
@@ -180,12 +180,12 @@ namespace ifb {
     );
     IFB_ENGINE_API bool
     eng_map_get_entity_coords(
-        const map_handle  map,
+        const hnd_map  map,
         const entity_id   eid,
         cmpnt_map_coords& coords
     );
-    IFB_ENGINE_API void eng_map_destroy (const map_handle map_hnd);
-    IFB_ENGINE_API bool eng_map_render  (const map_handle map_hnd);
+    IFB_ENGINE_API void eng_map_destroy (const hnd_map map_hnd);
+    IFB_ENGINE_API bool eng_map_render  (const hnd_map map_hnd);
 
     //--------------------------------------------------------------------
     // IMAGES
@@ -198,23 +198,23 @@ namespace ifb {
     // ARENAS
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API arena_handle     eng_arena_alloc     (void);
-    IFB_ENGINE_API void             eng_arena_free      (const arena_handle arena);
-    IFB_ENGINE_API void             eng_arena_reset     (const arena_handle arena);
-    IFB_ENGINE_API u32              eng_arena_save      (const arena_handle arena);
-    IFB_ENGINE_API u32              eng_arena_size_free (const arena_handle arena);
-    IFB_ENGINE_API u32              eng_arena_size_used (const arena_handle arena);
-    IFB_ENGINE_API void             eng_arena_revert    (const arena_handle arena, const u32 save);
-    IFB_ENGINE_API void             eng_arena_commit    (const arena_handle arena, const u32 save);
-    IFB_ENGINE_API void*            eng_arena_push      (const arena_handle arena, const u32 size);
+    IFB_ENGINE_API hnd_arena eng_arena_alloc     (void);
+    IFB_ENGINE_API void      eng_arena_free      (const hnd_arena arena);
+    IFB_ENGINE_API void      eng_arena_reset     (const hnd_arena arena);
+    IFB_ENGINE_API u32       eng_arena_save      (const hnd_arena arena);
+    IFB_ENGINE_API u32       eng_arena_size_free (const hnd_arena arena);
+    IFB_ENGINE_API u32       eng_arena_size_used (const hnd_arena arena);
+    IFB_ENGINE_API void      eng_arena_revert    (const hnd_arena arena, const u32 save);
+    IFB_ENGINE_API void      eng_arena_commit    (const hnd_arena arena, const u32 save);
+    IFB_ENGINE_API void*     eng_arena_push      (const hnd_arena arena, const u32 size);
 
     //--------------------------------------------------------------------
     // IMAGES
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API u32          eng_image_size           (const file_handle img_file_hnd);
-    IFB_ENGINE_API const image* eng_image_load_to_arena  (const file_handle img_file_hnd, const arena_handle arena_hnd);
-    IFB_ENGINE_API const image* eng_image_load_to_memory (const file_handle img_file_hnd, const memory& mem);
+    IFB_ENGINE_API u32          eng_image_size           (const hnd_file img_file_hnd);
+    IFB_ENGINE_API const image* eng_image_load_to_arena  (const hnd_file img_file_hnd, const hnd_arena arena_hnd);
+    IFB_ENGINE_API const image* eng_image_load_to_memory (const hnd_file img_file_hnd, const memory& mem);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -233,7 +233,6 @@ namespace ifb {
         } time;
         pfm_memory_info mem_info;
     };
-
 
     struct eng_mem_map {
         memory stack;
