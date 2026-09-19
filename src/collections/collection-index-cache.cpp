@@ -52,7 +52,7 @@ namespace ifb {
     index_cache*
     index_cache_arena_create(
         const u32          capacity,
-        const arena_handle arena_hnd) {
+        const hnd_arena arena_hnd) {
 
         assert(capacity  != 0);
         assert(arena_hnd != INVALID_HANDLE);

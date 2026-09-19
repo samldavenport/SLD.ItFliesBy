@@ -2,7 +2,6 @@
 
 #include "ifb-collections.hpp"
 #include "component-tables.cpp"
-#include "ifb-component.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "physics.hpp"
@@ -32,13 +31,13 @@ namespace ifb {
         f32*       rest_length;
     };
 
-    inline bool spring_calculator_create            (spring_calculator& calc, const arena_handle a);
-    inline bool spring_calculator_load_components   (spring_calculator& calc, const arena_handle a);
+    inline bool spring_calculator_create            (spring_calculator& calc, const hnd_arena a);
+    inline bool spring_calculator_load_components   (spring_calculator& calc, const hnd_arena a);
     inline void spring_calculator_load_exec         (spring_calculator& calc);
 
     IFB_INTERNAL void 
     physics_spring_calculate_forces(
-        const arena_handle a) {
+        const hnd_arena a) {
 
 
         const u32 save = arena_save(a);
@@ -62,7 +61,7 @@ namespace ifb {
     inline bool 
     spring_calculator_create(
         spring_calculator& calc,
-        const arena_handle a) {
+        const hnd_arena a) {
 
         const auto& cfg = config_instance();
     
@@ -104,7 +103,7 @@ namespace ifb {
     inline bool 
     spring_calculator_load_components(
         spring_calculator&     calc,
-        const arena_handle a) {
+        const hnd_arena a) {
 
         entity_list* list = entity_list_arena_create(a);
         if (list == NULL) {

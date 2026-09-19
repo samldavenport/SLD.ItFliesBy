@@ -5,7 +5,6 @@
 #include "entity-manager.cpp"
 #include "entity.cpp"
 #include "entity-component.cpp"
-#include "ifb-component.hpp"
 #include "ifb-types.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"

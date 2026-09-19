@@ -4,7 +4,7 @@
 
 namespace ifb {
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_wo_create_new(
         const cchar* path) {
 
@@ -18,11 +18,11 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_wo_open_existing(
         const cchar* path) {
         
@@ -36,11 +36,11 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_wo_open_always(
         const cchar* path) {
 
@@ -54,11 +54,11 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_wo_overwrite(
         const cchar* path) {
 
@@ -72,7 +72,7 @@ namespace ifb {
         file_config.share_flags  = pfm_file_share_flag_e_none;
         file_config.is_async     = false;
         
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 };

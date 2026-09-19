@@ -80,7 +80,7 @@ namespace ifb {
 
             quad_entity q;
 
-            static arena_handle a;
+            static hnd_arena a;
             static entity_list* quad_list;
             if (a == NULL) {
                 a = eng_arena_alloc();

@@ -27,8 +27,8 @@ namespace ifb {
     struct eng_context {
         f32                seconds_per_frame;
         const eng_mem_map* mem_map;
-        eng_game_proc      game_callback;
-        eng_render_proc    render_callback;
+        fptr_eng_game      game_callback;
+        fptr_eng_render    render_callback;
         eng_game_context*  game_ctx;
         eng_system_info*   system;
         keyboard_input*    keyboard;
@@ -66,6 +66,8 @@ namespace ifb {
     IFB_ENG_INTERNAL u32  system_get_memory_granularity      (void);
     IFB_ENG_INTERNAL u32  system_align_to_memory_page_size   (const u32 size);
     IFB_ENG_INTERNAL u32  system_align_to_memory_granularity (const u32 size);
+    IFB_ENG_INTERNAL u32  system_get_primary_monitor_width   (void);
+    IFB_ENG_INTERNAL u32  system_get_primary_monitor_height  (void);
 };
 
 #endif //IFB_ENG_INTERNAL_HPP

@@ -42,8 +42,8 @@ namespace ifb {
            gl_uniform u_tile_unit_size;
            gl_uniform u_color_table;
        } gl;
-       map_handle               map_hnd;
-       arena_handle             arena;
+       hnd_map               map_hnd;
+       hnd_arena             arena;
     };
 
     //--------------------------------------------------------------------
@@ -139,7 +139,7 @@ namespace ifb {
 
     IFB_INTERNAL bool 
     renderer_tile_set_map(
-        const map_handle map_hnd) {
+        const hnd_map map_hnd) {
 
         assert(map_hnd != INVALID_ID);
         assert(_renderer_ctx);

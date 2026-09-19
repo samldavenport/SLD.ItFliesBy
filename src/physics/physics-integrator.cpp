@@ -3,7 +3,6 @@
 #include <math.h>
 
 #include "component.hpp"
-#include "ifb-component.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
@@ -36,7 +35,7 @@ namespace ifb {
         f32*       drag;
     };
 
-    inline bool physics_force_integrator_init              (physics_force_integrator& i, const arena_handle a);
+    inline bool physics_force_integrator_init              (physics_force_integrator& i, const hnd_arena a);
     inline bool physics_force_integrator_lookup_components (physics_force_integrator& i, physics_accumulator* a);
     inline void physics_force_integrator_exec              (physics_force_integrator& i, const f32 dt);
     inline void physics_force_integrator_update_components (physics_force_integrator& i);
@@ -44,7 +43,7 @@ namespace ifb {
     IFB_INTERNAL void 
     physics_integrate_forces(
         const f32 dt,
-        const arena_handle a) {
+        const hnd_arena a) {
         
         const u32 save   = arena_save(a);
         auto*     forces = _phys_mngr->force_accumulator;
@@ -72,7 +71,7 @@ namespace ifb {
     inline bool 
     physics_force_integrator_init(
         physics_force_integrator& i,
-        const arena_handle    a) {
+        const hnd_arena    a) {
     
         const auto& cfg  = config_instance();
         const u32   save = arena_save(a);

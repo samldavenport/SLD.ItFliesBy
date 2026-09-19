@@ -56,7 +56,7 @@ namespace ifb {
 
     IFB_INTERNAL entity_list* 
     entity_list_arena_create(
-        const arena_handle a) {
+        const hnd_arena a) {
 
         const u32 save = eng_arena_save(a);
 

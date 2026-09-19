@@ -116,10 +116,9 @@ namespace ifb {
     IFB_U32(map_tile_flags_u32);
     IFB_U32(map_color_u32);
     
-    IFB_HANDLE(arena_handle);
-    IFB_HANDLE(file_handle);
-    IFB_HANDLE(map_handle);
-    IFB_HANDLE(map_chunk_handle);
+    IFB_HANDLE(hnd_arena);
+    IFB_HANDLE(hnd_file);
+    IFB_HANDLE(hnd_map);
    
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -132,7 +131,7 @@ namespace ifb {
 
     struct dimensions_3d {
         f32 width;
-        position    position;
+        f32 height;
         f32 depth;
     };
 
@@ -195,7 +194,6 @@ namespace ifb {
             return(hash_u32((void*)cstr, 16));
         }
     };
-
     
     struct map_tile {
         union {
@@ -262,18 +260,18 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct atype_particle {
-        cmpnt_rigid_body   rb;
-        cmpnt_position     pos;
-        cmpnt_velocity     vel;
-        cmpnt_acceleration acc;
-        cmpnt_inv_mass     im;
-        cmpnt_drag         drg;
+        cmpnt_rigid_body   rigid_body;
+        cmpnt_position     position;
+        cmpnt_velocity     velocity;
+        cmpnt_acceleration acceleration;
+        cmpnt_inv_mass     inv_mass;
+        cmpnt_drag         drag;
     };
     
     struct atype_quad {
         cmpnt_position position;
-        cmpnt_quad quad;
-        cmpnt_color color;
+        cmpnt_quad     quad;
+        cmpnt_color    color;
     };
 };
 

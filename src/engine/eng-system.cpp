@@ -26,6 +26,11 @@ namespace ifb {
         auto sys = system_info_get_and_validate();
         
         pfm_memory_get_info(sys->mem_info);
+        
+        // monitor info
+        sys->monitor.count = pfm_monitor_count();
+        pfm_monitor_get_info         (0, &sys->monitor.primary);
+        pfm_monitor_get_working_area (sys->monitor.working_area);
     }
     
     IFB_ENG_INTERNAL void
@@ -97,5 +102,21 @@ namespace ifb {
     
         const u32 size_aligned = size_align_pow_2(size, size_granularity);
         return(size_aligned);
+    }
+    
+    IFB_ENG_INTERNAL u32
+    system_get_primary_monitor_width(
+        void) {
+
+        auto sys = system_info_get_and_validate();
+        return(sys->monitor.primary.pixel_width);
+    }
+
+    IFB_ENG_INTERNAL u32
+    system_get_primary_monitor_height(
+        void) {
+       
+        auto sys = system_info_get_and_validate();
+        return(sys->monitor.primary.pixel_height);
     }
 };

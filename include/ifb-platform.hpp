@@ -20,7 +20,7 @@ namespace ifb {
     typedef u32   pfm_file_mode;
     typedef u32   pfm_file_access_flags;
     typedef u32   pfm_file_share_flags;
-    typedef void* pfm_file_handle;
+    typedef void* pfm_hnd_file;
  
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -111,16 +111,16 @@ namespace ifb {
     // FILES
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open          (const pfm_file_config* cfg);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_r  (const cchar*  path);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_w  (const cchar*  path);
-    IFB_PLATFORM_API pfm_file_handle pfm_file_open_async_rw (const cchar*  path);
-    IFB_PLATFORM_API u32             pfm_file_size          (const pfm_file_handle file);
-    IFB_PLATFORM_API void            pfm_file_close         (const pfm_file_handle file);
-    IFB_PLATFORM_API u32             pfm_file_read          (const pfm_file_handle file, pfm_file_buffer* buffer);
-    IFB_PLATFORM_API u32             pfm_file_write         (const pfm_file_handle file, pfm_file_buffer* buffer);
-    IFB_PLATFORM_API u32             pfm_file_async_read    (const pfm_file_handle file, pfm_file_buffer* buffer);
-    IFB_PLATFORM_API u32             pfm_file_async_write   (const pfm_file_handle file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API pfm_hnd_file pfm_file_open          (const pfm_file_config* cfg);
+    IFB_PLATFORM_API pfm_hnd_file pfm_file_open_async_r  (const cchar*  path);
+    IFB_PLATFORM_API pfm_hnd_file pfm_file_open_async_w  (const cchar*  path);
+    IFB_PLATFORM_API pfm_hnd_file pfm_file_open_async_rw (const cchar*  path);
+    IFB_PLATFORM_API u32             pfm_file_size          (const pfm_hnd_file file);
+    IFB_PLATFORM_API void            pfm_file_close         (const pfm_hnd_file file);
+    IFB_PLATFORM_API u32             pfm_file_read          (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API u32             pfm_file_write         (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API u32             pfm_file_async_read    (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API u32             pfm_file_async_write   (const pfm_hnd_file file, pfm_file_buffer* buffer);
 
     //--------------------------------------------------------------------
     // SYSTEM

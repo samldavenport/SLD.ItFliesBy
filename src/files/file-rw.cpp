@@ -4,7 +4,7 @@
 
 namespace ifb {
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_rw_create_new(
         const cchar* path) {
 
@@ -20,11 +20,11 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_rw_open_existing(
         const cchar* path) {
 
@@ -40,11 +40,11 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_rw_open_always(
         const cchar* path) {
 
@@ -60,11 +60,11 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 
-    IFB_INTERNAL file_handle
+    IFB_INTERNAL hnd_file
     file_rw_overwrite(
         const cchar* path) {
 
@@ -80,7 +80,7 @@ namespace ifb {
         file_config.is_async     = false;
 
         // return the created handle
-        const file_handle hnd = file_mngr_commit(&file_config);
+        const hnd_file hnd = file_mngr_commit(&file_config);
         return(hnd);
     }
 };

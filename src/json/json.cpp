@@ -17,7 +17,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     struct json_allocator {
-        arena_handle memory;
+        hnd_arena memory;
         static constexpr bool kNeedFree = false;
 
         void*
@@ -82,7 +82,7 @@ namespace ifb {
     
     IFB_INTERNAL json_doc*
     json_doc_create(
-        const arena_handle       a,
+        const hnd_arena       a,
         const u32    json_cstr_length,
         const cchar* json_cstr_ptr) {
 
@@ -636,11 +636,11 @@ namespace ifb {
         void) {
 
         // get arena
-        arena_handle a = arena_alloc();
+        hnd_arena a = arena_alloc();
         assert(a != NULL);
 
         // read the json data
-        const file_handle json_hnd = file_ro_open_existing("test.json");
+        const hnd_file json_hnd = file_ro_open_existing("test.json");
         const u32         size     = file_get_size(json_hnd);
         const cchar*      data     = file_read(json_hnd, size);    
 

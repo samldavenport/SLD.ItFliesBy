@@ -33,14 +33,14 @@ namespace ifb {
     // MAP
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL u32             map_lookup_index   (const map_handle map_hnd);
+    IFB_INTERNAL u32             map_lookup_index   (const hnd_map map_hnd);
     IFB_INTERNAL map_dimensions& map_get_dimensions (const u32 map_index);
     IFB_INTERNAL map_chunk&      map_get_chunk      (const u32 map_index, const u32 chunk_index);
 
 
     struct map {
         cstr_c16*      name;
-        map_handle     hnd;
+        hnd_map     hnd;
         map_dimensions dims;
     };
 
@@ -57,7 +57,7 @@ namespace ifb {
     };
 
     struct map_table {
-        map_handle*      hnd;
+        hnd_map*      hnd;
         map_dimensions*  dims;
         cstr_c16*        name;
         map_chunk_array* chunk_array;
