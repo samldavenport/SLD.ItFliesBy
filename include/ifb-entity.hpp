@@ -10,9 +10,10 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     static const component_type ENTITY_ARCHETYPE_QUAD = (
-        cmpnt_type_e_position |
-        cmpnt_type_e_color    |
-        cmpnt_type_e_quad
+        cmpnt_type_e_position   |
+        cmpnt_type_e_color      |
+        cmpnt_type_e_quad       |
+        cmpnt_type_e_map_coords
     );
 
     static const component_type ENTITY_ARCHETYPE_PHYSICS_PARTICLE = (

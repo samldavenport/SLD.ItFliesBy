@@ -132,32 +132,36 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_lookup_by_dense_index (const u32 dense_index, entity& e);
     IFB_ENGINE_API bool         eng_entity_query                 (entity_list* list, const entity_query query);
     IFB_ENGINE_API bool         eng_entity_quad_lookup           (quad_entity& q, const entity_id id);
-
-    IFB_ENGINE_API bool         eng_entity_lookup_position       (const entity_id id, cmpnt_position&      pos);
-    IFB_ENGINE_API bool         eng_entity_lookup_velocity       (const entity_id id, cmpnt_velocity&      vel);
-    IFB_ENGINE_API bool         eng_entity_lookup_acceleration   (const entity_id id, cmpnt_acceleration&  acc);
-    IFB_ENGINE_API bool         eng_entity_lookup_term_velocity  (const entity_id id, cmpnt_term_velocity& tv);
-    IFB_ENGINE_API bool         eng_entity_lookup_inv_mass       (const entity_id id, f32&                 inv_mass);
-    IFB_ENGINE_API bool         eng_entity_lookup_mass           (const entity_id id, f32&                 mass);
-    IFB_ENGINE_API bool         eng_entity_lookup_drag           (const entity_id id, f32&                 drag);
-    IFB_ENGINE_API bool         eng_entity_lookup_quad           (const entity_id id, cmpnt_quad&          q);
-    IFB_ENGINE_API bool         eng_entity_lookup_color          (const entity_id id, cmpnt_color&         color);
-    IFB_ENGINE_API bool         eng_entity_lookup_spring         (const entity_id id, cmpnt_spring&        spr);
-    IFB_ENGINE_API bool         eng_entity_lookup_map_coords     (const entity_id id, cmpnt_map_coords&          coords);
-
-    IFB_ENGINE_API bool         eng_entity_update_position       (const entity_id id, const cmpnt_position&      pos);
-    IFB_ENGINE_API bool         eng_entity_update_velocity       (const entity_id id, const cmpnt_velocity&      vel);
-    IFB_ENGINE_API bool         eng_entity_update_acceleration   (const entity_id id, const cmpnt_acceleration&  acc);
-    IFB_ENGINE_API bool         eng_entity_update_term_velocity  (const entity_id id, const cmpnt_term_velocity& tv);
-    IFB_ENGINE_API bool         eng_entity_update_inv_mass       (const entity_id id, const f32                  inv_mass);
-    IFB_ENGINE_API bool         eng_entity_update_mass           (const entity_id id, const f32                  mass);
-    IFB_ENGINE_API bool         eng_entity_update_drag           (const entity_id id, const f32                  drag);
-    IFB_ENGINE_API bool         eng_entity_update_quad           (const entity_id id, const atype_quad&      quad);
-    IFB_ENGINE_API bool         eng_entity_update_color          (const entity_id id, const cmpnt_color&         color);
-    IFB_ENGINE_API bool         eng_entity_update_spring         (const entity_id id, const cmpnt_spring&        spr);
-    IFB_ENGINE_API bool         eng_entity_update_map_coords     (const entity_id id, const cmpnt_map_coords&    coords);
     IFB_ENGINE_API bool         eng_entity_render                (const entity_id id);
     IFB_ENGINE_API bool         eng_entity_add_force             (const entity_id id, const vec3& force);
+
+    //--------------------------------------------------------------------
+    // COMPONENTS 
+    //--------------------------------------------------------------------
+   
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_position       (const entity_id id, cmpnt_position&      pos);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_velocity       (const entity_id id, cmpnt_velocity&      vel);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_acceleration   (const entity_id id, cmpnt_acceleration&  acc);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_term_velocity  (const entity_id id, cmpnt_term_velocity& tv);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_inv_mass       (const entity_id id, f32&                 inv_mass);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_mass           (const entity_id id, f32&                 mass);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_drag           (const entity_id id, f32&                 drag);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_quad           (const entity_id id, cmpnt_quad&          q);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_color          (const entity_id id, cmpnt_color&         color);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_spring         (const entity_id id, cmpnt_spring&        spr);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_map_coords     (const entity_id id, cmpnt_map_coords&    coords);
+
+    IFB_ENGINE_API bool         eng_cmpnt_update_position       (const entity_id id, const cmpnt_position&      pos);
+    IFB_ENGINE_API bool         eng_cmpnt_update_velocity       (const entity_id id, const cmpnt_velocity&      vel);
+    IFB_ENGINE_API bool         eng_cmpnt_update_acceleration   (const entity_id id, const cmpnt_acceleration&  acc);
+    IFB_ENGINE_API bool         eng_cmpnt_update_term_velocity  (const entity_id id, const cmpnt_term_velocity& tv);
+    IFB_ENGINE_API bool         eng_cmpnt_update_inv_mass       (const entity_id id, const f32                  inv_mass);
+    IFB_ENGINE_API bool         eng_cmpnt_update_mass           (const entity_id id, const f32                  mass);
+    IFB_ENGINE_API bool         eng_cmpnt_update_drag           (const entity_id id, const f32                  drag);
+    IFB_ENGINE_API bool         eng_cmpnt_update_quad           (const entity_id id, const atype_quad&      quad);
+    IFB_ENGINE_API bool         eng_cmpnt_update_color          (const entity_id id, const cmpnt_color&         color);
+    IFB_ENGINE_API bool         eng_cmpnt_update_spring         (const entity_id id, const cmpnt_spring&        spr);
+    IFB_ENGINE_API bool         eng_cmpnt_update_map_coords     (const entity_id id, const cmpnt_map_coords&    coords);
 
     //--------------------------------------------------------------------
     // TILE MAPS 

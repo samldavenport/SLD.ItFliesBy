@@ -10,6 +10,7 @@
 
 #include "eng-arena.cpp"
 #include "eng-camera.cpp"
+#include "eng-cmpnt.cpp"
 #include "eng-context.cpp"
 #include "eng-entity.cpp"
 #include "eng-input.cpp"

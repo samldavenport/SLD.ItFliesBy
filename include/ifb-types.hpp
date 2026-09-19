@@ -20,7 +20,7 @@ using namespace sld;
 
 #define IFB_U32(type)     struct type : sld::strong_u32 { using strong_u32::strong_u32; };
 #define IFB_FLAGS32(type) struct type : flags           { using flags;                  };
-#define IFB_HANDLE(hnd)   struct hnd  : handle          { using handle::handle; };
+#define IFB_HANDLE(hnd)   struct hnd  : handle          { using handle::handle;         };
 
 namespace ifb {
    
@@ -272,6 +272,17 @@ namespace ifb {
         cmpnt_position position;
         cmpnt_quad     quad;
         cmpnt_color    color;
+    };
+
+    struct atype_physics_quad {
+        cmpnt_rigid_body   rigid_body;
+        cmpnt_position     position;
+        cmpnt_velocity     velocity;
+        cmpnt_acceleration acceleration;
+        cmpnt_inv_mass     inv_mass;
+        cmpnt_drag         drag;
+        cmpnt_quad         quad;
+        cmpnt_color        color;
     };
 };
 
