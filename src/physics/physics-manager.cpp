@@ -2,10 +2,12 @@
 
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
+#include "memory-reservation.cpp"
 #include "physics.hpp"
 #include "eng-internal.hpp"
 #include <cassert>
 #include <cstddef>
+#include "physics-internal.hpp"
 
 namespace ifb {
     
@@ -71,5 +73,15 @@ namespace ifb {
         physics_spring_calculate_forces (phys_mem->simulation_arena); 
         physics_integrate_forces        (dt, phys_mem->simulation_arena);
         physics_accumulator_reset       (_phys_mngr->force_accumulator);
+    }
+    
+    IFB_INTERNAL void*
+    physics_mngr_res_alloc(
+        const u32 size_min) {
+
+        auto phys_mem = _phys_mngr->memory;
+        
+        void* mem = reservation_push_bytes(phys_mem->res, size_min);
+        return(mem);
     }
 };

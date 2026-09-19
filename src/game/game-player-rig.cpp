@@ -76,8 +76,6 @@ namespace ifb {
         const f32 drag     = 0.01f;
         
         eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
-        
-
         eng_cmpnt_update_quad          (player_rig->connor_id, quad_connor);
         eng_cmpnt_update_inv_mass      (player_rig->connor_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->connor_id, drag); 

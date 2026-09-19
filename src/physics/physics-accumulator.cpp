@@ -4,6 +4,7 @@
 #include "ifb-types.hpp"
 #include "memory-reservation.cpp"
 #include "physics.hpp"
+#include "physics-internal.hpp"
 
 namespace ifb {
 
@@ -11,14 +12,6 @@ namespace ifb {
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------
     
-    struct physics_accumulator {
-        struct {
-            entity_id* ids; 
-            vec3*      vectors;
-        } data;
-        u32 capacity;
-        u32 count;
-    };
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -31,18 +24,11 @@ namespace ifb {
         const auto& cfg = config_instance();
 
         auto accum = global_alloc<physics_accumulator>();
-        auto ids   = (entity_id*)reservation_push_bytes(res, sizeof(entity_id) * cfg.entity_capacity); 
-        auto vec   =      (vec3*)reservation_push_bytes(res, sizeof(vec3)      * cfg.entity_capacity);
-   
         assert(accum != NULL);         
-        assert(ids   != NULL);         
-        assert(vec   != NULL);         
+
+        accum->global_forces = physics_force_list_create();
+        assert(accum->global_forces != NULL);
    
-        accum->data.ids     = ids;
-        accum->data.vectors = vec;
-        accum->capacity     = cfg.entity_capacity;
-        accum->count        = 0;
-  
         physics_accumulator_validate(accum);
 
         return(accum);
@@ -52,11 +38,8 @@ namespace ifb {
     physics_accumulator_validate(
         physics_accumulator* const accum) {
 
-        assert(accum               != NULL);
-        assert(accum->data.ids     != NULL);
-        assert(accum->data.vectors != NULL);
-        assert(accum->capacity     != 0);
-        assert(accum->count        <= accum->capacity);
+        assert(accum                != NULL);
+        assert(accum->global_forces != NULL);
     }
 
     IFB_INTERNAL void
@@ -68,29 +51,8 @@ namespace ifb {
         physics_accumulator_validate(accum);
         assert(id != ENTITY_ID_INVALID);
 
-        // if the entity has a vector already,
-        // update it
-        for (
-            u32 i = 0;
-            i < accum->count;
-            ++i
-        ) {
-            if (id == accum->data.ids[i]) {
-                vec3& v_new = accum->data.vectors[i];
-                v_new.x += v.x;
-                v_new.y += v.y;
-                v_new.z += v.z;
-                return;
-            }
-        }
-
-        // get the index and update the count
-        const u32 index_new = accum->count;
-        ++accum->count;
-
-        // set the id and vector
-        accum->data.ids    [index_new] = id;
-        accum->data.vectors[index_new] = v;
+        const bool did_add = physics_force_list_add(accum->global_forces, id, v);
+        assert(did_add);
     }
 
     IFB_INTERNAL bool
@@ -102,18 +64,8 @@ namespace ifb {
         physics_accumulator_validate(accum);
         assert(id != ENTITY_ID_INVALID);
 
-        for (
-            u32 i = 0;
-            i < accum->count;
-            ++i
-        ) {
-            if (id == accum->data.ids[i]) {
-                v = accum->data.vectors[i];
-                return(true);
-            }
-        }
-
-        return(false);
+        const bool found = physics_force_list_lookup(accum->global_forces, id, v);
+        return(found);
     }
 
     IFB_INTERNAL bool
@@ -121,29 +73,11 @@ namespace ifb {
         physics_accumulator* const accum,
         const entity_id            id) {
 
-
-        const u32 last = accum->count - 1;
-        if (id == accum->data.ids[last]) {
-            --accum->count;
-            return(true);
-        }
-
-        for (
-            u32 i = 0;
-            i < accum->count;
-            ++i
-        ) {
-            if (id == accum->data.ids[i]) {
-                if (accum->count > 1) {
-                    accum->data.ids     [i] = accum->data.ids     [last];
-                    accum->data.vectors [i] = accum->data.vectors [last];
-                }
-                --accum->count;
-                return(true);
-            }
-        }
-
-        return(false);
+        physics_accumulator_validate(accum);
+        assert(id != ENTITY_ID_INVALID);
+       
+        const bool did_remove = physics_force_list_remove(accum->global_forces, id);        
+        return(did_remove);
     }
     
     IFB_INTERNAL void
@@ -151,6 +85,6 @@ namespace ifb {
         physics_accumulator* const accum) {
 
         physics_accumulator_validate(accum);
-        accum->count = 0;
+        physics_force_list_reset(accum->global_forces);
     }
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "physics.hpp"
+#include "physics-internal.hpp"
 
 namespace ifb {
     
