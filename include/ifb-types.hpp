@@ -260,8 +260,8 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct atype_particle {
-        cmpnt_rigid_body   rigid_body;
         cmpnt_position     position;
+        cmpnt_rigid_body   rigid_body;
         cmpnt_velocity     velocity;
         cmpnt_acceleration acceleration;
         cmpnt_inv_mass     inv_mass;
@@ -270,19 +270,19 @@ namespace ifb {
     
     struct atype_quad {
         cmpnt_position position;
-        cmpnt_quad     quad;
         cmpnt_color    color;
+        cmpnt_quad     quad;
     };
 
     struct atype_physics_quad {
-        cmpnt_rigid_body   rigid_body;
         cmpnt_position     position;
+        cmpnt_color        color;
+        cmpnt_quad         quad;
+        cmpnt_rigid_body   rigid_body;
         cmpnt_velocity     velocity;
         cmpnt_acceleration acceleration;
         cmpnt_inv_mass     inv_mass;
         cmpnt_drag         drag;
-        cmpnt_quad         quad;
-        cmpnt_color        color;
     };
 };
 

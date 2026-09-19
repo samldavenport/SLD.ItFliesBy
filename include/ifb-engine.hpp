@@ -164,6 +164,18 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_update_map_coords     (const entity_id id, const cmpnt_map_coords&    coords);
 
     //--------------------------------------------------------------------
+    // COMPONENTS 
+    //--------------------------------------------------------------------
+  
+    IFB_ENGINE_API bool eng_atype_lookup_quad         (const entity_id id, atype_quad&         quad);
+    IFB_ENGINE_API bool eng_atype_lookup_particle     (const entity_id id, atype_particle&     particle);
+    IFB_ENGINE_API bool eng_atype_lookup_physics_quad (const entity_id id, atype_physics_quad& physics_quad);
+
+    IFB_ENGINE_API bool eng_atype_update_quad         (const entity_id id, const atype_quad&         quad);
+    IFB_ENGINE_API bool eng_atype_update_particle     (const entity_id id, const atype_particle&     particle);
+    IFB_ENGINE_API bool eng_atype_update_physics_quad (const entity_id id, const atype_physics_quad& physics_quad);
+
+    //--------------------------------------------------------------------
     // TILE MAPS 
     //--------------------------------------------------------------------
    

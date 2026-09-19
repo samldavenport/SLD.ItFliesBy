@@ -9,6 +9,7 @@
 #include "component-tables.cpp"
 
 #include "eng-arena.cpp"
+#include "eng-atype.cpp"
 #include "eng-camera.cpp"
 #include "eng-cmpnt.cpp"
 #include "eng-context.cpp"
