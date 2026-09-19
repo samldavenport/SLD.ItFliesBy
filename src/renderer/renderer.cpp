@@ -71,12 +71,69 @@ namespace ifb {
         renderer_quad_shader_create();
         renderer_tile_shader_create();
         renderer_direciton_gizmo_shader_create();
-        
 
         // intialize camera
         renderer_projection_init();
         renderer_camera_init();
         renderer_projection_set_viewport(cfg.window_start_width, cfg.window_start_height);
+
+        // open shader files
+        const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
+        const hnd_file file_hnd_quad_frag    = file_ro_open_existing ("quad-shader-fragment.glsl");
+        const hnd_file file_hnd_dir_giz_vert = file_ro_open_existing ("direction-gizmo-shader-vert.glsl");
+        const hnd_file file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
+        const hnd_file file_hnd_grid_vert    = file_ro_open_existing ("grid-vert.glsl");
+        const hnd_file file_hnd_grid_frag    = file_ro_open_existing ("grid-frag.glsl");
+        const hnd_file file_hnd_tile_vert    = file_ro_open_existing ("tile-vert.glsl");
+        const hnd_file file_hnd_tile_frag    = file_ro_open_existing ("tile-frag.glsl");
+
+        // read quad shaders        
+        renderer_shader_source file_src_quad_vert;
+        renderer_shader_source file_src_quad_frag;
+        file_src_quad_vert.size = file_get_size (file_hnd_quad_vert); 
+        file_src_quad_vert.data = file_read     (file_hnd_quad_vert, file_src_quad_vert.size);
+        file_src_quad_frag.size = file_get_size (file_hnd_quad_frag);
+        file_src_quad_frag.data = file_read     (file_hnd_quad_frag, file_src_quad_frag.size); 
+        
+        // read direction gizmo shaders
+        renderer_shader_source file_src_dir_giz_vert;
+        renderer_shader_source file_src_dir_giz_frag;
+        file_src_dir_giz_vert.size = file_get_size (file_hnd_dir_giz_vert); 
+        file_src_dir_giz_vert.data = file_read     (file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
+        file_src_dir_giz_frag.size = file_get_size (file_hnd_dir_giz_frag);
+        file_src_dir_giz_frag.data = file_read     (file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
+
+        // read grid shaders
+        renderer_shader_source file_src_grid_vert;
+        renderer_shader_source file_src_grid_frag;
+        file_src_grid_vert.size = file_get_size (file_hnd_grid_vert); 
+        file_src_grid_vert.data = file_read     (file_hnd_grid_vert, file_src_grid_vert.size);
+        file_src_grid_frag.size = file_get_size (file_hnd_grid_frag);
+        file_src_grid_frag.data = file_read     (file_hnd_grid_frag, file_src_grid_frag.size); 
+        
+        // read grid shaders
+        renderer_shader_source file_src_tile_vert;
+        renderer_shader_source file_src_tile_frag;
+        file_src_tile_vert.size = file_get_size (file_hnd_tile_vert); 
+        file_src_tile_vert.data = file_read     (file_hnd_tile_vert, file_src_tile_vert.size);
+        file_src_tile_frag.size = file_get_size (file_hnd_tile_frag);
+        file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
+        
+        // initialize shaders
+        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_grid_shader_init            (file_src_grid_vert,    file_src_grid_frag);
+        renderer_tile_shader_init            (file_src_tile_vert,    file_src_tile_frag);
+
+        // close the shader files
+        file_close(file_hnd_quad_vert);
+        file_close(file_hnd_quad_frag);
+        file_close(file_hnd_dir_giz_vert);
+        file_close(file_hnd_dir_giz_frag);
+        file_close(file_hnd_grid_vert);
+        file_close(file_hnd_grid_frag);
+        file_close(file_hnd_tile_vert);
+        file_close(file_hnd_tile_frag);
     }
 
     IFB_INTERNAL void

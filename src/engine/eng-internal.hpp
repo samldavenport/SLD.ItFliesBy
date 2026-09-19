@@ -66,6 +66,8 @@ namespace ifb {
     IFB_ENG_INTERNAL u32  system_get_memory_granularity      (void);
     IFB_ENG_INTERNAL u32  system_align_to_memory_page_size   (const u32 size);
     IFB_ENG_INTERNAL u32  system_align_to_memory_granularity (const u32 size);
+    IFB_ENG_INTERNAL u32  system_get_primary_monitor_width   (void);
+    IFB_ENG_INTERNAL u32  system_get_primary_monitor_height  (void);
 };
 
 #endif //IFB_ENG_INTERNAL_HPP

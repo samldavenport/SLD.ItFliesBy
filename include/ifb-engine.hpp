@@ -188,13 +188,6 @@ namespace ifb {
     IFB_ENGINE_API bool eng_map_render  (const hnd_map map_hnd);
 
     //--------------------------------------------------------------------
-    // IMAGES
-    //--------------------------------------------------------------------
-
-    IFB_ENGINE_API u32  image_size (const cchar* path);
-    IFB_ENGINE_API bool image_load (const cchar* path);
-    
-    //--------------------------------------------------------------------
     // ARENAS
     //--------------------------------------------------------------------
 
@@ -251,6 +244,5 @@ namespace ifb {
     struct eng_game_context {
         int x;
     };
-
 }
 #endif  //IFB_ENGINE_HPP

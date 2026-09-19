@@ -10,29 +10,14 @@
 #include "imgui.h"
 #include "physics-manager.cpp"
 #include "physics.hpp"
-#include "quad.cpp"
 #include "renderer.cpp"
 #include "renderer.hpp"
-#include "json.hpp"
 #include "map.hpp"
 #include "tiled.hpp"
 #include "memory.hpp"
+#include "eng-system.cpp"
 
 namespace ifb {
-
-    //--------------------------------------------------------------------
-    // INLINE METHOD DECLARATIONS
-    //--------------------------------------------------------------------
-
-    IFB_INLINE void eng_context_startup_get_system_info (eng_system_info* sys_info);
-    IFB_INLINE void eng_context_startup_open_window     (const config& config, const eng_system_info* sys_info);
-    IFB_INLINE void eng_context_startup_file_mngr       (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_entity_mngr     (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_memory_mngr     (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_renderer        (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_cmpnt_mngr      (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_phys_mngr       (const eng_mem_map* mem_map);
-    IFB_INLINE void eng_context_startup_map_mngr        (const eng_mem_map* mem_map);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -45,10 +30,6 @@ namespace ifb {
         fptr_eng_render    render_callback) {
 	
         const auto& config       = config_instance();
-        const auto& map_hashes   = tiled_map_get_hashes(); 
-        const auto& prop_hashes  = tiled_property_get_hashes();
-        const auto& layer_hashes = tiled_layer_get_hashes();
-
 
         // stack memory
         global_stack_create_and_init(mem_map);
@@ -109,17 +90,43 @@ namespace ifb {
     
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
 
+        // refresh system info
         system_refresh_info();
 
-        eng_context_startup_get_system_info (_eng_context->system);
-        eng_context_startup_file_mngr       (mem_map);
-        eng_context_startup_entity_mngr     (mem_map);
-        eng_context_startup_memory_mngr     (mem_map);
-        eng_context_startup_cmpnt_mngr      (mem_map);
-        eng_context_startup_map_mngr        (mem_map);
-        eng_context_startup_phys_mngr       (mem_map);
-        eng_context_startup_open_window     (config, system);
-        eng_context_startup_renderer        (mem_map);
+        // open the window
+        pfm_window_config window_cfg;
+        window_cfg.title            = (char*)&config.window_title[0];
+        window_cfg.init_dims.width  = config.window_start_width;
+        window_cfg.init_dims.height = config.window_start_height;
+        window_cfg.init_dims.x      = (system_get_primary_monitor_width()  / 2) - (window_cfg.init_dims.width  / 2); 
+        window_cfg.init_dims.y      = (system_get_primary_monitor_height() / 2) - (window_cfg.init_dims.height / 2); 
+        pfm_window_open(&window_cfg);
+        
+        // create memory reservations
+        reservation* res_files      = reservation_create(mem_map->files);
+        reservation* res_entities   = reservation_create(mem_map->entities);
+        reservation* res_arenas     = reservation_create(mem_map->arenas);
+        reservation* res_renderer   = reservation_create(mem_map->rendering);
+        reservation* res_components = reservation_create(mem_map->components);
+        reservation* res_physics    = reservation_create(mem_map->physics);
+        reservation* res_tiles      = reservation_create(mem_map->tiles);
+        assert(res_files);
+        assert(res_entities);
+        assert(res_arenas);
+        assert(res_renderer);
+        assert(res_components);
+        assert(res_physics);
+        assert(res_tiles);
+       
+        // start systems
+        file_mngr_startup        (res_files);
+        entity_mngr_startup      (res_entities);
+        memory_mngr_startup      (res_arenas);
+        cmpnt_mngr_startup       (res_components);
+        physics_mngr_startup     (res_physics);
+        map_mngr_startup         (res_tiles);
+        renderer_context_startup (res_renderer);
+       
     }
 
     IFB_ENGINE_API bool 
@@ -183,153 +190,5 @@ namespace ifb {
         ImGuiContext* ctx = ImGui::GetCurrentContext();
         assert(ctx);
         return(ctx);
-    }
-
-    //--------------------------------------------------------------------
-    // INLINE METHOD DEFINITIONS
-    //--------------------------------------------------------------------
-
-    IFB_INLINE void
-    eng_context_startup_get_system_info(
-        eng_system_info* sys_info) {
-
-        // monitor info
-        sys_info->monitor.count = pfm_monitor_count();
-        pfm_monitor_get_info         (0, &sys_info->monitor.primary);
-        pfm_monitor_get_working_area (sys_info->monitor.working_area);
-    }
-    
-    IFB_INLINE void
-    eng_context_startup_open_window(
-        const config&      config,
-        const eng_system_info* sys_info) {
-
-        pfm_window_config window_cfg;
-        window_cfg.title            = (char*)&config.window_title[0];
-        window_cfg.init_dims.width  = config.window_start_width;
-        window_cfg.init_dims.height = config.window_start_height;
-        window_cfg.init_dims.x      = (sys_info->monitor.primary.pixel_width  / 2) - (window_cfg.init_dims.width  / 2); 
-        window_cfg.init_dims.y      = (sys_info->monitor.primary.pixel_height / 2) - (window_cfg.init_dims.height / 2); 
-        pfm_window_open(&window_cfg);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_file_mngr(
-        const eng_mem_map* mem_map) {
-
-        reservation* res = reservation_create(mem_map->files);
-
-        file_mngr_startup(res);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_entity_mngr(
-        const eng_mem_map* mem_map) {
-
-        reservation* res = reservation_create(mem_map->entities);
-        entity_mngr_startup(res);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_memory_mngr(
-        const eng_mem_map* mem_map) {
-
-        reservation* res = reservation_create(mem_map->arenas);
-        memory_mngr_startup(res);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_renderer(
-        const eng_mem_map* mem_map) {
-
-        const auto& cfg         = config_instance();
-        const u32   init_width  = cfg.window_start_width;
-        const u32   init_height = cfg.window_start_height;
-        
-        // initialize the renderer
-        reservation* res = reservation_create(mem_map->rendering);
-        renderer_context_startup(res);
-
-        // open shader files
-        const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
-        const hnd_file file_hnd_quad_frag    = file_ro_open_existing ("quad-shader-fragment.glsl");
-        const hnd_file file_hnd_dir_giz_vert = file_ro_open_existing ("direction-gizmo-shader-vert.glsl");
-        const hnd_file file_hnd_dir_giz_frag = file_ro_open_existing ("direction-gizmo-shader-frag.glsl");
-        const hnd_file file_hnd_grid_vert    = file_ro_open_existing ("grid-vert.glsl");
-        const hnd_file file_hnd_grid_frag    = file_ro_open_existing ("grid-frag.glsl");
-        const hnd_file file_hnd_tile_vert    = file_ro_open_existing ("tile-vert.glsl");
-        const hnd_file file_hnd_tile_frag    = file_ro_open_existing ("tile-frag.glsl");
-
-        // read quad shaders        
-        renderer_shader_source file_src_quad_vert;
-        renderer_shader_source file_src_quad_frag;
-        file_src_quad_vert.size = file_get_size (file_hnd_quad_vert); 
-        file_src_quad_vert.data = file_read     (file_hnd_quad_vert, file_src_quad_vert.size);
-        file_src_quad_frag.size = file_get_size (file_hnd_quad_frag);
-        file_src_quad_frag.data = file_read     (file_hnd_quad_frag, file_src_quad_frag.size); 
-        
-        // read direction gizmo shaders
-        renderer_shader_source file_src_dir_giz_vert;
-        renderer_shader_source file_src_dir_giz_frag;
-        file_src_dir_giz_vert.size = file_get_size (file_hnd_dir_giz_vert); 
-        file_src_dir_giz_vert.data = file_read     (file_hnd_dir_giz_vert, file_src_dir_giz_vert.size);
-        file_src_dir_giz_frag.size = file_get_size (file_hnd_dir_giz_frag);
-        file_src_dir_giz_frag.data = file_read     (file_hnd_dir_giz_frag, file_src_dir_giz_frag.size); 
-
-        // read grid shaders
-        renderer_shader_source file_src_grid_vert;
-        renderer_shader_source file_src_grid_frag;
-        file_src_grid_vert.size = file_get_size (file_hnd_grid_vert); 
-        file_src_grid_vert.data = file_read     (file_hnd_grid_vert, file_src_grid_vert.size);
-        file_src_grid_frag.size = file_get_size (file_hnd_grid_frag);
-        file_src_grid_frag.data = file_read     (file_hnd_grid_frag, file_src_grid_frag.size); 
-        
-        // read grid shaders
-        renderer_shader_source file_src_tile_vert;
-        renderer_shader_source file_src_tile_frag;
-        file_src_tile_vert.size = file_get_size (file_hnd_tile_vert); 
-        file_src_tile_vert.data = file_read     (file_hnd_tile_vert, file_src_tile_vert.size);
-        file_src_tile_frag.size = file_get_size (file_hnd_tile_frag);
-        file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
-        
-        // initialize shaders
-        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
-        renderer_grid_shader_init            (file_src_grid_vert,    file_src_grid_frag);
-        renderer_tile_shader_init            (file_src_tile_vert,    file_src_tile_frag);
-
-        // close the shader files
-        file_close(file_hnd_quad_vert);
-        file_close(file_hnd_quad_frag);
-        file_close(file_hnd_dir_giz_vert);
-        file_close(file_hnd_dir_giz_frag);
-        file_close(file_hnd_grid_vert);
-        file_close(file_hnd_grid_frag);
-        file_close(file_hnd_tile_vert);
-        file_close(file_hnd_tile_frag);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_cmpnt_mngr(
-        const eng_mem_map* mem_map) {
-
-        reservation* res = reservation_create(mem_map->components);
-        cmpnt_mngr_startup(res);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_phys_mngr(
-        const eng_mem_map* mem_map) {
-
-        reservation* res = reservation_create(mem_map->physics);
-        physics_mngr_startup(res);
-    }
-
-    IFB_INLINE void
-    eng_context_startup_map_mngr(
-        const eng_mem_map* mem_map) {
-
-        reservation* res = reservation_create(mem_map->tiles);
-        map_mngr_startup(res);
     }
 };
