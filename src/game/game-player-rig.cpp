@@ -31,22 +31,26 @@ namespace ifb {
         assert(player_rig->jig_id        != ENTITY_ID_INVALID);
         assert(player_rig->jig_anchor_id != ENTITY_ID_INVALID);
 
-        atype_quad quad_connor  = {0};
-        quad_connor.color.hex   = 0xB8BB26FF;     
-        quad_connor.quad.width  = 0.2; 
-        quad_connor.quad.height = 0.2; 
-        quad_connor.position.x  = 0.0f;
-        quad_connor.position.y  = 0.1f;
-        quad_connor.position.z  = 0.0f;
+        atype_quad quad_connor      = {0};
+        quad_connor.color.hex       = 0xB8BB26FF;     
+        quad_connor.quad.width      = 0.2; 
+        quad_connor.quad.height     = 0.2; 
+        quad_connor.position.x      = 0.0f;
+        quad_connor.position.y      = 0.1f;
+        quad_connor.position.z      = 0.0f;
+        quad_connor.map_coods.row_x = 0.0f;
+        quad_connor.map_coods.col_z = 0.0f;
 
-        atype_quad quad_jig  = {0};
-        quad_jig.color.hex   =  0x458588FF;     
-        quad_jig.quad.width  =  0.1;
-        quad_jig.quad.height =  0.1;
-        quad_jig.position.x  = -0.175f;
-        quad_jig.position.y  =  0.2f;
-        quad_jig.position.z  =  0.0f;
-
+        atype_quad quad_jig      = {0};
+        quad_jig.color.hex       =  0x458588FF;     
+        quad_jig.quad.width      =  0.1;
+        quad_jig.quad.height     =  0.1;
+        quad_jig.position.x      = -0.175f;
+        quad_jig.position.y      =  0.2f;
+        quad_jig.position.z      =  0.0f;
+        quad_jig.map_coods.row_x = 0.0f;
+        quad_jig.map_coods.col_z = 0.0f;
+        
         cmpnt_term_velocity tv;
         tv.x = 1.00f;
         tv.y = 1.00f;
@@ -71,15 +75,17 @@ namespace ifb {
         const f32 inv_mass = 0.50f;
         const f32 drag     = 0.01f;
         
-        eng_entity_add_components       (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        
+
         eng_cmpnt_update_quad          (player_rig->connor_id, quad_connor);
         eng_cmpnt_update_inv_mass      (player_rig->connor_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->connor_id, drag); 
         eng_cmpnt_update_term_velocity (player_rig->connor_id, tv);
         eng_cmpnt_update_map_coords    (player_rig->connor_id, map_coords);
 
-        eng_entity_add_components       (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
-        eng_entity_add_components       (player_rig->jig_id, cmpnt_type_e_spring);
+        eng_entity_add_components      (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_spring);
         eng_cmpnt_update_quad          (player_rig->jig_id, quad_jig);
         eng_cmpnt_update_inv_mass      (player_rig->jig_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->jig_id, drag); 
@@ -87,7 +93,7 @@ namespace ifb {
         eng_cmpnt_update_spring        (player_rig->jig_id, jig_spring);
         eng_cmpnt_update_map_coords    (player_rig->jig_id, map_coords);
 
-        eng_entity_add_components       (player_rig->jig_anchor_id, cmpnt_type_e_position);
+        eng_entity_add_components      (player_rig->jig_anchor_id, cmpnt_type_e_position);
         eng_cmpnt_update_position      (player_rig->jig_anchor_id, anchor_pos);
     }
     

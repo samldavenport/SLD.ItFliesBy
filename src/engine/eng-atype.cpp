@@ -32,9 +32,10 @@ namespace ifb {
         result  &= entity_has_component (e, ENTITY_ARCHETYPE_QUAD);        
            
         if (result) {
-            cmpnt_lookup_position (e.index_sparse, quad.position);
-            cmpnt_lookup_color    (e.index_sparse, quad.color);
-            cmpnt_lookup_quad     (e.index_sparse, quad.quad);
+            cmpnt_lookup_position   (e.index_sparse, quad.position);
+            cmpnt_lookup_color      (e.index_sparse, quad.color);
+            cmpnt_lookup_quad       (e.index_sparse, quad.quad);
+            cmpnt_lookup_map_coords (e.index_sparse, quad.map_coods);
         }
 
         return(result);
@@ -87,6 +88,7 @@ namespace ifb {
             cmpnt_lookup_acceleration (e.index_sparse, physics_quad.acceleration);
             cmpnt_lookup_inv_mass     (e.index_sparse, physics_quad.inv_mass);
             cmpnt_lookup_drag         (e.index_sparse, physics_quad.drag);
+            cmpnt_lookup_map_coords   (e.index_sparse, physics_quad.map_coords);
         }
 
         return(result);
@@ -109,9 +111,10 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_update_position (e.index_sparse, quad.position);
-            cmpnt_update_color    (e.index_sparse, quad.color);
-            cmpnt_update_quad     (e.index_sparse, quad.quad);
+            cmpnt_update_position   (e.index_sparse, quad.position);
+            cmpnt_update_color      (e.index_sparse, quad.color);
+            cmpnt_update_quad       (e.index_sparse, quad.quad);
+            cmpnt_update_map_coords (e.index_sparse, quad.map_coods);
         }
 
         return(can_update);
@@ -162,6 +165,7 @@ namespace ifb {
             cmpnt_update_acceleration (e.index_sparse, physics_quad.acceleration);
             cmpnt_update_inv_mass     (e.index_sparse, physics_quad.inv_mass);
             cmpnt_update_drag         (e.index_sparse, physics_quad.drag);
+            cmpnt_update_map_coords   (e.index_sparse, physics_quad.map_coords);
         }
 
         return(can_update);

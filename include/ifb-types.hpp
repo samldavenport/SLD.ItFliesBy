@@ -269,9 +269,10 @@ namespace ifb {
     };
     
     struct atype_quad {
-        cmpnt_position position;
-        cmpnt_color    color;
-        cmpnt_quad     quad;
+        cmpnt_position   position;
+        cmpnt_color      color;
+        cmpnt_quad       quad;
+        cmpnt_map_coords map_coods;
     };
 
     struct atype_physics_quad {
@@ -283,6 +284,7 @@ namespace ifb {
         cmpnt_acceleration acceleration;
         cmpnt_inv_mass     inv_mass;
         cmpnt_drag         drag;
+        cmpnt_map_coords   map_coords;
     };
 };
 
