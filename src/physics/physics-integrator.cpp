@@ -9,6 +9,7 @@
 #include "physics.hpp"
 #include "entity.hpp"
 #include "physics-accumulator.cpp"
+#include "physics-internal.hpp"
 
 namespace ifb {
 

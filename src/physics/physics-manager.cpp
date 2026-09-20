@@ -6,6 +6,7 @@
 #include "eng-internal.hpp"
 #include <cassert>
 #include <cstddef>
+#include "physics-internal.hpp"
 
 namespace ifb {
     

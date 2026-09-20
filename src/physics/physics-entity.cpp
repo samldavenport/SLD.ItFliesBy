@@ -4,6 +4,7 @@
 #include "ifb-types.hpp"
 #include "physics.hpp"
 #include "component.hpp"
+#include "physics-internal.hpp"
 
 namespace ifb {
 
