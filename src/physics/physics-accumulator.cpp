@@ -25,21 +25,25 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_INTERNAL physics_accumulator*
-    physics_accumulator_init(
+    physics_accumulator_create(
         reservation* res) {
 
         const auto& cfg = config_instance();
 
-        auto accum = global_alloc<physics_accumulator>();
-        auto ids   = (entity_id*)reservation_push_bytes(res, sizeof(entity_id) * cfg.entity_capacity); 
-        auto vec   =      (vec3*)reservation_push_bytes(res, sizeof(vec3)      * cfg.entity_capacity);
-   
-        assert(accum != NULL);         
-        assert(ids   != NULL);         
-        assert(vec   != NULL);         
-   
-        accum->data.ids     = ids;
-        accum->data.vectors = vec;
+        const u32 size_accum        = sizeof(physics_accumulator);  
+        const u32 size_array_ids    = cfg.entity_capacity * sizeof(entity_id);
+        const u32 size_array_forces = cfg.entity_capacity * sizeof(vec3);
+        const u32 size_min          = size_accum + size_array_ids + size_array_forces;
+
+        addr mem_addr = (addr)physics_mngr_res_alloc(size_min);
+        assert(mem_addr != 0); 
+
+        auto accum        = (physics_accumulator*)(mem_addr);
+        auto array_ids    =           (entity_id*)(mem_addr += size_accum);
+        auto array_forces =                (vec3*)(mem_addr += size_array_ids);
+        
+        accum->data.ids     = array_ids;
+        accum->data.vectors = array_forces;
         accum->capacity     = cfg.entity_capacity;
         accum->count        = 0;
   
