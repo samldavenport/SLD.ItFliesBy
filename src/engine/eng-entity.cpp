@@ -77,6 +77,17 @@ namespace ifb {
         return(did_add);
     }
 
+    IFB_ENGINE_API bool
+    eng_entity_remove_components(
+        const entity_id      id,
+        const component_type type) {
+    
+        assert(id != ENTITY_ID_INVALID); 
+
+        bool did_remove = entity_component_remove(id, type);
+        return(did_remove);
+    }
+
     IFB_ENGINE_API bool 
     eng_entity_lookup_by_dense_index(
         const u32 dense_index,
@@ -151,6 +162,5 @@ namespace ifb {
         }
 
         return(can_add_force);
-        
     }
 };
