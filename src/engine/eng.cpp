@@ -47,7 +47,7 @@
 #include "memory-reservation.cpp"
 
 #include "physics-manager.cpp"
-#include "physics-accumulator.cpp"
+#include "physics-force-accumulator.cpp"
 #include "physics-entity.cpp"
 #include "physics-integrator.cpp"
 #include "physics-spring.cpp"

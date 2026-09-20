@@ -14,8 +14,11 @@ namespace ifb {
         const vec3&     force) {
 
         assert(id != ENTITY_ID_INVALID);
-        physics_accumulator_add(
-            _phys_mngr->force_accumulator,
+
+        physics_force_accumulator* accum = physics_mngr_get_force_accumulator();
+        
+        physics_force_accumulator_add(
+            accum,
             id,
             force
         );
@@ -27,8 +30,10 @@ namespace ifb {
 
         assert(id != ENTITY_ID_INVALID);
     
-        const bool did_remove = physics_accumulator_remove(
-            _phys_mngr->force_accumulator,
+        physics_force_accumulator* accum = physics_mngr_get_force_accumulator();
+        
+        const bool did_remove = physics_force_accumulator_remove(
+            accum,
             id
         );
 

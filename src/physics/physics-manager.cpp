@@ -11,6 +11,18 @@
 
 namespace ifb {
     
+    struct physics_memory {
+        reservation*     res;
+        hnd_arena        simulation_arena;
+    };
+
+    struct physics_mngr {
+        physics_memory*      memory;
+        physics_force_accumulator* force_accumulator;
+        entity_list*         static_entities;
+        entity_list*         dynamic_entities;
+        u32                  delta_time_ms;
+    };
     //--------------------------------------------------------------------
     // PUBLIC METHODS 
     //--------------------------------------------------------------------
@@ -54,7 +66,7 @@ namespace ifb {
         phys_mem->res              = res;
         assert(phys_mem->simulation_arena != INVALID_HANDLE);
         
-        _phys_mngr->force_accumulator = physics_accumulator_create(res);
+        _phys_mngr->force_accumulator = physics_force_accumulator_create(res);
         
         physics_mngr_validate();
     }
@@ -76,7 +88,7 @@ namespace ifb {
         arena_reset                     (phys_mem->simulation_arena);
         physics_spring_calculate_forces (phys_mem->simulation_arena); 
         physics_integrate_forces        (_phys_mngr->force_accumulator, dt, phys_mem->simulation_arena);
-        physics_accumulator_reset       (_phys_mngr->force_accumulator);
+        physics_force_accumulator_reset       (_phys_mngr->force_accumulator);
     }
 
     //--------------------------------------------------------------------
@@ -96,5 +108,13 @@ namespace ifb {
         void* mem = reservation_push_bytes(phys_mem->res, size_min);
 
         return(mem);
+    }
+    
+    IFB_INTERNAL physics_force_accumulator*
+    physics_mngr_get_force_accumulator(
+        void) {
+
+        assert(_phys_mngr);
+        return(_phys_mngr->force_accumulator);
     }
 };
