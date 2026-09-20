@@ -10,19 +10,18 @@
 #include "physics-internal.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
     
-    struct physics_memory {
-        reservation*     res;
-        hnd_arena        simulation_arena;
+    struct physics_mngr {
+        reservation*               res;
+        physics_force_accumulator* force_accumulator;
+        hnd_arena                  simulation_arena;
+        u32                        delta_time_ms;
     };
 
-    struct physics_mngr {
-        physics_memory*      memory;
-        physics_force_accumulator* force_accumulator;
-        entity_list*         static_entities;
-        entity_list*         dynamic_entities;
-        u32                  delta_time_ms;
-    };
     //--------------------------------------------------------------------
     // PUBLIC METHODS 
     //--------------------------------------------------------------------
@@ -31,16 +30,10 @@ namespace ifb {
     physics_mngr_create(
         void) {
 
-        auto mngr  = global_alloc<physics_mngr>();
-        auto mem   = global_alloc<physics_memory>();
+        _phys_mngr  = global_alloc<physics_mngr>();
+        assert(_phys_mngr  != NULL);
 
-        assert(mngr  != NULL);
-        assert(mem   != NULL);
-    
-        mngr->memory = mem;
-
-        _phys_mngr = mngr;
-        return(mngr);
+        return(_phys_mngr);
     }
 
     IFB_INTERNAL void
@@ -48,23 +41,21 @@ namespace ifb {
         void) {
 
         assert(_phys_mngr                    != NULL);
-        assert(_phys_mngr->memory            != NULL);
+        assert(_phys_mngr->res               != NULL);
         assert(_phys_mngr->force_accumulator != NULL);
+        assert(_phys_mngr->simulation_arena  != INVALID_HANDLE);
     }
 
     IFB_INTERNAL void
     physics_mngr_startup(
         reservation* res) {
 
-        auto phys_mem = _phys_mngr->memory; 
-
+        assert(_phys_mngr);
         assert(res);
-        assert(phys_mem);
 
-
-        phys_mem->simulation_arena = arena_alloc();
-        phys_mem->res              = res;
-        assert(phys_mem->simulation_arena != INVALID_HANDLE);
+        _phys_mngr->simulation_arena = arena_alloc();
+        _phys_mngr->res              = res;
+        assert(_phys_mngr->simulation_arena != INVALID_HANDLE);
         
         _phys_mngr->force_accumulator = physics_force_accumulator_create(res);
         
@@ -76,19 +67,16 @@ namespace ifb {
         void) {
 
         //TODO(SAM)
-        
     }
 
     IFB_INTERNAL void
     physics_mngr_simulate(
         const f32 dt) {
 
-        auto phys_mem = _phys_mngr->memory;
-
-        arena_reset                     (phys_mem->simulation_arena);
-        physics_spring_calculate_forces (phys_mem->simulation_arena); 
-        physics_integrate_forces        (_phys_mngr->force_accumulator, dt, phys_mem->simulation_arena);
-        physics_force_accumulator_reset       (_phys_mngr->force_accumulator);
+        arena_reset                     (_phys_mngr->simulation_arena);
+        physics_spring_calculate_forces (_phys_mngr->simulation_arena); 
+        physics_integrate_forces        (_phys_mngr->force_accumulator, dt, _phys_mngr->simulation_arena);
+        physics_force_accumulator_reset (_phys_mngr->force_accumulator);
     }
 
     //--------------------------------------------------------------------
@@ -99,13 +87,10 @@ namespace ifb {
     physics_mngr_res_alloc(
         const u32 size_min) {
 
-        assert(size_min != 0);
+        assert(size_min   != 0);
         assert(_phys_mngr != NULL);
 
-        physics_memory* phys_mem = _phys_mngr->memory;
-        assert(phys_mem != NULL);
-
-        void* mem = reservation_push_bytes(phys_mem->res, size_min);
+        void* mem = reservation_push_bytes(_phys_mngr->res, size_min);
 
         return(mem);
     }
