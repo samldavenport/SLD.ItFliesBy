@@ -43,11 +43,11 @@ namespace ifb {
 
     IFB_INTERNAL void 
     physics_integrate_forces(
-        const f32 dt,
-        const hnd_arena a) {
+        physics_accumulator* const accum,
+        const f32                  dt,
+        const hnd_arena            a) {
         
         const u32 save   = arena_save(a);
-        auto*     forces = _phys_mngr->force_accumulator;
         
         // initialize the integrator
         physics_force_integrator integrator = {0};
@@ -58,7 +58,7 @@ namespace ifb {
 
         // load all components into the integrator
         // with forces and matching archetype
-        if (!physics_force_integrator_lookup_components(integrator, forces)) {
+        if (!physics_force_integrator_lookup_components(integrator, accum)) {
             arena_revert(a, save);
             return;
         }

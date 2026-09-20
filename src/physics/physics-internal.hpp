@@ -32,7 +32,7 @@ namespace ifb {
     IFB_INTERNAL bool                 physics_accumulator_remove      (physics_accumulator* const accum, const entity_id id);
     IFB_INTERNAL void                 physics_accumulator_reset       (physics_accumulator* const accum);
     
-    IFB_INTERNAL void                 physics_integrate_forces        (const f32 dt, const hnd_arena arena_hnd);
+    IFB_INTERNAL void                 physics_integrate_forces        (physics_accumulator* const accum, const f32 dt, const hnd_arena arena_hnd);
 
     IFB_INTERNAL void                 physics_spring_calculate_forces (const hnd_arena arena_hnd);
     
@@ -45,14 +45,6 @@ namespace ifb {
         hnd_arena        simulation_arena;
     };
 
-    struct physics_entity : entity {
-        cmpnt_rigid_body   rb;
-        cmpnt_position     pos;
-        cmpnt_velocity     vel;
-        cmpnt_acceleration acc;
-        cmpnt_inv_mass     im;
-        cmpnt_drag         drag;
-    };
 
     struct physics_mngr {
         physics_memory*      memory;
