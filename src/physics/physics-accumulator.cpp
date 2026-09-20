@@ -14,7 +14,7 @@ namespace ifb {
     struct physics_accumulator {
         struct {
             entity_id* ids; 
-            vec3*      vectors;
+            vec3*      forces;
         } data;
         u32 capacity;
         u32 count;
@@ -42,10 +42,10 @@ namespace ifb {
         auto array_ids    =           (entity_id*)(mem_addr += size_accum);
         auto array_forces =                (vec3*)(mem_addr += size_array_ids);
         
-        accum->data.ids     = array_ids;
-        accum->data.vectors = array_forces;
-        accum->capacity     = cfg.entity_capacity;
-        accum->count        = 0;
+        accum->data.ids    = array_ids;
+        accum->data.forces = array_forces;
+        accum->capacity    = cfg.entity_capacity;
+        accum->count       = 0;
   
         physics_accumulator_validate(accum);
 
@@ -56,11 +56,11 @@ namespace ifb {
     physics_accumulator_validate(
         physics_accumulator* const accum) {
 
-        assert(accum               != NULL);
-        assert(accum->data.ids     != NULL);
-        assert(accum->data.vectors != NULL);
-        assert(accum->capacity     != 0);
-        assert(accum->count        <= accum->capacity);
+        assert(accum              != NULL);
+        assert(accum->data.ids    != NULL);
+        assert(accum->data.forces != NULL);
+        assert(accum->capacity    != 0);
+        assert(accum->count       <= accum->capacity);
     }
 
     IFB_INTERNAL void
@@ -80,7 +80,7 @@ namespace ifb {
             ++i
         ) {
             if (id == accum->data.ids[i]) {
-                vec3& v_new = accum->data.vectors[i];
+                vec3& v_new = accum->data.forces[i];
                 v_new.x += v.x;
                 v_new.y += v.y;
                 v_new.z += v.z;
@@ -94,7 +94,7 @@ namespace ifb {
 
         // set the id and vector
         accum->data.ids    [index_new] = id;
-        accum->data.vectors[index_new] = v;
+        accum->data.forces [index_new] = v;
     }
 
     IFB_INTERNAL bool
@@ -112,7 +112,7 @@ namespace ifb {
             ++i
         ) {
             if (id == accum->data.ids[i]) {
-                v = accum->data.vectors[i];
+                v = accum->data.forces[i];
                 return(true);
             }
         }
@@ -139,8 +139,8 @@ namespace ifb {
         ) {
             if (id == accum->data.ids[i]) {
                 if (accum->count > 1) {
-                    accum->data.ids     [i] = accum->data.ids     [last];
-                    accum->data.vectors [i] = accum->data.vectors [last];
+                    accum->data.ids     [i] = accum->data.ids    [last];
+                    accum->data.forces  [i] = accum->data.forces [last];
                 }
                 --accum->count;
                 return(true);

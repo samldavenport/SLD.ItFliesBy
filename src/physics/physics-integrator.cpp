@@ -175,9 +175,9 @@ namespace ifb {
             i.acc_x        [integrator_index] = acc.x;
             i.acc_y        [integrator_index] = acc.y;
             i.acc_z        [integrator_index] = acc.z;
-            i.frc_x        [integrator_index] = a->data.vectors[force_index].x;
-            i.frc_y        [integrator_index] = a->data.vectors[force_index].y;
-            i.frc_z        [integrator_index] = a->data.vectors[force_index].z;
+            i.frc_x        [integrator_index] = a->data.forces[force_index].x;
+            i.frc_y        [integrator_index] = a->data.forces[force_index].y;
+            i.frc_z        [integrator_index] = a->data.forces[force_index].z;
             i.tv_x         [integrator_index] = tv.x;
             i.tv_y         [integrator_index] = tv.y;
             i.tv_z         [integrator_index] = tv.z;
