@@ -8,7 +8,8 @@
 #include "memory-arena.cpp"
 #include "physics.hpp"
 #include "entity.hpp"
-#include "physics-accumulator.cpp"
+#include "physics-force-accumulator.cpp"
+#include "physics-internal.hpp"
 
 namespace ifb {
 
@@ -36,17 +37,17 @@ namespace ifb {
     };
 
     inline bool physics_force_integrator_init              (physics_force_integrator& i, const hnd_arena a);
-    inline bool physics_force_integrator_lookup_components (physics_force_integrator& i, physics_accumulator* a);
+    inline bool physics_force_integrator_lookup_components (physics_force_integrator& i, physics_force_accumulator* a);
     inline void physics_force_integrator_exec              (physics_force_integrator& i, const f32 dt);
     inline void physics_force_integrator_update_components (physics_force_integrator& i);
 
     IFB_INTERNAL void 
     physics_integrate_forces(
-        const f32 dt,
-        const hnd_arena a) {
+        physics_force_accumulator* const accum,
+        const f32                  dt,
+        const hnd_arena            a) {
         
         const u32 save   = arena_save(a);
-        auto*     forces = _phys_mngr->force_accumulator;
         
         // initialize the integrator
         physics_force_integrator integrator = {0};
@@ -57,7 +58,7 @@ namespace ifb {
 
         // load all components into the integrator
         // with forces and matching archetype
-        if (!physics_force_integrator_lookup_components(integrator, forces)) {
+        if (!physics_force_integrator_lookup_components(integrator, accum)) {
             arena_revert(a, save);
             return;
         }
@@ -122,7 +123,7 @@ namespace ifb {
     inline bool 
     physics_force_integrator_lookup_components(
         physics_force_integrator& i,
-        physics_accumulator*      a) {
+        physics_force_accumulator*      a) {
         
         const component_type physics_types = (
             cmpnt_type_e_position       |
@@ -174,9 +175,9 @@ namespace ifb {
             i.acc_x        [integrator_index] = acc.x;
             i.acc_y        [integrator_index] = acc.y;
             i.acc_z        [integrator_index] = acc.z;
-            i.frc_x        [integrator_index] = a->data.vectors[force_index].x;
-            i.frc_y        [integrator_index] = a->data.vectors[force_index].y;
-            i.frc_z        [integrator_index] = a->data.vectors[force_index].z;
+            i.frc_x        [integrator_index] = a->data.forces[force_index].x;
+            i.frc_y        [integrator_index] = a->data.forces[force_index].y;
+            i.frc_z        [integrator_index] = a->data.forces[force_index].z;
             i.tv_x         [integrator_index] = tv.x;
             i.tv_y         [integrator_index] = tv.y;
             i.tv_z         [integrator_index] = tv.z;

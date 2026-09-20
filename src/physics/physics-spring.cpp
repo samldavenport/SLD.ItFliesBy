@@ -10,6 +10,7 @@
 #include "entity.hpp"
 #include "sld-math-vec3.hpp"
 #include "physics-entity.cpp"
+#include "physics-internal.hpp"
 
 namespace ifb {
 
