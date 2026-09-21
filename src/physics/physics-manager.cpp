@@ -71,13 +71,9 @@ namespace ifb {
     physics_mngr_simulate(
         const f32 dt) {
 
-        const hnd_arena sim_arena = arena_alloc();
-        if (sim_arena != INVALID_HANDLE) {
-            physics_spring_calculator_run   (_phys_mngr->spring_calculator); 
-            physics_force_integrator_run    (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
-            physics_force_accumulator_reset (_phys_mngr->force_accumulator);
-            arena_free(sim_arena);
-        }
+        physics_spring_calculator_run   (_phys_mngr->spring_calculator); 
+        physics_force_integrator_run    (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
+        physics_force_accumulator_reset (_phys_mngr->force_accumulator);
     }
 
     //--------------------------------------------------------------------
