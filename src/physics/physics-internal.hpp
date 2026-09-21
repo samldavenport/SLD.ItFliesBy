@@ -13,7 +13,7 @@ namespace ifb {
     struct physics_world;
     struct physics_force_accumulator;
     struct physics_force_integrator;
-
+    struct physics_spring_calculator;
 
     //--------------------------------------------------------------------
     // GLOBALS 
@@ -42,7 +42,8 @@ namespace ifb {
         const physics_force_accumulator* accum,
         const f32                        dt);
 
-    IFB_INTERNAL void physics_spring_calculate_forces (const hnd_arena arena_hnd);
+    IFB_INTERNAL physics_spring_calculator* physics_spring_calculator_create (void);
+    IFB_INTERNAL void                       physics_spring_calculator_run    (physics_spring_calculator* calc);
    
 
     //--------------------------------------------------------------------
