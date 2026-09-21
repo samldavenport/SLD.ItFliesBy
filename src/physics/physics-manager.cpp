@@ -18,6 +18,7 @@ namespace ifb {
     struct physics_mngr {
         reservation*               res;
         physics_force_accumulator* force_accumulator;
+        physics_force_integrator*  force_integrator;
     };
 
     //--------------------------------------------------------------------
@@ -51,8 +52,9 @@ namespace ifb {
         assert(res);
 
         _phys_mngr->res               = res;
-        _phys_mngr->force_accumulator = physics_force_accumulator_create(res);
-        
+        _phys_mngr->force_accumulator = physics_force_accumulator_create();
+        _phys_mngr->force_integrator  = physics_force_integrator_create(); 
+
         physics_mngr_validate();
     }
 
@@ -70,7 +72,7 @@ namespace ifb {
         const hnd_arena sim_arena = arena_alloc();
         if (sim_arena != INVALID_HANDLE) {
             physics_spring_calculate_forces (sim_arena); 
-            physics_integrate_forces        (_phys_mngr->force_accumulator, dt, sim_arena);
+            physics_force_integrator_run    (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
             physics_force_accumulator_reset (_phys_mngr->force_accumulator);
             arena_free(sim_arena);
         }

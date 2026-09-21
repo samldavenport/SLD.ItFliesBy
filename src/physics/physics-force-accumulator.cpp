@@ -26,7 +26,7 @@ namespace ifb {
 
     IFB_INTERNAL physics_force_accumulator*
     physics_force_accumulator_create(
-        reservation* res) {
+        void) {
 
         const auto& cfg = config_instance();
 
@@ -39,8 +39,8 @@ namespace ifb {
         assert(mem_addr != 0); 
 
         auto accum        = (physics_force_accumulator*)(mem_addr);
-        auto array_ids    =           (entity_id*)(mem_addr += size_accum);
-        auto array_forces =                (vec3*)(mem_addr += size_array_ids);
+        auto array_ids    =                 (entity_id*)(mem_addr += size_accum);
+        auto array_forces =                      (vec3*)(mem_addr += size_array_ids);
         
         accum->data.ids    = array_ids;
         accum->data.forces = array_forces;
