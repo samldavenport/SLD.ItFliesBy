@@ -18,8 +18,6 @@ namespace ifb {
     struct physics_mngr {
         reservation*               res;
         physics_force_accumulator* force_accumulator;
-        hnd_arena                  simulation_arena;
-        u32                        delta_time_ms;
     };
 
     //--------------------------------------------------------------------
@@ -43,7 +41,6 @@ namespace ifb {
         assert(_phys_mngr                    != NULL);
         assert(_phys_mngr->res               != NULL);
         assert(_phys_mngr->force_accumulator != NULL);
-        assert(_phys_mngr->simulation_arena  != INVALID_HANDLE);
     }
 
     IFB_INTERNAL void
@@ -53,10 +50,7 @@ namespace ifb {
         assert(_phys_mngr);
         assert(res);
 
-        _phys_mngr->simulation_arena = arena_alloc();
-        _phys_mngr->res              = res;
-        assert(_phys_mngr->simulation_arena != INVALID_HANDLE);
-        
+        _phys_mngr->res               = res;
         _phys_mngr->force_accumulator = physics_force_accumulator_create(res);
         
         physics_mngr_validate();
@@ -73,10 +67,13 @@ namespace ifb {
     physics_mngr_simulate(
         const f32 dt) {
 
-        arena_reset                     (_phys_mngr->simulation_arena);
-        physics_spring_calculate_forces (_phys_mngr->simulation_arena); 
-        physics_integrate_forces        (_phys_mngr->force_accumulator, dt, _phys_mngr->simulation_arena);
-        physics_force_accumulator_reset (_phys_mngr->force_accumulator);
+        const hnd_arena sim_arena = arena_alloc();
+        if (sim_arena != INVALID_HANDLE) {
+            physics_spring_calculate_forces (sim_arena); 
+            physics_integrate_forces        (_phys_mngr->force_accumulator, dt, sim_arena);
+            physics_force_accumulator_reset (_phys_mngr->force_accumulator);
+            arena_free(sim_arena);
+        }
     }
 
     //--------------------------------------------------------------------
