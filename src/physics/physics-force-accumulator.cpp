@@ -17,7 +17,12 @@ namespace ifb {
             entity_id* ids; 
             vec3*      forces;
         } world_data;
+        struct {
+            entity_id* ids;
+            vec3*      forces;
+        } map_data;
         u32 world_count;
+        u32 map_count;
     };
 
     //--------------------------------------------------------------------
