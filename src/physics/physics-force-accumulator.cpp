@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-reservation.cpp"
@@ -15,9 +16,8 @@ namespace ifb {
         struct {
             entity_id* ids; 
             vec3*      forces;
-        } data;
-        u32 capacity;
-        u32 count;
+        } world_data;
+        u32 world_count;
     };
 
     //--------------------------------------------------------------------
@@ -42,25 +42,25 @@ namespace ifb {
         auto array_ids    =        (entity_id*)(mem_addr += size_accum);
         auto array_forces =             (vec3*)(mem_addr += size_array_ids);
         
-        accum->data.ids    = array_ids;
-        accum->data.forces = array_forces;
-        accum->capacity    = cfg.entity_capacity;
-        accum->count       = 0;
+        accum->world_data.ids    = array_ids;
+        accum->world_data.forces = array_forces;
+        accum->world_count       = 0;
   
-        phys_frc_accmltr_validate(accum);
+        phys_frc_accmltr_validate(accum, cfg.entity_capacity);
 
         return(accum);
     }
 
     IFB_INTERNAL void
     phys_frc_accmltr_validate(
-        phys_frc_accmltr* const accum) {
+        phys_frc_accmltr* const accum,
+        const u32               capacity) {
 
         assert(accum              != NULL);
-        assert(accum->data.ids    != NULL);
-        assert(accum->data.forces != NULL);
-        assert(accum->capacity    != 0);
-        assert(accum->count       <= accum->capacity);
+        assert(capacity           != 0);
+        assert(accum->world_data.ids    != NULL);
+        assert(accum->world_data.forces != NULL);
+        assert(accum->world_count       <= capacity);
     }
 
     IFB_INTERNAL void
@@ -68,19 +68,21 @@ namespace ifb {
         phys_frc_accmltr* const accum,
         const entity_id            id,
         const vec3&                v) {
-        
-        phys_frc_accmltr_validate(accum);
+       
+        const auto& cfg = config_instance();
+
+        phys_frc_accmltr_validate(accum, cfg.entity_capacity);
         assert(id != ENTITY_ID_INVALID);
 
         // if the entity has a vector already,
         // update it
         for (
             u32 i = 0;
-            i < accum->count;
+            i < accum->world_count;
             ++i
         ) {
-            if (id == accum->data.ids[i]) {
-                vec3& v_new = accum->data.forces[i];
+            if (id == accum->world_data.ids[i]) {
+                vec3& v_new = accum->world_data.forces[i];
                 v_new.x += v.x;
                 v_new.y += v.y;
                 v_new.z += v.z;
@@ -89,12 +91,12 @@ namespace ifb {
         }
 
         // get the index and update the count
-        const u32 index_new = accum->count;
-        ++accum->count;
+        const u32 index_new = accum->world_count;
+        ++accum->world_count;
 
         // set the id and vector
-        accum->data.ids    [index_new] = id;
-        accum->data.forces [index_new] = v;
+        accum->world_data.ids    [index_new] = id;
+        accum->world_data.forces [index_new] = v;
     }
 
     IFB_INTERNAL bool
@@ -103,16 +105,17 @@ namespace ifb {
         const entity_id            id,
         vec3&                      v) {
 
-        phys_frc_accmltr_validate(accum);
+        const auto& cfg = config_instance();
+        phys_frc_accmltr_validate(accum, cfg.entity_capacity);
         assert(id != ENTITY_ID_INVALID);
 
         for (
             u32 i = 0;
-            i < accum->count;
+            i < accum->world_count;
             ++i
         ) {
-            if (id == accum->data.ids[i]) {
-                v = accum->data.forces[i];
+            if (id == accum->world_data.ids[i]) {
+                v = accum->world_data.forces[i];
                 return(true);
             }
         }
@@ -126,23 +129,23 @@ namespace ifb {
         const entity_id            id) {
 
 
-        const u32 last = accum->count - 1;
-        if (id == accum->data.ids[last]) {
-            --accum->count;
+        const u32 last = accum->world_count - 1;
+        if (id == accum->world_data.ids[last]) {
+            --accum->world_count;
             return(true);
         }
 
         for (
             u32 i = 0;
-            i < accum->count;
+            i < accum->world_count;
             ++i
         ) {
-            if (id == accum->data.ids[i]) {
-                if (accum->count > 1) {
-                    accum->data.ids     [i] = accum->data.ids    [last];
-                    accum->data.forces  [i] = accum->data.forces [last];
+            if (id == accum->world_data.ids[i]) {
+                if (accum->world_count > 1) {
+                    accum->world_data.ids     [i] = accum->world_data.ids    [last];
+                    accum->world_data.forces  [i] = accum->world_data.forces [last];
                 }
-                --accum->count;
+                --accum->world_count;
                 return(true);
             }
         }
@@ -154,7 +157,39 @@ namespace ifb {
     phys_frc_accmltr_reset(
         phys_frc_accmltr* const accum) {
 
-        phys_frc_accmltr_validate(accum);
-        accum->count = 0;
+
+        const auto& cfg = config_instance();
+        phys_frc_accmltr_validate(accum, cfg.entity_capacity);
+        accum->world_count = 0;
+    }
+    
+    IFB_INTERNAL u32
+    phys_frc_accmltr_get_count(
+        const phys_frc_accmltr* accum) {
+
+        assert(accum);
+        return(accum->world_count);
+    }
+    
+    IFB_INTERNAL entity_id
+    phys_frc_accmltr_get_entity_id(
+        const phys_frc_accmltr* accum,
+        const u32               index) {
+
+        assert(accum != NULL);
+        assert(index < accum->world_count);
+
+        return(accum->world_data.ids[index]);
+    }
+
+    IFB_INTERNAL const vec3&
+    phys_frc_accmltr_get_force(
+        const phys_frc_accmltr* accum,
+        const u32               index) {
+
+        assert(accum != NULL);
+        assert(index < accum->world_count);
+
+        return(accum->world_data.forces[index]);
     }
 };

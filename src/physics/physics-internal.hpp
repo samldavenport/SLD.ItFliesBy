@@ -26,13 +26,16 @@ namespace ifb {
     IFB_INTERNAL void*             phys_mngr_res_alloc       (const u32 size_min);
     IFB_INTERNAL phys_frc_accmltr* phys_mngr_get_frc_accmltr (void);
 
-    IFB_INTERNAL phys_frc_accmltr* phys_frc_accmltr_create   (void);
-    IFB_INTERNAL void              phys_frc_accmltr_validate (phys_frc_accmltr* const accum);
-    IFB_INTERNAL void              phys_frc_accmltr_add      (phys_frc_accmltr* const accum, const entity_id id, const vec3& v);
-    IFB_INTERNAL bool              phys_frc_accmltr_lookup   (phys_frc_accmltr* const accum, const entity_id id, vec3& v);
-    IFB_INTERNAL bool              phys_frc_accmltr_remove   (phys_frc_accmltr* const accum, const entity_id id);
-    IFB_INTERNAL void              phys_frc_accmltr_reset    (phys_frc_accmltr* const accum);
-   
+    IFB_INTERNAL phys_frc_accmltr* phys_frc_accmltr_create        (void);
+    IFB_INTERNAL void              phys_frc_accmltr_validate      (phys_frc_accmltr* const accum, const u32 capacity);
+    IFB_INTERNAL void              phys_frc_accmltr_add           (phys_frc_accmltr* const accum, const entity_id id, const vec3& v);
+    IFB_INTERNAL bool              phys_frc_accmltr_lookup        (phys_frc_accmltr* const accum, const entity_id id, vec3& v);
+    IFB_INTERNAL bool              phys_frc_accmltr_remove        (phys_frc_accmltr* const accum, const entity_id id);
+    IFB_INTERNAL void              phys_frc_accmltr_reset         (phys_frc_accmltr* const accum);
+    IFB_INTERNAL u32               phys_frc_accmltr_get_count     (const phys_frc_accmltr* accum);
+    IFB_INTERNAL entity_id         phys_frc_accmltr_get_entity_id (const phys_frc_accmltr* accum, const u32 index);
+    IFB_INTERNAL const vec3&       phys_frc_accmltr_get_force     (const phys_frc_accmltr* accum, const u32 index);
+
     IFB_INTERNAL phys_frc_intgrtr* phys_frc_intgrtr_create   (void); 
     IFB_INTERNAL void              phys_frc_intgrtr_run      (phys_frc_intgrtr* integrator, const phys_frc_accmltr* accum, const f32 dt);
 

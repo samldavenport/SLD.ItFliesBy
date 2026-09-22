@@ -6,7 +6,6 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "entity.hpp"
-#include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
 
 namespace ifb {
@@ -132,15 +131,17 @@ namespace ifb {
             cmpnt_type_e_term_velocity 
         );
 
+        const u32 force_count = phys_frc_accmltr_get_count(a);
         for (
             u32 force_index = 0;
-                force_index < a->count;
+                force_index < force_count;
               ++force_index
         ) {
         
             // look up the entity
             entity e;
-            const bool did_lookup = entity_lookup_by_id(e, a->data.ids[force_index]);
+            const entity_id id         = phys_frc_accmltr_get_entity_id(a, force_index);
+            const bool      did_lookup = entity_lookup_by_id(e, id);
             assert(did_lookup);
 
             // make sure it matches the archetype for integration
@@ -163,6 +164,8 @@ namespace ifb {
 
             // add the components to the intregrator 
             const u32 integrator_index = i->count;
+            const vec3& force = phys_frc_accmltr_get_force(a, force_index);
+
             i->sparse_index [integrator_index] = e.index_sparse;
             i->pos_x        [integrator_index] = pos.x; 
             i->pos_y        [integrator_index] = pos.y; 
@@ -173,9 +176,9 @@ namespace ifb {
             i->acc_x        [integrator_index] = acc.x;
             i->acc_y        [integrator_index] = acc.y;
             i->acc_z        [integrator_index] = acc.z;
-            i->frc_x        [integrator_index] = a->data.forces[force_index].x;
-            i->frc_y        [integrator_index] = a->data.forces[force_index].y;
-            i->frc_z        [integrator_index] = a->data.forces[force_index].z;
+            i->frc_x        [integrator_index] = force.x;
+            i->frc_y        [integrator_index] = force.y;
+            i->frc_z        [integrator_index] = force.z;
             i->tv_x         [integrator_index] = tv.x;
             i->tv_y         [integrator_index] = tv.y;
             i->tv_z         [integrator_index] = tv.z;
