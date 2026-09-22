@@ -39,8 +39,8 @@ namespace ifb {
         assert(mem_addr != 0); 
 
         auto accum        = (phys_frc_accmltr*)(mem_addr);
-        auto array_ids    =                 (entity_id*)(mem_addr += size_accum);
-        auto array_forces =                      (vec3*)(mem_addr += size_array_ids);
+        auto array_ids    =        (entity_id*)(mem_addr += size_accum);
+        auto array_forces =             (vec3*)(mem_addr += size_array_ids);
         
         accum->data.ids    = array_ids;
         accum->data.forces = array_forces;
