@@ -56,12 +56,13 @@ namespace ifb {
         result &= entity_has_component (e, ENTITY_ARCHETYPE_PHYSICS_PARTICLE);        
            
         if (result) {
-            cmpnt_lookup_position     (e.index_sparse, particle.position);
-            cmpnt_lookup_rigid_body   (e.index_sparse, particle.rigid_body);
-            cmpnt_lookup_velocity     (e.index_sparse, particle.velocity);
-            cmpnt_lookup_acceleration (e.index_sparse, particle.acceleration);
-            cmpnt_lookup_inv_mass     (e.index_sparse, particle.inv_mass);
-            cmpnt_lookup_drag         (e.index_sparse, particle.drag);
+            cmpnt_lookup_position      (e.index_sparse, particle.position);
+            cmpnt_lookup_rigid_body    (e.index_sparse, particle.rigid_body);
+            cmpnt_lookup_velocity      (e.index_sparse, particle.velocity);
+            cmpnt_lookup_acceleration  (e.index_sparse, particle.acceleration);
+            cmpnt_lookup_inv_mass      (e.index_sparse, particle.inv_mass);
+            cmpnt_lookup_drag          (e.index_sparse, particle.drag);
+            cmpnt_lookup_term_velocity (e.index_sparse, particle.term_velocity);
         }
 
         return(result);
@@ -89,6 +90,7 @@ namespace ifb {
             cmpnt_lookup_acceleration (e.index_sparse, physics_quad.acceleration);
             cmpnt_lookup_inv_mass     (e.index_sparse, physics_quad.inv_mass);
             cmpnt_lookup_drag         (e.index_sparse, physics_quad.drag);
+            cmpnt_lookup_term_velocity(e.index_sparse, physics_quad.term_velocity);
             cmpnt_lookup_map_coords   (e.index_sparse, physics_quad.map_coords);
         }
 
@@ -140,6 +142,7 @@ namespace ifb {
             cmpnt_update_acceleration (e.index_sparse, particle.acceleration);
             cmpnt_update_inv_mass     (e.index_sparse, particle.inv_mass);
             cmpnt_update_drag         (e.index_sparse, particle.drag);
+            cmpnt_update_term_velocity(e.index_sparse, particle.term_velocity);
         }
 
         return(can_update);
@@ -167,6 +170,7 @@ namespace ifb {
             cmpnt_update_inv_mass     (e.index_sparse, physics_quad.inv_mass);
             cmpnt_update_drag         (e.index_sparse, physics_quad.drag);
             cmpnt_update_map_coords   (e.index_sparse, physics_quad.map_coords);
+            cmpnt_update_term_velocity(e.index_sparse, physics_quad.term_velocity);
         }
 
         return(can_update);

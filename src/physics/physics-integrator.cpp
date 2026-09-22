@@ -5,15 +5,13 @@
 #include "component.hpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
-#include "memory-arena.cpp"
-#include "physics.hpp"
 #include "entity.hpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
 
 namespace ifb {
 
-    struct physics_force_integrator {
+    struct phys_frc_intgrtr {
         u32        count;
         entity_id* id;
         u32*       sparse_index;
@@ -36,69 +34,69 @@ namespace ifb {
         f32*       drag;
     };
 
-    inline bool physics_force_integrator_lookup_components (physics_force_integrator* i, const physics_force_accumulator* a);
-    inline void physics_force_integrator_exec              (physics_force_integrator* i, const f32 dt);
-    inline void physics_force_integrator_update_components (physics_force_integrator* i);
+    inline bool phys_frc_intgrtr_lookup_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
+    inline void phys_frc_intgrtr_exec              (phys_frc_intgrtr* i, const f32 dt);
+    inline void phys_frc_intgrtr_update_components (phys_frc_intgrtr* i);
 
     IFB_INTERNAL void 
-    physics_force_integrator_run(
-        physics_force_integrator*        integrator,
-        const physics_force_accumulator* accum,
-        const f32                        dt) {
+    phys_frc_intgrtr_run(
+        phys_frc_intgrtr*       integrator,
+        const phys_frc_accmltr* accum,
+        const f32               dt) {
 
         // load all components into the integrator
         // with forces and matching archetype
-        if (!physics_force_integrator_lookup_components(integrator, accum)) {
+        if (!phys_frc_intgrtr_lookup_components(integrator, accum)) {
             return;
         }
 
         // do the integration and update components
-        physics_force_integrator_exec              (integrator, dt);             
-        physics_force_integrator_update_components (integrator);            
+        phys_frc_intgrtr_exec              (integrator, dt);             
+        phys_frc_intgrtr_update_components (integrator);            
    
         // reset
         integrator->count = 0;
     }
 
-    IFB_INTERNAL physics_force_integrator* 
-    physics_force_integrator_create(
+    IFB_INTERNAL phys_frc_intgrtr* 
+    phys_frc_intgrtr_create(
         void) {
     
         const auto& cfg  = config_instance();
 
         // calculate size
-        const u32 size_struct      = sizeof(physics_force_integrator);
+        const u32 size_struct      = sizeof(phys_frc_intgrtr);
         const u32 size_array_ids   = cfg.entity_capacity * sizeof(entity_id);
         const u32 size_array_props = cfg.entity_capacity * sizeof(u32);  
         const u32 size_total       = size_struct + size_array_ids + (size_array_props * 18); 
        
         // allocate memory
-        addr mem_addr = (addr)physics_mngr_res_alloc(size_total);
+        addr mem_addr = (addr)phys_mngr_res_alloc(size_total);
         assert(mem_addr != 0);
 
         // cast pointers and initialize
-        auto integrator = (physics_force_integrator*)mem_addr;
+        auto integrator = (phys_frc_intgrtr*)mem_addr;
 
         integrator->count        = 0;
-        integrator->id           = (entity_id*)physics_mngr_res_alloc(size_array_props);
-        integrator->sparse_index =       (u32*)physics_mngr_res_alloc(size_array_props);
-        integrator->pos_x        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->pos_y        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->pos_z        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->vel_x        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->vel_y        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->vel_z        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->acc_x        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->acc_y        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->acc_z        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->frc_x        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->frc_y        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->frc_z        =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->tv_x         =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->tv_y         =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->tv_z         =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->inv_mass     =       (f32*)physics_mngr_res_alloc(size_array_props);
-        integrator->drag         =       (f32*)physics_mngr_res_alloc(size_array_props);
+        integrator->id           = (entity_id*)phys_mngr_res_alloc(size_array_props);
+        integrator->sparse_index =       (u32*)phys_mngr_res_alloc(size_array_props);
+        integrator->pos_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->pos_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->pos_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->vel_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->vel_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->vel_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->acc_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->acc_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->acc_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->frc_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->frc_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->frc_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->tv_x         =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->tv_y         =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->tv_z         =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->inv_mass     =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->drag         =       (f32*)phys_mngr_res_alloc(size_array_props);
     
         assert(integrator->id           != NULL);
         assert(integrator->sparse_index != NULL);
@@ -121,9 +119,9 @@ namespace ifb {
     }
 
     inline bool 
-    physics_force_integrator_lookup_components(
-        physics_force_integrator*        i,
-        const physics_force_accumulator* a) {
+    phys_frc_intgrtr_lookup_components(
+        phys_frc_intgrtr*       i,
+        const phys_frc_accmltr* a) {
         
         const component_type physics_types = (
             cmpnt_type_e_position       |
@@ -154,7 +152,7 @@ namespace ifb {
             cmpnt_velocity      vel;
             cmpnt_acceleration  acc;
             cmpnt_inv_mass      inv;
-            cmpnt_drag             drg;
+            cmpnt_drag          drg;
             cmpnt_term_velocity tv;
             cmpnt_lookup_position      (e.index_sparse, pos);            
             cmpnt_lookup_velocity      (e.index_sparse, vel);            
@@ -190,8 +188,8 @@ namespace ifb {
     }
 
     inline void
-    physics_force_integrator_exec(
-        physics_force_integrator* i, const f32 dt) {
+    phys_frc_intgrtr_exec(
+        phys_frc_intgrtr* i, const f32 dt) {
      
         // calculate dt constants
         const f32 dt_pow_2        = dt * dt; 
@@ -239,8 +237,8 @@ namespace ifb {
     }
 
     inline void
-    physics_force_integrator_update_components(
-        physics_force_integrator* i) {
+    phys_frc_intgrtr_update_components(
+        phys_frc_intgrtr* i) {
         
         cmpnt_position     pos;
         cmpnt_velocity     vel;

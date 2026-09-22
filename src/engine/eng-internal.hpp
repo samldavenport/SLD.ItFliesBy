@@ -37,7 +37,7 @@ namespace ifb {
         entity_mngr*       entity_mngr;
         memory_mngr*       memory_mngr;
         cmpnt_mngr*        cmpnt_mngr;
-        physics_mngr*      phys_mngr;
+        phys_mngr*      phys_mngr;
         map_mngr*         map_mngr;
     } static * _eng_context;
 

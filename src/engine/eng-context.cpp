@@ -56,7 +56,7 @@ namespace ifb {
         _eng_context->entity_mngr     = entity_mngr_create(); 
         _eng_context->memory_mngr     = memory_mngr_create(); 
         _eng_context->cmpnt_mngr      = cmpnt_mngr_create();  
-        _eng_context->phys_mngr       = physics_mngr_create();
+        _eng_context->phys_mngr       = phys_mngr_create();
         _eng_context->map_mngr        = map_mngr_create();
         _eng_context->mem_map         = mem_map;
 
@@ -123,7 +123,7 @@ namespace ifb {
         entity_mngr_startup      (res_entities);
         memory_mngr_startup      (res_arenas);
         cmpnt_mngr_startup       (res_components);
-        physics_mngr_startup     (res_physics);
+        phys_mngr_startup     (res_physics);
         map_mngr_startup         (res_tiles);
         renderer_context_startup (res_renderer);
        
@@ -158,7 +158,7 @@ namespace ifb {
         );
 
         // simulate physics
-        physics_mngr_simulate(dt);
+        phys_mngr_simulate(dt);
         
         if (elapsed_time == 0.0f) {
        

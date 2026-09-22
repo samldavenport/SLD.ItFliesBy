@@ -11,7 +11,7 @@ namespace ifb {
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------
     
-    struct physics_force_accumulator {
+    struct phys_frc_accmltr {
         struct {
             entity_id* ids; 
             vec3*      forces;
@@ -24,37 +24,37 @@ namespace ifb {
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL physics_force_accumulator*
-    physics_force_accumulator_create(
+    IFB_INTERNAL phys_frc_accmltr*
+    phys_frc_accmltr_create(
         void) {
 
         const auto& cfg = config_instance();
 
-        const u32 size_accum        = sizeof(physics_force_accumulator);  
+        const u32 size_accum        = sizeof(phys_frc_accmltr);  
         const u32 size_array_ids    = cfg.entity_capacity * sizeof(entity_id);
         const u32 size_array_forces = cfg.entity_capacity * sizeof(vec3);
         const u32 size_min          = size_accum + size_array_ids + size_array_forces;
 
-        addr mem_addr = (addr)physics_mngr_res_alloc(size_min);
+        addr mem_addr = (addr)phys_mngr_res_alloc(size_min);
         assert(mem_addr != 0); 
 
-        auto accum        = (physics_force_accumulator*)(mem_addr);
-        auto array_ids    =                 (entity_id*)(mem_addr += size_accum);
-        auto array_forces =                      (vec3*)(mem_addr += size_array_ids);
+        auto accum        = (phys_frc_accmltr*)(mem_addr);
+        auto array_ids    =        (entity_id*)(mem_addr += size_accum);
+        auto array_forces =             (vec3*)(mem_addr += size_array_ids);
         
         accum->data.ids    = array_ids;
         accum->data.forces = array_forces;
         accum->capacity    = cfg.entity_capacity;
         accum->count       = 0;
   
-        physics_force_accumulator_validate(accum);
+        phys_frc_accmltr_validate(accum);
 
         return(accum);
     }
 
     IFB_INTERNAL void
-    physics_force_accumulator_validate(
-        physics_force_accumulator* const accum) {
+    phys_frc_accmltr_validate(
+        phys_frc_accmltr* const accum) {
 
         assert(accum              != NULL);
         assert(accum->data.ids    != NULL);
@@ -64,12 +64,12 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    physics_force_accumulator_add(
-        physics_force_accumulator* const accum,
+    phys_frc_accmltr_add(
+        phys_frc_accmltr* const accum,
         const entity_id            id,
         const vec3&                v) {
         
-        physics_force_accumulator_validate(accum);
+        phys_frc_accmltr_validate(accum);
         assert(id != ENTITY_ID_INVALID);
 
         // if the entity has a vector already,
@@ -98,12 +98,12 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    physics_force_accumulator_lookup(
-        physics_force_accumulator* const accum,
+    phys_frc_accmltr_lookup(
+        phys_frc_accmltr* const accum,
         const entity_id            id,
         vec3&                      v) {
 
-        physics_force_accumulator_validate(accum);
+        phys_frc_accmltr_validate(accum);
         assert(id != ENTITY_ID_INVALID);
 
         for (
@@ -121,8 +121,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    physics_force_accumulator_remove(
-        physics_force_accumulator* const accum,
+    phys_frc_accmltr_remove(
+        phys_frc_accmltr* const accum,
         const entity_id            id) {
 
 
@@ -151,10 +151,10 @@ namespace ifb {
     }
     
     IFB_INTERNAL void
-    physics_force_accumulator_reset(
-        physics_force_accumulator* const accum) {
+    phys_frc_accmltr_reset(
+        phys_frc_accmltr* const accum) {
 
-        physics_force_accumulator_validate(accum);
+        phys_frc_accmltr_validate(accum);
         accum->count = 0;
     }
 };

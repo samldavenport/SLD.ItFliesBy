@@ -9,41 +9,35 @@ namespace ifb {
     // TYPE DECLARATIONS
     //--------------------------------------------------------------------
     
-    struct physics_memory;
-    struct physics_world;
-    struct physics_force_accumulator;
-    struct physics_force_integrator;
-    struct physics_spring_calculator;
+    struct phys_frc_accmltr; // force accumulator
+    struct phys_frc_intgrtr; // force integrator
+    struct phys_frc_sprcalc; // spring force calculator
 
     //--------------------------------------------------------------------
     // GLOBALS 
     //--------------------------------------------------------------------
 
-    static physics_mngr* _phys_mngr;
+    static phys_mngr* _phys_mngr;
 
     //--------------------------------------------------------------------
     // METHOD DECLARATIONS
     //--------------------------------------------------------------------
    
-    IFB_INTERNAL void*                      physics_mngr_res_alloc             (const u32 size_min);
-    IFB_INTERNAL physics_force_accumulator* physics_mngr_get_force_accumulator (void);
+    IFB_INTERNAL void*             phys_mngr_res_alloc       (const u32 size_min);
+    IFB_INTERNAL phys_frc_accmltr* phys_mngr_get_frc_accmltr (void);
 
-    IFB_INTERNAL physics_force_accumulator* physics_force_accumulator_create      (void);
-    IFB_INTERNAL void                       physics_force_accumulator_validate    (physics_force_accumulator* const accum);
-    IFB_INTERNAL void                       physics_force_accumulator_add         (physics_force_accumulator* const accum, const entity_id id, const vec3& v);
-    IFB_INTERNAL bool                       physics_force_accumulator_lookup      (physics_force_accumulator* const accum, const entity_id id, vec3& v);
-    IFB_INTERNAL bool                       physics_force_accumulator_remove      (physics_force_accumulator* const accum, const entity_id id);
-    IFB_INTERNAL void                       physics_force_accumulator_reset       (physics_force_accumulator* const accum);
+    IFB_INTERNAL phys_frc_accmltr* phys_frc_accmltr_create   (void);
+    IFB_INTERNAL void              phys_frc_accmltr_validate (phys_frc_accmltr* const accum);
+    IFB_INTERNAL void              phys_frc_accmltr_add      (phys_frc_accmltr* const accum, const entity_id id, const vec3& v);
+    IFB_INTERNAL bool              phys_frc_accmltr_lookup   (phys_frc_accmltr* const accum, const entity_id id, vec3& v);
+    IFB_INTERNAL bool              phys_frc_accmltr_remove   (phys_frc_accmltr* const accum, const entity_id id);
+    IFB_INTERNAL void              phys_frc_accmltr_reset    (phys_frc_accmltr* const accum);
    
-    IFB_INTERNAL physics_force_integrator* physics_force_integrator_create (void); 
-    IFB_INTERNAL void
-    physics_force_integrator_run(
-        physics_force_integrator*        integrator,
-        const physics_force_accumulator* accum,
-        const f32                        dt);
+    IFB_INTERNAL phys_frc_intgrtr* phys_frc_intgrtr_create   (void); 
+    IFB_INTERNAL void              phys_frc_intgrtr_run      (phys_frc_intgrtr* integrator, const phys_frc_accmltr* accum, const f32 dt);
 
-    IFB_INTERNAL physics_spring_calculator* physics_spring_calculator_create (void);
-    IFB_INTERNAL void                       physics_spring_calculator_run    (physics_spring_calculator* calc);
+    IFB_INTERNAL phys_frc_sprcalc* phys_frc_sprcalc_create   (void);
+    IFB_INTERNAL void              phys_frc_sprcalc_run      (phys_frc_sprcalc* calc);
    
 
     //--------------------------------------------------------------------

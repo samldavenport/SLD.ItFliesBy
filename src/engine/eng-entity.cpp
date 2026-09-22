@@ -158,7 +158,7 @@ namespace ifb {
         const bool can_add_force = (does_exist && has_component); 
 
         if (can_add_force) {
-            physics_entity_add_force(id, force);
+            phys_entity_add_force(id, force);
         }
 
         return(can_add_force);

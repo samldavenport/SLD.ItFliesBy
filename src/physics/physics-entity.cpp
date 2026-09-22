@@ -9,15 +9,15 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    physics_entity_add_force(
+    phys_entity_add_force(
         const entity_id id,
         const vec3&     force) {
 
         assert(id != ENTITY_ID_INVALID);
 
-        physics_force_accumulator* accum = physics_mngr_get_force_accumulator();
+        phys_frc_accmltr* accum = phys_mngr_get_frc_accmltr();
         
-        physics_force_accumulator_add(
+        phys_frc_accmltr_add(
             accum,
             id,
             force
@@ -25,14 +25,14 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool 
-    physics_entity_remove_all_force(
+    phys_entity_remove_all_force(
         const entity_id id) {
 
         assert(id != ENTITY_ID_INVALID);
     
-        physics_force_accumulator* accum = physics_mngr_get_force_accumulator();
+        phys_frc_accmltr* accum = phys_mngr_get_frc_accmltr();
         
-        const bool did_remove = physics_force_accumulator_remove(
+        const bool did_remove = phys_frc_accmltr_remove(
             accum,
             id
         );
@@ -41,7 +41,7 @@ namespace ifb {
     }
     
     IFB_INTERNAL void 
-    physics_entity_set_mass(
+    phys_entity_set_mass(
         const entity_id id,
         const f32       mass) {
 
@@ -57,7 +57,7 @@ namespace ifb {
     }
     
     IFB_INTERNAL void 
-    physics_entity_set_inv_mass(
+    phys_entity_set_inv_mass(
         const entity_id id,
         const f32       i_mass) {
 
@@ -73,7 +73,7 @@ namespace ifb {
     }
     
     IFB_INTERNAL void 
-    physics_entity_set_rigid_body(
+    phys_entity_set_rigid_body(
         const entity_id   id,
         const cmpnt_rigid_body& rb) {
 
