@@ -15,7 +15,7 @@
 
 namespace ifb {
 
-    struct physics_spring_calculator {
+    struct phys_frc_sprcalc {
         entity_list* entt_list;
         u32          capacity;
         u32          count;
@@ -34,12 +34,12 @@ namespace ifb {
         f32*         rest_length;
     };
 
-    inline bool spring_calculator_load_components   (physics_spring_calculator* calc);
-    inline void spring_calculator_load_exec         (physics_spring_calculator* calc);
+    inline bool spring_calculator_load_components   (phys_frc_sprcalc* calc);
+    inline void spring_calculator_load_exec         (phys_frc_sprcalc* calc);
 
     IFB_INTERNAL void 
-    physics_spring_calculator_run(
-        physics_spring_calculator* calc) {
+    phys_frc_sprcalc_run(
+        phys_frc_sprcalc* calc) {
 
         assert(calc);
 
@@ -54,21 +54,21 @@ namespace ifb {
         return;
     }
    
-    IFB_INTERNAL physics_spring_calculator*
-    physics_spring_calculator_create(
+    IFB_INTERNAL phys_frc_sprcalc*
+    phys_frc_sprcalc_create(
         void) {
 
         const auto& cfg = config_instance();
    
-        const u32 size_struct      = sizeof(physics_spring_calculator);
+        const u32 size_struct      = sizeof(phys_frc_sprcalc);
         const u32 size_array_ids   = cfg.entity_capacity * sizeof(entity_id);
         const u32 size_array_props = cfg.entity_capacity * sizeof(u32);
         const u32 size_total       = size_struct + size_array_ids + (size_array_props * 12); 
 
-        auto mem_addr = (addr)physics_mngr_res_alloc(size_total);
+        auto mem_addr = (addr)phys_mngr_res_alloc(size_total);
         assert(mem_addr != 0);
 
-        auto calc = (physics_spring_calculator*)mem_addr;
+        auto calc = (phys_frc_sprcalc*)mem_addr;
         calc->capacity     = cfg.entity_capacity;
         calc->count        = 0;
         calc->spring_id    = (entity_id*)(mem_addr += size_struct);
@@ -101,7 +101,7 @@ namespace ifb {
         // create the entity list
         memory list_mem;
         list_mem.size = entity_list_mem_req();
-        list_mem.ptr  = physics_mngr_res_alloc(list_mem.size);
+        list_mem.ptr  = phys_mngr_res_alloc(list_mem.size);
         assert(list_mem.ptr != NULL);
         calc->entt_list = entity_list_memory_create(list_mem);
         assert(calc->entt_list);
@@ -111,7 +111,7 @@ namespace ifb {
     
     inline bool 
     spring_calculator_load_components(
-        physics_spring_calculator* calc) {
+        phys_frc_sprcalc* calc) {
 
         entity_query query = { 0 };
         query.has_all = (
@@ -178,7 +178,7 @@ namespace ifb {
 
     inline void
     spring_calculator_load_exec(
-        physics_spring_calculator* calc) {
+        phys_frc_sprcalc* calc) {
 
         vec3 delta;
         vec3 direction;
@@ -214,7 +214,7 @@ namespace ifb {
 
             // calculate the spring force and add it to the entity
             spring_force = vec3_scalar_multiply(direction, force_scalar); 
-            physics_entity_add_force(calc->spring_id[index], spring_force);
+            phys_entity_add_force(calc->spring_id[index], spring_force);
         }
     }
 };

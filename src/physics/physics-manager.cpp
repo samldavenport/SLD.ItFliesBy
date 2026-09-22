@@ -15,29 +15,29 @@ namespace ifb {
     // DEFINITIONS
     //--------------------------------------------------------------------
     
-    struct physics_mngr {
+    struct phys_mngr {
         reservation*               res;
-        physics_force_accumulator* force_accumulator;
-        physics_force_integrator*  force_integrator;
-        physics_spring_calculator* spring_calculator;
+        phys_frc_accmltr* force_accumulator;
+        phys_frc_intgrtr*  force_integrator;
+        phys_frc_sprcalc* spring_calculator;
     };
 
     //--------------------------------------------------------------------
     // PUBLIC METHODS 
     //--------------------------------------------------------------------
     
-    IFB_INTERNAL physics_mngr*
-    physics_mngr_create(
+    IFB_INTERNAL phys_mngr*
+    phys_mngr_create(
         void) {
 
-        _phys_mngr  = global_alloc<physics_mngr>();
+        _phys_mngr  = global_alloc<phys_mngr>();
         assert(_phys_mngr  != NULL);
 
         return(_phys_mngr);
     }
 
     IFB_INTERNAL void
-    physics_mngr_validate(
+    phys_mngr_validate(
         void) {
 
         assert(_phys_mngr                    != NULL);
@@ -46,34 +46,34 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    physics_mngr_startup(
+    phys_mngr_startup(
         reservation* res) {
 
         assert(_phys_mngr);
         assert(res);
 
         _phys_mngr->res               = res;
-        _phys_mngr->spring_calculator = physics_spring_calculator_create ();
-        _phys_mngr->force_accumulator = physics_force_accumulator_create ();
-        _phys_mngr->force_integrator  = physics_force_integrator_create  (); 
+        _phys_mngr->spring_calculator = phys_frc_sprcalc_create ();
+        _phys_mngr->force_accumulator = phys_frc_accmltr_create ();
+        _phys_mngr->force_integrator  = phys_frc_intgrtr_create  (); 
 
-        physics_mngr_validate();
+        phys_mngr_validate();
     }
 
     IFB_INTERNAL void
-    physics_mngr_shutdown(
+    phys_mngr_shutdown(
         void) {
 
         //TODO(SAM)
     }
 
     IFB_INTERNAL void
-    physics_mngr_simulate(
+    phys_mngr_simulate(
         const f32 dt) {
 
-        physics_spring_calculator_run   (_phys_mngr->spring_calculator); 
-        physics_force_integrator_run    (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
-        physics_force_accumulator_reset (_phys_mngr->force_accumulator);
+        phys_frc_sprcalc_run   (_phys_mngr->spring_calculator); 
+        phys_frc_intgrtr_run    (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
+        phys_frc_accmltr_reset (_phys_mngr->force_accumulator);
     }
 
     //--------------------------------------------------------------------
@@ -81,7 +81,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_INTERNAL void*
-    physics_mngr_res_alloc(
+    phys_mngr_res_alloc(
         const u32 size_min) {
 
         assert(size_min   != 0);
@@ -92,8 +92,8 @@ namespace ifb {
         return(mem);
     }
     
-    IFB_INTERNAL physics_force_accumulator*
-    physics_mngr_get_force_accumulator(
+    IFB_INTERNAL phys_frc_accmltr*
+    phys_mngr_get_frc_accmltr(
         void) {
 
         assert(_phys_mngr);
