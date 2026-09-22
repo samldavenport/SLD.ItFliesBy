@@ -40,9 +40,9 @@ namespace ifb {
 
     IFB_INTERNAL void 
     phys_frc_intgrtr_run(
-        phys_frc_intgrtr*        integrator,
+        phys_frc_intgrtr*       integrator,
         const phys_frc_accmltr* accum,
-        const f32                        dt) {
+        const f32               dt) {
 
         // load all components into the integrator
         // with forces and matching archetype
@@ -120,7 +120,7 @@ namespace ifb {
 
     inline bool 
     phys_frc_intgrtr_lookup_components(
-        phys_frc_intgrtr*        i,
+        phys_frc_intgrtr*       i,
         const phys_frc_accmltr* a) {
         
         const component_type physics_types = (
@@ -152,7 +152,7 @@ namespace ifb {
             cmpnt_velocity      vel;
             cmpnt_acceleration  acc;
             cmpnt_inv_mass      inv;
-            cmpnt_drag             drg;
+            cmpnt_drag          drg;
             cmpnt_term_velocity tv;
             cmpnt_lookup_position      (e.index_sparse, pos);            
             cmpnt_lookup_velocity      (e.index_sparse, vel);            
