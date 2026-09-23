@@ -2,6 +2,7 @@
 #include "ifb-game.hpp"
 #include "imgui.h"
 
+
 namespace ifb {
 
     IFB_INTERNAL void
@@ -44,7 +45,7 @@ namespace ifb {
                 ImGui::TableSetColumnIndex (col_property);
                 ImGui::TextUnformatted     ("Map Coordinates");
                 ImGui::TableSetColumnIndex (col_value);
-                ImGui::Text                ("Row: %d, Col:%d", coords.row_x, coords.col_z);
+                ImGui::Text                ("Row: %d, Col: %d", coords.row_x, coords.col_z);
                 
                 
 

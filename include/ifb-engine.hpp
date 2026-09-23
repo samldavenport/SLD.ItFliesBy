@@ -200,8 +200,10 @@ namespace ifb {
         const entity_id   eid,
         cmpnt_map_coords& coords
     );
-    IFB_ENGINE_API void eng_map_destroy (const hnd_map map_hnd);
-    IFB_ENGINE_API bool eng_map_render  (const hnd_map map_hnd);
+    IFB_ENGINE_API void eng_map_destroy             (const hnd_map map_hnd);
+    IFB_ENGINE_API bool eng_map_render              (const hnd_map map_hnd);
+    IFB_ENGINE_API bool eng_map_get_pos_from_coords (const hnd_map map_hnd, const cmpnt_map_coords& coords, cmpnt_position&   pos);
+    IFB_ENGINE_API bool eng_map_get_coords_from_pos (const hnd_map map_hnd, const cmpnt_position&   pos,    cmpnt_map_coords& coords);
 
     //--------------------------------------------------------------------
     // ARENAS

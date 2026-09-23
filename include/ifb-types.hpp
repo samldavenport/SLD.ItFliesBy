@@ -20,7 +20,7 @@ using namespace sld;
 
 #define IFB_U32(type)     struct type : sld::strong_u32 { using strong_u32::strong_u32; };
 #define IFB_FLAGS32(type) struct type : flags           { using flags;                  };
-#define IFB_HANDLE(hnd)   struct hnd  : handle          { using handle::handle; };
+#define IFB_HANDLE(hnd)   struct hnd  : handle          { using handle::handle;         };
 
 namespace ifb {
    
@@ -36,7 +36,10 @@ namespace ifb {
     constexpr u32 INVALID_HANDLE    = INVALID_U32;
     constexpr u32 INVALID_ID        = INVALID_U32;
     constexpr u32 ENTITY_TAG_SIZE   = 16;
-    constexpr u16 MAP_COORD_INVALID = INVALID_U16;
+    constexpr f32 MAP_COORD_INVALID = (f32)INVALID_U32;
+    constexpr f32 POS_INVALID       = (f32)INVALID_U32;
+    constexpr f32 POS_MAX           =  1.0f;
+    constexpr f32 POS_MIN           = -1.0f;
 
     //--------------------------------------------------------------------
     // ENUMS 
@@ -244,6 +247,7 @@ namespace ifb {
 
     struct cmpnt_map_coords {
         f32 row_x;
+        f32 lvl_y;
         f32 col_z;
     };
 

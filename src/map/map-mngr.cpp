@@ -113,4 +113,11 @@ namespace ifb {
         assert(buffer.data.bytes != NULL);
         return(buffer); 
     } 
+    
+    IFB_INTERNAL void
+    map_mngr_calc_world_positions(
+        void) {
+
+        //TODO(SLD)
+    }
 };

@@ -29,22 +29,25 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // map manager
-    IFB_INTERNAL map_mngr*                map_mngr_create             (void);
-    IFB_INTERNAL void                     map_mngr_startup            (reservation* res);
-    IFB_INTERNAL void                     map_mngr_shutdown           (void);
-    IFB_INTERNAL const map_color_table&   map_mngr_get_color_table    (void);
-    IFB_INTERNAL const map_render_buffer& map_mngr_get_render_buffer  (void);
+    IFB_INTERNAL map_mngr*                map_mngr_create               (void);
+    IFB_INTERNAL void                     map_mngr_startup              (reservation* res);
+    IFB_INTERNAL void                     map_mngr_shutdown             (void);
+    IFB_INTERNAL const map_color_table&   map_mngr_get_color_table      (void);
+    IFB_INTERNAL const map_render_buffer& map_mngr_get_render_buffer    (void);
+    IFB_INTERNAL void                     map_mngr_calc_world_positions (void);
 
     // map
-    IFB_INTERNAL hnd_map               map_create            (const cchar* map_name, const u32 count_rows, const u32 count_cols);
-    IFB_INTERNAL bool                     map_destroy           (const hnd_map map_hnd);
-    IFB_INTERNAL bool                     map_render            (const hnd_map map_hnd);
-    IFB_INTERNAL bool                     map_get_dimensions    (const hnd_map map_hnd, map_dimensions&  dims);
-
+    IFB_INTERNAL hnd_map                  map_create              (const cchar* map_name, const u32 count_rows, const u32 count_cols);
+    IFB_INTERNAL bool                     map_destroy             (const hnd_map map_hnd);
+    IFB_INTERNAL bool                     map_render              (const hnd_map map_hnd);
+    IFB_INTERNAL bool                     map_get_dimensions      (const hnd_map map_hnd, map_dimensions& dims);
+    IFB_INTERNAL bool                     map_get_pos_from_coords (const hnd_map map_hnd, const cmpnt_map_coords& coords, cmpnt_position&   pos);
+    IFB_INTERNAL bool                     map_get_coords_from_pos (const hnd_map map_hnd, const cmpnt_position&   pos,    cmpnt_map_coords& coords);
+    
     // map chunk
     IFB_INTERNAL u32
     map_chunk_create(
-        const hnd_map    map_hnd,
+        const hnd_map       map_hnd,
         const u32           count_rows,
         const u32           count_cols,
         const u32           origin_row,

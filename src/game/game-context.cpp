@@ -60,12 +60,14 @@ namespace ifb {
         game_map_update_and_render        (ctx->map);
 
 
-        // map_coords coords;
-        // const bool did_find = eng_map_get_entity_coords(
-        //     map->eng_hnd,
-        //     player_rig->connor_id,
-        //     coords
-        // );
+        cmpnt_position pos;
+        (void)eng_cmpnt_lookup_position(player_rig->connor_id, pos);
+
+
+        cmpnt_map_coords map_coords;
+        (void)eng_map_get_coords_from_pos(map->eng_hnd, pos, map_coords);
+
+
     }
     
     IFB_INTERNAL game_context*

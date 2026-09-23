@@ -172,6 +172,59 @@ namespace ifb {
         return(true);
     } 
 
+    IFB_INTERNAL bool
+    map_get_pos_from_coords(
+        const hnd_map           map_hnd,
+        const cmpnt_map_coords& coords,
+              cmpnt_position&   pos) {
+
+        const auto& cfg = config_instance();
+
+        // get the map dimensions;
+        map_dimensions dims;
+        if(!map_get_dimensions(map_hnd, dims)) {
+            return(false);
+        }
+
+        const bool is_x_valid = (coords.row_x >= 0 && coords.row_x <= dims.count_rows); 
+        const bool is_z_valid = (coords.col_z >= 0 && coords.col_z <= dims.count_cols); 
+
+        // calculate width and height
+        const f32 map_width  = dims.count_cols * cfg.map_tile_unit_size;
+        const f32 map_height = dims.count_rows * cfg.map_tile_unit_size;
+
+        pos.x = is_x_valid ? (coords.row_x * cfg.map_tile_unit_size) : POS_INVALID;
+        pos.z = is_z_valid ? (coords.col_z * cfg.map_tile_unit_size) : POS_INVALID;
+    
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    map_get_coords_from_pos(
+        const hnd_map           map_hnd, 
+        const cmpnt_position&   pos,
+              cmpnt_map_coords& coords) {
+
+        const auto& cfg = config_instance();
+
+        // get the map dimensions;
+        map_dimensions dims;
+        if (!map_get_dimensions(map_hnd, dims)) {
+            return(false);
+        }
+
+        // calculate width and height
+        const f32 map_width  = dims.count_cols * cfg.map_tile_unit_size;
+        const f32 map_height = dims.count_rows * cfg.map_tile_unit_size;
+
+        // calculate the map coordinates
+        assert(cfg.map_tile_unit_size != 0);
+        coords.row_x = pos.x <= map_width  ? pos.x / cfg.map_tile_unit_size : MAP_COORD_INVALID; 
+        coords.col_z = pos.z <= map_height ? pos.z / cfg.map_tile_unit_size : MAP_COORD_INVALID; 
+
+        return(true);
+    }
+    
     //--------------------------------------------------------------------
     // INTERNAL METHODS 
     //--------------------------------------------------------------------
