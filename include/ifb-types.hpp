@@ -246,9 +246,10 @@ namespace ifb {
     };
 
     struct cmpnt_map_coords {
-        f32 row_x;
-        f32 lvl_y;
-        f32 col_z;
+        hnd_map h_map;
+        f32     row_x;
+        f32     lvl_y;
+        f32     col_z;
     };
 
     struct cmpnt_spring {

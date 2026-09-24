@@ -1,11 +1,14 @@
 #pragma once
 
+#include "component-tables.cpp"
+#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "map-internal.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "map.hpp"
+#include "entity.hpp"
 #include <cassert>
 #include <sld-strings.hpp>
 
@@ -219,10 +222,48 @@ namespace ifb {
 
         // calculate the map coordinates
         assert(cfg.map_tile_unit_size != 0);
+        coords.h_map = map_hnd;
         coords.row_x = pos.x <= map_width  ? pos.x / cfg.map_tile_unit_size : MAP_COORD_INVALID; 
         coords.col_z = pos.z <= map_height ? pos.z / cfg.map_tile_unit_size : MAP_COORD_INVALID; 
 
         return(true);
+    }
+    
+    IFB_INTERNAL bool
+    map_get_entities(
+        const hnd_map h_map,
+        entity_list*  e_list) {
+   
+        assert(h_map  != INVALID_HANDLE);
+        assert(e_list != NULL);
+
+        entity_list_reset(e_list);
+   
+        const u32 entity_count = entity_mngr_get_count();     
+        entity           e;
+        cmpnt_map_coords mc;
+        for (
+            u32 entity_index = 0;
+                entity_index < entity_count;
+              ++entity_index) {
+    
+            const bool did_find = entity_lookup_by_index_dense(e, entity_index); 
+            assert(did_find);
+
+            if (!e.archetype.has_any(cmpnt_type_e_map_coords)) {
+                continue;
+            } 
+
+            cmpnt_lookup_map_coords(e.index_sparse, mc);
+            if (mc.h_map != h_map) {
+                continue;
+            }    
+        
+            (void)entity_list_add(e_list, e.id);     
+        }
+
+        const u32 count_entities = entity_list_count(e_list);
+        return(count_entities > 0);
     }
     
     //--------------------------------------------------------------------

@@ -1,9 +1,14 @@
+#include "component-tables.cpp"
 #include "eng-internal.hpp"
+#include "entity-lookup.cpp"
+#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
+#include "ifb-entity.hpp"
 #include "ifb-types.hpp"
 #include "map-internal.hpp"
 #include "eng-stack.cpp"
 #include "map.hpp"
+#include "memory-arena.cpp"
 #include "memory-reservation.cpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"
@@ -118,6 +123,44 @@ namespace ifb {
     map_mngr_calc_world_positions(
         void) {
 
-        //TODO(SLD)
+        assert(_map_mngr);
+
+        const hnd_arena h_arena = arena_alloc();
+        if (h_arena == INVALID_HANDLE) return;
+
+        entity_query query = {0};
+        query.has_all = (cmpnt_type_e_position | cmpnt_type_e_map_coords);
+    
+        entity_list* el = entity_list_arena_create(h_arena);
+
+        if(!entity_lookup_list(el, query)) {
+           return; 
+        }
+
+        // TODO(SLD): we need to go map by map
+
+        const u32 entity_count = entity_list_count(el);
+        entity           e;
+        cmpnt_position   position;
+        cmpnt_map_coords map_coords;
+        for (
+            u32 entity_index = 0;
+                entity_index < entity_count;
+              ++entity_index) {
+
+            // get the entity info 
+            entity_list_lookup(el, entity_index, e);
+      
+            // sanity check
+            const bool is_valid_atype = e.archetype.has_all(
+                    cmpnt_type_e_position | 
+                    cmpnt_type_e_map_coords
+            );
+            assert(is_valid_atype);
+
+            // get the components
+            cmpnt_lookup_position   (e.index_sparse, position); 
+            cmpnt_lookup_map_coords (e.index_sparse, map_coords); 
+        }
     }
 };

@@ -61,8 +61,9 @@ namespace ifb {
     u32          entity_list_capacity      (const entity_list* el);
     u32          entity_list_count         (const entity_list* el);
     bool         entity_list_contains      (const entity_list* el, const entity_id);
-    entity_id    entity_list_index         (entity_list* el, const u32 index);
-   
+    entity_id    entity_list_index         (const entity_list* el, const u32 index);
+    void         entity_list_lookup        (const entity_list* el, const u32 index, entity& e);
+
 };
 
 #endif //IFB_COLLECTIONS_HPP

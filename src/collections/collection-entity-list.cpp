@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entity.cpp"
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
 #include "ifb-collections.hpp"
@@ -189,12 +190,27 @@ namespace ifb {
     
     IFB_INTERNAL entity_id
     entity_list_index(
-        entity_list* el,
+        const entity_list* el,
         const u32    index) {
 
         entity_list_validate(el);
 
         assert(index < el->count);
         return(el->ids[index]);
+    }
+    
+    IFB_INTERNAL void
+    entity_list_lookup(
+        const entity_list* el, 
+        const u32          index,
+        entity&            e) {
+
+        entity_list_validate(el);
+    
+        assert(index < el->count);
+
+        const entity_id id = el->ids[index];
+
+        assert(entity_lookup_by_id(e, id));
     }
 };

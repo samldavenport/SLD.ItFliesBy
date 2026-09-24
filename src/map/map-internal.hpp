@@ -57,7 +57,7 @@ namespace ifb {
     };
 
     struct map_table {
-        hnd_map*      hnd;
+        hnd_map*         hnd;
         map_dimensions*  dims;
         cstr_c16*        name;
         map_chunk_array* chunk_array;
