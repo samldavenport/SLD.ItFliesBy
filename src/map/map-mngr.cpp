@@ -121,20 +121,47 @@ namespace ifb {
     
     IFB_INTERNAL void
     map_mngr_calc_world_positions(
-        void) {
+        const hnd_arena h_arena) {
 
+        //TODO(SLD): this isn't going to work
+        // with how the arenas save positions
+
+        // validate
         assert(_map_mngr);
+        assert(h_arena != INVALID_HANDLE);
 
-        const hnd_arena h_arena = arena_alloc();
-        if (h_arena == INVALID_HANDLE) return;
+        // loop through each map
+        const auto& cfg = config_instance();
+        map_table* map_tbl = _map_mngr->tbl_map;
+        assert(map_tbl);
+        for (
+            u32 map_index = 0;
+                map_index < cfg.map_capacity;
+              ++map_index) {
 
-        entity_query query = {0};
-        query.has_all = (cmpnt_type_e_position | cmpnt_type_e_map_coords);
-    
-        entity_list* el = entity_list_arena_create(h_arena);
+            // save arena position 
+            const u32 save = arena_save(h_arena);
 
-        if(!entity_lookup_list(el, query)) {
-           return; 
+            // check if this is a valid map
+            const hnd_map h_map = map_tbl->hnd[map_index]; 
+            if  (h_map == INVALID_HANDLE) {
+                arena_revert()
+                continue;
+            }
+
+            // get the entities that belong to this map
+            const entity_list* entt_list = map_get_entities(h_map, h_arena);
+            
+
+            if (entt_list) {
+
+                // get the map dimensions
+                const auto& map_dims = map_tbl->dims[map_index];
+
+                // loop through all the entities
+            }
+
+            arena_revert(h_arena, save);
         }
 
         // TODO(SLD): we need to go map by map

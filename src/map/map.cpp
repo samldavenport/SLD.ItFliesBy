@@ -229,16 +229,20 @@ namespace ifb {
         return(true);
     }
     
-    IFB_INTERNAL bool
+    IFB_INTERNAL entity_list*
     map_get_entities(
-        const hnd_map h_map,
-        entity_list*  e_list) {
+        const hnd_map   h_map,
+        const hnd_arena h_arena) {
    
-        assert(h_map  != INVALID_HANDLE);
-        assert(e_list != NULL);
+        assert(h_map   != INVALID_HANDLE);
+        assert(h_arena != INVALID_HANDLE);
 
-        entity_list_reset(e_list);
-   
+        // create the entity list
+        entity_list* e_list = entity_list_arena_create(h_arena);
+        if (e_list == NULL) {
+            return(NULL);
+        }
+
         const u32 entity_count = entity_mngr_get_count();     
         entity           e;
         cmpnt_map_coords mc;
@@ -262,8 +266,7 @@ namespace ifb {
             (void)entity_list_add(e_list, e.id);     
         }
 
-        const u32 count_entities = entity_list_count(e_list);
-        return(count_entities > 0);
+        return(e_list);
     }
     
     //--------------------------------------------------------------------

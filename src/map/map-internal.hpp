@@ -40,7 +40,7 @@ namespace ifb {
 
     struct map {
         cstr_c16*      name;
-        hnd_map     hnd;
+        hnd_map        hnd;
         map_dimensions dims;
     };
 

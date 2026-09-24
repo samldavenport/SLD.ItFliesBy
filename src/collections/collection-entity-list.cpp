@@ -149,6 +149,13 @@ namespace ifb {
         assert(el->count    <= el->capacity);
     }
 
+    IFB_INTERNAL bool 
+    entity_list_is_null_or_empty(
+        const entity_list* el) {
+    
+        return(el == NULL || el->count == 0);
+    }
+
     IFB_INTERNAL u32
     entity_list_capacity (
         const entity_list* el) {

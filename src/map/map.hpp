@@ -43,7 +43,7 @@ namespace ifb {
     IFB_INTERNAL bool                     map_get_dimensions       (const hnd_map h_map, map_dimensions& dims);
     IFB_INTERNAL bool                     map_get_pos_from_coords  (const hnd_map h_map, const cmpnt_map_coords& coords, cmpnt_position&   pos);
     IFB_INTERNAL bool                     map_get_coords_from_pos  (const hnd_map h_map, const cmpnt_position&   pos,    cmpnt_map_coords& coords);
-    IFB_INTERNAL bool                     map_get_entities         (const hnd_map h_map, entity_list* e_list);
+    IFB_INTERNAL entity_list*             map_get_entities         (const hnd_map h_map, const hnd_arena h_arena);
 
     // map chunk
     IFB_INTERNAL u32
