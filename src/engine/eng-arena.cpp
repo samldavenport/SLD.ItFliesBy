@@ -57,14 +57,6 @@ namespace ifb {
         arena_revert(hnd, save);
     }
     
-    IFB_ENGINE_API void
-    eng_arena_commit(
-        const hnd_arena arena,
-        const u32          save) {
-
-        arena_commit(arena, save);
-    }
-    
     IFB_ENGINE_API void*
     eng_arena_push(
         const hnd_arena hnd,

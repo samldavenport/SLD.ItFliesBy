@@ -216,7 +216,6 @@ namespace ifb {
     IFB_ENGINE_API u32       eng_arena_size_free (const hnd_arena arena);
     IFB_ENGINE_API u32       eng_arena_size_used (const hnd_arena arena);
     IFB_ENGINE_API void      eng_arena_revert    (const hnd_arena arena, const u32 save);
-    IFB_ENGINE_API void      eng_arena_commit    (const hnd_arena arena, const u32 save);
     IFB_ENGINE_API void*     eng_arena_push      (const hnd_arena arena, const u32 size);
 
     //--------------------------------------------------------------------

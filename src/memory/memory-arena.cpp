@@ -26,7 +26,6 @@ namespace ifb {
         arena*           prev;
         u32              id;
         u32              position;
-        u32              save;
     };
    
     //--------------------------------------------------------------------
@@ -72,7 +71,6 @@ namespace ifb {
             --alctr->arena_count_free;
         }
 
-        a->save     = 0;
         a->position = 0;
         
         hnd_arena hnd = {a->id};
@@ -116,7 +114,6 @@ namespace ifb {
         arena* a = arena_from_handle(hnd);
 
         a->position = 0;
-        a->save     = 0;
     }
 
     IFB_INTERNAL u32
@@ -127,9 +124,7 @@ namespace ifb {
 
         arena* a = arena_from_handle(hnd);
 
-        assert(a->save == 0);
-        a->save = a->position;
-        return(a->save);
+        return(a->position);
     }
 
     IFB_INTERNAL void*
@@ -161,27 +156,15 @@ namespace ifb {
     IFB_INTERNAL void
     arena_revert(
         const hnd_arena hnd,
-        const u32              save) {
+        const u32       save) {
 
         arena_allocator_validate();
 
         arena* a = arena_from_handle(hnd);
-        assert(a->save == save);
 
-        a->position = a->save;
-        a->save     = 0;
-    }
+        assert(save <= a->position);  
 
-    IFB_INTERNAL void
-    arena_commit(
-        const hnd_arena hnd,
-        const u32              save) {
-
-        arena_allocator_validate();
-        arena* a = arena_from_handle(hnd);
-
-        assert(save == a->save);
-        a->save = 0;
+        a->position = save;
     }
 
     template<typename t>
@@ -261,7 +244,6 @@ namespace ifb {
         assert(
             a           == (arena*)arena_vptr             &&
             a->id       <  arena_alctr->arena_count_total &&
-            a->save     <= a->position                    &&
             a->position <  arena_alctr->arena_size
         );
     }
