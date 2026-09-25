@@ -123,15 +123,13 @@ namespace ifb {
     map_mngr_calc_world_positions(
         const hnd_arena h_arena) {
 
-        //TODO(SLD): this isn't going to work
-        // with how the arenas save positions
+        const auto& cfg = config_instance();
 
         // validate
         assert(_map_mngr);
         assert(h_arena != INVALID_HANDLE);
 
         // loop through each map
-        const auto& cfg = config_instance();
         map_table* map_tbl = _map_mngr->tbl_map;
         assert(map_tbl);
         for (
@@ -145,49 +143,57 @@ namespace ifb {
             // check if this is a valid map
             const hnd_map h_map = map_tbl->hnd[map_index]; 
             if  (h_map == INVALID_HANDLE) {
-                arena_revert()
+                arena_revert(h_arena, save);
                 continue;
             }
 
             // get the entities that belong to this map
             const entity_list* entt_list = map_get_entities(h_map, h_arena);
-            
-
-            if (entt_list) {
-
-                // get the map dimensions
-                const auto& map_dims = map_tbl->dims[map_index];
-
-                // loop through all the entities
+            if (!entt_list) {
+                arena_revert(h_arena, save);
+                continue;
             }
+            // get the map dimensions
+            const auto& map_dims = map_tbl->dims[map_index];
 
+            // loop through all the entities
+            const u32        entity_count = entity_list_count(entt_list);
+            entity           e;
+            cmpnt_position   position;
+            cmpnt_map_coords map_coords;
+            for (
+                u32 entity_index = 0;
+                    entity_index < entity_count;
+                  ++entity_index) {
+
+                // get the entity info 
+                entity_list_lookup(entt_list, entity_index, e);
+          
+                // sanity check
+                const bool is_valid_atype = e.archetype.has_all(
+                        cmpnt_type_e_position | 
+                        cmpnt_type_e_map_coords
+                );
+                assert(is_valid_atype);
+
+                // get the components
+                cmpnt_lookup_position   (e.index_sparse, position); 
+                cmpnt_lookup_map_coords (e.index_sparse, map_coords); 
+           
+                // calculate the position
+                map_calculate_position(
+                    cfg.map_tile_unit_size,
+                    map_dims,
+                    map_coords,
+                    position
+                );
+
+                // update the position
+                cmpnt_update_position(e.index_sparse, position);
+            }
+        
+            // revert the arena
             arena_revert(h_arena, save);
-        }
-
-        // TODO(SLD): we need to go map by map
-
-        const u32 entity_count = entity_list_count(el);
-        entity           e;
-        cmpnt_position   position;
-        cmpnt_map_coords map_coords;
-        for (
-            u32 entity_index = 0;
-                entity_index < entity_count;
-              ++entity_index) {
-
-            // get the entity info 
-            entity_list_lookup(el, entity_index, e);
-      
-            // sanity check
-            const bool is_valid_atype = e.archetype.has_all(
-                    cmpnt_type_e_position | 
-                    cmpnt_type_e_map_coords
-            );
-            assert(is_valid_atype);
-
-            // get the components
-            cmpnt_lookup_position   (e.index_sparse, position); 
-            cmpnt_lookup_map_coords (e.index_sparse, map_coords); 
         }
     }
 };

@@ -130,6 +130,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_add_components        (const entity_id id, const component_type    type);
     IFB_ENGINE_API bool         eng_entity_remove_components     (const entity_id id, const component_type    type);
     IFB_ENGINE_API bool         eng_entity_lookup_by_dense_index (const u32 dense_index, entity& e);
+    IFB_ENGINE_API bool         eng_entity_lookup_by_id          (const entity_id, entity& e);
     IFB_ENGINE_API bool         eng_entity_query                 (entity_list* list, const entity_query query);
     IFB_ENGINE_API bool         eng_entity_quad_lookup           (quad_entity& q, const entity_id id);
     IFB_ENGINE_API bool         eng_entity_render                (const entity_id id);

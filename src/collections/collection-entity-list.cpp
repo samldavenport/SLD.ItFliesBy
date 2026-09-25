@@ -1,14 +1,13 @@
 #pragma once
 
-#include "entity.cpp"
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
 #include "ifb-collections.hpp"
 #include "ifb-types.hpp"
 #include "ifb-config.hpp"
 
-
 namespace ifb {
+    
 
     //--------------------------------------------------------------------
     // DEFINITION
@@ -217,6 +216,6 @@ namespace ifb {
 
         const entity_id id = el->ids[index];
 
-        assert(entity_lookup_by_id(e, id));
+        assert(eng_entity_lookup_by_id(id, e));
     }
 };
