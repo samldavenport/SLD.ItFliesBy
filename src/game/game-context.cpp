@@ -59,15 +59,8 @@ namespace ifb {
         game_player_rig_update_and_render (ctx->player_rig);
         game_map_update_and_render        (ctx->map);
 
-
         cmpnt_position pos;
         (void)eng_cmpnt_lookup_position(player_rig->connor_id, pos);
-
-
-        cmpnt_map_coords map_coords;
-        (void)eng_map_get_coords_from_pos(map->eng_hnd, pos, map_coords);
-
-
     }
     
     IFB_INTERNAL game_context*

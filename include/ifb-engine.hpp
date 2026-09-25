@@ -180,31 +180,13 @@ namespace ifb {
     // TILE MAPS 
     //--------------------------------------------------------------------
    
-    IFB_ENGINE_API hnd_map
-    eng_map_create(
-        const cchar* name,
-        const u32    count_rows,
-        const u32    count_cols
-    ); 
-    IFB_ENGINE_API u32 
-    eng_map_chunk_create(
-        const hnd_map       map_hnd,
-        const u32           count_rows,
-        const u32           count_cols,
-        const u32           origin_row,
-        const u32           origin_col,
-        const map_color_u32 base_color
-    );
-    IFB_ENGINE_API bool
-    eng_map_get_entity_coords(
-        const hnd_map  map,
-        const entity_id   eid,
-        cmpnt_map_coords& coords
-    );
-    IFB_ENGINE_API void eng_map_destroy             (const hnd_map map_hnd);
-    IFB_ENGINE_API bool eng_map_render              (const hnd_map map_hnd);
-    IFB_ENGINE_API bool eng_map_get_pos_from_coords (const hnd_map map_hnd, const cmpnt_map_coords& coords, cmpnt_position&   pos);
-    IFB_ENGINE_API bool eng_map_get_coords_from_pos (const hnd_map map_hnd, const cmpnt_position&   pos,    cmpnt_map_coords& coords);
+    IFB_ENGINE_API hnd_map eng_map_create              (const cchar*  name,  const u32 count_rows, const u32 count_cols); 
+    IFB_ENGINE_API u32     eng_map_chunk_create        (const hnd_map h_map, const u32 count_rows, const u32 count_cols, const u32 origin_row, const u32 origin_col, const map_color_u32 base_color);
+    IFB_ENGINE_API bool    eng_map_get_entity_coords   (const hnd_map h_map, const entity_id id, cmpnt_map_coords& coords);
+    IFB_ENGINE_API void    eng_map_destroy             (const hnd_map h_map);
+    IFB_ENGINE_API bool    eng_map_render              (const hnd_map h_map);
+    IFB_ENGINE_API bool    eng_map_get_pos_from_coords (const cmpnt_map_coords& coords, cmpnt_position& pos);
+    IFB_ENGINE_API bool    eng_map_get_coords_from_pos (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
 
     //--------------------------------------------------------------------
     // ARENAS

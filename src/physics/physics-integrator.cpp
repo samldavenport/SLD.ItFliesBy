@@ -6,6 +6,7 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "entity.hpp"
+#include "map.cpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
 
@@ -62,12 +63,18 @@ namespace ifb {
         phys_frc_intgrtr_exec              (integrator, dt);             
         phys_frc_intgrtr_update_components (integrator);            
   
+        // reset
+        integrator->count = 0;
+        
         /////////////////////
         // MAP FORCES
         ////////////////////
 
-        // reset
-        integrator->count = 0;
+        // load all physics components on the map
+        phys_frc_intgrtr_lookup_map_components(integrator, accum);
+
+        // do the integration and update components
+        phys_frc_intgrtr_exec(integrator, dt);
     }
 
     IFB_INTERNAL phys_frc_intgrtr* 
@@ -238,20 +245,17 @@ namespace ifb {
 
             // make sure it matches the archetype for integration
             // for now, we are excluding map entities
-            const bool should_integrate = 
-                e.archetype.has_all(physics_types) &&
-                e.archetype.has_none(cmpnt_type_e_map_coords);
+            const bool should_integrate = e.archetype.has_all(physics_types);
             if (!should_integrate) continue;
 
             // look up the components
-            cmpnt_position      pos;
+            cmpnt_position      pos = {0};
             cmpnt_velocity      vel;
             cmpnt_acceleration  acc;
             cmpnt_inv_mass      inv;
             cmpnt_drag          drg;
             cmpnt_term_velocity tv;
             cmpnt_map_coords    mc;
-            cmpnt_lookup_position      (e.index_sparse, pos);            
             cmpnt_lookup_velocity      (e.index_sparse, vel);            
             cmpnt_lookup_acceleration  (e.index_sparse, acc);            
             cmpnt_lookup_inv_mass      (e.index_sparse, inv);
@@ -259,6 +263,8 @@ namespace ifb {
             cmpnt_lookup_term_velocity (e.index_sparse, tv);
             cmpnt_lookup_map_coords    (e.index_sparse, mc);
 
+            // calculate the position from the map coordinates
+            map_get_pos_from_coords(mc, pos);
 
             // add the components to the intregrator 
             const u32 integrator_index = i->count;
@@ -283,6 +289,9 @@ namespace ifb {
             i->tv_x         [integrator_index] = tv.x;
             i->tv_y         [integrator_index] = tv.y;
             i->tv_z         [integrator_index] = tv.z;
+            i->mc_x         [integrator_index] = mc.row_x;
+            i->mc_y         [integrator_index] = mc.lvl_y;
+            i->mc_z         [integrator_index] = mc.col_z;
             ++i->count;
         }
 
