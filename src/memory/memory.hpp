@@ -40,13 +40,12 @@ namespace ifb {
     IFB_INTERNAL u32          reservation_get_capacity        (const reservation* res);
     IFB_INTERNAL u32          reservation_get_page_capacity   (const reservation* res);
 
-    IFB_INTERNAL hnd_arena arena_alloc      (void);
+    IFB_INTERNAL hnd_arena    arena_alloc      (void);
     IFB_INTERNAL void         arena_free       (const hnd_arena arena);
     IFB_INTERNAL void         arena_reset      (const hnd_arena arena);
     IFB_INTERNAL u32          arena_save       (const hnd_arena arena);
     IFB_INTERNAL void*        arena_push       (const hnd_arena arena, const u32 size);
     IFB_INTERNAL void         arena_revert     (const hnd_arena arena, const u32 save);
-    IFB_INTERNAL void         arena_commit     (const hnd_arena arena, const u32 save);        
     IFB_INTERNAL u32          arena_size_free  (const hnd_arena arena);
     IFB_INTERNAL u32          arena_size_used  (const hnd_arena arena);
     template<typename t>

@@ -66,8 +66,6 @@ namespace ifb {
             eng_arena_revert(arena_hnd, save);
             return(NULL);
         }
-       
-        eng_arena_commit(arena_hnd, save);
 
         cache->index    = data;
         cache->capacity = capacity;

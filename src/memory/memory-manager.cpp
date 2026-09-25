@@ -92,7 +92,6 @@ namespace ifb {
         prev->prev     = NULL;
         prev->id       = 0;
         prev->position = 0;
-        prev->save     = 0;
 
         // remaining arenas
         for (
@@ -107,7 +106,6 @@ namespace ifb {
             curr->prev     = prev;
             curr->id       = index;
             curr->position = 0;
-            curr->save     = 0;
 
             // update previous arena
             prev->next = curr;

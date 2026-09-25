@@ -69,7 +69,6 @@ namespace ifb {
             eng_arena_revert(a, save);
             return(NULL);
         }
-        eng_arena_commit(a, save);
 
         list->ids      = ids;
         list->capacity = cfg.entity_capacity;
