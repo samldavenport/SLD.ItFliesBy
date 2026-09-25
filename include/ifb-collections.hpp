@@ -51,18 +51,20 @@ namespace ifb {
 
     struct entity_list;
 
-    u32          entity_list_mem_req       (void);
-    entity_list* entity_list_memory_create (const memory& mem);
-    entity_list* entity_list_arena_create  (const hnd_arena arena_hnd);
-    bool         entity_list_add           (entity_list* el, const entity_id id);
-    bool         entity_list_remove        (entity_list* el, const entity_id id);
-    void         entity_list_reset         (entity_list* el);
-    void         entity_list_validate      (const entity_list* el);
-    u32          entity_list_capacity      (const entity_list* el);
-    u32          entity_list_count         (const entity_list* el);
-    bool         entity_list_contains      (const entity_list* el, const entity_id);
-    entity_id    entity_list_index         (entity_list* el, const u32 index);
-   
+    u32          entity_list_mem_req          (void);
+    entity_list* entity_list_memory_create    (const memory& mem);
+    entity_list* entity_list_arena_create     (const hnd_arena arena_hnd);
+    bool         entity_list_add              (entity_list* el, const entity_id id);
+    bool         entity_list_remove           (entity_list* el, const entity_id id);
+    void         entity_list_reset            (entity_list* el);
+    void         entity_list_validate         (const entity_list* el);
+    bool         entity_list_is_null_or_empty (const entity_list* el);
+    u32          entity_list_capacity         (const entity_list* el);
+    u32          entity_list_count            (const entity_list* el);
+    bool         entity_list_contains         (const entity_list* el, const entity_id);
+    entity_id    entity_list_index            (const entity_list* el, const u32 index);
+    void         entity_list_lookup           (const entity_list* el, const u32 index, entity& e);
+
 };
 
 #endif //IFB_COLLECTIONS_HPP

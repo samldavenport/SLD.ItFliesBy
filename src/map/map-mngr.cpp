@@ -1,9 +1,14 @@
+#include "component-tables.cpp"
 #include "eng-internal.hpp"
+#include "entity-lookup.cpp"
+#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
+#include "ifb-entity.hpp"
 #include "ifb-types.hpp"
 #include "map-internal.hpp"
 #include "eng-stack.cpp"
 #include "map.hpp"
+#include "memory-arena.cpp"
 #include "memory-reservation.cpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"
@@ -113,4 +118,82 @@ namespace ifb {
         assert(buffer.data.bytes != NULL);
         return(buffer); 
     } 
+    
+    IFB_INTERNAL void
+    map_mngr_calc_world_positions(
+        const hnd_arena h_arena) {
+
+        const auto& cfg = config_instance();
+
+        // validate
+        assert(_map_mngr);
+        assert(h_arena != INVALID_HANDLE);
+
+        // loop through each map
+        map_table* map_tbl = _map_mngr->tbl_map;
+        assert(map_tbl);
+        for (
+            u32 map_index = 0;
+                map_index < cfg.map_capacity;
+              ++map_index) {
+
+            // save arena position 
+            const u32 save = arena_save(h_arena);
+
+            // check if this is a valid map
+            const hnd_map h_map = map_tbl->hnd[map_index]; 
+            if  (h_map == INVALID_HANDLE) {
+                arena_revert(h_arena, save);
+                continue;
+            }
+
+            // get the entities that belong to this map
+            const entity_list* entt_list = map_get_entities(h_map, h_arena);
+            if (!entt_list) {
+                arena_revert(h_arena, save);
+                continue;
+            }
+            // get the map dimensions
+            const auto& map_dims = map_tbl->dims[map_index];
+
+            // loop through all the entities
+            const u32        entity_count = entity_list_count(entt_list);
+            entity           e;
+            cmpnt_position   position;
+            cmpnt_map_coords map_coords;
+            for (
+                u32 entity_index = 0;
+                    entity_index < entity_count;
+                  ++entity_index) {
+
+                // get the entity info 
+                entity_list_lookup(entt_list, entity_index, e);
+          
+                // sanity check
+                const bool is_valid_atype = e.archetype.has_all(
+                        cmpnt_type_e_position | 
+                        cmpnt_type_e_map_coords
+                );
+                assert(is_valid_atype);
+
+                // get the components
+                cmpnt_lookup_position   (e.index_sparse, position); 
+                cmpnt_lookup_map_coords (e.index_sparse, map_coords); 
+           
+                // calculate the position
+                map_calculate_position(
+                    cfg.map_tile_unit_size,
+                    map_dims,
+                    map_coords,
+                    position
+                );
+
+                // update the position
+                cmpnt_update_position(e.index_sparse, position);
+            }
+        
+            // revert the arena
+            arena_revert(h_arena, save);
+        }
+    }
 };

@@ -37,10 +37,9 @@ namespace ifb {
     IFB_INTERNAL map_dimensions& map_get_dimensions (const u32 map_index);
     IFB_INTERNAL map_chunk&      map_get_chunk      (const u32 map_index, const u32 chunk_index);
 
-
     struct map {
         cstr_c16*      name;
-        hnd_map     hnd;
+        hnd_map        hnd;
         map_dimensions dims;
     };
 
@@ -57,11 +56,48 @@ namespace ifb {
     };
 
     struct map_table {
-        hnd_map*      hnd;
+        hnd_map*         hnd;
         map_dimensions*  dims;
         cstr_c16*        name;
         map_chunk_array* chunk_array;
     };
+
+    inline void
+    map_calculate_position(
+        const f32               tile_size, 
+        const map_dimensions&   dims,
+        const cmpnt_map_coords& coords,
+        cmpnt_position&         pos) {
+        
+        const bool is_x_valid = (coords.row_x >= 0 && coords.row_x <= dims.count_rows); 
+        const bool is_z_valid = (coords.col_z >= 0 && coords.col_z <= dims.count_cols); 
+
+        // calculate width and height
+        const f32 map_width  = dims.count_cols * tile_size;
+        const f32 map_height = dims.count_rows * tile_size;
+
+        pos.x = is_x_valid ? (coords.row_x * tile_size) : POS_INVALID;
+        pos.z = is_z_valid ? (coords.col_z * tile_size) : POS_INVALID;
+    }
+
+    inline void
+    map_calculate_coordinates(
+        const hnd_map         h_map,
+        const f32             tile_size, 
+        const map_dimensions& dims,
+        const cmpnt_position& pos,
+        cmpnt_map_coords&     coords) {
+        
+        // calculate width and height
+        const f32 map_width  = dims.count_cols * tile_size;
+        const f32 map_height = dims.count_rows * tile_size;
+
+        // calculate the map coordinates
+        assert(tile_size != 0);
+        coords.h_map = h_map;
+        coords.row_x = pos.x <= map_width  ? pos.x / tile_size : MAP_COORD_INVALID; 
+        coords.col_z = pos.z <= map_height ? pos.z / tile_size : MAP_COORD_INVALID; 
+    }    
 };
 
 #endif //MAP_INTERNAL_HPP

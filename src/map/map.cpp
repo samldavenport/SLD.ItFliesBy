@@ -1,11 +1,14 @@
 #pragma once
 
+#include "component-tables.cpp"
+#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "map-internal.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "map.hpp"
+#include "entity.hpp"
 #include <cassert>
 #include <sld-strings.hpp>
 
@@ -172,6 +175,95 @@ namespace ifb {
         return(true);
     } 
 
+    IFB_INTERNAL bool
+    map_get_pos_from_coords(
+        const hnd_map           map_hnd,
+        const cmpnt_map_coords& coords,
+              cmpnt_position&   pos) {
+
+        const auto& cfg = config_instance();
+        
+        // get the map dimensions;
+        map_dimensions dims;
+        if(!map_get_dimensions(map_hnd, dims)) {
+            return(false);
+        }
+
+        map_calculate_position(
+            cfg.map_tile_unit_size,
+            dims,
+            coords,
+            pos
+        );
+    
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    map_get_coords_from_pos(
+        const hnd_map           map_hnd, 
+        const cmpnt_position&   pos,
+              cmpnt_map_coords& coords) {
+
+        const auto& cfg = config_instance();
+
+        // get the map dimensions;
+        map_dimensions dims;
+        if (!map_get_dimensions(map_hnd, dims)) {
+            return(false);
+        }
+
+        map_calculate_coordinates(
+            map_hnd,
+            cfg.map_tile_unit_size,
+            dims,
+            pos,
+            coords
+        );
+
+        return(true);
+    }
+    
+    IFB_INTERNAL entity_list*
+    map_get_entities(
+        const hnd_map   h_map,
+        const hnd_arena h_arena) {
+   
+        assert(h_map   != INVALID_HANDLE);
+        assert(h_arena != INVALID_HANDLE);
+
+        // create the entity list
+        entity_list* e_list = entity_list_arena_create(h_arena);
+        if (e_list == NULL) {
+            return(NULL);
+        }
+
+        const u32 entity_count = entity_mngr_get_count();     
+        entity           e;
+        cmpnt_map_coords mc;
+        for (
+            u32 entity_index = 0;
+                entity_index < entity_count;
+              ++entity_index) {
+    
+            const bool did_find = entity_lookup_by_index_dense(e, entity_index); 
+            assert(did_find);
+
+            if (!e.archetype.has_any(cmpnt_type_e_map_coords)) {
+                continue;
+            } 
+
+            cmpnt_lookup_map_coords(e.index_sparse, mc);
+            if (mc.h_map != h_map) {
+                continue;
+            }    
+        
+            (void)entity_list_add(e_list, e.id);     
+        }
+
+        return(e_list);
+    }
+    
     //--------------------------------------------------------------------
     // INTERNAL METHODS 
     //--------------------------------------------------------------------

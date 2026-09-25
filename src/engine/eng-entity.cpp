@@ -98,6 +98,15 @@ namespace ifb {
     }
     
     IFB_ENGINE_API bool
+    eng_entity_lookup_by_id(
+        const entity_id id,
+        entity&         e) {
+
+        const bool did_find = entity_lookup_by_id(e, id); 
+        return(did_find);
+    }
+    
+    IFB_ENGINE_API bool
     eng_entity_query(
         entity_list*       list,
         const entity_query query) {

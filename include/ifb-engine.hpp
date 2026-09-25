@@ -130,6 +130,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_add_components        (const entity_id id, const component_type    type);
     IFB_ENGINE_API bool         eng_entity_remove_components     (const entity_id id, const component_type    type);
     IFB_ENGINE_API bool         eng_entity_lookup_by_dense_index (const u32 dense_index, entity& e);
+    IFB_ENGINE_API bool         eng_entity_lookup_by_id          (const entity_id, entity& e);
     IFB_ENGINE_API bool         eng_entity_query                 (entity_list* list, const entity_query query);
     IFB_ENGINE_API bool         eng_entity_quad_lookup           (quad_entity& q, const entity_id id);
     IFB_ENGINE_API bool         eng_entity_render                (const entity_id id);
@@ -200,8 +201,10 @@ namespace ifb {
         const entity_id   eid,
         cmpnt_map_coords& coords
     );
-    IFB_ENGINE_API void eng_map_destroy (const hnd_map map_hnd);
-    IFB_ENGINE_API bool eng_map_render  (const hnd_map map_hnd);
+    IFB_ENGINE_API void eng_map_destroy             (const hnd_map map_hnd);
+    IFB_ENGINE_API bool eng_map_render              (const hnd_map map_hnd);
+    IFB_ENGINE_API bool eng_map_get_pos_from_coords (const hnd_map map_hnd, const cmpnt_map_coords& coords, cmpnt_position&   pos);
+    IFB_ENGINE_API bool eng_map_get_coords_from_pos (const hnd_map map_hnd, const cmpnt_position&   pos,    cmpnt_map_coords& coords);
 
     //--------------------------------------------------------------------
     // ARENAS

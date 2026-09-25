@@ -67,21 +67,21 @@ namespace ifb {
         const f32 inv_mass = 0.50f;
         const f32 drag     = 0.01f;
         
-        eng_entity_add_components       (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
         eng_cmpnt_update_quad          (player_rig->connor_id, quad_connor);
         eng_cmpnt_update_inv_mass      (player_rig->connor_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->connor_id, drag); 
         eng_cmpnt_update_term_velocity (player_rig->connor_id, tv);
 
-        eng_entity_add_components       (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
-        eng_entity_add_components       (player_rig->jig_id, cmpnt_type_e_spring);
+        eng_entity_add_components      (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_spring);
         eng_cmpnt_update_quad          (player_rig->jig_id, quad_jig);
         eng_cmpnt_update_inv_mass      (player_rig->jig_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->jig_id, drag); 
         eng_cmpnt_update_term_velocity (player_rig->jig_id, tv);
         eng_cmpnt_update_spring        (player_rig->jig_id, jig_spring);
 
-        eng_entity_add_components       (player_rig->jig_anchor_id, cmpnt_type_e_position);
+        eng_entity_add_components      (player_rig->jig_anchor_id, cmpnt_type_e_position);
         eng_cmpnt_update_position      (player_rig->jig_anchor_id, anchor_pos);
     }
     

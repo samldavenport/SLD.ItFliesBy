@@ -6,8 +6,8 @@
 #include "ifb-types.hpp"
 #include "ifb-config.hpp"
 
-
 namespace ifb {
+    
 
     //--------------------------------------------------------------------
     // DEFINITION
@@ -147,6 +147,13 @@ namespace ifb {
         assert(el->count    <= el->capacity);
     }
 
+    IFB_INTERNAL bool 
+    entity_list_is_null_or_empty(
+        const entity_list* el) {
+    
+        return(el == NULL || el->count == 0);
+    }
+
     IFB_INTERNAL u32
     entity_list_capacity (
         const entity_list* el) {
@@ -188,12 +195,27 @@ namespace ifb {
     
     IFB_INTERNAL entity_id
     entity_list_index(
-        entity_list* el,
+        const entity_list* el,
         const u32    index) {
 
         entity_list_validate(el);
 
         assert(index < el->count);
         return(el->ids[index]);
+    }
+    
+    IFB_INTERNAL void
+    entity_list_lookup(
+        const entity_list* el, 
+        const u32          index,
+        entity&            e) {
+
+        entity_list_validate(el);
+    
+        assert(index < el->count);
+
+        const entity_id id = el->ids[index];
+
+        assert(eng_entity_lookup_by_id(id, e));
     }
 };
