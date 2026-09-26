@@ -14,7 +14,7 @@ namespace ifb {
 
     struct phys_frc_intgrtr {
         u32        count;
-        entity_id* id;
+        hnd_map*   h_map;
         u32*       sparse_index;
         f32*       pos_x;
         f32*       pos_y;
@@ -41,7 +41,8 @@ namespace ifb {
     inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
     inline bool phys_frc_intgrtr_lookup_map_components    (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
     inline void phys_frc_intgrtr_exec                     (phys_frc_intgrtr* i, const f32 dt);
-    inline void phys_frc_intgrtr_update_components        (phys_frc_intgrtr* i);
+    inline void phys_frc_intgrtr_update_global_components (phys_frc_intgrtr* i);
+    inline void phys_frc_intgrtr_update_map_components    (phys_frc_intgrtr* i);
 
     IFB_INTERNAL void 
     phys_frc_intgrtr_run(
@@ -60,8 +61,8 @@ namespace ifb {
         }
 
         // do the integration and update components
-        phys_frc_intgrtr_exec              (integrator, dt);             
-        phys_frc_intgrtr_update_components (integrator);            
+        phys_frc_intgrtr_exec                     (integrator, dt);             
+        phys_frc_intgrtr_update_global_components (integrator);            
   
         // reset
         integrator->count = 0;
@@ -85,9 +86,9 @@ namespace ifb {
 
         // calculate size
         const u32 size_struct      = sizeof(phys_frc_intgrtr);
-        const u32 size_array_ids   = cfg.entity_capacity * sizeof(entity_id);
+        const u32 size_array_maps  = cfg.entity_capacity * sizeof(hnd_map);
         const u32 size_array_props = cfg.entity_capacity * sizeof(u32);  
-        const u32 size_total       = size_struct + size_array_ids + (size_array_props * 18); 
+        const u32 size_total       = size_struct + size_array_maps + (size_array_props * 18); 
        
         // allocate memory
         addr mem_addr = (addr)phys_mngr_res_alloc(size_total);
@@ -97,7 +98,7 @@ namespace ifb {
         auto integrator = (phys_frc_intgrtr*)mem_addr;
 
         integrator->count        = 0;
-        integrator->id           = (entity_id*)phys_mngr_res_alloc(size_array_props);
+        integrator->h_map        =   (hnd_map*)phys_mngr_res_alloc(size_array_maps);
         integrator->sparse_index =       (u32*)phys_mngr_res_alloc(size_array_props);
         integrator->pos_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
         integrator->pos_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
@@ -120,7 +121,7 @@ namespace ifb {
         integrator->mc_y         =       (f32*)phys_mngr_res_alloc(size_array_props);
         integrator->mc_z         =       (f32*)phys_mngr_res_alloc(size_array_props);
     
-        assert(integrator->id           != NULL);
+        assert(integrator->h_map        != NULL);
         assert(integrator->sparse_index != NULL);
         assert(integrator->pos_x        != NULL);
         assert(integrator->pos_y        != NULL);
@@ -191,6 +192,7 @@ namespace ifb {
 
             // add the components to the intregrator 
             const u32 integrator_index = i->count;
+            i->h_map        [integrator_index] = INVALID_HANDLE;
             i->sparse_index [integrator_index] = e.index_sparse;
             i->pos_x        [integrator_index] = pos.x; 
             i->pos_y        [integrator_index] = pos.y; 
@@ -268,6 +270,7 @@ namespace ifb {
 
             // add the components to the intregrator 
             const u32 integrator_index = i->count;
+            i->h_map        [integrator_index] = mc.h_map;
             i->sparse_index [integrator_index] = e.index_sparse;
             i->pos_x        [integrator_index] = pos.x; 
             i->pos_y        [integrator_index] = pos.y; 
@@ -348,14 +351,12 @@ namespace ifb {
     }
 
     inline void
-    phys_frc_intgrtr_update_components(
+    phys_frc_intgrtr_update_global_components(
         phys_frc_intgrtr* i) {
         
         cmpnt_position     pos;
         cmpnt_velocity     vel;
         cmpnt_acceleration acc;
-        cmpnt_inv_mass     inv;
-        cmpnt_drag         drg;
 
         for (
             u32 index = 0;
@@ -376,6 +377,44 @@ namespace ifb {
             cmpnt_update_position      (i->sparse_index[index], pos);
             cmpnt_update_velocity      (i->sparse_index[index], vel);     
             cmpnt_update_acceleration  (i->sparse_index[index], acc);   
+        } 
+    }
+    
+    inline void
+    phys_frc_intgrtr_update_map_components(
+        phys_frc_intgrtr* i) {
+        
+        cmpnt_position     pos;
+        cmpnt_velocity     vel;
+        cmpnt_acceleration acc;
+        cmpnt_map_coords   map;
+        
+        for (
+            u32 index = 0;
+            index < i->count;
+            ++index
+        ) {
+
+            pos.x          = i->pos_x [index];
+            pos.y          = i->pos_y [index];
+            pos.z          = i->pos_z [index];
+            vel.x          = i->vel_x [index];
+            vel.y          = i->vel_y [index];
+            vel.z          = i->vel_z [index];
+            acc.x          = i->acc_x [index];
+            acc.y          = i->acc_y [index];
+            acc.z          = i->acc_z [index];
+            map.h_map      = i->h_map [index]; 
+
+            const u32 sparse_index = i->sparse_index[index];
+
+            //TODO(SLD): we need to detect for map boundaries
+
+            map_get_coords_from_pos    (pos, map);
+            cmpnt_update_position      (sparse_index, pos);
+            cmpnt_update_velocity      (sparse_index, vel);     
+            cmpnt_update_acceleration  (sparse_index, acc);   
+            cmpnt_update_map_coords    (sparse_index, map);
         } 
     }
 }; 
