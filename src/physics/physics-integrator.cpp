@@ -6,6 +6,7 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "entity.hpp"
+#include "map.cpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
 
@@ -13,7 +14,7 @@ namespace ifb {
 
     struct phys_frc_intgrtr {
         u32        count;
-        entity_id* id;
+        hnd_map*   h_map;
         u32*       sparse_index;
         f32*       pos_x;
         f32*       pos_y;
@@ -32,11 +33,16 @@ namespace ifb {
         f32*       tv_z;
         f32*       inv_mass;
         f32*       drag;
+        f32*       mc_x;
+        f32*       mc_y;
+        f32*       mc_z;
     };
 
-    inline bool phys_frc_intgrtr_lookup_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
-    inline void phys_frc_intgrtr_exec              (phys_frc_intgrtr* i, const f32 dt);
-    inline void phys_frc_intgrtr_update_components (phys_frc_intgrtr* i);
+    inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
+    inline bool phys_frc_intgrtr_lookup_map_components    (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
+    inline void phys_frc_intgrtr_exec                     (phys_frc_intgrtr* i, const f32 dt);
+    inline void phys_frc_intgrtr_update_global_components (phys_frc_intgrtr* i);
+    inline void phys_frc_intgrtr_update_map_components    (phys_frc_intgrtr* i);
 
     IFB_INTERNAL void 
     phys_frc_intgrtr_run(
@@ -44,18 +50,32 @@ namespace ifb {
         const phys_frc_accmltr* accum,
         const f32               dt) {
 
+        /////////////////////
+        // GLOBAL FORCES
+        ////////////////////
+
         // load all components into the integrator
         // with forces and matching archetype
-        if (!phys_frc_intgrtr_lookup_components(integrator, accum)) {
+        if (!phys_frc_intgrtr_lookup_global_components(integrator, accum)) {
             return;
         }
 
         // do the integration and update components
-        phys_frc_intgrtr_exec              (integrator, dt);             
-        phys_frc_intgrtr_update_components (integrator);            
-   
+        phys_frc_intgrtr_exec                     (integrator, dt);             
+        phys_frc_intgrtr_update_global_components (integrator);            
+  
         // reset
         integrator->count = 0;
+        
+        /////////////////////
+        // MAP FORCES
+        ////////////////////
+
+        // load all physics components on the map
+        phys_frc_intgrtr_lookup_map_components(integrator, accum);
+
+        // do the integration and update components
+        phys_frc_intgrtr_exec(integrator, dt);
     }
 
     IFB_INTERNAL phys_frc_intgrtr* 
@@ -66,9 +86,9 @@ namespace ifb {
 
         // calculate size
         const u32 size_struct      = sizeof(phys_frc_intgrtr);
-        const u32 size_array_ids   = cfg.entity_capacity * sizeof(entity_id);
+        const u32 size_array_maps  = cfg.entity_capacity * sizeof(hnd_map);
         const u32 size_array_props = cfg.entity_capacity * sizeof(u32);  
-        const u32 size_total       = size_struct + size_array_ids + (size_array_props * 18); 
+        const u32 size_total       = size_struct + size_array_maps + (size_array_props * 18); 
        
         // allocate memory
         addr mem_addr = (addr)phys_mngr_res_alloc(size_total);
@@ -78,7 +98,7 @@ namespace ifb {
         auto integrator = (phys_frc_intgrtr*)mem_addr;
 
         integrator->count        = 0;
-        integrator->id           = (entity_id*)phys_mngr_res_alloc(size_array_props);
+        integrator->h_map        =   (hnd_map*)phys_mngr_res_alloc(size_array_maps);
         integrator->sparse_index =       (u32*)phys_mngr_res_alloc(size_array_props);
         integrator->pos_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
         integrator->pos_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
@@ -97,8 +117,11 @@ namespace ifb {
         integrator->tv_z         =       (f32*)phys_mngr_res_alloc(size_array_props);
         integrator->inv_mass     =       (f32*)phys_mngr_res_alloc(size_array_props);
         integrator->drag         =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->mc_x         =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->mc_y         =       (f32*)phys_mngr_res_alloc(size_array_props);
+        integrator->mc_z         =       (f32*)phys_mngr_res_alloc(size_array_props);
     
-        assert(integrator->id           != NULL);
+        assert(integrator->h_map        != NULL);
         assert(integrator->sparse_index != NULL);
         assert(integrator->pos_x        != NULL);
         assert(integrator->pos_y        != NULL);
@@ -114,12 +137,15 @@ namespace ifb {
         assert(integrator->frc_z        != NULL);
         assert(integrator->inv_mass     != NULL);
         assert(integrator->drag         != NULL);
+        assert(integrator->mc_x         != NULL);
+        assert(integrator->mc_y         != NULL);
+        assert(integrator->mc_z         != NULL);
 
         return(integrator);
     }
 
     inline bool 
-    phys_frc_intgrtr_lookup_components(
+    phys_frc_intgrtr_lookup_global_components(
         phys_frc_intgrtr*       i,
         const phys_frc_accmltr* a) {
         
@@ -144,7 +170,10 @@ namespace ifb {
             assert(did_lookup);
 
             // make sure it matches the archetype for integration
-            const bool should_integrate = e.archetype.has_all(physics_types);
+            // for now, we are excluding map entities
+            const bool should_integrate = 
+                e.archetype.has_all(physics_types) &&
+                e.archetype.has_none(cmpnt_type_e_map_coords);
             if (!should_integrate) continue;
 
             // look up the components
@@ -163,6 +192,7 @@ namespace ifb {
 
             // add the components to the intregrator 
             const u32 integrator_index = i->count;
+            i->h_map        [integrator_index] = INVALID_HANDLE;
             i->sparse_index [integrator_index] = e.index_sparse;
             i->pos_x        [integrator_index] = pos.x; 
             i->pos_y        [integrator_index] = pos.y; 
@@ -181,12 +211,96 @@ namespace ifb {
             i->tv_z         [integrator_index] = tv.z;
             i->inv_mass     [integrator_index] = inv.normal_val;
             i->drag         [integrator_index] = drg.normal_val;
+            i->mc_x         [integrator_index] = 0;
+            i->mc_y         [integrator_index] = 0;
+            i->mc_z         [integrator_index] = 0;
             ++i->count;
         }
 
         return(i->count > 0);
     }
 
+    inline bool 
+    phys_frc_intgrtr_lookup_map_components(
+        phys_frc_intgrtr*       i,
+        const phys_frc_accmltr* a) {
+
+        const component_type physics_types = (
+            cmpnt_type_e_position      |
+            cmpnt_type_e_velocity      |
+            cmpnt_type_e_acceleration  |
+            cmpnt_type_e_inv_mass      |
+            cmpnt_type_e_drag          |
+            cmpnt_type_e_term_velocity | 
+            cmpnt_type_e_map_coords 
+        );
+
+        for (
+            u32 force_index = 0;
+                force_index < a->count;
+              ++force_index) {
+        
+            // look up the entity
+            entity e;
+            const bool did_lookup = entity_lookup_by_id(e, a->data.ids[force_index]);
+            assert(did_lookup);
+
+            // make sure it matches the archetype for integration
+            // for now, we are excluding map entities
+            const bool should_integrate = e.archetype.has_all(physics_types);
+            if (!should_integrate) continue;
+
+            // look up the components
+            cmpnt_position      pos = {0};
+            cmpnt_velocity      vel;
+            cmpnt_acceleration  acc;
+            cmpnt_inv_mass      inv;
+            cmpnt_drag          drg;
+            cmpnt_term_velocity tv;
+            cmpnt_map_coords    mc;
+            cmpnt_lookup_velocity      (e.index_sparse, vel);            
+            cmpnt_lookup_acceleration  (e.index_sparse, acc);            
+            cmpnt_lookup_inv_mass      (e.index_sparse, inv);
+            cmpnt_lookup_drag          (e.index_sparse, drg);
+            cmpnt_lookup_term_velocity (e.index_sparse, tv);
+            cmpnt_lookup_map_coords    (e.index_sparse, mc);
+
+            // calculate the position from the map coordinates
+            map_get_pos_from_coords(mc, pos);
+
+            // add the components to the intregrator 
+            const u32 integrator_index = i->count;
+            i->h_map        [integrator_index] = mc.h_map;
+            i->sparse_index [integrator_index] = e.index_sparse;
+            i->pos_x        [integrator_index] = pos.x; 
+            i->pos_y        [integrator_index] = pos.y; 
+            i->pos_z        [integrator_index] = pos.z; 
+            i->vel_x        [integrator_index] = vel.x;
+            i->vel_y        [integrator_index] = vel.y;
+            i->vel_z        [integrator_index] = vel.z;
+            i->acc_x        [integrator_index] = acc.x;
+            i->acc_y        [integrator_index] = acc.y;
+            i->acc_z        [integrator_index] = acc.z;
+            i->frc_x        [integrator_index] = a->data.forces[force_index].x;
+            i->frc_y        [integrator_index] = a->data.forces[force_index].y;
+            i->frc_z        [integrator_index] = a->data.forces[force_index].z;
+            i->tv_x         [integrator_index] = tv.x;
+            i->tv_y         [integrator_index] = tv.y;
+            i->tv_z         [integrator_index] = tv.z;
+            i->inv_mass     [integrator_index] = inv.normal_val;
+            i->drag         [integrator_index] = drg.normal_val;
+            i->tv_x         [integrator_index] = tv.x;
+            i->tv_y         [integrator_index] = tv.y;
+            i->tv_z         [integrator_index] = tv.z;
+            i->mc_x         [integrator_index] = mc.row_x;
+            i->mc_y         [integrator_index] = mc.lvl_y;
+            i->mc_z         [integrator_index] = mc.col_z;
+            ++i->count;
+        }
+
+        return(i->count > 0);
+    }
+    
     inline void
     phys_frc_intgrtr_exec(
         phys_frc_intgrtr* i, const f32 dt) {
@@ -237,14 +351,12 @@ namespace ifb {
     }
 
     inline void
-    phys_frc_intgrtr_update_components(
+    phys_frc_intgrtr_update_global_components(
         phys_frc_intgrtr* i) {
         
         cmpnt_position     pos;
         cmpnt_velocity     vel;
         cmpnt_acceleration acc;
-        cmpnt_inv_mass     inv;
-        cmpnt_drag         drg;
 
         for (
             u32 index = 0;
@@ -265,6 +377,44 @@ namespace ifb {
             cmpnt_update_position      (i->sparse_index[index], pos);
             cmpnt_update_velocity      (i->sparse_index[index], vel);     
             cmpnt_update_acceleration  (i->sparse_index[index], acc);   
+        } 
+    }
+    
+    inline void
+    phys_frc_intgrtr_update_map_components(
+        phys_frc_intgrtr* i) {
+        
+        cmpnt_position     pos;
+        cmpnt_velocity     vel;
+        cmpnt_acceleration acc;
+        cmpnt_map_coords   map;
+        
+        for (
+            u32 index = 0;
+            index < i->count;
+            ++index
+        ) {
+
+            pos.x          = i->pos_x [index];
+            pos.y          = i->pos_y [index];
+            pos.z          = i->pos_z [index];
+            vel.x          = i->vel_x [index];
+            vel.y          = i->vel_y [index];
+            vel.z          = i->vel_z [index];
+            acc.x          = i->acc_x [index];
+            acc.y          = i->acc_y [index];
+            acc.z          = i->acc_z [index];
+            map.h_map      = i->h_map [index]; 
+
+            const u32 sparse_index = i->sparse_index[index];
+
+            //TODO(SLD): we need to detect for map boundaries
+
+            map_get_coords_from_pos    (pos, map);
+            cmpnt_update_position      (sparse_index, pos);
+            cmpnt_update_velocity      (sparse_index, vel);     
+            cmpnt_update_acceleration  (sparse_index, acc);   
+            cmpnt_update_map_coords    (sparse_index, map);
         } 
     }
 }; 

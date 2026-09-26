@@ -72,7 +72,7 @@ namespace ifb {
         const f32 dt) {
 
         phys_frc_sprcalc_run   (_phys_mngr->spring_calculator); 
-        phys_frc_intgrtr_run    (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
+        phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
         phys_frc_accmltr_reset (_phys_mngr->force_accumulator);
     }
 

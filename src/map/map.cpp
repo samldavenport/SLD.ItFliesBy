@@ -177,7 +177,6 @@ namespace ifb {
 
     IFB_INTERNAL bool
     map_get_pos_from_coords(
-        const hnd_map           map_hnd,
         const cmpnt_map_coords& coords,
               cmpnt_position&   pos) {
 
@@ -185,7 +184,7 @@ namespace ifb {
         
         // get the map dimensions;
         map_dimensions dims;
-        if(!map_get_dimensions(map_hnd, dims)) {
+        if(!map_get_dimensions(coords.h_map, dims)) {
             return(false);
         }
 
@@ -201,7 +200,6 @@ namespace ifb {
 
     IFB_INTERNAL bool
     map_get_coords_from_pos(
-        const hnd_map           map_hnd, 
         const cmpnt_position&   pos,
               cmpnt_map_coords& coords) {
 
@@ -209,12 +207,11 @@ namespace ifb {
 
         // get the map dimensions;
         map_dimensions dims;
-        if (!map_get_dimensions(map_hnd, dims)) {
+        if (!map_get_dimensions(coords.h_map, dims)) {
             return(false);
         }
 
         map_calculate_coordinates(
-            map_hnd,
             cfg.map_tile_unit_size,
             dims,
             pos,
@@ -250,15 +247,11 @@ namespace ifb {
             assert(did_find);
 
             if (!e.archetype.has_any(cmpnt_type_e_map_coords)) {
-                continue;
+                cmpnt_lookup_map_coords(e.index_sparse, mc);
+                if (mc.h_map == h_map) {
+                    (void)entity_list_add(e_list, e.id);     
+                }    
             } 
-
-            cmpnt_lookup_map_coords(e.index_sparse, mc);
-            if (mc.h_map != h_map) {
-                continue;
-            }    
-        
-            (void)entity_list_add(e_list, e.id);     
         }
 
         return(e_list);
@@ -320,8 +313,8 @@ namespace ifb {
     
     IFB_INTERNAL bool 
     map_get_dimensions(
-        const hnd_map map_hnd,
-        map_dimensions&  dims) {
+        const hnd_map   map_hnd,
+        map_dimensions& dims) {
       
         const u32 map_index = map_lookup_index(map_hnd);
         if (map_index == INVALID_INDEX) {

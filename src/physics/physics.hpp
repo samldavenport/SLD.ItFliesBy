@@ -21,7 +21,7 @@ namespace ifb {
     IFB_INTERNAL void       phys_mngr_validate           (void);
     IFB_INTERNAL void       phys_mngr_startup            (reservation* res);
     IFB_INTERNAL void       phys_mngr_shutdown           (void);
-    IFB_INTERNAL void       phys_mngr_simulate           (const f32 dt);
+    IFB_INTERNAL void       phys_mngr_simulate           (const hnd_map map, const f32 dt);
 
     IFB_INTERNAL void       phys_entity_add_force        (const entity_id id, const vec3& force);
     IFB_INTERNAL bool       phys_entity_remove_all_force (const entity_id id);

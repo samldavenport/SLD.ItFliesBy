@@ -92,25 +92,19 @@ namespace ifb {
     
     IFB_ENGINE_API bool 
     eng_map_get_pos_from_coords(
-        const hnd_map           map_hnd,
         const cmpnt_map_coords& coords,
               cmpnt_position&   pos) {
 
-        assert(map_hnd != INVALID_HANDLE);
-
-        const bool did_get = map_get_pos_from_coords(map_hnd, coords, pos);
+        const bool did_get = map_get_pos_from_coords(coords, pos);
         return(did_get); 
     }
 
     IFB_ENGINE_API bool 
     eng_map_get_coords_from_pos(
-        const hnd_map         map_hnd,
         const cmpnt_position& pos,
         cmpnt_map_coords&     coords) {
 
-        assert(map_hnd != INVALID_HANDLE);
-
-        const bool did_get = map_get_coords_from_pos(map_hnd, pos, coords);
+        const bool did_get = map_get_coords_from_pos(pos, coords);
         return(did_get);
     }
 };

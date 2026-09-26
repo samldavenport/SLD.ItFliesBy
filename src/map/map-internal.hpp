@@ -82,7 +82,6 @@ namespace ifb {
 
     inline void
     map_calculate_coordinates(
-        const hnd_map         h_map,
         const f32             tile_size, 
         const map_dimensions& dims,
         const cmpnt_position& pos,
@@ -94,7 +93,6 @@ namespace ifb {
 
         // calculate the map coordinates
         assert(tile_size != 0);
-        coords.h_map = h_map;
         coords.row_x = pos.x <= map_width  ? pos.x / tile_size : MAP_COORD_INVALID; 
         coords.col_z = pos.z <= map_height ? pos.z / tile_size : MAP_COORD_INVALID; 
     }    
