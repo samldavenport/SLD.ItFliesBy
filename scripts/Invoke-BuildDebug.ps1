@@ -108,6 +108,10 @@ $Win32Link = @(
 & .\SLD.OpenGL\scripts\Invoke-BuildDebug.ps1
 & .\SLD.Strings\scripts\Invoke-SLDStringsBuild.ps1
 
+$null = New-Item -Force -ItemType Directory -Path @(Join-Path $ProjectRoot "build\debug\bin")
+$null = New-Item -Force -ItemType Directory -Path @(Join-Path $ProjectRoot "build\debug\obj")
+$null = New-Item -Force -ItemType Directory -Path @(Join-Path $ProjectRoot "build\debug\lib")
+
 Invoke-Expression $EngCompile
 Invoke-Expression $EngLink
 Invoke-Expression $Win32Compile
