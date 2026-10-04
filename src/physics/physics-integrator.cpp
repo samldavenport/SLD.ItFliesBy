@@ -13,29 +13,16 @@
 namespace ifb {
 
     struct phys_frc_intgrtr {
-        u32        count;
-        hnd_map*   h_map;
-        u32*       sparse_index;
-        f32*       pos_x;
-        f32*       pos_y;
-        f32*       pos_z;
-        f32*       vel_x;
-        f32*       vel_y;
-        f32*       vel_z;
-        f32*       acc_x;
-        f32*       acc_y;
-        f32*       acc_z;
-        f32*       frc_x;
-        f32*       frc_y;
-        f32*       frc_z;
-        f32*       tv_x;
-        f32*       tv_y;
-        f32*       tv_z;
-        f32*       inv_mass;
-        f32*       drag;
-        f32*       mc_x;
-        f32*       mc_y;
-        f32*       mc_z;
+        u32                  count;
+        u32*                 sparse_index;
+        vec3*                force; 
+        cmpnt_position*      position;
+        cmpnt_velocity*      velocity;
+        cmpnt_acceleration*  acceleration;
+        cmpnt_term_velocity* term_velocity;
+        cmpnt_inv_mass*      inv_mass;
+        cmpnt_drag*          drag;
+        cmpnt_map_coords*    map_coords
     };
 
     inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
@@ -98,6 +85,23 @@ namespace ifb {
         auto integrator = (phys_frc_intgrtr*)mem_addr;
 
         integrator->count        = 0;
+        integrator->force         = 
+        integrator->position      = 
+        integrator->velocity      = 
+        integrator->acceleration  = 
+        integrator->term_velocity = 
+        integrator->inv_mass      = 
+        integrator->drag          = 
+        integrator->map_coords    = 
+
+
+
+
+
+
+
+        
+
         integrator->h_map        =   (hnd_map*)phys_mngr_res_alloc(size_array_maps);
         integrator->sparse_index =       (u32*)phys_mngr_res_alloc(size_array_props);
         integrator->pos_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
