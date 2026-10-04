@@ -12,16 +12,11 @@ endif()
 #--------------------------------------------------------------------
 
 # the sld libraries are submodules
-# SLD.Core goes first so SLD.Strings and SLD.OpenGL use it instead of their own copies
+# SLD.Core goes first so the others use it instead of their own copies
 add_subdirectory(SLD.Core)
 add_subdirectory(SLD.Strings)
 add_subdirectory(SLD.OpenGL)
-
-# SLD.Math is header only and has no cmake project of its own
-add_library(sld_math INTERFACE)
-add_library(SLD::Math ALIAS sld_math)
-target_include_directories(sld_math INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/SLD.Math/include)
-target_link_libraries(sld_math INTERFACE SLD::Core)
+add_subdirectory(SLD.Math)
 
 # everything else comes from vcpkg (see vcpkg.json)
 find_package(imgui     CONFIG REQUIRED)
