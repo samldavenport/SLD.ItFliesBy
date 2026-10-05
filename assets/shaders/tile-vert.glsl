@@ -18,8 +18,8 @@ layout(location = 0) in uint in_tile;
 
 // uniforms
 uniform mat4  u_view_proj;
-uniform uint  u_map_count_rows;
 uniform uint  u_map_count_cols;
+uniform vec3  u_map_origin;
 uniform int   u_map_offset_rows;
 uniform int   u_map_offset_cols;
 uniform float u_tile_unit_size;
@@ -31,7 +31,7 @@ flat out vec4 vert_color;
 void
 main() {
 
-    uint in_color = (in_tile >> 24u) & 0xFFu; 
+    uint in_color = (in_tile >> 16u) & 0xFFu;
     int  in_index = int(in_tile & 0xFFFFu);
 
     // calculate the normalized color
@@ -47,13 +47,13 @@ main() {
 
     // get the row and column
     int col = (in_index % int(u_map_count_cols)) + u_map_offset_cols; 
-    int row = (in_index / int(u_map_count_rows)) + u_map_offset_rows; 
+    int row = (in_index / int(u_map_count_cols)) + u_map_offset_rows;
 
     // calculate the tile position
     vec2 tile_position = vec2(col, row) * vec2(u_tile_unit_size, u_tile_unit_size); 
 
     // calculate the world position
-    vec3 world_position = vec3(
+    vec3 world_position = u_map_origin + vec3(
         tile_position.x + position.x * u_tile_unit_size,
         0.0,
         tile_position.y + position.y * u_tile_unit_size

@@ -2,6 +2,7 @@
 #define MAP_HPP
 
 #include "ifb-types.hpp"
+#include "ifb-entity.hpp"
 #include "memory.hpp"
 #include "sld.hpp"
 
@@ -34,16 +35,22 @@ namespace ifb {
     IFB_INTERNAL void                     map_mngr_shutdown             (void);
     IFB_INTERNAL const map_color_table&   map_mngr_get_color_table      (void);
     IFB_INTERNAL const map_render_buffer& map_mngr_get_render_buffer    (void);
-    IFB_INTERNAL void                     map_mngr_calc_world_positions (void);
 
     // map
     IFB_INTERNAL hnd_map                  map_create               (const cchar* map_name, const u32 count_rows, const u32 count_cols);
     IFB_INTERNAL bool                     map_destroy              (const hnd_map h_map);
     IFB_INTERNAL bool                     map_render               (const hnd_map h_map);
     IFB_INTERNAL bool                     map_get_dimensions       (const hnd_map h_map, map_dimensions& dims);
+    IFB_INTERNAL bool                     map_get_origin           (const hnd_map h_map, vec3& origin);
+    IFB_INTERNAL bool                     map_set_origin           (const hnd_map h_map, const vec3& origin);
     IFB_INTERNAL bool                     map_get_pos_from_coords  (const cmpnt_map_coords& coords, cmpnt_position& pos);
     IFB_INTERNAL bool                     map_get_coords_from_pos  (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
+    IFB_INTERNAL bool                     map_is_in_bounds         (const cmpnt_map_coords& coords);
     IFB_INTERNAL entity_list*             map_get_entities         (const hnd_map h_map, const hnd_arena h_arena);
+
+    // map entities
+    IFB_INTERNAL void                     map_entity_lookup_coords (const entity& e, cmpnt_map_coords& coords);
+    IFB_INTERNAL void                     map_entity_update_coords (const entity& e, const cmpnt_map_coords& coords);
 
     // map chunk
     IFB_INTERNAL u32

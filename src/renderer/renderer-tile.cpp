@@ -35,8 +35,8 @@ namespace ifb {
            gl_vertex  vertex;
            gl_buffer  instance_buffer;
            gl_uniform u_view_proj;
-           gl_uniform u_map_count_rows;
            gl_uniform u_map_count_cols;
+           gl_uniform u_map_origin;
            gl_uniform u_map_offset_rows;
            gl_uniform u_map_offset_cols;
            gl_uniform u_tile_unit_size;
@@ -110,15 +110,15 @@ namespace ifb {
 
         // get uniform locations
         shdr->gl.u_view_proj       = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_view_proj"); 
-        shdr->gl.u_map_count_rows  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_rows"); 
-        shdr->gl.u_map_count_cols  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_cols"); 
+        shdr->gl.u_map_count_cols  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_count_cols");
+        shdr->gl.u_map_origin      = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_origin");
         shdr->gl.u_map_offset_rows = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_offset_rows"); 
         shdr->gl.u_map_offset_cols = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_map_offset_cols"); 
         shdr->gl.u_tile_unit_size  = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_tile_unit_size"); 
         shdr->gl.u_color_table     = gl_uniform_get_location(gl_ctx, shdr->gl.program, "u_color_table"); 
         assert(shdr->gl.u_view_proj       != GL_UNIFORM_INVALID);
-        assert(shdr->gl.u_map_count_rows  != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_map_count_cols  != GL_UNIFORM_INVALID);
+        assert(shdr->gl.u_map_origin      != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_map_offset_rows != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_map_offset_cols != GL_UNIFORM_INVALID);
         assert(shdr->gl.u_tile_unit_size  != GL_UNIFORM_INVALID);
@@ -186,6 +186,10 @@ namespace ifb {
         map_dimensions map_dims;
         map_get_dimensions(shdr->map_hnd, map_dims);
 
+        // get the map origin
+        vec3 map_origin;
+        map_get_origin(shdr->map_hnd, map_origin);
+
         // get tile count, buffer, and config for tile size    
         const u32   tile_count = map_dims.count_rows * map_dims.count_cols;
         const auto& buffer     = map_mngr_get_render_buffer();
@@ -194,8 +198,8 @@ namespace ifb {
         // update the shader and draw vertices
         bool gl_ok = true;
         gl_ok &= gl_context_set_shader_program      (gl_ctx, shdr->gl.program);
-        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_rows,  map_dims.count_rows);
-        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols,  map_dims.count_cols); 
+        gl_ok &= gl_uniform_set_u32x1               (gl_ctx, shdr->gl.u_map_count_cols,  map_dims.count_cols);
+        gl_ok &= gl_uniform_set_f32x3               (gl_ctx, shdr->gl.u_map_origin,      map_origin.v);
         gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_rows, 0);
         gl_ok &= gl_uniform_set_s32x1               (gl_ctx, shdr->gl.u_map_offset_cols, 0);
         gl_ok &= gl_uniform_set_f32x1               (gl_ctx, shdr->gl.u_tile_unit_size,  cfg.map_tile_unit_size);

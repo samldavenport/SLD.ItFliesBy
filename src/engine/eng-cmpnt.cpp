@@ -6,6 +6,7 @@
 #include "entity.cpp"
 #include "entity-component.cpp"
 #include "ifb-types.hpp"
+#include "map.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
 #include "renderer.hpp"
@@ -239,7 +240,7 @@ namespace ifb {
         result  &= entity_has_component (e, cmpnt_type_e_map_coords);        
            
         if (result) {
-            cmpnt_lookup_map_coords(e.index_sparse, coords);
+            map_entity_lookup_coords(e, coords);
         }
 
         return(result);
@@ -466,7 +467,7 @@ namespace ifb {
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_update_map_coords(e.index_sparse, coords);
+            map_entity_update_coords(e, coords);
         }
 
         return(can_update);

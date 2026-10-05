@@ -45,7 +45,12 @@ namespace ifb {
                 ImGui::TableSetColumnIndex (col_property);
                 ImGui::TextUnformatted     ("Map Coordinates");
                 ImGui::TableSetColumnIndex (col_value);
-                ImGui::Text                ("Row: %d, Col: %d", coords.row_x, coords.col_z);
+                if (did_find) {
+                    ImGui::Text            ("Row: %.2f, Col: %.2f", coords.row_z, coords.col_x);
+                }
+                else {
+                    ImGui::TextUnformatted ("N/A");
+                }
                 
                 
 

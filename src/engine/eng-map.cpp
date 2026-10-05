@@ -2,6 +2,8 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
+#include "component.hpp"
+#include "entity.hpp"
 #include "renderer.hpp"
 #include "sld.hpp"
 #include "map.hpp"
@@ -81,15 +83,52 @@ namespace ifb {
 
     } 
 
-    IFB_ENGINE_API bool 
+    IFB_ENGINE_API bool
     eng_map_get_entity_coords(
         const hnd_map     map,
         const entity_id   eid,
         cmpnt_map_coords& coords) {
 
-        return(false);
+        assert(map != INVALID_HANDLE);
+        assert(eid != ENTITY_ID_INVALID);
+
+        entity e;
+        bool result = true;
+        result &= entity_lookup_by_id  (e, eid);
+        result &= entity_has_component (e, cmpnt_type_e_position);
+        if (!result) {
+            return(false);
+        }
+
+        // the entity doesn't need to belong to the map,
+        // this is where its position lands on it
+        cmpnt_position pos;
+        cmpnt_lookup_position(e.index_sparse, pos);
+        coords.h_map = map;
+
+        const bool did_get = map_get_coords_from_pos(pos, coords);
+        return(did_get);
     }
-    
+
+    IFB_ENGINE_API bool
+    eng_map_set_origin(
+        const hnd_map map,
+        const vec3&   origin) {
+
+        assert(map != INVALID_HANDLE);
+
+        const bool did_set = map_set_origin(map, origin);
+        return(did_set);
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_is_in_bounds(
+        const cmpnt_map_coords& coords) {
+
+        const bool is_in_bounds = map_is_in_bounds(coords);
+        return(is_in_bounds);
+    }
+
     IFB_ENGINE_API bool 
     eng_map_get_pos_from_coords(
         const cmpnt_map_coords& coords,

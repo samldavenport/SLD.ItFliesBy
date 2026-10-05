@@ -41,6 +41,7 @@ namespace ifb {
         cstr_c16*      name;
         hnd_map        hnd;
         map_dimensions dims;
+        vec3           origin;
     };
 
     struct map_chunk {
@@ -60,42 +61,45 @@ namespace ifb {
         map_dimensions*  dims;
         cstr_c16*        name;
         map_chunk_array* chunk_array;
+        vec3*            origin;
     };
 
+    // these two are exact inverses and don't check the map bounds,
+    // use map_calculate_is_in_bounds for that
     inline void
     map_calculate_position(
-        const f32               tile_size, 
-        const map_dimensions&   dims,
+        const f32               tile_size,
+        const vec3&             origin,
         const cmpnt_map_coords& coords,
         cmpnt_position&         pos) {
-        
-        const bool is_x_valid = (coords.row_x >= 0 && coords.row_x <= dims.count_rows); 
-        const bool is_z_valid = (coords.col_z >= 0 && coords.col_z <= dims.count_cols); 
 
-        // calculate width and height
-        const f32 map_width  = dims.count_cols * tile_size;
-        const f32 map_height = dims.count_rows * tile_size;
-
-        pos.x = is_x_valid ? (coords.row_x * tile_size) : POS_INVALID;
-        pos.z = is_z_valid ? (coords.col_z * tile_size) : POS_INVALID;
+        pos.x = origin.x + (coords.col_x * tile_size);
+        pos.y = origin.y + (coords.lvl_y * tile_size);
+        pos.z = origin.z + (coords.row_z * tile_size);
     }
 
     inline void
     map_calculate_coordinates(
-        const f32             tile_size, 
-        const map_dimensions& dims,
+        const f32             tile_size,
+        const vec3&           origin,
         const cmpnt_position& pos,
         cmpnt_map_coords&     coords) {
-        
-        // calculate width and height
-        const f32 map_width  = dims.count_cols * tile_size;
-        const f32 map_height = dims.count_rows * tile_size;
 
-        // calculate the map coordinates
         assert(tile_size != 0);
-        coords.row_x = pos.x <= map_width  ? pos.x / tile_size : MAP_COORD_INVALID; 
-        coords.col_z = pos.z <= map_height ? pos.z / tile_size : MAP_COORD_INVALID; 
-    }    
+        coords.col_x = (pos.x - origin.x) / tile_size;
+        coords.lvl_y = (pos.y - origin.y) / tile_size;
+        coords.row_z = (pos.z - origin.z) / tile_size;
+    }
+
+    inline bool
+    map_calculate_is_in_bounds(
+        const map_dimensions&   dims,
+        const cmpnt_map_coords& coords) {
+
+        const bool is_col_valid = (coords.col_x >= 0.0f && coords.col_x < (f32)dims.count_cols);
+        const bool is_row_valid = (coords.row_z >= 0.0f && coords.row_z < (f32)dims.count_rows);
+        return(is_col_valid && is_row_valid);
+    }
 };
 
 #endif //MAP_INTERNAL_HPP
