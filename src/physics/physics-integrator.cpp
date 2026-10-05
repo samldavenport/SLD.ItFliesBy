@@ -9,6 +9,7 @@
 #include "map.cpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
+#include "sld-math-types.hpp"
 
 namespace ifb {
 
@@ -22,7 +23,7 @@ namespace ifb {
         cmpnt_term_velocity* term_velocity;
         cmpnt_inv_mass*      inv_mass;
         cmpnt_drag*          drag;
-        cmpnt_map_coords*    map_coords
+        cmpnt_map_coords*    map_coords;
     };
 
     inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
@@ -83,67 +84,25 @@ namespace ifb {
 
         // cast pointers and initialize
         auto integrator = (phys_frc_intgrtr*)mem_addr;
+        integrator->count         = 0;
+        integrator->force         =               (vec3*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(vec3)); 
+        integrator->position      =     (cmpnt_position*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_position)); 
+        integrator->velocity      =     (cmpnt_velocity*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_velocity)); 
+        integrator->acceleration  = (cmpnt_acceleration*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_acceleration)); 
+        integrator->term_velocity =(cmpnt_term_velocity*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_term_velocity)); 
+        integrator->inv_mass      =     (cmpnt_inv_mass*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_inv_mass)); 
+        integrator->drag          =         (cmpnt_drag*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_drag)); 
+        integrator->map_coords    =   (cmpnt_map_coords*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_map_coords)); 
 
-        integrator->count        = 0;
-        integrator->force         = 
-        integrator->position      = 
-        integrator->velocity      = 
-        integrator->acceleration  = 
-        integrator->term_velocity = 
-        integrator->inv_mass      = 
-        integrator->drag          = 
-        integrator->map_coords    = 
-
-
-
-
-
-
-
-        
-
-        integrator->h_map        =   (hnd_map*)phys_mngr_res_alloc(size_array_maps);
-        integrator->sparse_index =       (u32*)phys_mngr_res_alloc(size_array_props);
-        integrator->pos_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->pos_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->pos_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->vel_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->vel_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->vel_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->acc_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->acc_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->acc_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->frc_x        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->frc_y        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->frc_z        =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->tv_x         =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->tv_y         =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->tv_z         =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->inv_mass     =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->drag         =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->mc_x         =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->mc_y         =       (f32*)phys_mngr_res_alloc(size_array_props);
-        integrator->mc_z         =       (f32*)phys_mngr_res_alloc(size_array_props);
-    
-        assert(integrator->h_map        != NULL);
-        assert(integrator->sparse_index != NULL);
-        assert(integrator->pos_x        != NULL);
-        assert(integrator->pos_y        != NULL);
-        assert(integrator->pos_z        != NULL);
-        assert(integrator->vel_x        != NULL);
-        assert(integrator->vel_y        != NULL);
-        assert(integrator->vel_z        != NULL);
-        assert(integrator->acc_x        != NULL);
-        assert(integrator->acc_y        != NULL);
-        assert(integrator->acc_z        != NULL);
-        assert(integrator->frc_x        != NULL);
-        assert(integrator->frc_y        != NULL);
-        assert(integrator->frc_z        != NULL);
-        assert(integrator->inv_mass     != NULL);
-        assert(integrator->drag         != NULL);
-        assert(integrator->mc_x         != NULL);
-        assert(integrator->mc_y         != NULL);
-        assert(integrator->mc_z         != NULL);
+        assert(integrator->count         != NULL);
+        assert(integrator->force         != NULL);
+        assert(integrator->position      != NULL);
+        assert(integrator->velocity      != NULL);
+        assert(integrator->acceleration  != NULL);
+        assert(integrator->term_velocity != NULL);
+        assert(integrator->inv_mass      != NULL);
+        assert(integrator->drag          != NULL);
+        assert(integrator->map_coords    != NULL);
 
         return(integrator);
     }
@@ -180,44 +139,18 @@ namespace ifb {
                 e.archetype.has_none(cmpnt_type_e_map_coords);
             if (!should_integrate) continue;
 
-            // look up the components
-            cmpnt_position      pos;
-            cmpnt_velocity      vel;
-            cmpnt_acceleration  acc;
-            cmpnt_inv_mass      inv;
-            cmpnt_drag          drg;
-            cmpnt_term_velocity tv;
-            cmpnt_lookup_position      (e.index_sparse, pos);            
-            cmpnt_lookup_velocity      (e.index_sparse, vel);            
-            cmpnt_lookup_acceleration  (e.index_sparse, acc);            
-            cmpnt_lookup_inv_mass      (e.index_sparse, inv);
-            cmpnt_lookup_drag          (e.index_sparse, drg);
-            cmpnt_lookup_term_velocity (e.index_sparse, tv);
 
-            // add the components to the intregrator 
-            const u32 integrator_index = i->count;
-            i->h_map        [integrator_index] = INVALID_HANDLE;
-            i->sparse_index [integrator_index] = e.index_sparse;
-            i->pos_x        [integrator_index] = pos.x; 
-            i->pos_y        [integrator_index] = pos.y; 
-            i->pos_z        [integrator_index] = pos.z; 
-            i->vel_x        [integrator_index] = vel.x;
-            i->vel_y        [integrator_index] = vel.y;
-            i->vel_z        [integrator_index] = vel.z;
-            i->acc_x        [integrator_index] = acc.x;
-            i->acc_y        [integrator_index] = acc.y;
-            i->acc_z        [integrator_index] = acc.z;
-            i->frc_x        [integrator_index] = a->data.forces[force_index].x;
-            i->frc_y        [integrator_index] = a->data.forces[force_index].y;
-            i->frc_z        [integrator_index] = a->data.forces[force_index].z;
-            i->tv_x         [integrator_index] = tv.x;
-            i->tv_y         [integrator_index] = tv.y;
-            i->tv_z         [integrator_index] = tv.z;
-            i->inv_mass     [integrator_index] = inv.normal_val;
-            i->drag         [integrator_index] = drg.normal_val;
-            i->mc_x         [integrator_index] = 0;
-            i->mc_y         [integrator_index] = 0;
-            i->mc_z         [integrator_index] = 0;
+            // look up the components  
+            // add the components to the intregrator    
+            const u32 integrator_index = i->count; 
+            cmpnt_lookup_position      (e.index_sparse, i->position      [integrator_index]);         
+            cmpnt_lookup_velocity      (e.index_sparse, i->velocity      [integrator_index]);       
+            cmpnt_lookup_acceleration  (e.index_sparse, i->acceleration  [integrator_index]);            
+            cmpnt_lookup_inv_mass      (e.index_sparse, i->inv_mass      [integrator_index]);
+            cmpnt_lookup_drag          (e.index_sparse, i->drag          [integrator_index]);
+            cmpnt_lookup_term_velocity (e.index_sparse, i->term_velocity [integrator_index]);
+            cmpnt_lookup_map_coords    (e.index_sparse, i->map_coords    [integrator_index]);
+            
             ++i->count;
         }
 
@@ -254,51 +187,19 @@ namespace ifb {
             const bool should_integrate = e.archetype.has_all(physics_types);
             if (!should_integrate) continue;
 
-            // look up the components
-            cmpnt_position      pos = {0};
-            cmpnt_velocity      vel;
-            cmpnt_acceleration  acc;
-            cmpnt_inv_mass      inv;
-            cmpnt_drag          drg;
-            cmpnt_term_velocity tv;
-            cmpnt_map_coords    mc;
-            cmpnt_lookup_velocity      (e.index_sparse, vel);            
-            cmpnt_lookup_acceleration  (e.index_sparse, acc);            
-            cmpnt_lookup_inv_mass      (e.index_sparse, inv);
-            cmpnt_lookup_drag          (e.index_sparse, drg);
-            cmpnt_lookup_term_velocity (e.index_sparse, tv);
-            cmpnt_lookup_map_coords    (e.index_sparse, mc);
-
-            // calculate the position from the map coordinates
-            map_get_pos_from_coords(mc, pos);
 
             // add the components to the intregrator 
             const u32 integrator_index = i->count;
-            i->h_map        [integrator_index] = mc.h_map;
-            i->sparse_index [integrator_index] = e.index_sparse;
-            i->pos_x        [integrator_index] = pos.x; 
-            i->pos_y        [integrator_index] = pos.y; 
-            i->pos_z        [integrator_index] = pos.z; 
-            i->vel_x        [integrator_index] = vel.x;
-            i->vel_y        [integrator_index] = vel.y;
-            i->vel_z        [integrator_index] = vel.z;
-            i->acc_x        [integrator_index] = acc.x;
-            i->acc_y        [integrator_index] = acc.y;
-            i->acc_z        [integrator_index] = acc.z;
-            i->frc_x        [integrator_index] = a->data.forces[force_index].x;
-            i->frc_y        [integrator_index] = a->data.forces[force_index].y;
-            i->frc_z        [integrator_index] = a->data.forces[force_index].z;
-            i->tv_x         [integrator_index] = tv.x;
-            i->tv_y         [integrator_index] = tv.y;
-            i->tv_z         [integrator_index] = tv.z;
-            i->inv_mass     [integrator_index] = inv.normal_val;
-            i->drag         [integrator_index] = drg.normal_val;
-            i->tv_x         [integrator_index] = tv.x;
-            i->tv_y         [integrator_index] = tv.y;
-            i->tv_z         [integrator_index] = tv.z;
-            i->mc_x         [integrator_index] = mc.row_x;
-            i->mc_y         [integrator_index] = mc.lvl_y;
-            i->mc_z         [integrator_index] = mc.col_z;
+            // look up the components
+            cmpnt_lookup_velocity      (e.index_sparse, i->velocity     [integrator_index]);            
+            cmpnt_lookup_acceleration  (e.index_sparse, i->acceleration [integrator_index]);            
+            cmpnt_lookup_inv_mass      (e.index_sparse, i->inv_mass     [integrator_index]);
+            cmpnt_lookup_drag          (e.index_sparse, i->drag         [integrator_index]);
+            cmpnt_lookup_term_velocity (e.index_sparse, i->term_velocity[integrator_index]);
+            cmpnt_lookup_map_coords    (e.index_sparse, i->map_coords   [integrator_index]);
+
+            // calculate the position from the map coordinates
+            map_get_pos_from_coords(i->map_coords[integrator_index], i->position[integrator_index]);
             ++i->count;
         }
 
@@ -322,15 +223,16 @@ namespace ifb {
             // calculate component constants 
             const f32 drag_pow_dt = powf(i->drag[integrator_index], dt); 
 
-            // calculate acceleration 
-            i->acc_x[integrator_index] = i->frc_x[integrator_index] * i->inv_mass[integrator_index];
-            i->acc_y[integrator_index] = i->frc_y[integrator_index] * i->inv_mass[integrator_index];
-            i->acc_z[integrator_index] = i->frc_z[integrator_index] * i->inv_mass[integrator_index];
+            // calculate acceleration
+            
+            i->acceleration[integrator_index].x = i->force[integrator_index].x * i->inv_mass[integrator_index];
+            i->acceleration[integrator_index].y = i->force[integrator_index].y * i->inv_mass[integrator_index];
+            i->acceleration[integrator_index].z = i->force[integrator_index].z * i->inv_mass[integrator_index];
 
             // position
-            i->pos_x[integrator_index] += (i->vel_x[integrator_index] * dt) + (i->acc_x[integrator_index] * dt_pow_2_over_2);  
-            i->pos_y[integrator_index] += (i->vel_y[integrator_index] * dt) + (i->acc_y[integrator_index] * dt_pow_2_over_2);  
-            i->pos_z[integrator_index] += (i->vel_z[integrator_index] * dt) + (i->acc_z[integrator_index] * dt_pow_2_over_2);  
+            i->pos_x[integrator_index].x += (i->velocity[integrator_index].x * dt) + (i->acceleration[integrator_index].x * dt_pow_2_over_2);  
+            i->pos_y[integrator_index].y += (i->velocity[integrator_index].y * dt) + (i->acceleration[integrator_index].y * dt_pow_2_over_2);  
+            i->pos_z[integrator_index].z += (i->velocity[integrator_index].z * dt) + (i->acceleration[integrator_index].z * dt_pow_2_over_2);  
             
             // calculate velocity
             i->vel_x[integrator_index] = (i->vel_x[integrator_index] + i->acc_x[integrator_index] * dt) * drag_pow_dt;   
