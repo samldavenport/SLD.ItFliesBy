@@ -11,7 +11,7 @@ overseer.register_template({
             args = {
                 "-NoProfile",
                 "-ExecutionPolicy", "Bypass",
-                "-File", vim.fn.getcwd() .. "/scripts/Invoke-BuildDebug.ps1",
+                "-File", vim.fn.getcwd() .. "/scripts/Build-ItFliesBy.ps1",
             },
             components = {
                 "default",
