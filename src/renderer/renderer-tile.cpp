@@ -191,8 +191,8 @@ namespace ifb {
         map_get_origin(shdr->map_hnd, map_origin);
 
         // get tile count, buffer, and config for tile size    
-        const u32   tile_count = map_dims.count_rows * map_dims.count_cols;
         const auto& buffer     = map_mngr_get_render_buffer();
+        const u32   tile_count = buffer.data_size / sizeof(map_tile);
         const auto& cfg        = config_instance();
 
         // update the shader and draw vertices

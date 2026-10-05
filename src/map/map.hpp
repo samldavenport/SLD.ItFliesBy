@@ -41,6 +41,7 @@ namespace ifb {
     IFB_INTERNAL bool                     map_destroy              (const hnd_map h_map);
     IFB_INTERNAL bool                     map_render               (const hnd_map h_map);
     IFB_INTERNAL bool                     map_get_dimensions       (const hnd_map h_map, map_dimensions& dims);
+    IFB_INTERNAL bool                     map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
     IFB_INTERNAL bool                     map_get_origin           (const hnd_map h_map, vec3& origin);
     IFB_INTERNAL bool                     map_set_origin           (const hnd_map h_map, const vec3& origin);
     IFB_INTERNAL bool                     map_get_pos_from_coords  (const cmpnt_map_coords& coords, cmpnt_position& pos);
@@ -62,6 +63,15 @@ namespace ifb {
         const u32           origin_row,
         const u32           origin_col,
         const map_color_u32 base_color
+    );
+    IFB_INTERNAL bool
+    map_chunk_get_dimensions(
+        const hnd_map map_hnd,
+        const u32     chunk_index,
+        u32&          count_rows,
+        u32&          count_cols,
+        u32&          origin_row,
+        u32&          origin_col
     );
     IFB_INTERNAL bool
     map_chunk_destroy(

@@ -33,10 +33,19 @@ namespace ifb {
         // get the map dimensions
         // if we are at capacity, we're done
         map_dimensions& dims = map_get_dimensions(map_index);
-        if (dims.count_chunks == cfg.map_capacity) {
+        if (dims.count_chunks == cfg.map_chunk_capacity) {
             return(INVALID_INDEX);
         }
-    
+
+        // the chunk has to fit on the map
+        const bool is_on_map = (
+            (origin_row + count_rows) <= dims.count_rows &&
+            (origin_col + count_cols) <= dims.count_cols
+        );
+        if (!is_on_map) {
+            return(INVALID_INDEX);
+        }
+
         // get the chunk
         const u32  chunk_index = dims.count_chunks;
         map_chunk& chunk       = map_get_chunk(map_index, chunk_index);
@@ -57,7 +66,34 @@ namespace ifb {
         return(chunk_index);
     }
 
-    IFB_INTERNAL bool 
+    IFB_INTERNAL bool
+    map_chunk_get_dimensions(
+        const hnd_map map_hnd,
+        const u32     chunk_index,
+        u32&          count_rows,
+        u32&          count_cols,
+        u32&          origin_row,
+        u32&          origin_col) {
+
+        const u32 map_index = map_lookup_index(map_hnd);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        if (chunk_index >= dims.count_chunks) {
+            return(false);
+        }
+
+        const map_chunk& chunk = map_get_chunk(map_index, chunk_index);
+        count_rows = chunk.count_rows;
+        count_cols = chunk.count_cols;
+        origin_row = chunk.origin_row;
+        origin_col = chunk.origin_col;
+        return(true);
+    }
+
+    IFB_INTERNAL bool
     map_chunk_destroy(
         const hnd_map map_hnd,
         const u32        chunk_index) {

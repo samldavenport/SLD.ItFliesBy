@@ -33,14 +33,15 @@ namespace ifb {
     inline f32
     game_player_rig_clamp_camera_focus(
         const f32 coord,
-        const f32 count,
+        const f32 bounds_min,
+        const f32 bounds_max,
         const f32 margin) {
 
-        const f32 coord_min = margin;
-        const f32 coord_max = count - margin;
+        const f32 coord_min = bounds_min + margin;
+        const f32 coord_max = bounds_max - margin;
 
         // the map is too small to follow anything, stay on the center
-        if (coord_min > coord_max) return(count * 0.5f);
+        if (coord_min > coord_max) return((bounds_min + bounds_max) * 0.5f);
 
         if (coord < coord_min) return(coord_min);
         if (coord > coord_max) return(coord_max);
@@ -70,21 +71,27 @@ namespace ifb {
         assert(player_rig->jig_id        != ENTITY_ID_INVALID);
         assert(player_rig->jig_anchor_id != ENTITY_ID_INVALID);
 
-        // spawn in the center of the starting map
-        u32 map_count_rows = 0;
-        u32 map_count_cols = 0;
-        const bool did_get_dims = eng_map_get_dimensions(
+        // spawn in the center of the starting map's first chunk,
+        // the center of the map itself isn't always navigable
+        u32 chunk_count_rows = 0;
+        u32 chunk_count_cols = 0;
+        u32 chunk_origin_row = 0;
+        u32 chunk_origin_col = 0;
+        const bool did_get_chunk = eng_map_chunk_get_dimensions(
             player_rig->starting_map_hnd,
-            map_count_rows,
-            map_count_cols
+            0,
+            chunk_count_rows,
+            chunk_count_cols,
+            chunk_origin_row,
+            chunk_origin_col
         );
-        assert(did_get_dims);
+        assert(did_get_chunk);
 
         cmpnt_map_coords spawn_coords;
         spawn_coords.h_map = player_rig->starting_map_hnd;
-        spawn_coords.col_x = (f32)map_count_cols * 0.5f;
+        spawn_coords.col_x = (f32)chunk_origin_col + ((f32)chunk_count_cols * 0.5f);
         spawn_coords.lvl_y = 0.0f;
-        spawn_coords.row_z = (f32)map_count_rows * 0.5f;
+        spawn_coords.row_z = (f32)chunk_origin_row + ((f32)chunk_count_rows * 0.5f);
 
         cmpnt_position spawn_pos;
         const bool did_get_spawn = eng_map_get_pos_from_coords(spawn_coords, spawn_pos);
@@ -236,20 +243,25 @@ namespace ifb {
             focus_coords
         );
 
-        u32 map_count_rows = 0;
-        u32 map_count_cols = 0;
-        const bool did_get_dims = eng_map_get_dimensions(
+        // the edges of the map are the edges of the area its chunks cover
+        u32 map_row_min = 0;
+        u32 map_col_min = 0;
+        u32 map_row_max = 0;
+        u32 map_col_max = 0;
+        const bool did_get_bounds = eng_map_get_navigable_bounds(
             player_rig->current_map_hnd,
-            map_count_rows,
-            map_count_cols
+            map_row_min,
+            map_col_min,
+            map_row_max,
+            map_col_max
         );
 
-        if (!did_get_coords || !did_get_dims) return;
+        if (!did_get_coords || !did_get_bounds) return;
 
         // the camera focuses on connor until he gets close to an edge of the map,
         // then the focus stays put and he moves around on screen
-        focus_coords.col_x = game_player_rig_clamp_camera_focus(focus_coords.col_x, (f32)map_count_cols, GAME_PLAYER_RIG_CAMERA_MARGIN_COLS);
-        focus_coords.row_z = game_player_rig_clamp_camera_focus(focus_coords.row_z, (f32)map_count_rows, GAME_PLAYER_RIG_CAMERA_MARGIN_ROWS);
+        focus_coords.col_x = game_player_rig_clamp_camera_focus(focus_coords.col_x, (f32)map_col_min, (f32)map_col_max, GAME_PLAYER_RIG_CAMERA_MARGIN_COLS);
+        focus_coords.row_z = game_player_rig_clamp_camera_focus(focus_coords.row_z, (f32)map_row_min, (f32)map_row_max, GAME_PLAYER_RIG_CAMERA_MARGIN_ROWS);
 
         cmpnt_position focus_pos;
         if (!eng_map_get_pos_from_coords(focus_coords, focus_pos)) return;

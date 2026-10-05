@@ -196,6 +196,8 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_set_origin          (const hnd_map h_map, const vec3& origin);
     IFB_ENGINE_API bool    eng_map_get_dimensions      (const hnd_map h_map, u32& count_rows, u32& count_cols);
     IFB_ENGINE_API bool    eng_map_is_in_bounds        (const cmpnt_map_coords& coords);
+    IFB_ENGINE_API bool    eng_map_chunk_get_dimensions (const hnd_map h_map, const u32 chunk_index, u32& count_rows, u32& count_cols, u32& origin_row, u32& origin_col);
+    IFB_ENGINE_API bool    eng_map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
 
     //--------------------------------------------------------------------
     // ARENAS
