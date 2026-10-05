@@ -240,6 +240,39 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
+    map_constrain_movement(
+        const hnd_map   map_hnd,
+        const f32       inset,
+        cmpnt_position& pos,
+        cmpnt_velocity& vel) {
+
+        const auto& cfg = config_instance();
+
+        // get the map origin and dimensions
+        vec3           origin;
+        map_dimensions dims;
+        if (!map_get_origin(map_hnd, origin) || !map_get_dimensions(map_hnd, dims)) {
+            return(false);
+        }
+
+        // calculate the edges of the map
+        const f32 x_min = origin.x + inset;
+        const f32 z_min = origin.z + inset;
+        const f32 x_max = origin.x + ((f32)dims.count_cols * cfg.map_tile_unit_size) - inset;
+        const f32 z_max = origin.z + ((f32)dims.count_rows * cfg.map_tile_unit_size) - inset;
+
+        // put the position back on the map
+        // and stop any movement off of the edge
+        bool did_constrain = false;
+        if (pos.x < x_min) { pos.x = x_min; if (vel.x < 0.0f) vel.x = 0.0f; did_constrain = true; }
+        if (pos.x > x_max) { pos.x = x_max; if (vel.x > 0.0f) vel.x = 0.0f; did_constrain = true; }
+        if (pos.z < z_min) { pos.z = z_min; if (vel.z < 0.0f) vel.z = 0.0f; did_constrain = true; }
+        if (pos.z > z_max) { pos.z = z_max; if (vel.z > 0.0f) vel.z = 0.0f; did_constrain = true; }
+
+        return(did_constrain);
+    }
+
+    IFB_INTERNAL bool
     map_get_origin(
         const hnd_map map_hnd,
         vec3&         origin) {

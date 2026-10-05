@@ -6,6 +6,7 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "entity.hpp"
+#include "map.hpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
 #include "sld-math-types.hpp"
@@ -22,10 +23,13 @@ namespace ifb {
         cmpnt_term_velocity* term_velocity;
         cmpnt_inv_mass*      inv_mass;
         cmpnt_drag*          drag;
+        hnd_map*             map;
+        f32*                 map_inset;
     };
 
     inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
     inline void phys_frc_intgrtr_exec                     (phys_frc_intgrtr* i, const f32 dt);
+    inline void phys_frc_intgrtr_constrain_to_maps        (phys_frc_intgrtr* i);
     inline void phys_frc_intgrtr_update_global_components (phys_frc_intgrtr* i);
 
     IFB_INTERNAL void
@@ -44,6 +48,7 @@ namespace ifb {
 
         // do the integration and update components
         phys_frc_intgrtr_exec                     (integrator, dt);
+        phys_frc_intgrtr_constrain_to_maps        (integrator);
         phys_frc_intgrtr_update_global_components (integrator);
 
         // reset
@@ -77,6 +82,8 @@ namespace ifb {
         integrator->term_velocity =(cmpnt_term_velocity*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_term_velocity)); 
         integrator->inv_mass      =     (cmpnt_inv_mass*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_inv_mass)); 
         integrator->drag          =         (cmpnt_drag*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_drag));
+        integrator->map           =            (hnd_map*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(hnd_map));
+        integrator->map_inset     =                (f32*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(f32));
 
         assert(integrator->force         != NULL);
         assert(integrator->position      != NULL);
@@ -85,6 +92,8 @@ namespace ifb {
         assert(integrator->term_velocity != NULL);
         assert(integrator->inv_mass      != NULL);
         assert(integrator->drag          != NULL);
+        assert(integrator->map           != NULL);
+        assert(integrator->map_inset     != NULL);
 
         return(integrator);
     }
@@ -128,6 +137,22 @@ namespace ifb {
             cmpnt_lookup_inv_mass      (e.index_sparse, i->inv_mass      [integrator_index]);
             cmpnt_lookup_drag          (e.index_sparse, i->drag          [integrator_index]);
             cmpnt_lookup_term_velocity (e.index_sparse, i->term_velocity [integrator_index]);
+
+            // entities that belong to a map stay inside of it
+            i->map       [integrator_index] = INVALID_HANDLE;
+            i->map_inset [integrator_index] = 0.0f;
+            if (e.archetype.has_all(cmpnt_type_e_map_coords)) {
+                cmpnt_map_coords map_coords;
+                cmpnt_lookup_map_coords(e.index_sparse, map_coords);
+                i->map[integrator_index] = map_coords.h_map;
+            }
+            // the position is the center of the quad,
+            // so keep half of it away from the edge
+            if (e.archetype.has_all(cmpnt_type_e_quad)) {
+                cmpnt_quad quad;
+                cmpnt_lookup_quad(e.index_sparse, quad);
+                i->map_inset[integrator_index] = quad.width * 0.5f;
+            }
 
             i->force        [integrator_index] = a->data.forces[force_index];
             i->sparse_index [integrator_index] = e.index_sparse;
@@ -184,6 +209,27 @@ namespace ifb {
             if(vel_x_curr < -tv_x && tv_x > 0.0f) i->velocity[integrator_index].x = -tv_x;
             if(vel_y_curr < -tv_y && tv_y > 0.0f) i->velocity[integrator_index].y = -tv_y;
             if(vel_z_curr < -tv_z && tv_z > 0.0f) i->velocity[integrator_index].z = -tv_z;
+        }
+    }
+
+    inline void
+    phys_frc_intgrtr_constrain_to_maps(
+        phys_frc_intgrtr* i) {
+
+        for (
+            u32 index = 0;
+            index < i->count;
+            ++index
+        ) {
+
+            if (i->map[index] == INVALID_HANDLE) continue;
+
+            (void)map_constrain_movement(
+                i->map       [index],
+                i->map_inset [index],
+                i->position  [index],
+                i->velocity  [index]
+            );
         }
     }
 
