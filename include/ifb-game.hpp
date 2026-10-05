@@ -13,6 +13,9 @@ namespace ifb {
         hnd_map starting_map_hnd;
         hnd_map current_map_hnd;
         vec3    camera_focus;
+        f32     jig_offset_x;
+        f32     jig_bob_time_s;
+        f32     connor_prev_x;
     };
 
     struct game_map {
