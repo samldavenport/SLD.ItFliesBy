@@ -8,6 +8,28 @@
 
 namespace ifb {
 
+    // how close connor can get to the edge of the map, in tiles,
+    // before the camera stops following him
+    static constexpr f32 GAME_PLAYER_RIG_CAMERA_MARGIN_COLS = 2.5f;
+    static constexpr f32 GAME_PLAYER_RIG_CAMERA_MARGIN_ROWS = 2.0f;
+
+    inline f32
+    game_player_rig_clamp_camera_focus(
+        const f32 coord,
+        const f32 count,
+        const f32 margin) {
+
+        const f32 coord_min = margin;
+        const f32 coord_max = count - margin;
+
+        // the map is too small to follow anything, stay on the center
+        if (coord_min > coord_max) return(count * 0.5f);
+
+        if (coord < coord_min) return(coord_min);
+        if (coord > coord_max) return(coord_max);
+        return(coord);
+    }
+
     IFB_INTERNAL void
     game_player_rig_validate(
         game_player_rig* player_rig) {
@@ -31,21 +53,44 @@ namespace ifb {
         assert(player_rig->jig_id        != ENTITY_ID_INVALID);
         assert(player_rig->jig_anchor_id != ENTITY_ID_INVALID);
 
+        // spawn in the center of the starting map
+        u32 map_count_rows = 0;
+        u32 map_count_cols = 0;
+        const bool did_get_dims = eng_map_get_dimensions(
+            player_rig->starting_map_hnd,
+            map_count_rows,
+            map_count_cols
+        );
+        assert(did_get_dims);
+
+        cmpnt_map_coords spawn_coords;
+        spawn_coords.h_map = player_rig->starting_map_hnd;
+        spawn_coords.col_x = (f32)map_count_cols * 0.5f;
+        spawn_coords.lvl_y = 0.0f;
+        spawn_coords.row_z = (f32)map_count_rows * 0.5f;
+
+        cmpnt_position spawn_pos;
+        const bool did_get_spawn = eng_map_get_pos_from_coords(spawn_coords, spawn_pos);
+        assert(did_get_spawn);
+
+        // the default camera is framed around the world origin
+        player_rig->camera_focus = {0};
+
         atype_quad quad_connor  = {0};
-        quad_connor.color.hex   = 0xB8BB26FF;     
-        quad_connor.quad.width  = 0.2; 
-        quad_connor.quad.height = 0.2; 
-        quad_connor.position.x  = 0.0f;
-        quad_connor.position.y  = 0.1f;
-        quad_connor.position.z  = 0.0f;
+        quad_connor.color.hex   = 0xB8BB26FF;
+        quad_connor.quad.width  = 0.2;
+        quad_connor.quad.height = 0.2;
+        quad_connor.position.x  = spawn_pos.x;
+        quad_connor.position.y  = spawn_pos.y + 0.1f;
+        quad_connor.position.z  = spawn_pos.z;
 
         atype_quad quad_jig  = {0};
-        quad_jig.color.hex   =  0x458588FF;     
+        quad_jig.color.hex   =  0x458588FF;
         quad_jig.quad.width  =  0.1;
         quad_jig.quad.height =  0.1;
-        quad_jig.position.x  = -0.175f;
-        quad_jig.position.y  =  0.2f;
-        quad_jig.position.z  =  0.0f;
+        quad_jig.position.x  = spawn_pos.x - 0.175f;
+        quad_jig.position.y  = spawn_pos.y + 0.2f;
+        quad_jig.position.z  = spawn_pos.z;
 
         cmpnt_term_velocity tv;
         tv.x = 1.00f;
@@ -60,14 +105,17 @@ namespace ifb {
         jig_spring.rest_length = 0.001f;
 
         cmpnt_position anchor_pos;
-        anchor_pos.x = -0.175f;
-        anchor_pos.y =  0.1f;
-        anchor_pos.z =  0.0f;
+        anchor_pos.x = spawn_pos.x - 0.175f;
+        anchor_pos.y = spawn_pos.y + 0.1f;
+        anchor_pos.z = spawn_pos.z;
                     
         const f32 inv_mass = 0.50f;
         const f32 drag     = 0.01f;
         
+        // connor belongs to the map, so he can't walk off of it
         eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_map_coords);
+        eng_cmpnt_update_map_coords    (player_rig->connor_id, spawn_coords);
         eng_cmpnt_update_quad          (player_rig->connor_id, quad_connor);
         eng_cmpnt_update_inv_mass      (player_rig->connor_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->connor_id, drag); 
@@ -118,5 +166,57 @@ namespace ifb {
         // render quads
         eng_entity_render(player_rig->connor_id);
         eng_entity_render(player_rig->jig_id);
+    }
+
+    IFB_INTERNAL void
+    game_player_rig_update_camera(
+        game_player_rig* player_rig) {
+
+        game_player_rig_validate(player_rig);
+
+        // find connor on the map
+        cmpnt_map_coords focus_coords;
+        const bool did_get_coords = eng_map_get_entity_coords(
+            player_rig->current_map_hnd,
+            player_rig->connor_id,
+            focus_coords
+        );
+
+        u32 map_count_rows = 0;
+        u32 map_count_cols = 0;
+        const bool did_get_dims = eng_map_get_dimensions(
+            player_rig->current_map_hnd,
+            map_count_rows,
+            map_count_cols
+        );
+
+        if (!did_get_coords || !did_get_dims) return;
+
+        // the camera focuses on connor until he gets close to an edge of the map,
+        // then the focus stays put and he moves around on screen
+        focus_coords.col_x = game_player_rig_clamp_camera_focus(focus_coords.col_x, (f32)map_count_cols, GAME_PLAYER_RIG_CAMERA_MARGIN_COLS);
+        focus_coords.row_z = game_player_rig_clamp_camera_focus(focus_coords.row_z, (f32)map_count_rows, GAME_PLAYER_RIG_CAMERA_MARGIN_ROWS);
+
+        cmpnt_position focus_pos;
+        if (!eng_map_get_pos_from_coords(focus_coords, focus_pos)) return;
+
+        // move the camera as far as the focus moved
+        // the origin and target move together, so the view angle doesn't change
+        const f32 focus_delta_x = focus_pos.x - player_rig->camera_focus.x;
+        const f32 focus_delta_z = focus_pos.z - player_rig->camera_focus.z;
+
+        vec3 camera_origin;
+        vec3 camera_target;
+        eng_camera_get_origin(camera_origin);
+        eng_camera_get_target(camera_target);
+        camera_origin.x += focus_delta_x;
+        camera_origin.z += focus_delta_z;
+        camera_target.x += focus_delta_x;
+        camera_target.z += focus_delta_z;
+        eng_camera_set_origin(camera_origin);
+        eng_camera_set_target(camera_target);
+
+        player_rig->camera_focus.x = focus_pos.x;
+        player_rig->camera_focus.z = focus_pos.z;
     }
 };

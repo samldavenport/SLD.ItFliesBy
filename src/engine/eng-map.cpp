@@ -122,6 +122,23 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
+    eng_map_get_dimensions(
+        const hnd_map map,
+        u32&          count_rows,
+        u32&          count_cols) {
+
+        assert(map != INVALID_HANDLE);
+
+        map_dimensions dims;
+        const bool did_get = map_get_dimensions(map, dims);
+        if (did_get) {
+            count_rows = dims.count_rows;
+            count_cols = dims.count_cols;
+        }
+        return(did_get);
+    }
+
+    IFB_ENGINE_API bool
     eng_map_is_in_bounds(
         const cmpnt_map_coords& coords) {
 

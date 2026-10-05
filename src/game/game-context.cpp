@@ -30,8 +30,11 @@ namespace ifb {
         ctx->player_rig   = rig;
         ctx->map          =  map; 
 
-        game_player_rig_init (ctx->player_rig);
+        // the map goes first, the player rig spawns on it
         game_map_init        (ctx->map);
+        rig->starting_map_hnd = map->eng_hnd;
+        rig->current_map_hnd  = map->eng_hnd;
+        game_player_rig_init (ctx->player_rig);
 
         _game_ctx = ctx;
 
@@ -57,6 +60,7 @@ namespace ifb {
         auto map        = ctx->map;
 
         game_player_rig_update_and_render (ctx->player_rig);
+        game_player_rig_update_camera     (ctx->player_rig);
         game_map_update_and_render        (ctx->map);
 
         cmpnt_position pos;

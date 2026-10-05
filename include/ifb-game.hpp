@@ -12,7 +12,8 @@ namespace ifb {
         entity_id  jig_anchor_id;
         hnd_map starting_map_hnd;
         hnd_map current_map_hnd;
-    }; 
+        vec3    camera_focus;
+    };
 
     struct game_map {
         hnd_map eng_hnd;
@@ -31,6 +32,7 @@ namespace ifb {
     IFB_INTERNAL void          game_player_rig_validate          (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_init              (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_update_and_render (game_player_rig* player_rig);
+    IFB_INTERNAL void          game_player_rig_update_camera     (game_player_rig* player_rig);
 
     IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);

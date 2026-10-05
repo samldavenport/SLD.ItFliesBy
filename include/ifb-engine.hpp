@@ -188,6 +188,7 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_get_pos_from_coords (const cmpnt_map_coords& coords, cmpnt_position& pos);
     IFB_ENGINE_API bool    eng_map_get_coords_from_pos (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
     IFB_ENGINE_API bool    eng_map_set_origin          (const hnd_map h_map, const vec3& origin);
+    IFB_ENGINE_API bool    eng_map_get_dimensions      (const hnd_map h_map, u32& count_rows, u32& count_cols);
     IFB_ENGINE_API bool    eng_map_is_in_bounds        (const cmpnt_map_coords& coords);
 
     //--------------------------------------------------------------------

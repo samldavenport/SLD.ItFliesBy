@@ -46,6 +46,7 @@ namespace ifb {
     IFB_INTERNAL bool                     map_get_pos_from_coords  (const cmpnt_map_coords& coords, cmpnt_position& pos);
     IFB_INTERNAL bool                     map_get_coords_from_pos  (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
     IFB_INTERNAL bool                     map_is_in_bounds         (const cmpnt_map_coords& coords);
+    IFB_INTERNAL bool                     map_constrain_movement   (const hnd_map h_map, const f32 inset, cmpnt_position& pos, cmpnt_velocity& vel);
     IFB_INTERNAL entity_list*             map_get_entities         (const hnd_map h_map, const hnd_arena h_arena);
 
     // map entities
