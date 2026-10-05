@@ -5,6 +5,7 @@
 #include "ifb-types.hpp"
 #include "ifb-entity.hpp"
 #include <cassert>
+#include <math.h>
 
 namespace ifb {
 
@@ -12,6 +13,22 @@ namespace ifb {
     // before the camera stops following him
     static constexpr f32 GAME_PLAYER_RIG_CAMERA_MARGIN_COLS = 2.5f;
     static constexpr f32 GAME_PLAYER_RIG_CAMERA_MARGIN_ROWS = 2.0f;
+
+    // jig follows behind connor, this far to his left or his right
+    // when connor moves towards jig, jig's anchor holds its ground and connor walks past it,
+    // which leaves jig behind him on the other side
+    static constexpr f32 GAME_PLAYER_RIG_JIG_OFFSET_X     = 0.175f;
+
+    // on the way across, the anchor swings out this far towards the camera
+    // so jig arcs around connor instead of passing through him
+    static constexpr f32 GAME_PLAYER_RIG_JIG_ARC_DEPTH    = 0.3f;
+
+    // how fast the anchor settles on the nearest side when connor stops part way
+    static constexpr f32 GAME_PLAYER_RIG_JIG_SETTLE_SPEED = 0.25f;
+
+    // jig is always flying, so his anchor bobs up and down
+    static constexpr f32 GAME_PLAYER_RIG_JIG_BOB_HEIGHT   = 0.02f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_BOB_PERIOD_S = 1.6f;
 
     inline f32
     game_player_rig_clamp_camera_focus(
@@ -76,6 +93,12 @@ namespace ifb {
         // the default camera is framed around the world origin
         player_rig->camera_focus = {0};
 
+        // jig starts on connor's left
+        player_rig->jig_offset_x   = -GAME_PLAYER_RIG_JIG_OFFSET_X;
+        player_rig->jig_bob_time_s = 0.0f;
+        player_rig->connor_prev_x  = spawn_pos.x;
+        const f32 jig_offset_x    = player_rig->jig_offset_x;
+
         atype_quad quad_connor  = {0};
         quad_connor.color.hex   = 0xB8BB26FF;
         quad_connor.quad.width  = 0.2;
@@ -88,7 +111,7 @@ namespace ifb {
         quad_jig.color.hex   =  0x458588FF;
         quad_jig.quad.width  =  0.1;
         quad_jig.quad.height =  0.1;
-        quad_jig.position.x  = spawn_pos.x - 0.175f;
+        quad_jig.position.x  = spawn_pos.x + jig_offset_x;
         quad_jig.position.y  = spawn_pos.y + 0.2f;
         quad_jig.position.z  = spawn_pos.z;
 
@@ -105,7 +128,7 @@ namespace ifb {
         jig_spring.rest_length = 0.001f;
 
         cmpnt_position anchor_pos;
-        anchor_pos.x = spawn_pos.x - 0.175f;
+        anchor_pos.x = spawn_pos.x + jig_offset_x;
         anchor_pos.y = spawn_pos.y + 0.1f;
         anchor_pos.z = spawn_pos.z;
                     
@@ -158,9 +181,40 @@ namespace ifb {
         cmpnt_position pos_connor;
         assert(eng_cmpnt_lookup_position(player_rig->jig_anchor_id, pos_anchor));
         assert(eng_cmpnt_lookup_position(player_rig->connor_id,     pos_connor)); 
-        pos_anchor.x = pos_connor.x - 0.175f;
-        pos_anchor.y = pos_connor.y + 0.100f;
-        pos_anchor.z = pos_connor.z;
+
+        // the anchor holds its ground while connor moves,
+        // so it slides across to whichever side is behind him
+        const f32 connor_delta_x   = pos_connor.x - player_rig->connor_prev_x;
+        player_rig->connor_prev_x  = pos_connor.x;
+        player_rig->jig_offset_x  -= connor_delta_x;
+
+        // the first frame doesn't have a usable delta time
+        f32 dt_s = eng_system_get_delta_time_s();
+        if (!(dt_s >= 0.0f && dt_s < 1.0f)) dt_s = 0.0f;
+
+        // settle on the nearest side
+        const f32 settle_step = GAME_PLAYER_RIG_JIG_SETTLE_SPEED * dt_s;
+        if (player_rig->jig_offset_x < 0.0f) player_rig->jig_offset_x -= settle_step;
+        else                                 player_rig->jig_offset_x += settle_step;
+
+        // the anchor never gets further away than either side
+        if (player_rig->jig_offset_x < -GAME_PLAYER_RIG_JIG_OFFSET_X) player_rig->jig_offset_x = -GAME_PLAYER_RIG_JIG_OFFSET_X;
+        if (player_rig->jig_offset_x >  GAME_PLAYER_RIG_JIG_OFFSET_X) player_rig->jig_offset_x =  GAME_PLAYER_RIG_JIG_OFFSET_X;
+
+        // swing the anchor out along an arc on the way across
+        // it is furthest out when it is level with connor and back in line at either side
+        const f32 arc_x     = player_rig->jig_offset_x / GAME_PLAYER_RIG_JIG_OFFSET_X;
+        const f32 arc_depth = sqrtf(1.0f - (arc_x * arc_x)) * GAME_PLAYER_RIG_JIG_ARC_DEPTH;
+
+        // bob the anchor up and down, the spring carries jig along with it
+        // the time wraps every period so it stays small
+        player_rig->jig_bob_time_s = fmodf(player_rig->jig_bob_time_s + dt_s, GAME_PLAYER_RIG_JIG_BOB_PERIOD_S);
+        const f32 bob_angle        = (player_rig->jig_bob_time_s / GAME_PLAYER_RIG_JIG_BOB_PERIOD_S) * 6.28318531f;
+        const f32 bob_height       = sinf(bob_angle) * GAME_PLAYER_RIG_JIG_BOB_HEIGHT;
+
+        pos_anchor.x = pos_connor.x + player_rig->jig_offset_x;
+        pos_anchor.y = pos_connor.y + 0.100f + bob_height;
+        pos_anchor.z = pos_connor.z + arc_depth;
         assert(eng_cmpnt_update_position(player_rig->jig_anchor_id, pos_anchor));
 
         // render quads

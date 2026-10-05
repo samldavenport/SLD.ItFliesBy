@@ -58,6 +58,14 @@ namespace ifb {
         return((f32)dt_s);
     }
     
+    IFB_ENGINE_API f32
+    eng_system_get_delta_time_s(
+        void) {
+
+        const f32 dt_s = system_get_delta_time_s();
+        return(dt_s);
+    }
+
     IFB_ENG_INTERNAL u32
     system_get_memory_page_size(
         void) {
