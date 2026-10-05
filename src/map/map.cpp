@@ -56,12 +56,16 @@ namespace ifb {
         map_dimensions&  dims   = tbl_map->dims        [index]; 
         cstr_c16&        name   = tbl_map->name        [index];
         map_chunk_array& chunks = tbl_map->chunk_array [index];
+        vec3&            origin = tbl_map->origin      [index];
 
         cstr_c16_init(&name, map_name);
-        hnd = cstr_c16_hash(&name); 
+        hnd = cstr_c16_hash(&name);
         dims.count_chunks = 0;
         dims.count_rows   = count_rows;
         dims.count_cols   = count_cols;
+        origin.x          = 0.0f;
+        origin.y          = 0.0f;
+        origin.z          = 0.0f;
 
         return(hnd);
     }
@@ -161,7 +165,7 @@ namespace ifb {
                   ++chunk_tile_index) {
 
                 // calculate the row and column
-                const u32 row = (chunk_tile_index / chunk.count_rows) + chunk.origin_row;
+                const u32 row = (chunk_tile_index / chunk.count_cols) + chunk.origin_row;
                 const u32 col = (chunk_tile_index % chunk.count_cols) + chunk.origin_col;
 
                 // get the next tile
@@ -181,20 +185,20 @@ namespace ifb {
               cmpnt_position&   pos) {
 
         const auto& cfg = config_instance();
-        
-        // get the map dimensions;
-        map_dimensions dims;
-        if(!map_get_dimensions(coords.h_map, dims)) {
+
+        // get the map origin
+        vec3 origin;
+        if(!map_get_origin(coords.h_map, origin)) {
             return(false);
         }
 
         map_calculate_position(
             cfg.map_tile_unit_size,
-            dims,
+            origin,
             coords,
             pos
         );
-    
+
         return(true);
     }
 
@@ -205,22 +209,96 @@ namespace ifb {
 
         const auto& cfg = config_instance();
 
-        // get the map dimensions;
-        map_dimensions dims;
-        if (!map_get_dimensions(coords.h_map, dims)) {
+        // get the map origin
+        vec3 origin;
+        if (!map_get_origin(coords.h_map, origin)) {
             return(false);
         }
 
         map_calculate_coordinates(
             cfg.map_tile_unit_size,
-            dims,
+            origin,
             pos,
             coords
         );
 
         return(true);
     }
-    
+
+    IFB_INTERNAL bool
+    map_is_in_bounds(
+        const cmpnt_map_coords& coords) {
+
+        // get the map dimensions;
+        map_dimensions dims;
+        if (!map_get_dimensions(coords.h_map, dims)) {
+            return(false);
+        }
+
+        const bool is_in_bounds = map_calculate_is_in_bounds(dims, coords);
+        return(is_in_bounds);
+    }
+
+    IFB_INTERNAL bool
+    map_get_origin(
+        const hnd_map map_hnd,
+        vec3&         origin) {
+
+        const u32 map_index = map_lookup_index(map_hnd);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        origin = _map_mngr->tbl_map->origin[map_index];
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    map_set_origin(
+        const hnd_map map_hnd,
+        const vec3&   origin) {
+
+        const u32 map_index = map_lookup_index(map_hnd);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        _map_mngr->tbl_map->origin[map_index] = origin;
+        return(true);
+    }
+
+    IFB_INTERNAL void
+    map_entity_lookup_coords(
+        const entity&     e,
+        cmpnt_map_coords& coords) {
+
+        // the component tells us which map the entity is on
+        cmpnt_lookup_map_coords(e.index_sparse, coords);
+
+        // the coordinates always come from the position
+        if (e.archetype.has_all(cmpnt_type_e_position | cmpnt_type_e_map_coords)) {
+            cmpnt_position pos;
+            cmpnt_lookup_position         (e.index_sparse, pos);
+            (void)map_get_coords_from_pos (pos, coords);
+        }
+    }
+
+    IFB_INTERNAL void
+    map_entity_update_coords(
+        const entity&           e,
+        const cmpnt_map_coords& coords) {
+
+        cmpnt_update_map_coords(e.index_sparse, coords);
+
+        // move the entity to the coordinates
+        if (e.archetype.has_all(cmpnt_type_e_position | cmpnt_type_e_map_coords)) {
+            cmpnt_position pos;
+            if (map_get_pos_from_coords(coords, pos)) {
+                cmpnt_update_position(e.index_sparse, pos);
+            }
+        }
+    }
+
     IFB_INTERNAL entity_list*
     map_get_entities(
         const hnd_map   h_map,
@@ -246,7 +324,7 @@ namespace ifb {
             const bool did_find = entity_lookup_by_index_dense(e, entity_index); 
             assert(did_find);
 
-            if (!e.archetype.has_any(cmpnt_type_e_map_coords)) {
+            if (e.archetype.has_any(cmpnt_type_e_map_coords)) {
                 cmpnt_lookup_map_coords(e.index_sparse, mc);
                 if (mc.h_map == h_map) {
                     (void)entity_list_add(e_list, e.id);     

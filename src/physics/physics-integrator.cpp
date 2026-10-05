@@ -6,7 +6,6 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "entity.hpp"
-#include "map.cpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
 #include "sld-math-types.hpp"
@@ -23,47 +22,32 @@ namespace ifb {
         cmpnt_term_velocity* term_velocity;
         cmpnt_inv_mass*      inv_mass;
         cmpnt_drag*          drag;
-        cmpnt_map_coords*    map_coords;
     };
 
     inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
-    inline bool phys_frc_intgrtr_lookup_map_components    (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
     inline void phys_frc_intgrtr_exec                     (phys_frc_intgrtr* i, const f32 dt);
     inline void phys_frc_intgrtr_update_global_components (phys_frc_intgrtr* i);
-    inline void phys_frc_intgrtr_update_map_components    (phys_frc_intgrtr* i);
 
-    IFB_INTERNAL void 
+    IFB_INTERNAL void
     phys_frc_intgrtr_run(
         phys_frc_intgrtr*       integrator,
         const phys_frc_accmltr* accum,
         const f32               dt) {
 
-        /////////////////////
-        // GLOBAL FORCES
-        ////////////////////
-
         // load all components into the integrator
         // with forces and matching archetype
+        // map entities integrate in world space like everything else,
+        // their map coordinates are derived from the position
         if (!phys_frc_intgrtr_lookup_global_components(integrator, accum)) {
             return;
         }
 
         // do the integration and update components
-        phys_frc_intgrtr_exec                     (integrator, dt);             
-        phys_frc_intgrtr_update_global_components (integrator);            
-  
+        phys_frc_intgrtr_exec                     (integrator, dt);
+        phys_frc_intgrtr_update_global_components (integrator);
+
         // reset
         integrator->count = 0;
-        
-        /////////////////////
-        // MAP FORCES
-        ////////////////////
-
-        // load all physics components on the map
-        phys_frc_intgrtr_lookup_map_components(integrator, accum);
-
-        // do the integration and update components
-        phys_frc_intgrtr_exec(integrator, dt);
     }
 
     IFB_INTERNAL phys_frc_intgrtr* 
@@ -92,8 +76,7 @@ namespace ifb {
         integrator->acceleration  = (cmpnt_acceleration*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_acceleration)); 
         integrator->term_velocity =(cmpnt_term_velocity*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_term_velocity)); 
         integrator->inv_mass      =     (cmpnt_inv_mass*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_inv_mass)); 
-        integrator->drag          =         (cmpnt_drag*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_drag)); 
-        integrator->map_coords    =   (cmpnt_map_coords*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_map_coords)); 
+        integrator->drag          =         (cmpnt_drag*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_drag));
 
         assert(integrator->force         != NULL);
         assert(integrator->position      != NULL);
@@ -102,7 +85,6 @@ namespace ifb {
         assert(integrator->term_velocity != NULL);
         assert(integrator->inv_mass      != NULL);
         assert(integrator->drag          != NULL);
-        assert(integrator->map_coords    != NULL);
 
         return(integrator);
     }
@@ -133,10 +115,7 @@ namespace ifb {
             assert(did_lookup);
 
             // make sure it matches the archetype for integration
-            // for now, we are excluding map entities
-            const bool should_integrate = 
-                e.archetype.has_all(physics_types) &&
-                e.archetype.has_none(cmpnt_type_e_map_coords);
+            const bool should_integrate = e.archetype.has_all(physics_types);
             if (!should_integrate) continue;
 
 
@@ -149,8 +128,7 @@ namespace ifb {
             cmpnt_lookup_inv_mass      (e.index_sparse, i->inv_mass      [integrator_index]);
             cmpnt_lookup_drag          (e.index_sparse, i->drag          [integrator_index]);
             cmpnt_lookup_term_velocity (e.index_sparse, i->term_velocity [integrator_index]);
-            cmpnt_lookup_map_coords    (e.index_sparse, i->map_coords    [integrator_index]);
-           
+
             i->force        [integrator_index] = a->data.forces[force_index];
             i->sparse_index [integrator_index] = e.index_sparse;
 
@@ -160,55 +138,6 @@ namespace ifb {
         return(i->count > 0);
     }
 
-    inline bool 
-    phys_frc_intgrtr_lookup_map_components(
-        phys_frc_intgrtr*       i,
-        const phys_frc_accmltr* a) {
-
-        const component_type physics_types = (
-            cmpnt_type_e_position      |
-            cmpnt_type_e_velocity      |
-            cmpnt_type_e_acceleration  |
-            cmpnt_type_e_inv_mass      |
-            cmpnt_type_e_drag          |
-            cmpnt_type_e_term_velocity | 
-            cmpnt_type_e_map_coords 
-        );
-
-        for (
-            u32 force_index = 0;
-                force_index < a->count;
-              ++force_index) {
-        
-            // look up the entity
-            entity e;
-            const bool did_lookup = entity_lookup_by_id(e, a->data.ids[force_index]);
-            assert(did_lookup);
-
-            // make sure it matches the archetype for integration
-            // for now, we are excluding map entities
-            const bool should_integrate = e.archetype.has_all(physics_types);
-            if (!should_integrate) continue;
-
-
-            // add the components to the intregrator 
-            const u32 integrator_index = i->count;
-            // look up the components
-            cmpnt_lookup_velocity      (e.index_sparse, i->velocity     [integrator_index]);            
-            cmpnt_lookup_acceleration  (e.index_sparse, i->acceleration [integrator_index]);            
-            cmpnt_lookup_inv_mass      (e.index_sparse, i->inv_mass     [integrator_index]);
-            cmpnt_lookup_drag          (e.index_sparse, i->drag         [integrator_index]);
-            cmpnt_lookup_term_velocity (e.index_sparse, i->term_velocity[integrator_index]);
-            cmpnt_lookup_map_coords    (e.index_sparse, i->map_coords   [integrator_index]);
-
-            // calculate the position from the map coordinates
-            map_get_pos_from_coords(i->map_coords[integrator_index], i->position[integrator_index]);
-            ++i->count;
-        }
-
-        return(i->count > 0);
-    }
-    
     inline void
     phys_frc_intgrtr_exec(
         phys_frc_intgrtr* i, const f32 dt) {
@@ -275,29 +204,6 @@ namespace ifb {
             cmpnt_update_position      (i->sparse_index[index], i->position[index]);
             cmpnt_update_velocity      (i->sparse_index[index], i->velocity[index]);     
             cmpnt_update_acceleration  (i->sparse_index[index], i->acceleration[index]);   
-        } 
-    }
-    
-    inline void
-    phys_frc_intgrtr_update_map_components(
-        phys_frc_intgrtr* i) {
-        
-        
-        for (
-            u32 index = 0;
-            index < i->count;
-            ++index
-        ) {
-
-            const u32 sparse_index = i->sparse_index[index];
-
-            //TODO(SLD): we need to detect for map boundaries
-
-            map_get_coords_from_pos    (i->position[index], i->map_coords[index]);
-            cmpnt_update_position      (sparse_index, i->position    [index]);
-            cmpnt_update_velocity      (sparse_index, i->velocity    [index]);     
-            cmpnt_update_acceleration  (sparse_index, i->acceleration[index]);   
-            cmpnt_update_map_coords    (sparse_index, i->map_coords  [index]);
         } 
     }
 }; 

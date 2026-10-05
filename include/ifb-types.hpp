@@ -36,9 +36,7 @@ namespace ifb {
     constexpr u32 INVALID_HANDLE    = INVALID_U32;
     constexpr u32 INVALID_ID        = INVALID_U32;
     constexpr u32 ENTITY_TAG_SIZE   = 16;
-    constexpr f32 MAP_COORD_INVALID = (f32)INVALID_U32;
-    constexpr f32 POS_INVALID       = (f32)INVALID_U32;
-    constexpr f32 POS_MAX           =  1.0f;
+    constexpr f32 POS_MAX          =  1.0f;
     constexpr f32 POS_MIN           = -1.0f;
 
     //--------------------------------------------------------------------
@@ -245,11 +243,14 @@ namespace ifb {
         f32 normal_val;
     };
 
+    // the position component is the source of truth for where an entity is
+    // h_map is the map the entity belongs to, the rest is the position
+    // measured in tiles from the map origin: columns along x, levels along y, rows along z
     struct cmpnt_map_coords {
         hnd_map h_map;
-        f32     row_x;
+        f32     col_x;
         f32     lvl_y;
-        f32     col_z;
+        f32     row_z;
     };
 
     struct cmpnt_spring {

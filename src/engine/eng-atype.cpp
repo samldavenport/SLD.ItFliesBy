@@ -8,6 +8,7 @@
 #include "entity-component.cpp"
 #include "ifb-entity.hpp"
 #include "ifb-types.hpp"
+#include "map.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
 #include "renderer.hpp"
@@ -36,7 +37,7 @@ namespace ifb {
             cmpnt_lookup_position   (e.index_sparse, quad.position);
             cmpnt_lookup_color      (e.index_sparse, quad.color);
             cmpnt_lookup_quad       (e.index_sparse, quad.quad);
-            cmpnt_lookup_map_coords (e.index_sparse, quad.map_coords);
+            map_entity_lookup_coords(e, quad.map_coords);
         }
 
         return(result);
@@ -91,7 +92,7 @@ namespace ifb {
             cmpnt_lookup_inv_mass     (e.index_sparse, physics_quad.inv_mass);
             cmpnt_lookup_drag         (e.index_sparse, physics_quad.drag);
             cmpnt_lookup_term_velocity(e.index_sparse, physics_quad.term_velocity);
-            cmpnt_lookup_map_coords   (e.index_sparse, physics_quad.map_coords);
+            map_entity_lookup_coords  (e, physics_quad.map_coords);
         }
 
         return(result);
