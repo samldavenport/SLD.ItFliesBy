@@ -15,13 +15,10 @@ namespace ifb {
         map->eng_hnd = eng_map_create("dev-map", 10, 10);
         assert(map->eng_hnd != INVALID_HANDLE);
 
-        const u32 chunk_index = eng_map_chunk_create(
-            map->eng_hnd,
-            10, 10,
-            0,  0, 
-            map_color_e_purple_dark
-        );
-        assert(chunk_index != INVALID_INDEX);
+        const u32 chunk_index_0 = eng_map_chunk_create(map->eng_hnd, 10, 10,   0,  0, map_color_e_purple_dark);
+        const u32 chunk_index_1 = eng_map_chunk_create(map->eng_hnd,  5,  5,  10, 10, map_color_e_red_light);
+        assert(chunk_index_0 != INVALID_INDEX);
+        assert(chunk_index_1 != INVALID_INDEX);
 
         map->chunk_count = 1;
     }
