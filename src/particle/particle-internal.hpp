@@ -12,6 +12,7 @@ namespace ifb {
 
     struct particle_emitter {
         hnd_particle_emitter hnd;
+        u32                  count;
         f32                  lifespan_ms;
         f32                  height;
         f32                  width;
@@ -23,18 +24,10 @@ namespace ifb {
         cstr_c16             name;
     };  
 
-   
-    IFB_INTERNAL void
-    particle_mngr_set_emitter(
-        const u32                  index,
-        const hnd_particle_emitter hnd,
-        const f32                  lifespan_ms,
-        const f32                  height,
-        const f32                  width,
-        const color_rgba_u32       color_primary,
-        const color_rgba_u32       color_secondary,
-        const cstr_c16&            name
-    );
+    IFB_INTERNAL particle_emitter& particle_mngr_get_emitter  (const u32 index);
+    IFB_INTERNAL particle_emitter& particle_mngr_set_handle   (const u32 index, const hnd_particle_emitter);
+    IFB_INTERNAL u32               particle_mngr_find_emitter_index_existing (const hnd_particle_emitter h_emitter);
+    IFB_INTERNAL u32               particle_mngr_find_emitter_index_new      (const hnd_particle_emitter h_emitter);
 };
 
 #endif //PARTICLE_INTERNAL_HPP

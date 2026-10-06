@@ -149,39 +149,72 @@ namespace ifb {
         const hnd_particle_emitter hnd = _particle_mngr->array_hnd[index];  
         return(hnd);
     }
-
-    IFB_INTERNAL void
-    particle_mngr_set_emitter(
+    
+    IFB_INTERNAL particle_emitter&
+    particle_mngr_set_handle(
         const u32                  index,
-        const hnd_particle_emitter hnd,
-        const f32                  lifespan_ms,
-        const f32                  height,
-        const f32                  width,
-        const color_rgba_u32       color_primary,
-        const color_rgba_u32       color_secondary,
-        const cstr_c16             name) {
+        const hnd_particle_emitter hnd) {
+
+        assert(_particle_mngr);
+        assert(_particle_mngr->array_hnd);
+        assert(_particle_mngr->capacity > index);
+    
+        _particle_mngr->array_hnd[index] = hnd;
+    }
+    
+    IFB_INTERNAL u32
+    particle_mngr_find_emitter_index_new(
+        const hnd_particle_emitter h_emitter) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        u32 emitter_index_new = INVALID_INDEX; 
+        for (
+            u32 emitter_index_curr = 0;
+                emitter_index_curr < _particle_mngr->capacity;
+              ++emitter_index_curr) {
+
+            const hnd_particle_emitter hnd_curr = _particle_mngr->array_hnd[emitter_index_curr]; 
+            assert(h_emitter != hnd_curr);
+            if (emitter_index_new == INVALID_INDEX && hnd_curr == INVALID_HANDLE) {
+                emitter_index_new = emitter_index_curr;
+            }
+        }   
+
+        return(emitter_index_new);
+    }
+    
+    IFB_INTERNAL u32
+    particle_mngr_find_emitter_index_existing(
+        const hnd_particle_emitter h_emitter) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        u32 emitter_index = INVALID_INDEX; 
+        for (
+            u32 emitter_index_curr = 0;
+                emitter_index_curr < _particle_mngr->capacity;
+              ++emitter_index_curr) {
+
+            if (h_emitter == _particle_mngr->array_hnd[emitter_index_curr]) {
+                emitter_index = emitter_index_curr;
+                break;
+            }
+        }
+
+        return(emitter_index);
+    }
+    
+    IFB_INTERNAL particle_emitter& 
+    particle_mngr_get_emitter(
+        const u32 index) {
 
         assert(_particle_mngr);
         assert(_particle_mngr->array_emitters);
-        assert(_particle_mngr->capacity > index); 
-        assert(hnd         != INVALID_HANDLE);
-        assert(lifespan_ms != 0);
-        assert(height      != 0);
-        assert(width       != 0);
+        assert(_particle_mngr->capacity > index);
 
-        _particle_mngr->array_hnd[index] = hnd;
-        particle_emitter& emitter = _particle_mngr->array_emitters[index]; 
-        emitter.hnd             = hnd;
-        emitter.lifespan_ms     = lifespan_ms;
-        emitter.height          = height;
-        emitter.width           = width;
-        emitter.color_primary   = color_primary;
-        emitter.color_secondary = color_secondary;
-        emitter.name            = name; 
-   
-        const auto& cfg = config_instance();
-        zero_memory((void*)emitter.array_life_ms,  cfg.particle_bufffer_count * sizeof(f32)); 
-        zero_memory((void*)emitter.array_colors,   cfg.particle_bufffer_count * sizeof(color_rgba_u32)); 
-        zero_memory((void*)emitter.array_position, cfg.particle_bufffer_count * sizeof(vec3)); 
+        auto& emitter = _particle_mngr->array_emitters[index];
+        return(emitter);
     }
+
 };

@@ -213,6 +213,16 @@ namespace ifb {
         vec3 position;
     };
 
+    struct particle_emitter_info {
+        const cchar*    name;
+        u32             count;
+        f32             lifespan_ms;
+        f32             height;
+        f32             width;
+        color_rgba_u32  color_primary;
+        color_rgba_u32  color_secondary;
+    };
+    
     //--------------------------------------------------------------------
     // COMPONENT TYPES
     //--------------------------------------------------------------------

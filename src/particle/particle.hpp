@@ -15,6 +15,7 @@ namespace ifb {
     struct particle_mngr;
     struct particle_buffer;
 
+
     //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
@@ -28,20 +29,18 @@ namespace ifb {
 
     IFB_INTERNAL hnd_particle_emitter
     particle_emitter_create(
-        const cchar* name,
-        const u32    count,
-        const f32    life,
-        const f32    width,
-        const f32    height,
-        const vec3&  color_primary,
-        const vec3&  color_secondary
+        const cchar*           name,
+        const u32              count,
+        const f32              lifespan_ms,
+        const f32              width,
+        const f32              height,
+        const color_rgba_u32&  color_primary,
+        const color_rgba_u32&  color_secondary
     );
 
-    IFB_INTERNAL void
-    particle_emitter_destroy(const hnd_particle_emitter h_emitter);
-
-    IFB_INTERNAL particle_buffer*
-    particle_emitter_render_buffer(const hnd_particle_emitter h_emitter, const hnd_arena h_arena, const vec3& offset);
+    IFB_INTERNAL void             particle_emitter_destroy       (const hnd_particle_emitter h_emitter);
+    IFB_INTERNAL particle_buffer* particle_emitter_render_buffer (const hnd_particle_emitter h_emitter, const hnd_arena h_arena, const vec3& offset);
+    IFB_INTERNAL bool             particle_emitter_get_info      (const hnd_particle_emitter h_emitter, particle_emitter_info& info);
 
     //--------------------------------------------------------------------
     // DEFINITIONS 
