@@ -1,0 +1,40 @@
+# The engine and exe are unity builds, so compile_commands.json only has
+# entries for eng.cpp and win32-main.cpp. For every other file clangd borrows
+# the command of whichever entry looks closest, and for include/ that is
+# SLD.Core's sld.cpp, which has none of the other sld include paths.
+#
+# Paths are relative to the build directory (build/<preset>).
+If:
+  PathMatch: (include|src)/.*
+CompileFlags:
+  Add:
+    - -I../../include
+    - -I../../SLD.Core/include
+    - -I../../SLD.OpenGL/include
+    - -I../../SLD.Math/include
+    - -I../../SLD.Strings/include
+    - -I../../src/collections
+    - -I../../src/components
+    - -I../../src/engine
+    - -I../../src/entities
+    - -I../../src/files
+    - -I../../src/game
+    - -I../../src/gui
+    - -I../../src/json
+    - -I../../src/map
+    - -I../../src/memory
+    - -I../../src/physics
+    - -I../../src/quads
+    - -I../../src/renderer
+    - -I../../src/tiled
+    - -I../../src/win32
+    - -Ivcpkg_installed/x64-windows/include
+---
+# SLD.Math is header only, so it has no entry in compile_commands.json at all.
+If:
+  PathMatch: SLD\.Math/(include|src)/.*
+CompileFlags:
+  Add:
+    - -I../../SLD.Math/include
+    - -I../../SLD.Math/src
+    - -I../../SLD.Core/include

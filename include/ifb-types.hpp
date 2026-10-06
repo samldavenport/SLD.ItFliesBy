@@ -36,7 +36,7 @@ namespace ifb {
     constexpr u32 INVALID_HANDLE    = INVALID_U32;
     constexpr u32 INVALID_ID        = INVALID_U32;
     constexpr u32 ENTITY_TAG_SIZE   = 16;
-    constexpr f32 POS_MAX          =  1.0f;
+    constexpr f32 POS_MAX           =  1.0f;
     constexpr f32 POS_MIN           = -1.0f;
 
     //--------------------------------------------------------------------
@@ -44,18 +44,19 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     enum cmpnt_type_e {
-        cmpnt_type_e_none          = 0, 
-        cmpnt_type_e_position      = bit_value(0),
-        cmpnt_type_e_color         = bit_value(1),
-        cmpnt_type_e_quad          = bit_value(2),
-        cmpnt_type_e_rigid_body    = bit_value(3),
-        cmpnt_type_e_velocity      = bit_value(4),
-        cmpnt_type_e_acceleration  = bit_value(5),
-        cmpnt_type_e_inv_mass      = bit_value(6),
-        cmpnt_type_e_drag          = bit_value(7),
-        cmpnt_type_e_term_velocity = bit_value(8),
-        cmpnt_type_e_spring        = bit_value(9),
-        cmpnt_type_e_map_coords    = bit_value(10)
+        cmpnt_type_e_none             = 0, 
+        cmpnt_type_e_position         = bit_value(0),
+        cmpnt_type_e_color            = bit_value(1),
+        cmpnt_type_e_quad             = bit_value(2),
+        cmpnt_type_e_rigid_body       = bit_value(3),
+        cmpnt_type_e_velocity         = bit_value(4),
+        cmpnt_type_e_acceleration     = bit_value(5),
+        cmpnt_type_e_inv_mass         = bit_value(6),
+        cmpnt_type_e_drag             = bit_value(7),
+        cmpnt_type_e_term_velocity    = bit_value(8),
+        cmpnt_type_e_spring           = bit_value(9),
+        cmpnt_type_e_map_coords       = bit_value(10),
+        cmpnt_type_e_particle_emitter = bit_value(11)
     };
     
     enum map_tile_flag_e {
@@ -206,6 +207,11 @@ namespace ifb {
         };
     };
 
+    struct particle {
+        vec3 color;
+        vec3 position;
+    };
+
     //--------------------------------------------------------------------
     // COMPONENT TYPES
     //--------------------------------------------------------------------
@@ -223,6 +229,7 @@ namespace ifb {
     struct cmpnt_map_coords;
     struct cmpnt_spring;
     struct cmpnt_map_coords; 
+    struct cmpnt_particle_emitter;
 
     struct cmpnt_quad {
         f32 width;
@@ -230,9 +237,9 @@ namespace ifb {
     };
 
     struct cmpnt_rigid_body {
-        vec3     origin;
-        f32 width;
-        f32 height;
+        vec3 origin;
+        f32  width;
+        f32  height;
     };
 
     struct cmpnt_inv_mass {
@@ -259,6 +266,15 @@ namespace ifb {
         f32       stiffness;
         f32       damping;
         f32       rest_length;
+    };
+    
+    struct cmpnt_particle_emitter {
+        u32            count;
+        f32            life_ms;
+        f32            width;
+        f32            height;
+        color_rgba_u32 color_primary;
+        color_rgba_u32 color_secondary;
     };
 
     //--------------------------------------------------------------------

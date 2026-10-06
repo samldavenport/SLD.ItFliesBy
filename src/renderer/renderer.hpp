@@ -35,6 +35,7 @@ namespace ifb {
     struct renderer_grid_shader;
     struct renderer_tile_vertex;
     struct renderer_tile_shader;
+    struct renderer_particle_shader;
 
     //--------------------------------------------------------------------
     // GLOBALS
@@ -96,6 +97,11 @@ namespace ifb {
     IFB_INTERNAL void renderer_tile_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL bool renderer_tile_set_map                  (const hnd_map map_hnd);
     IFB_INTERNAL void renderer_tile_draw                     (const mat4& view_proj_xform);
+
+    // particles
+    IFB_INTERNAL void renderer_particle_shader_create (void);
+    IFB_INTERNAL void renderer_particle_shader_init   (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL void renderer_particle_system_push   (void);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
