@@ -36,6 +36,11 @@ namespace ifb {
     IFB_INTERNAL u32             map_lookup_index   (const hnd_map map_hnd);
     IFB_INTERNAL map_dimensions& map_get_dimensions (const u32 map_index);
     IFB_INTERNAL map_chunk&      map_get_chunk      (const u32 map_index, const u32 chunk_index);
+    IFB_INTERNAL bool            map_is_tile_navigable (const u32 map_index, const s32 row, const s32 col);
+
+    // limits for pushing an entity back onto the chunks, in tile units
+    static constexpr u32 MAP_CONSTRAIN_ITERATION_COUNT = 8;
+    static constexpr f32 MAP_CONSTRAIN_EPSILON         = 0.0001f;
 
     struct map {
         cstr_c16*      name;

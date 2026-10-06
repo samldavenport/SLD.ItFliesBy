@@ -139,6 +139,42 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
+    eng_map_chunk_get_dimensions(
+        const hnd_map map,
+        const u32     chunk_index,
+        u32&          count_rows,
+        u32&          count_cols,
+        u32&          origin_row,
+        u32&          origin_col) {
+
+        assert(map != INVALID_HANDLE);
+
+        const bool did_get = map_chunk_get_dimensions(
+            map,
+            chunk_index,
+            count_rows,
+            count_cols,
+            origin_row,
+            origin_col
+        );
+        return(did_get);
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_get_navigable_bounds(
+        const hnd_map map,
+        u32&          row_min,
+        u32&          col_min,
+        u32&          row_max,
+        u32&          col_max) {
+
+        assert(map != INVALID_HANDLE);
+
+        const bool did_get = map_get_navigable_bounds(map, row_min, col_min, row_max, col_max);
+        return(did_get);
+    }
+
+    IFB_ENGINE_API bool
     eng_map_is_in_bounds(
         const cmpnt_map_coords& coords) {
 
