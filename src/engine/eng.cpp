@@ -46,6 +46,8 @@
 #include "memory-block.cpp"
 #include "memory-reservation.cpp"
 
+#include "particle-mngr.cpp"
+
 #include "physics-manager.cpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-entity.cpp"

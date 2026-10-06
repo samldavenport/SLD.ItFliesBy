@@ -23,12 +23,15 @@ CompileFlags:
     - -I../../src/json
     - -I../../src/map
     - -I../../src/memory
+    - -I../../src/particle
     - -I../../src/physics
     - -I../../src/quads
     - -I../../src/renderer
     - -I../../src/tiled
     - -I../../src/win32
     - -Ivcpkg_installed/x64-windows/include
+    - -DIFB_ENGINE_DLL_EXPORT
+    - -DIFB_API_DLL_EXPORT
 ---
 # SLD.Math is header only, so it has no entry in compile_commands.json at all.
 If:

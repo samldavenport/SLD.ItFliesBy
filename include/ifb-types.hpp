@@ -121,6 +121,7 @@ namespace ifb {
     IFB_HANDLE(hnd_arena);
     IFB_HANDLE(hnd_file);
     IFB_HANDLE(hnd_map);
+    IFB_HANDLE(hnd_particle_emitter);
    
     //--------------------------------------------------------------------
     // DEFINITIONS

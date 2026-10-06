@@ -10,6 +10,7 @@
 #include "component.hpp"
 #include "physics.hpp"
 #include "map.hpp"
+#include "particle.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -37,8 +38,9 @@ namespace ifb {
         entity_mngr*       entity_mngr;
         memory_mngr*       memory_mngr;
         cmpnt_mngr*        cmpnt_mngr;
-        phys_mngr*      phys_mngr;
-        map_mngr*         map_mngr;
+        phys_mngr*         phys_mngr;
+        map_mngr*          map_mngr;
+        particle_mngr*     particle_mngr;
     } static * _eng_context;
 
     struct global_stack {
