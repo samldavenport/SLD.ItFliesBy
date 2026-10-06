@@ -20,9 +20,21 @@ namespace ifb {
         f32*                 array_life_ms;
         color_rgba_u32*      array_colors;
         vec3*                array_position;
-        cstr_c16*            name;
+        cstr_c16             name;
     };  
 
+   
+    IFB_INTERNAL void
+    particle_mngr_set_emitter(
+        const u32                  index,
+        const hnd_particle_emitter hnd,
+        const f32                  lifespan_ms,
+        const f32                  height,
+        const f32                  width,
+        const color_rgba_u32       color_primary,
+        const color_rgba_u32       color_secondary,
+        const cstr_c16&            name
+    );
 };
 
 #endif //PARTICLE_INTERNAL_HPP

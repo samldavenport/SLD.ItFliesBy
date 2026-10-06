@@ -3,7 +3,12 @@
 #include <cassert>
 
 #include "eng-internal.hpp"
+#include "ifb-config.hpp"
+#include "ifb-types.hpp"
 #include "particle-internal.hpp"
+#include "sld-math-types.hpp"
+#include "sld-strings.hpp"
+#include "sld.hpp"
 
 namespace ifb {
 
@@ -12,20 +17,12 @@ namespace ifb {
         u32                   capacity;
         hnd_particle_emitter* array_hnd;
         particle_emitter*     array_emitters;
-        cstr_c16*             array_name;
-        f32*                  array_life_ms;
-        color_rgba_u32*       array_colors;
-        vec3*                 array_position;
     } static * _particle_mngr;
 
     // the unaligned size of every array in the manager
     struct particle_mngr_sizes {
         u32 hnd;
         u32 emitters;
-        u32 name;
-        u32 life_ms;
-        u32 colors;
-        u32 position;
     };
 
     //--------------------------------------------------------------------
@@ -43,12 +40,8 @@ namespace ifb {
         const u32   particle_count = capacity * cfg.particle_bufffer_count;
 
         particle_mngr_sizes sizes;
-        sizes.hnd      = capacity       * sizeof(hnd_particle_emitter);
-        sizes.emitters = capacity       * sizeof(particle_emitter);
-        sizes.name     = capacity       * sizeof(cstr_c16);
-        sizes.life_ms  = particle_count * sizeof(f32);
-        sizes.colors   = particle_count * sizeof(color_rgba_u32);
-        sizes.position = particle_count * sizeof(vec3);
+        sizes.hnd      = capacity  * sizeof(hnd_particle_emitter);
+        sizes.emitters = capacity  * sizeof(particle_emitter);
         return(sizes);
     }
 
@@ -61,11 +54,7 @@ namespace ifb {
 
         const u32 size_array[] = {
             sizes.hnd,
-            sizes.emitters,
-            sizes.name,
-            sizes.life_ms,
-            sizes.colors,
-            sizes.position
+            sizes.emitters
         };
 
         u32 size_total = 0;
@@ -124,16 +113,8 @@ namespace ifb {
         // allocate memory
         _particle_mngr->array_hnd      = (hnd_particle_emitter*)reservation_push_bytes(res, sizes.hnd);
         _particle_mngr->array_emitters =     (particle_emitter*)reservation_push_bytes(res, sizes.emitters);
-        _particle_mngr->array_name     =             (cstr_c16*)reservation_push_bytes(res, sizes.name);
-        _particle_mngr->array_life_ms  =                  (f32*)reservation_push_bytes(res, sizes.life_ms);
-        _particle_mngr->array_colors   =       (color_rgba_u32*)reservation_push_bytes(res, sizes.colors);
-        _particle_mngr->array_position =                 (vec3*)reservation_push_bytes(res, sizes.position);
         assert(_particle_mngr->array_hnd);
         assert(_particle_mngr->array_emitters);
-        assert(_particle_mngr->array_name);
-        assert(_particle_mngr->array_life_ms);
-        assert(_particle_mngr->array_colors);
-        assert(_particle_mngr->array_position);
 
         // point each emitter at its slice of the particle arrays
         for (
@@ -145,12 +126,62 @@ namespace ifb {
             particle_emitter& emitter        = _particle_mngr->array_emitters[emitter_index];
 
             _particle_mngr->array_hnd[emitter_index] = INVALID_HANDLE;
-
             emitter.hnd            = INVALID_HANDLE;
-            emitter.name           = &_particle_mngr->array_name     [emitter_index];
-            emitter.array_life_ms  = &_particle_mngr->array_life_ms  [particle_index];
-            emitter.array_colors   = &_particle_mngr->array_colors   [particle_index];
-            emitter.array_position = &_particle_mngr->array_position [particle_index];
         }
+    }
+    
+    IFB_INTERNAL u32
+    particle_mngr_get_emitter_capacity(
+        void) {
+
+        assert(_particle_mngr);
+        return(_particle_mngr->capacity);
+    }
+    
+    IFB_INTERNAL hnd_particle_emitter
+    particle_mngr_get_emitter_hnd(
+        const u32 index) {
+
+        assert(_particle_mngr);
+        assert(_particle_mngr->array_hnd);
+        assert(_particle_mngr->capacity > index);
+    
+        const hnd_particle_emitter hnd = _particle_mngr->array_hnd[index];  
+        return(hnd);
+    }
+
+    IFB_INTERNAL void
+    particle_mngr_set_emitter(
+        const u32                  index,
+        const hnd_particle_emitter hnd,
+        const f32                  lifespan_ms,
+        const f32                  height,
+        const f32                  width,
+        const color_rgba_u32       color_primary,
+        const color_rgba_u32       color_secondary,
+        const cstr_c16             name) {
+
+        assert(_particle_mngr);
+        assert(_particle_mngr->array_emitters);
+        assert(_particle_mngr->capacity > index); 
+        assert(hnd         != INVALID_HANDLE);
+        assert(lifespan_ms != 0);
+        assert(height      != 0);
+        assert(width       != 0);
+
+        _particle_mngr->array_hnd[index] = hnd;
+        particle_emitter& emitter = _particle_mngr->array_emitters[index]; 
+        emitter.hnd             = hnd;
+        emitter.lifespan_ms     = lifespan_ms;
+        emitter.height          = height;
+        emitter.width           = width;
+        emitter.color_primary   = color_primary;
+        emitter.color_secondary = color_secondary;
+        emitter.name            = name; 
+   
+        const auto& cfg = config_instance();
+        zero_memory((void*)emitter.array_life_ms,  cfg.particle_bufffer_count * sizeof(f32)); 
+        zero_memory((void*)emitter.array_colors,   cfg.particle_bufffer_count * sizeof(color_rgba_u32)); 
+        zero_memory((void*)emitter.array_position, cfg.particle_bufffer_count * sizeof(vec3)); 
     }
 };
