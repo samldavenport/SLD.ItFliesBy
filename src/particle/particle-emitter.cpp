@@ -63,10 +63,17 @@ namespace ifb {
         return(h_emitter_new);
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL bool 
     particle_emitter_destroy(
         const hnd_particle_emitter h_emitter) {
 
+        assert(h_emitter != INVALID_HANDLE);
+
+        const u32 index = particle_mngr_find_emitter_index_existing(h_emitter);
+        if (index == INVALID_INDEX) return(false);
+
+        particle_mngr_set_handle(index, INVALID_HANDLE);
+        return(true);
     }
 
     IFB_INTERNAL particle_buffer*
@@ -75,6 +82,7 @@ namespace ifb {
         const hnd_arena            h_arena,
         const vec3&                offset) {
 
+        //TODO(SLD): implement
     }
     
     IFB_INTERNAL bool

@@ -280,12 +280,7 @@ namespace ifb {
     };
     
     struct cmpnt_particle_emitter {
-        u32            count;
-        f32            life_ms;
-        f32            width;
-        f32            height;
-        color_rgba_u32 color_primary;
-        color_rgba_u32 color_secondary;
+        hnd_particle_emitter hnd;
     };
 
     //--------------------------------------------------------------------
