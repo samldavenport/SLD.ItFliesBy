@@ -186,18 +186,35 @@ namespace ifb {
     // TILE MAPS 
     //--------------------------------------------------------------------
    
-    IFB_ENGINE_API hnd_map eng_map_create              (const cchar*  name,  const u32 count_rows, const u32 count_cols); 
-    IFB_ENGINE_API u32     eng_map_chunk_create        (const hnd_map h_map, const u32 count_rows, const u32 count_cols, const u32 origin_row, const u32 origin_col, const map_color_u32 base_color);
-    IFB_ENGINE_API bool    eng_map_get_entity_coords   (const hnd_map h_map, const entity_id id, cmpnt_map_coords& coords);
-    IFB_ENGINE_API void    eng_map_destroy             (const hnd_map h_map);
-    IFB_ENGINE_API bool    eng_map_render              (const hnd_map h_map);
-    IFB_ENGINE_API bool    eng_map_get_pos_from_coords (const cmpnt_map_coords& coords, cmpnt_position& pos);
-    IFB_ENGINE_API bool    eng_map_get_coords_from_pos (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
-    IFB_ENGINE_API bool    eng_map_set_origin          (const hnd_map h_map, const vec3& origin);
-    IFB_ENGINE_API bool    eng_map_get_dimensions      (const hnd_map h_map, u32& count_rows, u32& count_cols);
-    IFB_ENGINE_API bool    eng_map_is_in_bounds        (const cmpnt_map_coords& coords);
+    IFB_ENGINE_API hnd_map eng_map_create               (const cchar*  name,  const u32 count_rows, const u32 count_cols); 
+    IFB_ENGINE_API u32     eng_map_chunk_create         (const hnd_map h_map, const u32 count_rows, const u32 count_cols, const u32 origin_row, const u32 origin_col, const map_color_u32 base_color);
+    IFB_ENGINE_API bool    eng_map_get_entity_coords    (const hnd_map h_map, const entity_id id, cmpnt_map_coords& coords);
+    IFB_ENGINE_API void    eng_map_destroy              (const hnd_map h_map);
+    IFB_ENGINE_API bool    eng_map_render               (const hnd_map h_map);
+    IFB_ENGINE_API bool    eng_map_get_pos_from_coords  (const cmpnt_map_coords& coords, cmpnt_position& pos);
+    IFB_ENGINE_API bool    eng_map_get_coords_from_pos  (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
+    IFB_ENGINE_API bool    eng_map_set_origin           (const hnd_map h_map, const vec3& origin);
+    IFB_ENGINE_API bool    eng_map_get_dimensions       (const hnd_map h_map, u32& count_rows, u32& count_cols);
+    IFB_ENGINE_API bool    eng_map_is_in_bounds         (const cmpnt_map_coords& coords);
     IFB_ENGINE_API bool    eng_map_chunk_get_dimensions (const hnd_map h_map, const u32 chunk_index, u32& count_rows, u32& count_cols, u32& origin_row, u32& origin_col);
     IFB_ENGINE_API bool    eng_map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
+
+    //--------------------------------------------------------------------
+    // PARTICLES 
+    //--------------------------------------------------------------------
+  
+    IFB_ENGINE_API hnd_particle_emitter
+    eng_particle_emitter_create(
+        const cchar*           name,
+        const u32              count,
+        const f32              lifespan_ms,
+        const f32              width,
+        const f32              height,
+        const color_rgba_u32&  color_primary,
+        const color_rgba_u32&  color_secondary
+    );
+    IFB_ENGINE_API bool eng_particle_emitter_destroy (const hnd_particle_emitter h_emitter);
+    IFB_ENGINE_API bool eng_particle_emitter_render  (const hnd_particle_emitter h_emitter);
 
     //--------------------------------------------------------------------
     // ARENAS

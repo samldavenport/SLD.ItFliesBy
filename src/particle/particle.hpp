@@ -5,6 +5,7 @@
 #include "ifb.hpp"
 #include "ifb-config.hpp"
 #include "memory.hpp"
+#include "sld.hpp"
 
 namespace ifb {
      
@@ -14,6 +15,7 @@ namespace ifb {
 
     struct particle_mngr;
     struct particle_buffer;
+    struct particle_vertex;
 
     //--------------------------------------------------------------------
     // METHODS 
@@ -48,6 +50,11 @@ namespace ifb {
     struct particle_buffer {
         u32       count;
         particle* particles;
+    };
+
+    struct particle_vertex {
+        vec3           position;
+        color_rgba_u32 color;
     };
 };
 

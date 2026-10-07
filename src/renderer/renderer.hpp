@@ -55,6 +55,7 @@ namespace ifb {
     IFB_INTERNAL void*             renderer_context_memory_alloc             (const u32 size);
     IFB_INTERNAL void              renderer_context_draw_buffers             (void);
     IFB_INTERNAL mat4              renderer_context_view_projection_xform    (void);
+    IFB_INTERNAL entity_list*      renderer_context_create_entity_list       (void);
 
     // camera
     IFB_INTERNAL void renderer_camera_init                   (void);
@@ -75,7 +76,7 @@ namespace ifb {
     IFB_INTERNAL f32  renderer_projection_get_aspect_ratio   (void);
     IFB_INTERNAL mat4 renderer_projection_xform              (void);
 
-    // hello quad
+    // quad
     IFB_INTERNAL void renderer_quad_shader_create            (void);
     IFB_INTERNAL void renderer_quad_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL bool renderer_quad_push                     (const entity_id id);
