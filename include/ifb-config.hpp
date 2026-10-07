@@ -32,6 +32,7 @@ using namespace sld;
 #define IFB_CONFIG_MAP_CHUNK_CAPACITY        64 
 #define IFB_CONFIG_MAP_TILE_CAPACITY         1024
 #define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE    size_kilobytes(64) 
+#define IFB_CONFIG_PARTICLE_BUFFER_COUNT     128
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -71,6 +72,7 @@ namespace ifb {
         static constexpr u32   map_tile_capacity        = IFB_CONFIG_MAP_TILE_CAPACITY;
         static constexpr u32   map_chunk_capacity       = IFB_CONFIG_MAP_CHUNK_CAPACITY;
         static constexpr u32   map_render_buffer_size   = IFB_CONFIG_MAP_RENDER_BUFFER_SIZE;
+        static constexpr u32   particle_bufffer_count   = IFB_CONFIG_PARTICLE_BUFFER_COUNT;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

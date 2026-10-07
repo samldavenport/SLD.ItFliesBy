@@ -250,6 +250,7 @@ namespace ifb {
         memory quads;
         memory physics;
         memory tiles;
+        memory particles;
     };
 
     struct eng_game_context {

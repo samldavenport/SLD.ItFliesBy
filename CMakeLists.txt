@@ -36,6 +36,7 @@ set(IFB_ENGINE_SOURCE_DIRS
     src/json
     src/map
     src/memory
+    src/particle
     src/physics
     src/quads
     src/renderer

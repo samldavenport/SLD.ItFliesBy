@@ -8,6 +8,8 @@
 #include "ifb.hpp"
 #include "eng-internal.hpp"
 #include "imgui.h"
+#include "particle-internal.hpp"
+#include "particle-mngr.cpp"
 #include "physics-manager.cpp"
 #include "physics.hpp"
 #include "renderer.cpp"
@@ -58,6 +60,7 @@ namespace ifb {
         _eng_context->cmpnt_mngr      = cmpnt_mngr_create();  
         _eng_context->phys_mngr       = phys_mngr_create();
         _eng_context->map_mngr        = map_mngr_create();
+        _eng_context->particle_mngr   = particle_mngr_create();
         _eng_context->mem_map         = mem_map;
 
         assert(
@@ -73,6 +76,7 @@ namespace ifb {
             _eng_context->memory_mngr   != NULL &&
             _eng_context->cmpnt_mngr    != NULL &&
             _eng_context->phys_mngr     != NULL &&
+            _eng_context->particle_mngr != NULL &&
             _eng_context->mem_map       != NULL
         );
 
@@ -110,6 +114,7 @@ namespace ifb {
         reservation* res_components = reservation_create(mem_map->components);
         reservation* res_physics    = reservation_create(mem_map->physics);
         reservation* res_tiles      = reservation_create(mem_map->tiles);
+        reservation* res_particles  = reservation_create(mem_map->particles);
         assert(res_files);
         assert(res_entities);
         assert(res_arenas);
@@ -117,16 +122,18 @@ namespace ifb {
         assert(res_components);
         assert(res_physics);
         assert(res_tiles);
+        assert(res_particles);
        
         // start systems
         file_mngr_startup        (res_files);
         entity_mngr_startup      (res_entities);
         memory_mngr_startup      (res_arenas);
         cmpnt_mngr_startup       (res_components);
-        phys_mngr_startup     (res_physics);
+        phys_mngr_startup        (res_physics);
         map_mngr_startup         (res_tiles);
+        particle_mngr_startup    (res_particles);
         renderer_context_startup (res_renderer);
-       
+         
     }
 
     IFB_ENGINE_API bool 
