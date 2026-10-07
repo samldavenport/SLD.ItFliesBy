@@ -49,5 +49,7 @@ namespace ifb {
     eng_particle_emitter_render(
         const hnd_particle_emitter h_emitter) {
 
+        //TODO(SLD): implement
+        return(false);
     }
 };

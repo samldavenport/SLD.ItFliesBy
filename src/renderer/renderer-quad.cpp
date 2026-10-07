@@ -176,8 +176,9 @@ namespace ifb {
         const u32 quad_count    = entity_list_count(shdr->quad_list);
         const u32 element_count = (quad_count * 6);
         if (element_count == 0) {
+            entity_list_reset(shdr->particle_emitter_list);
             return;
-        } 
+        }
 
         // calculate the vertices
         for (
@@ -205,8 +206,9 @@ namespace ifb {
         gl_uniform_set_mat4           (_renderer_ctx->gl, shdr->gl.unif_mat4_view_proj, view_proj_xform.m);
         gl_context_draw_elements      (_renderer_ctx->gl, element_count);
 
-        // reset the list
+        // reset the lists
         entity_list_reset(shdr->quad_list);
+        entity_list_reset(shdr->particle_emitter_list);
     }
     
     IFB_INTERNAL bool
