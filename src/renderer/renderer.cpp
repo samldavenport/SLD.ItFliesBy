@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "ifb-collections.hpp"
 #include "memory-reservation.cpp"
 #include "renderer-quad.cpp" 
 #include "renderer-camera.cpp"
@@ -179,6 +180,21 @@ namespace ifb {
         renderer_tile_draw            (view_proj_xform);
         renderer_grid_draw            (view_proj_xform);
         renderer_quad_draw            (view_proj_xform);
+    }
+    
+    IFB_INTERNAL entity_list*
+    renderer_context_create_entity_list(
+        void) {
+
+        memory mem;
+        mem.size = entity_list_mem_req();
+        mem.ptr  = renderer_context_memory_alloc(mem.size);
+        if (mem.size == 0 || mem.address == 0) {
+            return(NULL);
+        }
+
+        entity_list* list = entity_list_memory_create(mem);
+        return(list);
     }
 };
           

@@ -17,12 +17,18 @@ namespace ifb {
         u32                   capacity;
         hnd_particle_emitter* array_hnd;
         particle_emitter*     array_emitters;
+        f32*                  array_life_ms;
+        color_rgba_u32*       array_colors;
+        vec3*                 array_position;
     } static * _particle_mngr;
 
     // the unaligned size of every array in the manager
     struct particle_mngr_sizes {
         u32 hnd;
         u32 emitters;
+        u32 life_ms;
+        u32 colors;
+        u32 position;
     };
 
     //--------------------------------------------------------------------
@@ -40,8 +46,11 @@ namespace ifb {
         const u32   particle_count = capacity * cfg.particle_bufffer_count;
 
         particle_mngr_sizes sizes;
-        sizes.hnd      = capacity  * sizeof(hnd_particle_emitter);
-        sizes.emitters = capacity  * sizeof(particle_emitter);
+        sizes.hnd      = capacity       * sizeof(hnd_particle_emitter);
+        sizes.emitters = capacity       * sizeof(particle_emitter);
+        sizes.life_ms  = particle_count * sizeof(f32);
+        sizes.colors   = particle_count * sizeof(color_rgba_u32);
+        sizes.position = particle_count * sizeof(vec3);
         return(sizes);
     }
 
@@ -54,7 +63,10 @@ namespace ifb {
 
         const u32 size_array[] = {
             sizes.hnd,
-            sizes.emitters
+            sizes.emitters,
+            sizes.life_ms,
+            sizes.colors,
+            sizes.position
         };
 
         u32 size_total = 0;
@@ -113,8 +125,14 @@ namespace ifb {
         // allocate memory
         _particle_mngr->array_hnd      = (hnd_particle_emitter*)reservation_push_bytes(res, sizes.hnd);
         _particle_mngr->array_emitters =     (particle_emitter*)reservation_push_bytes(res, sizes.emitters);
+        _particle_mngr->array_life_ms  =                  (f32*)reservation_push_bytes(res, sizes.life_ms);
+        _particle_mngr->array_colors   =       (color_rgba_u32*)reservation_push_bytes(res, sizes.colors);
+        _particle_mngr->array_position =                 (vec3*)reservation_push_bytes(res, sizes.position);
         assert(_particle_mngr->array_hnd);
         assert(_particle_mngr->array_emitters);
+        assert(_particle_mngr->array_life_ms);
+        assert(_particle_mngr->array_colors);
+        assert(_particle_mngr->array_position);
 
         // point each emitter at its slice of the particle arrays
         for (
@@ -127,6 +145,9 @@ namespace ifb {
 
             _particle_mngr->array_hnd[emitter_index] = INVALID_HANDLE;
             emitter.hnd            = INVALID_HANDLE;
+            emitter.array_life_ms  = &_particle_mngr->array_life_ms  [particle_index];
+            emitter.array_colors   = &_particle_mngr->array_colors   [particle_index];
+            emitter.array_position = &_particle_mngr->array_position [particle_index];
         }
     }
     
@@ -157,9 +178,14 @@ namespace ifb {
 
         assert(_particle_mngr);
         assert(_particle_mngr->array_hnd);
+        assert(_particle_mngr->array_emitters);
         assert(_particle_mngr->capacity > index);
-    
+
+        // the handle array and the emitter always agree
+        auto& emitter = _particle_mngr->array_emitters[index];
         _particle_mngr->array_hnd[index] = hnd;
+        emitter.hnd                      = hnd;
+        return(emitter);
     }
     
     IFB_INTERNAL u32

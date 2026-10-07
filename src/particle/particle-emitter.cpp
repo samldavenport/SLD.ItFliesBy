@@ -21,8 +21,11 @@ namespace ifb {
         const color_rgba_u32&  color_primary,
         const color_rgba_u32&  color_secondary) {
 
+        const auto& cfg = config_instance();
+
         assert(name         != NULL);
         assert(count        != 0);
+        assert(count        <= cfg.particle_bufffer_count);
         assert(lifespan_ms  != 0);
         assert(width        != 0);
         assert(height       != 0);
@@ -41,12 +44,11 @@ namespace ifb {
             return(INVALID_HANDLE);
         }
 
-        // get the emitter
-        particle_emitter& emitter = particle_mngr_get_emitter(emitter_index_new);
+        // claim the slot and get the emitter
+        particle_emitter& emitter = particle_mngr_set_handle(emitter_index_new, h_emitter_new);
 
         // set the emitter properties
-        emitter.hnd             = h_emitter_new;
-        emitter.count           = count;
+        emitter.count          = count;
         emitter.lifespan_ms     = lifespan_ms;
         emitter.height          = height;
         emitter.width           = width;
@@ -55,7 +57,6 @@ namespace ifb {
         emitter.name            = name_cstr; 
   
         // clear the particle arrays
-        const auto& cfg = config_instance();
         zero_memory((void*)emitter.array_life_ms,  cfg.particle_bufffer_count * sizeof(f32)); 
         zero_memory((void*)emitter.array_colors,   cfg.particle_bufffer_count * sizeof(color_rgba_u32)); 
         zero_memory((void*)emitter.array_position, cfg.particle_bufffer_count * sizeof(vec3)); 
@@ -83,6 +84,7 @@ namespace ifb {
         const vec3&                offset) {
 
         //TODO(SLD): implement
+        return(NULL);
     }
     
     IFB_INTERNAL bool
