@@ -28,7 +28,7 @@ namespace ifb {
     IFB_INTERNAL void quad_update        (const entity_id id, const cmpnt_quad& q);
     IFB_INTERNAL void quad_tests         (void);
     IFB_INTERNAL u32  quad_render_buffer (quad_vertex_buffer& buffer, const entity_list* quad_list, const orientation& camera_orientation, const hnd_arena h_arena);
-    IFB_INTERNAL void quad_render        (quad_vertices& vertices,    const entity_id    id,        const orientation& camera_orientation);
+    IFB_INTERNAL bool quad_render        (quad_vertices& vertices,    const entity_id    id,        const orientation& camera_orientation);
     
     //--------------------------------------------------------------------
     // STRUCTURE DEFINITIONS
