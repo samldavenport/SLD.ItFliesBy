@@ -133,6 +133,10 @@ namespace ifb {
         );
         assert(gl_ok);
 
+        //TODO(SLD): this is possible still, but we need to allocate the 
+        // vertex buffer here, not the function that actually renders the
+        // data
+
         // define vertex
         const u32 vertex_size  = sizeof(vec3) + sizeof(vec4); 
         gl_ok &= gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
