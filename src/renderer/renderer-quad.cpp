@@ -133,10 +133,6 @@ namespace ifb {
         );
         assert(gl_ok);
 
-        //TODO(SLD): this is possible still, but we need to allocate the 
-        // vertex buffer here, not the function that actually renders the
-        // data
-
         // define vertex
         const u32 vertex_size  = sizeof(vec3) + sizeof(vec4); 
         gl_ok &= gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
@@ -144,8 +140,8 @@ namespace ifb {
         gl_ok &= gl_context_set_buffer_element (_renderer_ctx->gl, shdr->gl.buf_element);
         gl_ok &= gl_buffer_set_vertex_data     (_renderer_ctx->gl, shdr->gl.buf_vertex,  shdr->buffers.vertex.data.bytes,  shdr->buffers.vertex.size);
         gl_ok &= gl_buffer_set_element_data    (_renderer_ctx->gl, shdr->gl.buf_element, shdr->buffers.element.data.bytes, shdr->buffers.element.size);
-        gl_ok &= gl_vertex_add_f32x3 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 0, 0);
-        gl_ok &= gl_vertex_add_f32x4 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 1, 12);
+        gl_ok &= gl_vertex_add_f32x3           (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 0, 0);
+        gl_ok &= gl_vertex_add_f32x4           (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 1, 12);
         assert(gl_ok);
     }
 
@@ -179,28 +175,31 @@ namespace ifb {
             return;
         }
 
-        // allocate an arena 
-        const hnd_arena h_arena = arena_alloc(); 
-       
         // get the camera orientation
         orientation cam_ori;
         renderer_camera_get_orientation(cam_ori);
         
         // render a quad buffer
-        quad_vertex_buffer vertex_buffer;
-        quad_render_buffer(vertex_buffer, shdr->quad_list, cam_ori, h_arena);
+        const bool render_size = quad_render_buffer(
+            shdr->buffers.vertex.data.bytes,
+            shdr->buffers.vertex.size,
+            shdr->quad_list,
+            cam_ori
+        );
+
+        if (render_size == 0) {
+            entity_list_reset(shdr->quad_list);
+            return;
+        }
 
         // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr->gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
         gl_context_set_buffer_vertex  (_renderer_ctx->gl, shdr->gl.buf_vertex);
-        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr->gl.buf_vertex,          vertex_buffer.data.bytes,  vertex_buffer.size );
+        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr->gl.buf_vertex, shdr->buffers.vertex.data.bytes, shdr->buffers.vertex.size);
         gl_uniform_set_mat4           (_renderer_ctx->gl, shdr->gl.unif_mat4_model,     m.m);
         gl_uniform_set_mat4           (_renderer_ctx->gl, shdr->gl.unif_mat4_view_proj, view_proj_xform.m);
         gl_context_draw_elements      (_renderer_ctx->gl, element_count);
-
-        // free the arena
-        arena_free(h_arena);
 
         // reset the lists
         entity_list_reset(shdr->quad_list);

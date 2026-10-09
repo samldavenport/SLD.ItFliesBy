@@ -91,13 +91,14 @@ namespace ifb {
 
     IFB_INTERNAL u32
     quad_render_buffer(
-        quad_vertex_buffer& buffer,
+        byte*               buffer_data,
+        const u32           buffer_size,
         const entity_list*  quad_list,
-        const orientation&  camera_orientation,
-        const hnd_arena     h_arena) {
+        const orientation&  camera_orientation) {
 
-        assert(quad_list);
-        assert(h_arena != INVALID_HANDLE);
+        assert(buffer_data != NULL);
+        assert(buffer_size != 0);
+        assert(quad_list   != NULL);
 
         // make sure we have entities to render
         const u32 count_entities = entity_list_count(quad_list);  
@@ -106,32 +107,25 @@ namespace ifb {
         // calculate the size needed to render the buffer,
         // and the size we actually have
         const u32 count_vertices = count_entities * 4;
-        const u32 size_free      = arena_size_free(h_arena);
-        const u32 size_needed    = count_vertices * sizeof(quad_vertex); 
-        const u32 size_push      = (size_free >= size_needed) ? size_needed : size_free; 
-        if (size_push == 0) return(0);
-
-        // allocate memory
-        // we've established its available, so it should succeed 
-        buffer.data.vptr = arena_push(h_arena, size_push);
-        buffer.size      = size_push;
-        assert(buffer.data.vptr != NULL);
+        const u32 render_size    = count_vertices * sizeof(quad_vertex); 
+        assert(buffer_size >= render_size);
 
         // render the quads
-        u32 count_to_render = 0;
+        u32  vertex_index = 0;
+        auto vertex_buffer   = (quad_vertices*)buffer_data;
         for (
             u32 quad_index = 0;
                 quad_index < count_entities;
               ++quad_index) {
 
             const entity_id quad_id       = entity_list_index(quad_list, quad_index);  
-            quad_vertices&  quad_vertices = buffer.data.vertices[count_to_render];
+            quad_vertices&  quad_vertices = vertex_buffer[vertex_index];
             if (quad_render(quad_vertices, quad_id, camera_orientation)) {
-                count_to_render++;
+                vertex_index++;
             }
         }
 
-        return(count_vertices);
+        return(render_size);
     }
     
     IFB_INTERNAL bool 
