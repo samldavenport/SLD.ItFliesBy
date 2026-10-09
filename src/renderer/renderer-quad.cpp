@@ -3,6 +3,7 @@
 #include "entity.cpp"
 #include "ifb-types.hpp"
 #include "ifb-collections.hpp"
+#include "memory-arena.cpp"
 #include "renderer.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-opengl.hpp"
@@ -139,8 +140,8 @@ namespace ifb {
         gl_ok &= gl_context_set_buffer_element (_renderer_ctx->gl, shdr->gl.buf_element);
         gl_ok &= gl_buffer_set_vertex_data     (_renderer_ctx->gl, shdr->gl.buf_vertex,  shdr->buffers.vertex.data.bytes,  shdr->buffers.vertex.size);
         gl_ok &= gl_buffer_set_element_data    (_renderer_ctx->gl, shdr->gl.buf_element, shdr->buffers.element.data.bytes, shdr->buffers.element.size);
-        gl_ok &= gl_vertex_add_f32x3 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 0, 0);
-        gl_ok &= gl_vertex_add_f32x4 (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 1, 12);
+        gl_ok &= gl_vertex_add_f32x3           (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 0, 0);
+        gl_ok &= gl_vertex_add_f32x4           (_renderer_ctx->gl, shdr->gl.vertex, vertex_size, 1, 12);
         assert(gl_ok);
     }
 
@@ -152,15 +153,7 @@ namespace ifb {
         assert(id != ENTITY_ID_INVALID);
         auto shdr = _renderer_ctx->shader.quad;
 
-        entity e;
-        if (!entity_lookup_by_id(e, id)) {
-            return(false);
-        }
-
-        bool did_add = false;
-        if (e.archetype.has_any(cmpnt_type_e_quad))             did_add |= entity_list_add(shdr->quad_list, id); 
-        if (e.archetype.has_any(cmpnt_type_e_particle_emitter)) did_add |= entity_list_add(shdr->particle_emitter_list, id);
-
+        bool did_add = quad_does_exist(id) && entity_list_add(shdr->quad_list, id);
         return(did_add);
     }
 
@@ -168,6 +161,8 @@ namespace ifb {
     renderer_quad_draw(
         const mat4& view_proj_xform) {
 
+        static const mat4 m = mat4_identity();
+        
         assert(_renderer_ctx);
         auto shdr = _renderer_ctx->shader.quad;
         assert(shdr);
@@ -176,32 +171,32 @@ namespace ifb {
         const u32 quad_count    = entity_list_count(shdr->quad_list);
         const u32 element_count = (quad_count * 6);
         if (element_count == 0) {
-            entity_list_reset(shdr->particle_emitter_list);
+            entity_list_reset(shdr->quad_list);
             return;
         }
 
-        // calculate the vertices
-        for (
-            u32 i = 0;
-            i < quad_count;
-            ++i) {
-
-            const entity_id         quad_id  = entity_list_index(shdr->quad_list, i); 
-            renderer_quad_vertices& vertices = shdr->buffers.vertex.data.vertices[i];
-
-            assert(renderer_quad_get_vertices(vertices, quad_id));
-        }
-
-        mat4 m = mat4_identity();
-
+        // get the camera orientation
         orientation cam_ori;
         renderer_camera_get_orientation(cam_ori);
+        
+        // render a quad buffer
+        const bool render_size = quad_render_buffer(
+            shdr->buffers.vertex.data.bytes,
+            shdr->buffers.vertex.size,
+            shdr->quad_list,
+            cam_ori
+        );
+
+        if (render_size == 0) {
+            entity_list_reset(shdr->quad_list);
+            return;
+        }
 
         // draw elements
         gl_context_set_shader_program (_renderer_ctx->gl, shdr->gl.program);
         gl_context_set_vertex_object  (_renderer_ctx->gl, shdr->gl.vertex);
         gl_context_set_buffer_vertex  (_renderer_ctx->gl, shdr->gl.buf_vertex);
-        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr->gl.buf_vertex,          shdr->buffers.vertex.data.bytes,  shdr->buffers.vertex.size);
+        gl_buffer_update_vertex_data  (_renderer_ctx->gl, shdr->gl.buf_vertex, shdr->buffers.vertex.data.bytes, shdr->buffers.vertex.size);
         gl_uniform_set_mat4           (_renderer_ctx->gl, shdr->gl.unif_mat4_model,     m.m);
         gl_uniform_set_mat4           (_renderer_ctx->gl, shdr->gl.unif_mat4_view_proj, view_proj_xform.m);
         gl_context_draw_elements      (_renderer_ctx->gl, element_count);
@@ -209,82 +204,5 @@ namespace ifb {
         // reset the lists
         entity_list_reset(shdr->quad_list);
         entity_list_reset(shdr->particle_emitter_list);
-    }
-    
-    IFB_INTERNAL bool
-    renderer_quad_get_vertices(
-        renderer_quad_vertices& vertices,
-        const entity_id         quad_id) {
-
-        orientation cam_ori;
-        renderer_camera_get_orientation(cam_ori);
-
-        quad_entity quad_entity = {0};
-        const bool  result      = quad_lookup_by_id(quad_entity, quad_id); 
-        if (result) {
-            const color_rgba_f32 color         = color_rgba_f32(quad_entity.color.hex);
-            const f32            offset_width  = quad_entity.dims.width  * 0.5f;
-            const f32            offset_height = quad_entity.dims.height * 0.5f;
-
-            // Keep the quad's horizontal axis locked to world X.
-            const vec3 quad_right = { 1.0f, 0.0f, 0.0f };
-
-            // Only consider the camera's pitch.
-            // Remove the X component so camera yaw has no effect.
-            vec3 pitch_forward = {
-                0.0f,
-                cam_ori.forward.y,
-                cam_ori.forward.z
-            };
-
-            pitch_forward = vec3_normalize(pitch_forward);
-
-            // Construct an up vector perpendicular to the pitch direction.
-            const vec3 quad_up = {
-                0.0f,
-               -pitch_forward.z,
-                pitch_forward.y
-            };
-
-            const vec3 right = vec3_scalar_multiply(quad_right, offset_width);
-            const vec3 up    = vec3_scalar_multiply(quad_up,    offset_height);
-
-            // top right
-            vertices.top_right.pos_x = quad_entity.pos.x + right.x + up.x;
-            vertices.top_right.pos_y = quad_entity.pos.y + right.y + up.y;
-            vertices.top_right.pos_z = quad_entity.pos.z + right.z + up.z;
-            vertices.top_right.color_r = color.r;
-            vertices.top_right.color_g = color.g;
-            vertices.top_right.color_b = color.b;
-            vertices.top_right.color_a = color.a;
-
-            // bottom right
-            vertices.bottom_right.pos_x = quad_entity.pos.x + right.x - up.x;
-            vertices.bottom_right.pos_y = quad_entity.pos.y + right.y - up.y;
-            vertices.bottom_right.pos_z = quad_entity.pos.z + right.z - up.z;
-            vertices.bottom_right.color_r = color.r;
-            vertices.bottom_right.color_g = color.g;
-            vertices.bottom_right.color_b = color.b;
-            vertices.bottom_right.color_a = color.a;
-
-            // bottom left
-            vertices.bottom_left.pos_x = quad_entity.pos.x - right.x - up.x;
-            vertices.bottom_left.pos_y = quad_entity.pos.y - right.y - up.y;
-            vertices.bottom_left.pos_z = quad_entity.pos.z - right.z - up.z;
-            vertices.bottom_left.color_r = color.r;
-            vertices.bottom_left.color_g = color.g;
-            vertices.bottom_left.color_b = color.b;
-            vertices.bottom_left.color_a = color.a;
-
-            // top left
-            vertices.top_left.pos_x = quad_entity.pos.x - right.x + up.x;
-            vertices.top_left.pos_y = quad_entity.pos.y - right.y + up.y;
-            vertices.top_left.pos_z = quad_entity.pos.z - right.z + up.z;
-            vertices.top_left.color_r = color.r;
-            vertices.top_left.color_g = color.g;
-            vertices.top_left.color_b = color.b;
-            vertices.top_left.color_a = color.a;
-        }
-        return(result);
     }
 };
