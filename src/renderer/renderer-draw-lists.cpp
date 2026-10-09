@@ -12,7 +12,7 @@ namespace ifb {
     }; 
 
     IFB_INTERNAL render_draw_lists*
-    render_draw_lists_create(
+    render_lists_create(
         void) {
 
         auto draw_lists = (render_draw_lists*)global_alloc(sizeof(render_draw_lists));
@@ -22,7 +22,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    render_draw_lists_init(
+    render_lists_init(
         render_draw_lists* draw_lists) {
 
         assert(draw_lists);
@@ -35,7 +35,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL const entity_list*
-    render_draw_lists_get_quads(
+    render_lists_get_quads(
         render_draw_lists* draw_lists) {
 
         assert(draw_lists);
@@ -47,7 +47,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL const entity_list*
-    render_draw_lists_get_particle_emitters(
+    render_lists_get_particle_emitters(
         render_draw_lists* draw_lists) {
 
         assert(draw_lists);
