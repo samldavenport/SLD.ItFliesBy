@@ -6,7 +6,7 @@
 #include "renderer-internal.hpp"
 #include "renderer-quad.cpp" 
 #include "renderer-camera.cpp"
-#include "renderer-projection.cpp"
+#include "renderer-viewport.cpp"
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-grid.cpp"
 #include "renderer-tile.cpp"
@@ -25,11 +25,11 @@ namespace ifb {
     };
 
     struct renderer_context {
-        gl_context*          gl;
-        renderer_memory      memory;
-        renderer_camera*     cam;
-        renderer_projection* proj;
-        vec3                 global_up;
+        gl_context*        gl;
+        renderer_memory    memory;
+        renderer_camera*   cam;
+        renderer_viewport* viewport;
+        vec3               global_up;
         struct {
             renderer_quad_shader*            quad;
             renderer_direction_gizmo_shader* direction_gizmo;
@@ -49,20 +49,23 @@ namespace ifb {
         const auto& cfg         = config_instance();
         const u32   block_count = (cfg.memory_size_rendering / cfg.renderer_mem_granularity);
 
-        auto rndr      = global_alloc<renderer_context> ();
-        auto gl        = global_alloc<gl_context>       ();
-        auto block_ids = global_alloc<u32>              (block_count); 
-        auto camera    = renderer_camera_create();
+        auto rndr        = global_alloc<renderer_context> ();
+        auto gl          = global_alloc<gl_context>       ();
+        auto block_ids   = global_alloc<u32>              (block_count); 
+        auto camera      = renderer_camera_create();
+        auto viewport    = renderer_viewport_create();
         assert(
             rndr      != NULL &&
             gl        != NULL &&
             block_ids != NULL &&            
-            camera    != NULL            
+            camera    != NULL &&            
+            viewport  != NULL
         );
 
-        _renderer_ctx      = rndr;
-        _renderer_ctx->gl  = gl;
-        _renderer_ctx->cam = camera;
+        _renderer_ctx           = rndr;
+        _renderer_ctx->gl       = gl;
+        _renderer_ctx->cam      = camera;
+        _renderer_ctx->viewport = viewport;
 
         return(_renderer_ctx);
     }
@@ -86,7 +89,6 @@ namespace ifb {
         // create shaders
         renderer_grid_shader_create();
 
-
         // set global up
         _renderer_ctx->global_up = { 0.0f, 1.0f, 0.0f };
 
@@ -95,14 +97,14 @@ namespace ifb {
         pfm_graphics_init_imgui();
 
         // create shaders
-        renderer_quad_shader_create();
+        _renderer_ctx->shader.quad = renderer_quad_shader_create();
         renderer_tile_shader_create();
         renderer_direciton_gizmo_shader_create();
 
         // intialize camera
-        renderer_projection_init();
-        renderer_camera_init(_renderer_ctx->cam);
-        renderer_projection_set_viewport(cfg.window_start_width, cfg.window_start_height);
+        renderer_viewport_init (_renderer_ctx->viewport); 
+        renderer_camera_init   (_renderer_ctx->cam);
+        renderer_viewport_set_dimensions(_renderer_ctx->viewport, _renderer_ctx->gl, cfg.window_start_width, cfg.window_start_height);
 
         // open shader files
         const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
@@ -147,7 +149,7 @@ namespace ifb {
         file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
         
         // initialize shaders
-        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
+        renderer_quad_shader_init            (_renderer_ctx->shader.quad, _renderer_ctx->gl, file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
         renderer_grid_shader_init            (file_src_grid_vert,    file_src_grid_frag);
         renderer_tile_shader_init            (file_src_tile_vert,    file_src_tile_frag);
@@ -181,31 +183,31 @@ namespace ifb {
         return(mem);
     }
 
-    IFB_INTERNAL mat4
+    IFB_INTERNAL void 
     renderer_context_view_projection_xform(
-        void) {
+        mat4& xform) {
 
         // calculate view and projection matrices
         static mat4 proj = mat4_identity();
         static mat4 view = mat4_identity();
-        proj = renderer_projection_xform ();
-        view = renderer_camera_xform     ();
+        renderer_viewport_get_xform (_renderer_ctx->viewport, proj);
+        renderer_camera_get_xform   (_renderer_ctx->cam, view);
        
         // calculate view projection
-        const mat4 view_proj = mat4_multiply(proj, view);
-        return(view_proj);
+        xform = mat4_multiply(proj, view);
     }
     
     IFB_INTERNAL void
     renderer_context_draw_buffers(
         void) {
 
-        const mat4 view_proj_xform = renderer_context_view_projection_xform(); 
+        mat4 view_proj_xform;
+        renderer_context_view_projection_xform(view_proj_xform); 
 
         //renderer_direction_gizmo_draw (view_proj_xform);
         renderer_tile_draw            (view_proj_xform);
         renderer_grid_draw            (view_proj_xform);
-        renderer_quad_draw            (view_proj_xform);
+        renderer_quad_draw            (_renderer_ctx->shader.quad, _renderer_ctx->cam, _renderer_ctx->gl, view_proj_xform);
     }
     
     IFB_INTERNAL entity_list*
