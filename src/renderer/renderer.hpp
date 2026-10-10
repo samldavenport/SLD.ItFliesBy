@@ -52,10 +52,8 @@ namespace ifb {
     IFB_INTERNAL void              renderer_context_startup                  (reservation* res);
     IFB_INTERNAL void              renderer_context_shutdown                 (void);
     IFB_INTERNAL void              renderer_context_update_view_matrix       (void);
-    IFB_INTERNAL void*             renderer_context_memory_alloc             (const u32 size);
     IFB_INTERNAL void              renderer_context_draw_buffers             (void);
     IFB_INTERNAL mat4              renderer_context_view_projection_xform    (void);
-    IFB_INTERNAL entity_list*      renderer_context_create_entity_list       (void);
 
     // camera
     IFB_INTERNAL void renderer_camera_init                   (void);

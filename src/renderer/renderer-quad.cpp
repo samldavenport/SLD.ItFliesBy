@@ -5,6 +5,7 @@
 #include "ifb-collections.hpp"
 #include "memory-arena.cpp"
 #include "renderer.hpp"
+#include "renderer-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-opengl.hpp"
 #include <cassert>

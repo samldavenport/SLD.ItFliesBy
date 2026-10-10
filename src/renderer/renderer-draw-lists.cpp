@@ -34,6 +34,18 @@ namespace ifb {
         assert(lists->particle_emitters);
     }
 
+    IFB_INTERNAL void
+    render_lists_reset(
+        render_lists* lists) {
+
+        assert(lists);
+        assert(lists->quads);
+        assert(lists->particle_emitters);
+    
+        entity_list_reset(list->quads);
+        entity_list_reset(list->particle_emitters);
+    }
+    
     IFB_INTERNAL const entity_list*
     render_lists_get_quads(
         render_lists* lists) {

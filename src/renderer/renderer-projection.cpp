@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer.hpp"
+#include "renderer-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
 #include <cassert>

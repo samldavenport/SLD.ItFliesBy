@@ -33,11 +33,13 @@ namespace ifb {
     struct render_element_buffer {
         u32* data;
         u32  capacity;
-        u32  count;
+        u32  size;
+        u32  stride;
 
         inline u32
-        size(void) {
-            return(sizeof(u32) * count);
+        count(void) {
+            assert(stride != 0);
+            return(size / stride);
         }
     };
 
@@ -106,6 +108,8 @@ namespace ifb {
 
         auto* quad_buf_elmnt = buffers->quad_elements;
         quad_buf_elmnt->capacity = cfg.quad_capacity * sizeof(u32) * 6; 
+        quad_buf_elmnt->size     = 0; 
+        quad_buf_elmnt->stride   = 6; 
         quad_buf_elmnt->data     = (u32*)renderer_context_memory_alloc(quad_buf_elmnt->capacity);
         assert(quad_buf_elmnt->data != NULL);
         for (
@@ -137,28 +141,58 @@ namespace ifb {
     
     IFB_INTERNAL void
     render_buffers_render_quads(
-        render_buffers* buffers) {
+        render_buffers* buffers,
+        render_lists*   lists) {
     
         assert(buffers);
 
+        // validate the vertex buffer
         auto* quad_buf_vtx   = buffers->quad_vertices;
         assert(quad_buf_vtx);
         assert(quad_buf_vtx->capacity != 0);
         assert(quad_buf_vtx->size     <= quad_buf_vtx->capacity);
         assert(quad_buf_vtx->stride   != 0);
         assert(quad_buf_vtx->data     != NULL);
-        
+       
+        // validate the element buffer
         auto* quad_buf_elmnt = buffers->quad_elements;
         assert(quad_buf_elmnt);
         assert(quad_buf_elmnt->capacity != 0);
         assert(quad_buf_elmnt->data     != NULL);
 
-         
+        // reset the buffers
+        quad_buf_vtx->size   = 0;
+        quad_buf_elmnt->size = 0;
+   
+        // get the quad list
+        const entity_list* quad_list = render_lists_get_quads(lists); 
+        assert(quad_list); 
+
+        // get the camera orientation
+        orientation cam_ori;
+        renderer_camera_get_orientation(cam_ori);
+
+        // render the quads
+        // if nothing was rendered, return
+        quad_buf_vtx->size = quad_render_buffer(
+            quad_buf_vtx->data,
+            quad_buf_vtx->capacity,
+            quad_list,
+            cam_ori
+        );
+        if (quad_buf_vtx->size == 0) return;
+
+        // update the element count
+        const u32 quad_count = quad_buf_vtx->count();
+        quad_buf_elmnt->size = quad_count * quad_buf_elmnt->stride;
+        assert(quad_buf_elmnt->size <= quad_buf_elmnt->capacity);
+        assert(quad_count           == quad_buf_elmnt->count());
     }
 
     IFB_INTERNAL void
     render_buffers_render_tiles(
-        render_buffers* buffers) {
+        render_buffers* buffers,
+        render_lists*   lists) {
 
     }
 };
