@@ -3,6 +3,7 @@
 #include "renderer.hpp"
 #include "ifb-collections.hpp"
 #include "memory-reservation.cpp"
+#include "renderer-internal.hpp"
 #include "renderer-quad.cpp" 
 #include "renderer-camera.cpp"
 #include "renderer-projection.cpp"
@@ -15,6 +16,28 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
+    
+    struct renderer_memory {
+        stack* stack;
+    };
+
+    struct renderer_context {
+        gl_context*          gl;
+        renderer_memory      memory;
+        renderer_camera*     cam;
+        renderer_projection* proj;
+        vec3                 global_up;
+        struct {
+            renderer_quad_shader*            quad;
+            renderer_direction_gizmo_shader* direction_gizmo;
+            renderer_grid_shader*            grid; 
+            renderer_tile_shader*            tile;
+        } shader;
+    };
+    
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
@@ -29,14 +52,17 @@ namespace ifb {
         auto rndr      = global_alloc<renderer_context> ();
         auto gl        = global_alloc<gl_context>       ();
         auto block_ids = global_alloc<u32>              (block_count); 
+        auto camera    = renderer_camera_create();
         assert(
             rndr      != NULL &&
             gl        != NULL &&
-            block_ids != NULL            
+            block_ids != NULL &&            
+            camera    != NULL            
         );
 
-        _renderer_ctx     = rndr;
-        _renderer_ctx->gl = gl;
+        _renderer_ctx      = rndr;
+        _renderer_ctx->gl  = gl;
+        _renderer_ctx->cam = camera;
 
         return(_renderer_ctx);
     }
@@ -75,7 +101,7 @@ namespace ifb {
 
         // intialize camera
         renderer_projection_init();
-        renderer_camera_init();
+        renderer_camera_init(_renderer_ctx->cam);
         renderer_projection_set_viewport(cfg.window_start_width, cfg.window_start_height);
 
         // open shader files
@@ -195,6 +221,58 @@ namespace ifb {
 
         entity_list* list = entity_list_memory_create(mem);
         return(list);
+    }
+    
+    //--------------------------------------------------------------------
+    // CAMERA METHODS 
+    //--------------------------------------------------------------------
+    
+    IFB_INTERNAL const vec3&
+    renderer_get_camera_origin(
+        void) {
+
+        assert(_renderer_ctx);
+        return(renderer_camera_get_origin(_renderer_ctx->cam));
+    }
+
+    IFB_INTERNAL const vec3&
+    renderer_get_camera_target(
+        void) {
+
+        assert(_renderer_ctx);
+        return(renderer_camera_get_target(_renderer_ctx->cam));
+    }
+
+    IFB_INTERNAL void
+    renderer_get_camera_orientation(
+        orientation& o) {
+
+        assert(_renderer_ctx);
+        renderer_camera_get_orientation(_renderer_ctx->cam, o);
+    }
+
+    IFB_INTERNAL void 
+    renderer_get_camera_xform(
+        mat4& xform) {
+
+        assert(_renderer_ctx);
+        renderer_camera_get_xform(_renderer_ctx->cam, xform);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_camera_origin(
+        const vec3& origin) {
+
+        assert(_renderer_ctx);
+        renderer_camera_set_origin(_renderer_ctx->cam, origin);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_camera_target(
+        const vec3& target) {
+
+        assert(_renderer_ctx);
+        renderer_camera_set_target(_renderer_ctx->cam, target);
     }
 };
           

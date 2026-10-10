@@ -5,7 +5,8 @@
 #include "renderer-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math-vec3.hpp"
-#include "sld-math-xforms.hpp"
+#include "eng-internal.hpp"
+#include <cassert>
 
 namespace ifb {
 
@@ -14,162 +15,108 @@ namespace ifb {
         vec3 target;
     };
 
+
+    IFB_INTERNAL renderer_camera*
+    renderer_camera_create(
+        void) {
+        
+        auto cam = (renderer_camera*)global_alloc(sizeof(renderer_camera));
+        return(cam);
+    }
+    
     IFB_INTERNAL void
     renderer_camera_init(
-        void) {
+        renderer_camera* camera) {
 
-        assert(_renderer_ctx);
+        assert(camera);
 
-        auto cam = (renderer_camera*)renderer_context_memory_alloc(sizeof(renderer_camera));
-
-
-        assert(cam);
-
-        cam->origin = { 0.0f, 0.3f, 0.6f };
-        cam->target = { 0.0f, 0.2f, 0.1f };
-
-        _renderer_ctx->cam = cam;
+        camera->origin = { 0.0f, 0.3f, 0.6f };
+        camera->target = { 0.0f, 0.2f, 0.1f };
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL const vec3& 
     renderer_camera_get_origin(
-        vec3& origin) {
+        renderer_camera* camera) {
 
-        assert(_renderer_ctx != NULL);
-        
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
-
-        origin = cam->origin;
+        assert(camera);
+        return(camera->origin);
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL const vec3& 
     renderer_camera_get_target(
-        vec3& target) {
+        renderer_camera* camera) {
 
-        assert(_renderer_ctx != NULL);
-
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
-        
-        target = cam->target;
+        assert(camera); 
+        return(camera->target); 
     }
 
     IFB_INTERNAL void
     renderer_camera_set_origin(
-        const vec3& origin) {
+        renderer_camera* camera,
+        const vec3&      origin) {
 
-        assert(_renderer_ctx != NULL);
-
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
-
-        cam->origin = origin;
+        assert(camera);
+        camera->origin = origin;
     }
 
     IFB_INTERNAL void
     renderer_camera_set_target(
-        const vec3& target) {
+        renderer_camera* camera,
+        const vec3&      target) {
 
-        assert(_renderer_ctx != NULL);
-
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
-
-        cam->target = target;
-    }
-
-    IFB_INTERNAL void
-    renderer_camera_get_forward(
-        vec3& forward) {
-
-        assert(_renderer_ctx != NULL);
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
-
-        const vec3 target_sub_origin = vec3_subtract(cam->target, cam->origin);  
-        forward = vec3_normalize(target_sub_origin);     
-    }
-
-    IFB_INTERNAL void
-    renderer_camera_get_right(
-        vec3& right) {
-
-        assert(_renderer_ctx != NULL);
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
-   
-        static const vec3 world_up = { 0.0f, 1.0f, 0.0f };
-
-
-        vec3 forward;
-
-        const vec3 forward_cross_world_up = vec3_cross(forward, world_up);
-    }
-
-    IFB_INTERNAL void
-    renderer_camera_get_up(
-        vec3& up) {
-
-        assert(_renderer_ctx != NULL);
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
+        assert(camera);
+        camera->target = target;
     }
 
     IFB_INTERNAL void
     renderer_camera_get_orientation(
-        orientation& o) {
+        renderer_camera* camera,
+        orientation&     ori) {
 
-        assert(_renderer_ctx != NULL);
-        auto cam = _renderer_ctx->cam;
-        assert(cam);
+        assert(camera);
        
-        const vec3 target_sub_origin = vec3_subtract(cam->target, cam->origin);  
-        o.forward  = vec3_normalize(target_sub_origin);         
+        const vec3 target_sub_origin = vec3_subtract(camera->target, camera->origin);  
+        ori.forward  = vec3_normalize(target_sub_origin);         
    
         static const vec3 world_up = { 0.0f, 1.0f, 0.0f };
-        const vec3 forward_cross_world_up = vec3_cross(o.forward, world_up);
-        o.right = vec3_normalize(forward_cross_world_up);          
+        const vec3 forward_cross_world_up = vec3_cross(ori.forward, world_up);
+        ori.right = vec3_normalize(forward_cross_world_up);          
        
-        const vec3 right_cross_forward = vec3_cross(o.right, o.forward);
-        o.up = vec3_normalize(right_cross_forward); 
+        const vec3 right_cross_forward = vec3_cross(ori.right, ori.forward);
+        ori.up = vec3_normalize(right_cross_forward); 
     }
     
-    IFB_INTERNAL mat4 
+    IFB_INTERNAL void 
     renderer_camera_xform(
-        void) {
+        renderer_camera* camera,
+        mat4&            xform) {
 
-        assert(_renderer_ctx);
-
-        auto& cam = _renderer_ctx->cam;
-        assert(cam);
+        assert(camera);
        
         // get the orientation
         orientation ori;
-        renderer_camera_get_orientation(ori);
+        renderer_camera_get_orientation(camera, ori);
 
-        mat4 xform = mat4_identity();
+        xform      = mat4_identity();
 
         xform.r0c0 = ori.right.x;
         xform.r0c1 = ori.right.y;
         xform.r0c2 = ori.right.z;
-        xform.r0c3 = -vec3_dot(ori.right, cam->origin);
+        xform.r0c3 = -vec3_dot(ori.right, camera->origin);
 
         xform.r1c0 = ori.up.x;
         xform.r1c1 = ori.up.y;
         xform.r1c2 = ori.up.z;
-        xform.r1c3 = -vec3_dot(ori.up, cam->origin);
+        xform.r1c3 = -vec3_dot(ori.up, camera->origin);
         
         xform.r2c0 = -ori.forward.x;
         xform.r2c1 = -ori.forward.y;
         xform.r2c2 = -ori.forward.z;
-        xform.r2c3 =  vec3_dot(ori.forward, cam->origin);
+        xform.r2c3 =  vec3_dot(ori.forward, camera->origin);
     
         xform.r3c0 = 0.0f; 
         xform.r3c1 = 0.0f; 
         xform.r3c2 = 0.0f; 
         xform.r3c3 = 1.0f;
-    
-        return(xform);
     }
 };

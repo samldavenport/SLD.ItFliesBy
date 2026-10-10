@@ -56,23 +56,18 @@ namespace ifb {
     IFB_INTERNAL mat4              renderer_context_view_projection_xform    (void);
 
     // camera
-    IFB_INTERNAL void renderer_camera_init                   (void);
-    IFB_INTERNAL void renderer_camera_get_origin             (vec3& origin);
-    IFB_INTERNAL void renderer_camera_get_target             (vec3& target);
-    IFB_INTERNAL void renderer_camera_get_forward            (vec3& forward);
-    IFB_INTERNAL void renderer_camera_get_right              (vec3& right);
-    IFB_INTERNAL void renderer_camera_get_up                 (vec3& up);
-    IFB_INTERNAL void renderer_camera_get_view               (mat4& v);
-    IFB_INTERNAL void renderer_camera_set_origin             (const vec3& origin);
-    IFB_INTERNAL void renderer_camera_set_target             (const vec3& target);
-    IFB_INTERNAL void renderer_camera_get_orientation        (orientation& o);
-    IFB_INTERNAL mat4 renderer_camera_xform                  (void);
+    IFB_INTERNAL const vec3&       renderer_get_camera_origin                (void);
+    IFB_INTERNAL const vec3&       renderer_get_camera_target                (void);
+    IFB_INTERNAL void              renderer_get_camera_orientation           (orientation& o);
+    IFB_INTERNAL void              renderer_get_camera_xform                 (mat4& xform);
+    IFB_INTERNAL void              renderer_set_camera_origin                (const vec3& origin);
+    IFB_INTERNAL void              renderer_set_camera_target                (const vec3& target);
 
     // projection
-    IFB_INTERNAL void renderer_projection_init               (void);
-    IFB_INTERNAL void renderer_projection_set_viewport       (const u32 width, const u32 height);
-    IFB_INTERNAL f32  renderer_projection_get_aspect_ratio   (void);
-    IFB_INTERNAL mat4 renderer_projection_xform              (void);
+    IFB_INTERNAL void              renderer_projection_init               (void);
+    IFB_INTERNAL void              renderer_projection_set_viewport       (const u32 width, const u32 height);
+    IFB_INTERNAL f32               renderer_projection_get_aspect_ratio   (void);
+    IFB_INTERNAL mat4              renderer_projection_xform              (void);
 
     // quad
     IFB_INTERNAL void renderer_quad_shader_create            (void);
@@ -106,10 +101,6 @@ namespace ifb {
     // DEFINITIONS
     //--------------------------------------------------------------------
     
-    struct renderer_memory {
-        stack* stack;
-    };
-
     struct renderer_shader_source {
         const cchar* data;
         u32          size;
@@ -169,19 +160,6 @@ namespace ifb {
         } data;
     };
 
-    struct renderer_context {
-        gl_context*          gl;
-        renderer_memory      memory;
-        renderer_camera*     cam;
-        renderer_projection* proj;
-        vec3                 global_up;
-        struct {
-            renderer_quad_shader*            quad;
-            renderer_direction_gizmo_shader* direction_gizmo;
-            renderer_grid_shader*            grid; 
-            renderer_tile_shader*            tile;
-        } shader;
-    };
 };
 
 #endif //RENDERER_HPP
