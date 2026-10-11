@@ -30,8 +30,9 @@ namespace ifb {
     IFB_INTERNAL void  gui_main_window        (void);
 
     // engine
-    IFB_INTERNAL void  gui_engine_imgui_demo  (bool& is_open);
-    IFB_INTERNAL void  gui_engine_system      (bool& is_open);
+    IFB_INTERNAL void  gui_engine_imgui_demo      (bool& is_open);
+    IFB_INTERNAL void  gui_engine_system          (bool& is_open);
+    IFB_INTERNAL void  gui_engine_particle_system (bool& is_open);
 
     // game
     IFB_INTERNAL void  gui_game_player_rig    (bool& is_open);
@@ -51,19 +52,20 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct gui_strings {
-        inline static const char* menu_engine                 = "Engine";
-        inline static const char* menu_engine_item_imgui_demo = "ImGui Demo";
-        inline static const char* menu_engine_item_system     = "System";
-        inline static const char* menu_entities               = "Entities";
-        inline static const char* menu_entity_item_manager    = "Entity Manager";
-        inline static const char* menu_renderer               = "Renderer";
-        inline static const char* menu_renderer_item_camera   = "Camera"; 
-        inline static const char* window_renderer_camera      = "Renderer Camera";
-        inline static const char* camera_origin               = "Camera Origin";
-        inline static const char* camera_target               = "Camera Target";
-        inline static const char* menu_entity_item_quad_mngr  = "Quad Manager";
-        inline static const char* menu_game                   = "Game";
-        inline static const char* menu_game_item_player_rig   = "Player Rig";
+        inline static const char* menu_engine                      = "Engine";
+        inline static const char* menu_engine_item_imgui_demo      = "ImGui Demo";
+        inline static const char* menu_engine_item_system          = "System";
+        inline static const char* menu_engine_item_particle_system = "Particle System";
+        inline static const char* menu_entities                    = "Entities";
+        inline static const char* menu_entity_item_manager         = "Entity Manager";
+        inline static const char* menu_renderer                    = "Renderer";
+        inline static const char* menu_renderer_item_camera        = "Camera"; 
+        inline static const char* window_renderer_camera           = "Renderer Camera";
+        inline static const char* camera_origin                    = "Camera Origin";
+        inline static const char* camera_target                    = "Camera Target";
+        inline static const char* menu_entity_item_quad_mngr       = "Quad Manager";
+        inline static const char* menu_game                        = "Game";
+        inline static const char* menu_game_item_player_rig        = "Player Rig";
     } static * _gui_str;
 };
 
