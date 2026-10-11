@@ -137,15 +137,12 @@ namespace ifb {
                 cmpnt_type_e_quad  |
                 cmpnt_type_e_color |
                 cmpnt_type_e_position
-            ); 
-        const bool can_render    = (does_exist && has_component); 
+        ); 
 
-        if (can_render) {
-            renderer_quad_push(id);
-        }
+        const bool can_render = (does_exist && has_component); 
+        const bool did_push   = can_render && renderer_push_quad(id);
 
-        return(can_render);
-
+        return(did_push);
     }
 
     IFB_ENGINE_API bool

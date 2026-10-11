@@ -13,6 +13,7 @@
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
+#include "sld-opengl.hpp"
 
 namespace ifb {
 
@@ -55,17 +56,17 @@ namespace ifb {
         auto camera      = renderer_camera_create();
         auto viewport    = renderer_viewport_create();
         assert(
-            rndr      != NULL &&
-            gl        != NULL &&
-            block_ids != NULL &&            
-            camera    != NULL &&            
-            viewport  != NULL
+            rndr       != NULL &&
+            gl         != NULL &&
+            block_ids  != NULL &&            
+            camera     != NULL &&            
+            viewport   != NULL
         );
 
-        _renderer_ctx           = rndr;
-        _renderer_ctx->gl       = gl;
-        _renderer_ctx->cam      = camera;
-        _renderer_ctx->viewport = viewport;
+        _renderer_ctx                         = rndr;
+        _renderer_ctx->gl                     = gl;
+        _renderer_ctx->cam                    = camera;
+        _renderer_ctx->viewport               = viewport;
 
         return(_renderer_ctx);
     }
@@ -86,9 +87,6 @@ namespace ifb {
         // we can pass the context to the function and use it that way
         // same for imgui, it can be initialized externally
 
-        // create shaders
-        renderer_grid_shader_create();
-
         // set global up
         _renderer_ctx->global_up = { 0.0f, 1.0f, 0.0f };
 
@@ -97,9 +95,10 @@ namespace ifb {
         pfm_graphics_init_imgui();
 
         // create shaders
-        _renderer_ctx->shader.quad = renderer_quad_shader_create();
-        renderer_tile_shader_create();
-        renderer_direciton_gizmo_shader_create();
+        _renderer_ctx->shader.quad            = renderer_quad_shader_create();
+        _renderer_ctx->shader.grid            = renderer_grid_shader_create();
+        _renderer_ctx->shader.tile            = renderer_tile_shader_create();
+        _renderer_ctx->shader.direction_gizmo = renderer_direciton_gizmo_shader_create();
 
         // intialize camera
         renderer_viewport_init (_renderer_ctx->viewport); 
@@ -149,10 +148,10 @@ namespace ifb {
         file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
         
         // initialize shaders
-        renderer_quad_shader_init            (_renderer_ctx->shader.quad, _renderer_ctx->gl, file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
-        renderer_grid_shader_init            (file_src_grid_vert,    file_src_grid_frag);
-        renderer_tile_shader_init            (file_src_tile_vert,    file_src_tile_frag);
+        renderer_quad_shader_init            (_renderer_ctx->shader.quad,            _renderer_ctx->gl, file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (_renderer_ctx->shader.direction_gizmo, _renderer_ctx->gl, file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_grid_shader_init            (_renderer_ctx->shader.grid,            _renderer_ctx->gl, file_src_grid_vert,    file_src_grid_frag);
+        renderer_tile_shader_init            (_renderer_ctx->shader.tile,            _renderer_ctx->gl, file_src_tile_vert,    file_src_tile_frag);
 
         // close the shader files
         file_close(file_hnd_quad_vert);
@@ -205,8 +204,8 @@ namespace ifb {
         renderer_context_view_projection_xform(view_proj_xform); 
 
         //renderer_direction_gizmo_draw (view_proj_xform);
-        renderer_tile_draw            (view_proj_xform);
-        renderer_grid_draw            (view_proj_xform);
+        renderer_tile_draw            (_renderer_ctx->shader.tile, _renderer_ctx->gl, view_proj_xform);
+        renderer_grid_draw            (_renderer_ctx->shader.grid, _renderer_ctx->gl, view_proj_xform);
         renderer_quad_draw            (_renderer_ctx->shader.quad, _renderer_ctx->cam, _renderer_ctx->gl, view_proj_xform);
     }
     
@@ -223,6 +222,30 @@ namespace ifb {
 
         entity_list* list = entity_list_memory_create(mem);
         return(list);
+    }
+    
+    IFB_INTERNAL bool 
+    renderer_push_quad(
+        const entity_id id) {
+
+        assert(id != INVALID_ID);
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->shader.quad);
+
+        const bool did_push = renderer_quad_push(_renderer_ctx->shader.quad, id);
+        return(did_push);
+    }
+    
+    IFB_INTERNAL bool
+    renderer_set_map(
+        const hnd_map h_map) {
+
+        assert(h_map                      != INVALID_HANDLE);
+        assert(_renderer_ctx              != NULL);
+        assert(_renderer_ctx->shader.tile != NULL);
+
+        const bool did_set = renderer_tile_set_map(_renderer_ctx->shader.tile, h_map);
+        return(did_set);
     }
     
     //--------------------------------------------------------------------
@@ -275,6 +298,48 @@ namespace ifb {
 
         assert(_renderer_ctx);
         renderer_camera_set_target(_renderer_ctx->cam, target);
+    }
+    
+    //--------------------------------------------------------------------
+    // VIEWPORT METHODS 
+    //--------------------------------------------------------------------
+   
+    IFB_INTERNAL void
+    renderer_set_viewport_dimensions(
+        const u32 width,
+        const u32 height) {
+
+        assert(width  != 0);
+        assert(height != 0);
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->viewport);
+       
+        renderer_viewport_set_dimensions(
+            _renderer_ctx->viewport,
+            _renderer_ctx->gl,
+            width, height
+        );
+    }
+
+    IFB_INTERNAL f32
+    renderer_get_viewport_aspect_ratio(
+        void) {
+
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->viewport);
+
+        const f32 aspect_ratio = renderer_viewport_get_aspect_ratio(_renderer_ctx->viewport);
+        return(aspect_ratio);
+    }
+
+    IFB_INTERNAL void
+    renderer_get_viewport_xform(
+        mat4& xform) {
+
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->viewport);
+
+        renderer_viewport_get_xform(_renderer_ctx->viewport, xform);
     }
 };
           

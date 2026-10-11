@@ -23,11 +23,9 @@ namespace ifb {
 
     struct renderer_context;
     struct renderer_shader_source;
-    struct renderer_direction_gizmo_shader;
     struct renderer_quad_buffers;
     struct renderer_quad_vertices;
     struct renderer_quad_elements;
-    struct renderer_grid_shader;
     struct renderer_tile_vertex;
     struct renderer_tile_shader;
     struct renderer_particle_shader;
@@ -43,42 +41,28 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // renderer context
-    IFB_INTERNAL renderer_context* renderer_context_create                   (void);
-    IFB_INTERNAL void              renderer_context_startup                  (reservation* res);
-    IFB_INTERNAL void              renderer_context_shutdown                 (void);
-    IFB_INTERNAL void              renderer_context_update_view_matrix       (void);
-    IFB_INTERNAL void              renderer_context_draw_buffers             (void);
-    IFB_INTERNAL void              renderer_context_view_projection_xform    (mat4& xform);
+    IFB_INTERNAL renderer_context* renderer_context_create                (void);
+    IFB_INTERNAL void              renderer_context_startup               (reservation* res);
+    IFB_INTERNAL void              renderer_context_shutdown              (void);
+    IFB_INTERNAL void              renderer_context_update_view_matrix    (void);
+    IFB_INTERNAL void              renderer_context_draw_buffers          (void);
+    IFB_INTERNAL void              renderer_context_view_projection_xform (mat4& xform);
+
+    IFB_INTERNAL bool              renderer_push_quad                     (const entity_id id);
+    IFB_INTERNAL bool              renderer_set_map                       (const hnd_map h_map);
 
     // camera
-    IFB_INTERNAL const vec3&       renderer_get_camera_origin                (void);
-    IFB_INTERNAL const vec3&       renderer_get_camera_target                (void);
-    IFB_INTERNAL void              renderer_get_camera_orientation           (orientation& o);
-    IFB_INTERNAL void              renderer_get_camera_xform                 (mat4& xform);
-    IFB_INTERNAL void              renderer_set_camera_origin                (const vec3& origin);
-    IFB_INTERNAL void              renderer_set_camera_target                (const vec3& target);
+    IFB_INTERNAL const vec3&       renderer_get_camera_origin             (void);
+    IFB_INTERNAL const vec3&       renderer_get_camera_target             (void);
+    IFB_INTERNAL void              renderer_get_camera_orientation        (orientation& o);
+    IFB_INTERNAL void              renderer_get_camera_xform              (mat4& xform);
+    IFB_INTERNAL void              renderer_set_camera_origin             (const vec3& origin);
+    IFB_INTERNAL void              renderer_set_camera_target             (const vec3& target);
 
     // viewport
-    IFB_INTERNAL void              renderer_set_viewport_dimensions      (const u32 width, const u32 height);
-    IFB_INTERNAL f32               renderer_get_viewport_aspect_ratio        (void);
-    IFB_INTERNAL void              renderer_get_viewport_xform               (mat4& xform);
-
-    // direction gizmo
-    IFB_INTERNAL void              renderer_direciton_gizmo_shader_create (void);
-    IFB_INTERNAL void              renderer_direciton_gizmo_shader_init   (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL void              renderer_direction_gizmo_draw          (void);
-
-    // grid
-    IFB_INTERNAL void              renderer_grid_shader_create            (void);
-    IFB_INTERNAL void              renderer_grid_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL void              renderer_grid_draw                     (const mat4& view_proj_xform);
-
-    // tile
-    IFB_INTERNAL void              renderer_tile_shader_create            (void);
-    IFB_INTERNAL void              renderer_tile_shader_init              (const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL bool              renderer_tile_set_map                  (const hnd_map map_hnd);
-    IFB_INTERNAL void              renderer_tile_draw                     (const mat4& view_proj_xform);
-
+    IFB_INTERNAL void              renderer_set_viewport_dimensions       (const u32 width, const u32 height);
+    IFB_INTERNAL f32               renderer_get_viewport_aspect_ratio     (void);
+    IFB_INTERNAL void              renderer_get_viewport_xform            (mat4& xform);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

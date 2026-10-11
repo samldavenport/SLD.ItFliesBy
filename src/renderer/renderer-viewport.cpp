@@ -80,13 +80,13 @@ namespace ifb {
     }
 
     IFB_INTERNAL void  
-    renderer_projection_xform(
+    renderer_viewport_get_xform(
         renderer_viewport* viewport,
         mat4&              xform) {
 
         assert(viewport);
 
-        const f32 aspect          = renderer_projection_get_aspect_ratio(); 
+        const f32 aspect          = renderer_viewport_get_aspect_ratio(viewport); 
         const f32 f               = 1.0f / tanf(viewport->fov_y * 0.5f);
         const f32 f_div_aspect    = f / aspect; 
         const f32 near_sub_far    = viewport->clip_near - viewport->clip_far;

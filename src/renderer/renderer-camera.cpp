@@ -87,7 +87,7 @@ namespace ifb {
     }
     
     IFB_INTERNAL void 
-    renderer_camera_xform(
+    renderer_camera_get_xform(
         renderer_camera* camera,
         mat4&            xform) {
 
