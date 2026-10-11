@@ -10,13 +10,6 @@
 
 namespace ifb {
 
-    // the type is the index of the list an active emitter is processed in
-    enum particle_emitter_type_e {
-        particle_emitter_type_e_parabolic = 0,
-        particle_emitter_type_e_radial    = 1,
-        particle_emitter_type_e_count     = 2
-    };
-
     // spawn limit of an emitter that spawns until it is stopped
     constexpr u32 PARTICLE_SPAWN_UNLIMITED = INVALID_U32;
 
@@ -32,6 +25,7 @@ namespace ifb {
         u32                  count;
         f32                  lifespan_ms;
         f32                  spawn_delay_ms;
+        f32                  spawn_radius;    // particles spawn within this distance of the position
         f32                  height;
         f32                  width;
         vec3                 position;

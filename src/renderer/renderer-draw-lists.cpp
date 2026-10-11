@@ -67,6 +67,19 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
+    render_lists_push_particle_emitter(
+        render_lists*   lists,
+        const entity_id id) {
+
+        assert(lists);
+        assert(lists->particle_emitters);
+        assert(id != ENTITY_ID_INVALID);
+
+        const bool did_push = entity_list_add(lists->particle_emitters, id);
+        return(did_push);
+    }
+
+    IFB_INTERNAL bool
     render_lists_set_map(
         render_lists* lists,
         const hnd_map h_map) {

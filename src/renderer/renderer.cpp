@@ -12,6 +12,7 @@
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-grid.cpp"
 #include "renderer-tile.cpp"
+#include "renderer-particle.cpp"
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
@@ -35,6 +36,7 @@ namespace ifb {
         vec3               global_up;
         render_lists*      lists;
         render_buffers*    buffers;
+        renderer_particle_view* particle_view;
         struct {
             renderer_quad_shader*            quad;
             renderer_direction_gizmo_shader* direction_gizmo;
@@ -169,6 +171,10 @@ namespace ifb {
         renderer_grid_shader_init            (_renderer->shader.grid,            _renderer->gl, _renderer->buffers, file_src_grid_vert,    file_src_grid_frag);
         renderer_tile_shader_init            (_renderer->shader.tile,            _renderer->gl, _renderer->buffers, file_src_tile_vert,    file_src_tile_frag);
 
+        // the particle view draws with the quad shader, so it goes after the shaders
+        _renderer->particle_view = renderer_particle_view_create();
+        renderer_particle_view_init(_renderer->particle_view, _renderer->gl, _renderer->buffers, _renderer->shader.quad);
+
         // close the shader files
         file_close(file_hnd_quad_vert);
         file_close(file_hnd_quad_frag);
@@ -233,6 +239,10 @@ namespace ifb {
         renderer_grid_draw            (_renderer->shader.grid, gl, buffers, view_proj_xform);
         renderer_quad_draw            (_renderer->shader.quad, gl, buffers, view_proj_xform);
 
+        // the particle view draws offscreen, then puts the window viewport back
+        renderer_particle_view_draw(_renderer->particle_view, gl, buffers, _renderer->shader.quad, _renderer->shader.grid);
+        gl_context_update_viewport(gl, 0, 0, (u32)_renderer->viewport->width, (u32)_renderer->viewport->height);
+
         // the lists get filled again next frame
         render_lists_reset(lists);
     }
@@ -264,6 +274,18 @@ namespace ifb {
 return(did_push);
     }
     
+    IFB_INTERNAL bool
+    renderer_push_particle_emitter(
+        const entity_id id) {
+
+        assert(id != INVALID_ID);
+        assert(_renderer);
+        assert(_renderer->lists);
+
+        const bool did_push = render_lists_push_particle_emitter(_renderer->lists, id);
+        return(did_push);
+    }
+
     IFB_INTERNAL bool
     renderer_set_map(
         const hnd_map h_map) {
@@ -332,6 +354,60 @@ return(did_set);
     // VIEWPORT METHODS 
     //--------------------------------------------------------------------
    
+    IFB_INTERNAL void
+    renderer_request_particle_view(
+        const u32 width,
+        const u32 height) {
+
+        assert(_renderer);
+        renderer_particle_view_request(_renderer->particle_view, width, height);
+    }
+
+    IFB_INTERNAL u32
+    renderer_get_particle_view_texture(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->particle_view);
+        return(_renderer->particle_view->gl.texture);
+    }
+
+    IFB_INTERNAL const vec3&
+    renderer_get_particle_view_camera_origin(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->particle_view);
+        return(renderer_camera_get_origin(_renderer->particle_view->camera));
+    }
+
+    IFB_INTERNAL const vec3&
+    renderer_get_particle_view_camera_target(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->particle_view);
+        return(renderer_camera_get_target(_renderer->particle_view->camera));
+    }
+
+    IFB_INTERNAL void
+    renderer_set_particle_view_camera_origin(
+        const vec3& origin) {
+
+        assert(_renderer);
+        assert(_renderer->particle_view);
+        renderer_camera_set_origin(_renderer->particle_view->camera, origin);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_particle_view_camera_target(
+        const vec3& target) {
+
+        assert(_renderer);
+        assert(_renderer->particle_view);
+        renderer_camera_set_target(_renderer->particle_view->camera, target);
+    }
+
     IFB_INTERNAL void
     renderer_set_viewport_dimensions(
         const u32 width,

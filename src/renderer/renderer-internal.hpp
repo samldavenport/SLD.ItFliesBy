@@ -17,6 +17,7 @@ struct render_gl;
     struct renderer_quad_shader;
     struct renderer_direction_gizmo_shader;
     struct renderer_grid_shader;
+    struct renderer_particle_view;
 
     // context
     IFB_INTERNAL void*                 renderer_memory_alloc       (const u32 size);
@@ -50,6 +51,7 @@ IFB_INTERNAL void                  render_buffers_render_tiles         (render_b
     IFB_INTERNAL void                  render_lists_init                   (render_lists* lists);
     IFB_INTERNAL void                  render_lists_reset                  (render_lists* lists);
     IFB_INTERNAL bool                  render_lists_push_quad              (render_lists* lists, const entity_id id);
+    IFB_INTERNAL bool                  render_lists_push_particle_emitter  (render_lists* lists, const entity_id id);
     IFB_INTERNAL bool                  render_lists_set_map                (render_lists* lists, const hnd_map h_map);
     IFB_INTERNAL hnd_map               render_lists_get_map                (render_lists* lists);
 IFB_INTERNAL const entity_list*    render_lists_get_quads              (render_lists* lists);
@@ -69,6 +71,12 @@ IFB_INTERNAL const entity_list*    render_lists_get_quads              (render_l
     IFB_INTERNAL void                             renderer_direciton_gizmo_shader_init   (renderer_direction_gizmo_shader* shdr, gl_context* gl, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL void                             renderer_direction_gizmo_draw          (renderer_direction_gizmo_shader* shdr, gl_context* gl);
     
+    // particle view
+    IFB_INTERNAL renderer_particle_view* renderer_particle_view_create  (void);
+    IFB_INTERNAL void                    renderer_particle_view_init    (renderer_particle_view* view, gl_context* gl, render_buffers* buffers, renderer_quad_shader* shdr_quad);
+    IFB_INTERNAL void                    renderer_particle_view_request (renderer_particle_view* view, const u32 width, const u32 height);
+    IFB_INTERNAL void                    renderer_particle_view_draw    (renderer_particle_view* view, gl_context* gl, render_buffers* buffers, renderer_quad_shader* shdr_quad, renderer_grid_shader* shdr_grid);
+
     // tile
     IFB_INTERNAL renderer_tile_shader* renderer_tile_shader_create (void);
     IFB_INTERNAL void                  renderer_tile_shader_init   (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);

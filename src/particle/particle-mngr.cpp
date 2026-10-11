@@ -240,7 +240,7 @@ namespace ifb {
               ++emitter_index_curr) {
 
             const hnd_particle_emitter hnd_curr = _particle_mngr->array_hnd[emitter_index_curr]; 
-            assert(h_emitter != hnd_curr);
+            if (h_emitter == hnd_curr) return(INVALID_INDEX);
             if (emitter_index_new == INVALID_INDEX && hnd_curr == INVALID_HANDLE) {
                 emitter_index_new = emitter_index_curr;
             }

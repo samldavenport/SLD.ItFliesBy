@@ -69,7 +69,28 @@ namespace ifb {
         return(count_live);
     }
 
-    // spawns the next particle in the ring at the emitter position, if one is due
+    // a random point within the spawn radius of the emitter position
+    // the cube root spreads the points evenly through the sphere, instead of bunching in the middle
+    inline vec3
+    particle_emitter_spawn_position(
+        const particle_emitter& emitter) {
+
+        if (emitter.spawn_radius <= 0.0f) return(emitter.position);
+
+        const f32 height   = (random_f32() * 2.0f) - 1.0f;
+        const f32 ring     = sqrtf(1.0f - (height * height));
+        const f32 rotation = random_f32() * 2.0f * PI_32;
+        const f32 distance = emitter.spawn_radius * cbrtf(random_f32());
+
+        const vec3 offset = {
+            cosf(rotation) * ring * distance,
+            height                * distance,
+            sinf(rotation) * ring * distance
+        };
+        return(vec3_add(emitter.position, offset));
+    }
+
+    // spawns the next particle in the ring within the spawn radius, if one is due
     // returns the particle index so the caller can set the velocity, or INVALID_INDEX
     inline u32
     particle_emitter_spawn_next(
@@ -95,7 +116,7 @@ namespace ifb {
 
         emitter.array_life_ms  [index] = emitter.lifespan_ms;
         emitter.array_colors   [index] = emitter.color_primary;
-        emitter.array_position [index] = emitter.position;
+        emitter.array_position [index] = particle_emitter_spawn_position(emitter);
 
         emitter.spawn_index     = (index + 1) % emitter.count;
         emitter.spawn_timer_ms -= emitter.spawn_delay_ms;
@@ -229,7 +250,14 @@ namespace ifb {
                     index != INVALID_INDEX;
                     index = particle_emitter_spawn_next(emitter)) {
 
-                const vec3 direction = particle_random_direction(axis, tangent, bitangent, cone_cos);
+                // a particle that spawned away from the center keeps going that way,
+                // one that spawned on the center has no way out, so it gets a random one
+                const vec3 offset    = vec3_subtract(emitter.array_position[index], emitter.position);
+                const f32  distance  = vec3_magnitude(offset);
+                const vec3 direction = (distance > 0.0f)
+                    ? vec3_scalar_divide(offset, distance)
+                    : particle_random_direction(axis, tangent, bitangent, cone_cos);
+
                 emitter.array_velocity[index] = vec3_scalar_multiply(direction, props.speed);
                 ++count_live;
             }

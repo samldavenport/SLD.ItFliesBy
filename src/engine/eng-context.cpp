@@ -172,7 +172,8 @@ namespace ifb {
         // simulate physics
         phys_mngr_simulate(dt);
 
-        // update particles
+        // update particles, the emitters on entities go where the physics put them
+        particle_mngr_follow_entities();
         particle_mngr_update_emitters(dt * 1000.0f);
         
         if (elapsed_time == 0.0f) {

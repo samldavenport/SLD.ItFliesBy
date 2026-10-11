@@ -36,7 +36,8 @@ namespace ifb {
         cmpnt_drag*          array_drag;
         cmpnt_term_velocity* array_term_velocity; 
         cmpnt_spring*        array_spring; 
-        cmpnt_map_coords*    array_map_coords; 
+        cmpnt_map_coords*    array_map_coords;
+        cmpnt_particle_emitter* array_particle_emitter;
     };
     
     //--------------------------------------------------------------------
