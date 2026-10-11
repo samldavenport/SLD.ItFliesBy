@@ -39,6 +39,7 @@ set(IFB_ENGINE_SOURCE_DIRS
     src/particle
     src/physics
     src/quads
+    src/random
     src/renderer
     src/tiled
     src/win32

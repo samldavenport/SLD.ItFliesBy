@@ -209,18 +209,31 @@ namespace ifb {
     };
 
     struct particle {
-        vec3 color;
-        vec3 position;
+        color_rgba_u32 color;
+        vec3           position;
     };
 
     struct particle_emitter_info {
         const cchar*    name;
         u32             count;
         f32             lifespan_ms;
+        f32             spawn_delay_ms;
         f32             height;
         f32             width;
         color_rgba_u32  color_primary;
         color_rgba_u32  color_secondary;
+    };
+
+    // fountains, velocity and gravity are in units per second
+    struct particle_parabolic_props {
+        vec3 velocity;       // launch direction and speed
+        vec3 gravity;
+        f32  spread_degrees; // half angle of the launch cone
+    };
+
+    // explosions, speed is in units per second
+    struct particle_radial_props {
+        f32 speed;
     };
     
     //--------------------------------------------------------------------

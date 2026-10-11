@@ -21,6 +21,8 @@
 #include "eng-system.cpp"
 #include "eng-keycode.cpp"
 #include "eng-map.cpp"
+#include "eng-particle.cpp"
+#include "eng-random.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"
@@ -48,6 +50,7 @@
 
 #include "particle-mngr.cpp"
 #include "particle-emitter.cpp"
+#include "particle-update.cpp"
 
 #include "physics-manager.cpp"
 #include "physics-force-accumulator.cpp"
@@ -57,6 +60,8 @@
 
 #include "quad.cpp"
 #include "quad-tests.cpp"
+
+#include "random-table.cpp"
 
 #include "renderer.cpp"
 

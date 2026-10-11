@@ -20,6 +20,14 @@ namespace ifb {
         f32*                  array_life_ms;
         color_rgba_u32*       array_colors;
         vec3*                 array_position;
+        vec3*                 array_velocity;
+
+        // type properties, one slot per emitter
+        particle_parabolic_props* array_props_parabolic;
+        particle_radial_props*    array_props_radial;
+
+        // the active emitters of each type
+        particle_emitter_list     array_lists[particle_emitter_type_e_count];
     } static * _particle_mngr;
 
     // the unaligned size of every array in the manager
@@ -29,6 +37,10 @@ namespace ifb {
         u32 life_ms;
         u32 colors;
         u32 position;
+        u32 velocity;
+        u32 props_parabolic;
+        u32 props_radial;
+        u32 list;
     };
 
     //--------------------------------------------------------------------
@@ -51,6 +63,13 @@ namespace ifb {
         sizes.life_ms  = particle_count * sizeof(f32);
         sizes.colors   = particle_count * sizeof(color_rgba_u32);
         sizes.position = particle_count * sizeof(vec3);
+        sizes.velocity = particle_count * sizeof(vec3);
+
+        // every emitter has a slot for the props of each type,
+        // and each list can hold every emitter
+        sizes.props_parabolic = capacity * sizeof(particle_parabolic_props);
+        sizes.props_radial    = capacity * sizeof(particle_radial_props);
+        sizes.list            = capacity * sizeof(u32);
         return(sizes);
     }
 
@@ -66,7 +85,12 @@ namespace ifb {
             sizes.emitters,
             sizes.life_ms,
             sizes.colors,
-            sizes.position
+            sizes.position,
+            sizes.velocity,
+            sizes.props_parabolic,
+            sizes.props_radial,
+            sizes.list,
+            sizes.list
         };
 
         u32 size_total = 0;
@@ -128,11 +152,24 @@ namespace ifb {
         _particle_mngr->array_life_ms  =                  (f32*)reservation_push_bytes(res, sizes.life_ms);
         _particle_mngr->array_colors   =       (color_rgba_u32*)reservation_push_bytes(res, sizes.colors);
         _particle_mngr->array_position =                 (vec3*)reservation_push_bytes(res, sizes.position);
+        _particle_mngr->array_velocity =                 (vec3*)reservation_push_bytes(res, sizes.velocity);
+        _particle_mngr->array_props_parabolic = (particle_parabolic_props*)reservation_push_bytes(res, sizes.props_parabolic);
+        _particle_mngr->array_props_radial    =    (particle_radial_props*)reservation_push_bytes(res, sizes.props_radial);
         assert(_particle_mngr->array_hnd);
         assert(_particle_mngr->array_emitters);
         assert(_particle_mngr->array_life_ms);
         assert(_particle_mngr->array_colors);
         assert(_particle_mngr->array_position);
+        assert(_particle_mngr->array_velocity);
+        assert(_particle_mngr->array_props_parabolic);
+        assert(_particle_mngr->array_props_radial);
+
+        // every list starts empty
+        for (particle_emitter_list& list : _particle_mngr->array_lists) {
+            list.count       = 0;
+            list.array_index = (u32*)reservation_push_bytes(res, sizes.list);
+            assert(list.array_index);
+        }
 
         // point each emitter at its slice of the particle arrays
         for (
@@ -145,9 +182,11 @@ namespace ifb {
 
             _particle_mngr->array_hnd[emitter_index] = INVALID_HANDLE;
             emitter.hnd            = INVALID_HANDLE;
+            emitter.list_index     = INVALID_INDEX;
             emitter.array_life_ms  = &_particle_mngr->array_life_ms  [particle_index];
             emitter.array_colors   = &_particle_mngr->array_colors   [particle_index];
             emitter.array_position = &_particle_mngr->array_position [particle_index];
+            emitter.array_velocity = &_particle_mngr->array_velocity [particle_index];
         }
     }
     
@@ -241,6 +280,77 @@ namespace ifb {
 
         auto& emitter = _particle_mngr->array_emitters[index];
         return(emitter);
+    }
+
+    IFB_INTERNAL particle_emitter_list&
+    particle_mngr_get_list(
+        const u32 type) {
+
+        assert(_particle_mngr);
+        assert(type < particle_emitter_type_e_count);
+
+        auto& list = _particle_mngr->array_lists[type];
+        return(list);
+    }
+
+    IFB_INTERNAL particle_parabolic_props&
+    particle_mngr_get_props_parabolic(
+        const u32 index) {
+
+        assert(_particle_mngr);
+        assert(_particle_mngr->array_props_parabolic);
+        assert(_particle_mngr->capacity > index);
+
+        auto& props = _particle_mngr->array_props_parabolic[index];
+        return(props);
+    }
+
+    IFB_INTERNAL particle_radial_props&
+    particle_mngr_get_props_radial(
+        const u32 index) {
+
+        assert(_particle_mngr);
+        assert(_particle_mngr->array_props_radial);
+        assert(_particle_mngr->capacity > index);
+
+        auto& props = _particle_mngr->array_props_radial[index];
+        return(props);
+    }
+
+    IFB_INTERNAL void
+    particle_mngr_activate_emitter(
+        const u32 index) {
+
+        particle_emitter& emitter = particle_mngr_get_emitter(index);
+        if (emitter.list_index != INVALID_INDEX) return;
+
+        // add the emitter to the end of the list for its type
+        particle_emitter_list& list = particle_mngr_get_list(emitter.type);
+        assert(list.count < _particle_mngr->capacity);
+
+        emitter.list_index           = list.count;
+        list.array_index[list.count] = index;
+        ++list.count;
+    }
+
+    IFB_INTERNAL void
+    particle_mngr_deactivate_emitter(
+        const u32 index) {
+
+        particle_emitter& emitter = particle_mngr_get_emitter(index);
+        if (emitter.list_index == INVALID_INDEX) return;
+
+        particle_emitter_list& list = particle_mngr_get_list(emitter.type);
+        assert(list.count > emitter.list_index);
+        assert(list.array_index[emitter.list_index] == index);
+
+        // the last emitter in the list takes this one's place
+        const u32 index_last = list.array_index[list.count - 1];
+        list.array_index[emitter.list_index]             = index_last;
+        particle_mngr_get_emitter(index_last).list_index = emitter.list_index;
+        --list.count;
+
+        emitter.list_index = INVALID_INDEX;
     }
 
 };
