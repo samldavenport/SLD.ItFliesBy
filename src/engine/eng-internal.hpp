@@ -11,6 +11,7 @@
 #include "physics.hpp"
 #include "map.hpp"
 #include "particle.hpp"
+#include "random.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -41,6 +42,7 @@ namespace ifb {
         phys_mngr*         phys_mngr;
         map_mngr*          map_mngr;
         particle_mngr*     particle_mngr;
+        random_table*      random_table;
     } static * _eng_context;
 
     struct global_stack {

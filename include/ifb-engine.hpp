@@ -204,17 +204,41 @@ namespace ifb {
     //--------------------------------------------------------------------
   
     IFB_ENGINE_API hnd_particle_emitter
-    eng_particle_emitter_create(
-        const cchar*           name,
-        const u32              count,
-        const f32              lifespan_ms,
-        const f32              width,
-        const f32              height,
-        const color_rgba_u32&  color_primary,
-        const color_rgba_u32&  color_secondary
+    eng_particle_emitter_create_parabolic(
+        const cchar*                    name,
+        const u32                       count,
+        const f32                       lifespan_ms,
+        const f32                       spawn_delay_ms,
+        const f32                       width,
+        const f32                       height,
+        const color_rgba_u32&           color_primary,
+        const color_rgba_u32&           color_secondary,
+        const particle_parabolic_props& props
+    );
+    IFB_ENGINE_API hnd_particle_emitter
+    eng_particle_emitter_create_radial(
+        const cchar*                    name,
+        const u32                       count,
+        const f32                       lifespan_ms,
+        const f32                       spawn_delay_ms,
+        const f32                       width,
+        const f32                       height,
+        const color_rgba_u32&           color_primary,
+        const color_rgba_u32&           color_secondary,
+        const particle_radial_props&    props
     );
     IFB_ENGINE_API bool eng_particle_emitter_destroy (const hnd_particle_emitter h_emitter);
+    IFB_ENGINE_API bool eng_particle_emitter_start   (const hnd_particle_emitter h_emitter, const vec3& position);
+    IFB_ENGINE_API bool eng_particle_emitter_stop    (const hnd_particle_emitter h_emitter);
     IFB_ENGINE_API bool eng_particle_emitter_render  (const hnd_particle_emitter h_emitter);
+
+    //--------------------------------------------------------------------
+    // RANDOM
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API u32 eng_random_u32       (void);
+    IFB_ENGINE_API f32 eng_random_f32       (void);
+    IFB_ENGINE_API f32 eng_random_f32_range (const f32 min, const f32 max);
 
     //--------------------------------------------------------------------
     // ARENAS

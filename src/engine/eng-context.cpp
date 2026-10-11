@@ -10,8 +10,10 @@
 #include "imgui.h"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"
+#include "particle-update.cpp"
 #include "physics-manager.cpp"
 #include "physics.hpp"
+#include "random-table.cpp"
 #include "renderer.cpp"
 #include "renderer.hpp"
 #include "map.hpp"
@@ -61,6 +63,7 @@ namespace ifb {
         _eng_context->phys_mngr       = phys_mngr_create();
         _eng_context->map_mngr        = map_mngr_create();
         _eng_context->particle_mngr   = particle_mngr_create();
+        _eng_context->random_table    = random_table_create();
         _eng_context->mem_map         = mem_map;
 
         assert(
@@ -77,6 +80,7 @@ namespace ifb {
             _eng_context->cmpnt_mngr    != NULL &&
             _eng_context->phys_mngr     != NULL &&
             _eng_context->particle_mngr != NULL &&
+            _eng_context->random_table  != NULL &&
             _eng_context->mem_map       != NULL
         );
 
@@ -157,6 +161,7 @@ namespace ifb {
         if (elapsed_time == 0.0f) {
             pfm_window_frame_start   ();
             pfm_window_process_events();
+            random_table_update      ();
         }
 
         // game callback    
@@ -166,6 +171,9 @@ namespace ifb {
 
         // simulate physics
         phys_mngr_simulate(dt);
+
+        // update particles
+        particle_mngr_update_emitters(dt * 1000.0f);
         
         if (elapsed_time == 0.0f) {
        
