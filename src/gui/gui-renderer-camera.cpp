@@ -19,8 +19,8 @@ namespace ifb {
         static vec3 camera_up;
         static mat4 camera_view_matrix;
 
-        eng_camera_get_target (camera_target);
-        eng_camera_get_origin (camera_origin);
+        camera_target = eng_camera_get_target ();
+        camera_origin = eng_camera_get_origin ();
         eng_camera_get_xform  (camera_view_matrix);
 
         camera_forward = xform_view_forward (camera_view_matrix);

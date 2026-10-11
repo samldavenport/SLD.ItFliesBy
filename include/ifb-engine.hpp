@@ -118,11 +118,11 @@ namespace ifb {
     // CAMERA
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API void eng_camera_get_origin (vec3& origin);
-    IFB_ENGINE_API void eng_camera_get_target (vec3& target);
-    IFB_ENGINE_API void eng_camera_set_origin (const vec3& origin);
-    IFB_ENGINE_API void eng_camera_set_target (const vec3& target);
-    IFB_ENGINE_API void eng_camera_get_xform  (mat4& xform);
+    IFB_ENGINE_API const vec3& eng_camera_get_origin (void);
+    IFB_ENGINE_API const vec3& eng_camera_get_target (void);
+    IFB_ENGINE_API void        eng_camera_set_origin (const vec3& origin);
+    IFB_ENGINE_API void        eng_camera_set_target (const vec3& target);
+    IFB_ENGINE_API void        eng_camera_get_xform  (mat4& xform);
 
     //--------------------------------------------------------------------
     // ENTITIES

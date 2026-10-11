@@ -3,18 +3,42 @@
 #include "renderer.hpp"
 #include "ifb-collections.hpp"
 #include "memory-reservation.cpp"
+#include "renderer-internal.hpp"
 #include "renderer-quad.cpp" 
 #include "renderer-camera.cpp"
-#include "renderer-projection.cpp"
+#include "renderer-viewport.cpp"
 #include "renderer-direction-gizmo.cpp"
 #include "renderer-grid.cpp"
 #include "renderer-tile.cpp"
 #include "eng-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
+#include "sld-opengl.hpp"
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
+    
+    struct renderer_memory {
+        stack* stack;
+    };
+
+    struct renderer_context {
+        gl_context*        gl;
+        renderer_memory    memory;
+        renderer_camera*   cam;
+        renderer_viewport* viewport;
+        vec3               global_up;
+        struct {
+            renderer_quad_shader*            quad;
+            renderer_direction_gizmo_shader* direction_gizmo;
+            renderer_grid_shader*            grid; 
+            renderer_tile_shader*            tile;
+        } shader;
+    };
+    
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
@@ -26,17 +50,23 @@ namespace ifb {
         const auto& cfg         = config_instance();
         const u32   block_count = (cfg.memory_size_rendering / cfg.renderer_mem_granularity);
 
-        auto rndr      = global_alloc<renderer_context> ();
-        auto gl        = global_alloc<gl_context>       ();
-        auto block_ids = global_alloc<u32>              (block_count); 
+        auto rndr        = global_alloc<renderer_context> ();
+        auto gl          = global_alloc<gl_context>       ();
+        auto block_ids   = global_alloc<u32>              (block_count); 
+        auto camera      = renderer_camera_create();
+        auto viewport    = renderer_viewport_create();
         assert(
-            rndr      != NULL &&
-            gl        != NULL &&
-            block_ids != NULL            
+            rndr       != NULL &&
+            gl         != NULL &&
+            block_ids  != NULL &&            
+            camera     != NULL &&            
+            viewport   != NULL
         );
 
-        _renderer_ctx     = rndr;
-        _renderer_ctx->gl = gl;
+        _renderer_ctx                         = rndr;
+        _renderer_ctx->gl                     = gl;
+        _renderer_ctx->cam                    = camera;
+        _renderer_ctx->viewport               = viewport;
 
         return(_renderer_ctx);
     }
@@ -57,10 +87,6 @@ namespace ifb {
         // we can pass the context to the function and use it that way
         // same for imgui, it can be initialized externally
 
-        // create shaders
-        renderer_grid_shader_create();
-
-
         // set global up
         _renderer_ctx->global_up = { 0.0f, 1.0f, 0.0f };
 
@@ -69,14 +95,15 @@ namespace ifb {
         pfm_graphics_init_imgui();
 
         // create shaders
-        renderer_quad_shader_create();
-        renderer_tile_shader_create();
-        renderer_direciton_gizmo_shader_create();
+        _renderer_ctx->shader.quad            = renderer_quad_shader_create();
+        _renderer_ctx->shader.grid            = renderer_grid_shader_create();
+        _renderer_ctx->shader.tile            = renderer_tile_shader_create();
+        _renderer_ctx->shader.direction_gizmo = renderer_direciton_gizmo_shader_create();
 
         // intialize camera
-        renderer_projection_init();
-        renderer_camera_init();
-        renderer_projection_set_viewport(cfg.window_start_width, cfg.window_start_height);
+        renderer_viewport_init (_renderer_ctx->viewport); 
+        renderer_camera_init   (_renderer_ctx->cam);
+        renderer_viewport_set_dimensions(_renderer_ctx->viewport, _renderer_ctx->gl, cfg.window_start_width, cfg.window_start_height);
 
         // open shader files
         const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
@@ -121,10 +148,10 @@ namespace ifb {
         file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
         
         // initialize shaders
-        renderer_quad_shader_init            (file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (file_src_dir_giz_vert, file_src_dir_giz_frag);
-        renderer_grid_shader_init            (file_src_grid_vert,    file_src_grid_frag);
-        renderer_tile_shader_init            (file_src_tile_vert,    file_src_tile_frag);
+        renderer_quad_shader_init            (_renderer_ctx->shader.quad,            _renderer_ctx->gl, file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (_renderer_ctx->shader.direction_gizmo, _renderer_ctx->gl, file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_grid_shader_init            (_renderer_ctx->shader.grid,            _renderer_ctx->gl, file_src_grid_vert,    file_src_grid_frag);
+        renderer_tile_shader_init            (_renderer_ctx->shader.tile,            _renderer_ctx->gl, file_src_tile_vert,    file_src_tile_frag);
 
         // close the shader files
         file_close(file_hnd_quad_vert);
@@ -155,31 +182,31 @@ namespace ifb {
         return(mem);
     }
 
-    IFB_INTERNAL mat4
+    IFB_INTERNAL void 
     renderer_context_view_projection_xform(
-        void) {
+        mat4& xform) {
 
         // calculate view and projection matrices
         static mat4 proj = mat4_identity();
         static mat4 view = mat4_identity();
-        proj = renderer_projection_xform ();
-        view = renderer_camera_xform     ();
+        renderer_viewport_get_xform (_renderer_ctx->viewport, proj);
+        renderer_camera_get_xform   (_renderer_ctx->cam, view);
        
         // calculate view projection
-        const mat4 view_proj = mat4_multiply(proj, view);
-        return(view_proj);
+        xform = mat4_multiply(proj, view);
     }
     
     IFB_INTERNAL void
     renderer_context_draw_buffers(
         void) {
 
-        const mat4 view_proj_xform = renderer_context_view_projection_xform(); 
+        mat4 view_proj_xform;
+        renderer_context_view_projection_xform(view_proj_xform); 
 
         //renderer_direction_gizmo_draw (view_proj_xform);
-        renderer_tile_draw            (view_proj_xform);
-        renderer_grid_draw            (view_proj_xform);
-        renderer_quad_draw            (view_proj_xform);
+        renderer_tile_draw            (_renderer_ctx->shader.tile, _renderer_ctx->gl, view_proj_xform);
+        renderer_grid_draw            (_renderer_ctx->shader.grid, _renderer_ctx->gl, view_proj_xform);
+        renderer_quad_draw            (_renderer_ctx->shader.quad, _renderer_ctx->cam, _renderer_ctx->gl, view_proj_xform);
     }
     
     IFB_INTERNAL entity_list*
@@ -195,6 +222,124 @@ namespace ifb {
 
         entity_list* list = entity_list_memory_create(mem);
         return(list);
+    }
+    
+    IFB_INTERNAL bool 
+    renderer_push_quad(
+        const entity_id id) {
+
+        assert(id != INVALID_ID);
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->shader.quad);
+
+        const bool did_push = renderer_quad_push(_renderer_ctx->shader.quad, id);
+        return(did_push);
+    }
+    
+    IFB_INTERNAL bool
+    renderer_set_map(
+        const hnd_map h_map) {
+
+        assert(h_map                      != INVALID_HANDLE);
+        assert(_renderer_ctx              != NULL);
+        assert(_renderer_ctx->shader.tile != NULL);
+
+        const bool did_set = renderer_tile_set_map(_renderer_ctx->shader.tile, h_map);
+        return(did_set);
+    }
+    
+    //--------------------------------------------------------------------
+    // CAMERA METHODS 
+    //--------------------------------------------------------------------
+    
+    IFB_INTERNAL const vec3&
+    renderer_get_camera_origin(
+        void) {
+
+        assert(_renderer_ctx);
+        return(renderer_camera_get_origin(_renderer_ctx->cam));
+    }
+
+    IFB_INTERNAL const vec3&
+    renderer_get_camera_target(
+        void) {
+
+        assert(_renderer_ctx);
+        return(renderer_camera_get_target(_renderer_ctx->cam));
+    }
+
+    IFB_INTERNAL void
+    renderer_get_camera_orientation(
+        orientation& o) {
+
+        assert(_renderer_ctx);
+        renderer_camera_get_orientation(_renderer_ctx->cam, o);
+    }
+
+    IFB_INTERNAL void 
+    renderer_get_camera_xform(
+        mat4& xform) {
+
+        assert(_renderer_ctx);
+        renderer_camera_get_xform(_renderer_ctx->cam, xform);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_camera_origin(
+        const vec3& origin) {
+
+        assert(_renderer_ctx);
+        renderer_camera_set_origin(_renderer_ctx->cam, origin);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_camera_target(
+        const vec3& target) {
+
+        assert(_renderer_ctx);
+        renderer_camera_set_target(_renderer_ctx->cam, target);
+    }
+    
+    //--------------------------------------------------------------------
+    // VIEWPORT METHODS 
+    //--------------------------------------------------------------------
+   
+    IFB_INTERNAL void
+    renderer_set_viewport_dimensions(
+        const u32 width,
+        const u32 height) {
+
+        assert(width  != 0);
+        assert(height != 0);
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->viewport);
+       
+        renderer_viewport_set_dimensions(
+            _renderer_ctx->viewport,
+            _renderer_ctx->gl,
+            width, height
+        );
+    }
+
+    IFB_INTERNAL f32
+    renderer_get_viewport_aspect_ratio(
+        void) {
+
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->viewport);
+
+        const f32 aspect_ratio = renderer_viewport_get_aspect_ratio(_renderer_ctx->viewport);
+        return(aspect_ratio);
+    }
+
+    IFB_INTERNAL void
+    renderer_get_viewport_xform(
+        mat4& xform) {
+
+        assert(_renderer_ctx);
+        assert(_renderer_ctx->viewport);
+
+        renderer_viewport_get_xform(_renderer_ctx->viewport, xform);
     }
 };
           

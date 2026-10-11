@@ -2,6 +2,7 @@
 
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "renderer.hpp"
 
 namespace ifb {
 
@@ -30,7 +31,7 @@ namespace ifb {
         const u32 width,
         const u32 height) {
 
-        renderer_projection_set_viewport(
+        renderer_set_viewport_dimensions(
             width,
             height
         );

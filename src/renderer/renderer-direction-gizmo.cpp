@@ -2,6 +2,7 @@
 
 #include "renderer.hpp"
 #include "renderer-internal.hpp"
+#include "eng-internal.hpp"
 
 namespace ifb {
      
@@ -31,37 +32,32 @@ namespace ifb {
     // METHODS 
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL void
+    IFB_INTERNAL renderer_direction_gizmo_shader*
     renderer_direciton_gizmo_shader_create(
         void) {
 
-        assert(_renderer_ctx);
-
-        _renderer_ctx->shader.direction_gizmo = 
-            (renderer_direction_gizmo_shader*)renderer_context_memory_alloc(
-                    sizeof(renderer_direction_gizmo_shader)
-        );
-        assert(_renderer_ctx->shader.direction_gizmo);
+        auto shdr = (renderer_direction_gizmo_shader*)global_alloc(sizeof(renderer_direction_gizmo_shader));
+        assert(shdr);
+        return(shdr);
     }
     
     IFB_INTERNAL void
     renderer_direciton_gizmo_shader_init(
-        const renderer_shader_source& src_vertex,
-        const renderer_shader_source& src_fragment) {
+        renderer_direction_gizmo_shader* shdr,
+        gl_context*                      gl,
+        const renderer_shader_source&    src_vertex,
+        const renderer_shader_source&    src_fragment) {
 
         assert(
-            _renderer_ctx     != NULL &&
+            shdr              != NULL &&
+            gl                != NULL &&
             src_vertex.data   != NULL &&
             src_vertex.size   != 0    &&
             src_fragment.data != NULL &&
             src_fragment.size != 0
         );
 
-
         // cache properties
-        auto shdr  = _renderer_ctx->shader.direction_gizmo;
-        assert(shdr);
-        auto  gl    = _renderer_ctx->gl;
         bool  gl_ok = true;
 
         // create gl objects
@@ -103,13 +99,12 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_direction_gizmo_draw(
-        const mat4& view_proj_xform) {
+        renderer_direction_gizmo_shader* shdr,
+        gl_context*                      gl,
+        const mat4&                      view_proj_xform) {
 
-        assert(_renderer_ctx);
-
-        auto gl   = _renderer_ctx->gl;
-        auto shdr = _renderer_ctx->shader.direction_gizmo;
         assert(shdr);
+        assert(gl);
 
         assert(
             shdr->program             != GL_ID_INVALID      &&

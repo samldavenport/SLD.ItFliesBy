@@ -268,19 +268,18 @@ namespace ifb {
 
         // move the camera as far as the focus moved
         // the origin and target move together, so the view angle doesn't change
-        const f32 focus_delta_x = focus_pos.x - player_rig->camera_focus.x;
-        const f32 focus_delta_z = focus_pos.z - player_rig->camera_focus.z;
-
-        vec3 camera_origin;
-        vec3 camera_target;
-        eng_camera_get_origin(camera_origin);
-        eng_camera_get_target(camera_target);
-        camera_origin.x += focus_delta_x;
-        camera_origin.z += focus_delta_z;
-        camera_target.x += focus_delta_x;
-        camera_target.z += focus_delta_z;
-        eng_camera_set_origin(camera_origin);
-        eng_camera_set_target(camera_target);
+        const f32   focus_delta_x     = focus_pos.x - player_rig->camera_focus.x;
+        const f32   focus_delta_z     = focus_pos.z - player_rig->camera_focus.z;
+        const vec3& camera_origin     = eng_camera_get_origin();
+        const vec3& camera_target     = eng_camera_get_target();
+        vec3        camera_origin_new = camera_origin;
+        vec3        camera_target_new = camera_target;
+        camera_origin_new.x += focus_delta_x;
+        camera_origin_new.z += focus_delta_z;
+        camera_target_new.x += focus_delta_x;
+        camera_target_new.z += focus_delta_z;
+        eng_camera_set_origin(camera_origin_new);
+        eng_camera_set_target(camera_target_new);
 
         player_rig->camera_focus.x = focus_pos.x;
         player_rig->camera_focus.z = focus_pos.z;

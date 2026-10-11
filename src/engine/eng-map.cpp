@@ -65,7 +65,7 @@ namespace ifb {
     eng_map_render(
         const hnd_map map_hnd) {
 
-        const bool result = renderer_tile_set_map(map_hnd);
+        const bool result = renderer_set_map(map_hnd);
         return(result);
     }
 

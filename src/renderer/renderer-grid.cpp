@@ -5,6 +5,7 @@
 #include "sld-math-mat4.hpp"
 #include "sld-math-types.hpp"
 #include "sld-opengl.hpp"
+#include "eng-internal.hpp"
 
 namespace ifb {
 
@@ -30,27 +31,22 @@ namespace ifb {
         } gl;
     };
 
-    IFB_INTERNAL void
-    renderer_grid_shader_create(void) {
+    IFB_INTERNAL renderer_grid_shader*
+    renderer_grid_shader_create(
+        void) {
       
-        assert(_renderer_ctx);
-
-        
-        _renderer_ctx->shader.grid = (renderer_grid_shader*)
-            renderer_context_memory_alloc(sizeof(renderer_grid_shader)
-        );
-       assert(_renderer_ctx->shader.grid); 
+        auto shdr = (renderer_grid_shader*)global_alloc(sizeof(renderer_grid_shader));
+        assert(shdr); 
+        return(shdr);
     }
 
     IFB_INTERNAL void
     renderer_grid_shader_init(
-        const renderer_shader_source &src_vertex,
-        const renderer_shader_source &src_fragment) {
+        renderer_grid_shader*         shdr,
+        gl_context*                   gl,
+        const renderer_shader_source& src_vertex,
+        const renderer_shader_source& src_fragment) {
 
-        assert(_renderer_ctx);
-
-        auto shdr = _renderer_ctx->shader.grid;
-        auto gl   = _renderer_ctx->gl;
         assert(shdr);
         assert(gl);
 
@@ -96,12 +92,10 @@ namespace ifb {
 
     IFB_INTERNAL void
     renderer_grid_draw(
-        const mat4& view_proj_xform) {
+        renderer_grid_shader* shdr,
+        gl_context*           gl,
+        const mat4&           view_proj_xform) {
 
-        assert(_renderer_ctx);
-
-        auto shdr = _renderer_ctx->shader.grid;
-        auto gl   = _renderer_ctx->gl;
         assert(shdr);
         assert(gl);
 
