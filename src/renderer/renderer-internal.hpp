@@ -17,8 +17,8 @@ namespace ifb {
     struct renderer_grid_shader;
 
     // context
-    IFB_INTERNAL void*                 renderer_context_memory_alloc       (const u32 size);
-    IFB_INTERNAL entity_list*          renderer_context_create_entity_list (void);
+    IFB_INTERNAL void*                 renderer_memory_alloc       (const u32 size);
+    IFB_INTERNAL entity_list*          renderer_create_entity_list (void);
   
     // camera
     IFB_INTERNAL renderer_camera*      renderer_camera_create              (void);

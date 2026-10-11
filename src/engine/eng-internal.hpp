@@ -33,7 +33,7 @@ namespace ifb {
         eng_game_context*  game_ctx;
         eng_system_info*   system;
         keyboard_input*    keyboard;
-        renderer_context*  renderer;
+        renderer*  renderer;
         file_mngr*         file_mngr;
         entity_mngr*       entity_mngr;
         memory_mngr*       memory_mngr;

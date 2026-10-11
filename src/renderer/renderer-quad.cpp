@@ -50,7 +50,7 @@ namespace ifb {
     renderer_quad_shader_create(
         void) {
 
-        auto shdr = (renderer_quad_shader*)renderer_context_memory_alloc(sizeof(renderer_quad_shader));
+        auto shdr = (renderer_quad_shader*)renderer_memory_alloc(sizeof(renderer_quad_shader));
         assert(shdr); 
 
         return(shdr);
@@ -71,11 +71,11 @@ namespace ifb {
         const auto& cfg     = config_instance();
         auto&       buffers = shdr->buffers;
 
-        auto* quad_entities       = (entity_id*)renderer_context_memory_alloc(cfg.quad_capacity * sizeof(entity_id));
+        auto* quad_entities       = (entity_id*)renderer_memory_alloc(cfg.quad_capacity * sizeof(entity_id));
         buffers.vertex.size       = (cfg.quad_capacity  * sizeof(renderer_quad_vertices)); 
-        buffers.vertex.data.vptr  = renderer_context_memory_alloc(buffers.vertex.size);
+        buffers.vertex.data.vptr  = renderer_memory_alloc(buffers.vertex.size);
         buffers.element.size      = (cfg.quad_capacity * sizeof(u32) * 6);
-        buffers.element.data.vptr = renderer_context_memory_alloc(buffers.element.size);
+        buffers.element.data.vptr = renderer_memory_alloc(buffers.element.size);
 
         assert(buffers.vertex.size       != 0);
         assert(buffers.vertex.data.vptr  != 0);
@@ -83,8 +83,8 @@ namespace ifb {
         assert(buffers.element.data.vptr != 0);
         assert(quad_entities             != NULL);
 
-        shdr->quad_list             = renderer_context_create_entity_list();
-        shdr->particle_emitter_list = renderer_context_create_entity_list();
+        shdr->quad_list             = renderer_create_entity_list();
+        shdr->particle_emitter_list = renderer_create_entity_list();
         assert(shdr->quad_list);
         assert(shdr->particle_emitter_list);
 

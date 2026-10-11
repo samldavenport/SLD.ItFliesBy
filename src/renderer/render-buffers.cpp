@@ -99,7 +99,7 @@ namespace ifb {
         quad_buf_vtx->capacity = cfg.quad_capacity * sizeof(quad_vertices); 
         quad_buf_vtx->size     = 0;
         quad_buf_vtx->stride   = sizeof(quad_vertex);
-        quad_buf_vtx->data     = (byte*)renderer_context_memory_alloc(quad_buf_vtx->capacity);
+        quad_buf_vtx->data     = (byte*)renderer_memory_alloc(quad_buf_vtx->capacity);
         assert(quad_buf_vtx->data != NULL);
 
         //---------------------
@@ -110,7 +110,7 @@ namespace ifb {
         quad_buf_elmnt->capacity = cfg.quad_capacity * sizeof(u32) * 6; 
         quad_buf_elmnt->size     = 0; 
         quad_buf_elmnt->stride   = 6; 
-        quad_buf_elmnt->data     = (u32*)renderer_context_memory_alloc(quad_buf_elmnt->capacity);
+        quad_buf_elmnt->data     = (u32*)renderer_memory_alloc(quad_buf_elmnt->capacity);
         assert(quad_buf_elmnt->data != NULL);
         for (
             u32 elmnt_index = 0;
@@ -135,7 +135,7 @@ namespace ifb {
         tile_buf_vtx->capacity = cfg.map_tile_capacity;
         tile_buf_vtx->size     = 0;
         tile_buf_vtx->stride   = sizeof(u32);
-        tile_buf_vtx->data     = (byte*)renderer_context_memory_alloc(tile_buf_vtx->capacity);
+        tile_buf_vtx->data     = (byte*)renderer_memory_alloc(tile_buf_vtx->capacity);
         assert(tile_buf_vtx->data != NULL);
     }
     
