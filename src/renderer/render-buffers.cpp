@@ -111,7 +111,7 @@ namespace ifb {
         quad_buf_elmnt->capacity = cfg.quad_capacity * QUAD_ELEMENT_DATA_SIZE;
         quad_buf_elmnt->size     = 0;
         quad_buf_elmnt->stride   = sizeof(u32);
-quad_buf_elmnt->data     = (u32*)renderer_memory_alloc(quad_buf_elmnt->capacity);
+        quad_buf_elmnt->data     = (u32*)renderer_memory_alloc(quad_buf_elmnt->capacity);
         assert(quad_buf_elmnt->data != NULL);
         for (
             u32 elmnt_index = 0;
@@ -120,7 +120,7 @@ quad_buf_elmnt->data     = (u32*)renderer_memory_alloc(quad_buf_elmnt->capacity)
 
             const u32 offset   = (elmnt_index * QUAD_VERTEX_COUNT);
             auto*     elements = &quad_buf_elmnt->data[elmnt_index * QUAD_ELEMENT_COUNT];
-elements[0] = (offset);  
+            elements[0] = (offset);  
             elements[1] = (offset + 1); 
             elements[2] = (offset + 3); 
             elements[3] = (offset + 1); 
@@ -136,7 +136,7 @@ elements[0] = (offset);
         tile_buf_vtx->capacity = cfg.map_render_buffer_size;
         tile_buf_vtx->size     = 0;
         tile_buf_vtx->stride   = sizeof(map_tile);
-tile_buf_vtx->data     = (byte*)renderer_memory_alloc(tile_buf_vtx->capacity);
+        tile_buf_vtx->data     = (byte*)renderer_memory_alloc(tile_buf_vtx->capacity);
         assert(tile_buf_vtx->data != NULL);
     }
     
