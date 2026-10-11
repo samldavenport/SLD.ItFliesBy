@@ -14,8 +14,9 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
+    static constexpr u32 QUAD_VERTEX_COUNT      = 4;
     static constexpr u32 QUAD_ELEMENT_COUNT     = 6;
-    static constexpr u32 QUAD_ELEMENT_DATA_SIZE = sizeof(u32) * QUAD_ELEMENT_COUNT;
+static constexpr u32 QUAD_ELEMENT_DATA_SIZE = sizeof(u32) * QUAD_ELEMENT_COUNT;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -23,10 +24,7 @@ namespace ifb {
 
     struct renderer;
     struct renderer_shader_source;
-    struct renderer_quad_buffers;
-    struct renderer_quad_vertices;
-    struct renderer_quad_elements;
-    struct renderer_tile_vertex;
+struct renderer_tile_vertex;
     struct renderer_tile_shader;
     struct renderer_particle_shader;
 
@@ -65,60 +63,6 @@ namespace ifb {
     struct renderer_shader_source {
         const cchar* data;
         u32          size;
-    };
-
-    struct renderer_quad_elements {
-        u32 elmnt_0_index_0;
-        u32 elmnt_1_index_1;
-        u32 elmnt_2_index_3;
-        u32 elmnt_3_index_1;
-        u32 elmnt_4_index_2;
-        u32 elmnt_5_index_3;
-    };
-
-    struct renderer_quad_vertex {
-        f32 pos_x;
-        f32 pos_y;
-        f32 pos_z;
-        f32 color_r;
-        f32 color_g;
-        f32 color_b;
-        f32 color_a;
-    };
-
-    struct renderer_quad_vertices {
-        union {
-            struct {
-                renderer_quad_vertex top_right;
-                renderer_quad_vertex bottom_right;
-                renderer_quad_vertex bottom_left;
-                renderer_quad_vertex top_left;
-            };
-            byte bytes  [112];
-            f32  floats [28];
-        };
-    };
-
-    struct renderer_quad_vertex_buffer {
-        u32 size;
-        union {
-            renderer_quad_vertices* vertices;
-            byte*                   bytes;
-            void*                   vptr;
-            addr                    addr;
-            f32*                    floats;
-        } data;
-    };
-
-    struct renderer_quad_element_buffer {
-        u32 size;
-        union {
-            renderer_quad_elements* elements;
-            byte*                   bytes;
-            void*                   vptr;
-            addr                    addr;
-            u32*                    uints;
-        } data;
     };
 
 };

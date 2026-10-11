@@ -8,8 +8,10 @@
 namespace ifb {
 
     struct render_buffers;
+    struct render_vertex_buffer;
+    struct render_element_buffer;
     struct render_lists;
-    struct render_gl;
+struct render_gl;
     struct renderer_viewport;
     struct renderer_camera;
     struct renderer_quad_shader;
@@ -40,27 +42,28 @@ namespace ifb {
     // buffers
     IFB_INTERNAL render_buffers*       render_buffers_create               (void);
     IFB_INTERNAL void                  render_buffers_alloc_and_init       (render_buffers* buffers);
-    IFB_INTERNAL void                  render_buffers_render_quads         (render_buffers* buffers, render_lists* lists);
-    IFB_INTERNAL void                  render_buffers_render_tiles         (render_buffers* buffers, render_lists* lists);
+    IFB_INTERNAL void                  render_buffers_render_quads         (render_buffers* buffers, render_lists* lists, renderer_camera* camera);
+IFB_INTERNAL void                  render_buffers_render_tiles         (render_buffers* buffers, render_lists* lists);
 
     // lists
     IFB_INTERNAL render_lists*         render_lists_create                 (void);
     IFB_INTERNAL void                  render_lists_init                   (render_lists* lists);
     IFB_INTERNAL void                  render_lists_reset                  (render_lists* lists);
-    IFB_INTERNAL const entity_list*    render_lists_get_quads              (render_lists* lists);
+    IFB_INTERNAL bool                  render_lists_push_quad              (render_lists* lists, const entity_id id);
+    IFB_INTERNAL bool                  render_lists_set_map                (render_lists* lists, const hnd_map h_map);
+    IFB_INTERNAL hnd_map               render_lists_get_map                (render_lists* lists);
+IFB_INTERNAL const entity_list*    render_lists_get_quads              (render_lists* lists);
     IFB_INTERNAL const entity_list*    render_lists_get_particle_emitters  (render_lists* lists);
 
     // quad
     IFB_INTERNAL renderer_quad_shader* renderer_quad_shader_create         (void);
-    IFB_INTERNAL void                  renderer_quad_shader_init           (renderer_quad_shader* shdr, gl_context* gl, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL bool                  renderer_quad_push                  (renderer_quad_shader* shdr, const entity_id id);
-    IFB_INTERNAL void                  renderer_quad_draw                  (renderer_quad_shader* shdr, renderer_camera* cam, gl_context* gl, const mat4& view_proj_xform);
-    IFB_INTERNAL bool                  renderer_quad_get_vertices          (renderer_quad_shader* shdr, renderer_quad_vertices& vertices, const entity_id quad_id);
+    IFB_INTERNAL void                  renderer_quad_shader_init           (renderer_quad_shader* shdr, gl_context* gl, render_buffers* buffers, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL void                  renderer_quad_draw                  (renderer_quad_shader* shdr, gl_context* gl, render_buffers* buffers, const mat4& view_proj_xform);
 
     // grid
     IFB_INTERNAL renderer_grid_shader* renderer_grid_shader_create         (void);
-    IFB_INTERNAL void                  renderer_grid_shader_init           (renderer_grid_shader* shdr, gl_context* gl, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL void                  renderer_grid_draw                  (renderer_grid_shader* shdr, gl_context* gl, const mat4& view_proj_xform);
+    IFB_INTERNAL void                  renderer_grid_shader_init           (renderer_grid_shader* shdr, gl_context* gl, render_buffers* buffers, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL void                  renderer_grid_draw                  (renderer_grid_shader* shdr, gl_context* gl, render_buffers* buffers, const mat4& view_proj_xform);
 
     IFB_INTERNAL renderer_direction_gizmo_shader* renderer_direciton_gizmo_shader_create (void);
     IFB_INTERNAL void                             renderer_direciton_gizmo_shader_init   (renderer_direction_gizmo_shader* shdr, gl_context* gl, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
@@ -68,9 +71,8 @@ namespace ifb {
     
     // tile
     IFB_INTERNAL renderer_tile_shader* renderer_tile_shader_create (void);
-    IFB_INTERNAL void                  renderer_tile_shader_init   (renderer_tile_shader* shdr, gl_context* gl, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
-    IFB_INTERNAL bool                  renderer_tile_set_map       (renderer_tile_shader* shdr, const hnd_map map_hnd);
-    IFB_INTERNAL void                  renderer_tile_draw          (renderer_tile_shader* shdr, gl_context* gl, const mat4& view_proj_xform);
+    IFB_INTERNAL void                  renderer_tile_shader_init   (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL void                  renderer_tile_draw          (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const hnd_map map_hnd, const mat4& view_proj_xform);
 };
 
 #endif //RENDERER_INTERNAL_HPP

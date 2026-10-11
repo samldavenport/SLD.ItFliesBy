@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ifb-types.hpp"
+#include "render-buffers.cpp"
 #include "renderer.hpp"
+#include "renderer-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math-types.hpp"
 #include "sld-opengl.hpp"
@@ -11,18 +13,7 @@ namespace ifb {
 
     static const char* GRID_UNIFORM_NAME_VIEW_PROJ = "view_projection";
 
-    static const f32 _grid_coordinates[] = {
-         1.0f,  1.0f, 0.0f, 
-        -1.0f, -1.0f, 0.0f,
-        -1.0f,  1.0f, 0.0f,
-        -1.0f, -1.0f, 0.0f,
-         1.0f,  1.0f, 0.0f,
-         1.0f, -1.0f, 0.0f 
-    };
-
-    static const u32 _grid_vertices_count = 6;
-
-    struct renderer_grid_shader {
+struct renderer_grid_shader {
         struct {
             gl_program program;
             gl_vertex  vertex;
@@ -44,11 +35,20 @@ namespace ifb {
     renderer_grid_shader_init(
         renderer_grid_shader*         shdr,
         gl_context*                   gl,
+        render_buffers*               buffers,
         const renderer_shader_source& src_vertex,
         const renderer_shader_source& src_fragment) {
 
         assert(shdr);
         assert(gl);
+        assert(buffers);
+
+        // the buffers need to be initialized before the shader
+        auto* grid_buf_vtx = buffers->grid_vertices;
+        assert(grid_buf_vtx);
+        assert(grid_buf_vtx->data   != NULL);
+        assert(grid_buf_vtx->size   != 0);
+        assert(grid_buf_vtx->stride == sizeof(vec3));
 
         bool gl_ok = true;
 
@@ -82,29 +82,32 @@ namespace ifb {
         assert(shdr->gl.u_mat4_view_proj != GL_UNIFORM_INVALID);
     
         // define vertex
-        const u32 vtx_size = sizeof(vec3);
+        // the grid never changes, so it only needs to be sent once
+        const u32 vtx_size = grid_buf_vtx->stride;
         gl_ok &= gl_context_set_vertex_object  (gl, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex  (gl, shdr->gl.buf_vertex);
-        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr->gl.buf_vertex, (byte*)_grid_coordinates, sizeof(_grid_coordinates));
-        gl_ok &= gl_vertex_add_f32x3 (gl, shdr->gl.vertex, sizeof(vec3), 0, 0);
-        assert(gl_ok);
+        gl_ok &= gl_buffer_set_vertex_data     (gl, shdr->gl.buf_vertex, grid_buf_vtx->data, grid_buf_vtx->size);
+        gl_ok &= gl_vertex_add_f32x3           (gl, shdr->gl.vertex, vtx_size, 0, 0);
+assert(gl_ok);
     }
 
     IFB_INTERNAL void
     renderer_grid_draw(
         renderer_grid_shader* shdr,
         gl_context*           gl,
+        render_buffers*       buffers,
         const mat4&           view_proj_xform) {
 
         assert(shdr);
         assert(gl);
+        assert(buffers);
 
-        mat4 ident = mat4_identity();
+        auto* grid_buf_vtx = buffers->grid_vertices;
 
         gl_context_set_shader_program (gl, shdr->gl.program);
         gl_context_set_vertex_object  (gl, shdr->gl.vertex);
         gl_context_set_buffer_vertex  (gl, shdr->gl.buf_vertex);
         gl_uniform_set_mat4           (gl, shdr->gl.u_mat4_view_proj, view_proj_xform.m); 
-        gl_context_draw_vertices      (gl, _grid_vertices_count);
-    }
+        gl_context_draw_vertices      (gl, grid_buf_vtx->count());
+}
 };

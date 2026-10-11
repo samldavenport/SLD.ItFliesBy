@@ -26,8 +26,7 @@ namespace ifb {
     struct map_mngr {
         reservation*      res;
         map_table*        tbl_map;
-        map_render_buffer render_buffer;
-    } static * _map_mngr;
+} static * _map_mngr;
 
     //--------------------------------------------------------------------
     // MAP

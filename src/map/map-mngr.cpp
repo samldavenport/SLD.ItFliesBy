@@ -50,23 +50,19 @@ namespace ifb {
         const u32 size_origin = cfg.map_capacity * sizeof(vec3);
 
         // allocate memory
-        auto  tbl_map = _map_mngr->tbl_map; 
-        auto& buffer  = _map_mngr->render_buffer;
-        assert(tbl_map);
+        auto  tbl_map = _map_mngr->tbl_map;
+assert(tbl_map);
         tbl_map->hnd         =      (hnd_map*)reservation_push_bytes(_map_mngr->res, size_hnds);
         tbl_map->dims        =  (map_dimensions*)reservation_push_bytes(_map_mngr->res, size_dims);
         tbl_map->name        =        (cstr_c16*)reservation_push_bytes(_map_mngr->res, size_name);
         tbl_map->chunk_array = (map_chunk_array*)reservation_push_bytes(_map_mngr->res, size_chunks);
         tbl_map->origin      =            (vec3*)reservation_push_bytes(_map_mngr->res, size_origin);
-        buffer.data.bytes    =            (byte*)reservation_push_bytes(_map_mngr->res, cfg.map_render_buffer_size);
-        buffer.data_size     = 0;
-        assert(tbl_map->hnd);
+assert(tbl_map->hnd);
         assert(tbl_map->dims);
         assert(tbl_map->name);
         assert(tbl_map->chunk_array);
         assert(tbl_map->origin);
-        assert(buffer.data.bytes); 
-        for (
+for (
             u32 map_index = 0;
                 map_index < cfg.map_capacity;
               ++map_index) {
@@ -111,14 +107,4 @@ namespace ifb {
         }
         return(color_tbl);
     }
-    
-    IFB_INTERNAL const map_render_buffer&
-    map_mngr_get_render_buffer(
-        void) {
-
-        assert(_map_mngr);
-        const map_render_buffer& buffer = _map_mngr->render_buffer;
-        assert(buffer.data.bytes != NULL);
-        return(buffer); 
-    } 
 };
