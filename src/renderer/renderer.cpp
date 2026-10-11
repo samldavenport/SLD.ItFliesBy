@@ -25,7 +25,7 @@ namespace ifb {
         stack* stack;
     };
 
-    struct renderer_context {
+    struct renderer {
         gl_context*        gl;
         renderer_memory    memory;
         renderer_camera*   cam;
@@ -43,14 +43,14 @@ namespace ifb {
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
     
-    IFB_INTERNAL renderer_context*
-    renderer_context_create(
+    IFB_INTERNAL renderer*
+    renderer_create(
         void) {
 
         const auto& cfg         = config_instance();
         const u32   block_count = (cfg.memory_size_rendering / cfg.renderer_mem_granularity);
 
-        auto rndr        = global_alloc<renderer_context> ();
+        auto rndr        = global_alloc<renderer> ();
         auto gl          = global_alloc<gl_context>       ();
         auto block_ids   = global_alloc<u32>              (block_count); 
         auto camera      = renderer_camera_create();
@@ -63,47 +63,47 @@ namespace ifb {
             viewport   != NULL
         );
 
-        _renderer_ctx                         = rndr;
-        _renderer_ctx->gl                     = gl;
-        _renderer_ctx->cam                    = camera;
-        _renderer_ctx->viewport               = viewport;
+        _renderer                         = rndr;
+        _renderer->gl                     = gl;
+        _renderer->cam                    = camera;
+        _renderer->viewport               = viewport;
 
-        return(_renderer_ctx);
+        return(_renderer);
     }
 
     IFB_INTERNAL void
-    renderer_context_startup(
+    renderer_startup(
         reservation* res) {
 
         const auto& cfg = config_instance();
 
-        assert(_renderer_ctx != NULL);
+        assert(_renderer != NULL);
         assert(res);
 
         // create the stack
-        _renderer_ctx->memory.stack = reservation_push_stack_all(res);
+        _renderer->memory.stack = reservation_push_stack_all(res);
 
         // NOTE(SAM): the renderer doesn't need to initialize the opengl context
         // we can pass the context to the function and use it that way
         // same for imgui, it can be initialized externally
 
         // set global up
-        _renderer_ctx->global_up = { 0.0f, 1.0f, 0.0f };
+        _renderer->global_up = { 0.0f, 1.0f, 0.0f };
 
         // initialize opengl and imgui
-        pfm_graphics_init_opengl(_renderer_ctx->gl);
+        pfm_graphics_init_opengl(_renderer->gl);
         pfm_graphics_init_imgui();
 
         // create shaders
-        _renderer_ctx->shader.quad            = renderer_quad_shader_create();
-        _renderer_ctx->shader.grid            = renderer_grid_shader_create();
-        _renderer_ctx->shader.tile            = renderer_tile_shader_create();
-        _renderer_ctx->shader.direction_gizmo = renderer_direciton_gizmo_shader_create();
+        _renderer->shader.quad            = renderer_quad_shader_create();
+        _renderer->shader.grid            = renderer_grid_shader_create();
+        _renderer->shader.tile            = renderer_tile_shader_create();
+        _renderer->shader.direction_gizmo = renderer_direciton_gizmo_shader_create();
 
         // intialize camera
-        renderer_viewport_init (_renderer_ctx->viewport); 
-        renderer_camera_init   (_renderer_ctx->cam);
-        renderer_viewport_set_dimensions(_renderer_ctx->viewport, _renderer_ctx->gl, cfg.window_start_width, cfg.window_start_height);
+        renderer_viewport_init (_renderer->viewport); 
+        renderer_camera_init   (_renderer->cam);
+        renderer_viewport_set_dimensions(_renderer->viewport, _renderer->gl, cfg.window_start_width, cfg.window_start_height);
 
         // open shader files
         const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
@@ -148,10 +148,10 @@ namespace ifb {
         file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
         
         // initialize shaders
-        renderer_quad_shader_init            (_renderer_ctx->shader.quad,            _renderer_ctx->gl, file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (_renderer_ctx->shader.direction_gizmo, _renderer_ctx->gl, file_src_dir_giz_vert, file_src_dir_giz_frag);
-        renderer_grid_shader_init            (_renderer_ctx->shader.grid,            _renderer_ctx->gl, file_src_grid_vert,    file_src_grid_frag);
-        renderer_tile_shader_init            (_renderer_ctx->shader.tile,            _renderer_ctx->gl, file_src_tile_vert,    file_src_tile_frag);
+        renderer_quad_shader_init            (_renderer->shader.quad,            _renderer->gl, file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (_renderer->shader.direction_gizmo, _renderer->gl, file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_grid_shader_init            (_renderer->shader.grid,            _renderer->gl, file_src_grid_vert,    file_src_grid_frag);
+        renderer_tile_shader_init            (_renderer->shader.tile,            _renderer->gl, file_src_tile_vert,    file_src_tile_frag);
 
         // close the shader files
         file_close(file_hnd_quad_vert);
@@ -165,57 +165,57 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    renderer_context_shutdown(
+    renderer_shutdown(
         void) {
 
         //TODO
     }
 
     IFB_INTERNAL void*
-    renderer_context_memory_alloc(
+    renderer_memory_alloc(
         const u32 size) {
 
         assert(size != 0);
 
-        void* mem = stack_push(_renderer_ctx->memory.stack, size);
+        void* mem = stack_push(_renderer->memory.stack, size);
 
         return(mem);
     }
 
     IFB_INTERNAL void 
-    renderer_context_view_projection_xform(
+    renderer_view_projection_xform(
         mat4& xform) {
 
         // calculate view and projection matrices
         static mat4 proj = mat4_identity();
         static mat4 view = mat4_identity();
-        renderer_viewport_get_xform (_renderer_ctx->viewport, proj);
-        renderer_camera_get_xform   (_renderer_ctx->cam, view);
+        renderer_viewport_get_xform (_renderer->viewport, proj);
+        renderer_camera_get_xform   (_renderer->cam, view);
        
         // calculate view projection
         xform = mat4_multiply(proj, view);
     }
     
     IFB_INTERNAL void
-    renderer_context_draw_buffers(
+    renderer_draw_buffers(
         void) {
 
         mat4 view_proj_xform;
-        renderer_context_view_projection_xform(view_proj_xform); 
+        renderer_view_projection_xform(view_proj_xform); 
 
         //renderer_direction_gizmo_draw (view_proj_xform);
-        renderer_tile_draw            (_renderer_ctx->shader.tile, _renderer_ctx->gl, view_proj_xform);
-        renderer_grid_draw            (_renderer_ctx->shader.grid, _renderer_ctx->gl, view_proj_xform);
-        renderer_quad_draw            (_renderer_ctx->shader.quad, _renderer_ctx->cam, _renderer_ctx->gl, view_proj_xform);
+        renderer_tile_draw            (_renderer->shader.tile, _renderer->gl, view_proj_xform);
+        renderer_grid_draw            (_renderer->shader.grid, _renderer->gl, view_proj_xform);
+        renderer_quad_draw            (_renderer->shader.quad, _renderer->cam, _renderer->gl, view_proj_xform);
     }
     
     IFB_INTERNAL entity_list*
-    renderer_context_create_entity_list(
+    renderer_create_entity_list(
         void) {
 
         memory mem;
         mem.size = entity_list_mem_req();
-        mem.ptr  = renderer_context_memory_alloc(mem.size);
+        mem.ptr  = renderer_memory_alloc(mem.size);
         if (mem.size == 0 || mem.address == 0) {
             return(NULL);
         }
@@ -229,10 +229,10 @@ namespace ifb {
         const entity_id id) {
 
         assert(id != INVALID_ID);
-        assert(_renderer_ctx);
-        assert(_renderer_ctx->shader.quad);
+        assert(_renderer);
+        assert(_renderer->shader.quad);
 
-        const bool did_push = renderer_quad_push(_renderer_ctx->shader.quad, id);
+        const bool did_push = renderer_quad_push(_renderer->shader.quad, id);
         return(did_push);
     }
     
@@ -241,10 +241,10 @@ namespace ifb {
         const hnd_map h_map) {
 
         assert(h_map                      != INVALID_HANDLE);
-        assert(_renderer_ctx              != NULL);
-        assert(_renderer_ctx->shader.tile != NULL);
+        assert(_renderer              != NULL);
+        assert(_renderer->shader.tile != NULL);
 
-        const bool did_set = renderer_tile_set_map(_renderer_ctx->shader.tile, h_map);
+        const bool did_set = renderer_tile_set_map(_renderer->shader.tile, h_map);
         return(did_set);
     }
     
@@ -256,48 +256,48 @@ namespace ifb {
     renderer_get_camera_origin(
         void) {
 
-        assert(_renderer_ctx);
-        return(renderer_camera_get_origin(_renderer_ctx->cam));
+        assert(_renderer);
+        return(renderer_camera_get_origin(_renderer->cam));
     }
 
     IFB_INTERNAL const vec3&
     renderer_get_camera_target(
         void) {
 
-        assert(_renderer_ctx);
-        return(renderer_camera_get_target(_renderer_ctx->cam));
+        assert(_renderer);
+        return(renderer_camera_get_target(_renderer->cam));
     }
 
     IFB_INTERNAL void
     renderer_get_camera_orientation(
         orientation& o) {
 
-        assert(_renderer_ctx);
-        renderer_camera_get_orientation(_renderer_ctx->cam, o);
+        assert(_renderer);
+        renderer_camera_get_orientation(_renderer->cam, o);
     }
 
     IFB_INTERNAL void 
     renderer_get_camera_xform(
         mat4& xform) {
 
-        assert(_renderer_ctx);
-        renderer_camera_get_xform(_renderer_ctx->cam, xform);
+        assert(_renderer);
+        renderer_camera_get_xform(_renderer->cam, xform);
     }
 
     IFB_INTERNAL void
     renderer_set_camera_origin(
         const vec3& origin) {
 
-        assert(_renderer_ctx);
-        renderer_camera_set_origin(_renderer_ctx->cam, origin);
+        assert(_renderer);
+        renderer_camera_set_origin(_renderer->cam, origin);
     }
 
     IFB_INTERNAL void
     renderer_set_camera_target(
         const vec3& target) {
 
-        assert(_renderer_ctx);
-        renderer_camera_set_target(_renderer_ctx->cam, target);
+        assert(_renderer);
+        renderer_camera_set_target(_renderer->cam, target);
     }
     
     //--------------------------------------------------------------------
@@ -311,12 +311,12 @@ namespace ifb {
 
         assert(width  != 0);
         assert(height != 0);
-        assert(_renderer_ctx);
-        assert(_renderer_ctx->viewport);
+        assert(_renderer);
+        assert(_renderer->viewport);
        
         renderer_viewport_set_dimensions(
-            _renderer_ctx->viewport,
-            _renderer_ctx->gl,
+            _renderer->viewport,
+            _renderer->gl,
             width, height
         );
     }
@@ -325,10 +325,10 @@ namespace ifb {
     renderer_get_viewport_aspect_ratio(
         void) {
 
-        assert(_renderer_ctx);
-        assert(_renderer_ctx->viewport);
+        assert(_renderer);
+        assert(_renderer->viewport);
 
-        const f32 aspect_ratio = renderer_viewport_get_aspect_ratio(_renderer_ctx->viewport);
+        const f32 aspect_ratio = renderer_viewport_get_aspect_ratio(_renderer->viewport);
         return(aspect_ratio);
     }
 
@@ -336,10 +336,10 @@ namespace ifb {
     renderer_get_viewport_xform(
         mat4& xform) {
 
-        assert(_renderer_ctx);
-        assert(_renderer_ctx->viewport);
+        assert(_renderer);
+        assert(_renderer->viewport);
 
-        renderer_viewport_get_xform(_renderer_ctx->viewport, xform);
+        renderer_viewport_get_xform(_renderer->viewport, xform);
     }
 };
           

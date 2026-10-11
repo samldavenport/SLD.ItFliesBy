@@ -53,7 +53,7 @@ namespace ifb {
         _eng_context->game_ctx        = game_ctx;
         _eng_context->system          = sys_info;  
         _eng_context->keyboard        = keyboard_input_create(); 
-        _eng_context->renderer        = renderer_context_create(); 
+        _eng_context->renderer        = renderer_create(); 
         _eng_context->file_mngr       = file_mngr_create(); 
         _eng_context->entity_mngr     = entity_mngr_create(); 
         _eng_context->memory_mngr     = memory_mngr_create(); 
@@ -90,7 +90,7 @@ namespace ifb {
         const auto&        config   = config_instance();
         const eng_mem_map* mem_map  = _eng_context->mem_map;
         eng_system_info*   system   = _eng_context->system;
-        renderer_context*  renderer = _eng_context->renderer;
+        renderer*  renderer = _eng_context->renderer;
     
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
 
@@ -132,7 +132,7 @@ namespace ifb {
         phys_mngr_startup        (res_physics);
         map_mngr_startup         (res_tiles);
         particle_mngr_startup    (res_particles);
-        renderer_context_startup (res_renderer);
+        renderer_startup (res_renderer);
          
     }
 
@@ -170,7 +170,7 @@ namespace ifb {
         if (elapsed_time == 0.0f) {
        
             // render graphics
-            renderer_context_draw_buffers();
+            renderer_draw_buffers();
 
             _eng_context->render_callback();
 

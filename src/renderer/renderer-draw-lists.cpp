@@ -27,8 +27,8 @@ namespace ifb {
 
         assert(lists);
 
-        lists->quads             = renderer_context_create_entity_list(); 
-        lists->particle_emitters = renderer_context_create_entity_list(); 
+        lists->quads             = renderer_create_entity_list(); 
+        lists->particle_emitters = renderer_create_entity_list(); 
 
         assert(lists->quads);
         assert(lists->particle_emitters);
