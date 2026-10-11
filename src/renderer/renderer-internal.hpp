@@ -51,6 +51,7 @@ IFB_INTERNAL void                  render_buffers_render_tiles         (render_b
     IFB_INTERNAL void                  render_lists_init                   (render_lists* lists);
     IFB_INTERNAL void                  render_lists_reset                  (render_lists* lists);
     IFB_INTERNAL bool                  render_lists_push_quad              (render_lists* lists, const entity_id id);
+    IFB_INTERNAL bool                  render_lists_push_particle_emitter  (render_lists* lists, const entity_id id);
     IFB_INTERNAL bool                  render_lists_set_map                (render_lists* lists, const hnd_map h_map);
     IFB_INTERNAL hnd_map               render_lists_get_map                (render_lists* lists);
 IFB_INTERNAL const entity_list*    render_lists_get_quads              (render_lists* lists);

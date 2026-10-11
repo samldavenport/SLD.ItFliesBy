@@ -230,6 +230,7 @@ namespace ifb {
         u32             count;
         f32             lifespan_ms;
         f32             spawn_delay_ms;
+        f32             spawn_radius;    // particles spawn within this distance of the position
         f32             height;
         f32             width;
         color_rgba_u32  color_primary;
@@ -245,7 +246,8 @@ namespace ifb {
 
     // explosions, speed is in units per second
     struct particle_radial_props {
-        f32 speed;
+        f32  speed;
+        bool is_continuous; // spawns until stopped, instead of every particle once per start
     };
     
     //--------------------------------------------------------------------

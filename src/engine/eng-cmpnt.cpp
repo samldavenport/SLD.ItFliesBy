@@ -477,4 +477,49 @@ namespace ifb {
     // UPDATE METHODS 
     //--------------------------------------------------------------------
 
+
+    //--------------------------------------------------------------------
+    // PARTICLE EMITTER
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API bool
+    eng_cmpnt_lookup_particle_emitter(
+        const entity_id         id,
+        cmpnt_particle_emitter& emitter) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        bool result = true;
+
+        entity e;
+        result &= entity_lookup_by_id  (e, id);
+        result &= entity_has_component (e, cmpnt_type_e_particle_emitter);
+
+        if (result) {
+            cmpnt_lookup_particle_emitter(e.index_sparse, emitter);
+        }
+
+        return(result);
+    }
+
+    // the emitter follows the position of the entity, and renders when the entity does
+    // the entity doesn't own the emitter, destroying one doesn't destroy the other
+    IFB_ENGINE_API bool
+    eng_cmpnt_update_particle_emitter(
+        const entity_id               id,
+        const cmpnt_particle_emitter& emitter) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = entity_has_component (e, cmpnt_type_e_particle_emitter);
+        const bool can_update    = (does_exist && has_component);
+
+        if (can_update) {
+            cmpnt_update_particle_emitter(e.index_sparse, emitter);
+        }
+
+        return(can_update);
+    }
 };

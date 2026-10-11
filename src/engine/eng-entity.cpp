@@ -142,7 +142,11 @@ namespace ifb {
         const bool can_render = (does_exist && has_component); 
         const bool did_push   = can_render && renderer_push_quad(id);
 
-        return(did_push);
+        // an entity with a particle emitter renders its particles too
+        const bool has_emitter      = does_exist  && entity_has_component(e, cmpnt_type_e_position | cmpnt_type_e_particle_emitter);
+        const bool did_push_emitter = has_emitter && renderer_push_particle_emitter(id);
+
+        return(did_push || did_push_emitter);
     }
 
     IFB_ENGINE_API bool

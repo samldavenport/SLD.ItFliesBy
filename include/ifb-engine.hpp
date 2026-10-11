@@ -157,6 +157,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_lookup_color          (const entity_id id, cmpnt_color&         color);
     IFB_ENGINE_API bool         eng_cmpnt_lookup_spring         (const entity_id id, cmpnt_spring&        spr);
     IFB_ENGINE_API bool         eng_cmpnt_lookup_map_coords     (const entity_id id, cmpnt_map_coords&          coords);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_particle_emitter (const entity_id id, cmpnt_particle_emitter&  emitter);
 
     IFB_ENGINE_API bool         eng_cmpnt_update_position       (const entity_id id, const cmpnt_position&      pos);
     IFB_ENGINE_API bool         eng_cmpnt_update_velocity       (const entity_id id, const cmpnt_velocity&      vel);
@@ -169,6 +170,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_update_color          (const entity_id id, const cmpnt_color&         color);
     IFB_ENGINE_API bool         eng_cmpnt_update_spring         (const entity_id id, const cmpnt_spring&        spr);
     IFB_ENGINE_API bool         eng_cmpnt_update_map_coords     (const entity_id id, const cmpnt_map_coords&    coords);
+    IFB_ENGINE_API bool         eng_cmpnt_update_particle_emitter (const entity_id id, const cmpnt_particle_emitter& emitter);
   
     //--------------------------------------------------------------------
     // ARCHETYPES 
@@ -209,6 +211,7 @@ namespace ifb {
         const u32                       count,
         const f32                       lifespan_ms,
         const f32                       spawn_delay_ms,
+        const f32                       spawn_radius,
         const f32                       width,
         const f32                       height,
         const color_rgba_u32&           color_primary,
@@ -221,6 +224,7 @@ namespace ifb {
         const u32                       count,
         const f32                       lifespan_ms,
         const f32                       spawn_delay_ms,
+        const f32                       spawn_radius,
         const f32                       width,
         const f32                       height,
         const color_rgba_u32&           color_primary,
@@ -235,6 +239,14 @@ namespace ifb {
     IFB_ENGINE_API u32                  eng_particle_emitter_get_capacity (void);
     IFB_ENGINE_API hnd_particle_emitter eng_particle_emitter_get_hnd      (const u32 index);
     IFB_ENGINE_API bool                 eng_particle_emitter_get_info     (const hnd_particle_emitter h_emitter, particle_emitter_info& info);
+
+    // live editing, an update ignores the name, type, and state in the info
+    // nothing changes and false is returned if a value is invalid or the type doesn't match
+    IFB_ENGINE_API bool eng_particle_emitter_update              (const hnd_particle_emitter h_emitter, const particle_emitter_info&    info);
+    IFB_ENGINE_API bool eng_particle_emitter_get_props_parabolic (const hnd_particle_emitter h_emitter, particle_parabolic_props&       props);
+    IFB_ENGINE_API bool eng_particle_emitter_set_props_parabolic (const hnd_particle_emitter h_emitter, const particle_parabolic_props& props);
+    IFB_ENGINE_API bool eng_particle_emitter_get_props_radial    (const hnd_particle_emitter h_emitter, particle_radial_props&          props);
+    IFB_ENGINE_API bool eng_particle_emitter_set_props_radial    (const hnd_particle_emitter h_emitter, const particle_radial_props&    props);
 
     // the particle view is an offscreen render of every active emitter
     // a request draws it for one frame, the texture is an opengl texture id

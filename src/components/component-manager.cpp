@@ -65,5 +65,16 @@ namespace ifb {
         assert(tbl->array_spring);
         assert(tbl->array_map_coords);
 
+        // an entity has no emitter until one is set
+        tbl->array_particle_emitter = (cmpnt_particle_emitter*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_particle_emitter));
+        assert(tbl->array_particle_emitter);
+        for (
+            u32 index = 0;
+                index < _cmpnt_mngr->capacity;
+              ++index) {
+
+            tbl->array_particle_emitter[index].hnd = INVALID_HANDLE;
+        }
+
     }
 };

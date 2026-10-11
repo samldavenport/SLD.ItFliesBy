@@ -20,6 +20,7 @@ namespace ifb {
         const u32              count,
         const f32              lifespan_ms,
         const f32              spawn_delay_ms,
+        const f32              spawn_radius,
         const f32              width,
         const f32              height,
         const color_rgba_u32&  color_primary,
@@ -34,6 +35,7 @@ namespace ifb {
         assert(count          <= cfg.particle_bufffer_count);
         assert(lifespan_ms    >  0);
         assert(spawn_delay_ms >= 0);
+        assert(spawn_radius   >= 0);
         assert(width          >  0);
         assert(height         >  0);
         assert(type           <  particle_emitter_type_e_count);
@@ -59,6 +61,7 @@ namespace ifb {
         emitter.count           = count;
         emitter.lifespan_ms     = lifespan_ms;
         emitter.spawn_delay_ms  = spawn_delay_ms;
+        emitter.spawn_radius    = spawn_radius;
         emitter.height          = height;
         emitter.width           = width;
         emitter.color_primary   = color_primary;
@@ -89,6 +92,7 @@ namespace ifb {
         const u32                       count,
         const f32                       lifespan_ms,
         const f32                       spawn_delay_ms,
+        const f32                       spawn_radius,
         const f32                       width,
         const f32                       height,
         const color_rgba_u32&           color_primary,
@@ -105,6 +109,7 @@ namespace ifb {
             count,
             lifespan_ms,
             spawn_delay_ms,
+            spawn_radius,
             width,
             height,
             color_primary,
@@ -125,6 +130,7 @@ namespace ifb {
         const u32                       count,
         const f32                       lifespan_ms,
         const f32                       spawn_delay_ms,
+        const f32                       spawn_radius,
         const f32                       width,
         const f32                       height,
         const color_rgba_u32&           color_primary,
@@ -133,18 +139,20 @@ namespace ifb {
 
         assert(props.speed > 0.0f);
 
-        // explosions spawn every particle once per start
+        // explosions spawn every particle once per start, unless they are continuous
+        const u32 spawn_limit   = props.is_continuous ? PARTICLE_SPAWN_UNLIMITED : count;
         const u32 emitter_index = particle_emitter_create_common(
             name,
             count,
             lifespan_ms,
             spawn_delay_ms,
+            spawn_radius,
             width,
             height,
             color_primary,
             color_secondary,
             particle_emitter_type_e_radial,
-            count
+            spawn_limit
         );
         if (emitter_index == INVALID_INDEX) return(INVALID_HANDLE);
 
@@ -244,10 +252,175 @@ namespace ifb {
         info.count           = emitter.count;
         info.lifespan_ms     = emitter.lifespan_ms;
         info.spawn_delay_ms  = emitter.spawn_delay_ms;
+        info.spawn_radius    = emitter.spawn_radius;
         info.height          = emitter.height;
         info.width           = emitter.width;
         info.color_primary   = emitter.color_primary;
         info.color_secondary = emitter.color_secondary;
+        return(true);
+    }
+
+    // applies the properties in the info that can change while the emitter is running
+    // the name, type, and state are ignored
+    IFB_INTERNAL bool
+    particle_emitter_update(
+        const hnd_particle_emitter   h_emitter,
+        const particle_emitter_info& info) {
+
+        const auto& cfg = config_instance();
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const u32 index = particle_mngr_find_emitter_index_existing(h_emitter);
+        if (index == INVALID_INDEX) return(false);
+
+        // nothing changes unless everything is valid
+        const bool is_valid = (
+            info.count          != 0                          &&
+            info.count          <= cfg.particle_bufffer_count &&
+            info.lifespan_ms    >  0.0f                       &&
+            info.spawn_delay_ms >= 0.0f                       &&
+            info.spawn_radius   >= 0.0f                       &&
+            info.width          >  0.0f                       &&
+            info.height         >  0.0f
+        );
+        if (!is_valid) return(false);
+
+        particle_emitter& emitter = particle_mngr_get_emitter(index);
+
+        // the ring and the live particles are only good for the old count,
+        // so a new count starts the emitter over with no particles
+        if (info.count != emitter.count) {
+
+            zero_memory((void*)emitter.array_life_ms, cfg.particle_bufffer_count * sizeof(f32));
+            emitter.count       = info.count;
+            emitter.spawn_index = 0;
+
+            // an emitter with a limit spawns every particle once per start
+            if (emitter.spawn_limit != PARTICLE_SPAWN_UNLIMITED) {
+                emitter.spawn_limit     = info.count;
+                emitter.spawn_remaining = emitter.is_spawning ? info.count : 0;
+            }
+        }
+
+        // no particle can have more life left than the new lifespan
+        if (info.lifespan_ms < emitter.lifespan_ms) {
+            for (
+                u32 particle_index = 0;
+                    particle_index < emitter.count;
+                  ++particle_index) {
+
+                f32& life_ms = emitter.array_life_ms[particle_index];
+                if (life_ms > info.lifespan_ms) life_ms = info.lifespan_ms;
+            }
+        }
+
+        emitter.lifespan_ms     = info.lifespan_ms;
+        emitter.spawn_delay_ms  = info.spawn_delay_ms;
+        emitter.spawn_radius    = info.spawn_radius;
+
+        // the time saved up for a longer delay would spawn a burst with a shorter one
+        if (emitter.spawn_timer_ms > emitter.spawn_delay_ms) {
+            emitter.spawn_timer_ms = emitter.spawn_delay_ms;
+        }
+        emitter.height          = info.height;
+        emitter.width           = info.width;
+        emitter.position        = info.position;
+        emitter.color_primary   = info.color_primary;
+        emitter.color_secondary = info.color_secondary;
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    particle_emitter_get_props_parabolic(
+        const hnd_particle_emitter h_emitter,
+        particle_parabolic_props&  props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const u32 index = particle_mngr_find_emitter_index_existing(h_emitter);
+        if (index == INVALID_INDEX) return(false);
+        if (particle_mngr_get_emitter(index).type != particle_emitter_type_e_parabolic) return(false);
+
+        props = particle_mngr_get_props_parabolic(index);
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    particle_emitter_set_props_parabolic(
+        const hnd_particle_emitter      h_emitter,
+        const particle_parabolic_props& props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const u32 index = particle_mngr_find_emitter_index_existing(h_emitter);
+        if (index == INVALID_INDEX) return(false);
+        if (particle_mngr_get_emitter(index).type != particle_emitter_type_e_parabolic) return(false);
+
+        // the launch direction comes from the velocity, so it can't be zero
+        const bool is_valid = (
+            vec3_magnitude(props.velocity) >  0.0f &&
+            props.spread_degrees           >= 0.0f &&
+            props.spread_degrees           <= 180.0f
+        );
+        if (!is_valid) return(false);
+
+        particle_mngr_get_props_parabolic(index) = props;
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    particle_emitter_get_props_radial(
+        const hnd_particle_emitter h_emitter,
+        particle_radial_props&     props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const u32 index = particle_mngr_find_emitter_index_existing(h_emitter);
+        if (index == INVALID_INDEX) return(false);
+        if (particle_mngr_get_emitter(index).type != particle_emitter_type_e_radial) return(false);
+
+        props = particle_mngr_get_props_radial(index);
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    particle_emitter_set_props_radial(
+        const hnd_particle_emitter   h_emitter,
+        const particle_radial_props& props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const u32 index = particle_mngr_find_emitter_index_existing(h_emitter);
+        if (index == INVALID_INDEX) return(false);
+        if (particle_mngr_get_emitter(index).type != particle_emitter_type_e_radial) return(false);
+
+        if (props.speed <= 0.0f) return(false);
+
+        // a spawning emitter picks up the new limit right away,
+        // an emitter that is draining or idle gets it on the next start
+        particle_emitter& emitter = particle_mngr_get_emitter(index);
+        emitter.spawn_limit = props.is_continuous ? PARTICLE_SPAWN_UNLIMITED : emitter.count;
+        if (emitter.is_spawning) {
+            emitter.spawn_remaining = emitter.spawn_limit;
+        }
+
+        particle_mngr_get_props_radial(index) = props;
+        return(true);
+    }
+
+    // moves where new particles spawn, the live particles stay on their paths
+    IFB_INTERNAL bool
+    particle_emitter_set_position(
+        const hnd_particle_emitter h_emitter,
+        const vec3&                position) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const u32 index = particle_mngr_find_emitter_index_existing(h_emitter);
+        if (index == INVALID_INDEX) return(false);
+
+        particle_mngr_get_emitter(index).position = position;
         return(true);
     }
 };

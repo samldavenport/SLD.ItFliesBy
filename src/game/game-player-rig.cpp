@@ -30,6 +30,19 @@ namespace ifb {
     static constexpr f32 GAME_PLAYER_RIG_JIG_BOB_HEIGHT   = 0.02f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_BOB_PERIOD_S = 1.6f;
 
+    // jig leaves a trail of sparks behind him
+    static constexpr u32 GAME_PLAYER_RIG_JIG_TRAIL_COUNT          = 48;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_LIFESPAN_MS    = 600.0f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_MS = 12.5f;
+
+    // the trail thins out as jig slows down
+    // the spawn delay above is for when he is at full speed, this one is for when he is still
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_IDLE_MS = 100.0f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_FULL_SPEED          = 1.0f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_RADIUS   = 0.05f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SIZE           = 0.012f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPEED          = 0.12f;
+
     inline f32
     game_player_rig_clamp_camera_focus(
         const f32 coord,
@@ -159,6 +172,31 @@ namespace ifb {
         eng_cmpnt_update_term_velocity (player_rig->jig_id, tv);
         eng_cmpnt_update_spring        (player_rig->jig_id, jig_spring);
 
+        // the emitter spawns in every direction until it is stopped,
+        // and the component keeps it on jig as he moves
+        particle_radial_props jig_trail_props;
+        jig_trail_props.speed         = GAME_PLAYER_RIG_JIG_TRAIL_SPEED;
+        jig_trail_props.is_continuous = true;
+
+        cmpnt_particle_emitter jig_trail;
+        jig_trail.hnd = eng_particle_emitter_create_radial(
+            "JIG-TRAIL",
+            GAME_PLAYER_RIG_JIG_TRAIL_COUNT,
+            GAME_PLAYER_RIG_JIG_TRAIL_LIFESPAN_MS,
+            GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_MS,
+            GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_RADIUS,
+            GAME_PLAYER_RIG_JIG_TRAIL_SIZE,
+            GAME_PLAYER_RIG_JIG_TRAIL_SIZE,
+            0x83A598FF,
+            0x45858800,
+            jig_trail_props
+        );
+        assert(jig_trail.hnd != INVALID_HANDLE);
+
+        eng_entity_add_components         (player_rig->jig_id, cmpnt_type_e_particle_emitter);
+        eng_cmpnt_update_particle_emitter (player_rig->jig_id, jig_trail);
+        eng_particle_emitter_start        (jig_trail.hnd, quad_jig.position);
+
         eng_entity_add_components      (player_rig->jig_anchor_id, cmpnt_type_e_position);
         eng_cmpnt_update_position      (player_rig->jig_anchor_id, anchor_pos);
     }
@@ -223,6 +261,34 @@ namespace ifb {
         pos_anchor.y = pos_connor.y + 0.100f + bob_height;
         pos_anchor.z = pos_connor.z + arc_depth;
         assert(eng_cmpnt_update_position(player_rig->jig_anchor_id, pos_anchor));
+
+        // spawn more of jig's trail the faster he moves
+        // the spawn rate is what ramps, so the trail thickens evenly as he speeds up
+        cmpnt_velocity         jig_velocity;
+        cmpnt_particle_emitter jig_trail;
+        particle_emitter_info  jig_trail_info;
+        const bool has_jig_trail = (
+            eng_cmpnt_lookup_velocity         (player_rig->jig_id, jig_velocity) &&
+            eng_cmpnt_lookup_particle_emitter (player_rig->jig_id, jig_trail)    &&
+            eng_particle_emitter_get_info     (jig_trail.hnd,      jig_trail_info)
+        );
+        if (has_jig_trail) {
+
+            const f32 jig_speed = sqrtf(
+                (jig_velocity.x * jig_velocity.x) +
+                (jig_velocity.y * jig_velocity.y) +
+                (jig_velocity.z * jig_velocity.z)
+            );
+            f32 jig_speed_normal = jig_speed / GAME_PLAYER_RIG_JIG_TRAIL_FULL_SPEED;
+            if (jig_speed_normal > 1.0f) jig_speed_normal = 1.0f;
+
+            const f32 spawn_rate_idle = 1.0f / GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_IDLE_MS;
+            const f32 spawn_rate_full = 1.0f / GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_MS;
+            const f32 spawn_rate      = spawn_rate_idle + ((spawn_rate_full - spawn_rate_idle) * jig_speed_normal);
+
+            jig_trail_info.spawn_delay_ms = 1.0f / spawn_rate;
+            eng_particle_emitter_update(jig_trail.hnd, jig_trail_info);
+        }
 
         // render quads
         eng_entity_render(player_rig->connor_id);

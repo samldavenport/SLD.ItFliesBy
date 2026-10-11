@@ -29,12 +29,12 @@ namespace ifb {
         bool                     is_init;
         bool                     did_create_fail;
         hnd_particle_emitter     selected;
-        vec3                     position;
         char                     name[PARTICLE_SYSTEM_NAME_SIZE];
         s32                      type;
         s32                      count;
         f32                      lifespan_ms;
         f32                      spawn_delay_ms;
+        f32                      spawn_radius;
         f32                      width;
         f32                      height;
         f32                      color_primary   [4];
@@ -51,6 +51,7 @@ namespace ifb {
     IFB_INLINE void particle_system_preset_explosion (void);
     IFB_INLINE void particle_system_controls_create  (void);
     IFB_INLINE void particle_system_controls_table   (void);
+    IFB_INLINE void particle_system_controls_edit    (particle_emitter_info& info);
     IFB_INLINE void particle_system_controls_emitter (void);
     IFB_INLINE void particle_system_controls_camera  (void);
     IFB_INLINE void particle_system_viewport         (void);
@@ -68,7 +69,6 @@ namespace ifb {
         if (!_particle_system.is_init) {
             _particle_system.is_init  = true;
             _particle_system.selected = INVALID_HANDLE;
-            _particle_system.position = { 0.0f, 0.0f, 0.0f };
             particle_system_preset_fountain();
         }
 
@@ -112,6 +112,17 @@ namespace ifb {
     }
 
     IFB_INLINE void
+    particle_system_get_color(
+        f32*                  rgba,
+        const color_rgba_u32& color) {
+
+        rgba[0] = (f32)color.r / 255.0f;
+        rgba[1] = (f32)color.g / 255.0f;
+        rgba[2] = (f32)color.b / 255.0f;
+        rgba[3] = (f32)color.a / 255.0f;
+    }
+
+    IFB_INLINE void
     particle_system_set_color(
         f32*      rgba,
         const f32 r,
@@ -136,6 +147,7 @@ namespace ifb {
         state.count                    = 96;
         state.lifespan_ms              = 1500.0f;
         state.spawn_delay_ms           = 15.0f;
+        state.spawn_radius             = 0.0f;
         state.width                    = 0.03f;
         state.height                   = 0.03f;
         state.parabolic.velocity       = { 0.0f,  1.6f, 0.0f };
@@ -156,9 +168,11 @@ namespace ifb {
         state.count          = 128;
         state.lifespan_ms    = 900.0f;
         state.spawn_delay_ms = 0.0f;
+        state.spawn_radius   = 0.0f;
         state.width          = 0.03f;
         state.height         = 0.03f;
-        state.radial.speed   = 0.8f;
+        state.radial.speed         = 0.8f;
+        state.radial.is_continuous = false;
         particle_system_set_color(state.color_primary,   1.00f, 0.90f, 0.30f, 1.00f);
         particle_system_set_color(state.color_secondary, 0.90f, 0.10f, 0.00f, 0.00f);
     }
@@ -183,6 +197,7 @@ namespace ifb {
         ImGui::DragInt    ("Count",           &state.count,          1.0f,   1,      cfg.particle_bufffer_count);
         ImGui::DragFloat  ("Lifespan (ms)",   &state.lifespan_ms,    10.0f,  1.0f,   60000.0f, "%.1f");
         ImGui::DragFloat  ("Spawn Delay (ms)",&state.spawn_delay_ms, 1.0f,   0.0f,   10000.0f, "%.1f");
+        ImGui::DragFloat  ("Spawn Radius",    &state.spawn_radius,   0.001f, 0.0f,   100.0f,   "%.3f");
         ImGui::DragFloat  ("Width",           &state.width,          0.001f, 0.001f, 10.0f,    "%.3f");
         ImGui::DragFloat  ("Height",          &state.height,         0.001f, 0.001f, 10.0f,    "%.3f");
         ImGui::ColorEdit4 ("Primary Color",   state.color_primary);
@@ -196,6 +211,7 @@ namespace ifb {
         }
         else {
             ImGui::DragFloat  ("Speed",            &state.radial.speed,             0.01f,  0.01f,  100.0f, "%.2f");
+            ImGui::Checkbox   ("Continuous",       &state.radial.is_continuous);
         }
 
         if (ImGui::Button("Create")) {
@@ -222,6 +238,7 @@ namespace ifb {
                     state.count,
                     state.lifespan_ms,
                     state.spawn_delay_ms,
+                    state.spawn_radius,
                     state.width,
                     state.height,
                     color_primary,
@@ -235,6 +252,7 @@ namespace ifb {
                     state.count,
                     state.lifespan_ms,
                     state.spawn_delay_ms,
+                    state.spawn_radius,
                     state.width,
                     state.height,
                     color_primary,
@@ -315,7 +333,68 @@ namespace ifb {
         }
     }
 
-    // start, stop, and destroy the selected emitter
+    // live editing, the engine values are read every frame and written back when a control changes
+    // the engine rejects invalid values, so the control goes back to what the emitter has
+    IFB_INLINE void
+    particle_system_controls_edit(
+        particle_emitter_info& info) {
+
+        static const auto& cfg = config_instance();
+
+        auto& state = _particle_system;
+
+        const ImGuiSliderFlags flags = ImGuiSliderFlags_AlwaysClamp;
+
+        s32 count              = info.count;
+        f32 color_primary   [4];
+        f32 color_secondary [4];
+        particle_system_get_color(color_primary,   info.color_primary);
+        particle_system_get_color(color_secondary, info.color_secondary);
+
+        // a new count starts the emitter over with no particles
+        bool did_change = false;
+        did_change |= ImGui::DragFloat3 ("Position",         info.position.v,      0.01f, -100.0f, 100.0f,                     "%.2f", flags);
+        did_change |= ImGui::DragInt    ("Count",            &count,               1.0f,   1,      cfg.particle_bufffer_count, "%d",   flags);
+        did_change |= ImGui::DragFloat  ("Lifespan (ms)",    &info.lifespan_ms,    10.0f,  1.0f,   60000.0f,                   "%.1f", flags);
+        did_change |= ImGui::DragFloat  ("Spawn Delay (ms)", &info.spawn_delay_ms, 1.0f,   0.0f,   10000.0f,                   "%.1f", flags);
+        did_change |= ImGui::DragFloat  ("Spawn Radius",     &info.spawn_radius,   0.001f, 0.0f,   100.0f,                     "%.3f", flags);
+        did_change |= ImGui::DragFloat  ("Width",            &info.width,          0.001f, 0.001f, 10.0f,                      "%.3f", flags);
+        did_change |= ImGui::DragFloat  ("Height",           &info.height,         0.001f, 0.001f, 10.0f,                      "%.3f", flags);
+        did_change |= ImGui::ColorEdit4 ("Primary Color",    color_primary);
+        did_change |= ImGui::ColorEdit4 ("Secondary Color",  color_secondary);
+        if (did_change) {
+            info.count           = count;
+            info.color_primary   = particle_system_color(color_primary);
+            info.color_secondary = particle_system_color(color_secondary);
+            eng_particle_emitter_update(state.selected, info);
+        }
+
+        // each type has its own properties, in units per second
+        particle_parabolic_props parabolic;
+        if (eng_particle_emitter_get_props_parabolic(state.selected, parabolic)) {
+
+            bool did_change_props = false;
+            did_change_props |= ImGui::DragFloat3 ("Velocity",         parabolic.velocity.v,      0.01f, -100.0f, 100.0f, "%.2f", flags);
+            did_change_props |= ImGui::DragFloat3 ("Gravity",          parabolic.gravity.v,       0.01f, -100.0f, 100.0f, "%.2f", flags);
+            did_change_props |= ImGui::DragFloat  ("Spread (degrees)", &parabolic.spread_degrees, 0.5f,   0.0f,   180.0f, "%.1f", flags);
+            if (did_change_props) {
+                eng_particle_emitter_set_props_parabolic(state.selected, parabolic);
+            }
+        }
+
+        particle_radial_props radial;
+        if (eng_particle_emitter_get_props_radial(state.selected, radial)) {
+
+            bool did_change_props = false;
+            did_change_props |= ImGui::DragFloat ("Speed",      &radial.speed, 0.01f, 0.01f, 100.0f, "%.2f", flags);
+            did_change_props |= ImGui::Checkbox  ("Continuous", &radial.is_continuous);
+            if (did_change_props) {
+                eng_particle_emitter_set_props_radial(state.selected, radial);
+            }
+        }
+    }
+
+    // edit, start, stop, and destroy the selected emitter
     IFB_INLINE void
     particle_system_controls_emitter(
         void) {
@@ -336,11 +415,15 @@ namespace ifb {
             return;
         }
 
-        ImGui::Text       ("%s (%s)", info.name, _particle_system_type_names[info.type]);
-        ImGui::DragFloat3 ("Position", state.position.v, 0.01f, -100.0f, 100.0f, "%.2f");
+        ImGui::Text("%s (%s)", info.name, _particle_system_type_names[info.type]);
+
+        // the labels are the same as the new emitter controls
+        ImGui::PushID("particle-system-selected");
+        particle_system_controls_edit(info);
+        ImGui::PopID();
 
         if (ImGui::Button("Start")) {
-            eng_particle_emitter_start(state.selected, state.position);
+            eng_particle_emitter_start(state.selected, info.position);
         }
         ImGui::SameLine();
         if (ImGui::Button("Stop")) {

@@ -52,6 +52,7 @@
 #include "particle-emitter.cpp"
 #include "particle-update.cpp"
 #include "particle-render.cpp"
+#include "particle-entity.cpp"
 
 #include "physics-manager.cpp"
 #include "physics-force-accumulator.cpp"

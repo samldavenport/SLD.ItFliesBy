@@ -275,6 +275,18 @@ return(did_push);
     }
     
     IFB_INTERNAL bool
+    renderer_push_particle_emitter(
+        const entity_id id) {
+
+        assert(id != INVALID_ID);
+        assert(_renderer);
+        assert(_renderer->lists);
+
+        const bool did_push = render_lists_push_particle_emitter(_renderer->lists, id);
+        return(did_push);
+    }
+
+    IFB_INTERNAL bool
     renderer_set_map(
         const hnd_map h_map) {
 

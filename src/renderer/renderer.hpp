@@ -45,6 +45,7 @@ struct renderer_tile_vertex;
     IFB_INTERNAL void        renderer_draw_buffers              (void);
     IFB_INTERNAL void        renderer_view_projection_xform     (mat4& xform);
     IFB_INTERNAL bool        renderer_push_quad                 (const entity_id id);
+    IFB_INTERNAL bool        renderer_push_particle_emitter     (const entity_id id);
     IFB_INTERNAL bool        renderer_set_map                   (const hnd_map h_map);
     IFB_INTERNAL const vec3& renderer_get_camera_origin         (void);
     IFB_INTERNAL const vec3& renderer_get_camera_target         (void);

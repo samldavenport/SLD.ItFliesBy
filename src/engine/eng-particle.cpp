@@ -13,6 +13,7 @@ namespace ifb {
         const u32                       count,
         const f32                       lifespan_ms,
         const f32                       spawn_delay_ms,
+        const f32                       spawn_radius,
         const f32                       width,
         const f32                       height,
         const color_rgba_u32&           color_primary,
@@ -23,6 +24,7 @@ namespace ifb {
         assert(count          >  0);
         assert(lifespan_ms    >  0);
         assert(spawn_delay_ms >= 0);
+        assert(spawn_radius   >= 0);
         assert(width          >  0);
         assert(height         >  0);
 
@@ -31,6 +33,7 @@ namespace ifb {
             count,
             lifespan_ms,
             spawn_delay_ms,
+            spawn_radius,
             width,
             height,
             color_primary,
@@ -47,6 +50,7 @@ namespace ifb {
         const u32                       count,
         const f32                       lifespan_ms,
         const f32                       spawn_delay_ms,
+        const f32                       spawn_radius,
         const f32                       width,
         const f32                       height,
         const color_rgba_u32&           color_primary,
@@ -57,6 +61,7 @@ namespace ifb {
         assert(count          >  0);
         assert(lifespan_ms    >  0);
         assert(spawn_delay_ms >= 0);
+        assert(spawn_radius   >= 0);
         assert(width          >  0);
         assert(height         >  0);
 
@@ -65,6 +70,7 @@ namespace ifb {
             count,
             lifespan_ms,
             spawn_delay_ms,
+            spawn_radius,
             width,
             height,
             color_primary,
@@ -139,6 +145,61 @@ namespace ifb {
 
         const bool did_get = particle_emitter_get_info(h_emitter, info);
         return(did_get);
+    }
+
+    IFB_ENGINE_API bool
+    eng_particle_emitter_update(
+        const hnd_particle_emitter   h_emitter,
+        const particle_emitter_info& info) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const bool did_update = particle_emitter_update(h_emitter, info);
+        return(did_update);
+    }
+
+    IFB_ENGINE_API bool
+    eng_particle_emitter_get_props_parabolic(
+        const hnd_particle_emitter h_emitter,
+        particle_parabolic_props&  props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const bool did_get = particle_emitter_get_props_parabolic(h_emitter, props);
+        return(did_get);
+    }
+
+    IFB_ENGINE_API bool
+    eng_particle_emitter_set_props_parabolic(
+        const hnd_particle_emitter      h_emitter,
+        const particle_parabolic_props& props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const bool did_set = particle_emitter_set_props_parabolic(h_emitter, props);
+        return(did_set);
+    }
+
+    IFB_ENGINE_API bool
+    eng_particle_emitter_get_props_radial(
+        const hnd_particle_emitter h_emitter,
+        particle_radial_props&     props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const bool did_get = particle_emitter_get_props_radial(h_emitter, props);
+        return(did_get);
+    }
+
+    IFB_ENGINE_API bool
+    eng_particle_emitter_set_props_radial(
+        const hnd_particle_emitter   h_emitter,
+        const particle_radial_props& props) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const bool did_set = particle_emitter_set_props_radial(h_emitter, props);
+        return(did_set);
     }
 
     IFB_ENGINE_API void
