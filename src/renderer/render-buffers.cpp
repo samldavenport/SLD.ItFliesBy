@@ -2,6 +2,7 @@
 
 #include "ifb-config.hpp"
 #include "quad.hpp"
+#include "map.hpp"
 #include "renderer.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"
@@ -107,19 +108,19 @@ namespace ifb {
         //---------------------
 
         auto* quad_buf_elmnt = buffers->quad_elements;
-        quad_buf_elmnt->capacity = cfg.quad_capacity * sizeof(u32) * 6; 
-        quad_buf_elmnt->size     = 0; 
-        quad_buf_elmnt->stride   = 6; 
-        quad_buf_elmnt->data     = (u32*)renderer_memory_alloc(quad_buf_elmnt->capacity);
+        quad_buf_elmnt->capacity = cfg.quad_capacity * QUAD_ELEMENT_DATA_SIZE;
+        quad_buf_elmnt->size     = 0;
+        quad_buf_elmnt->stride   = sizeof(u32);
+quad_buf_elmnt->data     = (u32*)renderer_memory_alloc(quad_buf_elmnt->capacity);
         assert(quad_buf_elmnt->data != NULL);
         for (
             u32 elmnt_index = 0;
                 elmnt_index < cfg.quad_capacity;
               ++elmnt_index) {
 
-            const u32 offset   = (elmnt_index * 4);
-            auto*     elements = &quad_buf_elmnt->data[elmnt_index];
-            elements[0] = (offset);  
+            const u32 offset   = (elmnt_index * QUAD_VERTEX_COUNT);
+            auto*     elements = &quad_buf_elmnt->data[elmnt_index * QUAD_ELEMENT_COUNT];
+elements[0] = (offset);  
             elements[1] = (offset + 1); 
             elements[2] = (offset + 3); 
             elements[3] = (offset + 1); 
@@ -132,10 +133,10 @@ namespace ifb {
         //---------------------
 
         auto* tile_buf_vtx = buffers->tile_vertices;
-        tile_buf_vtx->capacity = cfg.map_tile_capacity;
+        tile_buf_vtx->capacity = cfg.map_render_buffer_size;
         tile_buf_vtx->size     = 0;
-        tile_buf_vtx->stride   = sizeof(u32);
-        tile_buf_vtx->data     = (byte*)renderer_memory_alloc(tile_buf_vtx->capacity);
+        tile_buf_vtx->stride   = sizeof(map_tile);
+tile_buf_vtx->data     = (byte*)renderer_memory_alloc(tile_buf_vtx->capacity);
         assert(tile_buf_vtx->data != NULL);
     }
     
@@ -184,16 +185,38 @@ namespace ifb {
         if (quad_buf_vtx->size == 0) return;
 
         // update the element count
-        const u32 quad_count = quad_buf_vtx->count();
-        quad_buf_elmnt->size = quad_count * quad_buf_elmnt->stride;
+        const u32 quad_count = quad_buf_vtx->count() / QUAD_VERTEX_COUNT;
+        quad_buf_elmnt->size = quad_count * QUAD_ELEMENT_DATA_SIZE;
         assert(quad_buf_elmnt->size <= quad_buf_elmnt->capacity);
-        assert(quad_count           == quad_buf_elmnt->count());
-    }
+}
 
     IFB_INTERNAL void
     render_buffers_render_tiles(
         render_buffers* buffers,
         render_lists*   lists) {
 
+        assert(buffers);
+
+        // validate the vertex buffer
+        auto* tile_buf_vtx = buffers->tile_vertices;
+        assert(tile_buf_vtx);
+        assert(tile_buf_vtx->capacity != 0);
+        assert(tile_buf_vtx->stride   != 0);
+        assert(tile_buf_vtx->data     != NULL);
+
+        // reset the buffer
+        tile_buf_vtx->size = 0;
+
+        // if there's no map, there's nothing to render
+        const hnd_map h_map = render_lists_get_map(lists);
+        if (h_map == INVALID_HANDLE) return;
+
+        // render the tiles
+        tile_buf_vtx->size = map_render_buffer(
+            tile_buf_vtx->data,
+            tile_buf_vtx->capacity,
+            h_map
+        );
+        assert(tile_buf_vtx->size <= tile_buf_vtx->capacity);
     }
 };

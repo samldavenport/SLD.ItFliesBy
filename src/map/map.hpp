@@ -16,8 +16,7 @@ namespace ifb {
     
     struct map_mngr;
     struct map_color_table;
-    struct map_render_buffer;
-    struct map_dimensions;
+struct map_dimensions;
 
     //--------------------------------------------------------------------
     // CONSTANTS
@@ -34,13 +33,12 @@ namespace ifb {
     IFB_INTERNAL void                     map_mngr_startup              (reservation* res);
     IFB_INTERNAL void                     map_mngr_shutdown             (void);
     IFB_INTERNAL const map_color_table&   map_mngr_get_color_table      (void);
-    IFB_INTERNAL const map_render_buffer& map_mngr_get_render_buffer    (void);
 
     // map
     IFB_INTERNAL hnd_map                  map_create               (const cchar* map_name, const u32 count_rows, const u32 count_cols);
     IFB_INTERNAL bool                     map_destroy              (const hnd_map h_map);
-    IFB_INTERNAL bool                     map_render               (const hnd_map h_map);
-    IFB_INTERNAL bool                     map_get_dimensions       (const hnd_map h_map, map_dimensions& dims);
+    IFB_INTERNAL u32                      map_render_buffer        (byte* buffer_data, const u32 buffer_size, const hnd_map h_map);
+IFB_INTERNAL bool                     map_get_dimensions       (const hnd_map h_map, map_dimensions& dims);
     IFB_INTERNAL bool                     map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
     IFB_INTERNAL bool                     map_get_origin           (const hnd_map h_map, vec3& origin);
     IFB_INTERNAL bool                     map_set_origin           (const hnd_map h_map, const vec3& origin);
@@ -83,15 +81,7 @@ namespace ifb {
     // DEFINITIONS 
     //--------------------------------------------------------------------
 
-    struct map_render_buffer {
-        u32 data_size;
-        union {
-            map_tile* tile_array;
-            byte*     bytes;
-        } data;
-    };
-
-    struct map_dimensions {
+struct map_dimensions {
         u32 count_rows;
         u32 count_cols;
         u32 count_chunks;

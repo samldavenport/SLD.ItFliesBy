@@ -109,19 +109,23 @@ namespace ifb {
         return(map_tbl->dims[map_index]);
     }
     
-    IFB_INTERNAL bool
-    map_render(
+    IFB_INTERNAL u32
+    map_render_buffer(
+        byte*         buffer_data,
+        const u32     buffer_size,
         const hnd_map map_hnd) {
-       
+
         // validate
+        assert(buffer_data        != NULL);
+        assert(buffer_size        != 0);
         assert(map_hnd            != INVALID_HANDLE);
-        assert(_map_mngr          != NULL);
+assert(_map_mngr          != NULL);
         assert(_map_mngr->tbl_map != NULL);
 
         // get the map index
         const u32 map_index = map_lookup_index(map_hnd);
         if (map_index == INVALID_INDEX) {
-            return(false);
+            return(0);
         }
 
         // get the map dimensions
@@ -138,18 +142,14 @@ namespace ifb {
             tile_count += (chunk.count_rows * chunk.count_cols);
         }
         if (tile_count == 0) {
-            return(false);
+            return(0);
         }
 
-        // calculate data size buffer
+        // calculate the size needed to render the buffer,
         // and make sure the buffer is large enough
-        const auto& cfg     = config_instance();
-        const u32 size_data = sizeof(map_tile) * tile_count; 
-        assert(size_data <= cfg.map_render_buffer_size);
-
-        // initialize buffer
-        map_render_buffer& buffer = _map_mngr->render_buffer;
-        buffer.data_size          = size_data;
+        const u32 render_size = sizeof(map_tile) * tile_count;
+        assert(buffer_size >= render_size);
+        auto tile_buffer = (map_tile*)buffer_data;
 
         // fill out the render buffer
         u32 tile_index = 0;
@@ -170,14 +170,14 @@ namespace ifb {
                 const u32 col = (chunk_tile_index % chunk.count_cols) + chunk.origin_col;
 
                 // get the next tile
-                map_tile& tile = buffer.data.tile_array[tile_index++]; 
+                map_tile& tile = tile_buffer[tile_index++];
 
                 // initialize the tile
                 tile.index = (row * dims.count_cols) + col;
                 tile.color = (u8)chunk.base_color.val;
             }
         }
-        return(true);
+        return(render_size);
     } 
 
     IFB_INTERNAL bool

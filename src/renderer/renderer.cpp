@@ -4,7 +4,9 @@
 #include "ifb-collections.hpp"
 #include "memory-reservation.cpp"
 #include "renderer-internal.hpp"
-#include "renderer-quad.cpp" 
+#include "render-buffers.cpp"
+#include "renderer-draw-lists.cpp"
+#include "renderer-quad.cpp"
 #include "renderer-camera.cpp"
 #include "renderer-viewport.cpp"
 #include "renderer-direction-gizmo.cpp"
@@ -31,6 +33,8 @@ namespace ifb {
         renderer_camera*   cam;
         renderer_viewport* viewport;
         vec3               global_up;
+        render_lists*      lists;
+        render_buffers*    buffers;
         struct {
             renderer_quad_shader*            quad;
             renderer_direction_gizmo_shader* direction_gizmo;
@@ -55,18 +59,24 @@ namespace ifb {
         auto block_ids   = global_alloc<u32>              (block_count); 
         auto camera      = renderer_camera_create();
         auto viewport    = renderer_viewport_create();
+        auto lists       = render_lists_create();
+        auto buffers     = render_buffers_create();
         assert(
             rndr       != NULL &&
             gl         != NULL &&
-            block_ids  != NULL &&            
-            camera     != NULL &&            
-            viewport   != NULL
+            block_ids  != NULL &&
+            camera     != NULL &&
+            viewport   != NULL &&
+            lists      != NULL &&
+            buffers    != NULL
         );
 
         _renderer                         = rndr;
         _renderer->gl                     = gl;
         _renderer->cam                    = camera;
         _renderer->viewport               = viewport;
+        _renderer->lists                  = lists;
+        _renderer->buffers                = buffers;
 
         return(_renderer);
     }
@@ -93,6 +103,12 @@ namespace ifb {
         // initialize opengl and imgui
         pfm_graphics_init_opengl(_renderer->gl);
         pfm_graphics_init_imgui();
+
+        // initialize the lists and buffers
+        // the shaders size their gl buffers from the render buffers,
+        // so this needs to happen first
+        render_lists_init             (_renderer->lists);
+        render_buffers_alloc_and_init (_renderer->buffers);
 
         // create shaders
         _renderer->shader.quad            = renderer_quad_shader_create();
@@ -148,10 +164,10 @@ namespace ifb {
         file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
         
         // initialize shaders
-        renderer_quad_shader_init            (_renderer->shader.quad,            _renderer->gl, file_src_quad_vert,    file_src_quad_frag);
-        renderer_direciton_gizmo_shader_init (_renderer->shader.direction_gizmo, _renderer->gl, file_src_dir_giz_vert, file_src_dir_giz_frag);
-        renderer_grid_shader_init            (_renderer->shader.grid,            _renderer->gl, file_src_grid_vert,    file_src_grid_frag);
-        renderer_tile_shader_init            (_renderer->shader.tile,            _renderer->gl, file_src_tile_vert,    file_src_tile_frag);
+        renderer_quad_shader_init            (_renderer->shader.quad,            _renderer->gl, _renderer->buffers, file_src_quad_vert,    file_src_quad_frag);
+        renderer_direciton_gizmo_shader_init (_renderer->shader.direction_gizmo, _renderer->gl,                     file_src_dir_giz_vert, file_src_dir_giz_frag);
+        renderer_grid_shader_init            (_renderer->shader.grid,            _renderer->gl, _renderer->buffers, file_src_grid_vert,    file_src_grid_frag);
+        renderer_tile_shader_init            (_renderer->shader.tile,            _renderer->gl, _renderer->buffers, file_src_tile_vert,    file_src_tile_frag);
 
         // close the shader files
         file_close(file_hnd_quad_vert);
@@ -200,15 +216,27 @@ namespace ifb {
     renderer_draw_buffers(
         void) {
 
-        mat4 view_proj_xform;
-        renderer_view_projection_xform(view_proj_xform); 
+        auto* gl      = _renderer->gl;
+        auto* lists   = _renderer->lists;
+        auto* buffers = _renderer->buffers;
 
+        mat4 view_proj_xform;
+        renderer_view_projection_xform(view_proj_xform);
+
+        // lists -> buffers
+        render_buffers_render_tiles   (buffers, lists);
+        render_buffers_render_quads   (buffers, lists, _renderer->cam);
+
+        // buffers -> shaders
         //renderer_direction_gizmo_draw (view_proj_xform);
-        renderer_tile_draw            (_renderer->shader.tile, _renderer->gl, view_proj_xform);
-        renderer_grid_draw            (_renderer->shader.grid, _renderer->gl, view_proj_xform);
-        renderer_quad_draw            (_renderer->shader.quad, _renderer->cam, _renderer->gl, view_proj_xform);
+        renderer_tile_draw            (_renderer->shader.tile, gl, buffers, render_lists_get_map(lists), view_proj_xform);
+        renderer_grid_draw            (_renderer->shader.grid, gl, buffers, view_proj_xform);
+        renderer_quad_draw            (_renderer->shader.quad, gl, buffers, view_proj_xform);
+
+        // the lists get filled again next frame
+        render_lists_reset(lists);
     }
-    
+
     IFB_INTERNAL entity_list*
     renderer_create_entity_list(
         void) {
@@ -230,10 +258,10 @@ namespace ifb {
 
         assert(id != INVALID_ID);
         assert(_renderer);
-        assert(_renderer->shader.quad);
+        assert(_renderer->lists);
 
-        const bool did_push = renderer_quad_push(_renderer->shader.quad, id);
-        return(did_push);
+        const bool did_push = render_lists_push_quad(_renderer->lists, id);
+return(did_push);
     }
     
     IFB_INTERNAL bool
@@ -242,10 +270,10 @@ namespace ifb {
 
         assert(h_map                      != INVALID_HANDLE);
         assert(_renderer              != NULL);
-        assert(_renderer->shader.tile != NULL);
+        assert(_renderer->lists       != NULL);
 
-        const bool did_set = renderer_tile_set_map(_renderer->shader.tile, h_map);
-        return(did_set);
+        const bool did_set = render_lists_set_map(_renderer->lists, h_map);
+return(did_set);
     }
     
     //--------------------------------------------------------------------
