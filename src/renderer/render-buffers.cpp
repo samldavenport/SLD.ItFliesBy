@@ -141,8 +141,9 @@ namespace ifb {
     
     IFB_INTERNAL void
     render_buffers_render_quads(
-        render_buffers* buffers,
-        render_lists*   lists) {
+        render_buffers*  buffers,
+        render_lists*    lists,
+        renderer_camera* camera) {
     
         assert(buffers);
 
@@ -170,7 +171,7 @@ namespace ifb {
 
         // get the camera orientation
         orientation cam_ori;
-        renderer_camera_get_orientation(cam_ori);
+        renderer_camera_get_orientation(camera, cam_ori);
 
         // render the quads
         // if nothing was rendered, return
