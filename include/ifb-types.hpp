@@ -213,8 +213,20 @@ namespace ifb {
         vec3           position;
     };
 
+    // the type is the index of the list an active emitter is processed in
+    enum particle_emitter_type_e {
+        particle_emitter_type_e_parabolic = 0,
+        particle_emitter_type_e_radial    = 1,
+        particle_emitter_type_e_count     = 2
+    };
+
     struct particle_emitter_info {
         const cchar*    name;
+        u32             type;
+        bool            is_active;   // in the list for its type
+        bool            is_spawning;
+        u32             count_live;
+        vec3            position;
         u32             count;
         f32             lifespan_ms;
         f32             spawn_delay_ms;

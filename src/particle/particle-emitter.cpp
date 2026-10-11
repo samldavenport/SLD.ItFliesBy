@@ -225,7 +225,22 @@ namespace ifb {
     
         const particle_emitter& emitter = particle_mngr_get_emitter(index);
     
+        // count the particles that are still alive
+        u32 count_live = 0;
+        for (
+            u32 index = 0;
+                index < emitter.count;
+              ++index) {
+
+            if (emitter.array_life_ms[index] > 0.0f) ++count_live;
+        }
+
         info.name            = emitter.name.chars;
+        info.type            = emitter.type;
+        info.is_active       = (emitter.list_index != INVALID_INDEX);
+        info.is_spawning     = emitter.is_spawning;
+        info.count_live      = count_live;
+        info.position        = emitter.position;
         info.count           = emitter.count;
         info.lifespan_ms     = emitter.lifespan_ms;
         info.spawn_delay_ms  = emitter.spawn_delay_ms;

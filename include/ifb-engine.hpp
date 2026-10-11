@@ -232,6 +232,19 @@ namespace ifb {
     IFB_ENGINE_API bool eng_particle_emitter_stop    (const hnd_particle_emitter h_emitter);
     IFB_ENGINE_API bool eng_particle_emitter_render  (const hnd_particle_emitter h_emitter);
 
+    IFB_ENGINE_API u32                  eng_particle_emitter_get_capacity (void);
+    IFB_ENGINE_API hnd_particle_emitter eng_particle_emitter_get_hnd      (const u32 index);
+    IFB_ENGINE_API bool                 eng_particle_emitter_get_info     (const hnd_particle_emitter h_emitter, particle_emitter_info& info);
+
+    // the particle view is an offscreen render of every active emitter
+    // a request draws it for one frame, the texture is an opengl texture id
+    IFB_ENGINE_API void        eng_particle_view_request           (const u32 width, const u32 height);
+    IFB_ENGINE_API u32         eng_particle_view_get_texture       (void);
+    IFB_ENGINE_API const vec3& eng_particle_view_get_camera_origin (void);
+    IFB_ENGINE_API const vec3& eng_particle_view_get_camera_target (void);
+    IFB_ENGINE_API void        eng_particle_view_set_camera_origin (const vec3& origin);
+    IFB_ENGINE_API void        eng_particle_view_set_camera_target (const vec3& target);
+
     //--------------------------------------------------------------------
     // RANDOM
     //--------------------------------------------------------------------

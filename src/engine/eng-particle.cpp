@@ -3,6 +3,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
 #include "particle.hpp"
+#include "renderer.hpp"
 
 namespace ifb {
 
@@ -111,5 +112,78 @@ namespace ifb {
 
         //TODO(SLD): implement
         return(false);
+    }
+
+    IFB_ENGINE_API u32
+    eng_particle_emitter_get_capacity(
+        void) {
+
+        const u32 capacity = particle_mngr_get_emitter_capacity();
+        return(capacity);
+    }
+
+    IFB_ENGINE_API hnd_particle_emitter
+    eng_particle_emitter_get_hnd(
+        const u32 index) {
+
+        const hnd_particle_emitter h_emitter = particle_mngr_get_emitter_hnd(index);
+        return(h_emitter);
+    }
+
+    IFB_ENGINE_API bool
+    eng_particle_emitter_get_info(
+        const hnd_particle_emitter h_emitter,
+        particle_emitter_info&     info) {
+
+        assert(h_emitter != INVALID_HANDLE);
+
+        const bool did_get = particle_emitter_get_info(h_emitter, info);
+        return(did_get);
+    }
+
+    IFB_ENGINE_API void
+    eng_particle_view_request(
+        const u32 width,
+        const u32 height) {
+
+        renderer_request_particle_view(width, height);
+    }
+
+    IFB_ENGINE_API u32
+    eng_particle_view_get_texture(
+        void) {
+
+        const u32 texture = renderer_get_particle_view_texture();
+        return(texture);
+    }
+
+    IFB_ENGINE_API const vec3&
+    eng_particle_view_get_camera_origin(
+        void) {
+
+        const vec3& origin = renderer_get_particle_view_camera_origin();
+        return(origin);
+    }
+
+    IFB_ENGINE_API const vec3&
+    eng_particle_view_get_camera_target(
+        void) {
+
+        const vec3& target = renderer_get_particle_view_camera_target();
+        return(target);
+    }
+
+    IFB_ENGINE_API void
+    eng_particle_view_set_camera_origin(
+        const vec3& origin) {
+
+        renderer_set_particle_view_camera_origin(origin);
+    }
+
+    IFB_ENGINE_API void
+    eng_particle_view_set_camera_target(
+        const vec3& target) {
+
+        renderer_set_particle_view_camera_target(target);
     }
 };
