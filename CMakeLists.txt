@@ -28,6 +28,7 @@ find_package(Stb       REQUIRED)
 #--------------------------------------------------------------------
 
 set(IFB_ENGINE_SOURCE_DIRS
+    src/assets
     src/collections
     src/components
     src/engine

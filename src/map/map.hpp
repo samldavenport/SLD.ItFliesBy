@@ -16,7 +16,7 @@ namespace ifb {
     
     struct map_mngr;
     struct map_color_table;
-struct map_dimensions;
+    struct map_dimensions;
 
     //--------------------------------------------------------------------
     // CONSTANTS

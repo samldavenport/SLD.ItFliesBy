@@ -3,6 +3,8 @@
 #define IFB_ENGINE_DLL_EXPORT
 #define IFB_API_DLL_EXPORT
 
+#include "asset.cpp"
+
 #include "collections.cpp"
 
 #include "component-manager.cpp"
