@@ -5,6 +5,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-entity.hpp"
 #include "ifb-gui.hpp"
+#include "ifb-platform.hpp"
 #include "ifb.hpp"
 #include "eng-internal.hpp"
 #include "imgui.h"
@@ -94,8 +95,11 @@ namespace ifb {
         const auto&        config   = config_instance();
         const eng_mem_map* mem_map  = _eng_context->mem_map;
         eng_system_info*   system   = _eng_context->system;
-        renderer*  renderer = _eng_context->renderer;
-    
+        renderer*          renderer = _eng_context->renderer;
+   
+        // start the platform context
+        pfm_context_startup();
+
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
 
         // refresh system info
@@ -137,7 +141,11 @@ namespace ifb {
         map_mngr_startup         (res_tiles);
         particle_mngr_startup    (res_particles);
         renderer_startup (res_renderer);
-         
+        
+        pfm_file_dialog dlg;
+        dlg.filter_desc = "Text Files";
+        dlg.filter_type = "*.txt";
+        pfm_file_dialog_open(dlg);
     }
 
     IFB_ENGINE_API bool 
@@ -197,6 +205,9 @@ namespace ifb {
         void) {
 
         //TODO(SLD)
+
+        // shut down the platform context
+        pfm_context_shutdown();
     }
 
     IFB_ENGINE_API ImGuiContext*
