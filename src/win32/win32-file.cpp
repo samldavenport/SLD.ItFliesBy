@@ -20,19 +20,17 @@ namespace ifb {
 
         // access flags
         const bool access_read     = bit_mask_all(cfg->access_flags, pfm_file_access_flag_e_read);
-        const bool access_write    = bit_mask_all(cfg->access_flags, pfm_file_access_flag_e_read);
+        const bool access_write    = bit_mask_all(cfg->access_flags, pfm_file_access_flag_e_write);
         const bool access_is_valid = (access_read || access_write);
         assert(access_is_valid);
 
         if (access_read)  access |= GENERIC_READ;
         if (access_write) access |= GENERIC_WRITE;
 
-        // share flags
+        // share flags, none is valid and means exclusive access
         const bool share_read     = bit_mask_all(cfg->share_flags, pfm_file_share_flag_e_read);
         const bool share_write    = bit_mask_all(cfg->share_flags, pfm_file_share_flag_e_write);
         const bool share_delete   = bit_mask_all(cfg->share_flags, pfm_file_share_flag_e_delete);
-        const bool share_is_valid = (share_read || share_write || share_delete);
-        assert(share_is_valid);
 
         if (share_read)   share |= FILE_SHARE_READ;
         if (share_write)  share |= FILE_SHARE_WRITE;
@@ -51,13 +49,6 @@ namespace ifb {
         flags |= cfg->is_async ? FILE_FLAG_OVERLAPPED : 0;
 
         // create the file handle
-
-        access          = GENERIC_READ;
-        share           = FILE_SHARE_READ;
-        security        = NULL;
-        mode            = OPEN_EXISTING;
-        template_handle = NULL;
-
         const HANDLE hnd_file = CreateFile(
             cfg->path,
             access,
@@ -67,25 +58,35 @@ namespace ifb {
             flags,
             template_handle
         );
-        assert(hnd_file);
+
+        // callers check for null
+        if (hnd_file == INVALID_HANDLE_VALUE) {
+            return(NULL);
+        }
         return(hnd_file);
     }
 
-    IFB_WIN32_API_FUNC u32 
+    IFB_WIN32_API_FUNC u32
     pfm_file_size(
         const pfm_hnd_file file) {
 
+        assert(file);
+
         LARGE_INTEGER size;
-        assert(file && GetFileSizeEx(file, &size));
+        const bool did_get_size = (bool)GetFileSizeEx(file, &size);
+        assert(did_get_size);
 
         return(size.QuadPart);
     }
 
-    IFB_WIN32_API_FUNC void 
+    IFB_WIN32_API_FUNC void
     pfm_file_close(
         const pfm_hnd_file file) {
 
-        assert(file && CloseHandle(file));
+        assert(file);
+
+        const bool did_close = (bool)CloseHandle(file);
+        assert(did_close);
     }
 
     IFB_WIN32_API_FUNC u32
@@ -170,7 +171,7 @@ namespace ifb {
         DWORD        file_write_size_requested = (buffer->size - buffer->offset); 
         DWORD        file_write_size_actual    = 0;
 
-        const bool did_write = ReadFile(
+        const bool did_write = WriteFile(
             file,
             file_write_buffer,
             file_write_size_requested,

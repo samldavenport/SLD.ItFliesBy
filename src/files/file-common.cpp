@@ -13,6 +13,15 @@ namespace ifb {
 
         const u32 index = file_mngr_index_of_internal_handle(hnd);
         assert(index != FILE_INDEX_INVALID);
+
+        // close the platform file
+        pfm_file_close(_file_mngr->array.handle_platform[index]);
+
+        // free the table entry
+        _file_mngr->array.handle_internal [index] = FILE_HANDLE_INVALID;
+        _file_mngr->array.handle_platform [index] = NULL;
+        _file_mngr->array.io_length       [index] = 0;
+        _file_mngr->array.cursor          [index] = 0;
     }
 
     IFB_INTERNAL u32
@@ -102,7 +111,7 @@ namespace ifb {
         file_buffer.cursor = _file_mngr->array.cursor[index];
 
         const pfm_hnd_file hnd_pfm   = _file_mngr->array.handle_platform[index];
-        const u32             io_length = pfm_file_read(hnd_pfm, &file_buffer);
+        const u32             io_length = pfm_file_write(hnd_pfm, &file_buffer);
 
         _file_mngr->array.io_length[index] = io_length;
         return(io_length);
