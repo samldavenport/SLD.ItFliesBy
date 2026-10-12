@@ -85,13 +85,24 @@ namespace ifb {
         map_color_e_gray_light   = 14,
         map_color_e_gray_dark    = 15,
     };
-    
+   
+    enum asset_type_e {
+        asset_type_e_text  = 0,
+        asset_type_e_image = 1,
+        asset_type_e_count = 2 
+    };
+
+    enum particle_emitter_type_e {
+        particle_emitter_type_e_parabolic = 0,
+        particle_emitter_type_e_radial    = 1,
+        particle_emitter_type_e_count     = 2
+    };
+
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
     struct asset;
-    struct component_type;
     struct dimensions_2d;
     struct dimensions_3d;
     struct entity;
@@ -118,6 +129,7 @@ namespace ifb {
     IFB_U32(map_tile_flags_u32);
     IFB_U32(map_color_u32);
     
+    IFB_HANDLE(hnd_asset);
     IFB_HANDLE(hnd_arena);
     IFB_HANDLE(hnd_file);
     IFB_HANDLE(hnd_map);
@@ -213,26 +225,20 @@ namespace ifb {
         vec3           position;
     };
 
-    // the type is the index of the list an active emitter is processed in
-    enum particle_emitter_type_e {
-        particle_emitter_type_e_parabolic = 0,
-        particle_emitter_type_e_radial    = 1,
-        particle_emitter_type_e_count     = 2
-    };
 
     struct particle_emitter_info {
         const cchar*    name;
         u32             type;
-        bool            is_active;   // in the list for its type
-        bool            is_spawning;
+        b32             is_active;   // in the list for its type
+        b32             is_spawning;
         u32             count_live;
-        vec3            position;
         u32             count;
         f32             lifespan_ms;
         f32             spawn_delay_ms;
         f32             spawn_radius;    // particles spawn within this distance of the position
         f32             height;
         f32             width;
+        vec3            position;
         color_rgba_u32  color_primary;
         color_rgba_u32  color_secondary;
     };
@@ -246,10 +252,18 @@ namespace ifb {
 
     // explosions, speed is in units per second
     struct particle_radial_props {
-        f32  speed;
-        bool is_continuous; // spawns until stopped, instead of every particle once per start
+        f32 speed;
+        b32 is_continuous; // spawns until stopped, instead of every particle once per start
     };
+   
     
+    //--------------------------------------------------------------------
+    // ASSET TYPES
+    //--------------------------------------------------------------------
+
+    
+
+
     //--------------------------------------------------------------------
     // COMPONENT TYPES
     //--------------------------------------------------------------------

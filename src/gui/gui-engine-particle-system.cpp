@@ -211,7 +211,7 @@ namespace ifb {
         }
         else {
             ImGui::DragFloat  ("Speed",            &state.radial.speed,             0.01f,  0.01f,  100.0f, "%.2f");
-            ImGui::Checkbox   ("Continuous",       &state.radial.is_continuous);
+            ImGui::Checkbox   ("Continuous",       (bool*)&state.radial.is_continuous);
         }
 
         if (ImGui::Button("Create")) {
@@ -387,7 +387,7 @@ namespace ifb {
 
             bool did_change_props = false;
             did_change_props |= ImGui::DragFloat ("Speed",      &radial.speed, 0.01f, 0.01f, 100.0f, "%.2f", flags);
-            did_change_props |= ImGui::Checkbox  ("Continuous", &radial.is_continuous);
+            did_change_props |= ImGui::Checkbox  ("Continuous", (bool*)&radial.is_continuous);
             if (did_change_props) {
                 eng_particle_emitter_set_props_radial(state.selected, radial);
             }

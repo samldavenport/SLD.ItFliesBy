@@ -39,10 +39,6 @@ namespace ifb {
         file_config.access_flags = pfm_file_access_flag_e_read;
         file_config.share_flags  = pfm_file_share_flag_e_read;
         file_config.is_async     = false;
-        const pfm_hnd_file pfm_hnd = pfm_file_open(&file_config);
-        if (pfm_hnd == NULL) {
-            return(FILE_HANDLE_INVALID);
-        }
 
         // return the created handle
         const hnd_file hnd = file_mngr_commit(&file_config);
@@ -63,10 +59,6 @@ namespace ifb {
         file_config.access_flags = pfm_file_access_flag_e_read;
         file_config.share_flags  = pfm_file_share_flag_e_read;
         file_config.is_async     = false;
-        const pfm_hnd_file pfm_hnd = pfm_file_open(&file_config);
-        if (pfm_hnd == NULL) {
-            return(FILE_HANDLE_INVALID);
-        }
         
         // return the created handle
         const hnd_file hnd = file_mngr_commit(&file_config);
@@ -87,10 +79,6 @@ namespace ifb {
         file_config.access_flags = pfm_file_access_flag_e_read;
         file_config.share_flags  = pfm_file_share_flag_e_read;
         file_config.is_async     = false;
-        const pfm_hnd_file pfm_hnd = pfm_file_open(&file_config);
-        if (pfm_hnd == NULL) {
-            return(FILE_HANDLE_INVALID);
-        }
         
         // return the created handle
         const hnd_file hnd = file_mngr_commit(&file_config);
