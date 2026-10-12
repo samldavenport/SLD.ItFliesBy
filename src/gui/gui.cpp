@@ -51,6 +51,7 @@ namespace ifb {
         static bool entity_manager      = false;
         static bool quad_manager        = false;
         static bool player_rig          = false;
+        static bool asset_dictionary    = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -65,7 +66,14 @@ namespace ifb {
             if (ImGui::BeginMenu(_gui_str->menu_game)) {
 
                 ImGui::MenuItem (_gui_str->menu_game_item_player_rig, NULL, &player_rig);
-                ImGui::EndMenu  ();
+               
+                if (ImGui::BeginMenu(_gui_str->menu_game_menu_assets)) {
+                    
+                    ImGui::MenuItem(_gui_str->menu_game_menu_assets_item_dictionary, NULL, &asset_dictionary);
+                    ImGui::EndMenu();
+                }
+
+                ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu(_gui_str->menu_entities)) {

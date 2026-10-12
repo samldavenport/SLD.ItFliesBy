@@ -20,6 +20,7 @@ namespace ifb {
     struct asset_dictionary_file_node {
         asset_dictionary_file_node* next;
         const cchar*                path;
+        const cchar*                name;
         u32                         id;
     };
 
@@ -45,7 +46,7 @@ namespace ifb {
     inline u32       asset_dictionary_file_list_json_size      (const asset_dictionary_file_list& list); 
     inline bool      asset_dictionary_file_list_load_from_json (asset_dictionary_file_list& list,const json_arr* arr,const hnd_arena h_arena);
     inline bool      asset_dictionary_file_list_remove_node    (asset_dictionary_file_list& list, const u32 id);
-    inline hnd_asset asset_dictionary_file_list_add_node       (asset_dictionary_file_list& list, const cchar* path, const hnd_arena h_arena); 
+    inline hnd_asset asset_dictionary_file_list_add_node       (asset_dictionary_file_list& list, const cchar* name, const cchar* path, const hnd_arena h_arena);
     inline u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
 
     //--------------------------------------------------------------------
@@ -156,36 +157,38 @@ namespace ifb {
     IFB_INTERNAL hnd_asset
     asset_dictionary_add_text_file(
         asset_dictionary* dict,
+        const cchar*      name,
         const cchar*      path,
         const hnd_arena   h_arena) {
 
-        const hnd_asset hnd = asset_dictionary_file_list_add_node(dict->text_files, path, h_arena);
+        const hnd_asset hnd = asset_dictionary_file_list_add_node(dict->text_files, name, path, h_arena);
         return(hnd);
     }
 
     IFB_INTERNAL hnd_asset
     asset_dictionary_add_image_file(
         asset_dictionary* dict,
+        const cchar*      name,
         const cchar*      path,
         const hnd_arena   h_arena) {
 
-        const hnd_asset hnd = asset_dictionary_file_list_add_node(dict->image_files, path, h_arena);
+        const hnd_asset hnd = asset_dictionary_file_list_add_node(dict->image_files, name, path, h_arena);
         return(hnd);
     }
 
     IFB_INTERNAL bool
     asset_dictionary_remove_file(
         asset_dictionary* dict,
-        const cchar*      path) {
+        const cchar*      name) {
 
         assert(dict);
-        assert(path);
+        assert(name);
 
-        const u32 length = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
+        const u32 length = cstr_nvar_length(name, IFB_CONFIG_FILE_PATH_SIZE);
         assert(length != 0);
 
-        // files are identified by the hash of their path, same as when they are added
-        const u32 id = hash_u32((void*)path, length);
+        // files are identified by the hash of their name, same as when they are added
+        const u32 id = hash_u32((void*)name, length);
 
         bool did_remove = asset_dictionary_file_list_remove_node(dict->text_files, id);
         if (!did_remove) {
@@ -202,19 +205,22 @@ namespace ifb {
     inline hnd_asset
     asset_dictionary_file_list_add_node(
         asset_dictionary_file_list& list,
+        const cchar*                name,
         const cchar*                path,
         const hnd_arena             h_arena) {
 
+        assert(name);
         assert(path);
         assert(h_arena != INVALID_HANDLE);
 
         auto node_new = (asset_dictionary_file_node*)arena_push(h_arena, sizeof(asset_dictionary_file_node));
         if (!node_new) return(INVALID_HANDLE);
 
-        const u32 length = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
+        const u32 length = cstr_nvar_length(name, IFB_CONFIG_FILE_PATH_SIZE);
         assert(length != 0);
 
-        node_new->id   = hash_u32((void*)path, length);
+        node_new->id   = hash_u32((void*)name, length);
+        node_new->name = name;
         node_new->path = path;
         node_new->next = NULL;
 
@@ -285,11 +291,12 @@ namespace ifb {
             const json_obj* obj = json_arr_get_obj(arr, index);
             if (!obj) return(false);
 
-            // the path lives in the json document, which is in the same arena
+            // the name and path live in the json document, which is in the same arena
+            const cchar* name = json_obj_get_cstr(obj, "name");
             const cchar* path = json_obj_get_cstr(obj, "path");
-            if (!path) return(false);
+            if (!name || !path) return(false);
 
-            const hnd_asset hnd = asset_dictionary_file_list_add_node(list, path, h_arena);
+            const hnd_asset hnd = asset_dictionary_file_list_add_node(list, name, path, h_arena);
             if (hnd == INVALID_HANDLE) return(false);
         }
 
@@ -309,9 +316,10 @@ namespace ifb {
             node != NULL;
             node = node->next) {
 
-            // every character in the path could be escaped, plus the object syntax
-            const u32 length = cstr_nvar_length(node->path, IFB_CONFIG_FILE_PATH_SIZE);
-            size += (length * 2) + 32;
+            // every character in the name and path could be escaped, plus the object syntax
+            const u32 length_name = cstr_nvar_length(node->name, IFB_CONFIG_FILE_PATH_SIZE);
+            const u32 length_path = cstr_nvar_length(node->path, IFB_CONFIG_FILE_PATH_SIZE);
+            size += (length_name * 2) + (length_path * 2) + 64;
         }
 
         return(size);
@@ -384,7 +392,9 @@ namespace ifb {
             node != NULL;
             node = node->next) {
 
-            cursor = asset_dictionary_json_write_cstr(buffer, cursor, "        { \"path\": \"");
+            cursor = asset_dictionary_json_write_cstr(buffer, cursor, "        { \"name\": \"");
+            cursor = asset_dictionary_json_write_path(buffer, cursor, node->name);
+            cursor = asset_dictionary_json_write_cstr(buffer, cursor, "\", \"path\": \"");
             cursor = asset_dictionary_json_write_path(buffer, cursor, node->path);
             cursor = asset_dictionary_json_write_cstr(buffer, cursor, node->next ? "\" },\n" : "\" }\n");
         }
@@ -393,5 +403,4 @@ namespace ifb {
 
         return(cursor);
     }
-
 };
