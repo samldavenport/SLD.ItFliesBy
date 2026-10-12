@@ -13,6 +13,10 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
+    
     struct asset_dictionary_file_node {
         asset_dictionary_file_node* next;
         const cchar*                path;
@@ -28,201 +32,26 @@ namespace ifb {
         asset_dictionary_file_list text_files;
         asset_dictionary_file_list image_files;
     };
+ 
+    //--------------------------------------------------------------------
+    // DECLARATIONS
+    //--------------------------------------------------------------------
+    
+    inline u32       asset_dictionary_json_write_cstr          (cchar* buffer, const u32 offset,const cchar* cstr); 
+    inline u32       asset_dictionary_file_list_json_size      (const asset_dictionary_file_list& list); 
+    inline bool      asset_dictionary_file_list_load_from_json (asset_dictionary_file_list& list,const json_arr* arr,const hnd_arena h_arena);
+    inline bool      asset_dictionary_file_list_remove_node    (asset_dictionary_file_list& list,const u32 id); 
+    inline u32       asset_dictionary_json_write_cstr          (cchar* buffer,const u32 offset, const cchar* cstr); 
+    inline u32       asset_dictionary_file_list_json_size      (const asset_dictionary_file_list& list); 
+    inline bool      asset_dictionary_file_list_load_from_json (asset_dictionary_file_list& list,const json_arr* arr,const hnd_arena h_arena);
+    inline bool      asset_dictionary_file_list_remove_node    (asset_dictionary_file_list& list, const u32 id);
+    inline hnd_asset asset_dictionary_file_list_add_node       (asset_dictionary_file_list& list, const cchar* path, const hnd_arena h_arena); 
+    inline u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
 
-    inline hnd_asset
-    asset_dictionary_file_list_add_node(
-        asset_dictionary_file_list& list,
-        const cchar*                path,
-        const hnd_arena             h_arena) {
-
-        assert(path);
-        assert(h_arena != INVALID_HANDLE);
-
-        auto node_new = (asset_dictionary_file_node*)arena_push(h_arena, sizeof(asset_dictionary_file_node));
-        if (!node_new) return(INVALID_HANDLE);
-
-        const u32 length = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
-        assert(length != 0);
-
-        node_new->id   = hash_u32((void*)path, length);
-        node_new->path = path;
-        node_new->next = NULL;
-
-        if (list.first == NULL) {
-            assert(list.last == NULL);
-
-            list.first       = node_new;
-            list.last        = node_new;
-        }
-        else {
-            assert(list.last != NULL);
-            if (list.first->next == NULL) {
-                assert(list.first == list.last);
-                list.first->next = node_new;
-            }
-
-            list.last->next = node_new;
-            list.last       = node_new;
-        }
-
-        return(node_new->id);
-    }
-
-    inline bool
-    asset_dictionary_file_list_remove_node(
-        asset_dictionary_file_list& list,
-        const u32                   id) {
-
-        asset_dictionary_file_node* node_prev = NULL;
-
-        for (
-            asset_dictionary_file_node* node = list.first;
-            node != NULL;
-            node = node->next) {
-
-            if (node->id == id) {
-
-                if (node_prev)          node_prev->next = node->next;
-                if (node == list.first) list.first      = node->next;
-                if (node == list.last)  list.last       = node_prev;
-
-                // the node memory stays in the arena
-                node->next = NULL;
-                return(true);
-            }
-
-            node_prev = node;
-        }
-
-        return(false);
-    }
-
-    inline bool
-    asset_dictionary_file_list_load_from_json(
-        asset_dictionary_file_list& list,
-        const json_arr*             arr,
-        const hnd_arena             h_arena) {
-
-        // a missing array is an empty list
-        if (!arr) return(true);
-
-        const u32 count = json_arr_get_count(arr);
-        for (
-            u32 index = 0;
-            index < count;
-            ++index) {
-
-            const json_obj* obj = json_arr_get_obj(arr, index);
-            if (!obj) return(false);
-
-            // the path lives in the json document, which is in the same arena
-            const cchar* path = json_obj_get_cstr(obj, "path");
-            if (!path) return(false);
-
-            const hnd_asset hnd = asset_dictionary_file_list_add_node(list, path, h_arena);
-            if (hnd == INVALID_HANDLE) return(false);
-        }
-
-        return(true);
-    }
-
-    inline u32
-    asset_dictionary_file_list_json_size(
-        const asset_dictionary_file_list& list) {
-
-        // the list name, brackets and whitespace
-        u32 size = 32;
-
-        for (
-            const asset_dictionary_file_node* node = list.first;
-            node != NULL;
-            node = node->next) {
-
-            // every character in the path could be escaped, plus the object syntax
-            const u32 length = cstr_nvar_length(node->path, IFB_CONFIG_FILE_PATH_SIZE);
-            size += (length * 2) + 32;
-        }
-
-        return(size);
-    }
-
-    inline u32
-    asset_dictionary_json_write_cstr(
-        cchar*       buffer,
-        const u32    offset,
-        const cchar* cstr) {
-
-        u32 cursor = offset;
-        for (
-            const cchar* c = cstr;
-            *c != 0;
-            ++c) {
-
-            buffer[cursor] = *c;
-            ++cursor;
-        }
-
-        return(cursor);
-    }
-
-    inline u32
-    asset_dictionary_json_write_path(
-        cchar*       buffer,
-        const u32    offset,
-        const cchar* path) {
-
-        const u32 length = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
-
-        u32 cursor = offset;
-        for (
-            u32 index = 0;
-            index < length && path[index] != 0;
-            ++index) {
-
-            const cchar c = path[index];
-
-            // windows paths are full of backslashes
-            if (c == '"' || c == '\\') {
-                buffer[cursor] = '\\';
-                ++cursor;
-            }
-
-            buffer[cursor] = c;
-            ++cursor;
-        }
-
-        return(cursor);
-    }
-
-    inline u32
-    asset_dictionary_file_list_json_write(
-        const asset_dictionary_file_list& list,
-        const cchar*                      name,
-        const bool                        is_last,
-        cchar*                            buffer,
-        const u32                         offset) {
-
-        u32 cursor = offset;
-
-        cursor = asset_dictionary_json_write_cstr(buffer, cursor, "    \"");
-        cursor = asset_dictionary_json_write_cstr(buffer, cursor, name);
-        cursor = asset_dictionary_json_write_cstr(buffer, cursor, "\": [\n");
-
-        for (
-            const asset_dictionary_file_node* node = list.first;
-            node != NULL;
-            node = node->next) {
-
-            cursor = asset_dictionary_json_write_cstr(buffer, cursor, "        { \"path\": \"");
-            cursor = asset_dictionary_json_write_path(buffer, cursor, node->path);
-            cursor = asset_dictionary_json_write_cstr(buffer, cursor, node->next ? "\" },\n" : "\" }\n");
-        }
-
-        cursor = asset_dictionary_json_write_cstr(buffer, cursor, is_last ? "    ]\n" : "    ],\n");
-
-        return(cursor);
-    }
-
+    //--------------------------------------------------------------------
+    // INTERNAL METHODS 
+    //--------------------------------------------------------------------
+    
     IFB_INTERNAL asset_dictionary*
     asset_dictionary_create(
         const hnd_arena h_arena) {
@@ -364,6 +193,205 @@ namespace ifb {
         }
 
         return(did_remove);
+    }
+
+    //--------------------------------------------------------------------
+    // INLINE METHODS 
+    //--------------------------------------------------------------------
+    
+    inline hnd_asset
+    asset_dictionary_file_list_add_node(
+        asset_dictionary_file_list& list,
+        const cchar*                path,
+        const hnd_arena             h_arena) {
+
+        assert(path);
+        assert(h_arena != INVALID_HANDLE);
+
+        auto node_new = (asset_dictionary_file_node*)arena_push(h_arena, sizeof(asset_dictionary_file_node));
+        if (!node_new) return(INVALID_HANDLE);
+
+        const u32 length = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
+        assert(length != 0);
+
+        node_new->id   = hash_u32((void*)path, length);
+        node_new->path = path;
+        node_new->next = NULL;
+
+        if (list.first == NULL) {
+            assert(list.last == NULL);
+
+            list.first       = node_new;
+            list.last        = node_new;
+        }
+        else {
+            assert(list.last != NULL);
+            if (list.first->next == NULL) {
+                assert(list.first == list.last);
+                list.first->next = node_new;
+            }
+
+            list.last->next = node_new;
+            list.last       = node_new;
+        }
+
+        return(node_new->id);
+    }
+
+    inline bool
+    asset_dictionary_file_list_remove_node(
+        asset_dictionary_file_list& list,
+        const u32                   id) {
+
+        asset_dictionary_file_node* node_prev = NULL;
+
+        for (
+            asset_dictionary_file_node* node = list.first;
+            node != NULL;
+            node = node->next) {
+
+            if (node->id == id) {
+
+                if (node_prev)          node_prev->next = node->next;
+                if (node == list.first) list.first      = node->next;
+                if (node == list.last)  list.last       = node_prev;
+
+                // the node memory stays in the arena
+                node->next = NULL;
+                return(true);
+            }
+
+            node_prev = node;
+        }
+
+        return(false);
+    }
+
+    inline bool
+    asset_dictionary_file_list_load_from_json(
+        asset_dictionary_file_list& list,
+        const json_arr*             arr,
+        const hnd_arena             h_arena) {
+
+        // a missing array is an empty list
+        if (!arr) return(true);
+
+        const u32 count = json_arr_get_count(arr);
+        for (
+            u32 index = 0;
+            index < count;
+            ++index) {
+
+            const json_obj* obj = json_arr_get_obj(arr, index);
+            if (!obj) return(false);
+
+            // the path lives in the json document, which is in the same arena
+            const cchar* path = json_obj_get_cstr(obj, "path");
+            if (!path) return(false);
+
+            const hnd_asset hnd = asset_dictionary_file_list_add_node(list, path, h_arena);
+            if (hnd == INVALID_HANDLE) return(false);
+        }
+
+        return(true);
+    }
+
+
+    inline u32
+    asset_dictionary_file_list_json_size(
+        const asset_dictionary_file_list& list) {
+
+        // the list name, brackets and whitespace
+        u32 size = 32;
+
+        for (
+            const asset_dictionary_file_node* node = list.first;
+            node != NULL;
+            node = node->next) {
+
+            // every character in the path could be escaped, plus the object syntax
+            const u32 length = cstr_nvar_length(node->path, IFB_CONFIG_FILE_PATH_SIZE);
+            size += (length * 2) + 32;
+        }
+
+        return(size);
+    }
+
+    inline u32
+    asset_dictionary_json_write_cstr(
+        cchar*       buffer,
+        const u32    offset,
+        const cchar* cstr) {
+
+        u32 cursor = offset;
+        for (
+            const cchar* c = cstr;
+            *c != 0;
+            ++c) {
+
+            buffer[cursor] = *c;
+            ++cursor;
+        }
+
+        return(cursor);
+    }
+
+    inline u32
+    asset_dictionary_json_write_path(
+        cchar*       buffer,
+        const u32    offset,
+        const cchar* path) {
+
+        const u32 length = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
+
+        u32 cursor = offset;
+        for (
+            u32 index = 0;
+            index < length && path[index] != 0;
+            ++index) {
+
+            const cchar c = path[index];
+
+            // windows paths are full of backslashes
+            if (c == '"' || c == '\\') {
+                buffer[cursor] = '\\';
+                ++cursor;
+            }
+
+            buffer[cursor] = c;
+            ++cursor;
+        }
+
+        return(cursor);
+    }
+
+    inline u32
+    asset_dictionary_file_list_json_write(
+        const asset_dictionary_file_list& list,
+        const cchar*                      name,
+        const bool                        is_last,
+        cchar*                            buffer,
+        const u32                         offset) {
+
+        u32 cursor = offset;
+
+        cursor = asset_dictionary_json_write_cstr(buffer, cursor, "    \"");
+        cursor = asset_dictionary_json_write_cstr(buffer, cursor, name);
+        cursor = asset_dictionary_json_write_cstr(buffer, cursor, "\": [\n");
+
+        for (
+            const asset_dictionary_file_node* node = list.first;
+            node != NULL;
+            node = node->next) {
+
+            cursor = asset_dictionary_json_write_cstr(buffer, cursor, "        { \"path\": \"");
+            cursor = asset_dictionary_json_write_path(buffer, cursor, node->path);
+            cursor = asset_dictionary_json_write_cstr(buffer, cursor, node->next ? "\" },\n" : "\" }\n");
+        }
+
+        cursor = asset_dictionary_json_write_cstr(buffer, cursor, is_last ? "    ]\n" : "    ],\n");
+
+        return(cursor);
     }
 
 };
