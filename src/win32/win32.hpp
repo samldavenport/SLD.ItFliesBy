@@ -2,12 +2,18 @@
 #define WIN32_HPP
 
 #include <Windows.h>
+#include <ShObjIdl.h>
 #include "ifb.hpp"
 
 #define IFB_WIN32_API_FUNC
 #define IFB_WIN32_INTERNAL static
 
 namespace ifb {
+
+    struct pfm_context {
+        IFileOpenDialog* dlg_file_open;
+        IFileSaveDialog* dlg_file_save;
+    } static _pfm_ctx;
 
     struct win32_window {
         LPWNDCLASS  class_type;
@@ -38,7 +44,22 @@ namespace ifb {
     input_keycode
     win32_input_get_keycode(
         const DWORD wparam);
-    
+   
+    u32 
+    win32_util_cstr_to_wstr(
+        const u32    c_str_len,
+        const cchar* c_str_ptr,
+        const u32    w_str_size,
+        wchar*       w_str_ptr
+    );
+
+    u32
+    win32_util_wstr_to_cstr(
+        const u32    w_str_len,
+        const wchar* w_str_ptr,
+        const u32    c_str_size,
+        cchar*       c_str_ptr
+    );
 };
 
 #endif //WIN32_HPP

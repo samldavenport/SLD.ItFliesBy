@@ -26,10 +26,12 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
+    struct pfm_context;
     struct pfm_window_context;
     struct pfm_window_config;
     struct pfm_file_config;
     struct pfm_file_buffer;
+    struct pfm_file_dialog;
     struct pfm_monitor_info;
     struct pfm_monitor_area;
     struct pfm_memory_info;
@@ -72,6 +74,15 @@ namespace ifb {
         pfm_file_mode_e_open_always               = 2, 
         pfm_file_mode_e_overwrite_existing        = 3 
     };
+
+    
+    //--------------------------------------------------------------------
+    // context 
+    //--------------------------------------------------------------------
+    
+    IFB_PLATFORM_API void pfm_context_startup  (void);
+    IFB_PLATFORM_API void pfm_context_shutdown (void);
+
     //--------------------------------------------------------------------
     // WINDOW
     //--------------------------------------------------------------------
@@ -115,12 +126,19 @@ namespace ifb {
     IFB_PLATFORM_API pfm_hnd_file pfm_file_open_async_r  (const cchar*  path);
     IFB_PLATFORM_API pfm_hnd_file pfm_file_open_async_w  (const cchar*  path);
     IFB_PLATFORM_API pfm_hnd_file pfm_file_open_async_rw (const cchar*  path);
-    IFB_PLATFORM_API u32             pfm_file_size          (const pfm_hnd_file file);
-    IFB_PLATFORM_API void            pfm_file_close         (const pfm_hnd_file file);
-    IFB_PLATFORM_API u32             pfm_file_read          (const pfm_hnd_file file, pfm_file_buffer* buffer);
-    IFB_PLATFORM_API u32             pfm_file_write         (const pfm_hnd_file file, pfm_file_buffer* buffer);
-    IFB_PLATFORM_API u32             pfm_file_async_read    (const pfm_hnd_file file, pfm_file_buffer* buffer);
-    IFB_PLATFORM_API u32             pfm_file_async_write   (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API u32          pfm_file_size          (const pfm_hnd_file file);
+    IFB_PLATFORM_API void         pfm_file_close         (const pfm_hnd_file file);
+    IFB_PLATFORM_API u32          pfm_file_read          (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API u32          pfm_file_write         (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API u32          pfm_file_async_read    (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API u32          pfm_file_async_write   (const pfm_hnd_file file, pfm_file_buffer* buffer);
+
+    //--------------------------------------------------------------------
+    // FILE DIALOG 
+    //--------------------------------------------------------------------
+   
+    IFB_PLATFORM_API bool pfm_file_dialog_open (pfm_file_dialog& dlg);
+    IFB_PLATFORM_API bool pfm_file_dialog_save (pfm_file_dialog& dlg);
 
     //--------------------------------------------------------------------
     // SYSTEM
@@ -172,6 +190,12 @@ namespace ifb {
         u32   length;
         u32   offset;
         u32   cursor;
+    };
+
+    struct pfm_file_dialog {
+        const cchar* path;
+        const cchar* filter_type; 
+        const cchar* filter_desc; 
     };
 
     struct pfm_monitor_info {
