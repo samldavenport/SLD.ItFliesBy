@@ -14,7 +14,19 @@ namespace ifb {
 
         HRESULT hr = 0;
  
-        // cache the dialog
+        // the file types can only be set once per dialog, so every call gets a new one
+        if (_pfm_ctx.dlg_file_open) {
+            _pfm_ctx.dlg_file_open->Release();
+            _pfm_ctx.dlg_file_open = NULL;
+        }
+        hr = CoCreateInstance(
+            CLSID_FileOpenDialog,
+            NULL,
+            CLSCTX_INPROC_SERVER,
+            IID_PPV_ARGS(&_pfm_ctx.dlg_file_open)
+        );
+        assert(SUCCEEDED(hr));
+
         auto win32_dlg = _pfm_ctx.dlg_file_open;
         assert(win32_dlg);
 
@@ -94,7 +106,19 @@ namespace ifb {
 
         HRESULT hr = 0;
 
-        // cache the dialog
+        // the file types can only be set once per dialog, so every call gets a new one
+        if (_pfm_ctx.dlg_file_save) {
+            _pfm_ctx.dlg_file_save->Release();
+            _pfm_ctx.dlg_file_save = NULL;
+        }
+        hr = CoCreateInstance(
+            CLSID_FileSaveDialog,
+            NULL,
+            CLSCTX_INPROC_SERVER,
+            IID_PPV_ARGS(&_pfm_ctx.dlg_file_save)
+        );
+        assert(SUCCEEDED(hr));
+
         auto win32_dlg = _pfm_ctx.dlg_file_save;
         assert(win32_dlg);
 

@@ -22,7 +22,15 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_input_is_key_down(
         const input_keycode keycode) {
-    
+
+        // the gui gets the keyboard when one of its windows is focused or a control is active
+        // the key state is still tracked, so nothing is stuck down when the focus comes back
+        const bool is_gui_focused = (
+            ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow) ||
+            ImGui::GetIO().WantCaptureKeyboard
+        );
+        if (is_gui_focused) return(false);
+
         const bool is_key_down = keyboard_is_key_down(keycode);
         return(is_key_down);
     }

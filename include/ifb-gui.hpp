@@ -35,7 +35,8 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_particle_system (bool& is_open);
 
     // game
-    IFB_INTERNAL void  gui_game_player_rig    (bool& is_open);
+    IFB_INTERNAL void  gui_game_player_rig       (bool& is_open);
+    IFB_INTERNAL void  gui_game_asset_dictionary (bool& is_open);
 
     // entities
     IFB_INTERNAL void  gui_entity_manager     (bool& is_open);
@@ -43,6 +44,7 @@ namespace ifb {
 
     // renderer
     IFB_INTERNAL void  gui_renderer_camera    (bool& is_open);
+
 
     // controls
     IFB_INTERNAL void  gui_control_vec3       (const char* name, vec3& v);

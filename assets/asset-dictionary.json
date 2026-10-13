@@ -1,0 +1,8 @@
+{
+    "text": [
+    ],
+    "image": [
+        { "name": "CONNOR", "path": "images/connor.png" },
+        { "name": "JIG", "path": "images/jig.png" }
+    ]
+}
