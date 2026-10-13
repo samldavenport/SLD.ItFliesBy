@@ -13,7 +13,7 @@ namespace ifb {
     struct pfm_context {
         IFileOpenDialog* dlg_file_open;
         IFileSaveDialog* dlg_file_save;
-    } static * _pfm_ctx;
+    } static _pfm_ctx;
 
     struct win32_window {
         LPWNDCLASS  class_type;
@@ -50,7 +50,15 @@ namespace ifb {
         const u32    c_str_len,
         const cchar* c_str_ptr,
         const u32    w_str_size,
-        wchar*       w_str_ptr 
+        wchar*       w_str_ptr
+    );
+
+    u32
+    win32_util_wstr_to_cstr(
+        const u32    w_str_len,
+        const wchar* w_str_ptr,
+        const u32    c_str_size,
+        cchar*       c_str_ptr
     );
 };
 

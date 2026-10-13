@@ -15,7 +15,7 @@
 
 namespace ifb {
     
-    IFB_INTERNAL void
+    IFB_PLATFORM_API void
     pfm_context_startup(void) {
 
         HRESULT hr = 0;
@@ -29,7 +29,7 @@ namespace ifb {
             CLSID_FileOpenDialog,
             NULL,
             CLSCTX_INPROC_SERVER,
-            IID_PPV_ARGS(&_pfm_ctx->dlg_file_open)
+            IID_PPV_ARGS(&_pfm_ctx.dlg_file_open)
         );
         assert(SUCCEEDED(hr));
     
@@ -38,7 +38,7 @@ namespace ifb {
             CLSID_FileSaveDialog,
             NULL,
             CLSCTX_INPROC_SERVER,
-            IID_PPV_ARGS(&_pfm_ctx->dlg_file_save)
+            IID_PPV_ARGS(&_pfm_ctx.dlg_file_save)
         );
         assert(SUCCEEDED(hr));
     } 
@@ -47,11 +47,14 @@ namespace ifb {
     pfm_context_shutdown(
         void) {
 
-        auto dlg_open = _pfm_ctx->dlg_file_open;
-        auto dlg_save = _pfm_ctx->dlg_file_save;
+        auto dlg_open = _pfm_ctx.dlg_file_open;
+        auto dlg_save = _pfm_ctx.dlg_file_save;
        
         if (dlg_open) dlg_open->Release();
-        if (dlg_save) dlg_open->Release();
+        if (dlg_save) dlg_save->Release();
+
+        _pfm_ctx.dlg_file_open = NULL;
+        _pfm_ctx.dlg_file_save = NULL;
     
         CoUninitialize();
     }
