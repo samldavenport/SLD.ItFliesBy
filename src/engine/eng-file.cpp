@@ -160,4 +160,32 @@ namespace ifb {
         const u32 bytes_written = file_write(hnd.val, buffer_size, buffer_ptr);
         return(bytes_written);
     }
+
+    IFB_ENGINE_API const cchar*
+    eng_file_dialog_open(
+        const cchar* filter_type,
+        const cchar* filter_desc) {
+
+        pfm_file_dialog dlg;
+        dlg.path        = NULL;
+        dlg.filter_type = filter_type;
+        dlg.filter_desc = filter_desc;
+
+        const bool did_select = pfm_file_dialog_open(dlg);
+        return(did_select ? dlg.path : NULL);
+    }
+
+    IFB_ENGINE_API const cchar*
+    eng_file_dialog_save(
+        const cchar* filter_type,
+        const cchar* filter_desc) {
+
+        pfm_file_dialog dlg;
+        dlg.path        = NULL;
+        dlg.filter_type = filter_type;
+        dlg.filter_desc = filter_desc;
+
+        const bool did_select = pfm_file_dialog_save(dlg);
+        return(did_select ? dlg.path : NULL);
+    }
 };

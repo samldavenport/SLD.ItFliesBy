@@ -114,6 +114,27 @@ namespace ifb {
     IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd, const u32 buffer_size);
     IFB_ENGINE_API u32          eng_file_write            (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
+    // the dialogs block until they close, the path is NULL if nothing was selected
+    // the path is only good until the next dialog, and the filter strings are at most 16 characters
+    IFB_ENGINE_API const cchar* eng_file_dialog_open      (const cchar* filter_type, const cchar* filter_desc);
+    IFB_ENGINE_API const cchar* eng_file_dialog_save      (const cchar* filter_type, const cchar* filter_desc);
+
+    //--------------------------------------------------------------------
+    // ASSETS
+    //--------------------------------------------------------------------
+
+    // the engine has one dictionary for editing, it starts out empty
+    // a file is identified by the hash of its name, so names are unique across every type
+    // file paths are relative to the directory of the dictionary, once it has been loaded or saved
+    IFB_ENGINE_API bool      eng_asset_dictionary_new            (void);
+    IFB_ENGINE_API bool      eng_asset_dictionary_load           (const cchar* path);
+    IFB_ENGINE_API bool      eng_asset_dictionary_save           (const cchar* path);
+    IFB_ENGINE_API hnd_asset eng_asset_dictionary_add_file       (const u32 type, const cchar* name, const cchar* path);
+    IFB_ENGINE_API bool      eng_asset_dictionary_remove_file    (const cchar* name);
+    IFB_ENGINE_API u32       eng_asset_dictionary_get_file_count (const u32 type);
+    IFB_ENGINE_API bool      eng_asset_dictionary_get_file_info  (const u32 type, const u32 index, asset_dictionary_file_info& info);
+    IFB_ENGINE_API bool      eng_asset_dictionary_load_preview   (const u32 id, asset_dictionary_preview& preview);
+
     //--------------------------------------------------------------------
     // CAMERA
     //--------------------------------------------------------------------

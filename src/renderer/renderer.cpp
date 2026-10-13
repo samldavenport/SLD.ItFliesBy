@@ -372,6 +372,38 @@ return(did_set);
         return(_renderer->particle_view->gl.texture);
     }
 
+    // one texture for the gui to preview an image, the pixels are rgba8 from the top row down
+    // the texture is an opengl texture id, or 0 if the pixels couldn't be copied
+    IFB_INTERNAL u32
+    renderer_set_asset_preview_texture(
+        const u32   width,
+        const u32   height,
+        const byte* pixels) {
+
+        static gl_texture texture = GL_ID_INVALID;
+
+        assert(_renderer);
+        assert(pixels);
+        if (width == 0 || height == 0) return(GL_ID_INVALID);
+
+        gl_context* gl = _renderer->gl;
+
+        if (texture == GL_ID_INVALID) {
+            texture = gl_texture_create(gl);
+        }
+        if (texture == GL_ID_INVALID) return(GL_ID_INVALID);
+
+        // the storage is the size of the image, then the pixels are copied in
+        if (!gl_texture_set_storage_rgba8(gl, texture, width, height)) return(GL_ID_INVALID);
+
+        glBindTexture   (GL_TEXTURE_2D, texture);
+        glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glBindTexture   (GL_TEXTURE_2D, GL_ID_INVALID);
+
+        const bool did_copy = (glGetError() == GL_NO_ERROR);
+        return(did_copy ? texture : GL_ID_INVALID);
+    }
+
     IFB_INTERNAL const vec3&
     renderer_get_particle_view_camera_origin(
         void) {

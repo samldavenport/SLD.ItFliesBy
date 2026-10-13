@@ -62,6 +62,7 @@ struct renderer_tile_vertex;
     IFB_INTERNAL const vec3& renderer_get_particle_view_camera_target  (void);
     IFB_INTERNAL void        renderer_set_particle_view_camera_origin  (const vec3& origin);
     IFB_INTERNAL void        renderer_set_particle_view_camera_target  (const vec3& target);
+    IFB_INTERNAL u32         renderer_set_asset_preview_texture        (const u32 width, const u32 height, const byte* pixels);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

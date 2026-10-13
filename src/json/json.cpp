@@ -340,6 +340,7 @@ namespace ifb {
             obj->HasMember(name) &&
             (*obj)[name].IsString()
         );
+        if (!can_get) return(NULL);
 
         return((*obj)[name].GetString());
     }

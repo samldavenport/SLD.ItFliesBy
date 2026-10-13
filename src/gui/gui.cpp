@@ -9,7 +9,8 @@
 #include "gui-game-player-rig.cpp"
 #include "imgui.h"
 #include "gui-engine-particle-system.cpp"
-
+#include "gui-game-asset-dictionary.cpp"
+ 
 static bool _gui_is_open;
 
 namespace ifb {
@@ -97,5 +98,6 @@ namespace ifb {
         gui_entity_manager         (entity_manager);
         gui_quad_manager           (quad_manager);
         gui_game_player_rig        (player_rig);
+        gui_game_asset_dictionary  (asset_dictionary);
     }
 };

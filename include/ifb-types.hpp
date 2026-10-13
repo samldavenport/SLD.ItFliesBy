@@ -243,6 +243,25 @@ namespace ifb {
         color_rgba_u32  color_secondary;
     };
 
+    // the strings belong to the dictionary
+    struct asset_dictionary_file_info {
+        const cchar* name;
+        const cchar* path;
+        u32          id;
+        u32          type;
+    };
+
+    // the contents of a dictionary file, only good until the next preview
+    // a text file has the text, an image file has an opengl texture id
+    struct asset_dictionary_preview {
+        u32          type;
+        const cchar* text;
+        b32          is_text_truncated; // the file is bigger than the file buffer
+        u32          texture;
+        u32          width;
+        u32          height;
+    };
+
     // fountains, velocity and gravity are in units per second
     struct particle_parabolic_props {
         vec3 velocity;       // launch direction and speed
