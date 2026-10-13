@@ -140,12 +140,7 @@ namespace ifb {
         phys_mngr_startup        (res_physics);
         map_mngr_startup         (res_tiles);
         particle_mngr_startup    (res_particles);
-        renderer_startup (res_renderer);
-        
-        pfm_file_dialog dlg;
-        dlg.filter_desc = "Text Files";
-        dlg.filter_type = "*.txt";
-        pfm_file_dialog_open(dlg);
+        renderer_startup         (res_renderer);
     }
 
     IFB_ENGINE_API bool 
