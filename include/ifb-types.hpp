@@ -4,6 +4,9 @@
 #include <sld.hpp>
 #include <sld-opengl.hpp>
 #include <sld-math.hpp>
+#include <sld-strings.hpp>
+
+#include "ifb-config.hpp"
 
 using namespace sld;
 
@@ -103,6 +106,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct asset;
+    struct asset_name;
     struct dimensions_2d;
     struct dimensions_3d;
     struct entity;
@@ -128,6 +132,7 @@ namespace ifb {
     IFB_U32(component_type);
     IFB_U32(map_tile_flags_u32);
     IFB_U32(map_color_u32);
+    IFB_U32(asset_type_u32);
     
     IFB_HANDLE(hnd_asset);
     IFB_HANDLE(hnd_arena);
@@ -279,8 +284,33 @@ namespace ifb {
     //--------------------------------------------------------------------
     // ASSET TYPES
     //--------------------------------------------------------------------
-
     
+    struct asset_name {
+        cchar cstr [IFB_CONFIG_ASSET_NAME_SIZE];
+        
+        inline void
+        init(
+            const cchar* cstr) {
+
+            assert(cstr);
+
+            (void)cstr_nvar_copy(
+                cstr,
+                IFB_CONFIG_ASSET_NAME_SIZE,
+                this->cstr,
+                IFB_CONFIG_ASSET_NAME_SIZE
+            );
+        }
+
+        inline hnd_asset
+        to_handle(void) {
+
+            const hnd_asset hnd = hash_u32((void*)cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+            assert(hnd != INVALID_HANDLE);
+
+            return(hnd);
+        }
+    };
 
 
     //--------------------------------------------------------------------
