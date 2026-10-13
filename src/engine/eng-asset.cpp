@@ -152,35 +152,34 @@ namespace ifb {
             path = path_rel;
         }
 
-        // both strings need to fit with a terminator
-        const u32 length_name = cstr_nvar_length(name, IFB_CONFIG_FILE_PATH_SIZE);
-        const u32 length_path = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
-        const bool is_valid   = (
-            length_name != 0                         &&
-            length_path != 0                         &&
-            length_name <  IFB_CONFIG_FILE_PATH_SIZE &&
+        // names are always upper case, and both strings need to fit with a terminator
+        cchar      name_upper[IFB_CONFIG_FILE_PATH_SIZE];
+        const u32  length_name = asset_dictionary_name_to_upper(name, name_upper);
+        const u32  length_path = cstr_nvar_length(path, IFB_CONFIG_FILE_PATH_SIZE);
+        const bool is_valid    = (
+            length_name != 0 &&
+            length_path != 0 &&
             length_path <  IFB_CONFIG_FILE_PATH_SIZE
         );
         if (!is_valid) return(INVALID_HANDLE);
 
-        // the id is the hash of the name, so it has to be unique across every list
-        const u32  id        = hash_u32((void*)name, length_name);
+        // the id is the hash of the upper case name, so it has to be unique across every list
+        const u32  id        = hash_u32((void*)name_upper, length_name);
         const bool is_in_use = (
             eng_asset_dictionary_has_id(dict->text_files,  id) ||
             eng_asset_dictionary_has_id(dict->image_files, id)
         );
         if (is_in_use) return(INVALID_HANDLE);
 
-        // the dictionary doesn't copy strings, so they go in the arena with the node
+        // the dictionary only copies the name, so the path goes in the arena with the node
         const u32    save      = arena_save(state.h_arena);
-        const cchar* name_copy = eng_asset_dictionary_push_cstr(name, length_name);
         const cchar* path_copy = eng_asset_dictionary_push_cstr(path, length_path);
 
         hnd_asset hnd = INVALID_HANDLE;
-        if (name_copy && path_copy) {
+        if (path_copy) {
             hnd = (type == asset_type_e_text)
-                ? asset_dictionary_add_text_file  (dict, name_copy, path_copy, state.h_arena)
-                : asset_dictionary_add_image_file (dict, name_copy, path_copy, state.h_arena);
+                ? asset_dictionary_add_text_file  (dict, name_upper, path_copy, state.h_arena)
+                : asset_dictionary_add_image_file (dict, name_upper, path_copy, state.h_arena);
         }
 
         if (hnd == INVALID_HANDLE) {

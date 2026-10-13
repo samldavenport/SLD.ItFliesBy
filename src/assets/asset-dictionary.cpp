@@ -47,6 +47,7 @@ namespace ifb {
     inline bool      asset_dictionary_file_list_load_from_json (asset_dictionary_file_list& list,const json_arr* arr,const hnd_arena h_arena);
     inline bool      asset_dictionary_file_list_remove_node    (asset_dictionary_file_list& list, const u32 id);
     inline hnd_asset asset_dictionary_file_list_add_node       (asset_dictionary_file_list& list, const cchar* name, const cchar* path, const hnd_arena h_arena);
+    inline u32       asset_dictionary_name_to_upper            (const cchar* name, cchar* name_upper);
     inline u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
 
     //--------------------------------------------------------------------
@@ -184,11 +185,12 @@ namespace ifb {
         assert(dict);
         assert(name);
 
-        const u32 length = cstr_nvar_length(name, IFB_CONFIG_FILE_PATH_SIZE);
-        assert(length != 0);
+        cchar     name_upper[IFB_CONFIG_FILE_PATH_SIZE];
+        const u32 length = asset_dictionary_name_to_upper(name, name_upper);
+        if (length == 0) return(false);
 
-        // files are identified by the hash of their name, same as when they are added
-        const u32 id = hash_u32((void*)name, length);
+        // files are identified by the hash of their upper case name, same as when they are added
+        const u32 id = hash_u32((void*)name_upper, length);
 
         bool did_remove = asset_dictionary_file_list_remove_node(dict->text_files, id);
         if (!did_remove) {
@@ -213,14 +215,25 @@ namespace ifb {
         assert(path);
         assert(h_arena != INVALID_HANDLE);
 
-        auto node_new = (asset_dictionary_file_node*)arena_push(h_arena, sizeof(asset_dictionary_file_node));
-        if (!node_new) return(INVALID_HANDLE);
+        cchar     name_upper[IFB_CONFIG_FILE_PATH_SIZE];
+        const u32 length = asset_dictionary_name_to_upper(name, name_upper);
+        if (length == 0) return(INVALID_HANDLE);
 
-        const u32 length = cstr_nvar_length(name, IFB_CONFIG_FILE_PATH_SIZE);
-        assert(length != 0);
+        // names are always upper case, so the node has its own copy of the name
+        auto node_new  = (asset_dictionary_file_node*)arena_push(h_arena, sizeof(asset_dictionary_file_node));
+        auto name_copy = (cchar*)arena_push(h_arena, length + 1);
+        if (!node_new || !name_copy) return(INVALID_HANDLE);
 
-        node_new->id   = hash_u32((void*)name, length);
-        node_new->name = name;
+        for (
+            u32 index = 0;
+            index <= length;
+            ++index) {
+
+            name_copy[index] = name_upper[index];
+        }
+
+        node_new->id   = hash_u32((void*)name_copy, length);
+        node_new->name = name_copy;
         node_new->path = path;
         node_new->next = NULL;
 
@@ -242,6 +255,35 @@ namespace ifb {
         }
 
         return(node_new->id);
+    }
+
+    // the upper case name needs IFB_CONFIG_FILE_PATH_SIZE characters
+    // the length is 0 if the name is empty or doesn't fit
+    inline u32
+    asset_dictionary_name_to_upper(
+        const cchar* name,
+        cchar*       name_upper) {
+
+        assert(name);
+        assert(name_upper);
+
+        const u32 length = cstr_nvar_length(name, IFB_CONFIG_FILE_PATH_SIZE);
+        if (length == 0 || length >= IFB_CONFIG_FILE_PATH_SIZE) {
+            name_upper[0] = 0;
+            return(0);
+        }
+
+        for (
+            u32 index = 0;
+            index < length;
+            ++index) {
+
+            const cchar c = name[index];
+            name_upper[index] = (c >= 'a' && c <= 'z') ? (c - 32) : c;
+        }
+        name_upper[length] = 0;
+
+        return(length);
     }
 
     inline bool

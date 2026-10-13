@@ -188,6 +188,15 @@ namespace ifb {
             : strlen(file_name);
 
         strncpy_s(state.name, file_name, length);
+
+        // names are always upper case
+        for (
+            char* c = state.name;
+            *c != 0;
+            ++c) {
+
+            if (*c >= 'a' && *c <= 'z') *c -= 32;
+        }
     }
 
     // new, open, and save the dictionary
@@ -258,7 +267,7 @@ namespace ifb {
         ImGui::SeparatorText("Add File");
 
         ImGui::Combo     ("Type", &state.type, _asset_dictionary_type_names, asset_type_e_count);
-        ImGui::InputText ("Name", state.name,  ASSET_DICTIONARY_PATH_SIZE);
+        ImGui::InputText ("Name", state.name,  ASSET_DICTIONARY_PATH_SIZE, ImGuiInputTextFlags_CharsUppercase);
         ImGui::InputText ("Path", state.path,  ASSET_DICTIONARY_PATH_SIZE);
 
         ImGui::SameLine();
