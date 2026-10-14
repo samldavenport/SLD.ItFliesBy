@@ -49,6 +49,7 @@ namespace ifb {
     inline hnd_asset asset_dictionary_file_list_add_node       (asset_dictionary_file_list& list, const cchar* name, const cchar* path, const hnd_arena h_arena);
     inline u32       asset_dictionary_name_to_upper            (const cchar* name, cchar* name_upper);
     inline u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
+    inline u32       asset_dictionary_file_list_count          (const asset_dictionary_file_list& list);
 
     //--------------------------------------------------------------------
     // INTERNAL METHODS 
@@ -198,6 +199,20 @@ namespace ifb {
         }
 
         return(did_remove);
+    }
+
+    IFB_INTERNAL u32
+    asset_dictionary_count_assets(
+        const asset_dictionary* dict) {
+
+        assert(dict);
+
+        const u32 count = (
+            asset_dictionary_file_list_count(dict->text_files) +
+            asset_dictionary_file_list_count(dict->image_files) 
+        );
+
+        return(count);
     }
 
     //--------------------------------------------------------------------
@@ -444,5 +459,23 @@ namespace ifb {
         cursor = asset_dictionary_json_write_cstr(buffer, cursor, is_last ? "    ]\n" : "    ],\n");
 
         return(cursor);
+    }
+    
+    inline u32
+    asset_dictionary_file_list_count(
+        const asset_dictionary_file_list& list) {
+
+        if (list.first == NULL && list.first == NULL) return(0);
+   
+        u32 count = 0;
+        for (
+            auto node = list.first;
+                 node != NULL;
+                 node = node->next) {
+
+            ++count; 
+        }
+
+        return(count);
     }
 };
