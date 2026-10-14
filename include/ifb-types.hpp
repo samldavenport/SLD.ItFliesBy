@@ -119,6 +119,7 @@ namespace ifb {
     struct strong_u32;
     struct tag;
     struct flags;
+    struct text;
 
     using origin_3d        = vec3;       
     using pixel            = color_rgba_u32;
@@ -312,6 +313,10 @@ namespace ifb {
         }
     };
 
+    struct text {
+        cchar* cstr;
+        u32    size;
+    };
 
     //--------------------------------------------------------------------
     // COMPONENT TYPES

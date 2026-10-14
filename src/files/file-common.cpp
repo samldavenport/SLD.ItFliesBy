@@ -55,7 +55,7 @@ namespace ifb {
     IFB_INTERNAL const cchar*
     file_read(
         const hnd_file hnd,
-        const u32         buffer_size) {
+        const u32      buffer_size) {
 
         file_mngr_assert_valid();
         assert(

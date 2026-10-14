@@ -114,8 +114,10 @@ namespace ifb {
     IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd, const u32 buffer_size);
     IFB_ENGINE_API u32          eng_file_write            (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
-    // the dialogs block until they close, the path is NULL if nothing was selected
-    // the path is only good until the next dialog, and the filter strings are at most 16 characters
+    //--------------------------------------------------------------------
+    // FILE DIALOG 
+    //--------------------------------------------------------------------
+
     IFB_ENGINE_API const cchar* eng_file_dialog_open      (const cchar* filter_type, const cchar* filter_desc);
     IFB_ENGINE_API const cchar* eng_file_dialog_save      (const cchar* filter_type, const cchar* filter_desc);
 
@@ -298,6 +300,14 @@ namespace ifb {
     IFB_ENGINE_API u32       eng_arena_size_used (const hnd_arena arena);
     IFB_ENGINE_API void      eng_arena_revert    (const hnd_arena arena, const u32 save);
     IFB_ENGINE_API void*     eng_arena_push      (const hnd_arena arena, const u32 size);
+
+    //--------------------------------------------------------------------
+    // TEXT 
+    //--------------------------------------------------------------------
+  
+    IFB_ENGINE_API u32         eng_text_file_size           (const hnd_file h_txt_file);
+    IFB_ENGINE_API const text* eng_text_file_load_to_arena  (const hnd_file h_txt_file, const hnd_arena h_arena);
+    IFB_ENGINE_API const text* eng_text_file_load_to_memory (const hnd_file h_txt_file, memory& mem);
 
     //--------------------------------------------------------------------
     // IMAGES
