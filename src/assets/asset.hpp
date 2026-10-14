@@ -28,6 +28,7 @@ namespace ifb {
     IFB_INTERNAL hnd_asset         asset_dictionary_add_image_file     (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
     IFB_INTERNAL bool              asset_dictionary_remove_file        (asset_dictionary* dict, const cchar*      name);
     IFB_INTERNAL u32               asset_dictionary_count_assets       (const asset_dictionary* dict);
+    
 
     IFB_INTERNAL asset_database*   asset_database_load                 (const cchar* path, const hnd_arena h_arena);
     IFB_INTERNAL asset_database*   asset_database_build                (const cchar* path, const asset_dictionary* dict, const hnd_arena);

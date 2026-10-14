@@ -1,12 +1,12 @@
 #pragma once
 
 #include "asset.hpp"
+#include "asset-internal.hpp"
 #include "file-common.cpp"
 #include "file-ro.cpp"
 #include "file-wo.cpp"
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
-#include "json.cpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "sld-strings.hpp"
@@ -14,45 +14,7 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // DEFINITIONS 
-    //--------------------------------------------------------------------
-    
-    struct asset_dictionary_file_node {
-        asset_dictionary_file_node* next;
-        const cchar*                path;
-        const cchar*                name;
-        u32                         id;
-    };
-
-    struct asset_dictionary_file_list {
-        asset_dictionary_file_node* first;
-        asset_dictionary_file_node* last;
-    };
-
-    struct asset_dictionary {
-        asset_dictionary_file_list text_files;
-        asset_dictionary_file_list image_files;
-    };
- 
-    //--------------------------------------------------------------------
-    // DECLARATIONS
-    //--------------------------------------------------------------------
-    
-    inline u32       asset_dictionary_json_write_cstr          (cchar* buffer, const u32 offset,const cchar* cstr); 
-    inline u32       asset_dictionary_file_list_json_size      (const asset_dictionary_file_list& list); 
-    inline bool      asset_dictionary_file_list_load_from_json (asset_dictionary_file_list& list,const json_arr* arr,const hnd_arena h_arena);
-    inline bool      asset_dictionary_file_list_remove_node    (asset_dictionary_file_list& list,const u32 id); 
-    inline u32       asset_dictionary_json_write_cstr          (cchar* buffer,const u32 offset, const cchar* cstr); 
-    inline u32       asset_dictionary_file_list_json_size      (const asset_dictionary_file_list& list); 
-    inline bool      asset_dictionary_file_list_load_from_json (asset_dictionary_file_list& list,const json_arr* arr,const hnd_arena h_arena);
-    inline bool      asset_dictionary_file_list_remove_node    (asset_dictionary_file_list& list, const u32 id);
-    inline hnd_asset asset_dictionary_file_list_add_node       (asset_dictionary_file_list& list, const cchar* name, const cchar* path, const hnd_arena h_arena);
-    inline u32       asset_dictionary_name_to_upper            (const cchar* name, cchar* name_upper);
-    inline u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
-    inline u32       asset_dictionary_file_list_count          (const asset_dictionary_file_list& list);
-
-    //--------------------------------------------------------------------
-    // INTERNAL METHODS 
+    // PUBLIC METHODS 
     //--------------------------------------------------------------------
     
     IFB_INTERNAL asset_dictionary*
@@ -216,10 +178,25 @@ namespace ifb {
     }
 
     //--------------------------------------------------------------------
-    // INLINE METHODS 
+    // INTERNAL METHODS 
     //--------------------------------------------------------------------
-    
-    inline hnd_asset
+
+    IFB_INTERNAL const asset_dictionary_file_list*
+    asset_dictionary_get_list(
+        const asset_dictionary* dict,
+        const asset_type_u32    type) {
+
+        assert(dict);
+        assert(type.val < asset_type_e_count);
+
+        switch (type.val) {
+            case asset_type_e_text:  return(&dict->text_files);
+            case asset_type_e_image: return(&dict->image_files);
+            default:                 return(NULL);
+        }
+    }
+
+    IFB_INTERNAL hnd_asset
     asset_dictionary_file_list_add_node(
         asset_dictionary_file_list& list,
         const cchar*                name,
@@ -274,7 +251,7 @@ namespace ifb {
 
     // the upper case name needs IFB_CONFIG_FILE_PATH_SIZE characters
     // the length is 0 if the name is empty or doesn't fit
-    inline u32
+    IFB_INTERNAL u32
     asset_dictionary_name_to_upper(
         const cchar* name,
         cchar*       name_upper) {
@@ -301,7 +278,7 @@ namespace ifb {
         return(length);
     }
 
-    inline bool
+    IFB_INTERNAL bool
     asset_dictionary_file_list_remove_node(
         asset_dictionary_file_list& list,
         const u32                   id) {
@@ -330,7 +307,7 @@ namespace ifb {
         return(false);
     }
 
-    inline bool
+    IFB_INTERNAL bool
     asset_dictionary_file_list_load_from_json(
         asset_dictionary_file_list& list,
         const json_arr*             arr,
@@ -361,7 +338,7 @@ namespace ifb {
     }
 
 
-    inline u32
+    IFB_INTERNAL u32
     asset_dictionary_file_list_json_size(
         const asset_dictionary_file_list& list) {
 
@@ -382,7 +359,7 @@ namespace ifb {
         return(size);
     }
 
-    inline u32
+    IFB_INTERNAL u32
     asset_dictionary_json_write_cstr(
         cchar*       buffer,
         const u32    offset,
@@ -401,7 +378,7 @@ namespace ifb {
         return(cursor);
     }
 
-    inline u32
+    IFB_INTERNAL u32
     asset_dictionary_json_write_path(
         cchar*       buffer,
         const u32    offset,
@@ -430,7 +407,7 @@ namespace ifb {
         return(cursor);
     }
 
-    inline u32
+    IFB_INTERNAL u32
     asset_dictionary_file_list_json_write(
         const asset_dictionary_file_list& list,
         const cchar*                      name,
@@ -461,7 +438,7 @@ namespace ifb {
         return(cursor);
     }
     
-    inline u32
+    IFB_INTERNAL u32
     asset_dictionary_file_list_count(
         const asset_dictionary_file_list& list) {
 

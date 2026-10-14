@@ -5,6 +5,7 @@
 #include "file-rw.cpp"
 #include "ifb-types.hpp"
 #include "memory.hpp"
+#include "files.hpp"
 
 namespace ifb {
     
@@ -12,8 +13,6 @@ namespace ifb {
 
     struct asset_database {
         hnd_file          file_handle;
-        u32               size_total;
-        u32               size_header;
         u32               asset_count;
         hnd_asset*        array_handles;
         asset_name*       array_names;
@@ -76,9 +75,32 @@ namespace ifb {
         assert(db->file_handle != INVALID_HANDLE);
 
         // keep track of how much we write to the file
-        u32 bytes_written = 0;
+        u32 bytes_written  = 0;
+        u32 assets_written = 0; 
 
-        file_write(db->file_handle, sizeof(ASSET_DB_VERIFICATION_CSTR), (void*)ASSET_DB_VERIFICATION_CSTR);
+        // write the string
+        bytes_written += file_write(
+            db->file_handle,
+            sizeof(ASSET_DB_VERIFICATION_CSTR),
+            (byte*)ASSET_DB_VERIFICATION_CSTR
+        );
+  
+        // write the number of assets
+        bytes_written += file_write(db->file_handle, sizeof(u32), (byte*)&bytes_written);
+
+        // write the arrays, as temporary data
+        bytes_written += file_write(db->file_handle, asset_count * sizeof(hnd_asset),   (byte*)db->array_handles);
+        bytes_written += file_write(db->file_handle, asset_count * sizeof(asset_name),  (byte*)db->array_names);
+        bytes_written += file_write(db->file_handle, asset_count * sizeof(asset_index), (byte*)db->array_indexes);
+    
+        // write the text files to the database
+        for (
+            auto node = dict->text_files.first;
+                 node != NULL;
+                 node = node->next) {
+
+            
+        }
     }
 
 };
