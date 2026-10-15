@@ -102,29 +102,6 @@ namespace ifb {
     };
 
     //--------------------------------------------------------------------
-    // STRUCTURED TYPES
-    //--------------------------------------------------------------------
-
-    struct asset;
-    struct asset_name;
-    struct dimensions_2d;
-    struct dimensions_3d;
-    struct entity;
-    struct entity_id;
-    struct entity_tag;
-    struct entity_archetype;
-    struct handle;
-    struct image;
-    struct orientation; 
-    struct strong_u32;
-    struct tag;
-    struct flags;
-    struct text;
-
-    using origin_3d        = vec3;       
-    using pixel            = color_rgba_u32;
-
-    //--------------------------------------------------------------------
     // STRONG TYPES
     //--------------------------------------------------------------------
 
@@ -144,6 +121,9 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
+
+    using origin_3d        = vec3;       
+    using pixel            = color_rgba_u32;
 
     struct dimensions_2d {
         f32 width;
@@ -249,24 +229,6 @@ namespace ifb {
         color_rgba_u32  color_secondary;
     };
 
-    // the strings belong to the dictionary
-    struct asset_dictionary_file_info {
-        const cchar* name;
-        const cchar* path;
-        u32          id;
-        u32          type;
-    };
-
-    // the contents of a dictionary file, only good until the next preview
-    // a text file has the text, an image file has an opengl texture id
-    struct asset_dictionary_preview {
-        u32          type;
-        const cchar* text;
-        b32          is_text_truncated; // the file is bigger than the file buffer
-        u32          texture;
-        u32          width;
-        u32          height;
-    };
 
     // fountains, velocity and gravity are in units per second
     struct particle_parabolic_props {
@@ -316,6 +278,44 @@ namespace ifb {
     struct text {
         cchar* cstr;
         u32    size;
+    };
+
+    struct asset_index {
+        asset_type_u32 type;
+        u32            offset;
+        u32            size;
+    };
+    
+    // the strings belong to the dictionary
+    struct asset_dictionary_file_info {
+        const cchar* name;
+        const cchar* path;
+        u32          id;
+        u32          type;
+    };
+
+    // the contents of a dictionary file, only good until the next preview
+    // a text file has the text, an image file has an opengl texture id
+    struct asset_dictionary_preview {
+        u32          type;
+        const cchar* text;
+        b32          is_text_truncated; // the file is bigger than the file buffer
+        u32          texture;
+        u32          width;
+        u32          height;
+    };
+
+    struct asset_text {
+        hnd_asset hnd;
+        u32       size;
+        cchar*    cstr;
+    };
+
+    struct asset_image {
+        hnd_asset       hnd;
+        u32             width;
+        u32             height;
+        color_rgba_u32* pixels;
     };
 
     //--------------------------------------------------------------------
