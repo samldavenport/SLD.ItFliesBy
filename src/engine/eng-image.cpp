@@ -24,7 +24,8 @@ namespace ifb {
         );
         assert(result == 1);
 
-        const u32 size = (width * height * channels) + sizeof(image);
+        // images are always loaded as rgba, regardless of the channels in the file
+        const u32 size = (width * height * 4) + sizeof(image);
         return(size); 
     }
 

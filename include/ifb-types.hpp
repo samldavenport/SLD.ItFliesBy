@@ -4,6 +4,9 @@
 #include <sld.hpp>
 #include <sld-opengl.hpp>
 #include <sld-math.hpp>
+#include <sld-strings.hpp>
+
+#include "ifb-config.hpp"
 
 using namespace sld;
 
@@ -99,27 +102,6 @@ namespace ifb {
     };
 
     //--------------------------------------------------------------------
-    // STRUCTURED TYPES
-    //--------------------------------------------------------------------
-
-    struct asset;
-    struct dimensions_2d;
-    struct dimensions_3d;
-    struct entity;
-    struct entity_id;
-    struct entity_tag;
-    struct entity_archetype;
-    struct handle;
-    struct image;
-    struct orientation; 
-    struct strong_u32;
-    struct tag;
-    struct flags;
-
-    using origin_3d        = vec3;       
-    using pixel            = color_rgba_u32;
-
-    //--------------------------------------------------------------------
     // STRONG TYPES
     //--------------------------------------------------------------------
 
@@ -128,6 +110,7 @@ namespace ifb {
     IFB_U32(component_type);
     IFB_U32(map_tile_flags_u32);
     IFB_U32(map_color_u32);
+    IFB_U32(asset_type_u32);
     
     IFB_HANDLE(hnd_asset);
     IFB_HANDLE(hnd_arena);
@@ -138,6 +121,9 @@ namespace ifb {
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
+
+    using origin_3d        = vec3;       
+    using pixel            = color_rgba_u32;
 
     struct dimensions_2d {
         f32 width;
@@ -243,6 +229,63 @@ namespace ifb {
         color_rgba_u32  color_secondary;
     };
 
+
+    // fountains, velocity and gravity are in units per second
+    struct particle_parabolic_props {
+        vec3 velocity;       // launch direction and speed
+        vec3 gravity;
+        f32  spread_degrees; // half angle of the launch cone
+    };
+
+    // explosions, speed is in units per second
+    struct particle_radial_props {
+        f32 speed;
+        b32 is_continuous; // spawns until stopped, instead of every particle once per start
+    };
+   
+    
+    //--------------------------------------------------------------------
+    // ASSET TYPES
+    //--------------------------------------------------------------------
+    
+    struct asset_name {
+        cchar cstr [IFB_CONFIG_ASSET_NAME_SIZE];
+        
+        inline void
+        init(
+            const cchar* cstr) {
+
+            assert(cstr);
+
+            (void)cstr_nvar_copy(
+                cstr,
+                IFB_CONFIG_ASSET_NAME_SIZE,
+                this->cstr,
+                IFB_CONFIG_ASSET_NAME_SIZE
+            );
+        }
+
+        inline hnd_asset
+        to_handle(void) {
+
+            const hnd_asset hnd = hash_u32((void*)cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+            assert(hnd != INVALID_HANDLE);
+
+            return(hnd);
+        }
+    };
+
+    struct text {
+        cchar* cstr;
+        u32    size;
+    };
+
+    struct asset_index {
+        asset_type_u32 type;
+        u32            offset;
+        u32            size;
+    };
+    
     // the strings belong to the dictionary
     struct asset_dictionary_file_info {
         const cchar* name;
@@ -262,26 +305,18 @@ namespace ifb {
         u32          height;
     };
 
-    // fountains, velocity and gravity are in units per second
-    struct particle_parabolic_props {
-        vec3 velocity;       // launch direction and speed
-        vec3 gravity;
-        f32  spread_degrees; // half angle of the launch cone
+    struct asset_text {
+        hnd_asset hnd;
+        u32       size;
+        cchar*    cstr;
     };
 
-    // explosions, speed is in units per second
-    struct particle_radial_props {
-        f32 speed;
-        b32 is_continuous; // spawns until stopped, instead of every particle once per start
+    struct asset_image {
+        hnd_asset       hnd;
+        u32             width;
+        u32             height;
+        color_rgba_u32* pixels;
     };
-   
-    
-    //--------------------------------------------------------------------
-    // ASSET TYPES
-    //--------------------------------------------------------------------
-
-    
-
 
     //--------------------------------------------------------------------
     // COMPONENT TYPES

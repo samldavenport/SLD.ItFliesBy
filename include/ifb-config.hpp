@@ -5,6 +5,7 @@
 
 using namespace sld;
 
+#define IFB_CONFIG_ASSET_NAME_SIZE           16
 #define IFB_CONFIG_BUILD_MODE                0
 #define IFB_CONFIG_WINDOW_TITLE_DEBUG        "It Flies By (Debug)"
 #define IFB_CONFIG_WINDOW_TITLE_RELEASE      "It Flies By"
@@ -50,6 +51,7 @@ namespace ifb {
     };
 
     struct config {
+        static constexpr u32   asset_name_size          = IFB_CONFIG_ASSET_NAME_SIZE;
         static constexpr u32   build_mode               = IFB_CONFIG_BUILD_MODE;
         static constexpr u32   window_start_width       = IFB_CONFIG_WINDOW_START_WIDTH;
         static constexpr u32   window_start_height      = IFB_CONFIG_WINDOW_START_HEIGHT;

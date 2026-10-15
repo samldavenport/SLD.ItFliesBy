@@ -76,8 +76,8 @@ target_include_directories(ifb_engine
 
 # ifb.hpp includes the sld and imgui headers, so consumers need them too
 target_link_libraries(ifb_engine
-    PUBLIC  SLD::Core SLD::OpenGL SLD::Math imgui::imgui
-    PRIVATE SLD::Strings rapidjson user32 gdi32
+    PUBLIC  SLD::Core SLD::OpenGL SLD::Math SLD::Strings imgui::imgui
+    PRIVATE rapidjson user32 gdi32
 )
 
 #--------------------------------------------------------------------

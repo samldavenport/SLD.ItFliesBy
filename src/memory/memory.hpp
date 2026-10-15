@@ -5,6 +5,9 @@
 #include "ifb-platform.hpp"
 #include "ifb.hpp"
 
+#define ifb_arena_push_struct(h_arena, type)        (type*)arena_push(h_arena, sizeof(type))
+#define ifb_arena_push_array(h_arena, count, type)  (type*)arena_push(h_arena, count * sizeof(type))
+
 namespace ifb {
 
     //--------------------------------------------------------------------

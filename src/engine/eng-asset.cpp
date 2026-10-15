@@ -4,7 +4,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
 #include "asset.hpp"
-#include "asset-dictionary.cpp"
+#include "asset-internal.hpp"
 #include "files.hpp"
 #include "memory.hpp"
 #include "renderer.hpp"
@@ -389,13 +389,9 @@ namespace ifb {
         const u32 type) {
 
         const asset_dictionary* dict = eng_asset_dictionary_get();
-        if (!dict) return(NULL);
 
-        switch (type) {
-            case asset_type_e_text:  return(&dict->text_files);
-            case asset_type_e_image: return(&dict->image_files);
-            default:                 return(NULL);
-        }
+        const asset_dictionary_file_list* list = asset_dictionary_get_list(dict, type);  
+        return(list);
     }
 
     IFB_INLINE bool
