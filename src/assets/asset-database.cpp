@@ -366,29 +366,21 @@ namespace ifb {
     inline bool
     asset_database_find(
         const asset_database* db,
-        const cchar*          name_cstr,
         const hnd_asset       h_asset,
         const asset_type_e    type,
-        hnd_asset&            hnd,
         asset_index&          index) {
 
-        // use the handle if we have one, otherwise hash the name
-        hnd = (h_asset != INVALID_HANDLE)
-            ? h_asset
-            : asset_database_handle_of(name_cstr);
-
         const bool is_valid = (
-            hnd != INVALID_HANDLE                   &&
-            asset_database_index_of(db, hnd, index) &&
+            h_asset != INVALID_HANDLE                   &&
+            asset_database_index_of(db, h_asset, index) &&
             index.type == type
         );
         return(is_valid);
     }
 
     IFB_INTERNAL const asset_text*
-    asset_database_load_text(
+    asset_database_load_text_by_handle(
         const asset_database* db,
-        const cchar*          name_cstr,
         const hnd_asset       h_asset,
         const hnd_arena       h_arena) {
 
@@ -398,12 +390,10 @@ namespace ifb {
         assert(db->array_indexes != NULL);
         assert(db->array_names   != NULL);
         assert(db->asset_count   != 0);
-        assert(name_cstr != NULL || h_asset != INVALID_HANDLE);
-        assert(h_arena   != INVALID_HANDLE);
+        assert(h_arena           != INVALID_HANDLE);
 
-        hnd_asset   hnd;
         asset_index index;
-        if (!asset_database_find(db, name_cstr, h_asset, asset_type_e_text, hnd, index)) {
+        if (!asset_database_find(db, h_asset, asset_type_e_text, index)) {
             return(NULL);
         }
 
@@ -424,7 +414,7 @@ namespace ifb {
         }
         zero_memory((void*)txt, size_push);
 
-        txt->hnd  = hnd;
+        txt->hnd  = h_asset;
         txt->size = size;
         txt->cstr = ((cchar*)txt) + sizeof(asset_text);
 
@@ -440,10 +430,26 @@ namespace ifb {
         return(txt);
     }
 
-    IFB_INTERNAL const asset_image*
-    asset_database_load_image(
+    IFB_INTERNAL const asset_text*
+    asset_database_load_text_by_name(
         const asset_database* db,
         const cchar*          name_cstr,
+        const hnd_arena       h_arena) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_text* txt = asset_database_load_text_by_handle(db, h_asset, h_arena);
+        return(txt);
+    }
+
+    IFB_INTERNAL const asset_image*
+    asset_database_load_image_by_handle(
+        const asset_database* db,
         const hnd_asset       h_asset,
         const hnd_arena       h_arena) {
 
@@ -453,12 +459,10 @@ namespace ifb {
         assert(db->array_indexes != NULL);
         assert(db->array_names   != NULL);
         assert(db->asset_count   != 0);
-        assert(name_cstr != NULL || h_asset != INVALID_HANDLE);
-        assert(h_arena   != INVALID_HANDLE);
+        assert(h_arena           != INVALID_HANDLE);
 
-        hnd_asset   hnd;
         asset_index index;
-        if (!asset_database_find(db, name_cstr, h_asset, asset_type_e_image, hnd, index)) {
+        if (!asset_database_find(db, h_asset, asset_type_e_image, index)) {
             return(NULL);
         }
 
@@ -482,7 +486,7 @@ namespace ifb {
             return(NULL);
         }
 
-        img->hnd    = hnd;
+        img->hnd    = h_asset;
         img->width  = width;
         img->height = height;
         img->pixels = (color_rgba_u32*)(((byte*)img) + sizeof(asset_image));
@@ -496,6 +500,23 @@ namespace ifb {
             }
         }
 
+        return(img);
+    }
+
+    IFB_INTERNAL const asset_image*
+    asset_database_load_image_by_name(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        const hnd_arena       h_arena) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_image* img = asset_database_load_image_by_handle(db, h_asset, h_arena);
         return(img);
     }
 };
