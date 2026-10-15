@@ -17,6 +17,7 @@ namespace ifb {
     static constexpr u32 QUAD_VERTEX_COUNT      = 4;
     static constexpr u32 QUAD_ELEMENT_COUNT     = 6;
 static constexpr u32 QUAD_ELEMENT_DATA_SIZE = sizeof(u32) * QUAD_ELEMENT_COUNT;
+    static constexpr u32 RENDERER_ASSET_PREVIEW_COUNT = 2; // one texture for each window that previews assets
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -62,7 +63,7 @@ struct renderer_tile_vertex;
     IFB_INTERNAL const vec3& renderer_get_particle_view_camera_target  (void);
     IFB_INTERNAL void        renderer_set_particle_view_camera_origin  (const vec3& origin);
     IFB_INTERNAL void        renderer_set_particle_view_camera_target  (const vec3& target);
-    IFB_INTERNAL u32         renderer_set_asset_preview_texture        (const u32 width, const u32 height, const byte* pixels);
+    IFB_INTERNAL u32         renderer_set_asset_preview_texture        (const u32 slot, const u32 width, const u32 height, const byte* pixels);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

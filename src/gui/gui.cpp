@@ -10,6 +10,7 @@
 #include "imgui.h"
 #include "gui-engine-particle-system.cpp"
 #include "gui-game-asset-dictionary.cpp"
+#include "gui-game-asset-database.cpp"
  
 static bool _gui_is_open;
 
@@ -53,6 +54,7 @@ namespace ifb {
         static bool quad_manager        = false;
         static bool player_rig          = false;
         static bool asset_dictionary    = false;
+        static bool asset_datatbase     = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -71,6 +73,7 @@ namespace ifb {
                 if (ImGui::BeginMenu(_gui_str->menu_game_menu_assets)) {
                     
                     ImGui::MenuItem(_gui_str->menu_game_menu_assets_item_dictionary, NULL, &asset_dictionary);
+                    ImGui::MenuItem(_gui_str->menu_game_menu_assets_item_database,   NULL, &asset_datatbase);
                     ImGui::EndMenu();
                 }
 
@@ -99,5 +102,6 @@ namespace ifb {
         gui_quad_manager           (quad_manager);
         gui_game_player_rig        (player_rig);
         gui_game_asset_dictionary  (asset_dictionary);
+        gui_game_asset_database    (asset_datatbase);
     }
 };

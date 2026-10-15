@@ -54,7 +54,7 @@ namespace ifb {
         bool                     is_selected;
         bool                     is_preview_loaded;
         u32                      selected_id;
-        asset_dictionary_preview preview;
+        asset_preview            preview;
     } static _asset_dictionary;
 
     //--------------------------------------------------------------------
@@ -69,6 +69,7 @@ namespace ifb {
     IFB_INLINE void asset_dictionary_table          (const u32 type);
     IFB_INLINE void asset_dictionary_select         (const u32 id);
     IFB_INLINE void asset_dictionary_preview_file   (void);
+    IFB_INLINE void gui_asset_preview               (const char* str_id, const asset_preview& preview);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -412,7 +413,14 @@ namespace ifb {
             return;
         }
 
-        const asset_dictionary_preview& preview = state.preview;
+        gui_asset_preview("asset-dictionary-preview", state.preview);
+    }
+
+    // text in a scrolling box, or an image scaled down to fit
+    IFB_INLINE void
+    gui_asset_preview(
+        const char*          str_id,
+        const asset_preview& preview) {
 
         if (preview.type == asset_type_e_text) {
 
@@ -420,7 +428,7 @@ namespace ifb {
                 ImGui::TextUnformatted("The file is too big, this is only the start of it");
             }
 
-            if (ImGui::BeginChild("asset-dictionary-preview-text", ImVec2(0.0f, ASSET_DICTIONARY_PREVIEW_HEIGHT), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar)) {
+            if (ImGui::BeginChild(str_id, ImVec2(0.0f, ASSET_DICTIONARY_PREVIEW_HEIGHT), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar)) {
                 ImGui::TextUnformatted(preview.text);
             }
             ImGui::EndChild();

@@ -135,7 +135,18 @@ namespace ifb {
     IFB_ENGINE_API bool      eng_asset_dictionary_remove_file    (const cchar* name);
     IFB_ENGINE_API u32       eng_asset_dictionary_get_file_count (const u32 type);
     IFB_ENGINE_API bool      eng_asset_dictionary_get_file_info  (const u32 type, const u32 index, asset_dictionary_file_info& info);
-    IFB_ENGINE_API bool      eng_asset_dictionary_load_preview   (const u32 id, asset_dictionary_preview& preview);
+    IFB_ENGINE_API bool      eng_asset_dictionary_load_preview   (const u32 id, asset_preview& preview);
+
+    // the engine has one database for viewing, it stays open until another one is loaded or built
+    // building reads a dictionary file, so the paths are relative to it, and opens the new database
+    // the error says why the last build or load failed
+    IFB_ENGINE_API bool         eng_asset_database_build        (const cchar* path_dictionary, const cchar* path_database);
+    IFB_ENGINE_API bool         eng_asset_database_load         (const cchar* path);
+    IFB_ENGINE_API void         eng_asset_database_close        (void);
+    IFB_ENGINE_API const cchar* eng_asset_database_get_error    (void);
+    IFB_ENGINE_API u32          eng_asset_database_get_count    (void);
+    IFB_ENGINE_API bool         eng_asset_database_get_info     (const u32 index, asset_database_info& info);
+    IFB_ENGINE_API bool         eng_asset_database_load_preview (const u32 index, asset_preview& preview);
 
     //--------------------------------------------------------------------
     // CAMERA
