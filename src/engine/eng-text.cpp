@@ -35,7 +35,7 @@ namespace ifb {
             zero_memory((void*)txt, size_push);
 
             txt->size = size_file;
-            txt->cstr = ((char*)txt) + size_file;
+            txt->cstr = ((char*)txt) + sizeof(text);
 
             const cchar* file_buf = file_read(h_txt_file, size_file);
             (void)memmove(

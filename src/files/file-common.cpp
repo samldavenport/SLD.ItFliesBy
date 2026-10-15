@@ -88,6 +88,36 @@ namespace ifb {
         return((const cchar*)file_buffer.data);
     }
 
+    IFB_INTERNAL u32
+    file_read_to_buffer(
+        const hnd_file hnd,
+        const u32      buffer_size,
+        byte*          buffer_ptr) {
+
+        file_mngr_assert_valid();
+        assert(
+            hnd         != FILE_HANDLE_INVALID &&
+            buffer_size != 0                   &&
+            buffer_ptr  != NULL
+        );
+
+        const u32 index  = file_mngr_index_of_internal_handle (hnd);
+
+        // read directly into the caller's buffer, so we aren't limited by the file granularity
+        pfm_file_buffer file_buffer;
+        file_buffer.data   = buffer_ptr;
+        file_buffer.size   = buffer_size;
+        file_buffer.length = 0;
+        file_buffer.offset = 0;
+        file_buffer.cursor = _file_mngr->array.cursor[index];
+
+        const pfm_hnd_file hnd_pfm   = _file_mngr->array.handle_platform[index];
+        const u32          io_length = pfm_file_read(hnd_pfm, &file_buffer);
+
+        _file_mngr->array.io_length[index] = io_length;
+        return(io_length);
+    }
+
     IFB_INTERNAL u32 
     file_write(
         const hnd_file hnd,
@@ -111,7 +141,7 @@ namespace ifb {
         file_buffer.cursor = _file_mngr->array.cursor[index];
 
         const pfm_hnd_file hnd_pfm   = _file_mngr->array.handle_platform[index];
-        const u32             io_length = pfm_file_write(hnd_pfm, &file_buffer);
+        const u32          io_length = pfm_file_write(hnd_pfm, &file_buffer);
 
         _file_mngr->array.io_length[index] = io_length;
         return(io_length);

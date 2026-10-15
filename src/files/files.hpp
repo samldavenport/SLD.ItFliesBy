@@ -60,6 +60,7 @@ namespace ifb {
     IFB_INTERNAL u32           file_get_size                      (const hnd_file hnd);
     IFB_INTERNAL void          file_set_cursor                    (const hnd_file hnd, const u32 cursor);
     IFB_INTERNAL const cchar*  file_read                          (const hnd_file hnd, const u32 buffer_size);
+    IFB_INTERNAL u32           file_read_to_buffer                (const hnd_file hnd, const u32 buffer_size, byte* buffer_ptr);
     IFB_INTERNAL u32           file_write                         (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
