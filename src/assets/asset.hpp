@@ -18,8 +18,7 @@ namespace ifb {
     struct asset_image;
     
     IFB_INTERNAL asset_mngr*        asset_mngr_create                   (void);
-    IFB_INTERNAL void               asset_mngr_init                     (asset_mngr* mngr, reservation* res);
-    IFB_INTERNAL bool               asset_mngr_load_database            (asset_mngr* mngr, asset_database* db);
+    IFB_INTERNAL void               asset_mngr_startup                  (asset_mngr* mngr, reservation* res);
     
     IFB_INTERNAL asset_dictionary*  asset_dictionary_create             (const hnd_arena arena);
     IFB_INTERNAL asset_dictionary*  asset_dictionary_load_from_json     (const cchar*    path,const hnd_arena h_arena);

@@ -5,37 +5,40 @@
 
 using namespace sld;
 
-#define IFB_CONFIG_ASSET_NAME_SIZE           16
-#define IFB_CONFIG_BUILD_MODE                0
-#define IFB_CONFIG_WINDOW_TITLE_DEBUG        "It Flies By (Debug)"
-#define IFB_CONFIG_WINDOW_TITLE_RELEASE      "It Flies By"
-#define IFB_CONFIG_WINDOW_TITLE_SIZE         32
-#define IFB_CONFIG_WINDOW_START_WIDTH        1024
-#define IFB_CONFIG_WINDOW_START_HEIGHT       768
-#define IFB_CONFIG_WINDOW_MAX_KEYS           8
-#define IFB_CONFIG_DEFAULT_FPS               240 
-#define IFB_CONFIG_MEMORY_RES_SIZE_CORE      size_megabytes(64)
-#define IFB_CONFIG_MEMORY_RES_SIZE_FILES     size_megabytes(64)
-#define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING size_megabytes(64)
-#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS    size_megabytes(128)
-#define IFB_CONFIG_FILE_PATH_SIZE            256              
-#define IFB_CONFIG_FILE_COUNT                64              
-#define IFB_CONFIG_FILE_GRANULARITY          size_kilobytes(64)              
-#define IFB_CONFIG_RENDERER_MEM_GRANULARITY  size_kilobytes(64)
-#define IFB_CONFIG_ARENA_MEM_GRANULARITY     size_megabytes(1)
-#define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100  0.75f
-#define IFB_CONFIG_ENTITY_CAPACITY           1024
-#define IFB_CONFIG_QUAD_MAX                  1024
-#define IFB_CONFIG_PHYSICS_WORLD_SIZE        size_kilobytes(64)
-#define IFB_CONFIG_PHYSICS_WORLD_COUNT       8
-#define IFB_CONFIG_MAP_CAPACITY              64 
-#define IFB_CONFIG_MAP_TILE_UNIT_SIZE        0.2
-#define IFB_CONFIG_MAP_CHUNK_CAPACITY        64 
-#define IFB_CONFIG_MAP_TILE_CAPACITY         1024
-#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE    size_kilobytes(64) 
-#define IFB_CONFIG_PARTICLE_BUFFER_COUNT     128
-#define IFB_CONFIG_RANDOM_TABLE_COUNT        1024
-#define IFB_CONFIG_RANDOM_REFRESH_FRAMES      60
+#define IFB_CONFIG_ASSET_NAME_SIZE                16
+#define IFB_CONFIG_ASSET_PARTITION_COUNT          64 
+#define IFB_CONFIG_ASSET_PARTITION_SIZE           size_megabytes(1)
+#define IFB_CONFIG_ASSET_PARTITION_BLOCK_CAPACITY 256 
+#define IFB_CONFIG_BUILD_MODE                     0
+#define IFB_CONFIG_WINDOW_TITLE_DEBUG             "It Flies By (Debug)"
+#define IFB_CONFIG_WINDOW_TITLE_RELEASE           "It Flies By"
+#define IFB_CONFIG_WINDOW_TITLE_SIZE              32
+#define IFB_CONFIG_WINDOW_START_WIDTH             1024
+#define IFB_CONFIG_WINDOW_START_HEIGHT            768
+#define IFB_CONFIG_WINDOW_MAX_KEYS                8
+#define IFB_CONFIG_DEFAULT_FPS                    240 
+#define IFB_CONFIG_MEMORY_RES_SIZE_CORE           size_megabytes(64)
+#define IFB_CONFIG_MEMORY_RES_SIZE_FILES          size_megabytes(64)
+#define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING      size_megabytes(64)
+#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS         size_megabytes(128)
+#define IFB_CONFIG_FILE_PATH_SIZE                 256              
+#define IFB_CONFIG_FILE_COUNT                     64              
+#define IFB_CONFIG_FILE_GRANULARITY               size_kilobytes(64)              
+#define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
+#define IFB_CONFIG_ARENA_MEM_GRANULARITY          size_megabytes(1)
+#define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100       0.75f
+#define IFB_CONFIG_ENTITY_CAPACITY                1024
+#define IFB_CONFIG_QUAD_MAX                       1024
+#define IFB_CONFIG_PHYSICS_WORLD_SIZE             size_kilobytes(64)
+#define IFB_CONFIG_PHYSICS_WORLD_COUNT            8
+#define IFB_CONFIG_MAP_CAPACITY                   64 
+#define IFB_CONFIG_MAP_TILE_UNIT_SIZE             0.2
+#define IFB_CONFIG_MAP_CHUNK_CAPACITY             64 
+#define IFB_CONFIG_MAP_TILE_CAPACITY              1024
+#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE         size_kilobytes(64) 
+#define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
+#define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
+#define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -51,34 +54,37 @@ namespace ifb {
     };
 
     struct config {
-        static constexpr u32   asset_name_size          = IFB_CONFIG_ASSET_NAME_SIZE;
-        static constexpr u32   build_mode               = IFB_CONFIG_BUILD_MODE;
-        static constexpr u32   window_start_width       = IFB_CONFIG_WINDOW_START_WIDTH;
-        static constexpr u32   window_start_height      = IFB_CONFIG_WINDOW_START_HEIGHT;
-        static constexpr u32   window_max_keys          = IFB_CONFIG_WINDOW_MAX_KEYS;
-        static constexpr u32   default_fps              = IFB_CONFIG_DEFAULT_FPS;
-        static constexpr u32   memory_size_core         = IFB_CONFIG_MEMORY_RES_SIZE_CORE;
-        static constexpr u32   memory_size_files        = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
-        static constexpr u32   memory_size_rendering    = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
-        static constexpr u32   memory_size_arenas       = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
-        static constexpr u32   file_path_size           = IFB_CONFIG_FILE_PATH_SIZE; 
-        static constexpr u32   file_count               = IFB_CONFIG_FILE_COUNT;
-        static constexpr u32   file_granularity         = IFB_CONFIG_FILE_GRANULARITY;
-        static constexpr u32   renderer_mem_granularity = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
-        static constexpr u32   arena_granularity        = IFB_CONFIG_ARENA_MEM_GRANULARITY;
-        static constexpr f32   sparse_set_max_load_p100 = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
-        static constexpr u32   entity_capacity          = IFB_CONFIG_ENTITY_CAPACITY;
-        static constexpr u32   quad_capacity            = IFB_CONFIG_QUAD_MAX;
-        static constexpr u32   physics_world_size       = IFB_CONFIG_PHYSICS_WORLD_SIZE;
-        static constexpr u32   physics_world_count      = IFB_CONFIG_PHYSICS_WORLD_COUNT;
-        static constexpr u32   map_capacity             = IFB_CONFIG_MAP_CAPACITY;
-        static constexpr f32   map_tile_unit_size       = IFB_CONFIG_MAP_TILE_UNIT_SIZE;
-        static constexpr u32   map_tile_capacity        = IFB_CONFIG_MAP_TILE_CAPACITY;
-        static constexpr u32   map_chunk_capacity       = IFB_CONFIG_MAP_CHUNK_CAPACITY;
-        static constexpr u32   map_render_buffer_size   = IFB_CONFIG_MAP_RENDER_BUFFER_SIZE;
-        static constexpr u32   particle_bufffer_count   = IFB_CONFIG_PARTICLE_BUFFER_COUNT;
-        static constexpr u32   random_table_count       = IFB_CONFIG_RANDOM_TABLE_COUNT;
-        static constexpr u32   random_refresh_frames    = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
+        static constexpr u32   asset_name_size                = IFB_CONFIG_ASSET_NAME_SIZE;
+        static constexpr u32   asset_partition_count          = IFB_CONFIG_ASSET_PARTITION_SIZE;
+        static constexpr u32   asset_partition_size           = IFB_CONFIG_ASSET_PARTITION_COUNT;
+        static constexpr u32   asset_partition_block_capacity = IFB_CONFIG_ASSET_PARTITION_BLOCK_CAPACITY;
+        static constexpr u32   build_mode                     = IFB_CONFIG_BUILD_MODE;
+        static constexpr u32   window_start_width             = IFB_CONFIG_WINDOW_START_WIDTH;
+        static constexpr u32   window_start_height            = IFB_CONFIG_WINDOW_START_HEIGHT;
+        static constexpr u32   window_max_keys                = IFB_CONFIG_WINDOW_MAX_KEYS;
+        static constexpr u32   default_fps                    = IFB_CONFIG_DEFAULT_FPS;
+        static constexpr u32   memory_size_core               = IFB_CONFIG_MEMORY_RES_SIZE_CORE;
+        static constexpr u32   memory_size_files              = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
+        static constexpr u32   memory_size_rendering          = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
+        static constexpr u32   memory_size_arenas             = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
+        static constexpr u32   file_path_size                 = IFB_CONFIG_FILE_PATH_SIZE; 
+        static constexpr u32   file_count                     = IFB_CONFIG_FILE_COUNT;
+        static constexpr u32   file_granularity               = IFB_CONFIG_FILE_GRANULARITY;
+        static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
+        static constexpr u32   arena_granularity              = IFB_CONFIG_ARENA_MEM_GRANULARITY;
+        static constexpr f32   sparse_set_max_load_p100       = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
+        static constexpr u32   entity_capacity                = IFB_CONFIG_ENTITY_CAPACITY;
+        static constexpr u32   quad_capacity                  = IFB_CONFIG_QUAD_MAX;
+        static constexpr u32   physics_world_size             = IFB_CONFIG_PHYSICS_WORLD_SIZE;
+        static constexpr u32   physics_world_count            = IFB_CONFIG_PHYSICS_WORLD_COUNT;
+        static constexpr u32   map_capacity                   = IFB_CONFIG_MAP_CAPACITY;
+        static constexpr f32   map_tile_unit_size             = IFB_CONFIG_MAP_TILE_UNIT_SIZE;
+        static constexpr u32   map_tile_capacity              = IFB_CONFIG_MAP_TILE_CAPACITY;
+        static constexpr u32   map_chunk_capacity             = IFB_CONFIG_MAP_CHUNK_CAPACITY;
+        static constexpr u32   map_render_buffer_size         = IFB_CONFIG_MAP_RENDER_BUFFER_SIZE;
+        static constexpr u32   particle_bufffer_count         = IFB_CONFIG_PARTICLE_BUFFER_COUNT;
+        static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
+        static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

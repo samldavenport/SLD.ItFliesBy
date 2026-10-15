@@ -7,6 +7,10 @@
 
 namespace ifb {
     
+    //--------------------------------------------------------------------
+    // ASSET DICTIONARY 
+    //--------------------------------------------------------------------
+    
     struct asset_dictionary_file_node {
         asset_dictionary_file_node* next;
         const cchar*                path;
@@ -43,6 +47,16 @@ namespace ifb {
     IFB_INTERNAL u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
     IFB_INTERNAL u32       asset_dictionary_file_list_count          (const asset_dictionary_file_list& list);
 
+    //--------------------------------------------------------------------
+    // ASSET MEMORY 
+    //--------------------------------------------------------------------
+
+    struct asset_memory_partition;
+    struct asset_memory_block;
+    struct asset_memory;
+
+    IFB_INTERNAL asset_memory*           asset_memory_create           (void);
+    IFB_INTERNAL void                    asset_memory_init             (reservation* res);
 };
 
 #endif //ASSET_INTERNAL_HPP
