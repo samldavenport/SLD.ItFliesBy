@@ -54,7 +54,7 @@ namespace ifb {
         static bool quad_manager        = false;
         static bool player_rig          = false;
         static bool asset_dictionary    = false;
-        static bool asset_datatbase     = false;
+        static bool asset_database      = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -102,6 +102,6 @@ namespace ifb {
         gui_quad_manager           (quad_manager);
         gui_game_player_rig        (player_rig);
         gui_game_asset_dictionary  (asset_dictionary);
-        gui_game_asset_database    (asset_datatbase);
+        gui_game_asset_database    (asset_database);
     }
 };

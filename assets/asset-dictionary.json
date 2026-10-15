@@ -1,5 +1,6 @@
 {
     "text": [
+        { "name": "SHDR-GRID-VERT", "path": "shaders/grid-vert.glsl" }
     ],
     "image": [
         { "name": "CONNOR", "path": "images/connor.png" },
