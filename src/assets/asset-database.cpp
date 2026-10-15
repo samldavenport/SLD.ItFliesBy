@@ -232,8 +232,8 @@ namespace ifb {
             return(NULL);
         }
 
-        // open the file
-        db->file_handle = file_rw_open_always(path);
+        // open the file, an old database there is replaced
+        db->file_handle = file_rw_overwrite(path);
         if (db->file_handle == INVALID_HANDLE) {
             arena_revert(h_arena, init_save);
             return(NULL);

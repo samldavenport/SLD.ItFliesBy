@@ -4,6 +4,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
 #include "asset.hpp"
+#include "asset-database.cpp"
 #include "asset-internal.hpp"
 #include "files.hpp"
 #include "memory.hpp"
@@ -26,11 +27,28 @@ namespace ifb {
         cchar             dir[ENG_ASSET_PATH_SIZE];
     } static _eng_asset_dictionary;
 
+    // the database being viewed keeps its file open, the error is for the gui
+    static constexpr u32 ENG_ASSET_ERROR_SIZE = (ENG_ASSET_PATH_SIZE * 2) + 128;
+
+    struct eng_asset_database {
+        hnd_arena       h_arena;
+        asset_database* db;
+        cchar           error[ENG_ASSET_ERROR_SIZE];
+    } static _eng_asset_database;
+
+    // the dictionary and the database each have a preview, so both windows can show one
+    enum eng_asset_preview_e {
+        eng_asset_preview_e_dictionary = 0,
+        eng_asset_preview_e_database   = 1,
+        eng_asset_preview_e_count      = 2
+    };
+    static_assert(eng_asset_preview_e_count == RENDERER_ASSET_PREVIEW_COUNT);
+
     // the text of the last file that was previewed has its own arena
     struct eng_asset_preview {
         bool      is_init;
         hnd_arena h_arena;
-    } static _eng_asset_preview;
+    } static _eng_asset_preview[eng_asset_preview_e_count];
 
     //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS
@@ -41,8 +59,13 @@ namespace ifb {
     IFB_INLINE bool                              eng_asset_dictionary_has_id    (const asset_dictionary_file_list& list, const u32 id);
     IFB_INLINE const cchar*                      eng_asset_dictionary_push_cstr (const cchar* cstr, const u32 length);
     IFB_INLINE bool                              eng_asset_dictionary_rebase    (const cchar* dir);
-    IFB_INLINE bool                              eng_asset_preview_load_text    (const cchar* path, asset_dictionary_preview& preview);
-    IFB_INLINE bool                              eng_asset_preview_load_image   (const cchar* path, asset_dictionary_preview& preview);
+    IFB_INLINE bool                              eng_asset_database_check       (asset_dictionary* dict, const cchar* dir, const hnd_arena h_arena);
+    IFB_INLINE bool                              eng_asset_database_check_file  (asset_dictionary_file_node* node, const u32 type, const cchar* dir, const u32 size_header, const hnd_arena h_arena);
+    IFB_INLINE void                              eng_asset_database_set_error   (const cchar* format, ...);
+    IFB_INLINE void                              eng_asset_preview_clear        (asset_preview& preview);
+    IFB_INLINE hnd_arena                         eng_asset_preview_get_arena    (const u32 slot);
+    IFB_INLINE bool                              eng_asset_preview_load_text    (const cchar* path, asset_preview& preview);
+    IFB_INLINE bool                              eng_asset_preview_load_image   (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_path_is_separator    (const cchar c);
     IFB_INLINE bool                              eng_asset_path_is_absolute     (const cchar* path);
     IFB_INLINE bool                              eng_asset_path_equals          (const cchar* path_a, const cchar* path_b);
@@ -251,17 +274,12 @@ namespace ifb {
 
     IFB_ENGINE_API bool
     eng_asset_dictionary_load_preview(
-        const u32                 id,
-        asset_dictionary_preview& preview) {
+        const u32      id,
+        asset_preview& preview) {
 
         auto& state = _eng_asset_dictionary;
 
-        preview.type              = asset_type_e_count;
-        preview.text              = NULL;
-        preview.is_text_truncated = false;
-        preview.texture           = 0;
-        preview.width             = 0;
-        preview.height            = 0;
+        eng_asset_preview_clear(preview);
 
         // find the file
         const asset_dictionary_file_node* node_found = NULL;
@@ -298,23 +316,366 @@ namespace ifb {
         return(did_load);
     }
 
+    IFB_ENGINE_API bool
+    eng_asset_database_build(
+        const cchar* path_dictionary,
+        const cchar* path_database) {
+
+        assert(path_dictionary);
+        assert(path_database);
+
+        auto& state = _eng_asset_database;
+        state.error[0] = 0;
+
+        // the dictionary is only needed for the build, so it gets its own arena
+        const hnd_arena h_arena_dict = arena_alloc();
+        if (h_arena_dict == INVALID_HANDLE) {
+            eng_asset_database_set_error("There is no memory for the dictionary");
+            return(false);
+        }
+
+        asset_dictionary* dict = asset_dictionary_load_from_json(path_dictionary, h_arena_dict);
+        if (!dict) {
+            eng_asset_database_set_error("Failed to load the dictionary %s", path_dictionary);
+            arena_free(h_arena_dict);
+            return(false);
+        }
+
+        // the paths in the dictionary are relative to it
+        cchar dir[ENG_ASSET_PATH_SIZE];
+        bool  is_valid = eng_asset_path_get_dir(path_dictionary, dir);
+        if (!is_valid) {
+            eng_asset_database_set_error("The dictionary path %s isn't absolute", path_dictionary);
+        }
+        else if (asset_dictionary_count_assets(dict) == 0) {
+            eng_asset_database_set_error("The dictionary has no files");
+            is_valid = false;
+        }
+
+        // the build asserts on a file it can't read, so every file is checked first
+        is_valid = is_valid && eng_asset_database_check(dict, dir, h_arena_dict);
+
+        // the database file can't be open while it is written
+        if (is_valid) {
+            eng_asset_database_close();
+
+            state.h_arena = arena_alloc();
+            state.db      = (state.h_arena != INVALID_HANDLE)
+                ? asset_database_build(path_database, dict, state.h_arena)
+                : NULL;
+
+            if (!state.db) {
+                eng_asset_database_set_error("Failed to write the database %s", path_database);
+                if (state.h_arena != INVALID_HANDLE) {
+                    arena_free(state.h_arena);
+                }
+                is_valid = false;
+            }
+        }
+
+        arena_free(h_arena_dict);
+        return(is_valid);
+    }
+
+    IFB_ENGINE_API bool
+    eng_asset_database_load(
+        const cchar* path) {
+
+        assert(path);
+
+        auto& state = _eng_asset_database;
+        state.error[0] = 0;
+
+        // the file may be the one that's open, which can't be opened again while it is
+        eng_asset_database_close();
+
+        state.h_arena = arena_alloc();
+        if (state.h_arena == INVALID_HANDLE) {
+            eng_asset_database_set_error("There is no memory for the database");
+            return(false);
+        }
+
+        state.db = asset_database_load(path, state.h_arena);
+        if (!state.db) {
+            eng_asset_database_set_error("Failed to load %s, it isn't a database or it is damaged", path);
+            arena_free(state.h_arena);
+            return(false);
+        }
+
+        return(true);
+    }
+
+    IFB_ENGINE_API void
+    eng_asset_database_close(
+        void) {
+
+        auto& state = _eng_asset_database;
+        if (!state.db) return;
+
+        file_close (state.db->file_handle);
+        arena_free (state.h_arena);
+        state.db = NULL;
+    }
+
+    IFB_ENGINE_API const cchar*
+    eng_asset_database_get_error(
+        void) {
+
+        auto& state = _eng_asset_database;
+        return(state.error);
+    }
+
+    IFB_ENGINE_API u32
+    eng_asset_database_get_count(
+        void) {
+
+        auto& state = _eng_asset_database;
+
+        const u32 count = state.db ? state.db->asset_count : 0;
+        return(count);
+    }
+
+    IFB_ENGINE_API bool
+    eng_asset_database_get_info(
+        const u32            index,
+        asset_database_info& info) {
+
+        auto& state = _eng_asset_database;
+        if (!state.db || index >= state.db->asset_count) return(false);
+
+        const asset_database* db = state.db;
+
+        memcpy(info.name, db->array_names[index].cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+        info.name[IFB_CONFIG_ASSET_NAME_SIZE] = 0;
+
+        info.hnd    = db->array_handles[index];
+        info.type   = db->array_indexes[index].type.val;
+        info.offset = db->array_indexes[index].offset;
+        info.size   = db->array_indexes[index].size;
+        return(true);
+    }
+
+    IFB_ENGINE_API bool
+    eng_asset_database_load_preview(
+        const u32      index,
+        asset_preview& preview) {
+
+        auto& state = _eng_asset_database;
+
+        eng_asset_preview_clear(preview);
+        if (!state.db || index >= state.db->asset_count) return(false);
+
+        const asset_database* db      = state.db;
+        const hnd_asset       h_asset = db->array_handles[index];
+        const hnd_arena       h_arena = eng_asset_preview_get_arena(eng_asset_preview_e_database);
+        if (h_arena == INVALID_HANDLE) return(false);
+
+        preview.type = db->array_indexes[index].type.val;
+
+        if (preview.type == asset_type_e_text) {
+
+            const asset_text* txt = asset_database_load_text_by_handle(db, h_asset, h_arena);
+            if (!txt) return(false);
+
+            preview.text = txt->cstr;
+            return(true);
+        }
+
+        const asset_image* img = asset_database_load_image_by_handle(db, h_asset, h_arena);
+        if (!img || img->width == 0 || img->height == 0) return(false);
+
+        preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_database, img->width, img->height, (const byte*)img->pixels);
+        preview.width   = img->width;
+        preview.height  = img->height;
+        return(preview.texture != 0);
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
 
+    // every file has to be readable by the build, and the paths are made absolute for it
+    IFB_INLINE bool
+    eng_asset_database_check(
+        asset_dictionary* dict,
+        const cchar*      dir,
+        const hnd_arena   h_arena) {
+
+        asset_dictionary_file_list* lists[asset_type_e_count] = {
+            &dict->text_files,
+            &dict->image_files
+        };
+
+        // the build needs the header in its arena with each file
+        const u32 count       = asset_dictionary_count_assets(dict);
+        const u32 size_header = sizeof(asset_database) + (count * (sizeof(hnd_asset) + sizeof(asset_name) + sizeof(asset_index)));
+
+        // the database only keeps the start of each name, so those have to be unique
+        auto handles = (hnd_asset*)arena_push(h_arena, count * sizeof(hnd_asset));
+        auto nodes   = (const asset_dictionary_file_node**)arena_push(h_arena, count * sizeof(asset_dictionary_file_node*));
+        if (!handles || !nodes) {
+            eng_asset_database_set_error("There is no memory to check the dictionary");
+            return(false);
+        }
+
+        u32 index = 0;
+        for (
+            u32 type = 0;
+                type < asset_type_e_count;
+              ++type) {
+
+            for (
+                asset_dictionary_file_node* node = lists[type]->first;
+                node != NULL;
+                node = node->next) {
+
+                if (!eng_asset_database_check_file(node, type, dir, size_header, h_arena)) return(false);
+
+                asset_name name = {};
+                name.init(node->name);
+                const hnd_asset hnd = name.to_handle();
+
+                for (
+                    u32 index_other = 0;
+                        index_other < index;
+                      ++index_other) {
+
+                    if (handles[index_other] != hnd) continue;
+
+                    eng_asset_database_set_error(
+                        "%s and %s are the same in the first %u characters, which is all the database keeps",
+                        nodes[index_other]->name,
+                        node->name,
+                        IFB_CONFIG_ASSET_NAME_SIZE
+                    );
+                    return(false);
+                }
+
+                handles [index] = hnd;
+                nodes   [index] = node;
+                ++index;
+            }
+        }
+
+        return(true);
+    }
+
+    // the build reads files through the file buffer, and loads each one into the arena with the header
+    IFB_INLINE bool
+    eng_asset_database_check_file(
+        asset_dictionary_file_node* node,
+        const u32                   type,
+        const cchar*                dir,
+        const u32                   size_header,
+        const hnd_arena             h_arena) {
+
+        cchar path[ENG_ASSET_PATH_SIZE];
+        if (!eng_asset_path_to_absolute(dir, node->path, path)) {
+            eng_asset_database_set_error("%s has a path that doesn't fit: %s", node->name, node->path);
+            return(false);
+        }
+
+        const hnd_file h_file = file_ro_open_existing(path);
+        if (h_file == INVALID_HANDLE) {
+            eng_asset_database_set_error("%s can't be opened: %s", node->name, path);
+            return(false);
+        }
+        const u32 size = file_get_size(h_file);
+        file_close(h_file);
+
+        // the last byte of the file buffer is always a terminator
+        const u32 size_max = IFB_CONFIG_FILE_GRANULARITY - 1;
+        if (size == 0) {
+            eng_asset_database_set_error("%s is empty: %s", node->name, path);
+            return(false);
+        }
+        if (size > size_max) {
+            eng_asset_database_set_error("%s is %u bytes, files can be up to %u bytes: %s", node->name, size, size_max, path);
+            return(false);
+        }
+
+        if (type == asset_type_e_image) {
+
+            s32 width    = 0;
+            s32 height   = 0;
+            s32 channels = 0;
+            if (!stbi_info(path, &width, &height, &channels) || width <= 0 || height <= 0) {
+                eng_asset_database_set_error("%s isn't an image that can be read: %s", node->name, path);
+                return(false);
+            }
+
+            // the pixels are always rgba
+            const u64 size_pixels = ((u64)width * height * 4) + sizeof(image) + size_header;
+            if (size_pixels > IFB_CONFIG_ARENA_MEM_GRANULARITY) {
+                eng_asset_database_set_error("%s is %d x %d, which is too big to load: %s", node->name, width, height, path);
+                return(false);
+            }
+        }
+
+        // the build opens the files itself, so it gets the absolute path
+        const u32    length    = cstr_nvar_length(path, ENG_ASSET_PATH_SIZE);
+        auto         path_copy = (cchar*)arena_push(h_arena, length + 1);
+        if (!path_copy) {
+            eng_asset_database_set_error("There is no memory to check the dictionary");
+            return(false);
+        }
+        memcpy(path_copy, path, length);
+        path_copy[length] = 0;
+
+        node->path = path_copy;
+        return(true);
+    }
+
+    IFB_INLINE void
+    eng_asset_database_set_error(
+        const cchar* format,
+        ...) {
+
+        auto& state = _eng_asset_database;
+
+        va_list args;
+        va_start  (args, format);
+        vsnprintf (state.error, ENG_ASSET_ERROR_SIZE, format, args);
+        va_end    (args);
+    }
+
+    IFB_INLINE void
+    eng_asset_preview_clear(
+        asset_preview& preview) {
+
+        preview.type              = asset_type_e_count;
+        preview.text              = NULL;
+        preview.is_text_truncated = false;
+        preview.texture           = 0;
+        preview.width             = 0;
+        preview.height            = 0;
+    }
+
+    // the arena is emptied for the next preview
+    IFB_INLINE hnd_arena
+    eng_asset_preview_get_arena(
+        const u32 slot) {
+
+        auto& state = _eng_asset_preview[slot];
+
+        if (!state.is_init) {
+            state.h_arena = arena_alloc();
+            state.is_init = (state.h_arena != INVALID_HANDLE);
+            if (!state.is_init) return(INVALID_HANDLE);
+        }
+        arena_reset(state.h_arena);
+
+        return(state.h_arena);
+    }
+
     // the text is copied out of the file buffer, which only holds the start of a big file
     IFB_INLINE bool
     eng_asset_preview_load_text(
-        const cchar*              path,
-        asset_dictionary_preview& preview) {
+        const cchar*   path,
+        asset_preview& preview) {
 
-        auto& state = _eng_asset_preview;
-
-        if (!state.is_init) {
-            state.is_init = true;
-            state.h_arena = arena_alloc();
-        }
-        arena_reset(state.h_arena);
+        const hnd_arena h_arena = eng_asset_preview_get_arena(eng_asset_preview_e_dictionary);
+        if (h_arena == INVALID_HANDLE) return(false);
 
         const hnd_file h_file = file_ro_open_existing(path);
         if (h_file == FILE_HANDLE_INVALID) return(false);
@@ -323,7 +684,7 @@ namespace ifb {
         const u32 length_max = IFB_CONFIG_FILE_GRANULARITY - 1;
         const u32 length     = (size < length_max) ? size : length_max;
 
-        auto text = (cchar*)arena_push(state.h_arena, length + 1);
+        auto text = (cchar*)arena_push(h_arena, length + 1);
         if (text && length != 0) {
 
             const cchar* data = file_read(h_file, size);
@@ -348,8 +709,8 @@ namespace ifb {
     // the image is decoded straight from the file, and the pixels go to a texture
     IFB_INLINE bool
     eng_asset_preview_load_image(
-        const cchar*              path,
-        asset_dictionary_preview& preview) {
+        const cchar*   path,
+        asset_preview& preview) {
 
         // always four channels, whatever the file has
         s32 width    = 0;
@@ -359,7 +720,7 @@ namespace ifb {
         if (!pixels) return(false);
 
         const u32 texture = (width > 0 && height > 0)
-            ? renderer_set_asset_preview_texture(width, height, (const byte*)pixels)
+            ? renderer_set_asset_preview_texture(eng_asset_preview_e_dictionary, width, height, (const byte*)pixels)
             : 0;
         stbi_image_free(pixels);
         if (texture == 0) return(false);

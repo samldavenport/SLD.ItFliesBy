@@ -22,6 +22,7 @@
 #include "eng-file.cpp"
 #include "eng-image.cpp"
 #include "eng-system.cpp"
+#include "eng-text.cpp"
 #include "eng-keycode.cpp"
 #include "eng-map.cpp"
 #include "eng-particle.cpp"

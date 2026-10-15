@@ -372,21 +372,24 @@ return(did_set);
         return(_renderer->particle_view->gl.texture);
     }
 
-    // one texture for the gui to preview an image, the pixels are rgba8 from the top row down
+    // a texture for the gui to preview an image in each slot, the pixels are rgba8 from the top row down
     // the texture is an opengl texture id, or 0 if the pixels couldn't be copied
     IFB_INTERNAL u32
     renderer_set_asset_preview_texture(
+        const u32   slot,
         const u32   width,
         const u32   height,
         const byte* pixels) {
 
-        static gl_texture texture = GL_ID_INVALID;
+        static gl_texture textures[RENDERER_ASSET_PREVIEW_COUNT] = { GL_ID_INVALID, GL_ID_INVALID };
 
         assert(_renderer);
         assert(pixels);
+        assert(slot < RENDERER_ASSET_PREVIEW_COUNT);
         if (width == 0 || height == 0) return(GL_ID_INVALID);
 
-        gl_context* gl = _renderer->gl;
+        gl_context* gl      = _renderer->gl;
+        gl_texture& texture = textures[slot];
 
         if (texture == GL_ID_INVALID) {
             texture = gl_texture_create(gl);

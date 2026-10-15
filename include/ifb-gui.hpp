@@ -37,6 +37,7 @@ namespace ifb {
     // game
     IFB_INTERNAL void  gui_game_player_rig       (bool& is_open);
     IFB_INTERNAL void  gui_game_asset_dictionary (bool& is_open);
+    IFB_INTERNAL void  gui_game_asset_database   (bool& is_open);
 
     // entities
     IFB_INTERNAL void  gui_entity_manager     (bool& is_open);
@@ -70,6 +71,7 @@ namespace ifb {
         inline static const char* menu_game_item_player_rig             = "Player Rig";
         inline static const char* menu_game_menu_assets                 = "Assets";
         inline static const char* menu_game_menu_assets_item_dictionary = "Asset Dictionary";
+        inline static const char* menu_game_menu_assets_item_database   = "Asset Database";
     } static * _gui_str;
 };
 
