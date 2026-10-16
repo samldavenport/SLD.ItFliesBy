@@ -7,6 +7,7 @@
 #include "ifb-types.hpp"
 #include "memory.hpp"
 #include "files.hpp"
+#include "sld.hpp"
 
 namespace ifb {
     
@@ -299,10 +300,11 @@ namespace ifb {
         return(db);
     }
 
-    IFB_INTERNAL u32
-    asset_database_get_asset_size(
+    IFB_INTERNAL bool 
+    asset_database_get_index(
         const asset_database* db,
-        const cchar*          name_cstr) {
+        const cchar*          name_cstr,
+        asset_index&          index) {
 
         assert(db);
         assert(name_cstr);
@@ -310,10 +312,8 @@ namespace ifb {
         asset_name name;
         name.init(name_cstr);
 
-        asset_index index;
         const bool did_find = asset_database_index_of(db, name.to_handle(), index);
-        
-        return(did_find ? index.size : 0);
+        return(did_find);
     }
     
     IFB_INTERNAL const asset_text*
@@ -458,6 +458,149 @@ namespace ifb {
         return(img);
     }
     
+    IFB_INTERNAL const asset_text*
+    asset_database_load_text_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&               mem) {
+
+        assert(db);
+        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->array_names   != NULL);
+        assert(db->asset_count   != 0);
+        assert(mem.size          != 0);
+        assert(mem.address       != 0);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_text, index)) {
+            return(NULL);
+        }
+
+        // read the size, it has to agree with the index
+        u32  size     = 0;
+        bool is_valid = asset_database_read_at(db->file_handle, index.offset, sizeof(u32), &size);
+        is_valid     &= (index.size == (u64)sizeof(u32) + size);
+        if (!is_valid) {
+            return(NULL);
+        }
+
+        // make sure the data can fit
+        const u32 size_needed = sizeof(asset_text) + size + 1;
+        if (mem.size < size_needed) {
+            return(NULL);
+        }
+
+        zero_memory(mem);
+
+        // the text goes right after the struct, with a null terminator
+        auto txt = (asset_text*)mem.ptr;
+        txt->hnd  = h_asset;
+        txt->size = size;
+        txt->cstr = ((cchar*)txt) + sizeof(asset_text);
+
+        // read the text
+        if (size > 0) {
+            const u32 offset_text = index.offset + sizeof(u32);
+            if (!asset_database_read_at(db->file_handle, offset_text, size, txt->cstr)) {
+                return(NULL);
+            }
+        }
+
+        return(txt);
+    }
+
+    IFB_INTERNAL const asset_text*
+    asset_database_load_text_by_name_to_memory(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        memory&               mem) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_text* txt = asset_database_load_text_by_handle_to_memory(db, h_asset, mem);
+        return(txt);
+    }
+    
+    IFB_INTERNAL const asset_image*
+    asset_database_load_image_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&         mem) {
+
+        assert(db);
+        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->array_names   != NULL);
+        assert(db->asset_count   != 0);
+        assert(mem.size          != 0);
+        assert(mem.address       != 0);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_image, index)) {
+            return(NULL);
+        }
+
+        // read the dimensions, the pixels have to agree with the index
+        u32  dimensions[2] = { 0, 0 };
+        bool is_valid      = asset_database_read_at(db->file_handle, index.offset, sizeof(dimensions), dimensions);
+
+        const u32 width       = dimensions[0];
+        const u32 height      = dimensions[1];
+        const u64 size_pixels = (u64)width * height * sizeof(color_rgba_u32);
+        is_valid &= (index.size == sizeof(dimensions) + size_pixels);
+        if (!is_valid) {
+            return(NULL);
+        }
+
+        // make sure the data can fit
+        const u32 size_needed = sizeof(asset_image) + (u32)size_pixels;
+        if (mem.size < size_needed) {
+            return(NULL);
+        }
+
+        // the pixels go right after the struct
+        auto img    = (asset_image*)mem.ptr;
+        img->hnd    = h_asset;
+        img->width  = width;
+        img->height = height;
+        img->pixels = (color_rgba_u32*)(((byte*)img) + sizeof(asset_image));
+
+        // read the pixels
+        if (size_pixels > 0) {
+            const u32 offset_pixels = index.offset + sizeof(dimensions);
+            if (!asset_database_read_at(db->file_handle, offset_pixels, (u32)size_pixels, img->pixels)) {
+                return(NULL);
+            }
+        }
+
+        return(img);
+    }
+    
+    IFB_INTERNAL const asset_image*
+    asset_database_load_image_by_name_to_memory(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        memory&               mem) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_image* img = asset_database_load_image_by_handle_to_memory(db, h_asset, mem);
+        return(img);
+    }
+    
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS 
     //--------------------------------------------------------------------
@@ -562,5 +705,5 @@ namespace ifb {
             }
         }
         return(false);
-    }
+    }  
 };

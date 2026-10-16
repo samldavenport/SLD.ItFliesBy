@@ -44,15 +44,15 @@ namespace ifb {
     // database
     IFB_INTERNAL asset_database*    asset_database_load                           (const cchar* path, const hnd_arena h_arena);
     IFB_INTERNAL asset_database*    asset_database_build                          (const cchar* path, const asset_dictionary* dict, const hnd_arena);
-    IFB_INTERNAL u32                asset_database_get_asset_size                 (const asset_database* db, const cchar* name_cstr);
+    IFB_INTERNAL bool               asset_database_get_index                      (const asset_database* db, const cchar* name_cstr, asset_index& index);
     IFB_INTERNAL const asset_text*  asset_database_load_text_by_handle_to_arena   (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
     IFB_INTERNAL const asset_text*  asset_database_load_text_by_name_to_arena     (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
     IFB_INTERNAL const asset_image* asset_database_load_image_by_handle_to_arena  (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
     IFB_INTERNAL const asset_image* asset_database_load_image_by_name_to_arena    (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
-    IFB_INTERNAL const asset_text*  asset_database_load_text_by_handle_to_memory  (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
-    IFB_INTERNAL const asset_text*  asset_database_load_text_by_name_to_memory    (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
-    IFB_INTERNAL const asset_image* asset_database_load_image_by_handle_to_memory (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
-    IFB_INTERNAL const asset_image* asset_database_load_image_by_name_to_memory   (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
+    IFB_INTERNAL const asset_text*  asset_database_load_text_by_handle_to_memory  (const asset_database* db, const hnd_asset h_asset,   memory& mem);
+    IFB_INTERNAL const asset_text*  asset_database_load_text_by_name_to_memory    (const asset_database* db, const cchar*    name_cstr, memory& mem);
+    IFB_INTERNAL const asset_image* asset_database_load_image_by_handle_to_memory (const asset_database* db, const hnd_asset h_asset,   memory& mem);
+    IFB_INTERNAL const asset_image* asset_database_load_image_by_name_to_memory   (const asset_database* db, const cchar*    name_cstr, memory& mem);
 };
 
 #endif //ASSETS_HPP
