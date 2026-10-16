@@ -73,7 +73,7 @@ namespace ifb {
                 if (ImGui::BeginMenu(_gui_str->menu_game_menu_assets)) {
                     
                     ImGui::MenuItem(_gui_str->menu_game_menu_assets_item_dictionary, NULL, &asset_dictionary);
-                    ImGui::MenuItem(_gui_str->menu_game_menu_assets_item_database,   NULL, &asset_datatbase);
+                    ImGui::MenuItem(_gui_str->menu_game_menu_assets_item_database,   NULL, &asset_database);
                     ImGui::EndMenu();
                 }
 
