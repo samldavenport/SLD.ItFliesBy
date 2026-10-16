@@ -4,6 +4,7 @@
 #include "asset.hpp"
 #include "ifb-types.hpp"
 #include "json.cpp" //TODO(SAM): lets make this a header if possible
+#include "sld.hpp"
 
 namespace ifb {
     
@@ -55,8 +56,14 @@ namespace ifb {
     struct asset_memory_block;
     struct asset_memory;
 
-    IFB_INTERNAL asset_memory*           asset_memory_create           (void);
-    IFB_INTERNAL void                    asset_memory_init             (reservation* res);
+    IFB_INTERNAL asset_memory* asset_memory_create (void);
+    IFB_INTERNAL void          asset_memory_init   (asset_memory* asset_mem, reservation* res);
+    IFB_INTERNAL bool          asset_memory_alloc  (asset_memory* asset_mem, const u32 size, asset_memory_block& block);
+
+    struct asset_memory_block {
+        u16 partition_index;
+        u16 block_index;
+    };
 };
 
 #endif //ASSET_INTERNAL_HPP
