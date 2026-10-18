@@ -59,7 +59,8 @@ namespace ifb {
         cmpnt_type_e_term_velocity    = bit_value(8),
         cmpnt_type_e_spring           = bit_value(9),
         cmpnt_type_e_map_coords       = bit_value(10),
-        cmpnt_type_e_particle_emitter = bit_value(11)
+        cmpnt_type_e_particle_emitter = bit_value(11),
+        cmpnt_type_e_sprite           = bit_value(12)
     };
     
     enum map_tile_flag_e {
@@ -117,7 +118,8 @@ namespace ifb {
     IFB_HANDLE(hnd_file);
     IFB_HANDLE(hnd_map);
     IFB_HANDLE(hnd_particle_emitter);
-   
+    IFB_HANDLE(hnd_sprite_atlas);
+
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
@@ -337,15 +339,6 @@ namespace ifb {
     using  cmpnt_acceleration  = vec3;
     using  cmpnt_term_velocity = vec3;
    
-    struct cmpnt_quad;
-    struct cmpnt_rigid_body;
-    struct cmpnt_inv_mass;
-    struct cmpnt_drag;
-    struct cmpnt_map_coords;
-    struct cmpnt_spring;
-    struct cmpnt_map_coords; 
-    struct cmpnt_particle_emitter;
-
     struct cmpnt_quad {
         f32 width;
         f32 height;
@@ -387,6 +380,11 @@ namespace ifb {
         hnd_particle_emitter hnd;
     };
 
+    struct cmpnt_sprite {
+        hnd_sprite_atlas h_atlas;
+        u32              index; 
+    };
+
     //--------------------------------------------------------------------
     // ARCHETYPES 
     //--------------------------------------------------------------------
@@ -420,6 +418,10 @@ namespace ifb {
         cmpnt_term_velocity term_velocity;
         cmpnt_map_coords    map_coords;
     };
+    
+    //--------------------------------------------------------------------
+    // SRITE TYPES
+    //--------------------------------------------------------------------
 };
 
 #endif //IFB_TYPES_HPP
