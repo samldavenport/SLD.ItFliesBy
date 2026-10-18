@@ -359,6 +359,7 @@ namespace ifb {
         memory physics;
         memory tiles;
         memory particles;
+        memory assets;
     };
 
     struct eng_game_context {

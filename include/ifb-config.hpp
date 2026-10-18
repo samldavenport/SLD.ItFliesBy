@@ -6,9 +6,18 @@
 using namespace sld;
 
 #define IFB_CONFIG_ASSET_NAME_SIZE                16
-#define IFB_CONFIG_ASSET_PARTITION_COUNT          64 
-#define IFB_CONFIG_ASSET_PARTITION_SIZE           size_megabytes(1)
-#define IFB_CONFIG_ASSET_PARTITION_BLOCK_CAPACITY 256 
+#define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(16)
+#define IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT    32
+#define IFB_CONFIG_ASSET_SMALL_DATA_SIZE          size_kilobytes(64)
+#define IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY     64
+#define IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT   48
+#define IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE         size_megabytes(1)
+#define IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY    256
+#define IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT    4
+#define IFB_CONFIG_ASSET_LARGE_DATA_SIZE          size_megabytes(16)
+#define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     16
+#define IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES  240
+#define IFB_CONFIG_ASSET_EXPIRE_FRAMES            7200
 #define IFB_CONFIG_BUILD_MODE                     0
 #define IFB_CONFIG_WINDOW_TITLE_DEBUG             "It Flies By (Debug)"
 #define IFB_CONFIG_WINDOW_TITLE_RELEASE           "It Flies By"
@@ -55,9 +64,18 @@ namespace ifb {
 
     struct config {
         static constexpr u32   asset_name_size                = IFB_CONFIG_ASSET_NAME_SIZE;
-        static constexpr u32   asset_partition_count          = IFB_CONFIG_ASSET_PARTITION_SIZE;
-        static constexpr u32   asset_partition_size           = IFB_CONFIG_ASSET_PARTITION_COUNT;
-        static constexpr u32   asset_partition_block_capacity = IFB_CONFIG_ASSET_PARTITION_BLOCK_CAPACITY;
+        static constexpr u32   asset_size_max                 = IFB_CONFIG_ASSET_SIZE_MAX;
+        static constexpr u32   asset_small_partition_count    = IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT;
+        static constexpr u32   asset_small_data_size          = IFB_CONFIG_ASSET_SMALL_DATA_SIZE;
+        static constexpr u32   asset_small_block_capacity     = IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY;
+        static constexpr u32   asset_medium_partition_count   = IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT;
+        static constexpr u32   asset_medium_data_size         = IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE;
+        static constexpr u32   asset_medium_block_capacity    = IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY;
+        static constexpr u32   asset_large_partition_count    = IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT;
+        static constexpr u32   asset_large_data_size          = IFB_CONFIG_ASSET_LARGE_DATA_SIZE;
+        static constexpr u32   asset_large_block_capacity     = IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY;
+        static constexpr u32   asset_cleanup_interval_frames  = IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES;
+        static constexpr u32   asset_expire_frames            = IFB_CONFIG_ASSET_EXPIRE_FRAMES;
         static constexpr u32   build_mode                     = IFB_CONFIG_BUILD_MODE;
         static constexpr u32   window_start_width             = IFB_CONFIG_WINDOW_START_WIDTH;
         static constexpr u32   window_start_height            = IFB_CONFIG_WINDOW_START_HEIGHT;

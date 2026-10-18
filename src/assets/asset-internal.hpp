@@ -56,9 +56,15 @@ namespace ifb {
     struct asset_memory_block;
     struct asset_memory;
 
-    IFB_INTERNAL asset_memory* asset_memory_create (void);
-    IFB_INTERNAL void          asset_memory_init   (asset_memory* asset_mem, reservation* res);
-    IFB_INTERNAL bool          asset_memory_alloc  (asset_memory* asset_mem, const u32 size, asset_memory_block& block);
+    IFB_INTERNAL asset_memory* asset_memory_create        (void);
+    IFB_INTERNAL void          asset_memory_init          (asset_memory* asset_mem, reservation* res);
+    IFB_INTERNAL bool          asset_memory_alloc         (asset_memory* asset_mem, const hnd_asset hnd, const u32 size, asset_memory_block& block);
+    IFB_INTERNAL void          asset_memory_free          (asset_memory* asset_mem, const asset_memory_block& block);
+    IFB_INTERNAL void          asset_memory_update        (asset_memory* asset_mem, const u64 frame);
+    IFB_INTERNAL bool          asset_memory_mark_for_free (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL addr          asset_memory_get_data      (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL addr          asset_memory_pin           (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL void          asset_memory_unpin         (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
 
     struct asset_memory_block {
         u16 partition_index;

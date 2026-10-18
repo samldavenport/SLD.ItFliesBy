@@ -65,6 +65,7 @@ namespace ifb {
         _eng_context->map_mngr        = map_mngr_create();
         _eng_context->particle_mngr   = particle_mngr_create();
         _eng_context->random_table    = random_table_create();
+        _eng_context->asset_mngr      = asset_mngr_create();
         _eng_context->mem_map         = mem_map;
 
         assert(
@@ -82,6 +83,7 @@ namespace ifb {
             _eng_context->phys_mngr     != NULL &&
             _eng_context->particle_mngr != NULL &&
             _eng_context->random_table  != NULL &&
+            _eng_context->asset_mngr    != NULL &&
             _eng_context->mem_map       != NULL
         );
 
@@ -101,6 +103,7 @@ namespace ifb {
         pfm_context_startup();
 
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
+        _eng_context->frame_count       = 0;
 
         // refresh system info
         system_refresh_info();
@@ -123,6 +126,7 @@ namespace ifb {
         reservation* res_physics    = reservation_create(mem_map->physics);
         reservation* res_tiles      = reservation_create(mem_map->tiles);
         reservation* res_particles  = reservation_create(mem_map->particles);
+        reservation* res_assets     = reservation_create(mem_map->assets);
         assert(res_files);
         assert(res_entities);
         assert(res_arenas);
@@ -131,6 +135,7 @@ namespace ifb {
         assert(res_physics);
         assert(res_tiles);
         assert(res_particles);
+        assert(res_assets);
        
         // start systems
         file_mngr_startup        (res_files);
@@ -140,6 +145,7 @@ namespace ifb {
         phys_mngr_startup        (res_physics);
         map_mngr_startup         (res_tiles);
         particle_mngr_startup    (res_particles);
+        asset_mngr_startup       (res_assets);
         renderer_startup         (res_renderer);
     }
 
@@ -162,6 +168,8 @@ namespace ifb {
         //TODO(SAM): pass the opengl context to the platform
         // start new frame
         if (elapsed_time == 0.0f) {
+            ++_eng_context->frame_count;
+            asset_mngr_update        ();
             pfm_window_frame_start   ();
             pfm_window_process_events();
             random_table_update      ();
@@ -203,6 +211,20 @@ namespace ifb {
 
         // shut down the platform context
         pfm_context_shutdown();
+    }
+
+    //--------------------------------------------------------------------
+    // INTERNAL METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
+    // the number of frames started since startup, counted at the fixed frame rate
+    // the game callback can run several times in one frame, and sees the same count each time
+    IFB_ENG_INTERNAL u64
+    eng_context_get_frame_count(
+        void) {
+
+        assert(_eng_context);
+        return(_eng_context->frame_count);
     }
 
     IFB_ENGINE_API ImGuiContext*
