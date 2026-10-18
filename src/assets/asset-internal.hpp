@@ -1,11 +1,17 @@
 #ifndef ASSET_INTERNAL_HPP
 #define ASSET_INTERNAL_HPP
 
+#include "asset-database.cpp"
 #include "asset.hpp"
 #include "ifb-types.hpp"
 #include "json.cpp" //TODO(SAM): lets make this a header if possible
+#include "sld.hpp"
 
 namespace ifb {
+    
+    //--------------------------------------------------------------------
+    // ASSET DICTIONARY 
+    //--------------------------------------------------------------------
     
     struct asset_dictionary_file_node {
         asset_dictionary_file_node* next;
@@ -43,6 +49,36 @@ namespace ifb {
     IFB_INTERNAL u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
     IFB_INTERNAL u32       asset_dictionary_file_list_count          (const asset_dictionary_file_list& list);
 
+    //--------------------------------------------------------------------
+    // ASSET DATABASE 
+    //--------------------------------------------------------------------
+   
+    IFB_INTERNAL u32  asset_database_get_asset_count (const asset_database* db);
+    IFB_INTERNAL void asset_database_close           (const asset_database* db);
+
+    //--------------------------------------------------------------------
+    // ASSET MEMORY 
+    //--------------------------------------------------------------------
+
+    struct asset_memory_partition;
+    struct asset_memory_block;
+    struct asset_memory;
+
+    IFB_INTERNAL asset_memory* asset_memory_create        (void);
+    IFB_INTERNAL void          asset_memory_init          (asset_memory* asset_mem, reservation* res);
+    IFB_INTERNAL bool          asset_memory_alloc         (asset_memory* asset_mem, const hnd_asset hnd, const u32 size, asset_memory_block& block);
+    IFB_INTERNAL void          asset_memory_free          (asset_memory* asset_mem, const asset_memory_block& block);
+    IFB_INTERNAL void          asset_memory_update        (asset_memory* asset_mem, const u64 frame);
+    IFB_INTERNAL u32           asset_memory_count_pinned  (const asset_memory* asset_mem);
+    IFB_INTERNAL bool          asset_memory_mark_for_free (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL addr          asset_memory_get_data      (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL addr          asset_memory_pin           (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL void          asset_memory_unpin         (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+
+    struct asset_memory_block {
+        u16 partition_index;
+        u16 block_index;
+    };
 };
 
 #endif //ASSET_INTERNAL_HPP

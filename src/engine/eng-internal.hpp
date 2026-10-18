@@ -23,11 +23,13 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     struct keyboard_input;
+    struct asset_mngr;
     struct eng_context;
     struct global_stack;
 
     struct eng_context {
         f32                seconds_per_frame;
+        u64                frame_count;
         const eng_mem_map* mem_map;
         fptr_eng_game      game_callback;
         fptr_eng_render    render_callback;
@@ -43,6 +45,7 @@ namespace ifb {
         map_mngr*          map_mngr;
         particle_mngr*     particle_mngr;
         random_table*      random_table;
+        asset_mngr*        asset_mngr;
     } static * _eng_context;
 
     struct global_stack {
@@ -56,6 +59,8 @@ namespace ifb {
     IFB_ENG_INTERNAL void            keyboard_set_key_up     (const input_keycode kc);
     IFB_ENG_INTERNAL void            keyboard_set_key_down   (const input_keycode kc);
     IFB_ENG_INTERNAL bool            keyboard_is_key_down    (const input_keycode kc);
+
+    IFB_ENG_INTERNAL u64   eng_context_get_frame_count  (void);
 
     IFB_ENG_INTERNAL void  global_stack_create_and_init (const eng_mem_map* mem_map);
     IFB_ENG_INTERNAL void  global_stack_validate        (void);

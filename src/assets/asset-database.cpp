@@ -7,6 +7,7 @@
 #include "ifb-types.hpp"
 #include "memory.hpp"
 #include "files.hpp"
+#include "sld.hpp"
 
 namespace ifb {
     
@@ -31,8 +32,15 @@ namespace ifb {
     // - pixels (rgba)       | w * h * 4 bytes
     //--------------------------------------------------------------------
 
+    //--------------------------------------------------------------------
+    // CONSTANTS 
+    //--------------------------------------------------------------------
+
     static constexpr cchar ASSET_DB_VERIFICATION_CSTR[] = "IFBASSETDB";
 
+    //--------------------------------------------------------------------
+    // TYPE DEFINITIONS 
+    //--------------------------------------------------------------------
 
     struct asset_database {
         hnd_file          file_handle;
@@ -41,22 +49,24 @@ namespace ifb {
         asset_name*       array_names;
         asset_index*      array_indexes;
     };
-
-    inline bool
-    asset_database_read_at(
-        const hnd_file h_file,
-        const u32      offset,
-        const u32      size,
-        void*          data) {
-
-        // like writing, the cursor doesn't move on its own
-        file_set_cursor(h_file, offset);
-        const u32  bytes_read = file_read_to_buffer(h_file, size, (byte*)data);
-        const bool did_read   = (bytes_read == size);
-
-        return(did_read);
-    }
-
+   
+    //--------------------------------------------------------------------
+    // INLINE METHOD DECLARATIONS 
+    //--------------------------------------------------------------------
+    
+    inline bool      asset_database_find      (const asset_database* db, const hnd_asset h_asset,const asset_type_e type, asset_index& index);
+    inline bool      asset_database_read_at   (const hnd_file h_file, const u32 offset, const u32 size, void* data);
+    inline u32       asset_database_write_at  (const hnd_file h_file, const u32 offset, const u32 size, const void* data);
+    inline void      asset_database_set_index (asset_database* db,    const u32 index,  const asset_dictionary_file_node* node, const asset_type_u32 type,const u32 offset,const u32 size);
+    inline hnd_asset asset_database_handle_of (const cchar* name_cstr);
+    inline bool      asset_database_index_of  (const asset_database* db, const hnd_asset hnd, asset_index& index);
+    inline u32       asset_database_slot_of   (const asset_database* db, const hnd_asset hnd);
+    inline bool      asset_database_find      (const asset_database* db, const hnd_asset h_asset, const asset_type_e type, asset_index& index);
+ 
+    //--------------------------------------------------------------------
+    // INTERNAL METHOD DECLARATIONS 
+    //--------------------------------------------------------------------
+    
     IFB_INTERNAL asset_database*
     asset_database_load(
         const cchar*    path,
@@ -157,41 +167,6 @@ namespace ifb {
         }
 
         return(db);
-    }
-
-    inline u32
-    asset_database_write_at(
-        const hnd_file h_file,
-        const u32      offset,
-        const u32      size,
-        const void*    data) {
-
-        // file_write doesn't move the cursor, so we always set it first
-        file_set_cursor(h_file, offset);
-        const u32 bytes_written = file_write(h_file, size, (const byte*)data);
-        assert(bytes_written == size);
-
-        return(bytes_written);
-    }
-
-    inline void
-    asset_database_set_index(
-        asset_database*                   db,
-        const u32                         index,
-        const asset_dictionary_file_node* node,
-        const asset_type_u32              type,
-        const u32                         offset,
-        const u32                         size) {
-
-        assert(index < db->asset_count);
-
-        // the handle is the hash of the stored name, the same as a lookup by name
-        db->array_names  [index] = {};
-        db->array_names  [index].init(node->name);
-        db->array_handles[index] = db->array_names[index].to_handle();
-        db->array_indexes[index].type   = type;
-        db->array_indexes[index].offset = offset;
-        db->array_indexes[index].size   = size;
     }
 
     IFB_INTERNAL asset_database* 
@@ -326,60 +301,24 @@ namespace ifb {
         return(db);
     }
 
-    inline hnd_asset
-    asset_database_handle_of(
-        const cchar* name_cstr) {
-
-        // names in the dictionary are upper case, so lookups are too
-        cchar     name_upper[IFB_CONFIG_FILE_PATH_SIZE];
-        const u32 length = asset_dictionary_name_to_upper(name_cstr, name_upper);
-        if (length == 0) return(INVALID_HANDLE);
-
-        // the whole name is hashed, so the unused bytes need to be zero
-        asset_name name = {};
-        name.init(name_upper);
-
-        const hnd_asset hnd = name.to_handle();
-        return(hnd);
-    }
-
-    inline bool
-    asset_database_index_of(
+    IFB_INTERNAL bool 
+    asset_database_get_index(
         const asset_database* db,
-        const hnd_asset       hnd,
+        const cchar*          name_cstr,
         asset_index&          index) {
 
-        // the indexes are already loaded, so there's no need to go to the file
-        for (
-            u32 i = 0;
-                i < db->asset_count;
-              ++i) {
+        assert(db);
+        assert(name_cstr);
 
-            if (hnd == db->array_handles[i]) {
-                index = db->array_indexes[i];
-                return(true);
-            }
-        }
-        return(false);
+        asset_name name;
+        name.init(name_cstr);
+
+        const bool did_find = asset_database_index_of(db, name.to_handle(), index);
+        return(did_find);
     }
-
-    inline bool
-    asset_database_find(
-        const asset_database* db,
-        const hnd_asset       h_asset,
-        const asset_type_e    type,
-        asset_index&          index) {
-
-        const bool is_valid = (
-            h_asset != INVALID_HANDLE                   &&
-            asset_database_index_of(db, h_asset, index) &&
-            index.type == type
-        );
-        return(is_valid);
-    }
-
+    
     IFB_INTERNAL const asset_text*
-    asset_database_load_text_by_handle(
+    asset_database_load_text_by_handle_to_arena(
         const asset_database* db,
         const hnd_asset       h_asset,
         const hnd_arena       h_arena) {
@@ -431,7 +370,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL const asset_text*
-    asset_database_load_text_by_name(
+    asset_database_load_text_by_name_to_arena(
         const asset_database* db,
         const cchar*          name_cstr,
         const hnd_arena       h_arena) {
@@ -443,12 +382,12 @@ namespace ifb {
             return(NULL);
         }
 
-        const asset_text* txt = asset_database_load_text_by_handle(db, h_asset, h_arena);
+        const asset_text* txt = asset_database_load_text_by_handle_to_arena(db, h_asset, h_arena);
         return(txt);
     }
 
     IFB_INTERNAL const asset_image*
-    asset_database_load_image_by_handle(
+    asset_database_load_image_by_handle_to_arena(
         const asset_database* db,
         const hnd_asset       h_asset,
         const hnd_arena       h_arena) {
@@ -504,7 +443,7 @@ namespace ifb {
     }
 
     IFB_INTERNAL const asset_image*
-    asset_database_load_image_by_name(
+    asset_database_load_image_by_name_to_arena(
         const asset_database* db,
         const cchar*          name_cstr,
         const hnd_arena       h_arena) {
@@ -516,7 +455,285 @@ namespace ifb {
             return(NULL);
         }
 
-        const asset_image* img = asset_database_load_image_by_handle(db, h_asset, h_arena);
+        const asset_image* img = asset_database_load_image_by_handle_to_arena(db, h_asset, h_arena);
         return(img);
+    }
+    
+    IFB_INTERNAL const asset_text*
+    asset_database_load_text_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&               mem) {
+
+        assert(db);
+        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->array_names   != NULL);
+        assert(db->asset_count   != 0);
+        assert(mem.size          != 0);
+        assert(mem.address       != 0);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_text, index)) {
+            return(NULL);
+        }
+
+        // read the size, it has to agree with the index
+        u32  size     = 0;
+        bool is_valid = asset_database_read_at(db->file_handle, index.offset, sizeof(u32), &size);
+        is_valid     &= (index.size == (u64)sizeof(u32) + size);
+        if (!is_valid) {
+            return(NULL);
+        }
+
+        // make sure the data can fit
+        const u32 size_needed = sizeof(asset_text) + size + 1;
+        if (mem.size < size_needed) {
+            return(NULL);
+        }
+
+        zero_memory(mem);
+
+        // the text goes right after the struct, with a null terminator
+        auto txt = (asset_text*)mem.ptr;
+        txt->hnd  = h_asset;
+        txt->size = size;
+        txt->cstr = ((cchar*)txt) + sizeof(asset_text);
+
+        // read the text
+        if (size > 0) {
+            const u32 offset_text = index.offset + sizeof(u32);
+            if (!asset_database_read_at(db->file_handle, offset_text, size, txt->cstr)) {
+                return(NULL);
+            }
+        }
+
+        return(txt);
+    }
+
+    IFB_INTERNAL const asset_text*
+    asset_database_load_text_by_name_to_memory(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        memory&               mem) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_text* txt = asset_database_load_text_by_handle_to_memory(db, h_asset, mem);
+        return(txt);
+    }
+    
+    IFB_INTERNAL const asset_image*
+    asset_database_load_image_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&         mem) {
+
+        assert(db);
+        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->array_names   != NULL);
+        assert(db->asset_count   != 0);
+        assert(mem.size          != 0);
+        assert(mem.address       != 0);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_image, index)) {
+            return(NULL);
+        }
+
+        // read the dimensions, the pixels have to agree with the index
+        u32  dimensions[2] = { 0, 0 };
+        bool is_valid      = asset_database_read_at(db->file_handle, index.offset, sizeof(dimensions), dimensions);
+
+        const u32 width       = dimensions[0];
+        const u32 height      = dimensions[1];
+        const u64 size_pixels = (u64)width * height * sizeof(color_rgba_u32);
+        is_valid &= (index.size == sizeof(dimensions) + size_pixels);
+        if (!is_valid) {
+            return(NULL);
+        }
+
+        // make sure the data can fit
+        const u32 size_needed = sizeof(asset_image) + (u32)size_pixels;
+        if (mem.size < size_needed) {
+            return(NULL);
+        }
+
+        // the pixels go right after the struct
+        auto img    = (asset_image*)mem.ptr;
+        img->hnd    = h_asset;
+        img->width  = width;
+        img->height = height;
+        img->pixels = (color_rgba_u32*)(((byte*)img) + sizeof(asset_image));
+
+        // read the pixels
+        if (size_pixels > 0) {
+            const u32 offset_pixels = index.offset + sizeof(dimensions);
+            if (!asset_database_read_at(db->file_handle, offset_pixels, (u32)size_pixels, img->pixels)) {
+                return(NULL);
+            }
+        }
+
+        return(img);
+    }
+    
+    IFB_INTERNAL const asset_image*
+    asset_database_load_image_by_name_to_memory(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        memory&               mem) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_image* img = asset_database_load_image_by_handle_to_memory(db, h_asset, mem);
+        return(img);
+    }
+    
+    IFB_INTERNAL u32
+    asset_database_get_asset_count(
+        const asset_database* db) {
+
+        assert(db);
+        return(db->asset_count);
+    }
+    
+    IFB_INTERNAL void
+    asset_database_close(
+        const asset_database* db) {
+
+        assert(db);
+        file_close(db->file_handle);
+    }    
+    //--------------------------------------------------------------------
+    // INLINE METHOD DEFINITIONS 
+    //--------------------------------------------------------------------
+    
+    inline bool
+    asset_database_find(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        const asset_type_e    type,
+        asset_index&          index) {
+
+        const bool is_valid = (
+            h_asset != INVALID_HANDLE                   &&
+            asset_database_index_of(db, h_asset, index) &&
+            index.type == type
+        );
+        return(is_valid);
+    }
+
+    inline bool
+    asset_database_read_at(
+        const hnd_file h_file,
+        const u32      offset,
+        const u32      size,
+        void*          data) {
+
+        // like writing, the cursor doesn't move on its own
+        file_set_cursor(h_file, offset);
+        const u32  bytes_read = file_read_to_buffer(h_file, size, (byte*)data);
+        const bool did_read   = (bytes_read == size);
+
+        return(did_read);
+    }
+
+    inline u32
+    asset_database_write_at(
+        const hnd_file h_file,
+        const u32      offset,
+        const u32      size,
+        const void*    data) {
+
+        // file_write doesn't move the cursor, so we always set it first
+        file_set_cursor(h_file, offset);
+        const u32 bytes_written = file_write(h_file, size, (const byte*)data);
+        assert(bytes_written == size);
+
+        return(bytes_written);
+    }
+
+    inline void
+    asset_database_set_index(
+        asset_database*                   db,
+        const u32                         index,
+        const asset_dictionary_file_node* node,
+        const asset_type_u32              type,
+        const u32                         offset,
+        const u32                         size) {
+
+        assert(index < db->asset_count);
+
+        // the handle is the hash of the stored name, the same as a lookup by name
+        db->array_names  [index] = {};
+        db->array_names  [index].init(node->name);
+        db->array_handles[index] = db->array_names[index].to_handle();
+        db->array_indexes[index].type   = type;
+        db->array_indexes[index].offset = offset;
+        db->array_indexes[index].size   = size;
+    }
+
+    inline hnd_asset
+    asset_database_handle_of(
+        const cchar* name_cstr) {
+
+        // names in the dictionary are upper case, so lookups are too
+        cchar     name_upper[IFB_CONFIG_FILE_PATH_SIZE];
+        const u32 length = asset_dictionary_name_to_upper(name_cstr, name_upper);
+        if (length == 0) return(INVALID_HANDLE);
+
+        // the whole name is hashed, so the unused bytes need to be zero
+        asset_name name = {};
+        name.init(name_upper);
+
+        const hnd_asset hnd = name.to_handle();
+        return(hnd);
+    }
+
+    inline bool
+    asset_database_index_of(
+        const asset_database* db,
+        const hnd_asset       hnd,
+        asset_index&          index) {
+
+        // the indexes are already loaded, so there's no need to go to the file
+        const u32 slot = asset_database_slot_of(db, hnd);
+        if (slot == INVALID_INDEX) return(false);
+
+        index = db->array_indexes[slot];
+        return(true);
+    }
+
+    // the position of the asset in the database arrays
+    inline u32
+    asset_database_slot_of(
+        const asset_database* db,
+        const hnd_asset       hnd) {
+
+        assert(db);
+
+        for (
+            u32 slot = 0;
+                slot < db->asset_count;
+              ++slot) {
+
+            if (hnd == db->array_handles[slot]) {
+                return(slot);
+            }
+        }
+        return(INVALID_INDEX);
     }
 };
