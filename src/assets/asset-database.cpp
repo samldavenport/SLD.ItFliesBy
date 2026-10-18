@@ -60,6 +60,7 @@ namespace ifb {
     inline void      asset_database_set_index (asset_database* db,    const u32 index,  const asset_dictionary_file_node* node, const asset_type_u32 type,const u32 offset,const u32 size);
     inline hnd_asset asset_database_handle_of (const cchar* name_cstr);
     inline bool      asset_database_index_of  (const asset_database* db, const hnd_asset hnd, asset_index& index);
+    inline u32       asset_database_slot_of   (const asset_database* db, const hnd_asset hnd);
     inline bool      asset_database_find      (const asset_database* db, const hnd_asset h_asset, const asset_type_e type, asset_index& index);
  
     //--------------------------------------------------------------------
@@ -694,16 +695,30 @@ namespace ifb {
         asset_index&          index) {
 
         // the indexes are already loaded, so there's no need to go to the file
-        for (
-            u32 i = 0;
-                i < db->asset_count;
-              ++i) {
+        const u32 slot = asset_database_slot_of(db, hnd);
+        if (slot == INVALID_INDEX) return(false);
 
-            if (hnd == db->array_handles[i]) {
-                index = db->array_indexes[i];
-                return(true);
+        index = db->array_indexes[slot];
+        return(true);
+    }
+
+    // the position of the asset in the database arrays
+    inline u32
+    asset_database_slot_of(
+        const asset_database* db,
+        const hnd_asset       hnd) {
+
+        assert(db);
+
+        for (
+            u32 slot = 0;
+                slot < db->asset_count;
+              ++slot) {
+
+            if (hnd == db->array_handles[slot]) {
+                return(slot);
             }
         }
-        return(false);
-    }  
+        return(INVALID_INDEX);
+    }
 };

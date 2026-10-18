@@ -209,6 +209,8 @@ namespace ifb {
 
         //TODO(SLD)
 
+        asset_mngr_shutdown();
+
         // shut down the platform context
         pfm_context_shutdown();
     }

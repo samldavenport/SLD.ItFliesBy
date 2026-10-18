@@ -136,10 +136,11 @@ endforeach()
 # ASSETS
 #--------------------------------------------------------------------
 
-# the engine loads shaders and json from the working directory, so they sit next to the exe
+# the engine loads shaders, json, and the asset database from the working directory, so they sit next to the exe
 file(GLOB IFB_ASSETS CONFIGURE_DEPENDS
     assets/shaders/*.glsl
     assets/json/*.json
+    assets/*.ifbdb
 )
 
 set(IFB_ASSETS_OUT "")

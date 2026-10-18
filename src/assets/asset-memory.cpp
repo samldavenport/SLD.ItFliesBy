@@ -226,6 +226,27 @@ namespace ifb {
         assert(partition_index == ASSET_MEMORY_PARTITION_COUNT);
     }
 
+    IFB_INTERNAL u32
+    asset_memory_count_pinned(
+        const asset_memory* mem) {
+
+        assert(mem);
+
+        u32 count_pinned = 0;
+        for (
+            u32 partition_index = 0;
+                partition_index < ASSET_MEMORY_PARTITION_COUNT;
+              ++partition_index) {
+
+            const asset_memory_partition* partition = mem->partition_table[partition_index];
+            assert(partition);
+
+            count_pinned += partition->count_blocks_pinned;
+        }
+
+        return(count_pinned);
+    }
+
     IFB_INTERNAL void
     asset_memory_update(
         asset_memory* mem,

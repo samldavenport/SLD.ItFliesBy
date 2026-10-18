@@ -18,6 +18,7 @@ using namespace sld;
 #define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     16
 #define IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES  240
 #define IFB_CONFIG_ASSET_EXPIRE_FRAMES            7200
+#define IFB_CONFIG_ASSET_DATABASE_PATH            "asset-database.ifbdb"
 #define IFB_CONFIG_BUILD_MODE                     0
 #define IFB_CONFIG_WINDOW_TITLE_DEBUG             "It Flies By (Debug)"
 #define IFB_CONFIG_WINDOW_TITLE_RELEASE           "It Flies By"
@@ -106,6 +107,9 @@ namespace ifb {
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 
+        static constexpr cchar asset_database_path[IFB_CONFIG_FILE_PATH_SIZE] = {
+            IFB_CONFIG_ASSET_DATABASE_PATH
+        };
     };
 
     inline config&
