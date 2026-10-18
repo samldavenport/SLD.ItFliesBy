@@ -474,14 +474,14 @@ namespace ifb {
 
         if (preview.type == asset_type_e_text) {
 
-            const asset_text* txt = asset_database_load_text_by_handle(db, h_asset, h_arena);
+            const asset_text* txt = asset_database_load_text_by_handle_to_arena(db, h_asset, h_arena);
             if (!txt) return(false);
 
             preview.text = txt->cstr;
             return(true);
         }
 
-        const asset_image* img = asset_database_load_image_by_handle(db, h_asset, h_arena);
+        const asset_image* img = asset_database_load_image_by_handle_to_arena(db, h_asset, h_arena);
         if (!img || img->width == 0 || img->height == 0) return(false);
 
         preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_database, img->width, img->height, (const byte*)img->pixels);

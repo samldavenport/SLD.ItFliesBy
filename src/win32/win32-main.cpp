@@ -19,6 +19,7 @@ using namespace ifb;
 
 static const u32 SIZE_STACK       = size_kilobytes(64);
 static const u32 SIZE_RESERVATION = size_megabytes(64);
+static const u32 SIZE_ASSETS      = size_megabytes(128);
 
 static byte _stack_mem[SIZE_STACK];
 
@@ -111,6 +112,8 @@ mem_map_init(
     mem_map.tiles.ptr       = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.particles.size  = SIZE_RESERVATION;
     mem_map.particles.ptr   = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.assets.size     = SIZE_ASSETS;
+    mem_map.assets.ptr      = VirtualAlloc(NULL, SIZE_ASSETS,      MEM_RESERVE, PAGE_READONLY);
 
     assert(
         mem_map.stack.ptr      != NULL &&        
@@ -123,6 +126,7 @@ mem_map_init(
         mem_map.quads.ptr      != NULL &&
         mem_map.physics.ptr    != NULL &&
         mem_map.tiles.ptr      != NULL &&
-        mem_map.particles.ptr  != NULL
+        mem_map.particles.ptr  != NULL &&
+        mem_map.assets.ptr     != NULL
     );
 }
