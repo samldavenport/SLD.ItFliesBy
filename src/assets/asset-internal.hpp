@@ -1,6 +1,7 @@
 #ifndef ASSET_INTERNAL_HPP
 #define ASSET_INTERNAL_HPP
 
+#include "asset-database.cpp"
 #include "asset.hpp"
 #include "ifb-types.hpp"
 #include "json.cpp" //TODO(SAM): lets make this a header if possible
@@ -47,6 +48,13 @@ namespace ifb {
     IFB_INTERNAL u32       asset_dictionary_name_to_upper            (const cchar* name, cchar* name_upper);
     IFB_INTERNAL u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
     IFB_INTERNAL u32       asset_dictionary_file_list_count          (const asset_dictionary_file_list& list);
+
+    //--------------------------------------------------------------------
+    // ASSET DATABASE 
+    //--------------------------------------------------------------------
+   
+    IFB_INTERNAL u32  asset_database_get_asset_count (const asset_database* db);
+    IFB_INTERNAL void asset_database_close           (const asset_database* db);
 
     //--------------------------------------------------------------------
     // ASSET MEMORY 

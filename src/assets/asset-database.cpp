@@ -602,6 +602,21 @@ namespace ifb {
         return(img);
     }
     
+    IFB_INTERNAL u32
+    asset_database_get_asset_count(
+        const asset_database* db) {
+
+        assert(db);
+        return(db->asset_count);
+    }
+    
+    IFB_INTERNAL void
+    asset_database_close(
+        const asset_database* db) {
+
+        assert(db);
+        file_close(db->file_handle);
+    }    
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS 
     //--------------------------------------------------------------------

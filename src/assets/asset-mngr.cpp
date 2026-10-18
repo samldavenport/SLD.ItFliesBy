@@ -1,8 +1,10 @@
 #pragma once
 
+#include "asset-database.cpp"
 #include "asset.hpp"
 #include "asset-internal.hpp"
 #include "eng-internal.hpp"
+#include "ifb-types.hpp"
 
 namespace ifb {
 
@@ -75,7 +77,7 @@ namespace ifb {
             return;
         }
 
-        const u32 asset_count = _asset_mngr->db->asset_count;
+        const u32 asset_count = asset_database_get_asset_count(_asset_mngr->db);
         _asset_mngr->array_blocks = ifb_arena_push_array(_asset_mngr->h_arena, asset_count, asset_memory_block);
         assert(_asset_mngr->array_blocks);
 
@@ -108,7 +110,7 @@ namespace ifb {
         assert(asset_memory_count_pinned(_asset_mngr->mem) == 0);
 
         if (_asset_mngr->db) {
-            file_close(_asset_mngr->db->file_handle);
+            asset_database_close(_asset_mngr->db);
             _asset_mngr->db           = NULL;
             _asset_mngr->array_blocks = NULL;
         }
@@ -229,9 +231,17 @@ namespace ifb {
         mem_block.size = size;
         mem_block.ptr  = (void*)data;
 
-        const bool did_load = (type == asset_type_e_text)
-            ? (asset_database_load_text_by_handle_to_memory  (_asset_mngr->db, hnd, mem_block) != NULL)
-            : (asset_database_load_image_by_handle_to_memory (_asset_mngr->db, hnd, mem_block) != NULL);
+        bool did_load = false;
+        switch (type) {
+
+            case (asset_type_e_text): {
+                did_load = asset_database_load_text_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL; 
+            } break;
+            case (asset_type_e_image): {
+                did_load = asset_database_load_image_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
+            } break;
+            default: break;
+        }
 
         if (!did_load) {
             asset_memory_free(_asset_mngr->mem, block_new);
