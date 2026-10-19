@@ -51,7 +51,6 @@ namespace ifb {
         img->data.size     = push_size - sizeof(image); 
         img->pixel_width   = 0;
         img->pixel_height  = 0;
-        img->pixel_count   = 0;
 
         // get image file buffer
         const stbi_uc* img_file_buffer_ptr  = (const stbi_uc*)eng_file_read(file_hnd);
@@ -101,7 +100,6 @@ namespace ifb {
         img->data.size     = mem.size - sizeof(image); 
         img->pixel_width   = 0;
         img->pixel_height  = 0;
-        img->pixel_count   = 0;
 
         // get image file buffer
         const stbi_uc* img_file_buffer_ptr  = (const stbi_uc*)eng_file_read(file_hnd);
