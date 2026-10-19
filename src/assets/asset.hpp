@@ -24,7 +24,10 @@ namespace ifb {
     //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
-   
+
+    // asset
+    IFB_INTERNAL hnd_asset          asset_name_cstr_to_handle          (const cchar* name_cstr);
+
     // manager
     IFB_INTERNAL asset_mngr*        asset_mngr_create                   (void);
     IFB_INTERNAL void               asset_mngr_startup                  (reservation* res);

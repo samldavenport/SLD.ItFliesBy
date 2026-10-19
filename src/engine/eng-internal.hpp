@@ -12,6 +12,7 @@
 #include "map.hpp"
 #include "particle.hpp"
 #include "random.hpp"
+#include "sprites.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -36,7 +37,7 @@ namespace ifb {
         eng_game_context*  game_ctx;
         eng_system_info*   system;
         keyboard_input*    keyboard;
-        renderer*  renderer;
+        renderer*          renderer;
         file_mngr*         file_mngr;
         entity_mngr*       entity_mngr;
         memory_mngr*       memory_mngr;
@@ -46,6 +47,7 @@ namespace ifb {
         particle_mngr*     particle_mngr;
         random_table*      random_table;
         asset_mngr*        asset_mngr;
+        sprite_mngr*       sprite_mngr;
     } static * _eng_context;
 
     struct global_stack {

@@ -17,8 +17,8 @@ namespace ifb {
     // INTERNAL METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL cmpnt_mngr* cmpnt_mngr_create          (void);
-    IFB_INTERNAL void        cmpnt_mngr_startup         (reservation* res);
+    IFB_INTERNAL cmpnt_mngr* cmpnt_mngr_create             (void);
+    IFB_INTERNAL void        cmpnt_mngr_startup            (reservation* res);
     
     IFB_INTERNAL void        cmpnt_lookup_position         (const u32 sparse_index, cmpnt_position&         position);
     IFB_INTERNAL void        cmpnt_lookup_color            (const u32 sparse_index, cmpnt_color&            color);
@@ -32,6 +32,7 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_lookup_spring           (const u32 sparse_index, cmpnt_spring&           spring);
     IFB_INTERNAL void        cmpnt_lookup_map_coords       (const u32 sparse_index, cmpnt_map_coords&       map_coords);    
     IFB_INTERNAL void        cmpnt_lookup_particle_emitter (const u32 sparse_index, cmpnt_particle_emitter& particle_emitter);    
+    IFB_INTERNAL void        cmpnt_lookup_sprite           (const u32 sparse_index, cmpnt_sprite&           sprite);
 
     IFB_INTERNAL void        cmpnt_update_position         (const u32 sparse_index, const cmpnt_position&         position);
     IFB_INTERNAL void        cmpnt_update_color            (const u32 sparse_index, const cmpnt_color&            color);
@@ -45,6 +46,7 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_update_spring           (const u32 sparse_index, const cmpnt_spring&           spring);
     IFB_INTERNAL void        cmpnt_update_map_coords       (const u32 sparse_index, const cmpnt_map_coords&       map_coords);
     IFB_INTERNAL void        cmpnt_update_particle_emitter (const u32 sparse_index, const cmpnt_particle_emitter& particle_emitter);
+    IFB_INTERNAL void        cmpnt_update_sprite           (const u32 sparse_index, const cmpnt_sprite&           sprite);
 };
 
 #endif //COMPONENTS_HPP

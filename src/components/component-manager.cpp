@@ -4,6 +4,7 @@
 
 #include "component.hpp"
 #include "eng-internal.hpp"
+#include "ifb-types.hpp"
 #include "memory-reservation.cpp"
 #include "component-internal.hpp"
 
@@ -41,18 +42,20 @@ namespace ifb {
         auto* tbl = _cmpnt_mngr->cmpnt_tbl;
         assert(tbl);
 
-        tbl->array_position      =      (cmpnt_position*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_position));      
-        tbl->array_color         =         (cmpnt_color*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_color));         
-        tbl->array_quad          =          (cmpnt_quad*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_quad));          
-        tbl->array_rigid_body    =    (cmpnt_rigid_body*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_rigid_body));    
-        tbl->array_velocity      =      (cmpnt_velocity*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_velocity));      
-        tbl->array_acceleration  =  (cmpnt_acceleration*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_acceleration));  
-        tbl->array_inv_mass      =      (cmpnt_inv_mass*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_inv_mass));      
-        tbl->array_drag          =          (cmpnt_drag*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_drag));          
-        tbl->array_term_velocity = (cmpnt_term_velocity*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_term_velocity)); 
-        tbl->array_spring        =        (cmpnt_spring*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_spring));        
-        tbl->array_map_coords    =    (cmpnt_map_coords*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_map_coords));    
-    
+        tbl->array_position         =         (cmpnt_position*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_position));      
+        tbl->array_color            =            (cmpnt_color*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_color));         
+        tbl->array_quad             =             (cmpnt_quad*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_quad));          
+        tbl->array_rigid_body       =       (cmpnt_rigid_body*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_rigid_body));    
+        tbl->array_velocity         =         (cmpnt_velocity*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_velocity));      
+        tbl->array_acceleration     =     (cmpnt_acceleration*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_acceleration));  
+        tbl->array_inv_mass         =         (cmpnt_inv_mass*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_inv_mass));      
+        tbl->array_drag             =             (cmpnt_drag*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_drag));          
+        tbl->array_term_velocity    =    (cmpnt_term_velocity*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_term_velocity)); 
+        tbl->array_spring           =           (cmpnt_spring*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_spring));        
+        tbl->array_map_coords       =       (cmpnt_map_coords*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_map_coords));    
+        tbl->array_particle_emitter = (cmpnt_particle_emitter*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_particle_emitter));
+        tbl->array_sprite           =           (cmpnt_sprite*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_sprite));
+
         assert(tbl->array_position);
         assert(tbl->array_color);
         assert(tbl->array_quad);
@@ -64,17 +67,7 @@ namespace ifb {
         assert(tbl->array_term_velocity);
         assert(tbl->array_spring);
         assert(tbl->array_map_coords);
-
-        // an entity has no emitter until one is set
-        tbl->array_particle_emitter = (cmpnt_particle_emitter*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_particle_emitter));
         assert(tbl->array_particle_emitter);
-        for (
-            u32 index = 0;
-                index < _cmpnt_mngr->capacity;
-              ++index) {
-
-            tbl->array_particle_emitter[index].hnd = INVALID_HANDLE;
-        }
-
+        assert(tbl->array_sprite);
     }
 };

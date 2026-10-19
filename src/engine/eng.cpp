@@ -68,10 +68,14 @@
 #include "quad-tests.cpp"
 
 #include "random-table.cpp"
-
 #include "renderer.cpp"
+
+#include "sprite.cpp"
+
+#include "tiled.cpp"
+
+
 
 #include "win32.cpp"
 
-#include "tiled.cpp"
 

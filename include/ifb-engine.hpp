@@ -360,6 +360,7 @@ namespace ifb {
         memory tiles;
         memory particles;
         memory assets;
+        memory sprites;
     };
 
     struct eng_game_context {

@@ -42,6 +42,7 @@ set(IFB_ENGINE_SOURCE_DIRS
     src/quads
     src/random
     src/renderer
+    src/sprites
     src/tiled
     src/win32
 )
