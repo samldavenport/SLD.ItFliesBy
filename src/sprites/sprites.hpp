@@ -13,6 +13,7 @@ namespace ifb {
     struct sprite_mngr;
     struct sprite_list;
     struct sprite_list_node;
+    struct sprite_atlas_builder;
 
     //--------------------------------------------------------------------
     // METHODS 
@@ -33,6 +34,14 @@ namespace ifb {
     IFB_INTERNAL const cchar*            sprite_atlas_get_sprite_asset_name_cstr (const hnd_sprite_atlas h_atlas, const u32 index);  
     IFB_INTERNAL hnd_asset               sprite_atlas_get_sprite_asset_hnd       (const hnd_sprite_atlas h_atlas, const u32 index);
     IFB_INTERNAL u32                     sprite_atlas_get_sprite_offset          (const hnd_sprite_atlas h_atlas, const u32 index);
+
+    // sprite builder
+    IFB_INTERNAL sprite_atlas_builder*   sprite_atlas_builder_create             (void);
+    IFB_INTERNAL void                    sprite_atlas_builder_destroy            (sprite_atlas_builder* builder);
+    IFB_INTERNAL void                    sprite_atlas_builder_reset              (sprite_atlas_builder* builder);
+    IFB_INTERNAL void                    sprite_atlas_builder_set_list           (sprite_atlas_builder* builder, sprite_list* list);
+    IFB_INTERNAL void                    sprite_atlas_builder_pack_sprites       (sprite_atlas_builder* builder);
+    IFB_INTERNAL const image*            sprite_atlas_builder_get_image          (sprite_atlas_builder* builder);
 
     // sprite list
     IFB_INTERNAL sprite_list*            sprite_list_create                      (const hnd_arena h_arena);

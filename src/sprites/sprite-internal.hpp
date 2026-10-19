@@ -11,6 +11,8 @@ namespace ifb {
     struct sprite_memory_block;
     struct sprite_memory;
 
+    IFB_INTERNAL sprite_memory*       sprite_mngr_get_memory   (void);
+
     IFB_INTERNAL sprite_memory*       sprite_memory_create     (void);
     IFB_INTERNAL void                 sprite_memory_init       (sprite_memory* mem, reservation* res);
     IFB_INTERNAL sprite_memory_block* sprite_memory_alloc      (sprite_memory* mem);

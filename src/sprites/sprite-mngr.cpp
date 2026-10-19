@@ -32,4 +32,14 @@ namespace ifb {
 
         sprite_memory_init(_sprite_mngr->mem, res);
     }
+    
+    IFB_INTERNAL sprite_memory*
+    sprite_mngr_get_memory(
+        void) {
+
+        assert(_sprite_mngr);
+        assert(_sprite_mngr->mem);
+
+        return(_sprite_mngr->mem);
+    }
 };
