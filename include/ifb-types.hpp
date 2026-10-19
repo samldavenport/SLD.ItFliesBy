@@ -91,9 +91,10 @@ namespace ifb {
     };
    
     enum asset_type_e {
-        asset_type_e_text  = 0,
-        asset_type_e_image = 1,
-        asset_type_e_count = 2 
+        asset_type_e_text          = 0,
+        asset_type_e_image         = 1,
+        asset_type_e_sprite_atlas  = 2,
+        asset_type_e_count         = 3 
     };
 
     enum particle_emitter_type_e {
@@ -119,6 +120,7 @@ namespace ifb {
     IFB_HANDLE(hnd_map);
     IFB_HANDLE(hnd_particle_emitter);
     IFB_HANDLE(hnd_sprite_atlas);
+    IFB_HANDLE(hnd_sprite);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -174,7 +176,6 @@ namespace ifb {
         } data;
         u32 pixel_width;
         u32 pixel_height;
-        u32 pixel_count;
     };
 
     struct tag {

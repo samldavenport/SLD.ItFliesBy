@@ -49,6 +49,8 @@ using namespace sld;
 #define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
+#define IFB_CONFIG_SPRITE_ATLAS_CAPACITY          8
+#define IFB_CONFIG_SPRITE_ATLAS_SIZE              size_megabytes(8)
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -104,6 +106,8 @@ namespace ifb {
         static constexpr u32   particle_bufffer_count         = IFB_CONFIG_PARTICLE_BUFFER_COUNT;
         static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
         static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
+        static constexpr u32   sprite_atlas_capacity          = IFB_CONFIG_SPRITE_ATLAS_CAPACITY;
+        static constexpr u32   sprite_atlas_size              = IFB_CONFIG_SPRITE_ATLAS_SIZE;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

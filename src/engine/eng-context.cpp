@@ -21,6 +21,8 @@
 #include "tiled.hpp"
 #include "memory.hpp"
 #include "eng-system.cpp"
+#include "asset.hpp"
+#include "sprites.hpp"
 
 namespace ifb {
 
@@ -66,6 +68,7 @@ namespace ifb {
         _eng_context->particle_mngr   = particle_mngr_create();
         _eng_context->random_table    = random_table_create();
         _eng_context->asset_mngr      = asset_mngr_create();
+        _eng_context->sprite_mngr     = sprite_mngr_create();
         _eng_context->mem_map         = mem_map;
 
         assert(
@@ -84,7 +87,7 @@ namespace ifb {
             _eng_context->particle_mngr != NULL &&
             _eng_context->random_table  != NULL &&
             _eng_context->asset_mngr    != NULL &&
-            _eng_context->mem_map       != NULL
+            _eng_context->sprite_mngr   != NULL
         );
 
         return(_eng_context);
@@ -127,6 +130,7 @@ namespace ifb {
         reservation* res_tiles      = reservation_create(mem_map->tiles);
         reservation* res_particles  = reservation_create(mem_map->particles);
         reservation* res_assets     = reservation_create(mem_map->assets);
+        reservation* res_sprites    = reservation_create(mem_map->sprites);
         assert(res_files);
         assert(res_entities);
         assert(res_arenas);
@@ -136,6 +140,7 @@ namespace ifb {
         assert(res_tiles);
         assert(res_particles);
         assert(res_assets);
+        assert(res_sprites);
        
         // start systems
         file_mngr_startup        (res_files);
@@ -146,6 +151,7 @@ namespace ifb {
         map_mngr_startup         (res_tiles);
         particle_mngr_startup    (res_particles);
         asset_mngr_startup       (res_assets);
+        sprite_mngr_startup      (res_sprites);
         renderer_startup         (res_renderer);
     }
 

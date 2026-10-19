@@ -114,7 +114,9 @@ mem_map_init(
     mem_map.particles.ptr   = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.assets.size     = SIZE_ASSETS;
     mem_map.assets.ptr      = VirtualAlloc(NULL, SIZE_ASSETS,      MEM_RESERVE, PAGE_READONLY);
-
+    mem_map.sprites.size    = SIZE_ASSETS;
+    mem_map.sprites.ptr     = VirtualAlloc(NULL, SIZE_ASSETS,      MEM_RESERVE, PAGE_READONLY);
+    
     assert(
         mem_map.stack.ptr      != NULL &&        
         mem_map.core.ptr       != NULL &&        
@@ -127,6 +129,7 @@ mem_map_init(
         mem_map.physics.ptr    != NULL &&
         mem_map.tiles.ptr      != NULL &&
         mem_map.particles.ptr  != NULL &&
-        mem_map.assets.ptr     != NULL
+        mem_map.assets.ptr     != NULL &&
+        mem_map.sprites.ptr    != NULL
     );
 }
