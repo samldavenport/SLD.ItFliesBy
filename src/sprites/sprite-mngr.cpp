@@ -1,5 +1,7 @@
 #pragma once
 
+#include "eng-internal.hpp"
+#include "memory.hpp"
 #include "sprite-internal.hpp"
 #include "sprites.hpp"
 
@@ -14,6 +16,9 @@ namespace ifb {
         _sprite_mngr = (sprite_mngr*)global_alloc(sizeof(sprite_mngr)); 
         assert(_sprite_mngr);
 
+        _sprite_mngr->mem = sprite_memory_create();
+        assert(_sprite_mngr->mem);
+
         return(_sprite_mngr);
     }
 
@@ -22,8 +27,9 @@ namespace ifb {
         reservation* res) {
 
         assert(_sprite_mngr);
+        assert(_sprite_mngr->mem);
         assert(res);
 
-        _sprite_mngr->res = res;
+        sprite_memory_init(_sprite_mngr->mem, res);
     }
 };

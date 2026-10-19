@@ -13,8 +13,8 @@ namespace ifb {
     
     struct sprite_memory {
         reservation*         res;
-        b8                   block_is_allocated[config::sprite_mem_block_capacity];
-        sprite_memory_block* blocks;
+        b8                   block_is_allocated [config::sprite_mem_block_capacity];
+        sprite_memory_block  blocks             [config::sprite_mem_block_capacity];
     };
     
     IFB_INTERNAL sprite_memory*
@@ -46,7 +46,6 @@ namespace ifb {
               ++block_index) {
 
             mem->block_is_allocated [block_index] = false;
-
 
             auto& block = mem->blocks[block_index];
            
@@ -105,5 +104,14 @@ namespace ifb {
 
         void* mem = stack_push(block->stack, size);
         return(mem);    
+    }
+    
+    IFB_INTERNAL void
+    sprite_memory_reset(
+        sprite_memory_block* block) {
+
+        assert(block);
+
+        stack_reset(block->stack);
     }
 };

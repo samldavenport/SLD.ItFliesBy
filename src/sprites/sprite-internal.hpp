@@ -16,6 +16,7 @@ namespace ifb {
     IFB_INTERNAL sprite_memory_block* sprite_memory_alloc      (sprite_memory* mem);
     IFB_INTERNAL sprite_memory_block* sprite_memory_free       (sprite_memory* mem, sprite_memory_block* block);
     IFB_INTERNAL void*                sprite_memory_block_push (sprite_memory_block* block, const u32 size);
+    IFB_INTERNAL void                 sprite_memory_reset      (sprite_memory_block* block);
 
     struct sprite_list_node {
         sprite_list_node* next;
