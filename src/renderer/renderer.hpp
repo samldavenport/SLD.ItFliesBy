@@ -17,7 +17,7 @@ namespace ifb {
     static constexpr u32 QUAD_VERTEX_COUNT      = 4;
     static constexpr u32 QUAD_ELEMENT_COUNT     = 6;
 static constexpr u32 QUAD_ELEMENT_DATA_SIZE = sizeof(u32) * QUAD_ELEMENT_COUNT;
-    static constexpr u32 RENDERER_ASSET_PREVIEW_COUNT = 2; // one texture for each window that previews assets
+    static constexpr u32 RENDERER_ASSET_PREVIEW_COUNT = 3; // one texture for each window that previews assets
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES

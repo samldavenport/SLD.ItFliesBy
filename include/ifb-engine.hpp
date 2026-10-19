@@ -148,6 +148,27 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_asset_database_get_info     (const u32 index, asset_database_info& info);
     IFB_ENGINE_API bool         eng_asset_database_load_preview (const u32 index, asset_preview& preview);
 
+    // the runtime database is the one in the config, the asset manager loads from it
+    // it has no assets if it failed to load at startup
+    IFB_ENGINE_API u32          eng_asset_runtime_get_count     (void);
+    IFB_ENGINE_API bool         eng_asset_runtime_get_info      (const u32 index, asset_database_info& info);
+
+    // only for images, the preview is good until the next one is loaded
+    IFB_ENGINE_API bool         eng_asset_runtime_load_image_preview (const cchar* name, asset_preview& preview);
+
+    //--------------------------------------------------------------------
+    // SPRITES
+    //--------------------------------------------------------------------
+
+    // the engine has one sprite list for building an atlas, it starts out empty
+    // a sprite is an image in the runtime database, and it is only in the list once
+    IFB_ENGINE_API void eng_sprite_atlas_builder_clear     (void);
+    IFB_ENGINE_API bool eng_sprite_atlas_builder_add       (const cchar* name);
+    IFB_ENGINE_API bool eng_sprite_atlas_builder_remove    (const cchar* name);
+    IFB_ENGINE_API bool eng_sprite_atlas_builder_contains  (const cchar* name);
+    IFB_ENGINE_API u32  eng_sprite_atlas_builder_get_count (void);
+    IFB_ENGINE_API bool eng_sprite_atlas_builder_get_info  (const u32 index, sprite_atlas_builder_info& info);
+
     //--------------------------------------------------------------------
     // CAMERA
     //--------------------------------------------------------------------

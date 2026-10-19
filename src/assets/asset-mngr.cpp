@@ -191,6 +191,15 @@ namespace ifb {
         return(img);
     }
 
+    // NULL if the runtime database failed to load at startup
+    IFB_INTERNAL asset_database*
+    asset_mngr_get_database(
+        void) {
+
+        assert(_asset_mngr);
+        return(_asset_mngr->db);
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------

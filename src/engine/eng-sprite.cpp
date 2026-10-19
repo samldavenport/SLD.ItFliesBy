@@ -1,0 +1,180 @@
+#pragma once
+
+#include "ifb-config.hpp"
+#include "ifb-engine.hpp"
+#include "ifb-types.hpp"
+#include "asset.hpp"
+#include "asset-database.cpp"
+#include "memory.hpp"
+#include "sprites.hpp"
+#include "sprite-internal.hpp"
+
+namespace ifb {
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
+
+    // the list being built, everything it has lives in its arena
+    struct eng_sprite_atlas_builder {
+        hnd_arena    h_arena;
+        sprite_list* list;
+    } static _eng_sprite_atlas_builder;
+
+    //--------------------------------------------------------------------
+    // INLINE METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+
+    IFB_INLINE sprite_list* eng_sprite_atlas_builder_get_list (void);
+
+    //--------------------------------------------------------------------
+    // API METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API void
+    eng_sprite_atlas_builder_clear(
+        void) {
+
+        auto& state = _eng_sprite_atlas_builder;
+        if (!state.list) return;
+
+        // the old list goes away with everything in the arena
+        arena_reset(state.h_arena);
+        state.list = sprite_list_create(state.h_arena);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_add(
+        const cchar* name) {
+
+        assert(name);
+
+        auto& state = _eng_sprite_atlas_builder;
+
+        sprite_list* list = eng_sprite_atlas_builder_get_list();
+        if (!list || name[0] == 0) return(false);
+
+        // only images can be sprites, the list would load anything by that name
+        const asset_database* db = asset_mngr_get_database();
+        if (!db) return(false);
+
+        const u32 slot = asset_database_slot_of(db, asset_name_cstr_to_handle(name));
+        if (slot == INVALID_INDEX || db->array_indexes[slot].type.val != asset_type_e_image) return(false);
+
+        const bool did_add = sprite_list_add(list, name, state.h_arena);
+        return(did_add);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_remove(
+        const cchar* name) {
+
+        assert(name);
+
+        sprite_list* list = eng_sprite_atlas_builder_get_list();
+        if (!list || name[0] == 0) return(false);
+
+        const bool did_remove = sprite_list_remove(list, name);
+        return(did_remove);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_contains(
+        const cchar* name) {
+
+        assert(name);
+
+        const sprite_list* list = eng_sprite_atlas_builder_get_list();
+        if (!list || name[0] == 0) return(false);
+
+        const hnd_asset h_asset = asset_name_cstr_to_handle(name);
+        if (h_asset == INVALID_HANDLE) return(false);
+
+        for (
+            const sprite_list_node* node = sprite_list_get_first(list);
+            node != NULL;
+            node = sprite_list_get_next(node)) {
+
+            if (sprite_list_get_img_asset_hnd(node) == h_asset) return(true);
+        }
+
+        return(false);
+    }
+
+    IFB_ENGINE_API u32
+    eng_sprite_atlas_builder_get_count(
+        void) {
+
+        const sprite_list* list = eng_sprite_atlas_builder_get_list();
+        if (!list) return(0);
+
+        u32 count = 0;
+        for (
+            const sprite_list_node* node = sprite_list_get_first(list);
+            node != NULL;
+            node = sprite_list_get_next(node)) {
+
+            ++count;
+        }
+
+        return(count);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_get_info(
+        const u32                  index,
+        sprite_atlas_builder_info& info) {
+
+        const sprite_list* list = eng_sprite_atlas_builder_get_list();
+        if (!list) return(false);
+
+        u32 node_index = 0;
+        for (
+            const sprite_list_node* node = sprite_list_get_first(list);
+            node != NULL;
+            node = sprite_list_get_next(node)) {
+
+            if (node_index == index) {
+
+                const hnd_asset      h_asset = sprite_list_get_img_asset_hnd (node);
+                const dimensions_2d& dims    = sprite_list_get_img_dims      (node);
+
+                // the list only has handles, the name comes from the database
+                const asset_database* db   = asset_mngr_get_database();
+                const u32             slot = db ? asset_database_slot_of(db, h_asset) : INVALID_INDEX;
+                if (slot == INVALID_INDEX) return(false);
+
+                memcpy(info.name, db->array_names[slot].cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+                info.name[IFB_CONFIG_ASSET_NAME_SIZE] = 0;
+
+                info.hnd    = h_asset;
+                info.width  = (u32)dims.width;
+                info.height = (u32)dims.height;
+                return(true);
+            }
+
+            ++node_index;
+        }
+
+        return(false);
+    }
+
+    //--------------------------------------------------------------------
+    // INLINE METHOD DEFINITIONS
+    //--------------------------------------------------------------------
+
+    // the list is made the first time it's needed
+    IFB_INLINE sprite_list*
+    eng_sprite_atlas_builder_get_list(
+        void) {
+
+        auto& state = _eng_sprite_atlas_builder;
+        if (state.list) return(state.list);
+
+        state.h_arena = arena_alloc();
+        if (state.h_arena == INVALID_HANDLE) return(NULL);
+
+        state.list = sprite_list_create(state.h_arena);
+        return(state.list);
+    }
+};

@@ -41,6 +41,7 @@ namespace ifb {
     IFB_INTERNAL const sprite_list_node* sprite_list_get_first                   (const sprite_list* list); 
     IFB_INTERNAL const sprite_list_node* sprite_list_get_next                    (const sprite_list_node* node);
     IFB_INTERNAL hnd_asset               sprite_list_get_img_asset_hnd           (const sprite_list_node* node);
+    IFB_INTERNAL const dimensions_2d&    sprite_list_get_img_dims                (const sprite_list_node* node);
     IFB_INTERNAL hnd_sprite_atlas        sprite_list_save_to_atlas               (const sprite_list* list, const cchar* atlas, const hnd_arena h_arena); 
 
 };

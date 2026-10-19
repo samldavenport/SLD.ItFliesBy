@@ -306,6 +306,14 @@ namespace ifb {
         u32       size;
     };
 
+    // a sprite in the atlas builder list, the size is in pixels
+    struct sprite_atlas_builder_info {
+        cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
+        hnd_asset hnd;
+        u32       width;
+        u32       height;
+    };
+
     // the contents of a dictionary file or database asset, only good until the next preview from the same place
     // a text file has the text, an image file has an opengl texture id
     struct asset_preview {

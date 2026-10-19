@@ -50,7 +50,7 @@ namespace ifb {
             auto& block = mem->blocks[block_index];
            
             memory stack_mem;
-            stack_mem.size = reservation_get_capacity(res);
+            stack_mem.size = block_size;
             stack_mem.ptr  = reservation_push_bytes(res, block_size);
             block.stack    = stack_memory_create(stack_mem);
             block.index    = block_index;
@@ -72,17 +72,18 @@ namespace ifb {
 
             if (!mem->block_is_allocated[block_index]) {
 
-                auto block = &mem->blocks[block_index];
+                block = &mem->blocks[block_index];
                 stack_reset(block->stack);
             
                 mem->block_is_allocated[block_index] = true;
+                break;
             }
         }
     
         return(block);
     }
 
-    IFB_INTERNAL sprite_memory_block*
+    IFB_INTERNAL void
     sprite_memory_free(
         sprite_memory*       mem,
         sprite_memory_block* block) {

@@ -37,6 +37,7 @@ namespace ifb {
     IFB_INTERNAL hnd_asset          asset_mngr_load_image               (const cchar* name);
     IFB_INTERNAL const asset_text*  asset_mngr_get_text                 (const hnd_asset hnd);
     IFB_INTERNAL const asset_image* asset_mngr_get_image                (const hnd_asset hnd);
+    IFB_INTERNAL asset_database*    asset_mngr_get_database             (void);
 
     // dictionary
     IFB_INTERNAL asset_dictionary*  asset_dictionary_create             (const hnd_arena arena);
