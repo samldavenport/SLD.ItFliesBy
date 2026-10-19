@@ -30,7 +30,11 @@ namespace ifb {
                 sizeof(sprite_atlas_builder)
         );
         assert(builder);
-    
+   
+        builder->mem_block   = mem_block;
+        builder->atlas_image = NULL;
+        builder->atlas_image = NULL;
+
         return(builder);
     }
 
@@ -38,12 +42,31 @@ namespace ifb {
     sprite_atlas_builder_destroy(
         sprite_atlas_builder* builder) {
 
+        assert(builder);
+        assert(builder->mem_block);
+
+        // free the memory
+        auto mem_block = builder->mem_block;
+        sprite_memory* mem = sprite_mngr_get_memory();
+        sprite_memory_free(mem, mem_block);
+   
+        // null the properties
+        builder->mem_block   = NULL;
+        builder->atlas_image = NULL;
+        builder->list        = NULL;
     }
 
     IFB_INTERNAL void
     sprite_atlas_builder_reset(
         sprite_atlas_builder* builder) {
+    
+        assert(builder);
+        assert(builder->mem_block);
 
+        sprite_memory_block_reset(builder->mem_block);
+
+        builder->atlas_image = NULL;
+        builder->list        = NULL;
     }
     
     IFB_INTERNAL void
@@ -51,12 +74,19 @@ namespace ifb {
         sprite_atlas_builder* builder,
         sprite_list*          list) {
 
+        assert(builder);
+        assert(builder->mem_block);
+
+        builder->list = list;
     }
 
     IFB_INTERNAL void
     sprite_atlas_builder_pack_sprites(
         sprite_atlas_builder* builder) {
 
+        assert(builder);
+        assert(builder->mem_block);
+        assert(builder->list);
     }
 
     IFB_INTERNAL const image*

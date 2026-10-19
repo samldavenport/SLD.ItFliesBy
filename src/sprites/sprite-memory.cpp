@@ -108,7 +108,7 @@ namespace ifb {
     }
     
     IFB_INTERNAL void
-    sprite_memory_reset(
+    sprite_memory_block_reset(
         sprite_memory_block* block) {
 
         assert(block);
