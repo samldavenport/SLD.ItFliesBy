@@ -7,6 +7,16 @@
 
 namespace ifb {
 
+
+    struct sprite_memory_block;
+    struct sprite_memory;
+
+    IFB_INTERNAL sprite_memory*       sprite_memory_create     (void);
+    IFB_INTERNAL void                 sprite_memory_init       (sprite_memory* mem, reservation* res);
+    IFB_INTERNAL sprite_memory_block* sprite_memory_alloc      (sprite_memory* mem);
+    IFB_INTERNAL sprite_memory_block* sprite_memory_free       (sprite_memory* mem, sprite_memory_block* block);
+    IFB_INTERNAL void*                sprite_memory_block_push (sprite_memory_block* block, const u32 size);
+
     struct sprite_list_node {
         sprite_list_node* next;
         hnd_asset         h_img_asset;
@@ -30,11 +40,10 @@ namespace ifb {
     };
     
     struct sprite_mngr {
-        reservation* res;
-        sprite_atlas array_atlas[config::sprite_atlas_capacity];
+        sprite_memory* mem;
     };
 
-
+    
 };
 
 #endif //SPRITE_INTERNAL_HPP
