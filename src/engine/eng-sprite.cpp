@@ -5,6 +5,8 @@
 #include "ifb-types.hpp"
 #include "asset.hpp"
 #include "asset-database.cpp"
+#include "eng-asset.cpp"
+#include "renderer.hpp"
 #include "memory.hpp"
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
@@ -16,9 +18,11 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // the list being built, everything it has lives in its arena
+    // the builder has its own sprite memory, it's made the first time the list is packed
     struct eng_sprite_atlas_builder {
-        hnd_arena    h_arena;
-        sprite_list* list;
+        hnd_arena             h_arena;
+        sprite_list*          list;
+        sprite_atlas_builder* builder;
     } static _eng_sprite_atlas_builder;
 
     //--------------------------------------------------------------------
@@ -157,6 +161,36 @@ namespace ifb {
         }
 
         return(false);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_pack(
+        asset_preview& preview) {
+
+        auto& state = _eng_sprite_atlas_builder;
+
+        eng_asset_preview_clear(preview);
+
+        sprite_list* list = eng_sprite_atlas_builder_get_list();
+        if (!list) return(false);
+
+        if (!state.builder) {
+            state.builder = sprite_atlas_builder_create();
+            if (!state.builder) return(false);
+        }
+
+        // the last atlas goes away with everything else on the builder's memory
+        sprite_atlas_builder_reset    (state.builder);
+        sprite_atlas_builder_set_list (state.builder, list);
+
+        const image* atlas = sprite_atlas_builder_get_image(state.builder);
+        if (!atlas) return(false);
+
+        preview.type    = asset_type_e_image;
+        preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_runtime, atlas->pixel_width, atlas->pixel_height, atlas->data.bytes);
+        preview.width   = atlas->pixel_width;
+        preview.height  = atlas->pixel_height;
+        return(preview.texture != 0);
     }
 
     //--------------------------------------------------------------------

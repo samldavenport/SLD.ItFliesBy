@@ -40,7 +40,7 @@ namespace ifb {
     IFB_INTERNAL void                    sprite_atlas_builder_destroy            (sprite_atlas_builder* builder);
     IFB_INTERNAL void                    sprite_atlas_builder_reset              (sprite_atlas_builder* builder);
     IFB_INTERNAL void                    sprite_atlas_builder_set_list           (sprite_atlas_builder* builder, sprite_list* list);
-    IFB_INTERNAL void                    sprite_atlas_builder_pack_sprites       (sprite_atlas_builder* builder);
+    IFB_INTERNAL bool                    sprite_atlas_builder_pack_sprites       (sprite_atlas_builder* builder);
     IFB_INTERNAL const image*            sprite_atlas_builder_get_image          (sprite_atlas_builder* builder);
 
     // sprite list

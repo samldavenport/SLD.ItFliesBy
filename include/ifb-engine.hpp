@@ -169,6 +169,9 @@ namespace ifb {
     IFB_ENGINE_API u32  eng_sprite_atlas_builder_get_count (void);
     IFB_ENGINE_API bool eng_sprite_atlas_builder_get_info  (const u32 index, sprite_atlas_builder_info& info);
 
+    // packs every sprite in the list into one atlas image, the preview shares a texture with the runtime image preview
+    IFB_ENGINE_API bool eng_sprite_atlas_builder_pack      (asset_preview& preview);
+
     //--------------------------------------------------------------------
     // CAMERA
     //--------------------------------------------------------------------

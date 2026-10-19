@@ -20,12 +20,15 @@ namespace ifb {
     // DEFINITIONS
     //--------------------------------------------------------------------
 
-    // the engine owns the sprite list, the window owns the filter and the selected image
+    // the engine owns the sprite list, the window owns the filter and what's being previewed
+    // the preview is either the selected image or the last packed atlas
     struct sprite_atlas_builder_state {
         const char*   status;
         char          filter   [SPRITE_ATLAS_BUILDER_FILTER_SIZE];
-        char          selected [SPRITE_ATLAS_BUILDER_NAME_SIZE]; // empty until an image is selected
+        char          selected [SPRITE_ATLAS_BUILDER_NAME_SIZE]; // empty unless an image is selected
+        bool          is_atlas_selected;
         bool          is_preview_loaded;
+        u32           atlas_sprite_count;
         asset_preview preview;
     } static _sprite_atlas_builder;
 
@@ -37,6 +40,7 @@ namespace ifb {
     IFB_INLINE void sprite_atlas_builder_sprites     (void);
     IFB_INLINE bool sprite_atlas_builder_is_filtered (const char* name);
     IFB_INLINE void sprite_atlas_builder_select      (const char* name);
+    IFB_INLINE void sprite_atlas_builder_pack        (const u32 count);
     IFB_INLINE void sprite_atlas_builder_preview     (void);
 
     //--------------------------------------------------------------------
@@ -57,7 +61,7 @@ namespace ifb {
         if (render_window) {
 
             // the lists get whatever the preview below them doesn't need
-            const f32 height_preview = ASSET_DICTIONARY_PREVIEW_HEIGHT + (ImGui::GetFrameHeightWithSpacing() * 3.0f);
+            const f32 height_preview = ASSET_DICTIONARY_PREVIEW_HEIGHT + (ImGui::GetFrameHeightWithSpacing() * 4.0f);
 
             // images on the left, the sprites in the atlas on the right
             if (ImGui::BeginChild("sprite-atlas-builder-lists", ImVec2(0.0f, -height_preview))) {
@@ -167,6 +171,13 @@ namespace ifb {
         const u32 count      = eng_sprite_atlas_builder_get_count();
         u64       total_area = 0;
 
+        ImGui::SameLine();
+        ImGui::BeginDisabled(count == 0);
+        if (ImGui::Button("Pack")) {
+            sprite_atlas_builder_pack(count);
+        }
+        ImGui::EndDisabled();
+
         // removing a sprite changes the list, so it waits until the table is done
         bool                      do_remove = false;
         sprite_atlas_builder_info remove_info;
@@ -245,10 +256,28 @@ namespace ifb {
         auto& state = _sprite_atlas_builder;
 
         strncpy_s(state.selected, name, SPRITE_ATLAS_BUILDER_NAME_SIZE - 1);
+        state.is_atlas_selected = false;
         state.is_preview_loaded = eng_asset_runtime_load_image_preview(name, state.preview);
     }
 
-    // the selected image, read back from the runtime database
+    // the atlas is previewed in place of the selected image
+    IFB_INLINE void
+    sprite_atlas_builder_pack(
+        const u32 count) {
+
+        auto& state = _sprite_atlas_builder;
+
+        state.selected[0]        = 0;
+        state.is_atlas_selected  = true;
+        state.atlas_sprite_count = count;
+        state.is_preview_loaded  = eng_sprite_atlas_builder_pack(state.preview);
+
+        state.status = state.is_preview_loaded
+            ? "Packed the sprites"
+            : "Failed to pack the sprites, they may not fit in the atlas or there's no memory for it";
+    }
+
+    // the selected image read back from the runtime database, or the packed atlas
     IFB_INLINE void
     sprite_atlas_builder_preview(
         void) {
@@ -257,13 +286,17 @@ namespace ifb {
 
         ImGui::SeparatorText("Preview");
 
-        if (state.selected[0] == 0) {
-            ImGui::TextUnformatted("No image selected");
+        if (!state.is_atlas_selected && state.selected[0] == 0) {
+            ImGui::TextUnformatted("No image selected, and nothing has been packed");
             return;
         }
         if (!state.is_preview_loaded) {
-            ImGui::Text("Failed to load %s", state.selected);
+            ImGui::Text("Failed to load %s", state.is_atlas_selected ? "the atlas" : state.selected);
             return;
+        }
+
+        if (state.is_atlas_selected) {
+            ImGui::Text("Atlas, %u sprites", state.atlas_sprite_count);
         }
 
         gui_asset_preview("sprite-atlas-builder-preview", state.preview);
