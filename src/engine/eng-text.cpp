@@ -12,7 +12,7 @@ namespace ifb {
     eng_text_file_size(
         const hnd_file h_txt_file) {
 
-        assert(h_txt_file != INVALID_HANDLE);
+        assert(h_txt_file != FILE_HANDLE_INVALID);
 
         const u32 size = file_get_size(h_txt_file); 
         return(size);
@@ -23,7 +23,7 @@ namespace ifb {
         const hnd_file  h_txt_file,
         const hnd_arena h_arena) {
 
-        assert(h_txt_file != INVALID_HANDLE);
+        assert(h_txt_file != FILE_HANDLE_INVALID);
         assert(h_arena    != INVALID_HANDLE);
    
         const u32 size_file = file_get_size(h_txt_file);
@@ -52,7 +52,7 @@ namespace ifb {
         const hnd_file h_txt_file,
         memory&        mem) {
 
-        assert(h_txt_file  != INVALID_HANDLE);
+        assert(h_txt_file  != FILE_HANDLE_INVALID);
         assert(mem.size    != 0);
         assert(mem.address != 0);
 

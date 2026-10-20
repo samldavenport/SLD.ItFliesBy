@@ -272,18 +272,6 @@ namespace ifb {
         builder->atlas_image = atlas_image;
         return(builder->atlas_image);
     }
-
-    IFB_INTERNAL u32
-    sprite_atlas_builder_get_sprite_count(
-        sprite_atlas_builder* builder) {
-
-        assert(builder);
-        assert(builder->list);
-
-        auto list = builder->list;
-
-
-    }
     
     IFB_INTERNAL const sprite_list*
     sprite_atlas_builder_get_sprite_list(

@@ -28,8 +28,8 @@ namespace ifb {
     IFB_INTERNAL sprite_atlas*           sprite_atlas_create                     (void);
     IFB_INTERNAL void                    sprite_atlas_destroy                    (sprite_atlas* atlas);
     IFB_INTERNAL bool                    sprite_atlas_build                      (sprite_atlas* atlas, sprite_atlas_builder* builder);
-    IFB_INTERNAL void                    sprite_atlas_save_to_file               (sprite_atlas* atlas, const cchar* path);
-    IFB_INTERNAL void                    sprite_atlas_load_from_file             (sprite_atlas* atlas, const cchar* path); 
+    IFB_INTERNAL bool                    sprite_atlas_save_to_file              (sprite_atlas* atlas, const cchar* path);
+    IFB_INTERNAL bool                    sprite_atlas_load_from_file            (sprite_atlas* atlas, const cchar* path); 
     IFB_INTERNAL sprite_atlas*           sprite_atlas_load_from_asset_db         (sprite_atlas* atlas, const cchar* name);
     IFB_INTERNAL u32                     sprite_atlas_get_sprite_count           (const sprite_atlas* atlas);
     IFB_INTERNAL bool                    sprite_atlas_get_sprite_by_name         (const sprite_atlas* atlas, const cchar*     name);

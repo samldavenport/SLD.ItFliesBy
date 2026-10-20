@@ -77,7 +77,7 @@ namespace ifb {
 
         // open the file, the database keeps it open to read assets later
         const hnd_file h_file = file_ro_open_existing(path);
-        if (h_file == INVALID_HANDLE) {
+        if (h_file == FILE_HANDLE_INVALID) {
             return(NULL);
         }
 
@@ -209,7 +209,7 @@ namespace ifb {
 
         // open the file, an old database there is replaced
         db->file_handle = file_rw_overwrite(path);
-        if (db->file_handle == INVALID_HANDLE) {
+        if (db->file_handle == FILE_HANDLE_INVALID) {
             arena_revert(h_arena, init_save);
             return(NULL);
         }
@@ -237,7 +237,7 @@ namespace ifb {
 
             // open the next file, it should always exist
             const hnd_file h_file = file_ro_open_existing(node->path);
-            assert(h_file != INVALID_HANDLE);
+            assert(h_file != FILE_HANDLE_INVALID);
 
             // load the file contents 
             const text* txt = eng_text_file_load_to_arena(h_file, h_arena); 
@@ -267,7 +267,7 @@ namespace ifb {
 
             // open the next file, it should always exist
             const hnd_file h_file = file_ro_open_existing(node->path);
-            assert(h_file != INVALID_HANDLE);
+            assert(h_file != FILE_HANDLE_INVALID);
 
             // load the image, always rgba
             const image* img = eng_image_load_to_arena(h_file, h_arena);
@@ -340,7 +340,7 @@ namespace ifb {
         const hnd_arena       h_arena) {
 
         assert(db);
-        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
         assert(db->array_handles != NULL);
         assert(db->array_indexes != NULL);
         assert(db->array_names   != NULL);
@@ -409,7 +409,7 @@ namespace ifb {
         const hnd_arena       h_arena) {
 
         assert(db);
-        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
         assert(db->array_handles != NULL);
         assert(db->array_indexes != NULL);
         assert(db->array_names   != NULL);
@@ -482,7 +482,7 @@ namespace ifb {
         memory&               mem) {
 
         assert(db);
-        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
         assert(db->array_handles != NULL);
         assert(db->array_indexes != NULL);
         assert(db->array_names   != NULL);
@@ -552,7 +552,7 @@ namespace ifb {
         memory&         mem) {
 
         assert(db);
-        assert(db->file_handle   != INVALID_HANDLE);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
         assert(db->array_handles != NULL);
         assert(db->array_indexes != NULL);
         assert(db->array_names   != NULL);

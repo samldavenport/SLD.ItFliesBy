@@ -632,7 +632,7 @@ namespace ifb {
         }
 
         const hnd_file h_file = file_ro_open_existing(path);
-        if (h_file == INVALID_HANDLE) {
+        if (h_file == FILE_HANDLE_INVALID) {
             eng_asset_database_set_error("%s can't be opened: %s", node->name, path);
             return(false);
         }
