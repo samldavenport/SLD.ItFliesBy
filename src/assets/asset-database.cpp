@@ -31,12 +31,24 @@ namespace ifb {
     // - pixel height (h)    | 4 bytes
     // - pixels (rgba)       | w * h * 4 bytes
     //--------------------------------------------------------------------
+    // SPRITE ATLAS FORMAT
+    //--------------------------------------------------------------------
+    // - pixel width (w)     | 4 bytes
+    // - pixel height (h)    | 4 bytes
+    // - sprite count (n)    | 4 bytes
+    // - handles             | n * 4 bytes
+    // - indexes             | n * 12 bytes
+    // - pixels (rgba)       | w * h * 4 bytes
+    //--------------------------------------------------------------------
 
     //--------------------------------------------------------------------
-    // CONSTANTS 
+    // CONSTANTS
     //--------------------------------------------------------------------
 
     static constexpr cchar ASSET_DB_VERIFICATION_CSTR[] = "IFBASSETDB";
+
+    // has to match SPRITE_ATLAS_VERIFICATION_CSTR, the atlas files are read here so the sprites aren't needed
+    static constexpr cchar ASSET_DB_SPRITE_ATLAS_VERIFICATION_CSTR[] = "IFBSPRITEATLAS";
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS 
@@ -62,7 +74,10 @@ namespace ifb {
     inline bool      asset_database_index_of  (const asset_database* db, const hnd_asset hnd, asset_index& index);
     inline u32       asset_database_slot_of   (const asset_database* db, const hnd_asset hnd);
     inline bool      asset_database_find      (const asset_database* db, const hnd_asset h_asset, const asset_type_e type, asset_index& index);
- 
+    inline u64       asset_database_sprite_atlas_size (const asset_database* db, const asset_index& index, u32* header);
+    inline bool      asset_database_sprite_atlas_read (const asset_database* db, const asset_index& index, const hnd_asset h_asset, const u32* header, asset_sprite_atlas* atlas);
+    inline void      asset_sprite_atlas_set_arrays    (asset_sprite_atlas* atlas);
+
     //--------------------------------------------------------------------
     // INTERNAL METHOD DECLARATIONS 
     //--------------------------------------------------------------------
@@ -284,6 +299,38 @@ namespace ifb {
 
             // update the index
             asset_database_set_index(db, index_cur, node, asset_type_e_image, offset_asset, offset_cur - offset_asset);
+            ++index_cur;
+
+            // revert the arena
+            arena_revert(h_arena, write_asset_save);
+        }
+
+        // write the sprite atlas files to the database
+        for (
+            auto node = dict->sprite_atlas_files.first;
+                 node != NULL;
+                 node = node->next) {
+
+            // load the atlas, it should always be valid
+            const asset_sprite_atlas* atlas = asset_database_load_sprite_atlas_file(node->path, h_arena);
+            assert(atlas != NULL);
+
+            // the sprite names stay in the atlas file, a sprite is found by its handle
+            const u32 size_handles = atlas->sprite_count * sizeof(hnd_sprite);
+            const u32 size_indexes = atlas->sprite_count * sizeof(sprite_index);
+            const u32 size_pixels  = atlas->width * atlas->height * sizeof(pixel);
+
+            // write the dimensions, count, handles, indexes, and pixels to the file
+            const u32 offset_asset = offset_cur;
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, sizeof(u32),  &atlas->width);
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, sizeof(u32),  &atlas->height);
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, sizeof(u32),  &atlas->sprite_count);
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, size_handles, atlas->array_handles);
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, size_indexes, atlas->array_indexes);
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, size_pixels,  atlas->array_pixels);
+
+            // update the index
+            asset_database_set_index(db, index_cur, node, asset_type_e_sprite_atlas, offset_asset, offset_cur - offset_asset);
             ++index_cur;
 
             // revert the arena
@@ -617,6 +664,224 @@ namespace ifb {
         const asset_image* img = asset_database_load_image_by_handle_to_memory(db, h_asset, mem);
         return(img);
     }
+
+    IFB_INTERNAL const asset_sprite_atlas*
+    asset_database_load_sprite_atlas_by_handle_to_arena(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        const hnd_arena       h_arena) {
+
+        assert(db);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->array_names   != NULL);
+        assert(db->asset_count   != 0);
+        assert(h_arena           != INVALID_HANDLE);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_sprite_atlas, index)) {
+            return(NULL);
+        }
+
+        // the header has to agree with the index
+        u32       header[3] = { 0, 0, 0 };
+        const u64 size_push = asset_database_sprite_atlas_size(db, index, header);
+        if (size_push == 0) {
+            return(NULL);
+        }
+
+        // the indexes and pixels go right after the struct
+        const u32 save  = arena_save(h_arena);
+        auto      atlas = (asset_sprite_atlas*)arena_push(h_arena, (u32)size_push);
+        if (!atlas) {
+            return(NULL);
+        }
+
+        if (!asset_database_sprite_atlas_read(db, index, h_asset, header, atlas)) {
+            arena_revert(h_arena, save);
+            return(NULL);
+        }
+
+        return(atlas);
+    }
+
+    IFB_INTERNAL const asset_sprite_atlas*
+    asset_database_load_sprite_atlas_by_name_to_arena(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        const hnd_arena       h_arena) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_sprite_atlas* atlas = asset_database_load_sprite_atlas_by_handle_to_arena(db, h_asset, h_arena);
+        return(atlas);
+    }
+
+    IFB_INTERNAL const asset_sprite_atlas*
+    asset_database_load_sprite_atlas_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&               mem) {
+
+        assert(db);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->array_names   != NULL);
+        assert(db->asset_count   != 0);
+        assert(mem.size          != 0);
+        assert(mem.address       != 0);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_sprite_atlas, index)) {
+            return(NULL);
+        }
+
+        // the header has to agree with the index
+        u32       header[3]   = { 0, 0, 0 };
+        const u64 size_needed = asset_database_sprite_atlas_size(db, index, header);
+        if (size_needed == 0) {
+            return(NULL);
+        }
+
+        // make sure the data can fit
+        if (mem.size < size_needed) {
+            return(NULL);
+        }
+
+        // the indexes and pixels go right after the struct
+        auto atlas = (asset_sprite_atlas*)mem.ptr;
+        if (!asset_database_sprite_atlas_read(db, index, h_asset, header, atlas)) {
+            return(NULL);
+        }
+
+        return(atlas);
+    }
+
+    IFB_INTERNAL const asset_sprite_atlas*
+    asset_database_load_sprite_atlas_by_name_to_memory(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        memory&               mem) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_sprite_atlas* atlas = asset_database_load_sprite_atlas_by_handle_to_memory(db, h_asset, mem);
+        return(atlas);
+    }
+
+    // reads an atlas file from the sprite atlas builder, without the sprite names
+    // the handles, indexes, and pixels go right after the struct, the same as an atlas loaded from the database
+    // NULL if the file can't be opened, isn't an atlas, doesn't match its header, or there's no room in the arena
+    IFB_INTERNAL const asset_sprite_atlas*
+    asset_database_load_sprite_atlas_file(
+        const cchar*    path,
+        const hnd_arena h_arena) {
+
+        assert(path);
+        assert(h_arena != INVALID_HANDLE);
+
+        // open the file
+        const hnd_file h_file = file_ro_open_existing(path);
+        if (h_file == FILE_HANDLE_INVALID) return(NULL);
+
+        // the file needs to be at least big enough for everything up to the handles
+        const u32 size_file         = file_get_size(h_file);
+        const u32 size_verification = sizeof(ASSET_DB_SPRITE_ATLAS_VERIFICATION_CSTR) - 1;
+        const u32 offset_count      = size_verification;
+        const u32 offset_width      = offset_count  + sizeof(u32);
+        const u32 offset_height     = offset_width  + sizeof(u32);
+        const u32 offset_handles    = offset_height + sizeof(u32);
+        if (size_file < offset_handles) {
+            file_close(h_file);
+            return(NULL);
+        }
+
+        // check the verification string
+        cchar verification[sizeof(ASSET_DB_SPRITE_ATLAS_VERIFICATION_CSTR) - 1];
+        bool is_valid = asset_database_read_at(h_file, 0, size_verification, verification);
+        is_valid     &= (memcmp(verification, ASSET_DB_SPRITE_ATLAS_VERIFICATION_CSTR, size_verification) == 0);
+
+        // read the count and atlas size
+        u32 count  = 0;
+        u32 width  = 0;
+        u32 height = 0;
+        is_valid &= asset_database_read_at(h_file, offset_count,  sizeof(u32), &count);
+        is_valid &= asset_database_read_at(h_file, offset_width,  sizeof(u32), &width);
+        is_valid &= asset_database_read_at(h_file, offset_height, sizeof(u32), &height);
+        is_valid &= (count != 0 && width != 0 && height != 0);
+        if (!is_valid) {
+            file_close(h_file);
+            return(NULL);
+        }
+
+        // header offsets, 64 bits so a garbage header can't overflow
+        const u64 pixel_count    = (u64)width * height;
+        const u64 size_handles   = (u64)sizeof(hnd_sprite)   * count;
+        const u64 size_indexes   = (u64)sizeof(sprite_index) * count;
+        const u64 size_pixels    = pixel_count * sizeof(pixel);
+        const u64 offset_names   = offset_handles + size_handles;
+        const u64 offset_indexes = offset_names   + ((u64)sizeof(asset_name) * count);
+        const u64 offset_pixels  = offset_indexes + size_indexes;
+        const u64 size_push      = sizeof(asset_sprite_atlas) + size_handles + size_indexes + size_pixels;
+        if (offset_pixels + size_pixels != size_file || size_push > IFB_CONFIG_ARENA_MEM_GRANULARITY) {
+            file_close(h_file);
+            return(NULL);
+        }
+
+        // the handles, indexes, and pixels go right after the struct
+        const u32 save  = arena_save(h_arena);
+        auto      atlas = (asset_sprite_atlas*)arena_push(h_arena, (u32)size_push);
+        if (!atlas) {
+            file_close(h_file);
+            return(NULL);
+        }
+
+        atlas->hnd          = INVALID_HANDLE;
+        atlas->width        = width;
+        atlas->height       = height;
+        atlas->sprite_count = count;
+        asset_sprite_atlas_set_arrays(atlas);
+
+        // the handles, indexes, and pixels are contiguous, so they go in one read each
+        is_valid &= asset_database_read_at(h_file, offset_handles,      (u32)size_handles, atlas->array_handles);
+        is_valid &= asset_database_read_at(h_file, (u32)offset_indexes, (u32)size_indexes, atlas->array_indexes);
+        is_valid &= asset_database_read_at(h_file, (u32)offset_pixels,  (u32)size_pixels,  atlas->array_pixels);
+        file_close(h_file);
+
+        // every sprite has to fit inside the atlas
+        for (
+            u32 i_sprite = 0;
+                i_sprite < count && is_valid;
+              ++i_sprite) {
+
+            const sprite_index& index = atlas->array_indexes[i_sprite];
+            const u32           x     = index.offset % width;
+            const u32           y     = index.offset / width;
+
+            is_valid &= (index.offset < pixel_count);
+            is_valid &= ((u64)x + index.width  <= width);
+            is_valid &= ((u64)y + index.height <= height);
+        }
+
+        if (!is_valid) {
+            arena_revert(h_arena, save);
+            return(NULL);
+        }
+
+        return(atlas);
+    }
     
     IFB_INTERNAL u32
     asset_database_get_asset_count(
@@ -650,6 +915,75 @@ namespace ifb {
             index.type == type
         );
         return(is_valid);
+    }
+
+    // the size of the atlas once it's loaded, the struct followed by its handles, indexes, and pixels
+    // the header is the width, height, and sprite count, 0 if it doesn't agree with the index
+    inline u64
+    asset_database_sprite_atlas_size(
+        const asset_database* db,
+        const asset_index&    index,
+        u32*                  header) {
+
+        const u32 size_header = sizeof(u32) * 3;
+        if (!asset_database_read_at(db->file_handle, index.offset, size_header, header)) return(0);
+
+        const u32 width        = header[0];
+        const u32 height       = header[1];
+        const u32 sprite_count = header[2];
+        const u64 size_handles = (u64)sizeof(hnd_sprite)   * sprite_count;
+        const u64 size_indexes = (u64)sizeof(sprite_index) * sprite_count;
+        const u64 size_pixels  = (u64)width * height * sizeof(pixel);
+
+        const bool is_valid = (
+            width        != 0 &&
+            height       != 0 &&
+            sprite_count != 0 &&
+            index.size   == size_header + size_handles + size_indexes + size_pixels
+        );
+        if (!is_valid) return(0);
+
+        return(sizeof(asset_sprite_atlas) + size_handles + size_indexes + size_pixels);
+    }
+
+    // the handles, indexes, and pixels are next to each other in the file, so they go in one read
+    // the pointers are always set from the struct, so this also fixes them after the data moves
+    inline bool
+    asset_database_sprite_atlas_read(
+        const asset_database* db,
+        const asset_index&    index,
+        const hnd_asset       h_asset,
+        const u32*            header,
+        asset_sprite_atlas*   atlas) {
+
+        const u32 size_header = sizeof(u32) * 3;
+
+        atlas->hnd          = h_asset;
+        atlas->width        = header[0];
+        atlas->height       = header[1];
+        atlas->sprite_count = header[2];
+        asset_sprite_atlas_set_arrays(atlas);
+
+        const bool did_read = asset_database_read_at(
+            db->file_handle,
+            index.offset + size_header,
+            index.size   - size_header,
+            atlas->array_handles
+        );
+        return(did_read);
+    }
+
+    // the handles, indexes, and pixels are right after the struct, in that order
+    inline void
+    asset_sprite_atlas_set_arrays(
+        asset_sprite_atlas* atlas) {
+
+        const u32 size_handles = atlas->sprite_count * sizeof(hnd_sprite);
+        const u32 size_indexes = atlas->sprite_count * sizeof(sprite_index);
+
+        atlas->array_handles = (hnd_sprite*)(((byte*)atlas) + sizeof(asset_sprite_atlas));
+        atlas->array_indexes = (sprite_index*)(((byte*)atlas->array_handles) + size_handles);
+        atlas->array_pixels  = (pixel*)(((byte*)atlas->array_indexes) + size_indexes);
     }
 
     inline bool

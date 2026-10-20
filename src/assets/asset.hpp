@@ -20,6 +20,7 @@ namespace ifb {
     struct asset_name;
     struct asset_text;
     struct asset_image;
+    struct asset_sprite_atlas;
     
     //--------------------------------------------------------------------
     // METHODS 
@@ -35,19 +36,22 @@ namespace ifb {
     IFB_INTERNAL void               asset_mngr_shutdown                 (void);
     IFB_INTERNAL hnd_asset          asset_mngr_load_text                (const cchar* name);
     IFB_INTERNAL hnd_asset          asset_mngr_load_image               (const cchar* name);
+    IFB_INTERNAL hnd_asset          asset_mngr_load_sprite_atlas        (const cchar* name);
     IFB_INTERNAL const asset_text*  asset_mngr_get_text                 (const hnd_asset hnd);
     IFB_INTERNAL const asset_image* asset_mngr_get_image                (const hnd_asset hnd);
+    IFB_INTERNAL const asset_sprite_atlas* asset_mngr_get_sprite_atlas  (const hnd_asset hnd);
     IFB_INTERNAL const asset_name*  asset_mngr_get_name                 (const hnd_asset hnd);
     IFB_INTERNAL asset_database*    asset_mngr_get_database             (void);
 
     // dictionary
-    IFB_INTERNAL asset_dictionary*  asset_dictionary_create             (const hnd_arena arena);
-    IFB_INTERNAL asset_dictionary*  asset_dictionary_load_from_json     (const cchar*    path,const hnd_arena h_arena);
-    IFB_INTERNAL bool               asset_dictionary_save_to_json       (asset_dictionary* dict, const cchar* path, const hnd_arena h_arena);
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_text_file      (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_image_file     (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
-    IFB_INTERNAL bool               asset_dictionary_remove_file        (asset_dictionary* dict, const cchar*      name);
-    IFB_INTERNAL u32                asset_dictionary_count_assets       (const asset_dictionary* dict);
+    IFB_INTERNAL asset_dictionary*  asset_dictionary_create                (const hnd_arena arena);
+    IFB_INTERNAL asset_dictionary*  asset_dictionary_load_from_json        (const cchar*    path,const hnd_arena h_arena);
+    IFB_INTERNAL bool               asset_dictionary_save_to_json          (asset_dictionary* dict, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL hnd_asset          asset_dictionary_add_text_file         (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
+    IFB_INTERNAL hnd_asset          asset_dictionary_add_image_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
+    IFB_INTERNAL hnd_asset          asset_dictionary_add_sprite_atlas_file (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL bool               asset_dictionary_remove_file           (asset_dictionary* dict, const cchar* name);
+    IFB_INTERNAL u32                asset_dictionary_count_assets          (const asset_dictionary* dict);
 
     // database
     IFB_INTERNAL asset_database*    asset_database_load                           (const cchar* path, const hnd_arena h_arena);
@@ -62,6 +66,11 @@ namespace ifb {
     IFB_INTERNAL const asset_text*  asset_database_load_text_by_name_to_memory    (const asset_database* db, const cchar*    name_cstr, memory& mem);
     IFB_INTERNAL const asset_image* asset_database_load_image_by_handle_to_memory (const asset_database* db, const hnd_asset h_asset,   memory& mem);
     IFB_INTERNAL const asset_image* asset_database_load_image_by_name_to_memory   (const asset_database* db, const cchar*    name_cstr, memory& mem);
+    IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_handle_to_arena  (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
+    IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_name_to_arena    (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
+    IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_handle_to_memory (const asset_database* db, const hnd_asset h_asset,   memory& mem);
+    IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_name_to_memory   (const asset_database* db, const cchar*    name_cstr, memory& mem);
+    IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_file                (const cchar* path, const hnd_arena h_arena);
 };
 
 #endif //ASSETS_HPP

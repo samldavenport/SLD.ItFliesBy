@@ -20,23 +20,27 @@ namespace ifb {
 
     static const char* _asset_dictionary_type_names[asset_type_e_count] = {
         "Text",
-        "Image"
+        "Image",
+        "Sprite Atlas"
     };
 
     static const char* _asset_dictionary_list_names[asset_type_e_count] = {
         "Text Files",
-        "Image Files"
+        "Image Files",
+        "Sprite Atlases"
     };
 
     // the platform only reads the first 16 characters of a filter
     static const char* _asset_dictionary_type_filter_types[asset_type_e_count] = {
         "*.*",
-        "*.png;*.jpg"
+        "*.png;*.jpg",
+        "*.ifbatlas"
     };
 
     static const char* _asset_dictionary_type_filter_descs[asset_type_e_count] = {
         "All Files",
-        "Images"
+        "Images",
+        "Sprite Atlas"
     };
 
     //--------------------------------------------------------------------

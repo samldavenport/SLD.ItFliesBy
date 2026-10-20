@@ -5,5 +5,8 @@
     "image": [
         { "name": "CONNOR", "path": "images/connor.png" },
         { "name": "JIG", "path": "images/jig.png" }
+    ],
+    "sprite_atlas": [
+        { "name": "TEST-ATLAS", "path": "sprites/sprites.ifbatlas" }
     ]
 }

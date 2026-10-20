@@ -369,6 +369,17 @@ namespace ifb {
         u32 height;
         u32 offset;
     };
+    
+    struct asset_sprite_atlas {
+        hnd_sprite*   array_handles;
+        sprite_index* array_indexes;
+        pixel*        array_pixels;
+        hnd_asset     hnd;
+        u32           width;
+        u32           height;
+        u32           sprite_count;
+    };
+
 
     //--------------------------------------------------------------------
     // COMPONENT TYPES
