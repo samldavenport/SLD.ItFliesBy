@@ -33,6 +33,7 @@ namespace ifb {
     IFB_INTERNAL sprite_atlas*           sprite_atlas_load_from_asset_db         (sprite_atlas* atlas, const cchar* name);
     IFB_INTERNAL u32                     sprite_atlas_get_sprite_count           (const sprite_atlas* atlas);
     IFB_INTERNAL const image*            sprite_atlas_get_image                  (const sprite_atlas* atlas);
+    IFB_INTERNAL bool                    sprite_atlas_get_sprite_info            (const sprite_atlas* atlas, const u32 index, sprite_atlas_sprite_info& info);
     IFB_INTERNAL bool                    sprite_atlas_get_sprite_by_name         (const sprite_atlas* atlas, const cchar*     name);
     IFB_INTERNAL bool                    sprite_atlas_get_sprite_by_handle       (const sprite_atlas* atlas, const hnd_sprite hnd);
     IFB_INTERNAL bool                    sprite_atlas_get_sprite_by_index        (const sprite_atlas* atlas, const u32        index);

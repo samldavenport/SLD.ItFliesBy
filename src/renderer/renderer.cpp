@@ -381,7 +381,7 @@ return(did_set);
         const u32   height,
         const byte* pixels) {
 
-        static gl_texture textures[RENDERER_ASSET_PREVIEW_COUNT] = { GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID };
+        static gl_texture textures[RENDERER_ASSET_PREVIEW_COUNT] = { GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID };
 
         assert(_renderer);
         assert(pixels);

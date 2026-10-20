@@ -395,6 +395,33 @@ namespace ifb {
         return(atlas->img);
     }
 
+    // the offset is a pixel index, so it's split back into x and y
+    IFB_INTERNAL bool
+    sprite_atlas_get_sprite_info(
+        const sprite_atlas*       atlas,
+        const u32                 index,
+        sprite_atlas_sprite_info& info) {
+
+        assert(atlas);
+
+        if (index >= atlas->header.sprite_count) return(false);
+        assert(atlas->img);
+
+        const u32            atlas_width = atlas->img->pixel_width;
+        const u32            offset      = atlas->header.array_offset [index];
+        const dimensions_2d& dims        = atlas->header.array_dims   [index];
+
+        memcpy(info.name, atlas->header.array_name[index].cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+        info.name[IFB_CONFIG_ASSET_NAME_SIZE] = 0;
+
+        info.hnd    = atlas->header.array_handles[index];
+        info.x      = offset % atlas_width;
+        info.y      = offset / atlas_width;
+        info.width  = (u32)dims.width;
+        info.height = (u32)dims.height;
+        return(true);
+    }
+
     IFB_INTERNAL bool                    sprite_atlas_get_sprite_by_name         (const sprite_atlas* atlas, const cchar*     name);
     IFB_INTERNAL bool                    sprite_atlas_get_sprite_by_handle       (const sprite_atlas* atlas, const hnd_sprite hnd);
     IFB_INTERNAL bool                    sprite_atlas_get_sprite_by_index        (const sprite_atlas* atlas, const u32        index);

@@ -69,7 +69,7 @@ namespace ifb {
     IFB_INLINE void asset_dictionary_table          (const u32 type);
     IFB_INLINE void asset_dictionary_select         (const u32 id);
     IFB_INLINE void asset_dictionary_preview_file   (void);
-    IFB_INLINE void gui_asset_preview               (const char* str_id, const asset_preview& preview);
+    IFB_INLINE bool gui_asset_preview               (const char* str_id, const asset_preview& preview);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -417,7 +417,8 @@ namespace ifb {
     }
 
     // text in a scrolling box, or an image scaled down to fit
-    IFB_INLINE void
+    // returns true if an image was drawn, then the image is the last item so its rect can be drawn over
+    IFB_INLINE bool
     gui_asset_preview(
         const char*          str_id,
         const asset_preview& preview) {
@@ -432,6 +433,7 @@ namespace ifb {
                 ImGui::TextUnformatted(preview.text);
             }
             ImGui::EndChild();
+            return(false);
         }
         else {
 
@@ -444,10 +446,11 @@ namespace ifb {
             const f32    scale_x    = (size_avail.x < width)                       ? (size_avail.x / width)                       : 1.0f;
             const f32    scale_y    = (ASSET_DICTIONARY_PREVIEW_HEIGHT < height)   ? (ASSET_DICTIONARY_PREVIEW_HEIGHT / height)   : 1.0f;
             const f32    scale      = (scale_x < scale_y)                          ? scale_x                                      : scale_y;
-            if (scale <= 0.0f) return;
+            if (scale <= 0.0f) return(false);
 
             const ImTextureID texture = (ImTextureID)(intptr_t)preview.texture;
             ImGui::Image(texture, ImVec2(width * scale, height * scale));
+            return(true);
         }
     }
 };
