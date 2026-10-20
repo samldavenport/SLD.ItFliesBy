@@ -63,7 +63,7 @@ namespace ifb {
         if (!is_open) return;
 
         const bool render_window = ImGui::Begin(
-            _gui_str->menu_engine_item_sprite_atlas_builder,
+            _gui_str->menu_engine_menu_sprite_tools_item_atlas_builder,
             &is_open
         );
 
