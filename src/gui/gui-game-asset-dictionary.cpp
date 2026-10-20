@@ -34,7 +34,7 @@ namespace ifb {
     static const char* _asset_dictionary_type_filter_types[asset_type_e_count] = {
         "*.*",
         "*.png;*.jpg",
-        "*ifbatlas"
+        "*.ifbatlas"
     };
 
     static const char* _asset_dictionary_type_filter_descs[asset_type_e_count] = {

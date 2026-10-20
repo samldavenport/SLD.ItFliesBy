@@ -68,6 +68,7 @@ namespace ifb {
     IFB_INLINE hnd_arena                         eng_asset_preview_get_arena    (const u32 slot);
     IFB_INLINE bool                              eng_asset_preview_load_text    (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_preview_load_image   (const cchar* path, asset_preview& preview);
+    IFB_INLINE bool                              eng_asset_preview_load_sprite_atlas (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_path_is_separator    (const cchar c);
     IFB_INLINE bool                              eng_asset_path_is_absolute     (const cchar* path);
     IFB_INLINE bool                              eng_asset_path_equals          (const cchar* path_a, const cchar* path_b);
@@ -191,8 +192,9 @@ namespace ifb {
         // the id is the hash of the upper case name, so it has to be unique across every list
         const u32  id        = hash_u32((void*)name_upper, length_name);
         const bool is_in_use = (
-            eng_asset_dictionary_has_id(dict->text_files,  id) ||
-            eng_asset_dictionary_has_id(dict->image_files, id)
+            eng_asset_dictionary_has_id(dict->text_files,         id) ||
+            eng_asset_dictionary_has_id(dict->image_files,        id) ||
+            eng_asset_dictionary_has_id(dict->sprite_atlas_files, id)
         );
         if (is_in_use) return(INVALID_HANDLE);
 
@@ -202,9 +204,12 @@ namespace ifb {
 
         hnd_asset hnd = INVALID_HANDLE;
         if (path_copy) {
-            hnd = (type == asset_type_e_text)
-                ? asset_dictionary_add_text_file  (dict, name_upper, path_copy, state.h_arena)
-                : asset_dictionary_add_image_file (dict, name_upper, path_copy, state.h_arena);
+            switch (type) {
+                case asset_type_e_text:         hnd = asset_dictionary_add_text_file         (dict, name_upper, path_copy, state.h_arena); break;
+                case asset_type_e_image:        hnd = asset_dictionary_add_image_file        (dict, name_upper, path_copy, state.h_arena); break;
+                case asset_type_e_sprite_atlas: hnd = asset_dictionary_add_sprite_atlas_file (dict, name_upper, path_copy, state.h_arena); break;
+                default: break;
+            }
         }
 
         if (hnd == INVALID_HANDLE) {
@@ -311,9 +316,13 @@ namespace ifb {
         cchar path[ENG_ASSET_PATH_SIZE];
         if (!eng_asset_path_to_absolute(state.dir, node_found->path, path)) return(false);
 
-        const bool did_load = (preview.type == asset_type_e_text)
-            ? eng_asset_preview_load_text  (path, preview)
-            : eng_asset_preview_load_image (path, preview);
+        bool did_load = false;
+        switch (preview.type) {
+            case asset_type_e_text:         did_load = eng_asset_preview_load_text         (path, preview); break;
+            case asset_type_e_image:        did_load = eng_asset_preview_load_image        (path, preview); break;
+            case asset_type_e_sprite_atlas: did_load = eng_asset_preview_load_sprite_atlas (path, preview); break;
+            default: break;
+        }
 
         return(did_load);
     }
@@ -483,6 +492,18 @@ namespace ifb {
             return(true);
         }
 
+        // an atlas is previewed as its whole image
+        if (preview.type == asset_type_e_sprite_atlas) {
+
+            const asset_sprite_atlas* atlas = asset_database_load_sprite_atlas_by_handle_to_arena(db, h_asset, h_arena);
+            if (!atlas) return(false);
+
+            preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_database, atlas->width, atlas->height, (const byte*)atlas->array_pixels);
+            preview.width   = atlas->width;
+            preview.height  = atlas->height;
+            return(preview.texture != 0);
+        }
+
         const asset_image* img = asset_database_load_image_by_handle_to_arena(db, h_asset, h_arena);
         if (!img || img->width == 0 || img->height == 0) return(false);
 
@@ -560,7 +581,8 @@ namespace ifb {
 
         asset_dictionary_file_list* lists[asset_type_e_count] = {
             &dict->text_files,
-            &dict->image_files
+            &dict->image_files,
+            &dict->sprite_atlas_files
         };
 
         // the build needs the header in its arena with each file
@@ -646,7 +668,26 @@ namespace ifb {
             eng_asset_database_set_error("%s is empty: %s", node->name, path);
             return(false);
         }
-        if (size > size_max) {
+
+        // atlases are read straight into the arena, so they aren't limited by the file buffer
+        if (type == asset_type_e_sprite_atlas) {
+
+            // the atlas in memory is smaller than the file, it doesn't keep the sprite names
+            const u64 size_atlas = (u64)size + sizeof(asset_sprite_atlas) + size_header;
+            if (size_atlas > IFB_CONFIG_ARENA_MEM_GRANULARITY) {
+                eng_asset_database_set_error("%s is %u bytes, which is too big to load: %s", node->name, size, path);
+                return(false);
+            }
+
+            const u32                 save  = arena_save(h_arena);
+            const asset_sprite_atlas* atlas = asset_database_load_sprite_atlas_file(path, h_arena);
+            arena_revert(h_arena, save);
+            if (!atlas) {
+                eng_asset_database_set_error("%s isn't a sprite atlas that can be read: %s", node->name, path);
+                return(false);
+            }
+        }
+        else if (size > size_max) {
             eng_asset_database_set_error("%s is %u bytes, files can be up to %u bytes: %s", node->name, size, size_max, path);
             return(false);
         }
@@ -788,6 +829,27 @@ namespace ifb {
         return(true);
     }
 
+    // the atlas is read from the file, and its whole image goes to a texture
+    IFB_INLINE bool
+    eng_asset_preview_load_sprite_atlas(
+        const cchar*   path,
+        asset_preview& preview) {
+
+        const hnd_arena h_arena = eng_asset_preview_get_arena(eng_asset_preview_e_dictionary);
+        if (h_arena == INVALID_HANDLE) return(false);
+
+        const asset_sprite_atlas* atlas = asset_database_load_sprite_atlas_file(path, h_arena);
+        if (!atlas) return(false);
+
+        const u32 texture = renderer_set_asset_preview_texture(eng_asset_preview_e_dictionary, atlas->width, atlas->height, (const byte*)atlas->array_pixels);
+        if (texture == 0) return(false);
+
+        preview.texture = texture;
+        preview.width   = atlas->width;
+        preview.height  = atlas->height;
+        return(true);
+    }
+
     // there is always a dictionary to edit, it starts out empty
     IFB_INLINE asset_dictionary*
     eng_asset_dictionary_get(
@@ -859,7 +921,8 @@ namespace ifb {
 
         asset_dictionary_file_list* lists[asset_type_e_count] = {
             &state.dict->text_files,
-            &state.dict->image_files
+            &state.dict->image_files,
+            &state.dict->sprite_atlas_files
         };
 
         for (

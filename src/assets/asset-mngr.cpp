@@ -157,6 +157,24 @@ namespace ifb {
         return(hnd);
     }
 
+    // loads the sprite atlas into asset memory if it isn't already there
+    // returns INVALID_HANDLE if there's no sprite atlas by that name, or no room for it
+    IFB_INTERNAL hnd_asset
+    asset_mngr_load_sprite_atlas(
+        const cchar* name) {
+
+        assert(_asset_mngr);
+        assert(name);
+
+        const hnd_asset hnd = asset_database_handle_of(name);
+        if (hnd == INVALID_HANDLE) return(INVALID_HANDLE);
+
+        const addr data = asset_mngr_get_or_load(hnd, asset_type_e_sprite_atlas);
+        if (!data) return(INVALID_HANDLE);
+
+        return(hnd);
+    }
+
     // if the text was evicted, it's loaded again
     // the pointer is only valid until the next asset load or asset_mngr_update, either can move the data
     IFB_INTERNAL const asset_text*
@@ -189,6 +207,23 @@ namespace ifb {
         auto img    = (asset_image*)data;
         img->pixels = (color_rgba_u32*)(data + sizeof(asset_image));
         return(img);
+    }
+
+    // if the sprite atlas was evicted, it's loaded again
+    // the pointer is only valid until the next asset load or asset_mngr_update, either can move the data
+    IFB_INTERNAL const asset_sprite_atlas*
+    asset_mngr_get_sprite_atlas(
+        const hnd_asset hnd) {
+
+        assert(_asset_mngr);
+
+        const addr data = asset_mngr_get_or_load(hnd, asset_type_e_sprite_atlas);
+        if (!data) return(NULL);
+
+        // the array pointers were set when it was loaded, and the data may have moved since
+        auto atlas = (asset_sprite_atlas*)data;
+        asset_sprite_atlas_set_arrays(atlas);
+        return(atlas);
     }
 
     // the name doesn't need the asset to be loaded, it's always in the database
@@ -263,6 +298,9 @@ namespace ifb {
             case (asset_type_e_image): {
                 did_load = asset_database_load_image_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
             } break;
+            case (asset_type_e_sprite_atlas): {
+                did_load = asset_database_load_sprite_atlas_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
+            } break;
             default: break;
         }
 
@@ -295,6 +333,12 @@ namespace ifb {
             case asset_type_e_image: {
                 if (index.size < (sizeof(u32) * 2)) return(0);
                 size = (u64)sizeof(asset_image) + (index.size - (sizeof(u32) * 2));
+            } break;
+
+            // atlases have their dimensions and sprite count in front of the handles, indexes, and pixels in the file
+            case asset_type_e_sprite_atlas: {
+                if (index.size < (sizeof(u32) * 3)) return(0);
+                size = (u64)sizeof(asset_sprite_atlas) + (index.size - (sizeof(u32) * 3));
             } break;
 
             default: return(0);

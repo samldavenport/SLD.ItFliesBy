@@ -371,6 +371,7 @@ namespace ifb {
     };
     
     struct asset_sprite_atlas {
+        hnd_sprite*   array_handles;
         sprite_index* array_indexes;
         pixel*        array_pixels;
         hnd_asset     hnd;

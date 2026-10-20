@@ -28,6 +28,7 @@ namespace ifb {
     struct asset_dictionary {
         asset_dictionary_file_list text_files;
         asset_dictionary_file_list image_files;
+        asset_dictionary_file_list sprite_atlas_files;
     };
 
     IFB_INTERNAL const asset_dictionary_file_list*
