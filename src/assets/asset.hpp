@@ -41,13 +41,14 @@ namespace ifb {
     IFB_INTERNAL asset_database*    asset_mngr_get_database             (void);
 
     // dictionary
-    IFB_INTERNAL asset_dictionary*  asset_dictionary_create             (const hnd_arena arena);
-    IFB_INTERNAL asset_dictionary*  asset_dictionary_load_from_json     (const cchar*    path,const hnd_arena h_arena);
-    IFB_INTERNAL bool               asset_dictionary_save_to_json       (asset_dictionary* dict, const cchar* path, const hnd_arena h_arena);
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_text_file      (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_image_file     (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
-    IFB_INTERNAL bool               asset_dictionary_remove_file        (asset_dictionary* dict, const cchar*      name);
-    IFB_INTERNAL u32                asset_dictionary_count_assets       (const asset_dictionary* dict);
+    IFB_INTERNAL asset_dictionary*  asset_dictionary_create                (const hnd_arena arena);
+    IFB_INTERNAL asset_dictionary*  asset_dictionary_load_from_json        (const cchar*    path,const hnd_arena h_arena);
+    IFB_INTERNAL bool               asset_dictionary_save_to_json          (asset_dictionary* dict, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL hnd_asset          asset_dictionary_add_text_file         (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
+    IFB_INTERNAL hnd_asset          asset_dictionary_add_image_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
+    IFB_INTERNAL hnd_asset          asset_dictionary_add_sprite_atlas_file (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL bool               asset_dictionary_remove_file           (asset_dictionary* dict, const cchar* name);
+    IFB_INTERNAL u32                asset_dictionary_count_assets          (const asset_dictionary* dict);
 
     // database
     IFB_INTERNAL asset_database*    asset_database_load                           (const cchar* path, const hnd_arena h_arena);
