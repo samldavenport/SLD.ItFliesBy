@@ -36,11 +36,12 @@ namespace ifb {
         cchar           error[ENG_ASSET_ERROR_SIZE];
     } static _eng_asset_database;
 
-    // the dictionary and the database each have a preview, so both windows can show one
+    // the dictionary, the database, and the runtime database each have a preview, so every window can show one
     enum eng_asset_preview_e {
         eng_asset_preview_e_dictionary = 0,
         eng_asset_preview_e_database   = 1,
-        eng_asset_preview_e_count      = 2
+        eng_asset_preview_e_runtime    = 2,
+        eng_asset_preview_e_count      = 3
     };
     static_assert(eng_asset_preview_e_count == RENDERER_ASSET_PREVIEW_COUNT);
 
@@ -490,6 +491,61 @@ namespace ifb {
         return(preview.texture != 0);
     }
 
+    IFB_ENGINE_API u32
+    eng_asset_runtime_get_count(
+        void) {
+
+        const asset_database* db = asset_mngr_get_database();
+
+        const u32 count = db ? db->asset_count : 0;
+        return(count);
+    }
+
+    IFB_ENGINE_API bool
+    eng_asset_runtime_get_info(
+        const u32            index,
+        asset_database_info& info) {
+
+        const asset_database* db = asset_mngr_get_database();
+        if (!db || index >= db->asset_count) return(false);
+
+        memcpy(info.name, db->array_names[index].cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+        info.name[IFB_CONFIG_ASSET_NAME_SIZE] = 0;
+
+        info.hnd    = db->array_handles[index];
+        info.type   = db->array_indexes[index].type.val;
+        info.offset = db->array_indexes[index].offset;
+        info.size   = db->array_indexes[index].size;
+        return(true);
+    }
+
+    // the image is read from the file, so the asset manager's memory isn't touched
+    IFB_ENGINE_API bool
+    eng_asset_runtime_load_image_preview(
+        const cchar*   name,
+        asset_preview& preview) {
+
+        assert(name);
+
+        eng_asset_preview_clear(preview);
+
+        const asset_database* db = asset_mngr_get_database();
+        if (!db || db->asset_count == 0 || name[0] == 0) return(false);
+
+        const hnd_asset h_asset = asset_name_cstr_to_handle(name);
+        const hnd_arena h_arena = eng_asset_preview_get_arena(eng_asset_preview_e_runtime);
+        if (h_asset == INVALID_HANDLE || h_arena == INVALID_HANDLE) return(false);
+
+        const asset_image* img = asset_database_load_image_by_handle_to_arena(db, h_asset, h_arena);
+        if (!img || img->width == 0 || img->height == 0) return(false);
+
+        preview.type    = asset_type_e_image;
+        preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_runtime, img->width, img->height, (const byte*)img->pixels);
+        preview.width   = img->width;
+        preview.height  = img->height;
+        return(preview.texture != 0);
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
@@ -576,7 +632,7 @@ namespace ifb {
         }
 
         const hnd_file h_file = file_ro_open_existing(path);
-        if (h_file == INVALID_HANDLE) {
+        if (h_file == FILE_HANDLE_INVALID) {
             eng_asset_database_set_error("%s can't be opened: %s", node->name, path);
             return(false);
         }

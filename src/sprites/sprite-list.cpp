@@ -49,12 +49,18 @@ namespace ifb {
         const hnd_asset h_asset = asset_mngr_load_image(asset_img_name);
         if (h_asset == INVALID_HANDLE) return(false);
 
+        // the size is kept with the node, the image may be evicted before the atlas is built
+        const asset_image* img = asset_mngr_get_image(h_asset);
+        if (img == NULL) return(false);
+
         // allocate a node
         auto* node = (sprite_list_node*)arena_push(h_arena, sizeof(sprite_list_node));
         if (node == NULL) return(false);
 
-        node->h_img_asset = h_asset;
-        node->next        = NULL;
+        node->h_img_asset     = h_asset;
+        node->img_dims.width  = (f32)img->width;
+        node->img_dims.height = (f32)img->height;
+        node->next            = NULL;
 
         // add the node to the list
         if (list->first == NULL) {
@@ -138,12 +144,38 @@ namespace ifb {
         return(node->next);
     }
 
+    IFB_INTERNAL u32
+    sprite_list_get_count(
+        const sprite_list* list) {
+
+        assert(list);
+
+        u32 count = 0;
+        for (
+            auto node = list->first;
+                 node != NULL;
+                 node = node->next) {
+    
+            ++count;
+        }
+
+        return(count);
+    }
+    
     IFB_INTERNAL hnd_asset
     sprite_list_get_img_asset_hnd(
         const sprite_list_node* node) {
 
         assert(node);
         return(node->h_img_asset);
+    }
+
+    IFB_INTERNAL const dimensions_2d&
+    sprite_list_get_img_dims(
+        const sprite_list_node* node) {
+
+        assert(node);
+        return(node->img_dims);
     }
 
     IFB_INTERNAL hnd_sprite_atlas
