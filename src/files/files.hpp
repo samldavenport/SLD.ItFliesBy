@@ -10,6 +10,7 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
+    //TODO(SAM): this should be the same as INVALID_HANDLE
     constexpr u32 FILE_HANDLE_INVALID = 0;
     constexpr u32 FILE_INDEX_INVALID  = 0xFFFFFFFF;
 
