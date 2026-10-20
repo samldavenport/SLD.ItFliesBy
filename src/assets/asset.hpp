@@ -37,6 +37,7 @@ namespace ifb {
     IFB_INTERNAL hnd_asset          asset_mngr_load_image               (const cchar* name);
     IFB_INTERNAL const asset_text*  asset_mngr_get_text                 (const hnd_asset hnd);
     IFB_INTERNAL const asset_image* asset_mngr_get_image                (const hnd_asset hnd);
+    IFB_INTERNAL const asset_name*  asset_mngr_get_name                 (const hnd_asset hnd);
     IFB_INTERNAL asset_database*    asset_mngr_get_database             (void);
 
     // dictionary
@@ -52,6 +53,7 @@ namespace ifb {
     IFB_INTERNAL asset_database*    asset_database_load                           (const cchar* path, const hnd_arena h_arena);
     IFB_INTERNAL asset_database*    asset_database_build                          (const cchar* path, const asset_dictionary* dict, const hnd_arena);
     IFB_INTERNAL bool               asset_database_get_index                      (const asset_database* db, const cchar* name_cstr, asset_index& index);
+    IFB_INTERNAL const asset_name*  asset_database_get_name                       (const asset_database* db, const hnd_asset h_asset);
     IFB_INTERNAL const asset_text*  asset_database_load_text_by_handle_to_arena   (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
     IFB_INTERNAL const asset_text*  asset_database_load_text_by_name_to_arena     (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
     IFB_INTERNAL const asset_image* asset_database_load_image_by_handle_to_arena  (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);

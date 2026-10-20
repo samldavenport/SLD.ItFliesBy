@@ -273,6 +273,43 @@ namespace ifb {
         return(builder->atlas_image);
     }
 
+    IFB_INTERNAL u32
+    sprite_atlas_builder_get_sprite_count(
+        sprite_atlas_builder* builder) {
+
+        assert(builder);
+        assert(builder->list);
+
+        auto list = builder->list;
+
+
+    }
+    
+    IFB_INTERNAL const sprite_list*
+    sprite_atlas_builder_get_sprite_list(
+        sprite_atlas_builder* builder) {
+
+        assert(builder);
+
+        return(builder->list);
+    }
+
+    // where the sprite's top left pixel is in the atlas pixel array, the index is the sprite's place in the list
+    // INVALID_INDEX if the sprites haven't been packed
+    IFB_INTERNAL u32
+    sprite_atlas_builder_get_sprite_offset(
+        sprite_atlas_builder* builder,
+        const u32             index) {
+
+        assert(builder);
+
+        if (!builder->is_packed) return(INVALID_INDEX);
+        assert(index < builder->rect_count);
+
+        const stbrp_rect& rect = builder->rects[index];
+        return(((u32)rect.y * builder->atlas_width) + (u32)rect.x);
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------

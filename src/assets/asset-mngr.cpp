@@ -191,6 +191,20 @@ namespace ifb {
         return(img);
     }
 
+    // the name doesn't need the asset to be loaded, it's always in the database
+    // NULL if there's no database or the asset isn't in it
+    IFB_INTERNAL const asset_name*
+    asset_mngr_get_name(
+        const hnd_asset hnd) {
+
+        assert(_asset_mngr);
+        assert(hnd != INVALID_HANDLE);
+
+        if (!_asset_mngr->db) return(NULL);
+
+        return(asset_database_get_name(_asset_mngr->db, hnd));
+    }
+    
     // NULL if the runtime database failed to load at startup
     IFB_INTERNAL asset_database*
     asset_mngr_get_database(

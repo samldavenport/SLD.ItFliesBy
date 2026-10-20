@@ -30,18 +30,6 @@ namespace ifb {
         sprite_list_node* first; 
         sprite_list_node* last; 
     };
-
-    struct sprite_atlas {
-        struct {
-            hnd_sprite_atlas h_atlas;
-            u32              sprite_count;
-            hnd_asset        h_asset;
-            asset_name*      array_name;
-            u32*             array_offset;
-            dimensions_2d*   array_dims;
-        } header;
-        pixel* array_pixels;
-    };
     
     struct sprite_mngr {
         sprite_memory* mem;
@@ -49,5 +37,4 @@ namespace ifb {
 
     
 };
-
 #endif //SPRITE_INTERNAL_HPP

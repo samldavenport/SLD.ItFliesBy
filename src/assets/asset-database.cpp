@@ -317,6 +317,22 @@ namespace ifb {
         return(did_find);
     }
     
+    // NULL if the asset isn't in the database
+    IFB_INTERNAL const asset_name*
+    asset_database_get_name(
+        const asset_database* db,
+        const hnd_asset       h_asset) {
+
+        assert(db);
+        assert(db->array_names != NULL);
+
+        // the names are in the same order as the handles
+        const u32 slot = asset_database_slot_of(db, h_asset);
+        if (slot == INVALID_INDEX) return(NULL);
+
+        return(&db->array_names[slot]);
+    }
+    
     IFB_INTERNAL const asset_text*
     asset_database_load_text_by_handle_to_arena(
         const asset_database* db,

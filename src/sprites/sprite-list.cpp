@@ -144,6 +144,24 @@ namespace ifb {
         return(node->next);
     }
 
+    IFB_INTERNAL u32
+    sprite_list_get_count(
+        const sprite_list* list) {
+
+        assert(list);
+
+        u32 count = 0;
+        for (
+            auto node = list->first;
+                 node != NULL;
+                 node = node->next) {
+    
+            ++count;
+        }
+
+        return(count);
+    }
+    
     IFB_INTERNAL hnd_asset
     sprite_list_get_img_asset_hnd(
         const sprite_list_node* node) {

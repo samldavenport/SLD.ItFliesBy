@@ -338,6 +338,15 @@ namespace ifb {
         color_rgba_u32* pixels;
     };
 
+    struct sprite {
+        const cchar* name;
+        const pixel* pixel_array; 
+        hnd_sprite   hnd;
+        u32          index;
+        u32          pixel_width;
+        u32          pixel_height;
+    };
+
     //--------------------------------------------------------------------
     // COMPONENT TYPES
     //--------------------------------------------------------------------
