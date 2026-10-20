@@ -172,6 +172,12 @@ namespace ifb {
     // packs every sprite in the list into one atlas image, the preview shares a texture with the runtime image preview
     IFB_ENGINE_API bool eng_sprite_atlas_builder_pack      (asset_preview& preview);
 
+    // writes the packed atlas to a file, packing it first if the list changed since it was packed
+    IFB_ENGINE_API bool eng_sprite_atlas_builder_save      (const cchar* path);
+
+    // reads an atlas file into the preview, the sprite list isn't changed
+    IFB_ENGINE_API bool eng_sprite_atlas_builder_open      (const cchar* path, asset_preview& preview, u32& sprite_count);
+
     //--------------------------------------------------------------------
     // CAMERA
     //--------------------------------------------------------------------

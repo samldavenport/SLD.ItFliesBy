@@ -19,17 +19,20 @@ namespace ifb {
 
     // the list being built, everything it has lives in its arena
     // the builder has its own sprite memory, it's made the first time the list is packed
+    // the builder is only packed for the list as it was, so changing the list means packing again
     struct eng_sprite_atlas_builder {
         hnd_arena             h_arena;
         sprite_list*          list;
         sprite_atlas_builder* builder;
+        bool                  is_packed;
     } static _eng_sprite_atlas_builder;
 
     //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    IFB_INLINE sprite_list* eng_sprite_atlas_builder_get_list (void);
+    IFB_INLINE sprite_list* eng_sprite_atlas_builder_get_list  (void);
+    IFB_INLINE const image* eng_sprite_atlas_builder_get_image (void);
 
     //--------------------------------------------------------------------
     // API METHOD DEFINITIONS
@@ -44,7 +47,8 @@ namespace ifb {
 
         // the old list goes away with everything in the arena
         arena_reset(state.h_arena);
-        state.list = sprite_list_create(state.h_arena);
+        state.list      = sprite_list_create(state.h_arena);
+        state.is_packed = false;
     }
 
     IFB_ENGINE_API bool
@@ -66,6 +70,7 @@ namespace ifb {
         if (slot == INVALID_INDEX || db->array_indexes[slot].type.val != asset_type_e_image) return(false);
 
         const bool did_add = sprite_list_add(list, name, state.h_arena);
+        if (did_add) state.is_packed = false;
         return(did_add);
     }
 
@@ -75,10 +80,13 @@ namespace ifb {
 
         assert(name);
 
+        auto& state = _eng_sprite_atlas_builder;
+
         sprite_list* list = eng_sprite_atlas_builder_get_list();
         if (!list || name[0] == 0) return(false);
 
         const bool did_remove = sprite_list_remove(list, name);
+        if (did_remove) state.is_packed = false;
         return(did_remove);
     }
 
@@ -167,35 +175,112 @@ namespace ifb {
     eng_sprite_atlas_builder_pack(
         asset_preview& preview) {
 
-        auto& state = _eng_sprite_atlas_builder;
-
         eng_asset_preview_clear(preview);
 
-        sprite_list* list = eng_sprite_atlas_builder_get_list();
-        if (!list) return(false);
+        // always packed again, so the preview is never stale
+        _eng_sprite_atlas_builder.is_packed = false;
 
-        if (!state.builder) {
-            state.builder = sprite_atlas_builder_create();
-            if (!state.builder) return(false);
-        }
-
-        // the last atlas goes away with everything else on the builder's memory
-        sprite_atlas_builder_reset    (state.builder);
-        sprite_atlas_builder_set_list (state.builder, list);
-
-        const image* atlas = sprite_atlas_builder_get_image(state.builder);
+        const image* atlas = eng_sprite_atlas_builder_get_image();
         if (!atlas) return(false);
 
-        preview.type    = asset_type_e_image;
+        preview.type   = asset_type_e_image;
         preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_runtime, atlas->pixel_width, atlas->pixel_height, atlas->data.bytes);
         preview.width   = atlas->pixel_width;
         preview.height  = atlas->pixel_height;
         return(preview.texture != 0);
     }
 
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_save(
+        const cchar* path) {
+
+        assert(path);
+
+        auto& state = _eng_sprite_atlas_builder;
+
+        if (path[0] == 0) return(false);
+        if (eng_sprite_atlas_builder_get_count() == 0) return(false);
+
+        // the list may have changed since it was packed
+        if (!eng_sprite_atlas_builder_get_image()) return(false);
+
+        // the atlas is only needed long enough to write it, its block goes back after
+        sprite_atlas* atlas = sprite_atlas_create();
+        if (!atlas) return(false);
+
+        const bool did_save = (
+            sprite_atlas_build        (atlas, state.builder) &&
+            sprite_atlas_save_to_file (atlas, path)
+        );
+
+        sprite_atlas_destroy(atlas);
+        return(did_save);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_open(
+        const cchar*   path,
+        asset_preview& preview,
+        u32&           sprite_count) {
+
+        assert(path);
+
+        eng_asset_preview_clear(preview);
+        sprite_count = 0;
+
+        if (path[0] == 0) return(false);
+
+        // the atlas is only needed long enough to copy it to the preview, its block goes back after
+        sprite_atlas* atlas = sprite_atlas_create();
+        if (!atlas) return(false);
+
+        bool did_open = sprite_atlas_load_from_file(atlas, path);
+        if (did_open) {
+
+            const image* img = sprite_atlas_get_image(atlas);
+
+            preview.type    = asset_type_e_image;
+            preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_runtime, img->pixel_width, img->pixel_height, img->data.bytes);
+            preview.width   = img->pixel_width;
+            preview.height  = img->pixel_height;
+            sprite_count    = sprite_atlas_get_sprite_count(atlas);
+
+            did_open = (preview.texture != 0);
+        }
+
+        sprite_atlas_destroy(atlas);
+        return(did_open);
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
+
+    // packs the list if it changed since the last time, the image stays on the builder's memory
+    IFB_INLINE const image*
+    eng_sprite_atlas_builder_get_image(
+        void) {
+
+        auto& state = _eng_sprite_atlas_builder;
+
+        sprite_list* list = eng_sprite_atlas_builder_get_list();
+        if (!list) return(NULL);
+
+        if (!state.builder) {
+            state.builder = sprite_atlas_builder_create();
+            if (!state.builder) return(NULL);
+        }
+
+        // the last atlas goes away with everything else on the builder's memory
+        if (!state.is_packed) {
+            sprite_atlas_builder_reset    (state.builder);
+            sprite_atlas_builder_set_list (state.builder, list);
+        }
+
+        const image* atlas = sprite_atlas_builder_get_image(state.builder);
+        state.is_packed = (atlas != NULL);
+        return(atlas);
+    }
 
     // the list is made the first time it's needed
     IFB_INLINE sprite_list*
