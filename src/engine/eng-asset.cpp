@@ -36,12 +36,13 @@ namespace ifb {
         cchar           error[ENG_ASSET_ERROR_SIZE];
     } static _eng_asset_database;
 
-    // the dictionary, the database, and the runtime database each have a preview, so every window can show one
+    // the dictionary, the database, the runtime database, and the atlas inspector each have a preview, so every window can show one
     enum eng_asset_preview_e {
         eng_asset_preview_e_dictionary = 0,
         eng_asset_preview_e_database   = 1,
         eng_asset_preview_e_runtime    = 2,
-        eng_asset_preview_e_count      = 3
+        eng_asset_preview_e_atlas      = 3,
+        eng_asset_preview_e_count      = 4
     };
     static_assert(eng_asset_preview_e_count == RENDERER_ASSET_PREVIEW_COUNT);
 

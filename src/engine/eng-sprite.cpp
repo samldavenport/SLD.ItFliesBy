@@ -27,6 +27,11 @@ namespace ifb {
         bool                  is_packed;
     } static _eng_sprite_atlas_builder;
 
+    // the atlas open in the inspector stays loaded until it's closed or another one is opened
+    struct eng_sprite_atlas_inspector {
+        sprite_atlas* atlas;
+    } static _eng_sprite_atlas_inspector;
+
     //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
@@ -218,38 +223,80 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
-    eng_sprite_atlas_builder_open(
+    eng_sprite_atlas_inspector_open(
         const cchar*   path,
-        asset_preview& preview,
-        u32&           sprite_count) {
+        asset_preview& preview) {
 
         assert(path);
 
-        eng_asset_preview_clear(preview);
-        sprite_count = 0;
+        auto& state = _eng_sprite_atlas_inspector;
 
         if (path[0] == 0) return(false);
 
-        // the atlas is only needed long enough to copy it to the preview, its block goes back after
+        // the new atlas is loaded next to the open one, so a failed open leaves the open one as it was
         sprite_atlas* atlas = sprite_atlas_create();
         if (!atlas) return(false);
 
-        bool did_open = sprite_atlas_load_from_file(atlas, path);
-        if (did_open) {
-
-            const image* img = sprite_atlas_get_image(atlas);
-
-            preview.type    = asset_type_e_image;
-            preview.texture = renderer_set_asset_preview_texture(eng_asset_preview_e_runtime, img->pixel_width, img->pixel_height, img->data.bytes);
-            preview.width   = img->pixel_width;
-            preview.height  = img->pixel_height;
-            sprite_count    = sprite_atlas_get_sprite_count(atlas);
-
-            did_open = (preview.texture != 0);
+        if (!sprite_atlas_load_from_file(atlas, path)) {
+            sprite_atlas_destroy(atlas);
+            return(false);
         }
 
-        sprite_atlas_destroy(atlas);
-        return(did_open);
+        // the texture has its own copy of the pixels
+        const image* img     = sprite_atlas_get_image(atlas);
+        const u32    texture = renderer_set_asset_preview_texture(eng_asset_preview_e_atlas, img->pixel_width, img->pixel_height, img->data.bytes);
+        if (texture == 0) {
+            sprite_atlas_destroy(atlas);
+            return(false);
+        }
+
+        eng_sprite_atlas_inspector_close();
+        state.atlas = atlas;
+
+        eng_asset_preview_clear(preview);
+        preview.type    = asset_type_e_image;
+        preview.texture = texture;
+        preview.width   = img->pixel_width;
+        preview.height  = img->pixel_height;
+        return(true);
+    }
+
+    IFB_ENGINE_API void
+    eng_sprite_atlas_inspector_close(
+        void) {
+
+        auto& state = _eng_sprite_atlas_inspector;
+        if (!state.atlas) return;
+
+        sprite_atlas_destroy(state.atlas);
+        state.atlas = NULL;
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_inspector_get_info(
+        sprite_atlas_info& info) {
+
+        const sprite_atlas* atlas = _eng_sprite_atlas_inspector.atlas;
+        if (!atlas) return(false);
+
+        const image* img = sprite_atlas_get_image(atlas);
+
+        info.width        = img->pixel_width;
+        info.height       = img->pixel_height;
+        info.sprite_count = sprite_atlas_get_sprite_count(atlas);
+        return(true);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_inspector_get_sprite(
+        const u32                 index,
+        sprite_atlas_sprite_info& info) {
+
+        const sprite_atlas* atlas = _eng_sprite_atlas_inspector.atlas;
+        if (!atlas) return(false);
+
+        const bool did_get = sprite_atlas_get_sprite_info(atlas, index, info);
+        return(did_get);
     }
 
     //--------------------------------------------------------------------

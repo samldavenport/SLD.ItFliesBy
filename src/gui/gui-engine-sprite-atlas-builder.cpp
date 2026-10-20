@@ -27,12 +27,11 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // the engine owns the sprite list, the window owns the filter and what's being previewed
-    // the preview is either the selected image, the last packed atlas, or an atlas opened from a file
+    // the preview is either the selected image or the last packed atlas
     struct sprite_atlas_builder_state {
         const char*   status;
-        char          filter     [SPRITE_ATLAS_BUILDER_FILTER_SIZE];
-        char          selected   [SPRITE_ATLAS_BUILDER_NAME_SIZE]; // empty unless an image is selected
-        char          atlas_path [SPRITE_ATLAS_BUILDER_PATH_SIZE]; // empty unless the atlas was opened from a file
+        char          filter   [SPRITE_ATLAS_BUILDER_FILTER_SIZE];
+        char          selected [SPRITE_ATLAS_BUILDER_NAME_SIZE]; // empty unless an image is selected
         bool          is_atlas_selected;
         bool          is_preview_loaded;
         u32           atlas_sprite_count;
@@ -49,7 +48,6 @@ namespace ifb {
     IFB_INLINE void sprite_atlas_builder_select      (const char* name);
     IFB_INLINE void sprite_atlas_builder_pack        (const u32 count);
     IFB_INLINE void sprite_atlas_builder_save        (const u32 count);
-    IFB_INLINE void sprite_atlas_builder_open        (void);
     IFB_INLINE void sprite_atlas_builder_preview     (void);
 
     //--------------------------------------------------------------------
@@ -191,12 +189,6 @@ namespace ifb {
         }
         ImGui::EndDisabled();
 
-        // opening doesn't need any sprites in the list
-        ImGui::SameLine();
-        if (ImGui::Button("Open...")) {
-            sprite_atlas_builder_open();
-        }
-
         // removing a sprite changes the list, so it waits until the table is done
         bool                      do_remove = false;
         sprite_atlas_builder_info remove_info;
@@ -275,7 +267,6 @@ namespace ifb {
         auto& state = _sprite_atlas_builder;
 
         strncpy_s(state.selected, name, SPRITE_ATLAS_BUILDER_NAME_SIZE - 1);
-        state.atlas_path[0]     = 0;
         state.is_atlas_selected = false;
         state.is_preview_loaded = eng_asset_runtime_load_image_preview(name, state.preview);
     }
@@ -288,7 +279,6 @@ namespace ifb {
         auto& state = _sprite_atlas_builder;
 
         state.selected[0]        = 0;
-        state.atlas_path[0]      = 0;
         state.is_atlas_selected  = true;
         state.atlas_sprite_count = count;
         state.is_preview_loaded  = eng_sprite_atlas_builder_pack(state.preview);
@@ -320,26 +310,6 @@ namespace ifb {
             : "Failed to save the atlas, the file may not be writable or there's no memory for it";
     }
 
-    // the opened atlas is previewed in place of the selected image, the sprite list stays as it is
-    IFB_INLINE void
-    sprite_atlas_builder_open(
-        void) {
-
-        auto& state = _sprite_atlas_builder;
-
-        const char* path = eng_file_dialog_open(_sprite_atlas_filter_type, _sprite_atlas_filter_desc);
-        if (!path) return;
-
-        strncpy_s(state.atlas_path, path, SPRITE_ATLAS_BUILDER_PATH_SIZE - 1);
-        state.selected[0]       = 0;
-        state.is_atlas_selected = true;
-        state.is_preview_loaded = eng_sprite_atlas_builder_open(state.atlas_path, state.preview, state.atlas_sprite_count);
-
-        state.status = state.is_preview_loaded
-            ? "Opened the atlas"
-            : "Failed to open the atlas, it may not be an atlas file or there's no memory for it";
-    }
-
     // the selected image read back from the runtime database, or the packed atlas
     IFB_INLINE void
     sprite_atlas_builder_preview(
@@ -359,8 +329,7 @@ namespace ifb {
         }
 
         if (state.is_atlas_selected) {
-            if (state.atlas_path[0] != 0) ImGui::Text("Atlas from %s, %u sprites", state.atlas_path, state.atlas_sprite_count);
-            else                          ImGui::Text("Packed atlas, %u sprites", state.atlas_sprite_count);
+            ImGui::Text("Atlas, %u sprites", state.atlas_sprite_count);
         }
 
         gui_asset_preview("sprite-atlas-builder-preview", state.preview);

@@ -175,8 +175,12 @@ namespace ifb {
     // writes the packed atlas to a file, packing it first if the list changed since it was packed
     IFB_ENGINE_API bool eng_sprite_atlas_builder_save      (const cchar* path);
 
-    // reads an atlas file into the preview, the sprite list isn't changed
-    IFB_ENGINE_API bool eng_sprite_atlas_builder_open      (const cchar* path, asset_preview& preview, u32& sprite_count);
+    // the engine has one atlas open for inspecting, it stays loaded until it's closed or another one is opened
+    // a failed open leaves the open atlas as it was, the preview has its own texture
+    IFB_ENGINE_API bool eng_sprite_atlas_inspector_open       (const cchar* path, asset_preview& preview);
+    IFB_ENGINE_API void eng_sprite_atlas_inspector_close      (void);
+    IFB_ENGINE_API bool eng_sprite_atlas_inspector_get_info   (sprite_atlas_info& info);
+    IFB_ENGINE_API bool eng_sprite_atlas_inspector_get_sprite (const u32 index, sprite_atlas_sprite_info& info);
 
     //--------------------------------------------------------------------
     // CAMERA
