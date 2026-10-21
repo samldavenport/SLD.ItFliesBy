@@ -208,5 +208,4 @@ namespace ifb {
 
         return(is_valid);
     }
-    
 };

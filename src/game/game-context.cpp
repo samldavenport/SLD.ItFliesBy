@@ -30,6 +30,13 @@ namespace ifb {
         ctx->player_rig   = rig;
         ctx->map          =  map; 
 
+        // load the sprite atlas
+        ctx->test_sprites.h_atlas         = eng_sprite_atlas_load                ("TEST-ATLAS");
+        ctx->test_sprites.i_sprite_connor = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "CONNOR");
+        ctx->test_sprites.i_sprite_jig    = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "JIG");
+        
+
+
         // the map goes first, the player rig spawns on it
         game_map_init        (ctx->map);
         rig->starting_map_hnd = map->eng_hnd;
@@ -37,6 +44,7 @@ namespace ifb {
         game_player_rig_init (ctx->player_rig);
 
         _game_ctx = ctx;
+
 
         return(ctx);      
     }
