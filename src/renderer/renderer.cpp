@@ -2,6 +2,7 @@
 
 #include "renderer.hpp"
 #include "ifb-collections.hpp"
+#include "ifb-types.hpp"
 #include "memory-reservation.cpp"
 #include "renderer-internal.hpp"
 #include "render-buffers.cpp"
@@ -17,26 +18,37 @@
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
 #include "sld-opengl.hpp"
+#include "sprites.hpp"
 
 namespace ifb {
 
     //--------------------------------------------------------------------
     // DEFINITIONS 
     //--------------------------------------------------------------------
-    
+
+    struct render_sprite_atlas_texture {
+        hnd_sprite_atlas h_atlas;
+        gl_texture       texture_id;
+    };
+
+    struct render_textures {
+        render_sprite_atlas_texture sprite_atlas;
+    };
+
     struct renderer_memory {
         stack* stack;
     };
 
     struct renderer {
-        gl_context*        gl;
-        renderer_memory    memory;
-        renderer_camera*   cam;
-        renderer_viewport* viewport;
-        vec3               global_up;
-        render_lists*      lists;
-        render_buffers*    buffers;
-        renderer_particle_view* particle_view;
+        gl_context*                  gl;
+        renderer_memory              memory;
+        renderer_camera*             cam;
+        renderer_viewport*           viewport;
+        vec3                         global_up;
+        render_lists*                lists;
+        render_buffers*              buffers;
+        renderer_particle_view*      particle_view;
+        render_textures*             textures;
         struct {
             renderer_quad_shader*            quad;
             renderer_direction_gizmo_shader* direction_gizmo;
@@ -63,6 +75,7 @@ namespace ifb {
         auto viewport    = renderer_viewport_create();
         auto lists       = render_lists_create();
         auto buffers     = render_buffers_create();
+        auto textures    = global_alloc<render_textures>();
         assert(
             rndr       != NULL &&
             gl         != NULL &&
@@ -70,15 +83,20 @@ namespace ifb {
             camera     != NULL &&
             viewport   != NULL &&
             lists      != NULL &&
-            buffers    != NULL
+            buffers    != NULL &&
+            textures   != NULL
         );
 
-        _renderer                         = rndr;
-        _renderer->gl                     = gl;
-        _renderer->cam                    = camera;
-        _renderer->viewport               = viewport;
-        _renderer->lists                  = lists;
-        _renderer->buffers                = buffers;
+        textures->sprite_atlas.h_atlas    = INVALID_HANDLE;
+        textures->sprite_atlas.texture_id = GL_ID_INVALID;
+
+        _renderer           = rndr;
+        _renderer->gl       = gl;
+        _renderer->cam      = camera;
+        _renderer->viewport = viewport;
+        _renderer->lists    = lists;
+        _renderer->buffers  = buffers;
+        _renderer->textures = textures;
 
         return(_renderer);
     }
@@ -271,9 +289,64 @@ namespace ifb {
         assert(_renderer->lists);
 
         const bool did_push = render_lists_push_quad(_renderer->lists, id);
-return(did_push);
+        return(did_push);
     }
-    
+
+    IFB_INTERNAL bool
+    renderer_set_quad_sprite_atlas(
+        const hnd_sprite_atlas h_atlas) {
+
+        assert(h_atlas != INVALID_HANDLE);
+        assert(_renderer);
+
+        gl_context* gl       = _renderer->gl;
+        auto        textures = _renderer->textures;
+        assert(textures);
+
+        // copy the atlas image out of the sprite manager
+        const hnd_arena h_arena = arena_alloc();
+        if (h_arena == INVALID_HANDLE) return(false);
+
+        const image* img = sprite_mngr_get_sprite_atlas_image_by_handle(
+            h_atlas,
+            h_arena
+        );
+        if (img == NULL) {
+            arena_free(h_arena);
+            return(false);
+        }
+
+        // replace the current atlas texture
+        auto& atlas = textures->sprite_atlas;
+        if (atlas.texture_id != GL_ID_INVALID) {
+            gl_texture_destroy(gl, atlas.texture_id);
+            atlas.texture_id = GL_ID_INVALID;
+            atlas.h_atlas    = INVALID_HANDLE;
+        }
+
+        const gl_texture texture = gl_texture_create(gl);
+        bool did_upload = (texture != GL_ID_INVALID);
+        if (did_upload) {
+            did_upload = gl_texture_set_data_rgba8(
+                gl,
+                texture,
+                img->pixel_width,
+                img->pixel_height,
+                img->data.bytes
+            );
+        }
+        arena_free(h_arena);
+
+        if (!did_upload) {
+            if (texture != GL_ID_INVALID) gl_texture_destroy(gl, texture);
+            return(false);
+        }
+
+        atlas.texture_id = texture;
+        atlas.h_atlas    = h_atlas;
+        return(true);
+    }
+
     IFB_INTERNAL bool
     renderer_push_particle_emitter(
         const entity_id id) {
@@ -295,7 +368,7 @@ return(did_push);
         assert(_renderer->lists       != NULL);
 
         const bool did_set = render_lists_set_map(_renderer->lists, h_map);
-return(did_set);
+        return(did_set);
     }
     
     //--------------------------------------------------------------------

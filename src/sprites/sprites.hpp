@@ -21,18 +21,19 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // sprite manager
-    IFB_INTERNAL sprite_mngr*            sprite_mngr_create                      (void);
-    IFB_INTERNAL void                    sprite_mngr_startup                     (reservation* res);
-    IFB_INTERNAL hnd_sprite_atlas        sprite_mngr_load_atlas                  (const cchar* atlas_name_cstr);
-    IFB_INTERNAL hnd_sprite_atlas        sprite_mngr_lookup_atlas                (const cchar* atlas_name_cstr);
-    IFB_INTERNAL bool                    sprite_mngr_unload_atlas                (const hnd_sprite_atlas h_atlas);
-    IFB_INTERNAL bool                    sprite_mngr_get_atlas_info              (const hnd_sprite_atlas h_atlas, sprite_atlas_info& info);   
-    IFB_INTERNAL hnd_sprite              sprite_mngr_lookup_sprite_handle        (const hnd_sprite_atlas h_atlas, const cchar*     sprite_name_cstr);
-    IFB_INTERNAL u32                     sprite_mngr_lookup_sprite_index         (const hnd_sprite_atlas h_atlas, const cchar*     sprite_name_cstr);
-    IFB_INTERNAL bool                    sprite_mngr_get_sprite_info_by_handle   (const hnd_sprite_atlas h_atlas, const hnd_sprite h_sprite, sprite_info& info);
-    IFB_INTERNAL bool                    sprite_mngr_get_sprite_info_by_index    (const hnd_sprite_atlas h_atlas, const u32        i_sprite, sprite_info& info);
-    IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_handle  (const hnd_sprite_atlas h_atlas, const hnd_sprite h_sprite, const hnd_arena h_arena);
-    IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_index   (const hnd_sprite_atlas h_atlas, const u32        i_sprite, const hnd_arena h_arena);
+    IFB_INTERNAL sprite_mngr*            sprite_mngr_create                           (void);
+    IFB_INTERNAL void                    sprite_mngr_startup                          (reservation* res);
+    IFB_INTERNAL hnd_sprite_atlas        sprite_mngr_load_atlas                       (const cchar* atlas_name_cstr);
+    IFB_INTERNAL hnd_sprite_atlas        sprite_mngr_lookup_atlas                     (const cchar* atlas_name_cstr);
+    IFB_INTERNAL bool                    sprite_mngr_unload_atlas                     (const hnd_sprite_atlas h_atlas);
+    IFB_INTERNAL bool                    sprite_mngr_get_atlas_info                   (const hnd_sprite_atlas h_atlas, sprite_atlas_info& info);   
+    IFB_INTERNAL hnd_sprite              sprite_mngr_lookup_sprite_handle             (const hnd_sprite_atlas h_atlas, const cchar*     sprite_name_cstr);
+    IFB_INTERNAL u32                     sprite_mngr_lookup_sprite_index              (const hnd_sprite_atlas h_atlas, const cchar*     sprite_name_cstr);
+    IFB_INTERNAL bool                    sprite_mngr_get_sprite_info_by_handle        (const hnd_sprite_atlas h_atlas, const hnd_sprite h_sprite, sprite_info& info);
+    IFB_INTERNAL bool                    sprite_mngr_get_sprite_info_by_index         (const hnd_sprite_atlas h_atlas, const u32        i_sprite, sprite_info& info);
+    IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_handle       (const hnd_sprite_atlas h_atlas, const hnd_sprite h_sprite, const hnd_arena h_arena);
+    IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_index        (const hnd_sprite_atlas h_atlas, const u32        i_sprite, const hnd_arena h_arena);
+    IFB_INTERNAL image*                  sprite_mngr_get_sprite_atlas_image_by_handle (const hnd_sprite_atlas h_atlas, const hnd_arena h_arena);
 
     // sprite atlas
     IFB_INTERNAL sprite_atlas*           sprite_atlas_create                     (void);
