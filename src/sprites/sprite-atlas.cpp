@@ -38,17 +38,6 @@ namespace ifb {
     // DEFINITIONS 
     //--------------------------------------------------------------------
 
-    struct sprite_atlas {
-        sprite_memory_block* mem_block;
-        const image*         img;
-        struct {
-            hnd_sprite*      array_handles;
-            asset_name*      array_name;
-            dimensions_2d*   array_dims;
-            u32*             array_offset;
-            u32              sprite_count;
-        } header;
-    };
    
     //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS 

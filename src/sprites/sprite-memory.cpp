@@ -95,6 +95,16 @@ namespace ifb {
         mem->block_is_allocated[block->index] = false;
     }
     
+    IFB_INTERNAL u32
+    sprite_memory_block_get_size_free(
+        sprite_memory_block* block) {
+
+        assert(block);
+
+        const u32 size_free = stack_get_size_free(block->stack); 
+        return(size_free);
+    }
+
     IFB_INTERNAL void*
     sprite_memory_block_push(
         sprite_memory_block* block,
@@ -114,5 +124,17 @@ namespace ifb {
         assert(block);
 
         stack_reset(block->stack);
+    }
+    
+    IFB_INTERNAL void*
+    sprite_memory_block_push_all(
+        sprite_memory_block* block) {
+
+        assert(block);
+        const u32 size_free = stack_get_size_free(block->stack);
+        void* mem = stack_push(block->stack, size_free);
+        assert(mem);
+
+        return(mem);
     }
 };

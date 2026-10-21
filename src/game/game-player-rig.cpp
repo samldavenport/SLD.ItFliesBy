@@ -158,6 +158,7 @@ namespace ifb {
         // connor belongs to the map, so he can't walk off of it
         eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_map_coords);
+        eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_sprite);
         eng_cmpnt_update_map_coords    (player_rig->connor_id, spawn_coords);
         eng_cmpnt_update_quad          (player_rig->connor_id, quad_connor);
         eng_cmpnt_update_inv_mass      (player_rig->connor_id, inv_mass);
@@ -166,11 +167,18 @@ namespace ifb {
 
         eng_entity_add_components      (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
         eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_spring);
+        eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_sprite);
         eng_cmpnt_update_quad          (player_rig->jig_id, quad_jig);
         eng_cmpnt_update_inv_mass      (player_rig->jig_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->jig_id, drag); 
         eng_cmpnt_update_term_velocity (player_rig->jig_id, tv);
         eng_cmpnt_update_spring        (player_rig->jig_id, jig_spring);
+
+        // add the sprites
+        bool did_add_sprites = true;
+        did_add_sprites &= eng_entity_add_sprite(player_rig->connor_id, "TEST-ATLAS", "CONNOR");
+        did_add_sprites &= eng_entity_add_sprite(player_rig->jig_id,    "TEST-ATLAS", "JIG");
+        assert(did_add_sprites);
 
         // the emitter spawns in every direction until it is stopped,
         // and the component keeps it on jig as he moves

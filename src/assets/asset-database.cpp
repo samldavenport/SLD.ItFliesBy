@@ -950,15 +950,15 @@ namespace ifb {
     // the pointers are always set from the struct, so this also fixes them after the data moves
     inline bool
     asset_database_sprite_atlas_read(
-        const asset_database* db,
-        const asset_index&    index,
-        const hnd_asset       h_asset,
-        const u32*            header,
-        asset_sprite_atlas*   atlas) {
+        const asset_database*  db,
+        const asset_index&     index,
+        const hnd_asset        h_asset,
+        const u32*             header,
+        asset_sprite_atlas*    atlas) {
 
         const u32 size_header = sizeof(u32) * 3;
 
-        atlas->hnd          = h_asset;
+        atlas->hnd          = hnd_sprite_atlas(h_asset.val);
         atlas->width        = header[0];
         atlas->height       = header[1];
         atlas->sprite_count = header[2];

@@ -30,18 +30,19 @@ namespace ifb {
     IFB_INTERNAL hnd_asset          asset_name_cstr_to_handle          (const cchar* name_cstr);
 
     // manager
-    IFB_INTERNAL asset_mngr*        asset_mngr_create                   (void);
-    IFB_INTERNAL void               asset_mngr_startup                  (reservation* res);
-    IFB_INTERNAL void               asset_mngr_update                   (void);
-    IFB_INTERNAL void               asset_mngr_shutdown                 (void);
-    IFB_INTERNAL hnd_asset          asset_mngr_load_text                (const cchar* name);
-    IFB_INTERNAL hnd_asset          asset_mngr_load_image               (const cchar* name);
-    IFB_INTERNAL hnd_asset          asset_mngr_load_sprite_atlas        (const cchar* name);
-    IFB_INTERNAL const asset_text*  asset_mngr_get_text                 (const hnd_asset hnd);
-    IFB_INTERNAL const asset_image* asset_mngr_get_image                (const hnd_asset hnd);
-    IFB_INTERNAL const asset_sprite_atlas* asset_mngr_get_sprite_atlas  (const hnd_asset hnd);
-    IFB_INTERNAL const asset_name*  asset_mngr_get_name                 (const hnd_asset hnd);
-    IFB_INTERNAL asset_database*    asset_mngr_get_database             (void);
+    IFB_INTERNAL asset_mngr*               asset_mngr_create                   (void);
+    IFB_INTERNAL void                      asset_mngr_startup                  (reservation* res);
+    IFB_INTERNAL void                      asset_mngr_update                   (void);
+    IFB_INTERNAL void                      asset_mngr_shutdown                 (void);
+    IFB_INTERNAL hnd_asset                 asset_mngr_load_text                (const cchar* name);
+    IFB_INTERNAL hnd_asset                 asset_mngr_load_image               (const cchar* name);
+    IFB_INTERNAL hnd_asset                 asset_mngr_load_sprite_atlas        (const cchar* name);
+    IFB_INTERNAL const asset_text*         asset_mngr_get_text                 (const hnd_asset hnd);
+    IFB_INTERNAL const asset_image*        asset_mngr_get_image                (const hnd_asset hnd);
+    IFB_INTERNAL const asset_sprite_atlas* asset_mngr_get_sprite_atlas         (const hnd_asset hnd);
+    IFB_INTERNAL const asset_name*         asset_mngr_get_name                 (const hnd_asset hnd);
+    IFB_INTERNAL asset_database*           asset_mngr_get_database             (void);
+    
 
     // dictionary
     IFB_INTERNAL asset_dictionary*  asset_dictionary_create                (const hnd_arena arena);

@@ -10,23 +10,30 @@ namespace ifb {
         entity_id  connor_id;
         entity_id  jig_id;
         entity_id  jig_anchor_id;
-        hnd_map starting_map_hnd;
-        hnd_map current_map_hnd;
-        vec3    camera_focus;
-        f32     jig_offset_x;
-        f32     jig_bob_time_s;
-        f32     connor_prev_x;
+        hnd_map    starting_map_hnd;
+        hnd_map    current_map_hnd;
+        vec3       camera_focus;
+        f32        jig_offset_x;
+        f32        jig_bob_time_s;
+        f32        connor_prev_x;
     };
 
     struct game_map {
         hnd_map eng_hnd;
-        u32        chunk_count;
+        u32     chunk_count;
+    };
+
+    struct game_test_sprites {
+        hnd_sprite_atlas h_atlas;
+        u32              i_sprite_connor;
+        u32              i_sprite_jig;
     };
 
     struct game_context {
-        hnd_arena    global_arena;
-        game_player_rig*    player_rig; 
-        game_map*           map;
+        hnd_arena        global_arena;
+        game_player_rig* player_rig; 
+        game_map*        map;
+        game_test_sprites test_sprites;
     };
 
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
