@@ -289,7 +289,6 @@ namespace ifb {
         u32            size;
     };
     
-    // the strings belong to the dictionary
     struct asset_dictionary_file_info {
         const cchar* name;
         const cchar* path;
@@ -297,7 +296,6 @@ namespace ifb {
         u32          type;
     };
 
-    // the name may use every byte, so this one has room for a terminator
     struct asset_database_info {
         cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
         hnd_asset hnd;
@@ -306,7 +304,6 @@ namespace ifb {
         u32       size;
     };
 
-    // a sprite in the atlas builder list, the size is in pixels
     struct sprite_atlas_builder_info {
         cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
         hnd_asset hnd;
@@ -314,14 +311,12 @@ namespace ifb {
         u32       height;
     };
 
-    // the atlas open in the inspector, the size is in pixels
     struct sprite_atlas_info {
         u32 width;
         u32 height;
         u32 sprite_count;
     };
 
-    // a sprite in an atlas, x and y are its top left corner in the atlas, everything is in pixels
     struct sprite_atlas_sprite_info {
         cchar      name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
         hnd_sprite hnd;
@@ -331,8 +326,6 @@ namespace ifb {
         u32        height;
     };
 
-    // the contents of a dictionary file or database asset, only good until the next preview from the same place
-    // a text file has the text, an image file has an opengl texture id
     struct asset_preview {
         u32          type;
         const cchar* text;
@@ -355,9 +348,8 @@ namespace ifb {
         color_rgba_u32* pixels;
     };
 
-    struct sprite {
-        const cchar* name;
-        const pixel* pixel_array; 
+    struct sprite_info {
+        asset_name   name;
         hnd_sprite   hnd;
         u32          index;
         u32          pixel_width;
@@ -371,15 +363,14 @@ namespace ifb {
     };
     
     struct asset_sprite_atlas {
-        hnd_sprite*   array_handles;
-        sprite_index* array_indexes;
-        pixel*        array_pixels;
-        hnd_asset     hnd;
-        u32           width;
-        u32           height;
-        u32           sprite_count;
+        hnd_sprite*      array_handles;
+        sprite_index*    array_indexes;
+        pixel*           array_pixels;
+        hnd_sprite_atlas hnd;
+        u32              width;
+        u32              height;
+        u32              sprite_count;
     };
-
 
     //--------------------------------------------------------------------
     // COMPONENT TYPES
@@ -434,7 +425,7 @@ namespace ifb {
 
     struct cmpnt_sprite {
         hnd_sprite_atlas h_atlas;
-        u32              index; 
+        hnd_sprite       h_sprite;
     };
 
     //--------------------------------------------------------------------

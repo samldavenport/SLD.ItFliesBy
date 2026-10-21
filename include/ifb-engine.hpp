@@ -125,62 +125,43 @@ namespace ifb {
     // ASSETS
     //--------------------------------------------------------------------
 
-    // the engine has one dictionary for editing, it starts out empty
-    // a file is identified by the hash of its name, so names are unique across every type
-    // file paths are relative to the directory of the dictionary, once it has been loaded or saved
-    IFB_ENGINE_API bool      eng_asset_dictionary_new            (void);
-    IFB_ENGINE_API bool      eng_asset_dictionary_load           (const cchar* path);
-    IFB_ENGINE_API bool      eng_asset_dictionary_save           (const cchar* path);
-    IFB_ENGINE_API hnd_asset eng_asset_dictionary_add_file       (const u32 type, const cchar* name, const cchar* path);
-    IFB_ENGINE_API bool      eng_asset_dictionary_remove_file    (const cchar* name);
-    IFB_ENGINE_API u32       eng_asset_dictionary_get_file_count (const u32 type);
-    IFB_ENGINE_API bool      eng_asset_dictionary_get_file_info  (const u32 type, const u32 index, asset_dictionary_file_info& info);
-    IFB_ENGINE_API bool      eng_asset_dictionary_load_preview   (const u32 id, asset_preview& preview);
-
-    // the engine has one database for viewing, it stays open until another one is loaded or built
-    // building reads a dictionary file, so the paths are relative to it, and opens the new database
-    // the error says why the last build or load failed
-    IFB_ENGINE_API bool         eng_asset_database_build        (const cchar* path_dictionary, const cchar* path_database);
-    IFB_ENGINE_API bool         eng_asset_database_load         (const cchar* path);
-    IFB_ENGINE_API void         eng_asset_database_close        (void);
-    IFB_ENGINE_API const cchar* eng_asset_database_get_error    (void);
-    IFB_ENGINE_API u32          eng_asset_database_get_count    (void);
-    IFB_ENGINE_API bool         eng_asset_database_get_info     (const u32 index, asset_database_info& info);
-    IFB_ENGINE_API bool         eng_asset_database_load_preview (const u32 index, asset_preview& preview);
-
-    // the runtime database is the one in the config, the asset manager loads from it
-    // it has no assets if it failed to load at startup
-    IFB_ENGINE_API u32          eng_asset_runtime_get_count     (void);
-    IFB_ENGINE_API bool         eng_asset_runtime_get_info      (const u32 index, asset_database_info& info);
-
-    // only for images, the preview is good until the next one is loaded
+    IFB_ENGINE_API bool         eng_asset_dictionary_new             (void);
+    IFB_ENGINE_API bool         eng_asset_dictionary_load            (const cchar* path);
+    IFB_ENGINE_API bool         eng_asset_dictionary_save            (const cchar* path);
+    IFB_ENGINE_API hnd_asset    eng_asset_dictionary_add_file        (const u32 type, const cchar* name, const cchar* path);
+    IFB_ENGINE_API bool         eng_asset_dictionary_remove_file     (const cchar* name);
+    IFB_ENGINE_API u32          eng_asset_dictionary_get_file_count  (const u32 type);
+    IFB_ENGINE_API bool         eng_asset_dictionary_get_file_info   (const u32 type, const u32 index, asset_dictionary_file_info& info);
+    IFB_ENGINE_API bool         eng_asset_dictionary_load_preview    (const u32 id, asset_preview& preview);
+    IFB_ENGINE_API bool         eng_asset_database_build             (const cchar* path_dictionary, const cchar* path_database);
+    IFB_ENGINE_API bool         eng_asset_database_load              (const cchar* path);
+    IFB_ENGINE_API void         eng_asset_database_close             (void);
+    IFB_ENGINE_API const cchar* eng_asset_database_get_error         (void);
+    IFB_ENGINE_API u32          eng_asset_database_get_count         (void);
+    IFB_ENGINE_API bool         eng_asset_database_get_info          (const u32 index, asset_database_info& info);
+    IFB_ENGINE_API bool         eng_asset_database_load_preview      (const u32 index, asset_preview& preview);
+    IFB_ENGINE_API u32          eng_asset_runtime_get_count          (void);
+    IFB_ENGINE_API bool         eng_asset_runtime_get_info           (const u32 index, asset_database_info& info);
     IFB_ENGINE_API bool         eng_asset_runtime_load_image_preview (const cchar* name, asset_preview& preview);
 
     //--------------------------------------------------------------------
     // SPRITES
     //--------------------------------------------------------------------
 
-    // the engine has one sprite list for building an atlas, it starts out empty
-    // a sprite is an image in the runtime database, and it is only in the list once
-    IFB_ENGINE_API void eng_sprite_atlas_builder_clear     (void);
-    IFB_ENGINE_API bool eng_sprite_atlas_builder_add       (const cchar* name);
-    IFB_ENGINE_API bool eng_sprite_atlas_builder_remove    (const cchar* name);
-    IFB_ENGINE_API bool eng_sprite_atlas_builder_contains  (const cchar* name);
-    IFB_ENGINE_API u32  eng_sprite_atlas_builder_get_count (void);
-    IFB_ENGINE_API bool eng_sprite_atlas_builder_get_info  (const u32 index, sprite_atlas_builder_info& info);
-
-    // packs every sprite in the list into one atlas image, the preview shares a texture with the runtime image preview
-    IFB_ENGINE_API bool eng_sprite_atlas_builder_pack      (asset_preview& preview);
-
-    // writes the packed atlas to a file, packing it first if the list changed since it was packed
-    IFB_ENGINE_API bool eng_sprite_atlas_builder_save      (const cchar* path);
-
-    // the engine has one atlas open for inspecting, it stays loaded until it's closed or another one is opened
-    // a failed open leaves the open atlas as it was, the preview has its own texture
-    IFB_ENGINE_API bool eng_sprite_atlas_inspector_open       (const cchar* path, asset_preview& preview);
-    IFB_ENGINE_API void eng_sprite_atlas_inspector_close      (void);
-    IFB_ENGINE_API bool eng_sprite_atlas_inspector_get_info   (sprite_atlas_info& info);
-    IFB_ENGINE_API bool eng_sprite_atlas_inspector_get_sprite (const u32 index, sprite_atlas_sprite_info& info);
+    IFB_ENGINE_API void             eng_sprite_atlas_builder_clear        (void);
+    IFB_ENGINE_API bool             eng_sprite_atlas_builder_add          (const cchar* name);
+    IFB_ENGINE_API bool             eng_sprite_atlas_builder_remove       (const cchar* name);
+    IFB_ENGINE_API bool             eng_sprite_atlas_builder_contains     (const cchar* name);
+    IFB_ENGINE_API u32              eng_sprite_atlas_builder_get_count    (void);
+    IFB_ENGINE_API bool             eng_sprite_atlas_builder_get_info     (const u32 index, sprite_atlas_builder_info& info);
+    IFB_ENGINE_API bool             eng_sprite_atlas_builder_pack         (asset_preview& preview);
+    IFB_ENGINE_API bool             eng_sprite_atlas_builder_save         (const cchar* path);
+    IFB_ENGINE_API bool             eng_sprite_atlas_inspector_open       (const cchar* path, asset_preview& preview);
+    IFB_ENGINE_API void             eng_sprite_atlas_inspector_close      (void);
+    IFB_ENGINE_API bool             eng_sprite_atlas_inspector_get_info   (sprite_atlas_info& info);
+    IFB_ENGINE_API bool             eng_sprite_atlas_inspector_get_sprite (const u32 index, sprite_atlas_sprite_info& info);
+    IFB_ENGINE_API hnd_sprite_atlas eng_sprite_atlas_get_atlas_handle     (const cchar* name_cstr);
+    IFB_ENGINE_API hnd_sprite       eng_sprite_atlas_get_sprite_handle    (const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
 
     //--------------------------------------------------------------------
     // CAMERA
@@ -209,6 +190,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_quad_lookup           (quad_entity& q, const entity_id id);
     IFB_ENGINE_API bool         eng_entity_render                (const entity_id id);
     IFB_ENGINE_API bool         eng_entity_add_force             (const entity_id id, const vec3& force);
+    IFB_ENGINE_API bool         eng_entity_add_sprite            (const entity_id id, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
 
     //--------------------------------------------------------------------
     // COMPONENTS 
@@ -247,7 +229,6 @@ namespace ifb {
     IFB_ENGINE_API bool eng_atype_lookup_quad         (const entity_id id, atype_quad&         quad);
     IFB_ENGINE_API bool eng_atype_lookup_particle     (const entity_id id, atype_particle&     particle);
     IFB_ENGINE_API bool eng_atype_lookup_physics_quad (const entity_id id, atype_physics_quad& physics_quad);
-
     IFB_ENGINE_API bool eng_atype_update_quad         (const entity_id id, const atype_quad&         quad);
     IFB_ENGINE_API bool eng_atype_update_particle     (const entity_id id, const atype_particle&     particle);
     IFB_ENGINE_API bool eng_atype_update_physics_quad (const entity_id id, const atype_physics_quad& physics_quad);

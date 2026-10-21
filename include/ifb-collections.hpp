@@ -20,6 +20,7 @@ namespace ifb {
     stack*  stack_arena_create       (const u32 capacity, const hnd_arena arena_hnd);
     u32     stack_get_capacity       (const stack* s);
     u32     stack_get_position       (const stack* s);
+    u32     stack_get_size_free      (const stack* s);
     void*   stack_get_head           (const stack* s);
     void*   stack_get_tail           (const stack* s);
     u32     stack_save               (stack* s);

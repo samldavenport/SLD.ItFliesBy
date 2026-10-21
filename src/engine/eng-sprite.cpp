@@ -299,6 +299,24 @@ namespace ifb {
         return(did_get);
     }
 
+    IFB_ENGINE_API hnd_sprite_atlas
+    eng_sprite_atlas_get_atlas_handle(
+        const cchar* name_cstr) {
+
+        assert(name_cstr);
+
+        return(INVALID_HANDLE);    
+    }
+
+    IFB_ENGINE_API hnd_sprite
+    eng_sprite_atlas_get_sprite_handle(
+        const cchar* atlas_name_cstr,
+        const cchar* sprite_name_cstr) {
+
+
+        return(INVALID_HANDLE);    
+    }
+    
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------

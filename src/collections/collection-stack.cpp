@@ -115,6 +115,16 @@ namespace ifb {
         return(s->position);
     }
 
+    u32
+    stack_get_size_free(
+        const stack* s) {
+
+        assert(s);
+
+        const u32 size_free = s->capacity - s->position;
+        return(size_free);
+    }
+
     void*
     stack_get_head(
         const stack* s) {
