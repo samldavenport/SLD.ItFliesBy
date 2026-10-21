@@ -364,6 +364,41 @@ namespace ifb {
         return(img);
     }
     
+    IFB_INTERNAL image*
+    sprite_mngr_get_sprite_atlas_image_by_handle(
+        const hnd_sprite_atlas h_atlas,
+        const hnd_arena        h_arena) {
+
+        assert(h_atlas != INVALID_HANDLE);
+        assert(h_arena != INVALID_HANDLE);
+
+        // get the atlas
+        const asset_sprite_atlas* atlas = sprite_mngr_find_atlas(h_atlas);
+        if (atlas == NULL) return(NULL);
+
+        // calculate the size
+        const u32 size_image_struct = sizeof(image);
+        const u32 size_pixels       = atlas->width * atlas->height * sizeof(pixel);
+        const u32 size_push         = size_image_struct + size_pixels;
+
+        // allocate memory
+        auto img = (image*)arena_push(h_arena, size_push);
+        if (img == NULL) return(NULL);
+
+        // set image properties
+        // and copy pixel data
+        img->data.pixels  = (pixel*)((addr)img + size_image_struct);
+        img->data.size    = size_pixels;
+        img->pixel_width  = atlas->width;
+        img->pixel_height = atlas->height;
+        (void)memcpy(
+            (void*)img->data.vptr,
+            (void*)atlas->array_pixels,
+            size_pixels
+        );
+        return(img);
+    }
+    
     IFB_INTERNAL sprite_memory*
     sprite_mngr_get_memory(
         void) {
