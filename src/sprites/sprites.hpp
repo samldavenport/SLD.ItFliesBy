@@ -24,6 +24,7 @@ namespace ifb {
     IFB_INTERNAL sprite_mngr*            sprite_mngr_create                      (void);
     IFB_INTERNAL void                    sprite_mngr_startup                     (reservation* res);
     IFB_INTERNAL hnd_sprite_atlas        sprite_mngr_load_atlas                  (const cchar* atlas_name_cstr);
+    IFB_INTERNAL hnd_sprite_atlas        sprite_mngr_lookup_atlas                (const cchar* atlas_name_cstr);
     IFB_INTERNAL bool                    sprite_mngr_unload_atlas                (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool                    sprite_mngr_get_atlas_info              (const hnd_sprite_atlas h_atlas, sprite_atlas_info& info);   
     IFB_INTERNAL hnd_sprite              sprite_mngr_lookup_sprite_handle        (const hnd_sprite_atlas h_atlas, const cchar*     sprite_name_cstr);

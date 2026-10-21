@@ -363,7 +363,7 @@ namespace ifb {
         image* img = sprite_mngr_get_sprite_image_by_index(h_atlas, i_sprite, h_arena);
         return(img);
     }
-    
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------

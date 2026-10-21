@@ -425,7 +425,7 @@ namespace ifb {
 
     struct cmpnt_sprite {
         hnd_sprite_atlas h_atlas;
-        hnd_sprite       h_sprite;
+        u32              i_sprite;
     };
 
     //--------------------------------------------------------------------

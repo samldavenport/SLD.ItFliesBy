@@ -472,11 +472,6 @@ namespace ifb {
 
         return(can_update);
     }
-    
-    //--------------------------------------------------------------------
-    // UPDATE METHODS 
-    //--------------------------------------------------------------------
-
 
     //--------------------------------------------------------------------
     // PARTICLE EMITTER
@@ -521,5 +516,49 @@ namespace ifb {
         }
 
         return(can_update);
+    }
+    
+    //--------------------------------------------------------------------
+    // SPRITE 
+    //--------------------------------------------------------------------
+    
+    IFB_ENGINE_API bool
+    eng_cmpnt_lookup_sprite(
+        const entity_id id,
+        cmpnt_sprite&   sprite) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        bool result = true;
+
+        entity e;
+        result &= entity_lookup_by_id  (e, id);
+        result &= entity_has_component (e, cmpnt_type_e_sprite);
+
+        if (result) {
+            cmpnt_lookup_sprite(e.index_sparse, sprite);
+        }
+
+        return(result);
+    }
+
+    IFB_ENGINE_API bool
+    eng_cmpnt_update_sprite(
+        const entity_id     id,
+        const cmpnt_sprite& sprite) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = entity_has_component (e, cmpnt_type_e_sprite);
+        const bool can_update    = (does_exist && has_component);
+
+        if (can_update) {
+            cmpnt_update_sprite(e.index_sparse, sprite);
+        }
+
+        return(can_update);
+
     }
 };

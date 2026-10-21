@@ -5,10 +5,12 @@
 #include "entity-manager.cpp"
 #include "entity.cpp"
 #include "entity-component.cpp"
+#include "ifb-engine.hpp"
 #include "ifb-types.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
 #include "renderer.hpp"
+#include "sprites.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -173,4 +175,38 @@ namespace ifb {
 
         return(can_add_force);
     }
+    
+    IFB_ENGINE_API bool
+    eng_entity_add_sprite(
+        const entity_id id,
+        const cchar*    atlas_name_cstr,
+        const cchar*    sprite_name_cstr) {
+
+        assert(id               != ENTITY_ID_INVALID);
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        if (!entity_component_add(id, cmpnt_type_e_sprite)) {
+            return(false);
+        }
+
+        cmpnt_sprite sprite;
+        sprite.h_atlas  = sprite_mngr_lookup_atlas        (atlas_name_cstr); 
+        sprite.i_sprite = sprite_mngr_lookup_sprite_index (sprite.h_atlas, sprite_name_cstr);
+    
+        const bool is_valid = (
+           sprite.h_atlas  != INVALID_HANDLE &&
+           sprite.i_sprite != INVALID_INDEX
+        );
+
+        if (is_valid) {
+            // we know its a valid entity with an explicitly added sprite component
+            // if it doesn't update, something went VERY wrong
+            const bool did_update = eng_cmpnt_update_sprite(id, sprite);
+            assert(did_update);
+        }
+
+        return(is_valid);
+    }
+    
 };

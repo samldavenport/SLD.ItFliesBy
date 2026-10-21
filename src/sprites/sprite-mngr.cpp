@@ -148,6 +148,19 @@ namespace ifb {
         return(atlas->hnd);
     }
 
+    IFB_INTERNAL hnd_sprite_atlas
+    sprite_mngr_lookup_atlas(
+        const cchar* atlas_name_cstr) {
+
+        assert(atlas_name_cstr != NULL);
+
+        const hnd_sprite_atlas h_atlas = { asset_name_cstr_to_handle(atlas_name_cstr).val };
+        assert(h_atlas != INVALID_HANDLE); 
+
+        const auto* atlas = sprite_mngr_find_atlas(h_atlas);
+        return(atlas != NULL ? h_atlas : INVALID_HANDLE);
+    }
+    
     IFB_INTERNAL bool
     sprite_mngr_unload_atlas(
         const hnd_sprite_atlas h_atlas) {
