@@ -29,7 +29,6 @@ namespace ifb {
             gl_buffer  buf_element;
             gl_uniform unif_mat4_view_proj;
             gl_uniform unif_mat4_model;
-            gl_texture sprite_atlas_texture;
         } gl;
     };
 

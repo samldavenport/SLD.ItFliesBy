@@ -368,7 +368,7 @@ namespace ifb {
         assert(_renderer->lists       != NULL);
 
         const bool did_set = render_lists_set_map(_renderer->lists, h_map);
-return(did_set);
+        return(did_set);
     }
     
     //--------------------------------------------------------------------
