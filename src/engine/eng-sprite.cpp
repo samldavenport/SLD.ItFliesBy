@@ -299,22 +299,69 @@ namespace ifb {
         return(did_get);
     }
 
+    // INVALID_HANDLE if the atlas isn't in the database, or there's no room for it
     IFB_ENGINE_API hnd_sprite_atlas
-    eng_sprite_atlas_get_atlas_handle(
-        const cchar* name_cstr) {
+    eng_sprite_atlas_load(
+        const cchar* atlas_name_cstr) {
 
-        assert(name_cstr);
+        assert(atlas_name_cstr);
 
-        return(INVALID_HANDLE);    
+        const hnd_sprite_atlas h_atlas = sprite_mngr_load_atlas(atlas_name_cstr);
+        return(h_atlas);
     }
 
-    IFB_ENGINE_API hnd_sprite
-    eng_sprite_atlas_get_sprite_handle(
-        const cchar* atlas_name_cstr,
-        const cchar* sprite_name_cstr) {
+    // false if the atlas isn't loaded
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_unload(
+        const hnd_sprite_atlas h_atlas) {
 
+        const bool did_unload = sprite_mngr_unload_atlas(h_atlas);
+        return(did_unload);
+    }
 
-        return(INVALID_HANDLE);    
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_get_info(
+        const hnd_sprite_atlas h_atlas,
+        sprite_atlas_info&     info) {
+
+        const bool did_get = sprite_mngr_get_atlas_info(h_atlas, info);
+        return(did_get);
+    }
+
+    // INVALID_INDEX if the atlas isn't loaded or the sprite isn't in it
+    IFB_ENGINE_API u32
+    eng_sprite_atlas_lookup_sprite_index(
+        const hnd_sprite_atlas h_atlas,
+        const cchar*           sprite_name_cstr) {
+
+        assert(sprite_name_cstr);
+
+        const u32 i_sprite = sprite_mngr_lookup_sprite_index(h_atlas, sprite_name_cstr);
+        return(i_sprite);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_get_sprite_info(
+        const hnd_sprite_atlas h_atlas,
+        const u32              i_sprite,
+        sprite_info&           info) {
+
+        const bool did_get = sprite_mngr_get_sprite_info_by_index(h_atlas, i_sprite, info);
+        return(did_get);
+    }
+
+    // copies the sprite into a new image on the arena, the caller owns it
+    // NULL if the sprite doesn't exist or there's no room in the arena
+    IFB_ENGINE_API image*
+    eng_sprite_atlas_get_sprite_image(
+        const hnd_sprite_atlas h_atlas,
+        const u32              i_sprite,
+        const hnd_arena        h_arena) {
+
+        assert(h_arena != INVALID_HANDLE);
+
+        image* img = sprite_mngr_get_sprite_image_by_index(h_atlas, i_sprite, h_arena);
+        return(img);
     }
     
     //--------------------------------------------------------------------

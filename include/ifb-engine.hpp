@@ -160,8 +160,12 @@ namespace ifb {
     IFB_ENGINE_API void             eng_sprite_atlas_inspector_close      (void);
     IFB_ENGINE_API bool             eng_sprite_atlas_inspector_get_info   (sprite_atlas_info& info);
     IFB_ENGINE_API bool             eng_sprite_atlas_inspector_get_sprite (const u32 index, sprite_atlas_sprite_info& info);
-    IFB_ENGINE_API hnd_sprite_atlas eng_sprite_atlas_get_atlas_handle     (const cchar* name_cstr);
-    IFB_ENGINE_API hnd_sprite       eng_sprite_atlas_get_sprite_handle    (const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API hnd_sprite_atlas eng_sprite_atlas_load                 (const cchar* atlas_name_cstr);
+    IFB_ENGINE_API bool             eng_sprite_atlas_unload               (const hnd_sprite_atlas h_atlas);
+    IFB_ENGINE_API bool             eng_sprite_atlas_get_info             (const hnd_sprite_atlas h_atlas, sprite_atlas_info& info);
+    IFB_ENGINE_API u32              eng_sprite_atlas_lookup_sprite_index  (const hnd_sprite_atlas h_atlas, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API bool             eng_sprite_atlas_get_sprite_info      (const hnd_sprite_atlas h_atlas, const u32 i_sprite, sprite_info& info);
+    IFB_ENGINE_API image*           eng_sprite_atlas_get_sprite_image     (const hnd_sprite_atlas h_atlas, const u32 i_sprite, const hnd_arena h_arena);
 
     //--------------------------------------------------------------------
     // CAMERA
