@@ -47,7 +47,9 @@ namespace ifb {
     IFB_INTERNAL void        renderer_view_projection_xform            (mat4& xform);
     IFB_INTERNAL bool        renderer_push_quad                        (const entity_id id);
     IFB_INTERNAL bool        renderer_push_particle_emitter            (const entity_id id);
-    IFB_INTERNAL bool        renderer_set_quad_sprite_atlas            (const hnd_sprite_atlas h_atlas);
+    IFB_INTERNAL bool        renderer_upload_sprite_atlas              (const hnd_sprite_atlas h_atlas);
+    IFB_INTERNAL bool        renderer_release_sprite_atlas             (const hnd_sprite_atlas h_atlas);
+    IFB_INTERNAL bool        renderer_set_active_sprite_atlas          (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool        renderer_set_map                          (const hnd_map h_map);
     IFB_INTERNAL const vec3& renderer_get_camera_origin                (void);
     IFB_INTERNAL const vec3& renderer_get_camera_target                (void);

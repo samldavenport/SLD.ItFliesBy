@@ -166,6 +166,7 @@ namespace ifb {
     IFB_ENGINE_API u32              eng_sprite_atlas_lookup_sprite_index  (const hnd_sprite_atlas h_atlas, const cchar* sprite_name_cstr);
     IFB_ENGINE_API bool             eng_sprite_atlas_get_sprite_info      (const hnd_sprite_atlas h_atlas, const u32 i_sprite, sprite_info& info);
     IFB_ENGINE_API image*           eng_sprite_atlas_get_sprite_image     (const hnd_sprite_atlas h_atlas, const u32 i_sprite, const hnd_arena h_arena);
+    IFB_ENGINE_API bool             eng_sprite_atlas_set_active           (const hnd_sprite_atlas h_atlas);
 
     //--------------------------------------------------------------------
     // CAMERA
@@ -213,7 +214,6 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_lookup_map_coords       (const entity_id id, cmpnt_map_coords&        coords);
     IFB_ENGINE_API bool         eng_cmpnt_lookup_particle_emitter (const entity_id id, cmpnt_particle_emitter&  emitter);
     IFB_ENGINE_API bool         eng_cmpnt_lookup_sprite           (const entity_id id, cmpnt_sprite&            sprite);
-    
 
     IFB_ENGINE_API bool         eng_cmpnt_update_position         (const entity_id id, const cmpnt_position&         pos);
     IFB_ENGINE_API bool         eng_cmpnt_update_velocity         (const entity_id id, const cmpnt_velocity&         vel);

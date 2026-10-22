@@ -41,6 +41,8 @@ namespace ifb {
     struct quad_vertex {
         vec3           position;
         color_rgba_f32 color;
+        vec2           text_coords;
+        f32            textured;     // 0 is a solid color, 1 samples the sprite atlas
     };
 
     struct quad_vertices {

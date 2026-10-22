@@ -12,17 +12,19 @@ namespace ifb {
     static const component_type ENTITY_ARCHETYPE_QUAD = (
         cmpnt_type_e_position |
         cmpnt_type_e_color    |
-        cmpnt_type_e_quad
+        cmpnt_type_e_quad     |
+        cmpnt_type_e_sprite
     );
 
     static const component_type ENTITY_ARCHETYPE_PHYSICS_PARTICLE = (
-        cmpnt_type_e_position     |
-        cmpnt_type_e_rigid_body   |
-        cmpnt_type_e_velocity     |
-        cmpnt_type_e_acceleration |
-        cmpnt_type_e_inv_mass     |
-        cmpnt_type_e_drag         |     
-        cmpnt_type_e_term_velocity 
+        cmpnt_type_e_position      |
+        cmpnt_type_e_rigid_body    |
+        cmpnt_type_e_velocity      |
+        cmpnt_type_e_acceleration  |
+        cmpnt_type_e_inv_mass      |
+        cmpnt_type_e_drag          |     
+        cmpnt_type_e_term_velocity | 
+        cmpnt_type_e_sprite
     );
 
     static const component_type ENTITY_ARCHETYPE_PHYSICS_QUAD = (
@@ -102,7 +104,8 @@ namespace ifb {
     struct quad_entity : entity {
         color_rgba_u32 color;
         dimensions_2d  dims;
-        cmpnt_position    pos;
+        cmpnt_position pos;
+        cmpnt_sprite   sprite;
     };
 
     struct entity_query {

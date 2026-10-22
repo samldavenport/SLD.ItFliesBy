@@ -48,6 +48,16 @@ namespace ifb {
             vertices.bottom_right.color    = color;
             vertices.bottom_left.color     = color;
             vertices.top_left.color        = color;
+
+            // particles don't have sprites, they're a solid color
+            vertices.top_right.text_coords    = { 0.0f, 0.0f };
+            vertices.bottom_right.text_coords = { 0.0f, 0.0f };
+            vertices.bottom_left.text_coords  = { 0.0f, 0.0f };
+            vertices.top_left.text_coords     = { 0.0f, 0.0f };
+            vertices.top_right.textured       = 0.0f;
+            vertices.bottom_right.textured    = 0.0f;
+            vertices.bottom_left.textured     = 0.0f;
+            vertices.top_left.textured        = 0.0f;
             ++quad_count;
         }
         return(quad_count);

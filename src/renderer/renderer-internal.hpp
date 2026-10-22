@@ -11,18 +11,21 @@ namespace ifb {
     struct render_vertex_buffer;
     struct render_element_buffer;
     struct render_lists;
-struct render_gl;
+    struct render_gl;
     struct renderer_viewport;
     struct renderer_camera;
     struct renderer_quad_shader;
     struct renderer_direction_gizmo_shader;
     struct renderer_grid_shader;
     struct renderer_particle_view;
+    struct render_sprite_atlas_texture;
 
     // context
-    IFB_INTERNAL void*                 renderer_memory_alloc       (const u32 size);
-    IFB_INTERNAL entity_list*          renderer_create_entity_list (void);
-  
+    IFB_INTERNAL void*                        renderer_memory_alloc              (const u32 size);
+    IFB_INTERNAL entity_list*                 renderer_create_entity_list        (void);
+    IFB_INTERNAL render_sprite_atlas_texture* renderer_find_sprite_atlas_texture (const hnd_sprite_atlas h_atlas);
+    IFB_INTERNAL void                         renderer_use_sprite_atlas_texture  (void);
+
     // camera
     IFB_INTERNAL renderer_camera*      renderer_camera_create              (void);
     IFB_INTERNAL void                  renderer_camera_init                (renderer_camera* camera);
@@ -44,7 +47,7 @@ struct render_gl;
     IFB_INTERNAL render_buffers*       render_buffers_create               (void);
     IFB_INTERNAL void                  render_buffers_alloc_and_init       (render_buffers* buffers);
     IFB_INTERNAL void                  render_buffers_render_quads         (render_buffers* buffers, render_lists* lists, renderer_camera* camera);
-IFB_INTERNAL void                  render_buffers_render_tiles         (render_buffers* buffers, render_lists* lists);
+    IFB_INTERNAL void                  render_buffers_render_tiles         (render_buffers* buffers, render_lists* lists);
 
     // lists
     IFB_INTERNAL render_lists*         render_lists_create                 (void);
@@ -54,7 +57,7 @@ IFB_INTERNAL void                  render_buffers_render_tiles         (render_b
     IFB_INTERNAL bool                  render_lists_push_particle_emitter  (render_lists* lists, const entity_id id);
     IFB_INTERNAL bool                  render_lists_set_map                (render_lists* lists, const hnd_map h_map);
     IFB_INTERNAL hnd_map               render_lists_get_map                (render_lists* lists);
-IFB_INTERNAL const entity_list*    render_lists_get_quads              (render_lists* lists);
+    IFB_INTERNAL const entity_list*    render_lists_get_quads              (render_lists* lists);
     IFB_INTERNAL const entity_list*    render_lists_get_particle_emitters  (render_lists* lists);
 
     // quad

@@ -8,6 +8,7 @@
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "particle-emitter.cpp"
+#include "sprite-mngr.cpp"
 
 namespace ifb {
 
@@ -38,6 +39,7 @@ namespace ifb {
         cmpnt_lookup_position (q.index_sparse, q.pos);
         cmpnt_lookup_color    (q.index_sparse, q.color);
         cmpnt_lookup_quad     (q.index_sparse, q_);
+        cmpnt_lookup_sprite   (q.index_sparse, q.sprite);
 
         q.dims.width  = q_.width;
         q.dims.height = q_.height;
@@ -61,6 +63,7 @@ namespace ifb {
         cmpnt_update_position (q.index_sparse, q.pos);
         cmpnt_update_color    (q.index_sparse, q.color);
         cmpnt_update_quad     (q.index_sparse, q_);
+        cmpnt_update_sprite   (q.index_sparse, q.sprite);
     }
 
     IFB_INTERNAL void
@@ -167,6 +170,30 @@ namespace ifb {
             const vec3 right = vec3_scalar_multiply(quad_right, offset_width);
             const vec3 up    = vec3_scalar_multiply(quad_up,    offset_height);
 
+            sprite_info info;
+            const bool did_get_sprite_info = sprite_mngr_get_sprite_info_by_index(
+                q.sprite.h_atlas,
+                q.sprite.i_sprite,
+                info
+            );
+
+            // the sprite's rect in the atlas, normalized
+            // the atlas isn't flipped on upload, so the top row is v = 0
+            // with no sprite, the quad is a solid color
+            const f32 textured = did_get_sprite_info ? 1.0f : 0.0f;
+            f32 u_left   = 0.0f;
+            f32 u_right  = 1.0f;
+            f32 v_top    = 0.0f;
+            f32 v_bottom = 1.0f;
+            if (did_get_sprite_info) {
+                const f32 atlas_width  = (f32)info.atlas_width;
+                const f32 atlas_height = (f32)info.atlas_height;
+                u_left   = (f32)(info.pixel_x)                     / atlas_width;
+                u_right  = (f32)(info.pixel_x + info.pixel_width)  / atlas_width;
+                v_top    = (f32)(info.pixel_y)                     / atlas_height;
+                v_bottom = (f32)(info.pixel_y + info.pixel_height) / atlas_height;
+            }
+
             // top right
             vertices.top_right.position.x    = q.pos.x + right.x + up.x;
             vertices.top_right.position.y    = q.pos.y + right.y + up.y;
@@ -175,6 +202,9 @@ namespace ifb {
             vertices.top_right.color.g       = color.g;
             vertices.top_right.color.b       = color.b;
             vertices.top_right.color.a       = color.a;
+            vertices.top_right.text_coords.x = u_right;
+            vertices.top_right.text_coords.y = v_top;
+            vertices.top_right.textured      = textured;
 
             // bottom right
             vertices.bottom_right.position.x = q.pos.x + right.x - up.x;
@@ -184,6 +214,9 @@ namespace ifb {
             vertices.bottom_right.color.g    = color.g;
             vertices.bottom_right.color.b    = color.b;
             vertices.bottom_right.color.a    = color.a;
+            vertices.bottom_right.text_coords.x = u_right;
+            vertices.bottom_right.text_coords.y = v_bottom;
+            vertices.bottom_right.textured      = textured;
 
             // bottom left
             vertices.bottom_left.position.x  = q.pos.x - right.x - up.x;
@@ -193,6 +226,9 @@ namespace ifb {
             vertices.bottom_left.color.g     = color.g;
             vertices.bottom_left.color.b     = color.b;
             vertices.bottom_left.color.a     = color.a;
+            vertices.bottom_left.text_coords.x  = u_left;
+            vertices.bottom_left.text_coords.y  = v_bottom;
+            vertices.bottom_left.textured       = textured;
 
             // top left
             vertices.top_left.position.x     = q.pos.x - right.x + up.x;
@@ -202,6 +238,9 @@ namespace ifb {
             vertices.top_left.color.g        = color.g;
             vertices.top_left.color.b        = color.b;
             vertices.top_left.color.a        = color.a;
+            vertices.top_left.text_coords.x     = u_left;
+            vertices.top_left.text_coords.y     = v_top;
+            vertices.top_left.textured          = textured;
         }
 
         return(quad_is_valid);
