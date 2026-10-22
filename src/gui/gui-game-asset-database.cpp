@@ -194,10 +194,26 @@ namespace ifb {
             state.status = "Closed the database";
         }
 
+        // the engine reads the runtime database from the working directory, the open one replaces it
+        ImGui::SameLine();
+        ImGui::BeginDisabled(state.file_path[0] == 0);
+        if (ImGui::Button("Copy to Runtime")) {
+            state.status = eng_asset_database_copy_to_runtime()
+                ? "Copied the database to the runtime database"
+                : eng_asset_database_get_error();
+        }
+        ImGui::EndDisabled();
+
         ImGui::Text(
             "%s (%u assets)",
             state.file_path[0] != 0 ? state.file_path : "(none)",
             eng_asset_database_get_count()
+        );
+
+        ImGui::Text(
+            "Runtime: %s in the working directory (%u assets)",
+            config_instance().asset_database_path,
+            eng_asset_runtime_get_count()
         );
 
         if (state.status) {

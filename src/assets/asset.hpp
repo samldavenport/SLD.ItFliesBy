@@ -34,6 +34,8 @@ namespace ifb {
     IFB_INTERNAL void                      asset_mngr_startup                  (reservation* res);
     IFB_INTERNAL void                      asset_mngr_update                   (void);
     IFB_INTERNAL void                      asset_mngr_shutdown                 (void);
+    IFB_INTERNAL bool                      asset_mngr_open_database            (void);
+    IFB_INTERNAL bool                      asset_mngr_close_database           (void);
     IFB_INTERNAL hnd_asset                 asset_mngr_load_text                (const cchar* name);
     IFB_INTERNAL hnd_asset                 asset_mngr_load_image               (const cchar* name);
     IFB_INTERNAL hnd_asset                 asset_mngr_load_sprite_atlas        (const cchar* name);

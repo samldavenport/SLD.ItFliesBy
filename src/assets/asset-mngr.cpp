@@ -60,33 +60,12 @@ namespace ifb {
         assert(_asset_mngr);
         assert(res);
 
-        const auto& cfg = config_instance();
-
         _asset_mngr->res = res;
         asset_memory_init(_asset_mngr->mem, res);
 
         // open the runtime database
         // without it nothing can be loaded, but the engine can still run
-        _asset_mngr->h_arena = arena_alloc();
-        assert(_asset_mngr->h_arena != INVALID_HANDLE);
-
-        _asset_mngr->db = asset_database_load(cfg.asset_database_path, _asset_mngr->h_arena);
-        if (!_asset_mngr->db) {
-            arena_free(_asset_mngr->h_arena);
-            _asset_mngr->h_arena = INVALID_HANDLE;
-            return;
-        }
-
-        const u32 asset_count = asset_database_get_asset_count(_asset_mngr->db);
-        _asset_mngr->array_blocks = ifb_arena_push_array(_asset_mngr->h_arena, asset_count, asset_memory_block);
-        assert(_asset_mngr->array_blocks);
-
-        // nothing is loaded yet, an invalid block never resolves
-        (void)memset(
-            (void*)_asset_mngr->array_blocks,
-            0xFF,
-            asset_count * sizeof(asset_memory_block)
-        );
+        (void)asset_mngr_open_database();
     }
 
     // called once at the start of every frame
@@ -109,7 +88,69 @@ namespace ifb {
         // every pin needs a matching unpin before shutdown
         assert(asset_memory_count_pinned(_asset_mngr->mem) == 0);
 
+        (void)asset_mngr_close_database();
+    }
+
+    // opens the runtime database from the working directory, nothing is loaded from it yet
+    // false if the file is missing or damaged, the engine still runs without it
+    IFB_INTERNAL bool
+    asset_mngr_open_database(
+        void) {
+
+        assert(_asset_mngr);
+        assert(!_asset_mngr->db);
+
+        const auto& cfg = config_instance();
+
+        _asset_mngr->h_arena = arena_alloc();
+        assert(_asset_mngr->h_arena != INVALID_HANDLE);
+
+        _asset_mngr->db = asset_database_load(cfg.asset_database_path, _asset_mngr->h_arena);
+        if (!_asset_mngr->db) {
+            arena_free(_asset_mngr->h_arena);
+            _asset_mngr->h_arena = INVALID_HANDLE;
+            return(false);
+        }
+
+        const u32 asset_count = asset_database_get_asset_count(_asset_mngr->db);
+        _asset_mngr->array_blocks = ifb_arena_push_array(_asset_mngr->h_arena, asset_count, asset_memory_block);
+        assert(_asset_mngr->array_blocks);
+
+        // nothing is loaded yet, an invalid block never resolves
+        (void)memset(
+            (void*)_asset_mngr->array_blocks,
+            0xFF,
+            asset_count * sizeof(asset_memory_block)
+        );
+        return(true);
+    }
+
+    // frees everything loaded from the runtime database and closes its file, so the file can be replaced
+    // false if an asset is pinned, its address has to stay valid so nothing is closed
+    IFB_INTERNAL bool
+    asset_mngr_close_database(
+        void) {
+
+        assert(_asset_mngr);
+
+        if (asset_memory_count_pinned(_asset_mngr->mem) != 0) return(false);
+
         if (_asset_mngr->db) {
+
+            // the slots belong to this database, the next one may have different assets in them
+            const u32 asset_count = asset_database_get_asset_count(_asset_mngr->db);
+            for (
+                u32 slot = 0;
+                    slot < asset_count;
+                  ++slot) {
+
+                const hnd_asset           hnd   = _asset_mngr->db->array_handles[slot];
+                const asset_memory_block& block = _asset_mngr->array_blocks[slot];
+                if (asset_memory_get_data(_asset_mngr->mem, block, hnd)) {
+                    asset_memory_free(_asset_mngr->mem, block);
+                }
+            }
+
             asset_database_close(_asset_mngr->db);
             _asset_mngr->db           = NULL;
             _asset_mngr->array_blocks = NULL;
@@ -119,6 +160,7 @@ namespace ifb {
             arena_free(_asset_mngr->h_arena);
             _asset_mngr->h_arena = INVALID_HANDLE;
         }
+        return(true);
     }
 
     // loads the text into asset memory if it isn't already there

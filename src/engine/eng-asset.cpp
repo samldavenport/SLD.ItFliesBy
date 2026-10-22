@@ -428,6 +428,75 @@ namespace ifb {
         state.db = NULL;
     }
 
+    // copies the open database over the runtime database in the working directory, then reloads the runtime database
+    // the runtime database is closed while its file is written, so nothing can be pinned
+    // textures already made from the old assets stay the way they were
+    IFB_ENGINE_API bool
+    eng_asset_database_copy_to_runtime(
+        void) {
+
+        auto& state = _eng_asset_database;
+        state.error[0] = 0;
+
+        if (!state.db) {
+            eng_asset_database_set_error("There is no database open to copy");
+            return(false);
+        }
+
+        if (!asset_mngr_close_database()) {
+            eng_asset_database_set_error("Failed to close the runtime database, an asset is pinned");
+            return(false);
+        }
+
+        const auto&    cfg    = config_instance();
+        const hnd_file h_src  = state.db->file_handle;
+        const hnd_file h_dst  = file_wo_overwrite(cfg.asset_database_path);
+        bool           is_valid = (h_dst != FILE_HANDLE_INVALID);
+        if (!is_valid) {
+            eng_asset_database_set_error("Failed to open %s in the working directory", cfg.asset_database_path);
+        }
+
+        // the database can be bigger than an arena, so it's copied a piece at a time
+        static constexpr u32 COPY_CHUNK_SIZE = size_kilobytes(64);
+        const hnd_arena h_arena = is_valid ? arena_alloc() : INVALID_HANDLE;
+        byte*           chunk   = (h_arena != INVALID_HANDLE) ? (byte*)arena_push(h_arena, COPY_CHUNK_SIZE) : NULL;
+        if (is_valid && !chunk) {
+            eng_asset_database_set_error("There is no memory to copy the database");
+            is_valid = false;
+        }
+
+        if (is_valid) {
+
+            const u32 size_file = file_get_size(h_src);
+            for (
+                u32 offset = 0;
+                    offset < size_file && is_valid;
+                    offset += COPY_CHUNK_SIZE) {
+
+                const u32 size_left  = size_file - offset;
+                const u32 size_chunk = (size_left < COPY_CHUNK_SIZE) ? size_left : COPY_CHUNK_SIZE;
+                is_valid = asset_database_read_at(h_src, offset, size_chunk, chunk);
+                if (is_valid) {
+                    (void)asset_database_write_at(h_dst, offset, size_chunk, chunk);
+                }
+            }
+            if (!is_valid) {
+                eng_asset_database_set_error("Failed to read the open database");
+            }
+        }
+
+        if (h_arena != INVALID_HANDLE) arena_free(h_arena);
+        if (h_dst   != FILE_HANDLE_INVALID) file_close(h_dst);
+
+        // the runtime database comes back even if the copy failed, a partial copy won't load
+        if (!asset_mngr_open_database() && is_valid) {
+            eng_asset_database_set_error("Copied the database, but failed to load it as the runtime database");
+            is_valid = false;
+        }
+
+        return(is_valid);
+    }
+
     IFB_ENGINE_API const cchar*
     eng_asset_database_get_error(
         void) {
