@@ -221,6 +221,18 @@ namespace ifb {
         return(mem);
     }
     
+    // takes all the pages without committing them, the caller commits what it uses
+    IFB_INTERNAL void*
+    reservation_claim_all(
+        reservation* res) {
+
+        reservation_validate(res);
+        assert(res->page_count == 0);
+
+        res->page_count = res->page_capacity;
+        return(res->start);
+    }
+
     IFB_INTERNAL void
     reservation_decommit(
         reservation* res) {

@@ -326,7 +326,8 @@ namespace ifb {
     // ARENAS
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API hnd_arena eng_arena_alloc     (void);
+    IFB_ENGINE_API hnd_arena eng_arena_alloc       (void);
+    IFB_ENGINE_API hnd_arena eng_arena_large_alloc (void);
     IFB_ENGINE_API void      eng_arena_free      (const hnd_arena arena);
     IFB_ENGINE_API void      eng_arena_reset     (const hnd_arena arena);
     IFB_ENGINE_API u32       eng_arena_save      (const hnd_arena arena);
@@ -377,6 +378,7 @@ namespace ifb {
         memory entities;
         memory gui;
         memory arenas;
+        memory arenas_large;
         memory components;
         memory quads;
         memory physics;

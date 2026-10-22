@@ -31,11 +31,14 @@ using namespace sld;
 #define IFB_CONFIG_MEMORY_RES_SIZE_FILES          size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING      size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS         size_megabytes(128)
+#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE   size_megabytes(512)
 #define IFB_CONFIG_FILE_PATH_SIZE                 256              
 #define IFB_CONFIG_FILE_COUNT                     64              
 #define IFB_CONFIG_FILE_GRANULARITY               size_kilobytes(64)              
 #define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
 #define IFB_CONFIG_ARENA_MEM_GRANULARITY          size_megabytes(1)
+#define IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY    size_megabytes(64)
+#define IFB_CONFIG_ARENA_LARGE_COMMIT_GRANULARITY size_kilobytes(64)
 #define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100       0.75f
 #define IFB_CONFIG_ENTITY_CAPACITY                1024
 #define IFB_CONFIG_QUAD_MAX                       1024
@@ -88,11 +91,14 @@ namespace ifb {
         static constexpr u32   memory_size_files              = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
         static constexpr u32   memory_size_rendering          = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
         static constexpr u32   memory_size_arenas             = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
+        static constexpr u32   memory_size_arenas_large       = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE;
         static constexpr u32   file_path_size                 = IFB_CONFIG_FILE_PATH_SIZE; 
         static constexpr u32   file_count                     = IFB_CONFIG_FILE_COUNT;
         static constexpr u32   file_granularity               = IFB_CONFIG_FILE_GRANULARITY;
         static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
         static constexpr u32   arena_granularity              = IFB_CONFIG_ARENA_MEM_GRANULARITY;
+        static constexpr u32   arena_large_granularity        = IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY;
+        static constexpr u32   arena_large_commit_granularity = IFB_CONFIG_ARENA_LARGE_COMMIT_GRANULARITY;
         static constexpr f32   sparse_set_max_load_p100       = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
         static constexpr u32   entity_capacity                = IFB_CONFIG_ENTITY_CAPACITY;
         static constexpr u32   quad_capacity                  = IFB_CONFIG_QUAD_MAX;
