@@ -22,6 +22,8 @@
 
 namespace ifb {
 
+    static constexpr u32 RENDER_GL_TEXTURE_SLOT_SPRITE_ATLAS = 0;
+
     //--------------------------------------------------------------------
     // DEFINITIONS 
     //--------------------------------------------------------------------
@@ -32,7 +34,8 @@ namespace ifb {
     };
 
     struct render_textures {
-        render_sprite_atlas_texture sprite_atlas;
+        render_sprite_atlas_texture sprite_atlas[config::sprite_atlas_table_capacity];
+        gl_texture                  sprite_atlas_active;
     };
 
     struct renderer_memory {
@@ -87,8 +90,15 @@ namespace ifb {
             textures   != NULL
         );
 
-        textures->sprite_atlas.h_atlas    = INVALID_HANDLE;
-        textures->sprite_atlas.texture_id = GL_ID_INVALID;
+        for (
+              u32 i_atlas = 0;
+                  i_atlas < config::sprite_atlas_table_capacity;
+                ++i_atlas) {
+
+            textures->sprite_atlas[i_atlas].h_atlas    = INVALID_HANDLE;
+            textures->sprite_atlas[i_atlas].texture_id = GL_ID_INVALID;
+        }
+        textures->sprite_atlas_active = GL_ID_INVALID;
 
         _renderer           = rndr;
         _renderer->gl       = gl;
@@ -292,16 +302,25 @@ namespace ifb {
         return(did_push);
     }
 
+    // true if the atlas is on the gpu, uploading it again does nothing
     IFB_INTERNAL bool
-    renderer_set_quad_sprite_atlas(
+    renderer_upload_sprite_atlas(
         const hnd_sprite_atlas h_atlas) {
 
         assert(h_atlas != INVALID_HANDLE);
         assert(_renderer);
 
-        gl_context* gl       = _renderer->gl;
-        auto        textures = _renderer->textures;
-        assert(textures);
+        gl_context* gl = _renderer->gl;
+        assert(_renderer->textures);
+
+        // already uploaded
+        if (renderer_find_sprite_atlas_texture(h_atlas) != NULL) {
+            return(true);
+        }
+
+        // find a free slot
+        render_sprite_atlas_texture* atlas = renderer_find_sprite_atlas_texture(INVALID_HANDLE);
+        if (atlas == NULL) return(false);
 
         // copy the atlas image out of the sprite manager
         const hnd_arena h_arena = arena_alloc();
@@ -314,14 +333,6 @@ namespace ifb {
         if (img == NULL) {
             arena_free(h_arena);
             return(false);
-        }
-
-        // replace the current atlas texture
-        auto& atlas = textures->sprite_atlas;
-        if (atlas.texture_id != GL_ID_INVALID) {
-            gl_texture_destroy(gl, atlas.texture_id);
-            atlas.texture_id = GL_ID_INVALID;
-            atlas.h_atlas    = INVALID_HANDLE;
         }
 
         const gl_texture texture = gl_texture_create(gl);
@@ -342,8 +353,50 @@ namespace ifb {
             return(false);
         }
 
-        atlas.texture_id = texture;
-        atlas.h_atlas    = h_atlas;
+        atlas->texture_id = texture;
+        atlas->h_atlas    = h_atlas;
+        return(true);
+    }
+
+    // false if the atlas was never uploaded
+    IFB_INTERNAL bool
+    renderer_release_sprite_atlas(
+        const hnd_sprite_atlas h_atlas) {
+
+        assert(h_atlas != INVALID_HANDLE);
+        assert(_renderer);
+
+        auto textures = _renderer->textures;
+        assert(textures);
+
+        render_sprite_atlas_texture* atlas = renderer_find_sprite_atlas_texture(h_atlas);
+        if (atlas == NULL) return(false);
+
+        if (textures->sprite_atlas_active == atlas->texture_id) {
+            textures->sprite_atlas_active = GL_ID_INVALID;
+        }
+
+        gl_texture_destroy(_renderer->gl, atlas->texture_id);
+        atlas->texture_id = GL_ID_INVALID;
+        atlas->h_atlas    = INVALID_HANDLE;
+        return(true);
+    }
+
+    // false if the atlas was never uploaded
+    IFB_INTERNAL bool
+    renderer_set_active_sprite_atlas(
+        const hnd_sprite_atlas h_atlas) {
+
+        assert(h_atlas != INVALID_HANDLE);
+        assert(_renderer);
+
+        auto textures = _renderer->textures;
+        assert(textures);
+
+        const render_sprite_atlas_texture* atlas = renderer_find_sprite_atlas_texture(h_atlas);
+        if (atlas == NULL) return(false);
+
+        textures->sprite_atlas_active = atlas->texture_id;
         return(true);
     }
 
@@ -369,6 +422,47 @@ namespace ifb {
 
         const bool did_set = render_lists_set_map(_renderer->lists, h_map);
         return(did_set);
+    }
+    
+    // INVALID_HANDLE finds a free slot
+    IFB_INTERNAL render_sprite_atlas_texture*
+    renderer_find_sprite_atlas_texture(
+        const hnd_sprite_atlas h_atlas) {
+
+        assert(_renderer);
+        assert(_renderer->textures);
+
+        auto textures = _renderer->textures;
+        for (
+              u32 i_atlas = 0;
+                  i_atlas < config::sprite_atlas_table_capacity;
+                ++i_atlas) {
+
+            if (textures->sprite_atlas[i_atlas].h_atlas == h_atlas) {
+                return(&textures->sprite_atlas[i_atlas]);
+            }
+        }
+        return(NULL);
+    }
+
+    // binds the active atlas to its texture slot, does nothing if no atlas is active
+    IFB_INTERNAL void
+    renderer_use_sprite_atlas_texture(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->textures);
+
+        const gl_texture texture = _renderer->textures->sprite_atlas_active;
+        if (texture == GL_ID_INVALID) return;
+
+        const bool did_set = gl_context_set_texture_active(
+            _renderer->gl,
+            texture,
+            RENDER_GL_TEXTURE_SLOT_SPRITE_ATLAS
+        );
+        assert(did_set);
+        (void)did_set;
     }
     
     //--------------------------------------------------------------------

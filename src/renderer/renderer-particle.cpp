@@ -139,6 +139,8 @@ namespace ifb {
         gl_ok &= gl_buffer_set_vertex_data     (gl, view->gl.buf_vertex, view->vertices.data, view->vertices.capacity);
         gl_ok &= gl_vertex_add_f32x3           (gl, view->gl.vertex, vertex_size, 0, 0);
         gl_ok &= gl_vertex_add_f32x4           (gl, view->gl.vertex, vertex_size, 1, sizeof(vec3));
+        gl_ok &= gl_vertex_add_f32x2           (gl, view->gl.vertex, vertex_size, 2, sizeof(vec3) + sizeof(color_rgba_f32));
+        gl_ok &= gl_vertex_add_f32x1           (gl, view->gl.vertex, vertex_size, 3, sizeof(vec3) + sizeof(color_rgba_f32) + sizeof(vec2));
         assert(gl_ok);
     }
 

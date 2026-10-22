@@ -34,7 +34,11 @@ namespace ifb {
         ctx->test_sprites.h_atlas         = eng_sprite_atlas_load                ("TEST-ATLAS");
         ctx->test_sprites.i_sprite_connor = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "CONNOR");
         ctx->test_sprites.i_sprite_jig    = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "JIG");
-        
+
+        // set the sprite atlas to active
+        const bool did_set_texture = eng_sprite_atlas_set_active(ctx->test_sprites.h_atlas);
+        assert(did_set_texture);
+        (void)did_set_texture;
 
 
         // the map goes first, the player rig spawns on it

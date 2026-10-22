@@ -287,6 +287,12 @@ namespace ifb {
         info.pixel_height = index.height;
         info.index        = i_sprite;
 
+        // the offset is into the atlas pixels, row major
+        info.atlas_width  = atlas->width;
+        info.atlas_height = atlas->height;
+        info.pixel_x      = index.offset % atlas->width;
+        info.pixel_y      = index.offset / atlas->width;
+
         // the sprite handle is the handle of its image asset, so the name comes from the database
         // the name is all zeros if the image isn't in the database
         const asset_name* name = asset_mngr_get_name(hnd_asset(info.hnd.val));

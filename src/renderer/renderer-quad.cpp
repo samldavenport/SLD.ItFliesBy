@@ -60,6 +60,7 @@ namespace ifb {
         assert(buffers);
         assert(sizeof(vec3)           == 12);
         assert(sizeof(color_rgba_f32) == 16);
+        assert(sizeof(vec2)           == 8);
 
         // the buffers need to be allocated before the shader is initialized
         auto* quad_buf_vtx   = buffers->quad_vertices;
@@ -67,7 +68,7 @@ namespace ifb {
         assert(quad_buf_vtx);
         assert(quad_buf_vtx->data       != NULL);
         assert(quad_buf_vtx->capacity   != 0);
-        assert(quad_buf_vtx->stride     == sizeof(vec3) + sizeof(color_rgba_f32));
+        assert(quad_buf_vtx->stride     == sizeof(vec3) + sizeof(color_rgba_f32) + sizeof(vec2) + sizeof(f32));
         assert(quad_buf_elmnt);
         assert(quad_buf_elmnt->data     != NULL);
         assert(quad_buf_elmnt->capacity != 0);
@@ -112,6 +113,8 @@ namespace ifb {
         gl_ok &= gl_buffer_set_element_data    (gl, shdr->gl.buf_element, (byte*)quad_buf_elmnt->data, quad_buf_elmnt->capacity);
         gl_ok &= gl_vertex_add_f32x3           (gl, shdr->gl.vertex, vertex_size, 0, 0);
         gl_ok &= gl_vertex_add_f32x4           (gl, shdr->gl.vertex, vertex_size, 1, sizeof(vec3));
+        gl_ok &= gl_vertex_add_f32x2           (gl, shdr->gl.vertex, vertex_size, 2, sizeof(vec3) + sizeof(color_rgba_f32));
+        gl_ok &= gl_vertex_add_f32x1           (gl, shdr->gl.vertex, vertex_size, 3, sizeof(vec3) + sizeof(color_rgba_f32) + sizeof(vec2));
         assert(gl_ok);
     }
 
@@ -135,6 +138,9 @@ namespace ifb {
         if (quad_buf_vtx->size == 0 || element_count == 0) {
             return;
         }
+
+        // set the texture
+        renderer_use_sprite_atlas_texture();
 
         // draw elements
         gl_context_set_shader_program (gl, shdr->gl.program);

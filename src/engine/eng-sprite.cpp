@@ -307,6 +307,13 @@ namespace ifb {
         assert(atlas_name_cstr);
 
         const hnd_sprite_atlas h_atlas = sprite_mngr_load_atlas(atlas_name_cstr);
+        if (h_atlas == INVALID_HANDLE) return(INVALID_HANDLE);
+
+        // the atlas is uploaded to the gpu once, when it's loaded
+        if (!renderer_upload_sprite_atlas(h_atlas)) {
+            sprite_mngr_unload_atlas(h_atlas);
+            return(INVALID_HANDLE);
+        }
         return(h_atlas);
     }
 
@@ -314,6 +321,10 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_sprite_atlas_unload(
         const hnd_sprite_atlas h_atlas) {
+
+        if (h_atlas != INVALID_HANDLE) {
+            renderer_release_sprite_atlas(h_atlas);
+        }
 
         const bool did_unload = sprite_mngr_unload_atlas(h_atlas);
         return(did_unload);
@@ -362,6 +373,16 @@ namespace ifb {
 
         image* img = sprite_mngr_get_sprite_image_by_index(h_atlas, i_sprite, h_arena);
         return(img);
+    }
+
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_set_active(
+        const hnd_sprite_atlas h_atlas) {
+
+        assert(h_atlas != INVALID_HANDLE);
+
+        const bool did_set = renderer_set_active_sprite_atlas(h_atlas);
+        return(did_set);
     }
 
     //--------------------------------------------------------------------

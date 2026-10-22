@@ -40,7 +40,7 @@ namespace ifb {
     static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_IDLE_MS = 100.0f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_FULL_SPEED          = 1.0f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_RADIUS   = 0.05f;
-    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SIZE           = 0.012f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SIZE           = 0.008f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPEED          = 0.12f;
 
     inline f32
@@ -120,7 +120,7 @@ namespace ifb {
         const f32 jig_offset_x    = player_rig->jig_offset_x;
 
         atype_quad quad_connor  = {0};
-        quad_connor.color.hex   = 0xB8BB26FF;
+        quad_connor.color.hex   = 0xFFFFFFFF;
         quad_connor.quad.width  = 0.2;
         quad_connor.quad.height = 0.2;
         quad_connor.position.x  = spawn_pos.x;
@@ -128,7 +128,7 @@ namespace ifb {
         quad_connor.position.z  = spawn_pos.z;
 
         atype_quad quad_jig  = {0};
-        quad_jig.color.hex   =  0x458588FF;
+        quad_jig.color.hex   =  0xFFFFFFFF;
         quad_jig.quad.width  =  0.1;
         quad_jig.quad.height =  0.1;
         quad_jig.position.x  = spawn_pos.x + jig_offset_x;
