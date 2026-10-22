@@ -177,7 +177,7 @@ namespace ifb {
     }
     
     IFB_ENGINE_API bool
-    eng_entity_add_sprite(
+    eng_entity_set_sprite(
         const entity_id id,
         const cchar*    atlas_name_cstr,
         const cchar*    sprite_name_cstr) {

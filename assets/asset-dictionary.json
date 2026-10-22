@@ -1,12 +1,13 @@
 {
     "text": [
-        { "name": "SHDR-GRID-VERT", "path": "shaders/grid-vert.glsl" }
     ],
     "image": [
-        { "name": "CONNOR", "path": "images/connor.png" },
-        { "name": "JIG", "path": "images/jig.png" }
+        { "name": "CONNOR-LEFT", "path": "images/connor-left.png" },
+        { "name": "JIG-LEFT", "path": "images/jig-left.png" },
+        { "name": "CONNOR-RIGHT", "path": "images/connor-right.png" },
+        { "name": "JIG-RIGHT", "path": "images/jig-right.png" }
     ],
     "sprite_atlas": [
-        { "name": "TEST-ATLAS", "path": "sprites/sprites.ifbatlas" }
+        { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }
     ]
 }

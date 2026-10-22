@@ -30,6 +30,10 @@ namespace ifb {
     static constexpr f32 GAME_PLAYER_RIG_JIG_BOB_HEIGHT   = 0.02f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_BOB_PERIOD_S = 1.6f;
 
+    // jig faces connor, and only turns around once connor is this far past him
+    // so he doesn't flicker between sprites while they're level
+    static constexpr f32 GAME_PLAYER_RIG_JIG_TURN_DEADZONE = 0.02f;
+
     // jig leaves a trail of sparks behind him
     static constexpr u32 GAME_PLAYER_RIG_JIG_TRAIL_COUNT          = 48;
     static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_LIFESPAN_MS    = 600.0f;
@@ -117,6 +121,7 @@ namespace ifb {
         player_rig->jig_offset_x   = -GAME_PLAYER_RIG_JIG_OFFSET_X;
         player_rig->jig_bob_time_s = 0.0f;
         player_rig->connor_prev_x  = spawn_pos.x;
+        player_rig->jig_faces_right = true;
         const f32 jig_offset_x    = player_rig->jig_offset_x;
 
         atype_quad quad_connor  = {0};
@@ -176,8 +181,8 @@ namespace ifb {
 
         // add the sprites
         bool did_add_sprites = true;
-        did_add_sprites &= eng_entity_add_sprite(player_rig->connor_id, "TEST-ATLAS", "CONNOR");
-        did_add_sprites &= eng_entity_add_sprite(player_rig->jig_id,    "TEST-ATLAS", "JIG");
+        did_add_sprites &= eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", "CONNOR-RIGHT");
+        did_add_sprites &= eng_entity_set_sprite(player_rig->jig_id,    "CORE-SPRITES", "JIG-RIGHT");
         assert(did_add_sprites);
 
         // the emitter spawns in every direction until it is stopped,
@@ -223,17 +228,29 @@ namespace ifb {
 
         // add movement forces to connor
         vec3 connor_force = {0};
-        if (move_left)  connor_force.x -= 10.0f;
-        if (move_right) connor_force.x += 10.0f;
-        if (move_up)    connor_force.z -= 10.0f;
-        if (move_down)  connor_force.z += 10.0f;
+        if (move_left) {
+            connor_force.x -= 10.0f;
+            eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", "CONNOR-LEFT");
+        } 
+        if (move_right) {
+            connor_force.x += 10.0f;
+            eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", "CONNOR-RIGHT");
+        }
+        if (move_up){
+            connor_force.z -= 10.0f;
+        }    
+        if (move_down){
+            connor_force.z += 10.0f;
+        }  
         eng_entity_add_force (player_rig->connor_id, connor_force);
 
         // move jig's anchor point to follow connor
         cmpnt_position pos_anchor;
         cmpnt_position pos_connor;
-        assert(eng_cmpnt_lookup_position(player_rig->jig_anchor_id, pos_anchor));
-        assert(eng_cmpnt_lookup_position(player_rig->connor_id,     pos_connor)); 
+        const bool did_lookup_anchor = eng_cmpnt_lookup_position(player_rig->jig_anchor_id, pos_anchor);
+        const bool did_lookup_connor = eng_cmpnt_lookup_position(player_rig->connor_id,     pos_connor);
+        assert(did_lookup_anchor);
+        assert(did_lookup_connor);
 
         // the anchor holds its ground while connor moves,
         // so it slides across to whichever side is behind him
@@ -268,7 +285,27 @@ namespace ifb {
         pos_anchor.x = pos_connor.x + player_rig->jig_offset_x;
         pos_anchor.y = pos_connor.y + 0.100f + bob_height;
         pos_anchor.z = pos_connor.z + arc_depth;
-        assert(eng_cmpnt_update_position(player_rig->jig_anchor_id, pos_anchor));
+        const bool did_update_anchor = eng_cmpnt_update_position(player_rig->jig_anchor_id, pos_anchor);
+        assert(did_update_anchor);
+
+        // jig faces connor, connor being to his right is a positive difference
+        // he only turns around once connor passes him
+        cmpnt_position pos_jig;
+        if (eng_cmpnt_lookup_position(player_rig->jig_id, pos_jig)) {
+
+            const f32  jig_to_connor_x = pos_connor.x - pos_jig.x;
+            const bool connor_is_right = (jig_to_connor_x >  GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
+            const bool connor_is_left  = (jig_to_connor_x < -GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
+
+            if (connor_is_right && !player_rig->jig_faces_right) {
+                player_rig->jig_faces_right = true;
+                eng_entity_set_sprite(player_rig->jig_id, "CORE-SPRITES", "JIG-RIGHT");
+            }
+            else if (connor_is_left && player_rig->jig_faces_right) {
+                player_rig->jig_faces_right = false;
+                eng_entity_set_sprite(player_rig->jig_id, "CORE-SPRITES", "JIG-LEFT");
+            }
+        }
 
         // spawn more of jig's trail the faster he moves
         // the spawn rate is what ramps, so the trail thickens evenly as he speeds up

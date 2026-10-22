@@ -31,7 +31,7 @@ namespace ifb {
         ctx->map          =  map; 
 
         // load the sprite atlas
-        ctx->test_sprites.h_atlas         = eng_sprite_atlas_load                ("TEST-ATLAS");
+        ctx->test_sprites.h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
         ctx->test_sprites.i_sprite_connor = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "CONNOR");
         ctx->test_sprites.i_sprite_jig    = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "JIG");
 

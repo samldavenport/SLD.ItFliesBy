@@ -216,6 +216,7 @@ namespace ifb {
 
         const entity_id id = el->ids[index];
 
-        assert(eng_entity_lookup_by_id(id, e));
+        const bool did_lookup = eng_entity_lookup_by_id(id, e);
+        assert(did_lookup);
     }
 };

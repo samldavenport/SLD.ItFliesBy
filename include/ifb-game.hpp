@@ -16,6 +16,7 @@ namespace ifb {
         f32        jig_offset_x;
         f32        jig_bob_time_s;
         f32        connor_prev_x;
+        bool       jig_faces_right;
     };
 
     struct game_map {

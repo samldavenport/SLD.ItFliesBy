@@ -30,6 +30,7 @@ namespace ifb {
         game_map* map) {
 
         assert(map);
-        assert(eng_map_render(map->eng_hnd));
+        const bool did_render = eng_map_render(map->eng_hnd);
+        assert(did_render);
     } 
 };

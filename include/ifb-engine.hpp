@@ -136,6 +136,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_asset_database_build             (const cchar* path_dictionary, const cchar* path_database);
     IFB_ENGINE_API bool         eng_asset_database_load              (const cchar* path);
     IFB_ENGINE_API void         eng_asset_database_close             (void);
+    IFB_ENGINE_API bool         eng_asset_database_copy_to_runtime   (void);
     IFB_ENGINE_API const cchar* eng_asset_database_get_error         (void);
     IFB_ENGINE_API u32          eng_asset_database_get_count         (void);
     IFB_ENGINE_API bool         eng_asset_database_get_info          (const u32 index, asset_database_info& info);
@@ -195,7 +196,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_quad_lookup           (quad_entity& q, const entity_id id);
     IFB_ENGINE_API bool         eng_entity_render                (const entity_id id);
     IFB_ENGINE_API bool         eng_entity_add_force             (const entity_id id, const vec3& force);
-    IFB_ENGINE_API bool         eng_entity_add_sprite            (const entity_id id, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API bool         eng_entity_set_sprite            (const entity_id id, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
 
     //--------------------------------------------------------------------
     // COMPONENTS 
