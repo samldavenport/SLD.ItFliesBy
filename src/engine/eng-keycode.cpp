@@ -45,6 +45,7 @@ namespace ifb {
         _keyboard->group_1 = 0;
         _keyboard->group_2 = 0;
         _keyboard->group_3 = 0;
+        _keyboard->group_4 = 0;
     }
     
     IFB_ENG_INTERNAL void 
@@ -56,8 +57,8 @@ namespace ifb {
         keyboard_code code;
         code.keycode = kc;
 
-        assert(code.group <= 4);
-        assert(code.index <= 32);
+        assert(code.group < 4);
+        assert(code.index < 32);
 
         _keyboard->groups[code.group] &= ~(1 << code.index);
     }
@@ -71,8 +72,8 @@ namespace ifb {
         keyboard_code code;
         code.keycode = kc;
 
-        assert(code.group <= 4);
-        assert(code.index <= 32);
+        assert(code.group < 4);
+        assert(code.index < 32);
         
         _keyboard->groups[code.group] |= (1 << code.index);
     }
@@ -86,8 +87,8 @@ namespace ifb {
         keyboard_code code;
         code.keycode = kc;
 
-        assert(code.group <= 4);
-        assert(code.index <= 32);
+        assert(code.group < 4);
+        assert(code.index < 32);
 
         const bool is_set = (( _keyboard->groups[code.group] >> code.index) & 1) == 1; 
         return(is_set);
