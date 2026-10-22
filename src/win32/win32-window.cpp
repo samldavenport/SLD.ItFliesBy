@@ -98,14 +98,14 @@ namespace ifb {
                 
                 case WM_KEYDOWN:
                 case WM_SYSKEYDOWN: {
-                    const input_keycode key_code = win32_input_get_keycode(msg.wParam);
-                    eng_input_set_key_down(key_code);
+                    const input_keycode key_code = win32_input_get_keycode(msg.wParam, msg.lParam);
+                    if (key_code != input_keycode_e_null) eng_input_set_key_down(key_code);
                 } break;
 
                 case WM_KEYUP:
                 case WM_SYSKEYUP: {
-                    const input_keycode key_code = win32_input_get_keycode(msg.wParam);
-                    eng_input_set_key_up(key_code);
+                    const input_keycode key_code = win32_input_get_keycode(msg.wParam, msg.lParam);
+                    if (key_code != input_keycode_e_null) eng_input_set_key_up(key_code);
                 } break;
                 
                 case WM_MOUSEMOVE: {

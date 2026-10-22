@@ -43,7 +43,8 @@ namespace ifb {
 
     input_keycode
     win32_input_get_keycode(
-        const DWORD wparam);
+        const WPARAM wparam,
+        const LPARAM lparam);
    
     u32 
     win32_util_cstr_to_wstr(

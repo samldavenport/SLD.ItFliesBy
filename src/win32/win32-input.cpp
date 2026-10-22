@@ -6,7 +6,8 @@ namespace ifb {
     
     IFB_WIN32_INTERNAL input_keycode
     win32_input_get_keycode(
-        const DWORD wparam) {
+        const WPARAM wparam,
+        const LPARAM lparam) {
 
         constexpr input_keycode keycode_map[256] = {
             input_keycode_e_null,          // 0x00
@@ -267,8 +268,22 @@ namespace ifb {
             input_keycode_e_null           // 0xFF
         };
 
-        const input_keycode keycode = (wparam < 256)
-            ? keycode_map[(DWORD)wparam]
+        // windows reports shift, ctrl, and alt as generic keys,
+        // so we resolve left/right from the scan code and extended key flag
+        const bool is_extended = (lparam & (1 << 24)) != 0;
+        WPARAM vk = wparam;
+        switch (vk) {
+            case VK_SHIFT: {
+                const UINT scan_code = (lparam >> 16) & 0xFF;
+                vk = MapVirtualKey(scan_code, MAPVK_VSC_TO_VK_EX);
+            } break;
+            case VK_CONTROL: vk = is_extended ? VK_RCONTROL : VK_LCONTROL; break;
+            case VK_MENU:    vk = is_extended ? VK_RMENU    : VK_LMENU;    break;
+            default: break;
+        }
+
+        const input_keycode keycode = (vk < 256)
+            ? keycode_map[vk]
             : input_keycode_e_null;
 
         return(keycode);
