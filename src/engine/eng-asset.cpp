@@ -339,7 +339,7 @@ namespace ifb {
         state.error[0] = 0;
 
         // the dictionary is only needed for the build, so it gets its own arena
-        const hnd_arena h_arena_dict = arena_alloc();
+        const hnd_arena h_arena_dict = arena_large_alloc();
         if (h_arena_dict == INVALID_HANDLE) {
             eng_asset_database_set_error("There is no memory for the dictionary");
             return(false);
@@ -370,7 +370,7 @@ namespace ifb {
         if (is_valid) {
             eng_asset_database_close();
 
-            state.h_arena = arena_alloc();
+            state.h_arena = arena_large_alloc();
             state.db      = (state.h_arena != INVALID_HANDLE)
                 ? asset_database_build(path_database, dict, state.h_arena)
                 : NULL;
@@ -400,7 +400,7 @@ namespace ifb {
         // the file may be the one that's open, which can't be opened again while it is
         eng_asset_database_close();
 
-        state.h_arena = arena_alloc();
+        state.h_arena = arena_large_alloc();
         if (state.h_arena == INVALID_HANDLE) {
             eng_asset_database_set_error("There is no memory for the database");
             return(false);
@@ -743,7 +743,7 @@ namespace ifb {
 
             // the atlas in memory is smaller than the file, it doesn't keep the sprite names
             const u64 size_atlas = (u64)size + sizeof(asset_sprite_atlas) + size_header;
-            if (size_atlas > IFB_CONFIG_ARENA_MEM_GRANULARITY) {
+            if (size_atlas > IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY) {
                 eng_asset_database_set_error("%s is %u bytes, which is too big to load: %s", node->name, size, path);
                 return(false);
             }
@@ -773,7 +773,7 @@ namespace ifb {
 
             // the pixels are always rgba
             const u64 size_pixels = ((u64)width * height * 4) + sizeof(image) + size_header;
-            if (size_pixels > IFB_CONFIG_ARENA_MEM_GRANULARITY) {
+            if (size_pixels > IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY) {
                 eng_asset_database_set_error("%s is %d x %d, which is too big to load: %s", node->name, width, height, path);
                 return(false);
             }
@@ -826,7 +826,7 @@ namespace ifb {
         auto& state = _eng_asset_preview[slot];
 
         if (!state.is_init) {
-            state.h_arena = arena_alloc();
+            state.h_arena = arena_large_alloc();
             state.is_init = (state.h_arena != INVALID_HANDLE);
             if (!state.is_init) return(INVALID_HANDLE);
         }

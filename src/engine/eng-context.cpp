@@ -124,6 +124,7 @@ namespace ifb {
         reservation* res_files      = reservation_create(mem_map->files);
         reservation* res_entities   = reservation_create(mem_map->entities);
         reservation* res_arenas     = reservation_create(mem_map->arenas);
+        reservation* res_arenas_lg  = reservation_create(mem_map->arenas_large);
         reservation* res_renderer   = reservation_create(mem_map->rendering);
         reservation* res_components = reservation_create(mem_map->components);
         reservation* res_physics    = reservation_create(mem_map->physics);
@@ -134,6 +135,7 @@ namespace ifb {
         assert(res_files);
         assert(res_entities);
         assert(res_arenas);
+        assert(res_arenas_lg);
         assert(res_renderer);
         assert(res_components);
         assert(res_physics);
@@ -145,7 +147,7 @@ namespace ifb {
         // start systems
         file_mngr_startup        (res_files);
         entity_mngr_startup      (res_entities);
-        memory_mngr_startup      (res_arenas);
+        memory_mngr_startup      (res_arenas, res_arenas_lg);
         cmpnt_mngr_startup       (res_components);
         phys_mngr_startup        (res_physics);
         map_mngr_startup         (res_tiles);

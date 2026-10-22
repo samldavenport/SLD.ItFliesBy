@@ -20,6 +20,8 @@ using namespace ifb;
 static const u32 SIZE_STACK       = size_kilobytes(64);
 static const u32 SIZE_RESERVATION = size_megabytes(64);
 static const u32 SIZE_ASSETS      = size_megabytes(128);
+static const u32 SIZE_ARENAS_LG   = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE;
+static const u32 SIZE_SPRITES     = IFB_CONFIG_MEMORY_RES_SIZE_SPRITES;
 
 static byte _stack_mem[SIZE_STACK];
 
@@ -102,6 +104,8 @@ mem_map_init(
     mem_map.gui.ptr         = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.arenas.size     = SIZE_RESERVATION; 
     mem_map.arenas.ptr      = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
+    mem_map.arenas_large.size = SIZE_ARENAS_LG;
+    mem_map.arenas_large.ptr  = VirtualAlloc(NULL, SIZE_ARENAS_LG,   MEM_RESERVE, PAGE_READONLY);
     mem_map.components.size = SIZE_RESERVATION;
     mem_map.components.ptr  = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.quads.size      = SIZE_RESERVATION;
@@ -114,8 +118,8 @@ mem_map_init(
     mem_map.particles.ptr   = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.assets.size     = SIZE_ASSETS;
     mem_map.assets.ptr      = VirtualAlloc(NULL, SIZE_ASSETS,      MEM_RESERVE, PAGE_READONLY);
-    mem_map.sprites.size    = SIZE_ASSETS;
-    mem_map.sprites.ptr     = VirtualAlloc(NULL, SIZE_ASSETS,      MEM_RESERVE, PAGE_READONLY);
+    mem_map.sprites.size    = SIZE_SPRITES;
+    mem_map.sprites.ptr     = VirtualAlloc(NULL, SIZE_SPRITES,     MEM_RESERVE, PAGE_READONLY);
     
     assert(
         mem_map.stack.ptr      != NULL &&        
@@ -124,6 +128,8 @@ mem_map_init(
         mem_map.rendering.ptr  != NULL &&
         mem_map.entities.ptr   != NULL &&
         mem_map.gui.ptr        != NULL &&
+        mem_map.arenas.ptr     != NULL &&
+        mem_map.arenas_large.ptr != NULL &&
         mem_map.components.ptr != NULL &&
         mem_map.quads.ptr      != NULL &&
         mem_map.physics.ptr    != NULL &&

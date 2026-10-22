@@ -14,6 +14,14 @@ namespace ifb {
         return(hnd);        
     }
 
+    IFB_ENGINE_API hnd_arena
+    eng_arena_large_alloc(
+        void) {
+
+        const hnd_arena hnd = arena_large_alloc();
+        return(hnd);        
+    }
+
     IFB_ENGINE_API void
     eng_arena_free(
         const hnd_arena hnd) {

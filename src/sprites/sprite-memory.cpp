@@ -37,6 +37,7 @@ namespace ifb {
         
         const u32 res_capacity = reservation_get_capacity(res);
         const u32 block_size   = res_capacity / config::sprite_mem_block_capacity;
+        assert(block_size >= config::sprite_mem_block_size);
     
         mem->res = res;
        

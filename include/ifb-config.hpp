@@ -6,16 +6,16 @@
 using namespace sld;
 
 #define IFB_CONFIG_ASSET_NAME_SIZE                16
-#define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(16)
+#define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(64)
 #define IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT    32
 #define IFB_CONFIG_ASSET_SMALL_DATA_SIZE          size_kilobytes(64)
 #define IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY     64
 #define IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT   48
 #define IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE         size_megabytes(1)
 #define IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY    256
-#define IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT    4
-#define IFB_CONFIG_ASSET_LARGE_DATA_SIZE          size_megabytes(16)
-#define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     16
+#define IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT    1
+#define IFB_CONFIG_ASSET_LARGE_DATA_SIZE          size_megabytes(64)
+#define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     64
 #define IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES  240
 #define IFB_CONFIG_ASSET_EXPIRE_FRAMES            7200
 #define IFB_CONFIG_ASSET_DATABASE_PATH            "asset-database.ifbdb"
@@ -31,11 +31,14 @@ using namespace sld;
 #define IFB_CONFIG_MEMORY_RES_SIZE_FILES          size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING      size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS         size_megabytes(128)
+#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE   size_megabytes(512)
 #define IFB_CONFIG_FILE_PATH_SIZE                 256              
 #define IFB_CONFIG_FILE_COUNT                     64              
 #define IFB_CONFIG_FILE_GRANULARITY               size_kilobytes(64)              
 #define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
 #define IFB_CONFIG_ARENA_MEM_GRANULARITY          size_megabytes(1)
+#define IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY    size_megabytes(64)
+#define IFB_CONFIG_ARENA_LARGE_COMMIT_GRANULARITY size_kilobytes(64)
 #define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100       0.75f
 #define IFB_CONFIG_ENTITY_CAPACITY                1024
 #define IFB_CONFIG_QUAD_MAX                       1024
@@ -49,7 +52,9 @@ using namespace sld;
 #define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
-#define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      8
+#define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      4
+#define IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE          size_megabytes(64)
+#define IFB_CONFIG_MEMORY_RES_SIZE_SPRITES        (IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE * IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY)
 #define IFB_CONFIG_SPRITE_TABLE_CAPACITY         4
 
 #if (IFB_CONFIG_BUILD_MODE==0)
@@ -88,11 +93,14 @@ namespace ifb {
         static constexpr u32   memory_size_files              = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
         static constexpr u32   memory_size_rendering          = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
         static constexpr u32   memory_size_arenas             = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
+        static constexpr u32   memory_size_arenas_large       = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE;
         static constexpr u32   file_path_size                 = IFB_CONFIG_FILE_PATH_SIZE; 
         static constexpr u32   file_count                     = IFB_CONFIG_FILE_COUNT;
         static constexpr u32   file_granularity               = IFB_CONFIG_FILE_GRANULARITY;
         static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
         static constexpr u32   arena_granularity              = IFB_CONFIG_ARENA_MEM_GRANULARITY;
+        static constexpr u32   arena_large_granularity        = IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY;
+        static constexpr u32   arena_large_commit_granularity = IFB_CONFIG_ARENA_LARGE_COMMIT_GRANULARITY;
         static constexpr f32   sparse_set_max_load_p100       = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
         static constexpr u32   entity_capacity                = IFB_CONFIG_ENTITY_CAPACITY;
         static constexpr u32   quad_capacity                  = IFB_CONFIG_QUAD_MAX;
@@ -107,6 +115,7 @@ namespace ifb {
         static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
         static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
         static constexpr u32   sprite_mem_block_capacity      = IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY;
+        static constexpr u32   sprite_mem_block_size          = IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE;
         static constexpr u32   sprite_atlas_table_capacity    = IFB_CONFIG_SPRITE_TABLE_CAPACITY;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE

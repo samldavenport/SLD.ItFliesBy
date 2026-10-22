@@ -835,7 +835,7 @@ namespace ifb {
         const u64 offset_indexes = offset_names   + ((u64)sizeof(asset_name) * count);
         const u64 offset_pixels  = offset_indexes + size_indexes;
         const u64 size_push      = sizeof(asset_sprite_atlas) + size_handles + size_indexes + size_pixels;
-        if (offset_pixels + size_pixels != size_file || size_push > IFB_CONFIG_ARENA_MEM_GRANULARITY) {
+        if (offset_pixels + size_pixels != size_file || size_push > arena_size_free(h_arena)) {
             file_close(h_file);
             return(NULL);
         }
