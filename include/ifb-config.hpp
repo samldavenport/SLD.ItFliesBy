@@ -6,16 +6,16 @@
 using namespace sld;
 
 #define IFB_CONFIG_ASSET_NAME_SIZE                16
-#define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(16)
+#define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(64)
 #define IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT    32
 #define IFB_CONFIG_ASSET_SMALL_DATA_SIZE          size_kilobytes(64)
 #define IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY     64
 #define IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT   48
 #define IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE         size_megabytes(1)
 #define IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY    256
-#define IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT    4
-#define IFB_CONFIG_ASSET_LARGE_DATA_SIZE          size_megabytes(16)
-#define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     16
+#define IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT    1
+#define IFB_CONFIG_ASSET_LARGE_DATA_SIZE          size_megabytes(64)
+#define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     64
 #define IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES  240
 #define IFB_CONFIG_ASSET_EXPIRE_FRAMES            7200
 #define IFB_CONFIG_ASSET_DATABASE_PATH            "asset-database.ifbdb"
@@ -52,7 +52,9 @@ using namespace sld;
 #define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
-#define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      8
+#define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      4
+#define IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE          size_megabytes(64)
+#define IFB_CONFIG_MEMORY_RES_SIZE_SPRITES        (IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE * IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY)
 #define IFB_CONFIG_SPRITE_TABLE_CAPACITY         4
 
 #if (IFB_CONFIG_BUILD_MODE==0)
@@ -113,6 +115,7 @@ namespace ifb {
         static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
         static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
         static constexpr u32   sprite_mem_block_capacity      = IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY;
+        static constexpr u32   sprite_mem_block_size          = IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE;
         static constexpr u32   sprite_atlas_table_capacity    = IFB_CONFIG_SPRITE_TABLE_CAPACITY;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE

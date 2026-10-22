@@ -3,6 +3,7 @@
 #include "renderer.hpp"
 #include "ifb-collections.hpp"
 #include "ifb-types.hpp"
+#include "memory-arena.cpp"
 #include "memory-reservation.cpp"
 #include "renderer-internal.hpp"
 #include "render-buffers.cpp"
@@ -323,7 +324,7 @@ namespace ifb {
         if (atlas == NULL) return(false);
 
         // copy the atlas image out of the sprite manager
-        const hnd_arena h_arena = arena_alloc();
+        const hnd_arena h_arena = arena_large_alloc();
         if (h_arena == INVALID_HANDLE) return(false);
 
         const image* img = sprite_mngr_get_sprite_atlas_image_by_handle(
