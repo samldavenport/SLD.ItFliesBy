@@ -53,6 +53,20 @@ namespace ifb {
             return(INVALID_INDEX);
         }
 
+        // the chunk's walls have to fit in the map's wall arrays
+        // walls sit on the tile edges, so there's one more line of them than tiles
+        map_wall_array& row_wall_array    = map_get_wall_array(map_index, map_wall_orientation_e_row);
+        map_wall_array& column_wall_array = map_get_wall_array(map_index, map_wall_orientation_e_column);
+        const u32       row_wall_count    = (count_rows + 1) * count_cols;
+        const u32       column_wall_count = count_rows * (count_cols + 1);
+        const bool      do_walls_fit      = (
+            (row_wall_array.count    + row_wall_count)    <= cfg.map_wall_capacity &&
+            (column_wall_array.count + column_wall_count) <= cfg.map_wall_capacity
+        );
+        if (!do_walls_fit) {
+            return(INVALID_INDEX);
+        }
+
         // get the chunk
         const u32  chunk_index = dims.count_chunks;
         map_chunk& chunk       = map_get_chunk(map_index, chunk_index);
@@ -65,8 +79,8 @@ namespace ifb {
         chunk.base_color = base_color;
         chunk.h_atlas      = INVALID_HANDLE;
         chunk.floor        = &floor_array.tiles[floor_array.count];
-        chunk.column_walls = NULL;
-        chunk.row_walls    = NULL;
+        chunk.row_walls    = &row_wall_array.tiles[row_wall_array.count];
+        chunk.column_walls = &column_wall_array.tiles[column_wall_array.count];
 
         // initialize the floor tiles
         // no unnavigable tiles yet
@@ -81,6 +95,31 @@ namespace ifb {
             tile.flags    = (u8)map_tile_flag_e_navigable;
         }
         floor_array.count += chunk_tile_count;
+
+        // initialize the walls
+        // nothing is placed until it's set
+        for (
+            u32 wall_index = 0;
+                wall_index < row_wall_count;
+              ++wall_index) {
+
+            map_wall_tile& wall = chunk.row_walls[wall_index];
+            wall.base_color = base_color;
+            wall.i_sprite   = INVALID_INDEX;
+            wall.flags      = 0;
+        }
+        for (
+            u32 wall_index = 0;
+                wall_index < column_wall_count;
+              ++wall_index) {
+
+            map_wall_tile& wall = chunk.column_walls[wall_index];
+            wall.base_color = base_color;
+            wall.i_sprite   = INVALID_INDEX;
+            wall.flags      = 0;
+        }
+        row_wall_array.count    += row_wall_count;
+        column_wall_array.count += column_wall_count;
 
         // update the chunk count
         ++dims.count_chunks;

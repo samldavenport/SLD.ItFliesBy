@@ -175,7 +175,13 @@ struct renderer_tile_shader {
         gl_ok &= gl_context_set_vertex_object       (gl, shdr->gl.vertex);
         gl_ok &= gl_context_set_buffer_vertex       (gl, shdr->gl.instance_buffer);
         gl_ok &= gl_buffer_update_vertex_data       (gl, shdr->gl.instance_buffer, tile_buf_vtx->data, tile_buf_vtx->size);
-gl_ok &= gl_context_draw_vertices_instanced (gl, 6, tile_count);
+
+        // the depth test normally always passes, but the walls stand up off the floor
+        // and have to hide each other, so the map gets a real depth test
+        // everything drawn after it still goes on top
+        glDepthFunc(GL_LESS);
+        gl_ok &= gl_context_draw_vertices_instanced (gl, 6, tile_count);
+        glDepthFunc(GL_ALWAYS);
         assert(gl_ok);
 
         }

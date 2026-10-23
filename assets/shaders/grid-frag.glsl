@@ -2,6 +2,10 @@
 
 uniform mat4 view_projection;
 
+// the grid is on the same plane as the floor tiles, so it's pulled
+// just in front of them to pass the depth test without fighting them
+const float GRID_DEPTH_BIAS = 0.00001;
+
 in vec3 near_point;
 in vec3 far_point;
 
@@ -71,7 +75,7 @@ main() {
 
     vec3 frag_pos = near_point + t * (far_point - near_point);
     
-    gl_FragDepth = compute_depth_new(frag_pos);
+    gl_FragDepth = compute_depth_new(frag_pos) - GRID_DEPTH_BIAS;
 
     float linear_depth = compute_linear_depth(frag_pos);
     float fading       = max(0, (0.5 - linear_depth));

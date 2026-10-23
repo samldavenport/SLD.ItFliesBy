@@ -27,6 +27,7 @@
 #include "eng-map.cpp"
 #include "eng-particle.cpp"
 #include "eng-random.cpp"
+#include "eng-renderer.cpp"
 #include "eng-sprite.cpp"
 
 #include "entity.cpp"

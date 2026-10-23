@@ -67,7 +67,21 @@ namespace ifb {
     
     enum map_tile_flag_e {
         map_tile_flag_e_textured  = bit_value(1), 
-        map_tile_flag_e_navigable = bit_value(0),
+        map_tile_flag_e_navigable   = bit_value(0),
+        map_tile_flag_e_wall_row    = bit_value(2), // render only, the tile is a row wall
+        map_tile_flag_e_wall_column = bit_value(3), // render only, the tile is a column wall
+    };
+
+    enum map_wall_flag_e {
+        map_wall_flag_e_placed   = bit_value(0),
+        map_wall_flag_e_textured = bit_value(1),
+    };
+
+    // row walls lie on the line z = row and run along x, on the min-z edge of tile (row, col)
+    // column walls lie on the line x = col and run along z, on the min-x edge of tile (row, col)
+    enum map_wall_orientation_e {
+        map_wall_orientation_e_row    = 0,
+        map_wall_orientation_e_column = 1,
     };
 
     enum map_color_e {
@@ -114,6 +128,7 @@ namespace ifb {
     IFB_U32(asset_type_u32);
     
     IFB_U8(map_tile_flags_u8);
+    IFB_U8(map_wall_flags_u8);
 
     IFB_HANDLE(hnd_asset);
     IFB_HANDLE(hnd_arena);

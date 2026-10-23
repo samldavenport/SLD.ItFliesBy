@@ -67,7 +67,8 @@ namespace ifb {
         inline static const char* menu_entities                                      = "Entities";
         inline static const char* menu_entity_item_manager                           = "Entity Manager";
         inline static const char* menu_renderer                                      = "Renderer";
-        inline static const char* menu_renderer_item_camera                          = "Camera"; 
+        inline static const char* menu_renderer_item_camera                          = "Camera";
+        inline static const char* menu_renderer_item_grid                            = "Grid";
         inline static const char* window_renderer_camera                             = "Renderer Camera";
         inline static const char* camera_origin                                      = "Camera Origin";
         inline static const char* camera_target                                      = "Camera Target";
