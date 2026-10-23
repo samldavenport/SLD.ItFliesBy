@@ -5,7 +5,9 @@
         { "name": "CONNOR-LEFT", "path": "images/connor-left.png" },
         { "name": "JIG-LEFT", "path": "images/jig-left.png" },
         { "name": "CONNOR-RIGHT", "path": "images/connor-right.png" },
-        { "name": "JIG-RIGHT", "path": "images/jig-right.png" }
+        { "name": "JIG-RIGHT", "path": "images/jig-right.png" },
+        { "name": "GRASS", "path": "images/grass.png" },
+        { "name": "WOOD", "path": "images/wood.png" }
     ],
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }
