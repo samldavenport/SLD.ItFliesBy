@@ -58,6 +58,7 @@ namespace ifb {
         map_dimensions&  dims   = tbl_map->dims        [index]; 
         cstr_c16&        name   = tbl_map->name        [index];
         map_chunk_array& chunks = tbl_map->chunk_array [index];
+        map_floor_array& floor  = tbl_map->floor_array [index];
         vec3&            origin = tbl_map->origin      [index];
 
         cstr_c16_init(&name, map_name);
@@ -65,6 +66,7 @@ namespace ifb {
         dims.count_chunks = 0;
         dims.count_rows   = count_rows;
         dims.count_cols   = count_cols;
+        floor.count       = 0;
         origin.x          = 0.0f;
         origin.y          = 0.0f;
         origin.z          = 0.0f;
@@ -161,32 +163,50 @@ namespace ifb {
 
             const map_chunk& chunk            = map_get_chunk(map_index, chunk_index);
             const u32        chunk_tile_count = chunk.count_rows * chunk.count_cols;
+            assert(chunk.floor);
 
-            // the sprite's rect in the atlas, normalized
-            // the atlas isn't flipped on upload, so the top row is v = 0
-            // with no sprite, the chunk is a solid color
-            sprite_info info;
-            const bool did_get_sprite_info = (
-                chunk.h_atlas != INVALID_HANDLE &&
-                sprite_mngr_get_sprite_info_by_index(chunk.h_atlas, chunk.i_sprite, info)
-            );
-            f32 u_left   = 0.0f;
-            f32 u_right  = 1.0f;
-            f32 v_top    = 0.0f;
-            f32 v_bottom = 1.0f;
-            if (did_get_sprite_info) {
-                const f32 atlas_width  = (f32)info.atlas_width;
-                const f32 atlas_height = (f32)info.atlas_height;
-                u_left   = (f32)(info.pixel_x)                     / atlas_width;
-                u_right  = (f32)(info.pixel_x + info.pixel_width)  / atlas_width;
-                v_top    = (f32)(info.pixel_y)                     / atlas_height;
-                v_bottom = (f32)(info.pixel_y + info.pixel_height) / atlas_height;
-            }
+            // neighboring tiles usually share a sprite,
+            // so only look up the rect when it changes
+            u32  i_sprite_prev       = INVALID_INDEX;
+            bool did_get_sprite_info = false;
+            f32  u_left              = 0.0f;
+            f32  u_right             = 1.0f;
+            f32  v_top               = 0.0f;
+            f32  v_bottom            = 1.0f;
 
             for (
                 u32 chunk_tile_index = 0;
                     chunk_tile_index < chunk_tile_count;
                   ++chunk_tile_index) {
+
+                const map_floor_tile& floor_tile = chunk.floor[chunk_tile_index];
+
+                // the sprite's rect in the atlas, normalized
+                // the atlas isn't flipped on upload, so the top row is v = 0
+                // with no sprite, the tile is a solid color
+                if (floor_tile.i_sprite != i_sprite_prev) {
+
+                    i_sprite_prev = floor_tile.i_sprite;
+
+                    sprite_info info;
+                    did_get_sprite_info = (
+                        chunk.h_atlas       != INVALID_HANDLE &&
+                        floor_tile.i_sprite != INVALID_INDEX  &&
+                        sprite_mngr_get_sprite_info_by_index(chunk.h_atlas, floor_tile.i_sprite, info)
+                    );
+                    u_left   = 0.0f;
+                    u_right  = 1.0f;
+                    v_top    = 0.0f;
+                    v_bottom = 1.0f;
+                    if (did_get_sprite_info) {
+                        const f32 atlas_width  = (f32)info.atlas_width;
+                        const f32 atlas_height = (f32)info.atlas_height;
+                        u_left   = (f32)(info.pixel_x)                     / atlas_width;
+                        u_right  = (f32)(info.pixel_x + info.pixel_width)  / atlas_width;
+                        v_top    = (f32)(info.pixel_y)                     / atlas_height;
+                        v_bottom = (f32)(info.pixel_y + info.pixel_height) / atlas_height;
+                    }
+                }
 
                 // calculate the row and column
                 const u32 row = (chunk_tile_index / chunk.count_cols) + chunk.origin_row;
@@ -196,9 +216,11 @@ namespace ifb {
                 map_tile& tile = tile_buffer[tile_index++];
 
                 // initialize the tile
+                // only draw it textured if the sprite actually resolved
                 tile.index    = (row * dims.count_cols) + col;
-                tile.color    = (u8)chunk.base_color.val;
-                tile.flags    = (u8)map_tile_flag_e_navigable; // no unnavigable tiles yet
+                tile.color    = floor_tile.color;
+                tile.flags    = floor_tile.flags;
+                tile.flags   &= (u8)~map_tile_flag_e_textured;
                 if (did_get_sprite_info) {
                     tile.flags |= (u8)map_tile_flag_e_textured;
                 }
@@ -549,9 +571,37 @@ namespace ifb {
         const cchar*  atlas_name_cstr,
         const cchar*  sprite_name_cstr) {
 
-        // TODO(SLD): the map only stores chunks, so there's nowhere
-        // to keep a sprite for a single tile yet
-        return(false);
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        // the tile has to be on a chunk
+        map_chunk*      chunk      = NULL;
+        map_floor_tile* floor_tile = map_find_floor_tile(map_index, (s32)row, (s32)col, &chunk);
+        if (floor_tile == NULL) {
+            return(false);
+        }
+
+        // the atlas has to be loaded and have the sprite
+        const hnd_sprite_atlas h_atlas  = sprite_mngr_lookup_atlas        (atlas_name_cstr);
+        const u32              i_sprite = sprite_mngr_lookup_sprite_index (h_atlas, sprite_name_cstr);
+        if (h_atlas == INVALID_HANDLE || i_sprite == INVALID_INDEX) {
+            return(false);
+        }
+
+        // a chunk only has one atlas, so every sprite in it has to come from the same one
+        if (chunk->h_atlas != INVALID_HANDLE && chunk->h_atlas != h_atlas) {
+            return(false);
+        }
+
+        chunk->h_atlas       = h_atlas;
+        floor_tile->i_sprite = i_sprite;
+        floor_tile->flags   |= (u8)map_tile_flag_e_textured;
+        return(true);
     }
 
     IFB_INTERNAL bool
@@ -581,9 +631,19 @@ namespace ifb {
             return(false);
         }
 
-        map_chunk& chunk = map_get_chunk(map_index, chunk_index);
-        chunk.h_atlas  = h_atlas;
-        chunk.i_sprite = i_sprite;
+        // this replaces every tile's sprite, so the chunk can switch atlases
+        map_chunk& chunk            = map_get_chunk(map_index, chunk_index);
+        const u32  chunk_tile_count = chunk.count_rows * chunk.count_cols;
+        chunk.h_atlas = h_atlas;
+        for (
+            u32 chunk_tile_index = 0;
+                chunk_tile_index < chunk_tile_count;
+              ++chunk_tile_index) {
+
+            map_floor_tile& floor_tile = chunk.floor[chunk_tile_index];
+            floor_tile.i_sprite = i_sprite;
+            floor_tile.flags   |= (u8)map_tile_flag_e_textured;
+        }
         return(true);
     }
     
@@ -636,8 +696,61 @@ namespace ifb {
 
         map_chunk_array& chunk_array = chunk_arrays      [map_index];
         map_chunk&       chunk       = chunk_array.chunks[chunk_index];
-    
+
         return(chunk);
+    }
+
+    IFB_INTERNAL map_floor_array&
+    map_get_floor_array(
+        const u32 map_index) {
+
+        assert(_map_mngr);
+        map_table* map_tbl = _map_mngr->tbl_map;
+        assert(map_tbl != NULL);
+        assert(map_tbl->floor_array);
+
+        const auto& cfg = config_instance();
+
+        assert(map_index < cfg.map_capacity);
+        assert(map_tbl->hnd[map_index] != INVALID_HANDLE);
+
+        return(map_tbl->floor_array[map_index]);
+    }
+
+    IFB_INTERNAL map_floor_tile*
+    map_find_floor_tile(
+        const u32   map_index,
+        const s32   row,
+        const s32   col,
+        map_chunk** chunk_out) {
+
+        if (row < 0 || col < 0) {
+            return(NULL);
+        }
+
+        // find the chunk that covers the tile
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            map_chunk& chunk = map_get_chunk(map_index, chunk_index);
+
+            const bool is_row_in_chunk = ((u32)row >= chunk.origin_row && (u32)row < (chunk.origin_row + chunk.count_rows));
+            const bool is_col_in_chunk = ((u32)col >= chunk.origin_col && (u32)col < (chunk.origin_col + chunk.count_cols));
+            if (is_row_in_chunk && is_col_in_chunk) {
+
+                const u32 local_row = (u32)row - chunk.origin_row;
+                const u32 local_col = (u32)col - chunk.origin_col;
+                if (chunk_out != NULL) {
+                    *chunk_out = &chunk;
+                }
+                return(&chunk.floor[(local_row * chunk.count_cols) + local_col]);
+            }
+        }
+
+        return(NULL);
     }
     
     
@@ -647,27 +760,13 @@ namespace ifb {
         const s32 row,
         const s32 col) {
 
-        if (row < 0 || col < 0) {
-            return(false);
-        }
-
-        // a tile is navigable if any chunk covers it
-        const map_dimensions& dims = map_get_dimensions(map_index);
-        for (
-            u32 chunk_index = 0;
-                chunk_index < dims.count_chunks;
-              ++chunk_index) {
-
-            const map_chunk& chunk = map_get_chunk(map_index, chunk_index);
-
-            const bool is_row_in_chunk = ((u32)row >= chunk.origin_row && (u32)row < (chunk.origin_row + chunk.count_rows));
-            const bool is_col_in_chunk = ((u32)col >= chunk.origin_col && (u32)col < (chunk.origin_col + chunk.count_cols));
-            if (is_row_in_chunk && is_col_in_chunk) {
-                return(true);
-            }
-        }
-
-        return(false);
+        // a tile is navigable if a chunk covers it and it's flagged navigable
+        const map_floor_tile* floor_tile = map_find_floor_tile(map_index, row, col, NULL);
+        const bool is_navigable = (
+            floor_tile != NULL &&
+            (floor_tile->flags & (u8)map_tile_flag_e_navigable) != 0
+        );
+        return(is_navigable);
     }
 
     IFB_INTERNAL bool

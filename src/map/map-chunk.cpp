@@ -46,6 +46,13 @@ namespace ifb {
             return(INVALID_INDEX);
         }
 
+        // the chunk's floor tiles have to fit in the map's floor array
+        map_floor_array& floor_array      = map_get_floor_array(map_index);
+        const u32        chunk_tile_count = count_rows * count_cols;
+        if ((floor_array.count + chunk_tile_count) > cfg.map_tile_capacity) {
+            return(INVALID_INDEX);
+        }
+
         // get the chunk
         const u32  chunk_index = dims.count_chunks;
         map_chunk& chunk       = map_get_chunk(map_index, chunk_index);
@@ -56,9 +63,24 @@ namespace ifb {
         chunk.count_rows = count_rows;
         chunk.count_cols = count_cols;
         chunk.base_color = base_color;
-        chunk.h_atlas    = INVALID_HANDLE;
-        chunk.i_sprite   = INVALID_INDEX;
-        chunk.wall       = NULL;
+        chunk.h_atlas      = INVALID_HANDLE;
+        chunk.floor        = &floor_array.tiles[floor_array.count];
+        chunk.column_walls = NULL;
+        chunk.row_walls    = NULL;
+
+        // initialize the floor tiles
+        // no unnavigable tiles yet
+        for (
+            u32 chunk_tile_index = 0;
+                chunk_tile_index < chunk_tile_count;
+              ++chunk_tile_index) {
+
+            map_floor_tile& tile = chunk.floor[chunk_tile_index];
+            tile.i_sprite = INVALID_INDEX;
+            tile.color    = (u8)base_color.val;
+            tile.flags    = (u8)map_tile_flag_e_navigable;
+        }
+        floor_array.count += chunk_tile_count;
 
         // update the chunk count
         ++dims.count_chunks;

@@ -18,6 +18,8 @@ namespace ifb {
     struct map_table;
     struct map_chunk;
     struct map_chunk_array;
+    struct map_floor_tile;
+    struct map_floor_array;
     struct map_wall;
 
     //--------------------------------------------------------------------
@@ -33,10 +35,12 @@ namespace ifb {
     // MAP
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL u32             map_lookup_index      (const hnd_map map_hnd);
-    IFB_INTERNAL map_dimensions& map_get_dimensions    (const u32 map_index);
-    IFB_INTERNAL map_chunk&      map_get_chunk         (const u32 map_index, const u32 chunk_index);
-    IFB_INTERNAL bool            map_is_tile_navigable (const u32 map_index, const s32 row, const s32 col);
+    IFB_INTERNAL u32              map_lookup_index      (const hnd_map map_hnd);
+    IFB_INTERNAL map_dimensions&  map_get_dimensions    (const u32 map_index);
+    IFB_INTERNAL map_chunk&       map_get_chunk         (const u32 map_index, const u32 chunk_index);
+    IFB_INTERNAL map_floor_array& map_get_floor_array   (const u32 map_index);
+    IFB_INTERNAL map_floor_tile*  map_find_floor_tile   (const u32 map_index, const s32 row, const s32 col, map_chunk** chunk_out);
+    IFB_INTERNAL bool             map_is_tile_navigable (const u32 map_index, const s32 row, const s32 col);
 
     // limits for pushing an entity back onto the chunks, in tile units
     static constexpr u32 MAP_CONSTRAIN_ITERATION_COUNT = 8;
@@ -54,14 +58,25 @@ namespace ifb {
         u32           i_sprite;
     };
 
+    struct map_floor_tile {
+        u32               i_sprite; // INVALID_INDEX if the tile is a solid color
+        u8                color;    // map_color_e
+        map_tile_flags_u8 flags;    // map_tile_flag_e
+    };
+
+    struct map_floor_array {
+        u32            count;
+        map_floor_tile tiles [IFB_CONFIG_MAP_TILE_CAPACITY];
+    };
+
     struct map_chunk {
         u32              origin_row;
         u32              origin_col;
         u32              count_rows;
         u32              count_cols;
         map_color_u32    base_color;
-        hnd_sprite_atlas h_atlas;   // INVALID_HANDLE if the chunk is a solid color
-        u32              i_sprite;
+        hnd_sprite_atlas h_atlas;   // INVALID_HANDLE until a tile in the chunk has a sprite
+        map_floor_tile*  floor;     // count_rows * count_cols, row-major, in the map's floor array
         map_wall*        column_walls;
         map_wall*        row_walls;
     };
@@ -75,6 +90,7 @@ namespace ifb {
         map_dimensions*  dims;
         cstr_c16*        name;
         map_chunk_array* chunk_array;
+        map_floor_array* floor_array;
         vec3*            origin;
     };
 
