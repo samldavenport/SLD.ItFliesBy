@@ -180,6 +180,13 @@ namespace ifb {
     IFB_ENGINE_API void        eng_camera_get_xform  (mat4& xform);
 
     //--------------------------------------------------------------------
+    // RENDERER
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API bool        eng_renderer_is_grid_visible  (void);
+    IFB_ENGINE_API void        eng_renderer_set_grid_visible (const bool is_visible);
+
+    //--------------------------------------------------------------------
     // ENTITIES
     //--------------------------------------------------------------------
 
@@ -259,6 +266,10 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
     IFB_ENGINE_API bool    eng_map_set_tile_sprite      (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_ENGINE_API bool    eng_map_chunk_set_sprite     (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API bool    eng_map_wall_set             (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const map_color_u32 color);
+    IFB_ENGINE_API bool    eng_map_wall_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API bool    eng_map_wall_clear           (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
+    IFB_ENGINE_API bool    eng_map_wall_is_placed       (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
 
     //--------------------------------------------------------------------
     // PARTICLES 

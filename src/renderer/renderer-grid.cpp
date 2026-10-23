@@ -107,7 +107,12 @@ assert(gl_ok);
         gl_context_set_shader_program (gl, shdr->gl.program);
         gl_context_set_vertex_object  (gl, shdr->gl.vertex);
         gl_context_set_buffer_vertex  (gl, shdr->gl.buf_vertex);
-        gl_uniform_set_mat4           (gl, shdr->gl.u_mat4_view_proj, view_proj_xform.m); 
+        gl_uniform_set_mat4           (gl, shdr->gl.u_mat4_view_proj, view_proj_xform.m);
+
+        // the grid is tested against the map's depth so walls hide it,
+        // everything drawn after it still goes on top
+        glDepthFunc(GL_LEQUAL);
         gl_context_draw_vertices      (gl, grid_buf_vtx->count());
+        glDepthFunc(GL_ALWAYS);
 }
 };

@@ -46,6 +46,27 @@ namespace ifb {
             return(INVALID_INDEX);
         }
 
+        // the chunk's floor tiles have to fit in the map's floor array
+        map_floor_array& floor_array      = map_get_floor_array(map_index);
+        const u32        chunk_tile_count = count_rows * count_cols;
+        if ((floor_array.count + chunk_tile_count) > cfg.map_tile_capacity) {
+            return(INVALID_INDEX);
+        }
+
+        // the chunk's walls have to fit in the map's wall arrays
+        // walls sit on the tile edges, so there's one more line of them than tiles
+        map_wall_array& row_wall_array    = map_get_wall_array(map_index, map_wall_orientation_e_row);
+        map_wall_array& column_wall_array = map_get_wall_array(map_index, map_wall_orientation_e_column);
+        const u32       row_wall_count    = (count_rows + 1) * count_cols;
+        const u32       column_wall_count = count_rows * (count_cols + 1);
+        const bool      do_walls_fit      = (
+            (row_wall_array.count    + row_wall_count)    <= cfg.map_wall_capacity &&
+            (column_wall_array.count + column_wall_count) <= cfg.map_wall_capacity
+        );
+        if (!do_walls_fit) {
+            return(INVALID_INDEX);
+        }
+
         // get the chunk
         const u32  chunk_index = dims.count_chunks;
         map_chunk& chunk       = map_get_chunk(map_index, chunk_index);
@@ -56,8 +77,49 @@ namespace ifb {
         chunk.count_rows = count_rows;
         chunk.count_cols = count_cols;
         chunk.base_color = base_color;
-        chunk.h_atlas    = INVALID_HANDLE;
-        chunk.i_sprite   = INVALID_INDEX;
+        chunk.h_atlas      = INVALID_HANDLE;
+        chunk.floor        = &floor_array.tiles[floor_array.count];
+        chunk.row_walls    = &row_wall_array.tiles[row_wall_array.count];
+        chunk.column_walls = &column_wall_array.tiles[column_wall_array.count];
+
+        // initialize the floor tiles
+        // no unnavigable tiles yet
+        for (
+            u32 chunk_tile_index = 0;
+                chunk_tile_index < chunk_tile_count;
+              ++chunk_tile_index) {
+
+            map_floor_tile& tile = chunk.floor[chunk_tile_index];
+            tile.i_sprite = INVALID_INDEX;
+            tile.color    = (u8)base_color.val;
+            tile.flags    = (u8)map_tile_flag_e_navigable;
+        }
+        floor_array.count += chunk_tile_count;
+
+        // initialize the walls
+        // nothing is placed until it's set
+        for (
+            u32 wall_index = 0;
+                wall_index < row_wall_count;
+              ++wall_index) {
+
+            map_wall_tile& wall = chunk.row_walls[wall_index];
+            wall.base_color = base_color;
+            wall.i_sprite   = INVALID_INDEX;
+            wall.flags      = 0;
+        }
+        for (
+            u32 wall_index = 0;
+                wall_index < column_wall_count;
+              ++wall_index) {
+
+            map_wall_tile& wall = chunk.column_walls[wall_index];
+            wall.base_color = base_color;
+            wall.i_sprite   = INVALID_INDEX;
+            wall.flags      = 0;
+        }
+        row_wall_array.count    += row_wall_count;
+        column_wall_array.count += column_wall_count;
 
         // update the chunk count
         ++dims.count_chunks;

@@ -58,13 +58,19 @@ namespace ifb {
         map_dimensions&  dims   = tbl_map->dims        [index]; 
         cstr_c16&        name   = tbl_map->name        [index];
         map_chunk_array& chunks = tbl_map->chunk_array [index];
+        map_floor_array& floor  = tbl_map->floor_array [index];
         vec3&            origin = tbl_map->origin      [index];
+        map_wall_array&  row_walls    = tbl_map->row_wall_array    [index];
+        map_wall_array&  column_walls = tbl_map->column_wall_array [index];
 
         cstr_c16_init(&name, map_name);
         hnd = cstr_c16_hash(&name);
         dims.count_chunks = 0;
         dims.count_rows   = count_rows;
         dims.count_cols   = count_cols;
+        floor.count       = 0;
+        row_walls.count    = 0;
+        column_walls.count = 0;
         origin.x          = 0.0f;
         origin.y          = 0.0f;
         origin.z          = 0.0f;
@@ -132,7 +138,9 @@ namespace ifb {
         // get the map dimensions
         const map_dimensions& dims = map_get_dimensions(map_index);
 
-        // count the tiles
+        // count the floor tiles and placed walls
+        // an edge between two chunks is only ever placed in one of them,
+        // so each wall is only counted once
         u32 tile_count = 0;
         for (
             u32 chunk_index = 0;
@@ -141,10 +149,19 @@ namespace ifb {
 
             const map_chunk& chunk = map_get_chunk(map_index, chunk_index);
             tile_count += (chunk.count_rows * chunk.count_cols);
+
+            const u32 row_wall_count    = (chunk.count_rows + 1) * chunk.count_cols;
+            const u32 column_wall_count = chunk.count_rows * (chunk.count_cols + 1);
+            for (u32 wall_index = 0; wall_index < row_wall_count;    ++wall_index) if ((chunk.row_walls   [wall_index].flags & (u8)map_wall_flag_e_placed) != 0) ++tile_count;
+            for (u32 wall_index = 0; wall_index < column_wall_count; ++wall_index) if ((chunk.column_walls[wall_index].flags & (u8)map_wall_flag_e_placed) != 0) ++tile_count;
         }
         if (tile_count == 0) {
             return(0);
         }
+
+        // walls sit on the edges, so they're indexed on a grid one bigger than the tiles
+        // and both grids have to fit in the tile index
+        assert(((dims.count_rows + 1) * (dims.count_cols + 1)) <= 0xFFFF);
 
         // calculate the size needed to render the buffer,
         // and make sure the buffer is large enough
@@ -161,32 +178,32 @@ namespace ifb {
 
             const map_chunk& chunk            = map_get_chunk(map_index, chunk_index);
             const u32        chunk_tile_count = chunk.count_rows * chunk.count_cols;
+            assert(chunk.floor);
 
-            // the sprite's rect in the atlas, normalized
-            // the atlas isn't flipped on upload, so the top row is v = 0
-            // with no sprite, the chunk is a solid color
-            sprite_info info;
-            const bool did_get_sprite_info = (
-                chunk.h_atlas != INVALID_HANDLE &&
-                sprite_mngr_get_sprite_info_by_index(chunk.h_atlas, chunk.i_sprite, info)
-            );
-            f32 u_left   = 0.0f;
-            f32 u_right  = 1.0f;
-            f32 v_top    = 0.0f;
-            f32 v_bottom = 1.0f;
-            if (did_get_sprite_info) {
-                const f32 atlas_width  = (f32)info.atlas_width;
-                const f32 atlas_height = (f32)info.atlas_height;
-                u_left   = (f32)(info.pixel_x)                     / atlas_width;
-                u_right  = (f32)(info.pixel_x + info.pixel_width)  / atlas_width;
-                v_top    = (f32)(info.pixel_y)                     / atlas_height;
-                v_bottom = (f32)(info.pixel_y + info.pixel_height) / atlas_height;
-            }
+            // neighboring tiles usually share a sprite,
+            // so only look up the rect when it changes
+            u32  i_sprite_prev       = INVALID_INDEX;
+            bool did_get_sprite_info = false;
+            f32  u_left              = 0.0f;
+            f32  u_right             = 1.0f;
+            f32  v_top               = 0.0f;
+            f32  v_bottom            = 1.0f;
 
             for (
                 u32 chunk_tile_index = 0;
                     chunk_tile_index < chunk_tile_count;
                   ++chunk_tile_index) {
+
+                const map_floor_tile& floor_tile = chunk.floor[chunk_tile_index];
+
+                // the sprite's rect in the atlas, normalized
+                // the atlas isn't flipped on upload, so the top row is v = 0
+                // with no sprite, the tile is a solid color
+                if (floor_tile.i_sprite != i_sprite_prev) {
+
+                    i_sprite_prev       = floor_tile.i_sprite;
+                    did_get_sprite_info = map_get_sprite_rect(chunk.h_atlas, floor_tile.i_sprite, u_left, v_top, u_right, v_bottom);
+                }
 
                 // calculate the row and column
                 const u32 row = (chunk_tile_index / chunk.count_cols) + chunk.origin_row;
@@ -196,17 +213,79 @@ namespace ifb {
                 map_tile& tile = tile_buffer[tile_index++];
 
                 // initialize the tile
+                // only draw it textured if the sprite actually resolved
                 tile.index    = (row * dims.count_cols) + col;
-                tile.color    = (u8)chunk.base_color.val;
-                tile.textured = did_get_sprite_info ? 1 : 0;
+                tile.color    = floor_tile.color;
+                tile.flags    = floor_tile.flags;
+                tile.flags   &= (u8)~map_tile_flag_e_textured;
+                if (did_get_sprite_info) {
+                    tile.flags |= (u8)map_tile_flag_e_textured;
+                }
                 tile.u_left   = u_left;
                 tile.v_top    = v_top;
                 tile.u_right  = u_right;
                 tile.v_bottom = v_bottom;
             }
         }
+
+        // the walls go after the floor, the shader stands them up on their edge
+        const u32 wall_stride = dims.count_cols + 1;
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            const map_chunk& chunk = map_get_chunk(map_index, chunk_index);
+
+            for (
+                u32 orientation_index = 0;
+                    orientation_index < 2;
+                  ++orientation_index) {
+
+                const bool           is_row     = (orientation_index == map_wall_orientation_e_row);
+                const map_wall_tile* walls      = is_row ? chunk.row_walls : chunk.column_walls;
+                const u32            wall_rows  = is_row ? (chunk.count_rows + 1) : chunk.count_rows;
+                const u32            wall_cols  = is_row ? chunk.count_cols       : (chunk.count_cols + 1);
+                const u32            wall_count = wall_rows * wall_cols;
+                const u8             wall_flag  = is_row ? (u8)map_tile_flag_e_wall_row : (u8)map_tile_flag_e_wall_column;
+                assert(walls);
+
+                for (
+                    u32 wall_index = 0;
+                        wall_index < wall_count;
+                      ++wall_index) {
+
+                    const map_wall_tile& wall = walls[wall_index];
+                    if ((wall.flags & (u8)map_wall_flag_e_placed) == 0) continue;
+
+                    f32 u_left, v_top, u_right, v_bottom;
+                    const bool did_get_sprite_info = map_get_sprite_rect(chunk.h_atlas, wall.i_sprite, u_left, v_top, u_right, v_bottom);
+
+                    // calculate the row and column of the edge
+                    const u32 row = (wall_index / wall_cols) + chunk.origin_row;
+                    const u32 col = (wall_index % wall_cols) + chunk.origin_col;
+
+                    // get the next tile
+                    map_tile& tile = tile_buffer[tile_index++];
+
+                    // initialize the tile
+                    tile.index    = (row * wall_stride) + col;
+                    tile.color    = (u8)wall.base_color.val;
+                    tile.flags    = wall_flag;
+                    if (did_get_sprite_info) {
+                        tile.flags |= (u8)map_tile_flag_e_textured;
+                    }
+                    tile.u_left   = u_left;
+                    tile.v_top    = v_top;
+                    tile.u_right  = u_right;
+                    tile.v_bottom = v_bottom;
+                }
+            }
+        }
+
+        assert(tile_index == tile_count);
         return(render_size);
-    } 
+    }
 
     IFB_INTERNAL bool
     map_get_pos_from_coords(
@@ -339,7 +418,8 @@ namespace ifb {
             }
         }
 
-        // push the box out of any tiles that aren't on a chunk
+        // push the box out of any tiles that aren't on a chunk, and out of any walls
+        const f32 wall_t = MAP_WALL_HALF_THICKNESS;
         for (
             u32 iteration = 0;
                 iteration < MAP_CONSTRAIN_ITERATION_COUNT;
@@ -355,7 +435,7 @@ namespace ifb {
             const s32 col_max = (s32)ceilf(box_x_max) - 1;
             const s32 row_max = (s32)ceilf(box_z_max) - 1;
 
-            // find the tile the box overlaps the most,
+            // find the tile or wall the box overlaps the most,
             // resolving that one first keeps the box from
             // catching on the seams between tiles along an edge
             f32 overlap_area_max = 0.0f;
@@ -366,25 +446,41 @@ namespace ifb {
 
                     if (map_is_tile_navigable(map_index, row, col)) continue;
 
-                    const f32 tile_x_min = (f32)col;
-                    const f32 tile_z_min = (f32)row;
-                    const f32 tile_x_max = (f32)(col + 1);
-                    const f32 tile_z_max = (f32)(row + 1);
+                    map_calculate_box_push(
+                        box_x_min, box_z_min, box_x_max, box_z_max,
+                        (f32)col, (f32)row, (f32)(col + 1), (f32)(row + 1),
+                        overlap_area_max, tile_push_x, tile_push_z
+                    );
+                }
+            }
 
-                    const f32 overlap_x = ((box_x_max < tile_x_max) ? box_x_max : tile_x_max) - ((box_x_min > tile_x_min) ? box_x_min : tile_x_min);
-                    const f32 overlap_z = ((box_z_max < tile_z_max) ? box_z_max : tile_z_max) - ((box_z_min > tile_z_min) ? box_z_min : tile_z_min);
-                    if (overlap_x <= MAP_CONSTRAIN_EPSILON || overlap_z <= MAP_CONSTRAIN_EPSILON) continue;
+            // row walls lie on the line z = row and run along x,
+            // the box can touch the line on either side of its tiles
+            // and the end of a wall from the neighboring column
+            for (s32 row = row_min; row <= row_max + 1; ++row) {
+                for (s32 col = col_min - 1; col <= col_max + 1; ++col) {
 
-                    const f32 overlap_area = overlap_x * overlap_z;
-                    if (overlap_area <= overlap_area_max) continue;
-                    overlap_area_max = overlap_area;
+                    if (!map_has_wall(map_index, row, col, map_wall_orientation_e_row)) continue;
 
-                    // the shortest way out of the tile
-                    const f32 exit_x = ((box_x_max - tile_x_min) < (tile_x_max - box_x_min)) ? (tile_x_min - box_x_max) : (tile_x_max - box_x_min);
-                    const f32 exit_z = ((box_z_max - tile_z_min) < (tile_z_max - box_z_min)) ? (tile_z_min - box_z_max) : (tile_z_max - box_z_min);
-                    const bool is_exit_x = (fabsf(exit_x) < fabsf(exit_z));
-                    tile_push_x = is_exit_x ? exit_x : 0.0f;
-                    tile_push_z = is_exit_x ? 0.0f   : exit_z;
+                    map_calculate_box_push(
+                        box_x_min, box_z_min, box_x_max, box_z_max,
+                        (f32)col - wall_t, (f32)row - wall_t, (f32)(col + 1) + wall_t, (f32)row + wall_t,
+                        overlap_area_max, tile_push_x, tile_push_z
+                    );
+                }
+            }
+
+            // column walls lie on the line x = col and run along z
+            for (s32 row = row_min - 1; row <= row_max + 1; ++row) {
+                for (s32 col = col_min; col <= col_max + 1; ++col) {
+
+                    if (!map_has_wall(map_index, row, col, map_wall_orientation_e_column)) continue;
+
+                    map_calculate_box_push(
+                        box_x_min, box_z_min, box_x_max, box_z_max,
+                        (f32)col - wall_t, (f32)row - wall_t, (f32)col + wall_t, (f32)(row + 1) + wall_t,
+                        overlap_area_max, tile_push_x, tile_push_z
+                    );
                 }
             }
 
@@ -546,9 +642,37 @@ namespace ifb {
         const cchar*  atlas_name_cstr,
         const cchar*  sprite_name_cstr) {
 
-        // TODO(SLD): the map only stores chunks, so there's nowhere
-        // to keep a sprite for a single tile yet
-        return(false);
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        // the tile has to be on a chunk
+        map_chunk*      chunk      = NULL;
+        map_floor_tile* floor_tile = map_find_floor_tile(map_index, (s32)row, (s32)col, &chunk);
+        if (floor_tile == NULL) {
+            return(false);
+        }
+
+        // the atlas has to be loaded and have the sprite
+        const hnd_sprite_atlas h_atlas  = sprite_mngr_lookup_atlas        (atlas_name_cstr);
+        const u32              i_sprite = sprite_mngr_lookup_sprite_index (h_atlas, sprite_name_cstr);
+        if (h_atlas == INVALID_HANDLE || i_sprite == INVALID_INDEX) {
+            return(false);
+        }
+
+        // a chunk only has one atlas, so every sprite in it has to come from the same one
+        if (chunk->h_atlas != INVALID_HANDLE && chunk->h_atlas != h_atlas) {
+            return(false);
+        }
+
+        chunk->h_atlas       = h_atlas;
+        floor_tile->i_sprite = i_sprite;
+        floor_tile->flags   |= (u8)map_tile_flag_e_textured;
+        return(true);
     }
 
     IFB_INTERNAL bool
@@ -578,10 +702,135 @@ namespace ifb {
             return(false);
         }
 
-        map_chunk& chunk = map_get_chunk(map_index, chunk_index);
-        chunk.h_atlas  = h_atlas;
-        chunk.i_sprite = i_sprite;
+        // this replaces every tile's sprite, so the chunk can switch atlases
+        map_chunk& chunk            = map_get_chunk(map_index, chunk_index);
+        const u32  chunk_tile_count = chunk.count_rows * chunk.count_cols;
+        chunk.h_atlas = h_atlas;
+        for (
+            u32 chunk_tile_index = 0;
+                chunk_tile_index < chunk_tile_count;
+              ++chunk_tile_index) {
+
+            map_floor_tile& floor_tile = chunk.floor[chunk_tile_index];
+            floor_tile.i_sprite = i_sprite;
+            floor_tile.flags   |= (u8)map_tile_flag_e_textured;
+        }
         return(true);
+    }
+
+    IFB_INTERNAL bool
+    map_wall_set(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation,
+        const map_color_u32          color) {
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        // the wall has to be on the edge of a chunk tile
+        map_wall_tile* wall = map_find_wall(map_index, (s32)row, (s32)col, orientation, NULL);
+        if (wall == NULL) {
+            return(false);
+        }
+
+        // a solid wall drops any sprite it had
+        wall->base_color = color;
+        wall->i_sprite   = INVALID_INDEX;
+        wall->flags      = (u8)map_wall_flag_e_placed;
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    map_wall_set_sprite(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation,
+        const cchar*                 atlas_name_cstr,
+        const cchar*                 sprite_name_cstr) {
+
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        // the wall has to be on the edge of a chunk tile
+        map_chunk*     chunk = NULL;
+        map_wall_tile* wall  = map_find_wall(map_index, (s32)row, (s32)col, orientation, &chunk);
+        if (wall == NULL) {
+            return(false);
+        }
+
+        // the atlas has to be loaded and have the sprite
+        const hnd_sprite_atlas h_atlas  = sprite_mngr_lookup_atlas        (atlas_name_cstr);
+        const u32              i_sprite = sprite_mngr_lookup_sprite_index (h_atlas, sprite_name_cstr);
+        if (h_atlas == INVALID_HANDLE || i_sprite == INVALID_INDEX) {
+            return(false);
+        }
+
+        // walls share the chunk's atlas with the floor
+        if (chunk->h_atlas != INVALID_HANDLE && chunk->h_atlas != h_atlas) {
+            return(false);
+        }
+
+        chunk->h_atlas = h_atlas;
+        wall->i_sprite = i_sprite;
+        wall->flags    = (u8)(map_wall_flag_e_placed | map_wall_flag_e_textured);
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    map_wall_clear(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation) {
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        // an edge between two chunks is in both of them, so clear it everywhere
+        bool did_clear = false;
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            map_chunk&     chunk = map_get_chunk(map_index, chunk_index);
+            map_wall_tile* wall  = map_chunk_get_wall(chunk, (s32)row, (s32)col, orientation);
+            if (wall != NULL) {
+                wall->i_sprite = INVALID_INDEX;
+                wall->flags    = 0;
+                did_clear      = true;
+            }
+        }
+        return(did_clear);
+    }
+
+    IFB_INTERNAL bool
+    map_wall_is_placed(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation) {
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        const bool is_placed = map_has_wall(map_index, (s32)row, (s32)col, orientation);
+        return(is_placed);
     }
     
     //--------------------------------------------------------------------
@@ -633,8 +882,200 @@ namespace ifb {
 
         map_chunk_array& chunk_array = chunk_arrays      [map_index];
         map_chunk&       chunk       = chunk_array.chunks[chunk_index];
-    
+
         return(chunk);
+    }
+
+    IFB_INTERNAL map_floor_array&
+    map_get_floor_array(
+        const u32 map_index) {
+
+        assert(_map_mngr);
+        map_table* map_tbl = _map_mngr->tbl_map;
+        assert(map_tbl != NULL);
+        assert(map_tbl->floor_array);
+
+        const auto& cfg = config_instance();
+
+        assert(map_index < cfg.map_capacity);
+        assert(map_tbl->hnd[map_index] != INVALID_HANDLE);
+
+        return(map_tbl->floor_array[map_index]);
+    }
+
+    IFB_INTERNAL map_floor_tile*
+    map_find_floor_tile(
+        const u32   map_index,
+        const s32   row,
+        const s32   col,
+        map_chunk** chunk_out) {
+
+        if (row < 0 || col < 0) {
+            return(NULL);
+        }
+
+        // find the chunk that covers the tile
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            map_chunk& chunk = map_get_chunk(map_index, chunk_index);
+
+            const bool is_row_in_chunk = ((u32)row >= chunk.origin_row && (u32)row < (chunk.origin_row + chunk.count_rows));
+            const bool is_col_in_chunk = ((u32)col >= chunk.origin_col && (u32)col < (chunk.origin_col + chunk.count_cols));
+            if (is_row_in_chunk && is_col_in_chunk) {
+
+                const u32 local_row = (u32)row - chunk.origin_row;
+                const u32 local_col = (u32)col - chunk.origin_col;
+                if (chunk_out != NULL) {
+                    *chunk_out = &chunk;
+                }
+                return(&chunk.floor[(local_row * chunk.count_cols) + local_col]);
+            }
+        }
+
+        return(NULL);
+    }
+
+    IFB_INTERNAL bool
+    map_get_sprite_rect(
+        const hnd_sprite_atlas h_atlas,
+        const u32              i_sprite,
+        f32&                   u_left,
+        f32&                   v_top,
+        f32&                   u_right,
+        f32&                   v_bottom) {
+
+        // the sprite's rect in the atlas, normalized
+        // the atlas isn't flipped on upload, so the top row is v = 0
+        // with no sprite, it's the whole texture and the caller draws a solid color
+        u_left   = 0.0f;
+        u_right  = 1.0f;
+        v_top    = 0.0f;
+        v_bottom = 1.0f;
+
+        sprite_info info;
+        const bool did_get_sprite_info = (
+            h_atlas  != INVALID_HANDLE &&
+            i_sprite != INVALID_INDEX  &&
+            sprite_mngr_get_sprite_info_by_index(h_atlas, i_sprite, info)
+        );
+        if (did_get_sprite_info) {
+            const f32 atlas_width  = (f32)info.atlas_width;
+            const f32 atlas_height = (f32)info.atlas_height;
+            u_left   = (f32)(info.pixel_x)                     / atlas_width;
+            u_right  = (f32)(info.pixel_x + info.pixel_width)  / atlas_width;
+            v_top    = (f32)(info.pixel_y)                     / atlas_height;
+            v_bottom = (f32)(info.pixel_y + info.pixel_height) / atlas_height;
+        }
+        return(did_get_sprite_info);
+    }
+
+    IFB_INTERNAL map_wall_array&
+    map_get_wall_array(
+        const u32                    map_index,
+        const map_wall_orientation_e orientation) {
+
+        assert(_map_mngr);
+        map_table* map_tbl = _map_mngr->tbl_map;
+        assert(map_tbl != NULL);
+        assert(map_tbl->row_wall_array);
+        assert(map_tbl->column_wall_array);
+
+        const auto& cfg = config_instance();
+
+        assert(map_index < cfg.map_capacity);
+        assert(map_tbl->hnd[map_index] != INVALID_HANDLE);
+
+        map_wall_array* wall_arrays = (orientation == map_wall_orientation_e_row)
+            ? map_tbl->row_wall_array
+            : map_tbl->column_wall_array;
+        return(wall_arrays[map_index]);
+    }
+
+    IFB_INTERNAL map_wall_tile*
+    map_chunk_get_wall(
+        map_chunk&                   chunk,
+        const s32                    row,
+        const s32                    col,
+        const map_wall_orientation_e orientation) {
+
+        if (row < 0 || col < 0) {
+            return(NULL);
+        }
+
+        // walls run along the edges, so the chunk has one extra line of them
+        // on the far side in the direction they're stacked
+        const bool is_row      = (orientation == map_wall_orientation_e_row);
+        const u32  wall_rows   = is_row ? (chunk.count_rows + 1) : chunk.count_rows;
+        const u32  wall_cols   = is_row ? chunk.count_cols       : (chunk.count_cols + 1);
+
+        const bool is_row_in_chunk = ((u32)row >= chunk.origin_row && (u32)row < (chunk.origin_row + wall_rows));
+        const bool is_col_in_chunk = ((u32)col >= chunk.origin_col && (u32)col < (chunk.origin_col + wall_cols));
+        if (!is_row_in_chunk || !is_col_in_chunk) {
+            return(NULL);
+        }
+
+        const u32      local_row = (u32)row - chunk.origin_row;
+        const u32      local_col = (u32)col - chunk.origin_col;
+        map_wall_tile* walls     = is_row ? chunk.row_walls : chunk.column_walls;
+        assert(walls);
+        return(&walls[(local_row * wall_cols) + local_col]);
+    }
+
+    IFB_INTERNAL map_wall_tile*
+    map_find_wall(
+        const u32                    map_index,
+        const s32                    row,
+        const s32                    col,
+        const map_wall_orientation_e orientation,
+        map_chunk**                  chunk_out) {
+
+        // an edge between two chunks is in both of them,
+        // the first chunk that has it owns it for setting
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            map_chunk&     chunk = map_get_chunk(map_index, chunk_index);
+            map_wall_tile* wall  = map_chunk_get_wall(chunk, row, col, orientation);
+            if (wall != NULL) {
+                if (chunk_out != NULL) {
+                    *chunk_out = &chunk;
+                }
+                return(wall);
+            }
+        }
+
+        return(NULL);
+    }
+
+    IFB_INTERNAL bool
+    map_has_wall(
+        const u32                    map_index,
+        const s32                    row,
+        const s32                    col,
+        const map_wall_orientation_e orientation) {
+
+        // check every chunk with the edge, not just the owner
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        for (
+            u32 chunk_index = 0;
+                chunk_index < dims.count_chunks;
+              ++chunk_index) {
+
+            map_chunk&           chunk = map_get_chunk(map_index, chunk_index);
+            const map_wall_tile* wall  = map_chunk_get_wall(chunk, row, col, orientation);
+            if (wall != NULL && (wall->flags & (u8)map_wall_flag_e_placed) != 0) {
+                return(true);
+            }
+        }
+
+        return(false);
     }
     
     
@@ -644,27 +1085,13 @@ namespace ifb {
         const s32 row,
         const s32 col) {
 
-        if (row < 0 || col < 0) {
-            return(false);
-        }
-
-        // a tile is navigable if any chunk covers it
-        const map_dimensions& dims = map_get_dimensions(map_index);
-        for (
-            u32 chunk_index = 0;
-                chunk_index < dims.count_chunks;
-              ++chunk_index) {
-
-            const map_chunk& chunk = map_get_chunk(map_index, chunk_index);
-
-            const bool is_row_in_chunk = ((u32)row >= chunk.origin_row && (u32)row < (chunk.origin_row + chunk.count_rows));
-            const bool is_col_in_chunk = ((u32)col >= chunk.origin_col && (u32)col < (chunk.origin_col + chunk.count_cols));
-            if (is_row_in_chunk && is_col_in_chunk) {
-                return(true);
-            }
-        }
-
-        return(false);
+        // a tile is navigable if a chunk covers it and it's flagged navigable
+        const map_floor_tile* floor_tile = map_find_floor_tile(map_index, row, col, NULL);
+        const bool is_navigable = (
+            floor_tile != NULL &&
+            (floor_tile->flags & (u8)map_tile_flag_e_navigable) != 0
+        );
+        return(is_navigable);
     }
 
     IFB_INTERNAL bool

@@ -100,6 +100,13 @@ namespace ifb {
 
             if (ImGui::BeginMenu(_gui_str->menu_renderer)) {
                 ImGui::MenuItem (_gui_str->menu_renderer_item_camera, NULL, &rndr_camera);
+
+                // the renderer owns the grid state, so read it every time the menu is open
+                bool rndr_grid = eng_renderer_is_grid_visible();
+                if (ImGui::MenuItem(_gui_str->menu_renderer_item_grid, NULL, &rndr_grid)) {
+                    eng_renderer_set_grid_visible(rndr_grid);
+                }
+
                 ImGui::EndMenu  ();
             }
 

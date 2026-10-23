@@ -48,7 +48,15 @@ namespace ifb {
     IFB_INTERNAL bool                     map_constrain_movement   (const hnd_map h_map, const f32 inset, cmpnt_position& pos, cmpnt_velocity& vel);
     IFB_INTERNAL entity_list*             map_get_entities         (const hnd_map h_map, const hnd_arena h_arena);
     IFB_INTERNAL bool                     map_tile_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                      
-    IFB_INTERNAL bool                     map_chunk_set_sprite     (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                     
+    IFB_INTERNAL bool                     map_chunk_set_sprite     (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+
+    // map walls
+    // row walls are on the min-z edge of tile (row, col), row can be count_rows for the far edge
+    // column walls are on the min-x edge of tile (row, col), col can be count_cols for the far edge
+    IFB_INTERNAL bool                     map_wall_set             (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const map_color_u32 color);
+    IFB_INTERNAL bool                     map_wall_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_INTERNAL bool                     map_wall_clear           (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
+    IFB_INTERNAL bool                     map_wall_is_placed       (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
 
     // map entities
     IFB_INTERNAL void                     map_entity_lookup_coords (const entity& e, cmpnt_map_coords& coords);

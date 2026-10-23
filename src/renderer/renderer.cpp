@@ -49,6 +49,7 @@ namespace ifb {
         renderer_camera*             cam;
         renderer_viewport*           viewport;
         vec3                         global_up;
+        bool                         is_grid_visible;
         render_lists*                lists;
         render_buffers*              buffers;
         renderer_particle_view*      particle_view;
@@ -129,7 +130,8 @@ namespace ifb {
         // same for imgui, it can be initialized externally
 
         // set global up
-        _renderer->global_up = { 0.0f, 1.0f, 0.0f };
+        _renderer->global_up       = { 0.0f, 1.0f, 0.0f };
+        _renderer->is_grid_visible = true;
 
         // initialize opengl and imgui
         pfm_graphics_init_opengl(_renderer->gl);
@@ -265,7 +267,9 @@ namespace ifb {
         // buffers -> shaders
         //renderer_direction_gizmo_draw (view_proj_xform);
         renderer_tile_draw            (_renderer->shader.tile, gl, buffers, render_lists_get_map(lists), view_proj_xform);
-        renderer_grid_draw            (_renderer->shader.grid, gl, buffers, view_proj_xform);
+        if (_renderer->is_grid_visible) {
+            renderer_grid_draw        (_renderer->shader.grid, gl, buffers, view_proj_xform);
+        }
         renderer_quad_draw            (_renderer->shader.quad, gl, buffers, view_proj_xform);
 
         // the particle view draws offscreen, then puts the window viewport back
@@ -423,6 +427,22 @@ namespace ifb {
 
         const bool did_set = render_lists_set_map(_renderer->lists, h_map);
         return(did_set);
+    }
+
+    IFB_INTERNAL bool
+    renderer_is_grid_visible(
+        void) {
+
+        assert(_renderer != NULL);
+        return(_renderer->is_grid_visible);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_grid_visible(
+        const bool is_visible) {
+
+        assert(_renderer != NULL);
+        _renderer->is_grid_visible = is_visible;
     }
     
     // INVALID_HANDLE finds a free slot

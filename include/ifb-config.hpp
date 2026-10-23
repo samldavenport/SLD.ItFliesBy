@@ -47,8 +47,9 @@ using namespace sld;
 #define IFB_CONFIG_MAP_CAPACITY                   64 
 #define IFB_CONFIG_MAP_TILE_UNIT_SIZE             0.2
 #define IFB_CONFIG_MAP_CHUNK_CAPACITY             64 
-#define IFB_CONFIG_MAP_TILE_CAPACITY              1024
-#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE         size_kilobytes(320)
+#define IFB_CONFIG_MAP_TILE_CAPACITY              4096 
+#define IFB_CONFIG_MAP_WALL_CAPACITY              8192
+#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE         size_kilobytes(400) // (tile capacity + 2 * wall capacity) * sizeof(map_tile)
 #define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
@@ -109,6 +110,7 @@ namespace ifb {
         static constexpr u32   map_capacity                   = IFB_CONFIG_MAP_CAPACITY;
         static constexpr f32   map_tile_unit_size             = IFB_CONFIG_MAP_TILE_UNIT_SIZE;
         static constexpr u32   map_tile_capacity              = IFB_CONFIG_MAP_TILE_CAPACITY;
+        static constexpr u32   map_wall_capacity              = IFB_CONFIG_MAP_WALL_CAPACITY; // per orientation
         static constexpr u32   map_chunk_capacity             = IFB_CONFIG_MAP_CHUNK_CAPACITY;
         static constexpr u32   map_render_buffer_size         = IFB_CONFIG_MAP_RENDER_BUFFER_SIZE;
         static constexpr u32   particle_bufffer_count         = IFB_CONFIG_PARTICLE_BUFFER_COUNT;

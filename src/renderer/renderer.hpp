@@ -51,6 +51,8 @@ namespace ifb {
     IFB_INTERNAL bool        renderer_release_sprite_atlas             (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool        renderer_set_active_sprite_atlas          (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool        renderer_set_map                          (const hnd_map h_map);
+    IFB_INTERNAL bool        renderer_is_grid_visible                  (void);
+    IFB_INTERNAL void        renderer_set_grid_visible                 (const bool is_visible);
     IFB_INTERNAL const vec3& renderer_get_camera_origin                (void);
     IFB_INTERNAL const vec3& renderer_get_camera_target                (void);
     IFB_INTERNAL void        renderer_get_camera_orientation           (orientation& o);

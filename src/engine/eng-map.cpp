@@ -230,4 +230,61 @@ namespace ifb {
         const bool did_set = map_chunk_set_sprite(h_map, chunk_index, atlas_name_cstr, sprite_name_cstr);
         return(did_set);
     }
+
+    IFB_ENGINE_API bool
+    eng_map_wall_set(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation,
+        const map_color_u32          color) {
+
+        assert(h_map != INVALID_HANDLE);
+
+        const bool did_set = map_wall_set(h_map, row, col, orientation, color);
+        return(did_set);
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_wall_set_sprite(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation,
+        const cchar*                 atlas_name_cstr,
+        const cchar*                 sprite_name_cstr) {
+
+        assert(h_map            != INVALID_HANDLE);
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        const bool did_set = map_wall_set_sprite(h_map, row, col, orientation, atlas_name_cstr, sprite_name_cstr);
+        return(did_set);
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_wall_clear(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation) {
+
+        assert(h_map != INVALID_HANDLE);
+
+        const bool did_clear = map_wall_clear(h_map, row, col, orientation);
+        return(did_clear);
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_wall_is_placed(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation) {
+
+        assert(h_map != INVALID_HANDLE);
+
+        const bool is_placed = map_wall_is_placed(h_map, row, col, orientation);
+        return(is_placed);
+    }
 };
