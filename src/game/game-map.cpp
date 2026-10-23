@@ -31,9 +31,9 @@ namespace ifb {
         assert(did_set_sprites);
 
         bool did_set_walls = true;
-        for (u32 col = 0; col < 10; ++col) did_set_walls &= eng_map_wall_set(map->eng_hnd, 0,   col, map_wall_orientation_e_row,    map_color_e_gray_dark);
-        for (u32 row = 0; row < 10; ++row) did_set_walls &= eng_map_wall_set(map->eng_hnd, row, 0,   map_wall_orientation_e_column, map_color_e_gray_light);
-        for (u32 row = 0; row < 7;  ++row) did_set_walls &= eng_map_wall_set(map->eng_hnd, row, 10,  map_wall_orientation_e_column, map_color_e_gray_light);
+        for (u32 col = 0; col < 10; ++col)  did_set_walls &= eng_map_wall_set(map->eng_hnd, 0,   col, map_wall_orientation_e_row,    map_color_e_gray_dark);
+        for (u32 row = 0; row < 10; ++row)  did_set_walls &= eng_map_wall_set(map->eng_hnd, row, 0,   map_wall_orientation_e_column, map_color_e_gray_light);
+        for (u32 row = 0; row < 7;  ++row)  did_set_walls &= eng_map_wall_set(map->eng_hnd, row, 10,  map_wall_orientation_e_column, map_color_e_gray_light);
         for (u32 col = 10; col < 15; ++col) did_set_walls &= eng_map_wall_set(map->eng_hnd, 5,   col, map_wall_orientation_e_row,    map_color_e_gray_dark);
         assert(did_set_walls);
 
