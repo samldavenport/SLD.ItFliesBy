@@ -14,6 +14,9 @@ const vec2 position_array[6] = vec2[](
 const vec4 default_color  = vec4(0.0, 0.0, 0.0, 1.0);
 const vec4 sprite_no_tint = vec4(1.0, 1.0, 1.0, 1.0);
 
+// map_tile_flag_e
+const uint tile_flag_textured = 2u;
+
 // vertex attributes
 layout(location = 0) in uint in_tile;
 layout(location = 1) in vec4 in_text_rect; // u_left, v_top, u_right, v_bottom
@@ -35,7 +38,8 @@ flat out float vert_textured;
 void
 main() {
 
-    uint in_textured = (in_tile >> 24u) & 0xFFu;
+    uint in_flags    = (in_tile >> 24u) & 0xFFu;
+    uint in_textured = in_flags & tile_flag_textured;
     uint in_color    = (in_tile >> 16u) & 0xFFu;
     int  in_index    = int(in_tile & 0xFFFFu);
 

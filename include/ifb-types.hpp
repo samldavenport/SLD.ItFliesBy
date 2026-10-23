@@ -22,6 +22,8 @@ using namespace sld;
 #endif
 
 #define IFB_U32(type)     struct type : sld::strong_u32 { using strong_u32::strong_u32; };
+#define IFB_U16(type)     struct type : sld::strong_u16 { using strong_u16::strong_u16; };
+#define IFB_U8(type)      struct type : sld::strong_u8  { using strong_u8::strong_u8;   };
 #define IFB_FLAGS32(type) struct type : flags           { using flags;                  };
 #define IFB_HANDLE(hnd)   struct hnd  : handle          { using handle::handle;         };
 
@@ -64,11 +66,8 @@ namespace ifb {
     };
     
     enum map_tile_flag_e {
-        map_tile_flag_e_navigable  = bit_value(0),
-        map_tile_flag_e_wall_north = bit_value(1),
-        map_tile_flag_e_wall_south = bit_value(2),
-        map_tile_flag_e_wall_east  = bit_value(3),
-        map_tile_flag_e_wall_west  = bit_value(4),
+        map_tile_flag_e_textured  = bit_value(1), 
+        map_tile_flag_e_navigable = bit_value(0),
     };
 
     enum map_color_e {
@@ -111,10 +110,11 @@ namespace ifb {
     IFB_U32(handle);
     IFB_U32(entity_id);
     IFB_U32(component_type);
-    IFB_U32(map_tile_flags_u32);
     IFB_U32(map_color_u32);
     IFB_U32(asset_type_u32);
     
+    IFB_U8(map_tile_flags_u8);
+
     IFB_HANDLE(hnd_asset);
     IFB_HANDLE(hnd_arena);
     IFB_HANDLE(hnd_file);
@@ -206,7 +206,7 @@ namespace ifb {
             struct {
                 u16 index;
                 u8  color;
-                u8  textured; // 0 is a solid color, 1 samples the sprite atlas
+                map_tile_flags_u8 flags; // map_tile_flag_e
             };
         };
         f32 u_left;

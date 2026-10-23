@@ -198,7 +198,10 @@ namespace ifb {
                 // initialize the tile
                 tile.index    = (row * dims.count_cols) + col;
                 tile.color    = (u8)chunk.base_color.val;
-                tile.textured = did_get_sprite_info ? 1 : 0;
+                tile.flags    = (u8)map_tile_flag_e_navigable; // no unnavigable tiles yet
+                if (did_get_sprite_info) {
+                    tile.flags |= (u8)map_tile_flag_e_textured;
+                }
                 tile.u_left   = u_left;
                 tile.v_top    = v_top;
                 tile.u_right  = u_right;

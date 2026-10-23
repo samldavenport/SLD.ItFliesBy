@@ -18,23 +18,24 @@ namespace ifb {
     struct map_table;
     struct map_chunk;
     struct map_chunk_array;
+    struct map_wall;
 
     //--------------------------------------------------------------------
     // MAP MANAGER 
     //--------------------------------------------------------------------
 
     struct map_mngr {
-        reservation*      res;
-        map_table*        tbl_map;
-} static * _map_mngr;
+        reservation* res;
+        map_table*   tbl_map;
+    } static * _map_mngr;
 
     //--------------------------------------------------------------------
     // MAP
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL u32             map_lookup_index   (const hnd_map map_hnd);
-    IFB_INTERNAL map_dimensions& map_get_dimensions (const u32 map_index);
-    IFB_INTERNAL map_chunk&      map_get_chunk      (const u32 map_index, const u32 chunk_index);
+    IFB_INTERNAL u32             map_lookup_index      (const hnd_map map_hnd);
+    IFB_INTERNAL map_dimensions& map_get_dimensions    (const u32 map_index);
+    IFB_INTERNAL map_chunk&      map_get_chunk         (const u32 map_index, const u32 chunk_index);
     IFB_INTERNAL bool            map_is_tile_navigable (const u32 map_index, const s32 row, const s32 col);
 
     // limits for pushing an entity back onto the chunks, in tile units
@@ -48,14 +49,21 @@ namespace ifb {
         vec3           origin;
     };
 
+    struct map_wall {
+        map_color_u32 base_color;
+        u32           i_sprite;
+    };
+
     struct map_chunk {
-        u32           origin_row;
-        u32           origin_col;
-        u32           count_rows;
-        u32           count_cols;
+        u32              origin_row;
+        u32              origin_col;
+        u32              count_rows;
+        u32              count_cols;
         map_color_u32    base_color;
         hnd_sprite_atlas h_atlas;   // INVALID_HANDLE if the chunk is a solid color
         u32              i_sprite;
+        map_wall*        column_walls;
+        map_wall*        row_walls;
     };
 
     struct map_chunk_array {

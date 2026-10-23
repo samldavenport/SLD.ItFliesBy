@@ -58,6 +58,7 @@ namespace ifb {
         chunk.base_color = base_color;
         chunk.h_atlas    = INVALID_HANDLE;
         chunk.i_sprite   = INVALID_INDEX;
+        chunk.wall       = NULL;
 
         // update the chunk count
         ++dims.count_chunks;
