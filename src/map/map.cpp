@@ -9,6 +9,7 @@
 #include "sld.hpp"
 #include "map.hpp"
 #include "entity.hpp"
+#include "sprites.hpp"
 #include <cassert>
 #include <cmath>
 #include <sld-strings.hpp>
@@ -119,7 +120,7 @@ namespace ifb {
         assert(buffer_data        != NULL);
         assert(buffer_size        != 0);
         assert(map_hnd            != INVALID_HANDLE);
-assert(_map_mngr          != NULL);
+        assert(_map_mngr          != NULL);
         assert(_map_mngr->tbl_map != NULL);
 
         // get the map index
@@ -160,6 +161,28 @@ assert(_map_mngr          != NULL);
 
             const map_chunk& chunk            = map_get_chunk(map_index, chunk_index);
             const u32        chunk_tile_count = chunk.count_rows * chunk.count_cols;
+
+            // the sprite's rect in the atlas, normalized
+            // the atlas isn't flipped on upload, so the top row is v = 0
+            // with no sprite, the chunk is a solid color
+            sprite_info info;
+            const bool did_get_sprite_info = (
+                chunk.h_atlas != INVALID_HANDLE &&
+                sprite_mngr_get_sprite_info_by_index(chunk.h_atlas, chunk.i_sprite, info)
+            );
+            f32 u_left   = 0.0f;
+            f32 u_right  = 1.0f;
+            f32 v_top    = 0.0f;
+            f32 v_bottom = 1.0f;
+            if (did_get_sprite_info) {
+                const f32 atlas_width  = (f32)info.atlas_width;
+                const f32 atlas_height = (f32)info.atlas_height;
+                u_left   = (f32)(info.pixel_x)                     / atlas_width;
+                u_right  = (f32)(info.pixel_x + info.pixel_width)  / atlas_width;
+                v_top    = (f32)(info.pixel_y)                     / atlas_height;
+                v_bottom = (f32)(info.pixel_y + info.pixel_height) / atlas_height;
+            }
+
             for (
                 u32 chunk_tile_index = 0;
                     chunk_tile_index < chunk_tile_count;
@@ -173,8 +196,13 @@ assert(_map_mngr          != NULL);
                 map_tile& tile = tile_buffer[tile_index++];
 
                 // initialize the tile
-                tile.index = (row * dims.count_cols) + col;
-                tile.color = (u8)chunk.base_color.val;
+                tile.index    = (row * dims.count_cols) + col;
+                tile.color    = (u8)chunk.base_color.val;
+                tile.textured = did_get_sprite_info ? 1 : 0;
+                tile.u_left   = u_left;
+                tile.v_top    = v_top;
+                tile.u_right  = u_right;
+                tile.v_bottom = v_bottom;
             }
         }
         return(render_size);
@@ -508,6 +536,52 @@ assert(_map_mngr          != NULL);
         }
 
         return(e_list);
+    }
+    
+    IFB_INTERNAL bool
+    map_tile_set_sprite(
+        const hnd_map h_map,
+        const u32     row,
+        const u32     col,
+        const cchar*  atlas_name_cstr,
+        const cchar*  sprite_name_cstr) {
+
+        // TODO(SLD): the map only stores chunks, so there's nowhere
+        // to keep a sprite for a single tile yet
+        return(false);
+    }
+
+    IFB_INTERNAL bool
+    map_chunk_set_sprite(
+        const hnd_map h_map,
+        const u32     chunk_index,
+        const cchar*  atlas_name_cstr,
+        const cchar*  sprite_name_cstr) {
+
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        if (chunk_index >= dims.count_chunks) {
+            return(false);
+        }
+
+        // the atlas has to be loaded and have the sprite
+        const hnd_sprite_atlas h_atlas  = sprite_mngr_lookup_atlas        (atlas_name_cstr);
+        const u32              i_sprite = sprite_mngr_lookup_sprite_index (h_atlas, sprite_name_cstr);
+        if (h_atlas == INVALID_HANDLE || i_sprite == INVALID_INDEX) {
+            return(false);
+        }
+
+        map_chunk& chunk = map_get_chunk(map_index, chunk_index);
+        chunk.h_atlas  = h_atlas;
+        chunk.i_sprite = i_sprite;
+        return(true);
     }
     
     //--------------------------------------------------------------------

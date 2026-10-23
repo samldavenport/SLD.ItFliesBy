@@ -53,7 +53,9 @@ namespace ifb {
         u32           origin_col;
         u32           count_rows;
         u32           count_cols;
-        map_color_u32 base_color;
+        map_color_u32    base_color;
+        hnd_sprite_atlas h_atlas;   // INVALID_HANDLE if the chunk is a solid color
+        u32              i_sprite;
     };
 
     struct map_chunk_array {

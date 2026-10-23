@@ -48,7 +48,7 @@ using namespace sld;
 #define IFB_CONFIG_MAP_TILE_UNIT_SIZE             0.2
 #define IFB_CONFIG_MAP_CHUNK_CAPACITY             64 
 #define IFB_CONFIG_MAP_TILE_CAPACITY              1024
-#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE         size_kilobytes(64) 
+#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE         size_kilobytes(320)
 #define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60

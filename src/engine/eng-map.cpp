@@ -199,4 +199,35 @@ namespace ifb {
         const bool did_get = map_get_coords_from_pos(pos, coords);
         return(did_get);
     }
+    
+    IFB_ENGINE_API bool
+    eng_map_set_tile_sprite(
+        const hnd_map h_map,
+        const u32     row,
+        const u32     col,
+        const cchar*  atlas_name_cstr,
+        const cchar*  sprite_name_cstr) {
+
+        assert(h_map            != INVALID_HANDLE);
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        const bool did_set = map_tile_set_sprite(h_map, row, col, atlas_name_cstr, sprite_name_cstr);
+        return(did_set);
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_chunk_set_sprite(
+        const hnd_map h_map,
+        const u32     chunk_index,
+        const cchar*  atlas_name_cstr,
+        const cchar*  sprite_name_cstr) {
+
+        assert(h_map            != INVALID_HANDLE);
+        assert(atlas_name_cstr  != NULL);
+        assert(sprite_name_cstr != NULL);
+
+        const bool did_set = map_chunk_set_sprite(h_map, chunk_index, atlas_name_cstr, sprite_name_cstr);
+        return(did_set);
+    }
 };
