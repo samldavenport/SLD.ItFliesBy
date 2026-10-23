@@ -11,10 +11,12 @@ const vec2 position_array[6] = vec2[](
     vec2(0.0, 0.0)
 );
 
-const vec4 default_color = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 default_color  = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 sprite_no_tint = vec4(1.0, 1.0, 1.0, 1.0);
 
 // vertex attributes
 layout(location = 0) in uint in_tile;
+layout(location = 1) in vec4 in_text_rect; // u_left, v_top, u_right, v_bottom
 
 // uniforms
 uniform mat4  u_view_proj;
@@ -26,24 +28,32 @@ uniform float u_tile_unit_size;
 uniform vec4  u_color_table[16];
 
 // vertex output
-flat out vec4 vert_color;
+flat out vec4  vert_color;
+     out vec2  vert_text_coords;
+flat out float vert_textured;
 
 void
 main() {
 
-    uint in_color = (in_tile >> 16u) & 0xFFu;
-    int  in_index = int(in_tile & 0xFFFFu);
+    uint in_textured = (in_tile >> 24u) & 0xFFu;
+    uint in_color    = (in_tile >> 16u) & 0xFFu;
+    int  in_index    = int(in_tile & 0xFFFFu);
 
     // calculate the normalized color
-    vert_color = (in_color < uint(16))
+    // a sprite with no color isn't tinted
+    vert_textured = (in_textured != 0u) ? 1.0 : 0.0;
+    vert_color    = (in_color < uint(16))
         ? u_color_table[in_color]
-        : default_color;
+        : ((in_textured != 0u) ? sprite_no_tint : default_color);
 
     // get the position and tile index
     int index_position = gl_VertexID;
 
     // get the position from the array
     vec2 position = position_array[index_position];
+
+    // the position is normalized, so it picks the corner of the sprite rect
+    vert_text_coords = mix(in_text_rect.xy, in_text_rect.zw, position);
 
     // get the row and column
     int col = (in_index % int(u_map_count_cols)) + u_map_offset_cols; 

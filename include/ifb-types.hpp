@@ -88,6 +88,7 @@ namespace ifb {
         map_color_e_purple_dark  = 13,
         map_color_e_gray_light   = 14,
         map_color_e_gray_dark    = 15,
+        map_color_e_none         = 16,
     };
    
     enum asset_type_e {
@@ -204,9 +205,14 @@ namespace ifb {
             u32 val;
             struct {
                 u16 index;
-                u8  color; 
+                u8  color;
+                u8  textured; // 0 is a solid color, 1 samples the sprite atlas
             };
         };
+        f32 u_left;
+        f32 v_top;
+        f32 u_right;
+        f32 v_bottom;
     };
 
     struct particle {

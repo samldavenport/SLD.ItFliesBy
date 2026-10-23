@@ -64,7 +64,7 @@ struct renderer_tile_shader {
         assert(tile_buf_vtx);
         assert(tile_buf_vtx->data     != NULL);
         assert(tile_buf_vtx->capacity != 0);
-        assert(tile_buf_vtx->stride   == sizeof(u32));
+        assert(tile_buf_vtx->stride   == sizeof(u32) + (sizeof(f32) * 4));
 
         // create gl objects
         shdr->gl.program         = gl_shader_program_create        (gl);
@@ -112,7 +112,9 @@ struct renderer_tile_shader {
         gl_ok &= gl_context_set_buffer_vertex  (gl, shdr->gl.instance_buffer);
         gl_ok &= gl_buffer_set_vertex_data     (gl, shdr->gl.instance_buffer, tile_buf_vtx->data, tile_buf_vtx->capacity);
         gl_ok &= gl_vertex_add_u32x1           (gl, shdr->gl.vertex, tile_buf_vtx->stride, 0, 0);
-gl_ok &= gl_vertex_divisor             (gl, shdr->gl.vertex, 0, 1);
+        gl_ok &= gl_vertex_add_f32x4           (gl, shdr->gl.vertex, tile_buf_vtx->stride, 1, sizeof(u32));
+        gl_ok &= gl_vertex_divisor             (gl, shdr->gl.vertex, 0, 1);
+        gl_ok &= gl_vertex_divisor             (gl, shdr->gl.vertex, 1, 1);
         assert(gl_ok);
     }
 
@@ -156,6 +158,9 @@ gl_ok &= gl_vertex_divisor             (gl, shdr->gl.vertex, 0, 1);
         // get tile count and config for tile size
         const u32   tile_count = tile_buf_vtx->count();
         const auto& cfg        = config_instance();
+
+        // set the texture
+        renderer_use_sprite_atlas_texture();
 
         // update the shader and draw vertices
         bool gl_ok = true;
