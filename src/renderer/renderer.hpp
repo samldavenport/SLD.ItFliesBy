@@ -62,6 +62,8 @@ namespace ifb {
     IFB_INTERNAL void        renderer_set_viewport_dimensions          (const u32 width, const u32 height);
     IFB_INTERNAL f32         renderer_get_viewport_aspect_ratio        (void);
     IFB_INTERNAL void        renderer_get_viewport_xform               (mat4& xform);
+    IFB_INTERNAL f32         renderer_get_viewport_fov                 (void);
+    IFB_INTERNAL void        renderer_set_viewport_fov                 (const f32 fov_y);
     IFB_INTERNAL void        renderer_request_particle_view            (const u32 width, const u32 height);
     IFB_INTERNAL u32         renderer_get_particle_view_texture        (void);
     IFB_INTERNAL const vec3& renderer_get_particle_view_camera_origin  (void);

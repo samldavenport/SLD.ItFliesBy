@@ -668,5 +668,27 @@ namespace ifb {
 
         renderer_viewport_get_xform(_renderer->viewport, xform);
     }
+
+    // the vertical field of view, in radians
+    IFB_INTERNAL f32
+    renderer_get_viewport_fov(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->viewport);
+
+        return(_renderer->viewport->fov_y);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_viewport_fov(
+        const f32 fov_y) {
+
+        assert(_renderer);
+        assert(_renderer->viewport);
+        assert(fov_y > 0.0f);
+
+        _renderer->viewport->fov_y = fov_y;
+    }
 };
           

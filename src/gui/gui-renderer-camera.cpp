@@ -3,6 +3,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
 #include "stdio.h"
+#include <math.h>
 
 namespace ifb {
 
@@ -158,6 +159,29 @@ namespace ifb {
 
 
                 ImGui::EndTable();
+            }
+
+            ImGui::SeparatorText("Projection");
+
+            // with keep framing on, changing the fov moves the origin along the line to the target,
+            // so whatever is at the target stays the same size on screen
+            static bool keep_framing = true;
+            const f32   fov_prev     = eng_camera_get_fov();
+            f32         fov          = fov_prev;
+            ImGui::SliderFloat ("FOV Y",        &fov, 10.0f, 90.0f, "%.1f deg");
+            ImGui::Checkbox    ("Keep Framing", &keep_framing);
+
+            if (fov != fov_prev) {
+
+                if (keep_framing) {
+                    const f32 deg_to_half_rad = 3.14159265f / 360.0f;
+                    const f32 scale           = tanf(fov_prev * deg_to_half_rad) / tanf(fov * deg_to_half_rad);
+                    camera_origin.x = camera_target.x + (camera_origin.x - camera_target.x) * scale;
+                    camera_origin.y = camera_target.y + (camera_origin.y - camera_target.y) * scale;
+                    camera_origin.z = camera_target.z + (camera_origin.z - camera_target.z) * scale;
+                }
+
+                eng_camera_set_fov(fov);
             }
 
             const ImGuiTableFlags tbl_flags = (

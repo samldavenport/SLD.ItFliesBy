@@ -35,7 +35,7 @@ namespace ifb {
 
         assert(viewport); 
 
-        viewport->fov_y     = trig_degrees_to_radians(38.0f);
+        viewport->fov_y     = trig_degrees_to_radians(30.0f);
         viewport->clip_near = 0.01f;
         viewport->clip_far  = 100.0f;
     }
