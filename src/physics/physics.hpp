@@ -4,6 +4,7 @@
 #include "ifb-types.hpp"
 #include "memory.hpp"
 #include "ifb-collections.hpp"
+#include "sld-math-types.hpp"
 
 namespace ifb {
 
@@ -28,6 +29,11 @@ namespace ifb {
     IFB_INTERNAL void       phys_entity_set_mass         (const entity_id id, const f32 mass);
     IFB_INTERNAL void       phys_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
     IFB_INTERNAL void       phys_entity_set_rigid_body   (const entity_id id, const cmpnt_rigid_body& rb);
+
+    //--------------------------------------------------------------------
+    // METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+
 };
 
 #endif //PHYSICS_HPP
