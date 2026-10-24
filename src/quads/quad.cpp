@@ -207,6 +207,14 @@ namespace ifb {
             const vec3 right = vec3_scalar_multiply(quad_right, offset_width);
             const vec3 up    = vec3_scalar_multiply(quad_up,    offset_height);
 
+            // quads are centered on their position, but pivot around the bottom edge
+            // so the base stays on the ground and only the top tilts with the camera
+            const vec3 center = {
+                q.pos.x + up.x,
+                q.pos.y + up.y - offset_height,
+                q.pos.z + up.z
+            };
+
             sprite_info info;
             const bool did_get_sprite_info = sprite_mngr_get_sprite_info_by_index(
                 q.sprite.h_atlas,
@@ -232,9 +240,9 @@ namespace ifb {
             }
 
             // top right
-            vertices.top_right.position.x    = q.pos.x + right.x + up.x;
-            vertices.top_right.position.y    = q.pos.y + right.y + up.y;
-            vertices.top_right.position.z    = q.pos.z + right.z + up.z;
+            vertices.top_right.position.x    = center.x + right.x + up.x;
+            vertices.top_right.position.y    = center.y + right.y + up.y;
+            vertices.top_right.position.z    = center.z + right.z + up.z;
             vertices.top_right.color.r       = color.r;
             vertices.top_right.color.g       = color.g;
             vertices.top_right.color.b       = color.b;
@@ -244,9 +252,9 @@ namespace ifb {
             vertices.top_right.textured      = textured;
 
             // bottom right
-            vertices.bottom_right.position.x = q.pos.x + right.x - up.x;
-            vertices.bottom_right.position.y = q.pos.y + right.y - up.y;
-            vertices.bottom_right.position.z = q.pos.z + right.z - up.z;
+            vertices.bottom_right.position.x = center.x + right.x - up.x;
+            vertices.bottom_right.position.y = center.y + right.y - up.y;
+            vertices.bottom_right.position.z = center.z + right.z - up.z;
             vertices.bottom_right.color.r    = color.r;
             vertices.bottom_right.color.g    = color.g;
             vertices.bottom_right.color.b    = color.b;
@@ -256,9 +264,9 @@ namespace ifb {
             vertices.bottom_right.textured      = textured;
 
             // bottom left
-            vertices.bottom_left.position.x  = q.pos.x - right.x - up.x;
-            vertices.bottom_left.position.y  = q.pos.y - right.y - up.y;
-            vertices.bottom_left.position.z  = q.pos.z - right.z - up.z;
+            vertices.bottom_left.position.x  = center.x - right.x - up.x;
+            vertices.bottom_left.position.y  = center.y - right.y - up.y;
+            vertices.bottom_left.position.z  = center.z - right.z - up.z;
             vertices.bottom_left.color.r     = color.r;
             vertices.bottom_left.color.g     = color.g;
             vertices.bottom_left.color.b     = color.b;
@@ -268,9 +276,9 @@ namespace ifb {
             vertices.bottom_left.textured       = textured;
 
             // top left
-            vertices.top_left.position.x     = q.pos.x - right.x + up.x;
-            vertices.top_left.position.y     = q.pos.y - right.y + up.y;
-            vertices.top_left.position.z     = q.pos.z - right.z + up.z;
+            vertices.top_left.position.x     = center.x - right.x + up.x;
+            vertices.top_left.position.y     = center.y - right.y + up.y;
+            vertices.top_left.position.z     = center.z - right.z + up.z;
             vertices.top_left.color.r        = color.r;
             vertices.top_left.color.g        = color.g;
             vertices.top_left.color.b        = color.b;
