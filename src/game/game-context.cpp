@@ -56,15 +56,16 @@ namespace ifb {
 
         _game_ctx = ctx;
 
-        entities->static_entity = game_entity_spawn_static_sprite(
-            "STATIC-SPRITE",
-            "CORE-SPRITES",
-            "WOOD",
-            map->eng_hnd,
-            0,3,3
-        );
+        entities->static_entity_0 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-0","WOOD",map->eng_hnd,0,3,3);
+        entities->static_entity_1 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-1","WOOD",map->eng_hnd,0,3,7);
+        entities->static_entity_2 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-2","WOOD",map->eng_hnd,0,7,3);
+        entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
 
-        assert(entities->static_entity != ENTITY_ID_INVALID);
+        assert(entities->static_entity_0 != ENTITY_ID_INVALID);
+        assert(entities->static_entity_1 != ENTITY_ID_INVALID);
+        assert(entities->static_entity_2 != ENTITY_ID_INVALID);
+        assert(entities->static_entity_3 != ENTITY_ID_INVALID);
+
 
         return(ctx); 
     }
@@ -95,7 +96,10 @@ namespace ifb {
         cmpnt_position pos;
         (void)eng_cmpnt_lookup_position(player_rig->connor_id, pos);
     
-        eng_entity_render(entities->static_entity);
+        eng_entity_render(entities->static_entity_0);
+        eng_entity_render(entities->static_entity_1);
+        eng_entity_render(entities->static_entity_2);
+        eng_entity_render(entities->static_entity_3);
     }
     
     IFB_INTERNAL game_context*

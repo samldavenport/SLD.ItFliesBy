@@ -20,7 +20,10 @@ namespace ifb {
     };
 
     struct game_entities {
-        entity_id static_entity;   
+        entity_id static_entity_0;
+        entity_id static_entity_1;
+        entity_id static_entity_2;
+        entity_id static_entity_3;
     };
 
     struct game_map {
@@ -53,6 +56,16 @@ namespace ifb {
     game_entity_spawn_static_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  atlas_name_cstr, 
+        const cchar*  sprite_name_cstr,
+        const hnd_map h_map,
+        const u32     chunk_index,
+        const u32     chunk_x,
+        const u32     chunk_y
+    );
+
+    IFB_INTERNAL entity_id
+    game_entity_spawn_static_core_sprite(
+        const cchar*  entity_name_cstr,
         const cchar*  sprite_name_cstr,
         const hnd_map h_map,
         const u32     chunk_index,

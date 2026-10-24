@@ -71,4 +71,26 @@ namespace ifb {
 
         return(id);
     }
+    
+    IFB_INTERNAL entity_id
+    game_entity_spawn_static_core_sprite(
+        const cchar*  entity_name_cstr,
+        const cchar*  sprite_name_cstr,
+        const hnd_map h_map,
+        const u32     chunk_index,
+        const u32     chunk_x,
+        const u32     chunk_y) {
+
+        const entity_id id = game_entity_spawn_static_sprite(
+            entity_name_cstr,
+            "CORE-SPRITES", 
+            sprite_name_cstr,
+            h_map,
+            chunk_index,
+            chunk_x,
+            chunk_y
+        );
+
+        return(id);
+    }
 };

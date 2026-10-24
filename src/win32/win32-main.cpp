@@ -12,7 +12,7 @@
 #include "collections.cpp"
 #include "game-context.cpp"
 #include "game-player-rig.cpp"
-#include "game-sprite.cpp"
+#include "game-entity.cpp"
 #include "gui.cpp"
 #include "imgui.h"
 
