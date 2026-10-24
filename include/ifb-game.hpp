@@ -50,7 +50,7 @@ namespace ifb {
     IFB_INTERNAL void          game_player_rig_update_camera     (game_player_rig* player_rig);
     
     IFB_INTERNAL entity_id
-    game_entity_spawn_sprite(
+    game_entity_spawn_static_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  atlas_name_cstr, 
         const cchar*  sprite_name_cstr,

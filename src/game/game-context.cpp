@@ -56,7 +56,7 @@ namespace ifb {
 
         _game_ctx = ctx;
 
-        entities->static_entity = game_entity_spawn_sprite(
+        entities->static_entity = game_entity_spawn_static_sprite(
             "STATIC-SPRITE",
             "CORE-SPRITES",
             "WOOD",
