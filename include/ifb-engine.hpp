@@ -241,12 +241,12 @@ namespace ifb {
     // ARCHETYPES 
     //--------------------------------------------------------------------
     
-    IFB_ENGINE_API bool eng_atype_lookup_sprite         (const entity_id id, atype_sprite&         quad);
-    IFB_ENGINE_API bool eng_atype_lookup_particle     (const entity_id id, atype_particle&     particle);
-    IFB_ENGINE_API bool eng_atype_lookup_physics_quad (const entity_id id, atype_physics_sprite& physics_quad);
-    IFB_ENGINE_API bool eng_atype_update_sprite         (const entity_id id, const atype_sprite&         quad);
-    IFB_ENGINE_API bool eng_atype_update_particle     (const entity_id id, const atype_particle&     particle);
-    IFB_ENGINE_API bool eng_atype_update_physics_sprite (const entity_id id, const atype_physics_sprite& physics_quad);
+    IFB_ENGINE_API bool eng_atype_lookup_sprite         (const entity_id id, atype_sprite&               sprite);
+    IFB_ENGINE_API bool eng_atype_lookup_particle       (const entity_id id, atype_particle&             particle);
+    IFB_ENGINE_API bool eng_atype_lookup_physics_quad   (const entity_id id, atype_physics_sprite&       physics_sprite);
+    IFB_ENGINE_API bool eng_atype_update_sprite         (const entity_id id, const atype_sprite&         sprite);
+    IFB_ENGINE_API bool eng_atype_update_particle       (const entity_id id, const atype_particle&       particle);
+    IFB_ENGINE_API bool eng_atype_update_physics_sprite (const entity_id id, const atype_physics_sprite& physics_sprite);
   
     //--------------------------------------------------------------------
     // TILE MAPS 
