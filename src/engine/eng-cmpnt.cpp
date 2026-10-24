@@ -393,7 +393,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_cmpnt_update_quad(
         const entity_id       id,
-        const atype_quad& quad_atype) {
+        const atype_sprite& quad_atype) {
     
         assert(id != ENTITY_ID_INVALID); 
    

@@ -90,7 +90,7 @@ namespace ifb {
             entity_list_validate(quad_list);
 
             entity_query query;
-            query.has_all.val = ENTITY_ARCHETYPE_QUAD.val;
+            query.has_all.val = ENTITY_ARCHETYPE_SPRITE.val;
             const bool has_entities = eng_entity_query(quad_list, query);    
             if (!has_entities) {
                 return;

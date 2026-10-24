@@ -9,10 +9,11 @@ namespace ifb {
     // ENTITY ARCHETYPES 
     //--------------------------------------------------------------------
 
-    static const component_type ENTITY_ARCHETYPE_QUAD = (
-        cmpnt_type_e_position |
-        cmpnt_type_e_color    |
-        cmpnt_type_e_quad     |
+    static const component_type ENTITY_ARCHETYPE_SPRITE = (
+        cmpnt_type_e_position   |
+        cmpnt_type_e_color      |
+        cmpnt_type_e_quad       |
+        cmpnt_type_e_map_coords |
         cmpnt_type_e_sprite
     );
 
@@ -23,12 +24,11 @@ namespace ifb {
         cmpnt_type_e_acceleration  |
         cmpnt_type_e_inv_mass      |
         cmpnt_type_e_drag          |     
-        cmpnt_type_e_term_velocity | 
-        cmpnt_type_e_sprite
+        cmpnt_type_e_term_velocity
     );
 
-    static const component_type ENTITY_ARCHETYPE_PHYSICS_QUAD = (
-        ENTITY_ARCHETYPE_QUAD | 
+    static const component_type ENTITY_ARCHETYPE_PHYSICS_SPRITE = (
+        ENTITY_ARCHETYPE_SPRITE | 
         ENTITY_ARCHETYPE_PHYSICS_PARTICLE 
     );
 

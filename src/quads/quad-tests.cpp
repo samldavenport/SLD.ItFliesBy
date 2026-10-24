@@ -39,7 +39,7 @@ namespace ifb {
 
             assert(array_id[index] != ENTITY_ID_INVALID);
 
-            entity_add_archetype(array_id[index], ENTITY_ARCHETYPE_QUAD);
+            entity_add_archetype(array_id[index], ENTITY_ARCHETYPE_SPRITE);
         }
     }
 
@@ -53,7 +53,7 @@ namespace ifb {
         assert(quad_list);
 
         entity_query query = {0};
-        query.has_all.val = ENTITY_ARCHETYPE_QUAD.val;
+        query.has_all.val = ENTITY_ARCHETYPE_SPRITE.val;
         entity_lookup_list(quad_list, query);
             
         const u32 quad_list_count = entity_list_count(quad_list);

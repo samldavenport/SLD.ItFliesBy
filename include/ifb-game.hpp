@@ -19,12 +19,15 @@ namespace ifb {
         bool       jig_faces_right;
     };
 
-    struct game_map {
-        hnd_map eng_hnd;
-        u32     chunk_count;
+    struct game_entities {
+        entity_id static_entity;   
     };
 
-    struct game_test_sprites {
+    struct game_map {
+        hnd_map eng_hnd;
+    };
+
+    struct game_sprites {
         hnd_sprite_atlas h_atlas;
         u32              i_sprite_connor;
         u32              i_sprite_jig;
@@ -34,7 +37,8 @@ namespace ifb {
         hnd_arena        global_arena;
         game_player_rig* player_rig; 
         game_map*        map;
-        game_test_sprites test_sprites;
+        game_entities*   entities;
+        game_sprites*    sprites;
     };
 
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
@@ -44,6 +48,8 @@ namespace ifb {
     IFB_INTERNAL void          game_player_rig_init              (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_update_and_render (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_update_camera     (game_player_rig* player_rig);
+    
+    IFB_INTERNAL void          game_entities_init                (game_entities* entities, const hnd_map h_map);
 
     IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
