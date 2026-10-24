@@ -12,6 +12,7 @@
 
 #include "eng-arena.cpp"
 #include "eng-asset.cpp"
+#include "eng-atype.cpp"
 #include "eng-cmpnt.cpp"
 #include "eng-camera.cpp"
 #include "eng-context.cpp"

@@ -92,6 +92,22 @@ namespace ifb {
         return(does_exist);
     }
 
+    // distance from the camera plane to the quad's center, farther is larger
+    IFB_INTERNAL f32
+    quad_depth(
+        const quad_vertices& vertices,
+        const orientation&   camera_orientation) {
+
+        const vec3 center = {
+            (vertices.top_right.position.x + vertices.bottom_left.position.x) * 0.5f,
+            (vertices.top_right.position.y + vertices.bottom_left.position.y) * 0.5f,
+            (vertices.top_right.position.z + vertices.bottom_left.position.z) * 0.5f
+        };
+
+        const f32 depth = vec3_dot(center, camera_orientation.forward);
+        return(depth);
+    }
+
     IFB_INTERNAL u32
     quad_render_buffer(
         byte*               buffer_data,
@@ -126,6 +142,27 @@ namespace ifb {
             if (quad_render(quad_vertices, quad_id, camera_orientation)) {
                 vertex_index++;
             }
+        }
+
+        // the depth test always passes, so the quads are sorted back to front
+        // the order barely changes between frames, so an insertion sort is cheap
+        for (
+            u32 sort_index = 1;
+                sort_index < vertex_index;
+              ++sort_index) {
+
+            const quad_vertices sort_quad  = vertex_buffer[sort_index];
+            const f32           sort_depth = quad_depth(sort_quad, camera_orientation);
+
+            u32 insert_index = sort_index;
+            while (
+                insert_index > 0 &&
+                quad_depth(vertex_buffer[insert_index - 1], camera_orientation) < sort_depth) {
+
+                vertex_buffer[insert_index] = vertex_buffer[insert_index - 1];
+                --insert_index;
+            }
+            vertex_buffer[insert_index] = sort_quad;
         }
 
         return(render_size);

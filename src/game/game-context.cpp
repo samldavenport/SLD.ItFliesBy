@@ -56,8 +56,17 @@ namespace ifb {
 
         _game_ctx = ctx;
 
+        entities->static_entity = game_entity_spawn_sprite(
+            "STATIC-SPRITE",
+            "CORE-SPRITES",
+            "WOOD",
+            map->eng_hnd,
+            0,3,3
+        );
 
-        return(ctx);      
+        assert(entities->static_entity != ENTITY_ID_INVALID);
+
+        return(ctx); 
     }
     
     IFB_INTERNAL void
@@ -77,6 +86,7 @@ namespace ifb {
 
         auto player_rig = ctx->player_rig;
         auto map        = ctx->map;
+        auto entities   = ctx->entities;
 
         game_player_rig_update_and_render (ctx->player_rig);
         game_player_rig_update_camera     (ctx->player_rig);
@@ -84,6 +94,8 @@ namespace ifb {
 
         cmpnt_position pos;
         (void)eng_cmpnt_lookup_position(player_rig->connor_id, pos);
+    
+        eng_entity_render(entities->static_entity);
     }
     
     IFB_INTERNAL game_context*

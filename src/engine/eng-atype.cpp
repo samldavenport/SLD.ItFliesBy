@@ -25,7 +25,7 @@ namespace ifb {
 
         entity e;
         result  &= entity_lookup_by_id  (e, id);
-        result  &= entity_has_component (e, ENTITY_ARCHETYPE_SPRITE);        
+        result  &= e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE);        
            
         if (result) {
             cmpnt_lookup_position    (e.index_sparse, quad.position);
@@ -49,7 +49,7 @@ namespace ifb {
 
         entity e;
         result &= entity_lookup_by_id  (e, id);
-        result &= entity_has_component (e, ENTITY_ARCHETYPE_PHYSICS_PARTICLE);        
+        result &= e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_PARTICLE);        
            
         if (result) {
             cmpnt_lookup_position      (e.index_sparse, particle.position);
@@ -75,7 +75,7 @@ namespace ifb {
 
         entity e;
         result  &= entity_lookup_by_id  (e, id);
-        result  &= entity_has_component (e, ENTITY_ARCHETYPE_SPRITE);        
+        result  &= e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_SPRITE);        
            
         if (result) {
             cmpnt_lookup_position     (e.index_sparse, physics_quad.position);
@@ -106,7 +106,7 @@ namespace ifb {
    
         entity e;
         const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, ENTITY_ARCHETYPE_SPRITE); 
+        const bool has_component = e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE); 
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
@@ -129,7 +129,7 @@ namespace ifb {
    
         entity e;
         const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, ENTITY_ARCHETYPE_SPRITE); 
+        const bool has_component = e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_PARTICLE); 
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
@@ -154,7 +154,7 @@ namespace ifb {
    
         entity e;
         const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, ENTITY_ARCHETYPE_SPRITE); 
+        const bool has_component = e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_SPRITE); 
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {

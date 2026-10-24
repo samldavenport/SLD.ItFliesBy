@@ -49,7 +49,16 @@ namespace ifb {
     IFB_INTERNAL void          game_player_rig_update_and_render (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_update_camera     (game_player_rig* player_rig);
     
-    IFB_INTERNAL void          game_entities_init                (game_entities* entities, const hnd_map h_map);
+    IFB_INTERNAL entity_id
+    game_entity_spawn_sprite(
+        const cchar*  entity_name_cstr,
+        const cchar*  atlas_name_cstr, 
+        const cchar*  sprite_name_cstr,
+        const hnd_map h_map,
+        const u32     chunk_index,
+        const u32     chunk_x,
+        const u32     chunk_y
+    );
 
     IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
