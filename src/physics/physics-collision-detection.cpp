@@ -4,6 +4,7 @@
 #include "ifb-entity.hpp"
 #include "ifb-types.hpp"
 #include "physics-internal.hpp"
+#include "entity.hpp"
 
 namespace ifb {
 
@@ -36,23 +37,6 @@ namespace ifb {
         assert(dtctr       != NULL);
         assert(dtctr->list != NULL);
 
-        // first, we need to find all the entities
-        // with physics and map components
-        entity_query query;
-        query.has_all = (
-            cmpnt_type_e_position |
-            cmpnt_type_e_map_coords
-        );
-  
-        // if we don't have any, we're done
-        const bool has_entities = entity_lookup_list(dtctr->list, query);
-        if (!has_entities) return;
-   
-        // allocate an arena
-        const hnd_arena h_arena = arena_alloc();
-        if (!h_arena == INVALID_HANDLE) return;
-
-        // next, we need to put togther a bounding volume hierarchy
-        
+                                 
     }
 };

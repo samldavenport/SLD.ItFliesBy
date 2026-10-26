@@ -68,6 +68,7 @@
 #include "physics-spring.cpp"
 #include "physics-bounding-box.cpp"
 #include "physics-collision-detection.cpp"
+#include "physics-collision-list.cpp"
 
 #include "quad.cpp"
 #include "quad-tests.cpp"
