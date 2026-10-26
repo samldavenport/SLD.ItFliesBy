@@ -66,6 +66,8 @@
 #include "physics-entity.cpp"
 #include "physics-integrator.cpp"
 #include "physics-spring.cpp"
+#include "physics-bounding-volume-hierarchy.cpp"
+#include "physics-collision-detection.cpp"
 
 #include "quad.cpp"
 #include "quad-tests.cpp"

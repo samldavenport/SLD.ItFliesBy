@@ -13,8 +13,10 @@ namespace ifb {
     struct phys_frc_accmltr; // force accumulator
     struct phys_frc_intgrtr; // force integrator
     struct phys_frc_sprcalc; // spring force calculator
+    struct phys_cllsn_dtctr;  // collision detector
     struct phys_bounding_box;
-    struct phys_potiential_contact;
+    struct phys_potential_contact;
+    struct phys_potential_contact_array;
     struct phys_bvh_node; // bounding volume hierarchy node
 
     //--------------------------------------------------------------------
@@ -43,10 +45,14 @@ namespace ifb {
     IFB_INTERNAL phys_frc_sprcalc* phys_frc_sprcalc_create   (void);
     IFB_INTERNAL void              phys_frc_sprcalc_run      (phys_frc_sprcalc* calc);
 
-    IFB_INTERNAL phys_bvh_node*                phys_bvh_alloc                       (const hnd_arena h_arena, const u32 node_count);
-    IFB_INTERNAL bool                          phys_bvh_node_is_leaf                (const phys_bvh_node* node); 
-    IFB_INTERNAL phys_potential_contact_array* phys_bvh_node_get_potential_contacts (const phys_bvh_node, const hnd_arena h_arena);
-    IFB_INTERNAL bool                          phys_bvh_node_a_overlaps_b           (const phys_bvh_node* node_a, const phys_bvh_node* node_b);   
+    IFB_INTERNAL phys_cllsn_dtctr* phys_cllsn_dtctr_create   (void);
+    IFB_INTERNAL void              phys_cllsn_dtctr_run      (phys_cllsn_dtctr* dtctr);
+
+    IFB_INTERNAL phys_bvh_node*                phys_bvh_alloc                            (const hnd_arena h_arena);
+    IFB_INTERNAL bool                          phys_bvh_node_is_leaf                     (const phys_bvh_node* node); 
+    IFB_INTERNAL phys_potential_contact_array* phys_bvh_node_get_potential_contacts      (const phys_bvh_node* node,   const f32 limit, const hnd_arena h_arena);
+    IFB_INTERNAL bool                          phys_bvh_node_aabb_check                  (const phys_bvh_node* node_a, const phys_bvh_node* node_b);   
+    IFB_INTERNAL phys_potential_contact_array* phys_bvh_node_get_potential_contacts_with (const phys_bvh_node* node_a, const phys_bvh_node* node_b, const f32 limit, const hnd_arena h_arena);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
@@ -54,7 +60,7 @@ namespace ifb {
     
     struct phys_bounding_box {
         vec3 center;
-        f32  half_size;
+        vec3 half_extents;
     };
 
     struct phys_potiential_contact {
