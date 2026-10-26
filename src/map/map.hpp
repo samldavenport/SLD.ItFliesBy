@@ -33,7 +33,9 @@ namespace ifb {
     IFB_INTERNAL void                     map_mngr_startup         (reservation* res);
     IFB_INTERNAL void                     map_mngr_shutdown        (void);
     IFB_INTERNAL const map_color_table&   map_mngr_get_color_table (void);
-
+    IFB_INTERNAL u32                      map_mngr_get_count       (void);
+    IFB_INTERNAL hnd_map                  map_mngr_get_map         (const u32 index);
+    
     // map
     IFB_INTERNAL hnd_map                  map_create                (const cchar* map_name, const u32 count_rows, const u32 count_cols);
     IFB_INTERNAL bool                     map_destroy               (const hnd_map h_map);
@@ -47,7 +49,7 @@ namespace ifb {
     IFB_INTERNAL bool                     map_is_in_bounds          (const cmpnt_map_coords& coords);
     IFB_INTERNAL bool                     map_constrain_movement    (const hnd_map h_map, const f32 inset, cmpnt_position& pos, cmpnt_velocity& vel);
     IFB_INTERNAL entity_list*             map_get_entities          (const hnd_map h_map, const hnd_arena h_arena);
-    IFB_INTERNAL entity_list*             map_get_entities_in_chunk (const hnd_map h_map, const u32 chunk_index);
+    IFB_INTERNAL entity_list*             map_get_entities_in_chunk (const hnd_map h_map, const u32 chunk_index, const hnd_arena h_arena);
     IFB_INTERNAL bool                     map_tile_set_sprite       (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                      
     IFB_INTERNAL bool                     map_chunk_set_sprite      (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
 

@@ -3,6 +3,8 @@
 #include "ifb-collections.hpp"
 #include "ifb-entity.hpp"
 #include "ifb-types.hpp"
+#include "map.hpp"
+#include "memory-arena.cpp"
 #include "physics-internal.hpp"
 #include "entity.hpp"
 
@@ -32,6 +34,39 @@ namespace ifb {
         assert(dtctr             != NULL);
         assert(dtctr->cllsn_list != NULL);
 
-                                 
+
+        // allocate an arena
+        const hnd_arena h_arena = arena_alloc();
+        if (h_arena == INVALID_HANDLE) return;
+
+        const u32 map_count = map_mngr_get_count();                         
+
+        for (
+            u32 i_map = 0;
+                i_map < map_count;
+              ++i_map) {
+
+              const hnd_map h_map = map_mngr_get_map(i_map);
+
+              map_dimensions dims;
+              map_get_dimensions(h_map, dims);
+            
+              for (
+                  u32 i_chunk = 0;
+                      i_chunk < dims.count_chunks;
+                    ++i_chunk) {
+
+                  const u32 save = arena_save(h_arena);
+
+                  entity_list* list = map_get_entities_in_chunk(h_map, i_chunk, h_arena);
+         
+                  // build bounding box hierarchy / broad phase from list
+                  //TODO(SLD)
+              
+                  arena_revert(h_arena, save);
+              }
+        }          
+
+        arena_free(h_arena);
     }
 };

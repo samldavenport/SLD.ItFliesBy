@@ -5,6 +5,12 @@
 
 namespace ifb {
 
+    struct phys_cllsn_list {
+        entity_id* a;
+        entity_id* b;
+        u32        count;
+    };
+
     IFB_INTERNAL phys_cllsn_list*
     phys_cllsn_list_create(
         void) {

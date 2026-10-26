@@ -84,12 +84,6 @@ namespace ifb {
         phys_bnd_box       bnd_box;
         entity_id          entity;
     };
-    
-    struct phys_cllsn_list {
-        entity_id* a;
-        entity_id* b;
-        u32        count;
-    };
 
     struct phys_cllsn_pair {
         entity_id a;
