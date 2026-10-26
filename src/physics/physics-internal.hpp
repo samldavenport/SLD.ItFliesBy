@@ -14,10 +14,9 @@ namespace ifb {
     struct phys_frc_intgrtr; // force integrator
     struct phys_frc_sprcalc; // spring force calculator
     struct phys_cllsn_dtctr;  // collision detector
-    struct phys_bounding_box;
-    struct phys_potential_contact;
-    struct phys_potential_contact_array;
-    struct phys_bvh_node; // bounding volume hierarchy node
+    struct phys_bnd_box;
+    struct phys_potential_contacts;
+    struct phys_bnd_box_node; // bounding box hierarchy node
 
     //--------------------------------------------------------------------
     // GLOBALS 
@@ -48,36 +47,32 @@ namespace ifb {
     IFB_INTERNAL phys_cllsn_dtctr* phys_cllsn_dtctr_create   (void);
     IFB_INTERNAL void              phys_cllsn_dtctr_run      (phys_cllsn_dtctr* dtctr);
 
-    IFB_INTERNAL phys_bvh_node*                phys_bvh_alloc                            (const hnd_arena h_arena);
-    IFB_INTERNAL bool                          phys_bvh_node_is_leaf                     (const phys_bvh_node* node); 
-    IFB_INTERNAL phys_potential_contact_array* phys_bvh_node_get_potential_contacts      (const phys_bvh_node* node,   const f32 limit, const hnd_arena h_arena);
-    IFB_INTERNAL bool                          phys_bvh_node_aabb_check                  (const phys_bvh_node* node_a, const phys_bvh_node* node_b);   
-    IFB_INTERNAL phys_potential_contact_array* phys_bvh_node_get_potential_contacts_with (const phys_bvh_node* node_a, const phys_bvh_node* node_b, const f32 limit, const hnd_arena h_arena);
+    IFB_INTERNAL phys_bnd_box_node*       phys_bnd_box_node_alloc                       (const hnd_arena h_arena);
+    IFB_INTERNAL bool                     phys_bnd_box_node_is_leaf                     (const phys_bnd_box_node* node); 
+    IFB_INTERNAL phys_potential_contacts* phys_bnd_box_node_get_potential_contacts      (const phys_bnd_box_node* node,   const f32 limit, const hnd_arena h_arena);
+    IFB_INTERNAL bool                     phys_bnd_box_node_aabb_check                  (const phys_bnd_box_node* node_a, const phys_bnd_box_node* node_b);   
+    IFB_INTERNAL phys_potential_contacts* phys_bnd_box_node_get_potential_contacts_with (const phys_bnd_box_node* node_a, const phys_bnd_box_node* node_b, const f32 limit, const hnd_arena h_arena);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------
     
-    struct phys_bounding_box {
+    struct phys_bnd_box {
         vec3 center;
         vec3 half_extents;
     };
 
-    struct phys_potiential_contact {
+    struct phys_potiential_contacts {
         entity_id a;
         entity_id b;
+        u32       count;
     };
 
-    struct phys_potential_contact_array {
-        phys_potiential_contact* contacts;
-        u32                      count;
-    };
-
-    struct phys_bvh_node {
-        phys_bvh_node*    child_a;
-        phys_bvh_node*    child_b;
-        phys_bounding_box bounding_box;
-        entity_id         entity;
+    struct phys_bnd_box_node {
+        phys_bnd_box_node* child_a;
+        phys_bnd_box_node* child_b;
+        phys_bnd_box       bnd_box;
+        entity_id          entity;
     };
 };
 
