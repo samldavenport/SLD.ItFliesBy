@@ -34,13 +34,12 @@ namespace ifb {
         assert(dtctr             != NULL);
         assert(dtctr->cllsn_list != NULL);
 
-
         // allocate an arena
         const hnd_arena h_arena = arena_alloc();
         if (h_arena == INVALID_HANDLE) return;
 
+        // iterate over each map
         const u32 map_count = map_mngr_get_count();                         
-
         for (
             u32 i_map = 0;
                 i_map < map_count;
@@ -50,33 +49,39 @@ namespace ifb {
 
               map_dimensions dims;
               map_get_dimensions(h_map, dims);
-            
+           
+              // iterate over each chunk in the map
               for (
                   u32 i_chunk = 0;
                       i_chunk < dims.count_chunks;
                     ++i_chunk) {
 
+                    // save the place in the arena 
                     const u32 save = arena_save(h_arena);
 
+                    // get the entities in the chunk
                     entity_list* list = map_get_entities_in_chunk(h_map, i_chunk, h_arena);
                     if (list == NULL) {
                         arena_revert(h_arena, save); 
                         continue; 
                     } 
 
+                    // make sure we have entities to process
                     const u32 entity_count = entity_list_count(list);
                     if (entity_count == 0) {
                         arena_revert(h_arena, save);
                         continue;
                     }
 
-                  // build bounding box hierarchy / broad phase from list
-                  //TODO(SLD)
-              
-                  arena_revert(h_arena, save);
+                    // build bounding box hierarchy / broad phase from list
+                    //TODO(SLD)
+             
+                    // revert the arena
+                    arena_revert(h_arena, save);
               }
         }          
 
+        // free the arena
         arena_free(h_arena);
     }
 };
