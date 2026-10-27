@@ -56,10 +56,20 @@ namespace ifb {
                       i_chunk < dims.count_chunks;
                     ++i_chunk) {
 
-                  const u32 save = arena_save(h_arena);
+                    const u32 save = arena_save(h_arena);
 
-                  entity_list* list = map_get_entities_in_chunk(h_map, i_chunk, h_arena);
-         
+                    entity_list* list = map_get_entities_in_chunk(h_map, i_chunk, h_arena);
+                    if (list == NULL) {
+                        arena_revert(h_arena, save); 
+                        continue; 
+                    } 
+
+                    const u32 entity_count = entity_list_count(list);
+                    if (entity_count == 0) {
+                        arena_revert(h_arena, save);
+                        continue;
+                    }
+
                   // build bounding box hierarchy / broad phase from list
                   //TODO(SLD)
               
