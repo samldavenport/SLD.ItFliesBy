@@ -178,6 +178,8 @@ namespace ifb {
     IFB_ENGINE_API void        eng_camera_set_origin (const vec3& origin);
     IFB_ENGINE_API void        eng_camera_set_target (const vec3& target);
     IFB_ENGINE_API void        eng_camera_get_xform  (mat4& xform);
+    IFB_ENGINE_API f32         eng_camera_get_fov    (void);
+    IFB_ENGINE_API void        eng_camera_set_fov    (const f32 fov_y);
 
     //--------------------------------------------------------------------
     // RENDERER
@@ -230,7 +232,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_update_inv_mass         (const entity_id id, const f32                     inv_mass);
     IFB_ENGINE_API bool         eng_cmpnt_update_mass             (const entity_id id, const f32                     mass);
     IFB_ENGINE_API bool         eng_cmpnt_update_drag             (const entity_id id, const f32                     drag);
-    IFB_ENGINE_API bool         eng_cmpnt_update_quad             (const entity_id id, const atype_quad&             quad);
+    IFB_ENGINE_API bool         eng_cmpnt_update_quad             (const entity_id id, const atype_sprite&             quad);
     IFB_ENGINE_API bool         eng_cmpnt_update_color            (const entity_id id, const cmpnt_color&            color);
     IFB_ENGINE_API bool         eng_cmpnt_update_spring           (const entity_id id, const cmpnt_spring&           spring);
     IFB_ENGINE_API bool         eng_cmpnt_update_map_coords       (const entity_id id, const cmpnt_map_coords&       coords);
@@ -241,12 +243,12 @@ namespace ifb {
     // ARCHETYPES 
     //--------------------------------------------------------------------
     
-    IFB_ENGINE_API bool eng_atype_lookup_quad         (const entity_id id, atype_quad&         quad);
-    IFB_ENGINE_API bool eng_atype_lookup_particle     (const entity_id id, atype_particle&     particle);
-    IFB_ENGINE_API bool eng_atype_lookup_physics_quad (const entity_id id, atype_physics_quad& physics_quad);
-    IFB_ENGINE_API bool eng_atype_update_quad         (const entity_id id, const atype_quad&         quad);
-    IFB_ENGINE_API bool eng_atype_update_particle     (const entity_id id, const atype_particle&     particle);
-    IFB_ENGINE_API bool eng_atype_update_physics_quad (const entity_id id, const atype_physics_quad& physics_quad);
+    IFB_ENGINE_API bool eng_atype_lookup_sprite         (const entity_id id, atype_sprite&               sprite);
+    IFB_ENGINE_API bool eng_atype_lookup_particle       (const entity_id id, atype_particle&             particle);
+    IFB_ENGINE_API bool eng_atype_lookup_physics_quad   (const entity_id id, atype_physics_sprite&       physics_sprite);
+    IFB_ENGINE_API bool eng_atype_update_sprite         (const entity_id id, const atype_sprite&         sprite);
+    IFB_ENGINE_API bool eng_atype_update_particle       (const entity_id id, const atype_particle&       particle);
+    IFB_ENGINE_API bool eng_atype_update_physics_sprite (const entity_id id, const atype_physics_sprite& physics_sprite);
   
     //--------------------------------------------------------------------
     // TILE MAPS 

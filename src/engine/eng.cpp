@@ -12,6 +12,7 @@
 
 #include "eng-arena.cpp"
 #include "eng-asset.cpp"
+#include "eng-atype.cpp"
 #include "eng-cmpnt.cpp"
 #include "eng-camera.cpp"
 #include "eng-context.cpp"
@@ -65,6 +66,10 @@
 #include "physics-entity.cpp"
 #include "physics-integrator.cpp"
 #include "physics-spring.cpp"
+#include "physics-aabb.cpp"
+#include "physics-bvh.cpp"
+#include "physics-collision-detection.cpp"
+#include "physics-collision-list.cpp"
 
 #include "quad.cpp"
 #include "quad-tests.cpp"

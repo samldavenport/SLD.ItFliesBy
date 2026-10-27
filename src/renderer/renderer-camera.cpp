@@ -30,7 +30,7 @@ namespace ifb {
 
         assert(camera);
 
-        camera->origin = { 0.0f, 0.3f, 0.6f };
+        camera->origin = { 0.0f, 0.368f, 0.939f };
         camera->target = { 0.0f, 0.2f, 0.1f };
     }
 

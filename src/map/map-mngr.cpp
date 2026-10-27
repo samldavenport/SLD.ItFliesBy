@@ -54,7 +54,7 @@ namespace ifb {
 
         // allocate memory
         auto  tbl_map = _map_mngr->tbl_map;
-assert(tbl_map);
+        assert(tbl_map);
         tbl_map->hnd         =      (hnd_map*)reservation_push_bytes(_map_mngr->res, size_hnds);
         tbl_map->dims        =  (map_dimensions*)reservation_push_bytes(_map_mngr->res, size_dims);
         tbl_map->name        =        (cstr_c16*)reservation_push_bytes(_map_mngr->res, size_name);
@@ -63,7 +63,7 @@ assert(tbl_map);
         tbl_map->row_wall_array    = (map_wall_array*)reservation_push_bytes(_map_mngr->res, size_walls);
         tbl_map->column_wall_array = (map_wall_array*)reservation_push_bytes(_map_mngr->res, size_walls);
         tbl_map->origin      =            (vec3*)reservation_push_bytes(_map_mngr->res, size_origin);
-assert(tbl_map->hnd);
+        assert(tbl_map->hnd);
         assert(tbl_map->dims);
         assert(tbl_map->name);
         assert(tbl_map->chunk_array);
@@ -71,7 +71,7 @@ assert(tbl_map->hnd);
         assert(tbl_map->row_wall_array);
         assert(tbl_map->column_wall_array);
         assert(tbl_map->origin);
-for (
+        for (
             u32 map_index = 0;
                 map_index < cfg.map_capacity;
               ++map_index) {
@@ -125,5 +125,59 @@ for (
             init = true;
         }
         return(color_tbl);
+    }
+    
+    // the number of active maps, use with map_mngr_get_map to iterate
+    IFB_INTERNAL u32
+    map_mngr_get_count(
+        void) {
+
+        assert(_map_mngr);
+        assert(_map_mngr->tbl_map);
+
+        const auto  tbl = _map_mngr->tbl_map;
+        const auto& cfg = config_instance();
+
+        u32 count = 0;
+        for (
+            u32 map_index = 0;
+                map_index < cfg.map_capacity;
+              ++map_index) {
+
+            if (tbl->hnd[map_index] != INVALID_HANDLE) {
+                ++count;
+            }
+        }
+        return(count);
+    }
+
+    // the handle of the nth active map, skipping empty slots in the table
+    // INVALID_HANDLE if there aren't that many maps
+    IFB_INTERNAL hnd_map
+    map_mngr_get_map(
+        const u32 index) {
+
+        assert(_map_mngr);
+        assert(_map_mngr->tbl_map);
+
+        const auto  tbl = _map_mngr->tbl_map;
+        const auto& cfg = config_instance();
+
+        u32 count = 0;
+        for (
+            u32 map_index = 0;
+                map_index < cfg.map_capacity;
+              ++map_index) {
+
+            const hnd_map h_map = tbl->hnd[map_index];
+            if (h_map == INVALID_HANDLE) {
+                continue;
+            }
+            if (count == index) {
+                return(h_map);
+            }
+            ++count;
+        }
+        return(INVALID_HANDLE);
     }
 };

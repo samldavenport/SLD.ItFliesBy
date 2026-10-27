@@ -34,6 +34,22 @@ namespace ifb {
         renderer_set_camera_target(target);
     }
 
+    // the vertical field of view, in degrees
+    IFB_ENGINE_API f32
+    eng_camera_get_fov(
+        void) {
+
+        const f32 fov_y = trig_radians_to_degrees(renderer_get_viewport_fov());
+        return(fov_y);
+    }
+
+    IFB_ENGINE_API void
+    eng_camera_set_fov(
+        const f32 fov_y) {
+
+        renderer_set_viewport_fov(trig_degrees_to_radians(fov_y));
+    }
+
     IFB_ENGINE_API void
     eng_camera_get_xform(
         mat4& xform) {

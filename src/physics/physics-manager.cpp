@@ -16,10 +16,11 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     struct phys_mngr {
-        reservation*               res;
+        reservation*      res;
         phys_frc_accmltr* force_accumulator;
-        phys_frc_intgrtr*  force_integrator;
+        phys_frc_intgrtr* force_integrator;
         phys_frc_sprcalc* spring_calculator;
+        phys_cllsn_dtctr* collision_detector;
     };
 
     //--------------------------------------------------------------------
@@ -40,9 +41,12 @@ namespace ifb {
     phys_mngr_validate(
         void) {
 
-        assert(_phys_mngr                    != NULL);
-        assert(_phys_mngr->res               != NULL);
-        assert(_phys_mngr->force_accumulator != NULL);
+        assert(_phys_mngr                     != NULL);
+        assert(_phys_mngr->res                != NULL);
+        assert(_phys_mngr->force_accumulator  != NULL);
+        assert(_phys_mngr->force_integrator   != NULL);
+        assert(_phys_mngr->spring_calculator  != NULL);
+        assert(_phys_mngr->collision_detector != NULL);
     }
 
     IFB_INTERNAL void
@@ -52,10 +56,11 @@ namespace ifb {
         assert(_phys_mngr);
         assert(res);
 
-        _phys_mngr->res               = res;
-        _phys_mngr->spring_calculator = phys_frc_sprcalc_create ();
-        _phys_mngr->force_accumulator = phys_frc_accmltr_create ();
-        _phys_mngr->force_integrator  = phys_frc_intgrtr_create  (); 
+        _phys_mngr->res                = res;
+        _phys_mngr->spring_calculator  = phys_frc_sprcalc_create ();
+        _phys_mngr->force_accumulator  = phys_frc_accmltr_create ();
+        _phys_mngr->force_integrator   = phys_frc_intgrtr_create (); 
+        _phys_mngr->collision_detector = phys_cllsn_dtctr_create ();
 
         phys_mngr_validate();
     }
@@ -71,8 +76,11 @@ namespace ifb {
     phys_mngr_simulate(
         const f32 dt) {
 
-        phys_frc_sprcalc_run   (_phys_mngr->spring_calculator); 
-        phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
+        const phys_cllsn_list* cllsn_list = phys_cllsn_dtctr_get_list(_phys_mngr->collision_detector);
+
+        phys_cllsn_dtctr_run   (_phys_mngr->collision_detector, dt);
+        phys_frc_sprcalc_run   (_phys_mngr->spring_calculator);
+        phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, cllsn_list, dt);
         phys_frc_accmltr_reset (_phys_mngr->force_accumulator);
     }
 

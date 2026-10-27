@@ -2,16 +2,10 @@
 #pragma once
 
 #include "component.hpp"
-#include "entity-lookup.cpp"
-#include "entity-manager.cpp"
 #include "entity.cpp"
-#include "entity-component.cpp"
 #include "ifb-entity.hpp"
 #include "ifb-types.hpp"
 #include "map.hpp"
-#include "physics-entity.cpp"
-#include "quad.cpp"
-#include "renderer.hpp"
 #include <cassert>
 
 namespace ifb {
@@ -21,9 +15,9 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_ENGINE_API bool
-    eng_atype_lookup_quad(
+    eng_atype_lookup_sprite(
         const entity_id id,
-        atype_quad&     quad) {
+        atype_sprite&     quad) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -31,13 +25,14 @@ namespace ifb {
 
         entity e;
         result  &= entity_lookup_by_id  (e, id);
-        result  &= entity_has_component (e, ENTITY_ARCHETYPE_QUAD);        
+        result  &= e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE);        
            
         if (result) {
-            cmpnt_lookup_position   (e.index_sparse, quad.position);
-            cmpnt_lookup_color      (e.index_sparse, quad.color);
-            cmpnt_lookup_quad       (e.index_sparse, quad.quad);
-            map_entity_lookup_coords(e, quad.map_coords);
+            cmpnt_lookup_position    (e.index_sparse, quad.position);
+            cmpnt_lookup_color       (e.index_sparse, quad.color);
+            cmpnt_lookup_quad        (e.index_sparse, quad.quad);
+            map_entity_lookup_coords (e, quad.map_coords);
+            cmpnt_lookup_sprite      (e.index_sparse, quad.sprite);
         }
 
         return(result);
@@ -54,7 +49,7 @@ namespace ifb {
 
         entity e;
         result &= entity_lookup_by_id  (e, id);
-        result &= entity_has_component (e, ENTITY_ARCHETYPE_PHYSICS_PARTICLE);        
+        result &= e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_PARTICLE);        
            
         if (result) {
             cmpnt_lookup_position      (e.index_sparse, particle.position);
@@ -72,7 +67,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_atype_lookup_physics_quad(
         const entity_id     id,
-        atype_physics_quad& physics_quad) {
+        atype_physics_sprite& physics_quad) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -80,7 +75,7 @@ namespace ifb {
 
         entity e;
         result  &= entity_lookup_by_id  (e, id);
-        result  &= entity_has_component (e, ENTITY_ARCHETYPE_QUAD);        
+        result  &= e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_SPRITE);        
            
         if (result) {
             cmpnt_lookup_position     (e.index_sparse, physics_quad.position);
@@ -103,22 +98,23 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_ENGINE_API bool
-    eng_atype_update_quad(
-        const entity_id   id,
-        const atype_quad& quad) {
+    eng_atype_update_sprite(
+        const entity_id     id,
+        const atype_sprite& sprite) {
         
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
         const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, ENTITY_ARCHETYPE_QUAD); 
+        const bool has_component = e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE); 
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_update_position   (e.index_sparse, quad.position);
-            cmpnt_update_color      (e.index_sparse, quad.color);
-            cmpnt_update_quad       (e.index_sparse, quad.quad);
-            cmpnt_update_map_coords (e.index_sparse, quad.map_coords);
+            cmpnt_update_position   (e.index_sparse, sprite.position);
+            cmpnt_update_color      (e.index_sparse, sprite.color);
+            cmpnt_update_quad       (e.index_sparse, sprite.quad);
+            cmpnt_update_map_coords (e.index_sparse, sprite.map_coords);
+            cmpnt_update_sprite     (e.index_sparse, sprite.sprite);
         }
 
         return(can_update);
@@ -133,7 +129,7 @@ namespace ifb {
    
         entity e;
         const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, ENTITY_ARCHETYPE_QUAD); 
+        const bool has_component = e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_PARTICLE); 
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
@@ -150,28 +146,29 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
-    eng_atype_update_physics_quad(
-        const entity_id           id,
-        const atype_physics_quad& physics_quad) {
+    eng_atype_update_physics_sprite(
+        const entity_id             id,
+        const atype_physics_sprite& physics_sprite) {
 
         assert(id != ENTITY_ID_INVALID); 
    
         entity e;
         const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = entity_has_component (e, ENTITY_ARCHETYPE_QUAD); 
+        const bool has_component = e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_SPRITE); 
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {
-            cmpnt_update_position     (e.index_sparse, physics_quad.position);
-            cmpnt_update_color        (e.index_sparse, physics_quad.color);
-            cmpnt_update_quad         (e.index_sparse, physics_quad.quad);
-            cmpnt_update_rigid_body   (e.index_sparse, physics_quad.rigid_body);
-            cmpnt_update_velocity     (e.index_sparse, physics_quad.velocity);
-            cmpnt_update_acceleration (e.index_sparse, physics_quad.acceleration);
-            cmpnt_update_inv_mass     (e.index_sparse, physics_quad.inv_mass);
-            cmpnt_update_drag         (e.index_sparse, physics_quad.drag);
-            cmpnt_update_map_coords   (e.index_sparse, physics_quad.map_coords);
-            cmpnt_update_term_velocity(e.index_sparse, physics_quad.term_velocity);
+            cmpnt_update_position     (e.index_sparse, physics_sprite.position);
+            cmpnt_update_color        (e.index_sparse, physics_sprite.color);
+            cmpnt_update_quad         (e.index_sparse, physics_sprite.quad);
+            cmpnt_update_rigid_body   (e.index_sparse, physics_sprite.rigid_body);
+            cmpnt_update_velocity     (e.index_sparse, physics_sprite.velocity);
+            cmpnt_update_acceleration (e.index_sparse, physics_sprite.acceleration);
+            cmpnt_update_inv_mass     (e.index_sparse, physics_sprite.inv_mass);
+            cmpnt_update_drag         (e.index_sparse, physics_sprite.drag);
+            cmpnt_update_map_coords   (e.index_sparse, physics_sprite.map_coords);
+            cmpnt_update_term_velocity(e.index_sparse, physics_sprite.term_velocity);
+            cmpnt_update_sprite       (e.index_sparse, physics_sprite.sprite);
         }
 
         return(can_update);

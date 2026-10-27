@@ -33,22 +33,25 @@ namespace ifb {
     IFB_INTERNAL void                     map_mngr_startup         (reservation* res);
     IFB_INTERNAL void                     map_mngr_shutdown        (void);
     IFB_INTERNAL const map_color_table&   map_mngr_get_color_table (void);
-
+    IFB_INTERNAL u32                      map_mngr_get_count       (void);
+    IFB_INTERNAL hnd_map                  map_mngr_get_map         (const u32 index);
+    
     // map
-    IFB_INTERNAL hnd_map                  map_create               (const cchar* map_name, const u32 count_rows, const u32 count_cols);
-    IFB_INTERNAL bool                     map_destroy              (const hnd_map h_map);
-    IFB_INTERNAL u32                      map_render_buffer        (byte* buffer_data, const u32 buffer_size, const hnd_map h_map);
-    IFB_INTERNAL bool                     map_get_dimensions       (const hnd_map h_map, map_dimensions& dims);
-    IFB_INTERNAL bool                     map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
-    IFB_INTERNAL bool                     map_get_origin           (const hnd_map h_map, vec3& origin);
-    IFB_INTERNAL bool                     map_set_origin           (const hnd_map h_map, const vec3& origin);
-    IFB_INTERNAL bool                     map_get_pos_from_coords  (const cmpnt_map_coords& coords, cmpnt_position& pos);
-    IFB_INTERNAL bool                     map_get_coords_from_pos  (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
-    IFB_INTERNAL bool                     map_is_in_bounds         (const cmpnt_map_coords& coords);
-    IFB_INTERNAL bool                     map_constrain_movement   (const hnd_map h_map, const f32 inset, cmpnt_position& pos, cmpnt_velocity& vel);
-    IFB_INTERNAL entity_list*             map_get_entities         (const hnd_map h_map, const hnd_arena h_arena);
-    IFB_INTERNAL bool                     map_tile_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                      
-    IFB_INTERNAL bool                     map_chunk_set_sprite     (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_INTERNAL hnd_map                  map_create                (const cchar* map_name, const u32 count_rows, const u32 count_cols);
+    IFB_INTERNAL bool                     map_destroy               (const hnd_map h_map);
+    IFB_INTERNAL u32                      map_render_buffer         (byte* buffer_data, const u32 buffer_size, const hnd_map h_map);
+    IFB_INTERNAL bool                     map_get_dimensions        (const hnd_map h_map, map_dimensions& dims);
+    IFB_INTERNAL bool                     map_get_navigable_bounds  (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
+    IFB_INTERNAL bool                     map_get_origin            (const hnd_map h_map, vec3& origin);
+    IFB_INTERNAL bool                     map_set_origin            (const hnd_map h_map, const vec3& origin);
+    IFB_INTERNAL bool                     map_get_pos_from_coords   (const cmpnt_map_coords& coords, cmpnt_position& pos);
+    IFB_INTERNAL bool                     map_get_coords_from_pos   (const cmpnt_position&   pos,    cmpnt_map_coords& coords);
+    IFB_INTERNAL bool                     map_is_in_bounds          (const cmpnt_map_coords& coords);
+    IFB_INTERNAL bool                     map_constrain_movement    (const hnd_map h_map, const f32 inset, cmpnt_position& pos, cmpnt_velocity& vel);
+    IFB_INTERNAL entity_list*             map_get_entities          (const hnd_map h_map, const hnd_arena h_arena);
+    IFB_INTERNAL entity_list*             map_get_entities_in_chunk (const hnd_map h_map, const u32 chunk_index, const hnd_arena h_arena);
+    IFB_INTERNAL bool                     map_tile_set_sprite       (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                      
+    IFB_INTERNAL bool                     map_chunk_set_sprite      (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
 
     // map walls
     // row walls are on the min-z edge of tile (row, col), row can be count_rows for the far edge

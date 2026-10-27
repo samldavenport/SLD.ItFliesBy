@@ -633,7 +633,71 @@ namespace ifb {
 
         return(e_list);
     }
-    
+
+    // entities whose map coordinates are on a tile covered by the chunk
+    // returns NULL if the map or chunk is invalid, or the list can't be allocated
+    IFB_INTERNAL entity_list*
+    map_get_entities_in_chunk(
+        const hnd_map   h_map,
+        const u32       chunk_index,
+        const hnd_arena h_arena) {
+
+        assert(h_map   != INVALID_HANDLE);
+        assert(h_arena != INVALID_HANDLE);
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(NULL);
+        }
+
+        const map_dimensions& dims = map_get_dimensions(map_index);
+        if (chunk_index >= dims.count_chunks) {
+            return(NULL);
+        }
+
+        // create the entity list
+        entity_list* e_list = entity_list_arena_create(h_arena);
+        if (e_list == NULL) {
+            return(NULL);
+        }
+
+        // the chunk's tile bounds, max is exclusive
+        const map_chunk& chunk   = map_get_chunk(map_index, chunk_index);
+        const f32        row_min = (f32)chunk.origin_row;
+        const f32        col_min = (f32)chunk.origin_col;
+        const f32        row_max = (f32)(chunk.origin_row + chunk.count_rows);
+        const f32        col_max = (f32)(chunk.origin_col + chunk.count_cols);
+
+        const u32 entity_count = entity_mngr_get_count();
+        entity           e;
+        cmpnt_map_coords mc;
+        for (
+            u32 entity_index = 0;
+                entity_index < entity_count;
+              ++entity_index) {
+
+            const bool did_find = entity_lookup_by_index_dense(e, entity_index);
+            assert(did_find);
+
+            if (!e.archetype.has_any(cmpnt_type_e_map_coords)) {
+                continue;
+            }
+
+            cmpnt_lookup_map_coords(e.index_sparse, mc);
+            if (mc.h_map != h_map) {
+                continue;
+            }
+
+            const bool is_row_in_chunk = (mc.row_z >= row_min && mc.row_z < row_max);
+            const bool is_col_in_chunk = (mc.col_x >= col_min && mc.col_x < col_max);
+            if (is_row_in_chunk && is_col_in_chunk) {
+                (void)entity_list_add(e_list, e.id);
+            }
+        }
+
+        return(e_list);
+    }
+
     IFB_INTERNAL bool
     map_tile_set_sprite(
         const hnd_map h_map,

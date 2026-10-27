@@ -22,7 +22,7 @@ namespace ifb {
         entity e;
         const bool found_entity = (
             entity_lookup_by_id(e, id) &&
-            e.archetype.has_all(ENTITY_ARCHETYPE_QUAD)
+            e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE)
         );
 
         if (!found_entity) {
@@ -52,7 +52,7 @@ namespace ifb {
 	const quad_entity& q) {
 
         assert(
-            q.archetype.has_all(ENTITY_ARCHETYPE_QUAD) &&
+            q.archetype.has_all(ENTITY_ARCHETYPE_SPRITE) &&
             q.id  != ENTITY_ID_INVALID                 &&
             q.tag != NULL 
         );
@@ -86,10 +86,26 @@ namespace ifb {
         entity e;
         const bool does_exist = (
             entity_lookup_by_id(e, id) &&
-            e.archetype.has_all(ENTITY_ARCHETYPE_QUAD)
+            e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE)
         );
 
         return(does_exist);
+    }
+
+    // distance from the camera plane to the quad's center, farther is larger
+    IFB_INTERNAL f32
+    quad_depth(
+        const quad_vertices& vertices,
+        const orientation&   camera_orientation) {
+
+        const vec3 center = {
+            (vertices.top_right.position.x + vertices.bottom_left.position.x) * 0.5f,
+            (vertices.top_right.position.y + vertices.bottom_left.position.y) * 0.5f,
+            (vertices.top_right.position.z + vertices.bottom_left.position.z) * 0.5f
+        };
+
+        const f32 depth = vec3_dot(center, camera_orientation.forward);
+        return(depth);
     }
 
     IFB_INTERNAL u32
@@ -126,6 +142,27 @@ namespace ifb {
             if (quad_render(quad_vertices, quad_id, camera_orientation)) {
                 vertex_index++;
             }
+        }
+
+        // the depth test always passes, so the quads are sorted back to front
+        // the order barely changes between frames, so an insertion sort is cheap
+        for (
+            u32 sort_index = 1;
+                sort_index < vertex_index;
+              ++sort_index) {
+
+            const quad_vertices sort_quad  = vertex_buffer[sort_index];
+            const f32           sort_depth = quad_depth(sort_quad, camera_orientation);
+
+            u32 insert_index = sort_index;
+            while (
+                insert_index > 0 &&
+                quad_depth(vertex_buffer[insert_index - 1], camera_orientation) < sort_depth) {
+
+                vertex_buffer[insert_index] = vertex_buffer[insert_index - 1];
+                --insert_index;
+            }
+            vertex_buffer[insert_index] = sort_quad;
         }
 
         return(render_size);
@@ -170,6 +207,14 @@ namespace ifb {
             const vec3 right = vec3_scalar_multiply(quad_right, offset_width);
             const vec3 up    = vec3_scalar_multiply(quad_up,    offset_height);
 
+            // quads are centered on their position, but pivot around the bottom edge
+            // so the base stays on the ground and only the top tilts with the camera
+            const vec3 center = {
+                q.pos.x + up.x,
+                q.pos.y + up.y - offset_height,
+                q.pos.z + up.z
+            };
+
             sprite_info info;
             const bool did_get_sprite_info = sprite_mngr_get_sprite_info_by_index(
                 q.sprite.h_atlas,
@@ -195,9 +240,9 @@ namespace ifb {
             }
 
             // top right
-            vertices.top_right.position.x    = q.pos.x + right.x + up.x;
-            vertices.top_right.position.y    = q.pos.y + right.y + up.y;
-            vertices.top_right.position.z    = q.pos.z + right.z + up.z;
+            vertices.top_right.position.x    = center.x + right.x + up.x;
+            vertices.top_right.position.y    = center.y + right.y + up.y;
+            vertices.top_right.position.z    = center.z + right.z + up.z;
             vertices.top_right.color.r       = color.r;
             vertices.top_right.color.g       = color.g;
             vertices.top_right.color.b       = color.b;
@@ -207,9 +252,9 @@ namespace ifb {
             vertices.top_right.textured      = textured;
 
             // bottom right
-            vertices.bottom_right.position.x = q.pos.x + right.x - up.x;
-            vertices.bottom_right.position.y = q.pos.y + right.y - up.y;
-            vertices.bottom_right.position.z = q.pos.z + right.z - up.z;
+            vertices.bottom_right.position.x = center.x + right.x - up.x;
+            vertices.bottom_right.position.y = center.y + right.y - up.y;
+            vertices.bottom_right.position.z = center.z + right.z - up.z;
             vertices.bottom_right.color.r    = color.r;
             vertices.bottom_right.color.g    = color.g;
             vertices.bottom_right.color.b    = color.b;
@@ -219,9 +264,9 @@ namespace ifb {
             vertices.bottom_right.textured      = textured;
 
             // bottom left
-            vertices.bottom_left.position.x  = q.pos.x - right.x - up.x;
-            vertices.bottom_left.position.y  = q.pos.y - right.y - up.y;
-            vertices.bottom_left.position.z  = q.pos.z - right.z - up.z;
+            vertices.bottom_left.position.x  = center.x - right.x - up.x;
+            vertices.bottom_left.position.y  = center.y - right.y - up.y;
+            vertices.bottom_left.position.z  = center.z - right.z - up.z;
             vertices.bottom_left.color.r     = color.r;
             vertices.bottom_left.color.g     = color.g;
             vertices.bottom_left.color.b     = color.b;
@@ -231,9 +276,9 @@ namespace ifb {
             vertices.bottom_left.textured       = textured;
 
             // top left
-            vertices.top_left.position.x     = q.pos.x - right.x + up.x;
-            vertices.top_left.position.y     = q.pos.y - right.y + up.y;
-            vertices.top_left.position.z     = q.pos.z - right.z + up.z;
+            vertices.top_left.position.x     = center.x - right.x + up.x;
+            vertices.top_left.position.y     = center.y - right.y + up.y;
+            vertices.top_left.position.z     = center.z - right.z + up.z;
             vertices.top_left.color.r        = color.r;
             vertices.top_left.color.g        = color.g;
             vertices.top_left.color.b        = color.b;

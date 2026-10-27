@@ -18,39 +18,56 @@ namespace ifb {
         hnd_arena arena_h = eng_arena_alloc();
         assert(arena_h != INVALID_INDEX);
 
-        auto ctx =    (game_context*)eng_arena_push(arena_h, sizeof(game_context));
-        auto rig = (game_player_rig*)eng_arena_push(arena_h, sizeof(game_player_rig));
-        auto map =        (game_map*)eng_arena_push(arena_h, sizeof(game_map));
+        auto ctx      =    (game_context*)eng_arena_push(arena_h, sizeof(game_context));
+        auto rig      = (game_player_rig*)eng_arena_push(arena_h, sizeof(game_player_rig));
+        auto map      =        (game_map*)eng_arena_push(arena_h, sizeof(game_map));
+        auto entities =   (game_entities*)eng_arena_push(arena_h, sizeof(game_entities));
+        auto sprites  =    (game_sprites*)eng_arena_push(arena_h, sizeof(game_sprites));
 
-        assert(ctx != NULL);
-        assert(rig != NULL);
-        assert(map != NULL);
+        assert(ctx      != NULL);
+        assert(rig      != NULL);
+        assert(map      != NULL);
+        assert(entities != NULL);
+        assert(sprites  != NULL);
 
         ctx->global_arena = arena_h;
         ctx->player_rig   = rig;
-        ctx->map          =  map; 
+        ctx->map          = map; 
+        ctx->entities     = entities; 
+        ctx->sprites      = sprites; 
 
         // load the sprite atlas
-        ctx->test_sprites.h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
-        ctx->test_sprites.i_sprite_connor = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "CONNOR");
-        ctx->test_sprites.i_sprite_jig    = eng_sprite_atlas_lookup_sprite_index (ctx->test_sprites.h_atlas, "JIG");
+        sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
+        sprites->i_sprite_connor = eng_sprite_atlas_lookup_sprite_index (sprites->h_atlas, "CONNOR");
+        sprites->i_sprite_jig    = eng_sprite_atlas_lookup_sprite_index (sprites->h_atlas, "JIG");
 
         // set the sprite atlas to active
-        const bool did_set_texture = eng_sprite_atlas_set_active(ctx->test_sprites.h_atlas);
+        const bool did_set_texture = eng_sprite_atlas_set_active(sprites->h_atlas);
         assert(did_set_texture);
         (void)did_set_texture;
 
 
         // the map goes first, the player rig spawns on it
         game_map_init        (ctx->map);
+
         rig->starting_map_hnd = map->eng_hnd;
         rig->current_map_hnd  = map->eng_hnd;
         game_player_rig_init (ctx->player_rig);
 
         _game_ctx = ctx;
 
+        entities->static_entity_0 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-0","WOOD",map->eng_hnd,0,3,3);
+        entities->static_entity_1 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-1","WOOD",map->eng_hnd,0,3,7);
+        entities->static_entity_2 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-2","WOOD",map->eng_hnd,0,7,3);
+        entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
 
-        return(ctx);      
+        assert(entities->static_entity_0 != ENTITY_ID_INVALID);
+        assert(entities->static_entity_1 != ENTITY_ID_INVALID);
+        assert(entities->static_entity_2 != ENTITY_ID_INVALID);
+        assert(entities->static_entity_3 != ENTITY_ID_INVALID);
+
+
+        return(ctx); 
     }
     
     IFB_INTERNAL void
@@ -70,6 +87,7 @@ namespace ifb {
 
         auto player_rig = ctx->player_rig;
         auto map        = ctx->map;
+        auto entities   = ctx->entities;
 
         game_player_rig_update_and_render (ctx->player_rig);
         game_player_rig_update_camera     (ctx->player_rig);
@@ -77,6 +95,11 @@ namespace ifb {
 
         cmpnt_position pos;
         (void)eng_cmpnt_lookup_position(player_rig->connor_id, pos);
+    
+        eng_entity_render(entities->static_entity_0);
+        eng_entity_render(entities->static_entity_1);
+        eng_entity_render(entities->static_entity_2);
+        eng_entity_render(entities->static_entity_3);
     }
     
     IFB_INTERNAL game_context*

@@ -467,14 +467,15 @@ namespace ifb {
         cmpnt_term_velocity term_velocity;
     };
     
-    struct atype_quad {
+    struct atype_sprite {
         cmpnt_position   position;
         cmpnt_color      color;
         cmpnt_quad       quad;
         cmpnt_map_coords map_coords;
+        cmpnt_sprite     sprite;
     };
 
-    struct atype_physics_quad {
+    struct atype_physics_sprite {
         cmpnt_position      position;
         cmpnt_color         color;
         cmpnt_quad          quad;
@@ -485,10 +486,11 @@ namespace ifb {
         cmpnt_drag          drag;
         cmpnt_term_velocity term_velocity;
         cmpnt_map_coords    map_coords;
+        cmpnt_sprite        sprite;
     };
     
     //--------------------------------------------------------------------
-    // SRITE TYPES
+    // SPRITE TYPES
     //--------------------------------------------------------------------
 };
 

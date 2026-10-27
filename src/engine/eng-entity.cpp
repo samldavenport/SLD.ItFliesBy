@@ -135,7 +135,7 @@ namespace ifb {
    
         entity e;
         bool does_exist    = entity_lookup_by_id  (e, id);
-        bool has_component = entity_has_component (e,
+        bool has_component = e.archetype.has_all(
                 cmpnt_type_e_quad  |
                 cmpnt_type_e_color |
                 cmpnt_type_e_position
@@ -145,7 +145,7 @@ namespace ifb {
         const bool did_push   = can_render && renderer_push_quad(id);
 
         // an entity with a particle emitter renders its particles too
-        const bool has_emitter      = does_exist  && entity_has_component(e, cmpnt_type_e_position | cmpnt_type_e_particle_emitter);
+        const bool has_emitter      = does_exist  && e.archetype.has_all(cmpnt_type_e_position | cmpnt_type_e_particle_emitter);
         const bool did_push_emitter = has_emitter && renderer_push_particle_emitter(id);
 
         return(did_push || did_push_emitter);
@@ -160,7 +160,7 @@ namespace ifb {
    
         entity e;
         bool does_exist    = entity_lookup_by_id  (e, id);
-        bool has_component = entity_has_component (e,
+        bool has_component = e.archetype.has_all(
            cmpnt_type_e_position     |
            cmpnt_type_e_velocity     |
            cmpnt_type_e_acceleration |

@@ -124,7 +124,7 @@ namespace ifb {
         player_rig->jig_faces_right = true;
         const f32 jig_offset_x    = player_rig->jig_offset_x;
 
-        atype_quad quad_connor  = {0};
+        atype_sprite quad_connor  = {0};
         quad_connor.color.hex   = 0xFFFFFFFF;
         quad_connor.quad.width  = 0.2;
         quad_connor.quad.height = 0.2;
@@ -132,7 +132,7 @@ namespace ifb {
         quad_connor.position.y  = spawn_pos.y + 0.1f;
         quad_connor.position.z  = spawn_pos.z;
 
-        atype_quad quad_jig  = {0};
+        atype_sprite quad_jig  = {0};
         quad_jig.color.hex   =  0xFFFFFFFF;
         quad_jig.quad.width  =  0.1;
         quad_jig.quad.height =  0.1;
@@ -161,7 +161,7 @@ namespace ifb {
         const f32 drag     = 0.01f;
         
         // connor belongs to the map, so he can't walk off of it
-        eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_SPRITE);
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_map_coords);
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_sprite);
         eng_cmpnt_update_map_coords    (player_rig->connor_id, spawn_coords);
@@ -170,7 +170,7 @@ namespace ifb {
         eng_cmpnt_update_drag          (player_rig->connor_id, drag); 
         eng_cmpnt_update_term_velocity (player_rig->connor_id, tv);
 
-        eng_entity_add_components      (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_QUAD);
+        eng_entity_add_components      (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_SPRITE);
         eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_spring);
         eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_sprite);
         eng_cmpnt_update_quad          (player_rig->jig_id, quad_jig);
