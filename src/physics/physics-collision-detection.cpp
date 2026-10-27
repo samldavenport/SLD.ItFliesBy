@@ -28,13 +28,14 @@ namespace ifb {
     }
 
     // builds an aabb for each entity in the list that has a position and quad
-    // the position is the center of the quad, and the quad is treated as
-    // width deep along z so it has volume to overlap with
+    // detection runs before integration, so moving entities are swept by
+    // their velocity to catch the pairs that will touch during this step
     inline u32
     phys_cllsn_dtctr_get_bounds(
         const entity_list* list,
         entity_id*         ids,
-        phys_aabb*         aabbs) {
+        phys_aabb*         aabbs,
+        const f32          dt) {
 
         const component_type bounds_types = (
             cmpnt_type_e_position |
@@ -51,24 +52,30 @@ namespace ifb {
             const entity_id id = entity_list_index(list, index);
 
             entity e;
-            if (!entity_lookup_by_id(e, id))           continue;
-            if (!e.archetype.has_all(bounds_types))    continue;
+            if (!entity_lookup_by_id(e, id))        continue;
+            if (!e.archetype.has_all(bounds_types)) continue;
 
             cmpnt_position pos;
             cmpnt_quad     quad;
             cmpnt_lookup_position (e.index_sparse, pos);
             cmpnt_lookup_quad     (e.index_sparse, quad);
 
-            const f32 half_w = quad.width  * 0.5f;
-            const f32 half_h = quad.height * 0.5f;
-
             phys_aabb& aabb = aabbs[count];
-            aabb.min.x = pos.x - half_w;
-            aabb.min.y = pos.y - half_h;
-            aabb.min.z = pos.z - half_w;
-            aabb.max.x = pos.x + half_w;
-            aabb.max.y = pos.y + half_h;
-            aabb.max.z = pos.z + half_w;
+            phys_aabb_from_center(aabb, pos, phys_aabb_half_extent_quad(quad));
+
+            if (e.archetype.has_all(cmpnt_type_e_velocity)) {
+                cmpnt_velocity vel;
+                cmpnt_lookup_velocity(e.index_sparse, vel);
+
+                phys_aabb aabb_swept;
+                aabb_swept.min.x = aabb.min.x + (vel.x * dt);
+                aabb_swept.min.y = aabb.min.y + (vel.y * dt);
+                aabb_swept.min.z = aabb.min.z + (vel.z * dt);
+                aabb_swept.max.x = aabb.max.x + (vel.x * dt);
+                aabb_swept.max.y = aabb.max.y + (vel.y * dt);
+                aabb_swept.max.z = aabb.max.z + (vel.z * dt);
+                phys_aabb_grow(aabb, aabb_swept);
+            }
 
             ids[count] = id;
             ++count;
@@ -77,9 +84,19 @@ namespace ifb {
         return(count);
     }
 
+    IFB_INTERNAL phys_cllsn_list*
+    phys_cllsn_dtctr_get_list(
+        const phys_cllsn_dtctr* dtctr) {
+
+        assert(dtctr             != NULL);
+        assert(dtctr->cllsn_list != NULL);
+        return(dtctr->cllsn_list);
+    }
+
     IFB_INTERNAL void
     phys_cllsn_dtctr_run(
-        phys_cllsn_dtctr* dtctr) {
+        phys_cllsn_dtctr* dtctr,
+        const f32         dt) {
 
         assert(dtctr             != NULL);
         assert(dtctr->cllsn_list != NULL);
@@ -135,13 +152,10 @@ namespace ifb {
                         continue;
                     }
 
-                    const u32 count_bounded = phys_cllsn_dtctr_get_bounds(list, ids, aabbs);
+                    // build the bvh and query for collision pairs
+                    const u32 count_bounded = phys_cllsn_dtctr_get_bounds(list, ids, aabbs, dt);
                     phys_bvh_build       (bvh, ids, aabbs, count_bounded);
                     phys_bvh_query_pairs (bvh, dtctr->cllsn_list);
-
-                    const u32 count_pairs = phys_cllsn_list_get_count(dtctr->cllsn_list);
-                    if (count_pairs > 0) {
-                    }
 
                     // revert the arena
                     arena_revert(h_arena, save);

@@ -76,9 +76,11 @@ namespace ifb {
     phys_mngr_simulate(
         const f32 dt) {
 
-        phys_cllsn_dtctr_run   (_phys_mngr->collision_detector);
-        phys_frc_sprcalc_run   (_phys_mngr->spring_calculator); 
-        phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
+        const phys_cllsn_list* cllsn_list = phys_cllsn_dtctr_get_list(_phys_mngr->collision_detector);
+
+        phys_cllsn_dtctr_run   (_phys_mngr->collision_detector, dt);
+        phys_frc_sprcalc_run   (_phys_mngr->spring_calculator);
+        phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, cllsn_list, dt);
         phys_frc_accmltr_reset (_phys_mngr->force_accumulator);
     }
 

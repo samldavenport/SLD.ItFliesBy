@@ -43,12 +43,13 @@ namespace ifb {
     IFB_INTERNAL void              phys_frc_accmltr_reset      (phys_frc_accmltr* const accum);
    
     IFB_INTERNAL phys_frc_intgrtr* phys_frc_intgrtr_create     (void); 
-    IFB_INTERNAL void              phys_frc_intgrtr_run        (phys_frc_intgrtr* integrator, const phys_frc_accmltr* accum, const f32 dt);  
+    IFB_INTERNAL void              phys_frc_intgrtr_run        (phys_frc_intgrtr* integrator, const phys_frc_accmltr* accum, const phys_cllsn_list* cllsn_list, const f32 dt);
     IFB_INTERNAL phys_frc_sprcalc* phys_frc_sprcalc_create     (void);
     IFB_INTERNAL void              phys_frc_sprcalc_run        (phys_frc_sprcalc* calc);
 
     IFB_INTERNAL phys_cllsn_dtctr* phys_cllsn_dtctr_create     (void);
-    IFB_INTERNAL void              phys_cllsn_dtctr_run        (phys_cllsn_dtctr* dtctr);
+    IFB_INTERNAL void              phys_cllsn_dtctr_run        (phys_cllsn_dtctr* dtctr, const f32 dt);
+    IFB_INTERNAL phys_cllsn_list*  phys_cllsn_dtctr_get_list   (const phys_cllsn_dtctr* dtctr);
 
     IFB_INTERNAL phys_cllsn_list*  phys_cllsn_list_create      (void); 
     IFB_INTERNAL u32               phys_cllsn_list_get_count   (const phys_cllsn_list* list);
@@ -67,6 +68,8 @@ namespace ifb {
     IFB_INTERNAL bool              phys_aabb_check             (const phys_aabb& aabb_a, const phys_aabb& aabb_b);
     IFB_INTERNAL f32               phys_aabb_area              (const phys_aabb& aabb);
     IFB_INTERNAL vec3              phys_aabb_centroid          (const phys_aabb& aabb);
+    IFB_INTERNAL void              phys_aabb_from_center       (phys_aabb& aabb, const vec3& center, const vec3& half_extent);
+    IFB_INTERNAL vec3              phys_aabb_half_extent_quad  (const cmpnt_quad& quad);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS

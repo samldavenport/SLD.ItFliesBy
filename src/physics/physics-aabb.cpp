@@ -88,4 +88,32 @@ namespace ifb {
         centroid.z = (aabb.min.z + aabb.max.z) * 0.5f;
         return(centroid);
     }
+
+    IFB_INTERNAL void
+    phys_aabb_from_center(
+        phys_aabb&  aabb,
+        const vec3& center,
+        const vec3& half_extent) {
+
+        aabb.min.x = center.x - half_extent.x;
+        aabb.min.y = center.y - half_extent.y;
+        aabb.min.z = center.z - half_extent.z;
+        aabb.max.x = center.x + half_extent.x;
+        aabb.max.y = center.y + half_extent.y;
+        aabb.max.z = center.z + half_extent.z;
+    }
+
+    // the position is the center of the quad, and the quad is treated as
+    // width deep along z so it has volume to overlap with
+    // this matches the inset the map uses to keep quads inside of it
+    IFB_INTERNAL vec3
+    phys_aabb_half_extent_quad(
+        const cmpnt_quad& quad) {
+
+        vec3 half_extent;
+        half_extent.x = quad.width  * 0.5f;
+        half_extent.y = quad.height * 0.5f;
+        half_extent.z = quad.width  * 0.5f;
+        return(half_extent);
+    }
 };
