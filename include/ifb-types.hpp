@@ -53,16 +53,15 @@ namespace ifb {
         cmpnt_type_e_position         = bit_value(0),
         cmpnt_type_e_color            = bit_value(1),
         cmpnt_type_e_quad             = bit_value(2),
-        cmpnt_type_e_rigid_body       = bit_value(3),
-        cmpnt_type_e_velocity         = bit_value(4),
-        cmpnt_type_e_acceleration     = bit_value(5),
-        cmpnt_type_e_inv_mass         = bit_value(6),
-        cmpnt_type_e_drag             = bit_value(7),
-        cmpnt_type_e_term_velocity    = bit_value(8),
-        cmpnt_type_e_spring           = bit_value(9),
-        cmpnt_type_e_map_coords       = bit_value(10),
-        cmpnt_type_e_particle_emitter = bit_value(11),
-        cmpnt_type_e_sprite           = bit_value(12)
+        cmpnt_type_e_velocity         = bit_value(3),
+        cmpnt_type_e_acceleration     = bit_value(4),
+        cmpnt_type_e_inv_mass         = bit_value(5),
+        cmpnt_type_e_drag             = bit_value(6),
+        cmpnt_type_e_term_velocity    = bit_value(7),
+        cmpnt_type_e_spring           = bit_value(8),
+        cmpnt_type_e_map_coords       = bit_value(9),
+        cmpnt_type_e_particle_emitter = bit_value(10),
+        cmpnt_type_e_sprite           = bit_value(11)
     };
     
     enum map_tile_flag_e {
@@ -412,12 +411,6 @@ namespace ifb {
         f32 height;
     };
 
-    struct cmpnt_rigid_body {
-        vec3 origin;
-        f32  width;
-        f32  height;
-    };
-
     struct cmpnt_inv_mass {
         f32 normal_val;
     };
@@ -459,7 +452,6 @@ namespace ifb {
 
     struct atype_particle {
         cmpnt_position      position;
-        cmpnt_rigid_body    rigid_body;
         cmpnt_velocity      velocity;
         cmpnt_acceleration  acceleration;
         cmpnt_inv_mass      inv_mass;
@@ -479,7 +471,6 @@ namespace ifb {
         cmpnt_position      position;
         cmpnt_color         color;
         cmpnt_quad          quad;
-        cmpnt_rigid_body    rigid_body;
         cmpnt_velocity      velocity;
         cmpnt_acceleration  acceleration;
         cmpnt_inv_mass      inv_mass;
