@@ -83,7 +83,8 @@ namespace ifb {
     };
 
     struct phys_bvh {
-        phys_bvh_node* array;
+        phys_bvh_node* array_nodes;
+        entity_id*     array_entity_ids; 
         u32            count;
         u32            capacity;
     };

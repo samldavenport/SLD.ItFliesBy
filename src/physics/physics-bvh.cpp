@@ -20,13 +20,20 @@ namespace ifb {
 
         auto bvh   =      (phys_bvh*)arena_push(h_arena, sizeof(phys_bvh));
         auto nodes = (phys_bvh_node*)arena_push(h_arena, node_capacity * sizeof(phys_bvh_node)); 
-         
-        if (bvh == NULL || nodes == NULL) {
+        auto ids   =     (entity_id*)arena_push(h_arena, node_capacity * sizeof(entity_id));  
+       
+        const bool is_valid = (
+            bvh   == NULL && 
+            nodes == NULL && 
+            ids   == NULL
+        );
+
+        if (!is_valid) {
             arena_revert(h_arena, save);
             return(NULL);
         } 
 
-        bvh->array    = nodes;
+        bvh->array_nodes   = nodes;
         bvh->capacity = node_capacity;
         bvh->count    = 0;
         return(bvh);
