@@ -59,7 +59,15 @@ namespace ifb {
 
         const phys_aabb* aabbs = bvh->array_entity_aabbs;
 
-        while (lo < hi) {
+        // each pass places the pivot and drops it from the range,
+        // so the range shrinks by at least one every iteration
+        const u32 iteration_max = (hi - lo) + 1;
+        for (
+            u32 iteration = 0;
+                iteration < iteration_max;
+              ++iteration) {
+
+            if (lo >= hi) return;
 
             // move the middle element to the end and use it as the pivot
             const u32 mid = lo + ((hi - lo) / 2);
@@ -84,6 +92,8 @@ namespace ifb {
             if (k < store) hi = store - 1;
             else           lo = store + 1;
         }
+
+        assert(lo >= hi);
     }
 
     inline void
@@ -104,6 +114,8 @@ namespace ifb {
         }
     }
 
+    // splits a single node into two children, the children are
+    // appended to the end of the node array to be split later
     inline void
     phys_bvh_subdivide(
         phys_bvh* bvh,
@@ -160,8 +172,6 @@ namespace ifb {
 
         phys_bvh_node_update_bounds (bvh, index_left);
         phys_bvh_node_update_bounds (bvh, index_right);
-        phys_bvh_subdivide          (bvh, index_left);
-        phys_bvh_subdivide          (bvh, index_right);
     }
 
     //--------------------------------------------------------------------
@@ -245,8 +255,19 @@ namespace ifb {
         root.count               = count;
         bvh->count_nodes         = 1;
 
-        phys_bvh_node_update_bounds (bvh, 0);
-        phys_bvh_subdivide          (bvh, 0);
+        phys_bvh_node_update_bounds(bvh, 0);
+
+        // split the nodes in the order they're created
+        // children always land after their parent, so a single pass visits every node
+        // and the node count can never pass the capacity
+        for (
+            u32 node_index = 0;
+                node_index < bvh->capacity_nodes;
+              ++node_index) {
+
+            if (node_index >= bvh->count_nodes) break;
+            phys_bvh_subdivide(bvh, node_index);
+        }
     }
 
     IFB_INTERNAL u32
@@ -273,7 +294,14 @@ namespace ifb {
             u32 stack_count = 0;
             stack[stack_count++] = 0;
 
-            while (stack_count > 0) {
+            // every node gets pushed at most once per traversal,
+            // so the node count bounds the iterations
+            for (
+                u32 iteration = 0;
+                    iteration < bvh->count_nodes;
+                  ++iteration) {
+
+                if (stack_count == 0) break;
 
                 const phys_bvh_node& node = bvh->array_nodes[stack[--stack_count]];
                 if (!phys_aabb_check(node.bnd_box, aabb_a)) continue;
@@ -305,6 +333,8 @@ namespace ifb {
                     }
                 }
             }
+
+            assert(stack_count == 0);
         }
 
         return(count_pairs);
