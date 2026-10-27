@@ -13,12 +13,14 @@ namespace ifb {
     struct phys_frc_accmltr; // force accumulator
     struct phys_frc_intgrtr; // force integrator
     struct phys_frc_sprcalc; // spring force calculator
-    struct phys_cllsn_dtctr;  // collision detector
+    struct phys_cllsn_dtctr; // collision detector
     struct phys_cllsn_list;  // collision list
     struct phys_cllsn_pair;  // collision pair 
     struct phys_bnd_box;
     struct phys_potential_contacts;
-    struct phys_bnd_box_node; // bounding box hierarchy node
+    struct phys_bvh;      // bounding volume hierarchy
+    struct phys_bvh_node; // bounding volume hierarchy node
+    struct phys_aabb;
 
     //--------------------------------------------------------------------
     // GLOBALS 
@@ -56,33 +58,34 @@ namespace ifb {
     IFB_INTERNAL void                     phys_cllsn_list_remove_pair  (phys_cllsn_list*       list, const u32 index);
     IFB_INTERNAL void                     phys_cllsn_list_reset        (phys_cllsn_list*       list);
 
-    IFB_INTERNAL phys_bnd_box_node*       phys_bnd_box_node_alloc                       (const hnd_arena h_arena);
-    IFB_INTERNAL bool                     phys_bnd_box_node_is_leaf                     (const phys_bnd_box_node* node); 
-    IFB_INTERNAL phys_potential_contacts* phys_bnd_box_node_get_potential_contacts      (const phys_bnd_box_node* node,   const f32 limit, const hnd_arena h_arena);
-    IFB_INTERNAL bool                     phys_bnd_box_node_aabb_check                  (const phys_bnd_box_node* node_a, const phys_bnd_box_node* node_b);   
-    IFB_INTERNAL phys_potential_contacts* phys_bnd_box_node_get_potential_contacts_with (const phys_bnd_box_node* node_a, const phys_bnd_box_node* node_b, const f32 limit, const hnd_arena h_arena);
+    IFB_INTERNAL phys_bvh*                phys_bvh_create (const u32 entity_count, const hnd_arena h_arena);
 
+    IFB_INTERNAL void                     phys_aabb_reset    (phys_aabb& aabb); 
+    IFB_INTERNAL void                     phys_aabb_grow     (phys_aabb& aabb_curr, const phys_aabb& aabb_new); 
+    IFB_INTERNAL void                     phys_aabb_grow_pt  (phys_aabb& aabb_curr, const vec3& pt); 
+    IFB_INTERNAL bool                     phys_aabb_check    (const phys_aabb& aabb_a, const phys_aabb& aabb_b);
+    IFB_INTERNAL f32                      phys_aabb_area     (const phys_aabb& aabb);
+    IFB_INTERNAL vec3                     phys_aabb_centroid (const phys_aabb& aabb);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------
     
-    struct phys_bnd_box {
-        vec3 center;
-        vec3 half_extents;
+    struct phys_aabb {
+        vec3 min;
+        vec3 max;
     };
 
-    struct phys_potential_contacts {
-        entity_id a;
-        entity_id b;
-        u32       count;
+    struct phys_bvh_node {
+        phys_aabb bnd_box;
+        u32       child_left_or_first;
+        entity_id entity;
     };
 
-    struct phys_bnd_box_node {
-        phys_bnd_box_node* child_a;
-        phys_bnd_box_node* child_b;
-        phys_bnd_box       bnd_box;
-        entity_id          entity;
+    struct phys_bvh {
+        phys_bvh_node* array;
+        u32            count;
+        u32            capacity;
     };
 
     struct phys_cllsn_pair {
