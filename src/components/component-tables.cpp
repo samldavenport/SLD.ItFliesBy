@@ -19,7 +19,6 @@ namespace ifb {
         assert(tbl->array_position);
         assert(tbl->array_color);
         assert(tbl->array_quad);
-        assert(tbl->array_rigid_body);
         assert(tbl->array_velocity);
         assert(tbl->array_acceleration);
         assert(tbl->array_inv_mass);
@@ -56,8 +55,8 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
-    cmpnt_lookup_quad          (
-        const u32 sparse_index,
+    cmpnt_lookup_quad(
+        const u32   sparse_index,
         cmpnt_quad& q) {
   
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
@@ -65,18 +64,9 @@ namespace ifb {
     }
    
     IFB_INTERNAL void
-    cmpnt_lookup_rigid_body    (
-        const u32 sparse_index,
-        cmpnt_rigid_body&       rb) {
-  
-        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
-        rb = tbl->array_rigid_body[sparse_index];
-    }
-   
-    IFB_INTERNAL void
-    cmpnt_lookup_velocity      (
-        const u32 sparse_index,
-        cmpnt_velocity&      vel) {
+    cmpnt_lookup_velocity(
+        const u32       sparse_index,
+        cmpnt_velocity& vel) {
   
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         vel = tbl->array_velocity[sparse_index];
@@ -184,16 +174,6 @@ namespace ifb {
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tbl->array_quad[sparse_index] = q;
     }
-
-
-    IFB_INTERNAL void
-    cmpnt_update_rigid_body(
-        const u32         sparse_index,
-        const cmpnt_rigid_body& rb){
-        
-        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
-        tbl->array_rigid_body[sparse_index] = rb;
-    }   
      
     IFB_INTERNAL void
     cmpnt_update_velocity(

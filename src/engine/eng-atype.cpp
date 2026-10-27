@@ -53,7 +53,6 @@ namespace ifb {
            
         if (result) {
             cmpnt_lookup_position      (e.index_sparse, particle.position);
-            cmpnt_lookup_rigid_body    (e.index_sparse, particle.rigid_body);
             cmpnt_lookup_velocity      (e.index_sparse, particle.velocity);
             cmpnt_lookup_acceleration  (e.index_sparse, particle.acceleration);
             cmpnt_lookup_inv_mass      (e.index_sparse, particle.inv_mass);
@@ -81,7 +80,6 @@ namespace ifb {
             cmpnt_lookup_position     (e.index_sparse, physics_quad.position);
             cmpnt_lookup_color        (e.index_sparse, physics_quad.color);
             cmpnt_lookup_quad         (e.index_sparse, physics_quad.quad);
-            cmpnt_lookup_rigid_body   (e.index_sparse, physics_quad.rigid_body);
             cmpnt_lookup_velocity     (e.index_sparse, physics_quad.velocity);
             cmpnt_lookup_acceleration (e.index_sparse, physics_quad.acceleration);
             cmpnt_lookup_inv_mass     (e.index_sparse, physics_quad.inv_mass);
@@ -134,7 +132,6 @@ namespace ifb {
 
         if (can_update) {
             cmpnt_update_position     (e.index_sparse, particle.position);
-            cmpnt_update_rigid_body   (e.index_sparse, particle.rigid_body);
             cmpnt_update_velocity     (e.index_sparse, particle.velocity);
             cmpnt_update_acceleration (e.index_sparse, particle.acceleration);
             cmpnt_update_inv_mass     (e.index_sparse, particle.inv_mass);
@@ -161,7 +158,6 @@ namespace ifb {
             cmpnt_update_position     (e.index_sparse, physics_sprite.position);
             cmpnt_update_color        (e.index_sparse, physics_sprite.color);
             cmpnt_update_quad         (e.index_sparse, physics_sprite.quad);
-            cmpnt_update_rigid_body   (e.index_sparse, physics_sprite.rigid_body);
             cmpnt_update_velocity     (e.index_sparse, physics_sprite.velocity);
             cmpnt_update_acceleration (e.index_sparse, physics_sprite.acceleration);
             cmpnt_update_inv_mass     (e.index_sparse, physics_sprite.inv_mass);

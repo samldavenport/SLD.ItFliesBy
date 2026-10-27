@@ -71,19 +71,4 @@ namespace ifb {
 
         cmpnt_update_inv_mass(sparse_index, im);
     }
-    
-    IFB_INTERNAL void 
-    phys_entity_set_rigid_body(
-        const entity_id   id,
-        const cmpnt_rigid_body& rb) {
-
-        assert(id != ENTITY_ID_INVALID);
-   
-        bool did_update = false;
-
-        const u32 sparse_index = entity_lookup_sparse_index(id);
-        assert(sparse_index != INVALID_INDEX);
-    
-        cmpnt_update_rigid_body(sparse_index,rb);
-    }
 };

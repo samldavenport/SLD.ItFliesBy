@@ -19,7 +19,6 @@ namespace ifb {
 
     static const component_type ENTITY_ARCHETYPE_PHYSICS_PARTICLE = (
         cmpnt_type_e_position      |
-        cmpnt_type_e_rigid_body    |
         cmpnt_type_e_velocity      |
         cmpnt_type_e_acceleration  |
         cmpnt_type_e_inv_mass      |
