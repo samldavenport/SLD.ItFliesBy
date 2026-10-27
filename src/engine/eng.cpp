@@ -66,6 +66,7 @@
 #include "physics-entity.cpp"
 #include "physics-integrator.cpp"
 #include "physics-spring.cpp"
+#include "physics-aabb.cpp"
 #include "physics-bvh.cpp"
 #include "physics-collision-detection.cpp"
 #include "physics-collision-list.cpp"

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "physics-internal.hpp"
 #include <cfloat>
 
@@ -7,12 +9,13 @@ namespace ifb {
     phys_aabb_reset(
         phys_aabb& aabb) {
 
-        aabb.max.x =  FLT_MAX;
-        aabb.max.y =  FLT_MAX;
-        aabb.max.z =  FLT_MAX;
-        aabb.min.x = -FLT_MAX;
-        aabb.min.y = -FLT_MAX;
-        aabb.min.z = -FLT_MAX;
+        // inverted so the first grow snaps to the new bounds
+        aabb.min.x =  FLT_MAX;
+        aabb.min.y =  FLT_MAX;
+        aabb.min.z =  FLT_MAX;
+        aabb.max.x = -FLT_MAX;
+        aabb.max.y = -FLT_MAX;
+        aabb.max.z = -FLT_MAX;
     } 
 
     IFB_INTERNAL void

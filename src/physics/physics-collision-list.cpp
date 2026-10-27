@@ -40,7 +40,7 @@ namespace ifb {
         return(list->count);
     }
 
-    IFB_INTERNAL const phys_cllsn_pair
+    IFB_INTERNAL phys_cllsn_pair
     phys_cllsn_list_get_pair(
         const phys_cllsn_list* list,
         const u32              index) {

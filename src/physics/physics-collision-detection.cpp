@@ -27,12 +27,65 @@ namespace ifb {
         return(cllsn_dtctr);
     }
 
+    // builds an aabb for each entity in the list that has a position and quad
+    // the position is the center of the quad, and the quad is treated as
+    // width deep along z so it has volume to overlap with
+    inline u32
+    phys_cllsn_dtctr_get_bounds(
+        const entity_list* list,
+        entity_id*         ids,
+        phys_aabb*         aabbs) {
+
+        const component_type bounds_types = (
+            cmpnt_type_e_position |
+            cmpnt_type_e_quad
+        );
+
+        u32 count = 0;
+        const u32 entity_count = entity_list_count(list);
+        for (
+            u32 index = 0;
+                index < entity_count;
+              ++index) {
+
+            const entity_id id = entity_list_index(list, index);
+
+            entity e;
+            if (!entity_lookup_by_id(e, id))           continue;
+            if (!e.archetype.has_all(bounds_types))    continue;
+
+            cmpnt_position pos;
+            cmpnt_quad     quad;
+            cmpnt_lookup_position (e.index_sparse, pos);
+            cmpnt_lookup_quad     (e.index_sparse, quad);
+
+            const f32 half_w = quad.width  * 0.5f;
+            const f32 half_h = quad.height * 0.5f;
+
+            phys_aabb& aabb = aabbs[count];
+            aabb.min.x = pos.x - half_w;
+            aabb.min.y = pos.y - half_h;
+            aabb.min.z = pos.z - half_w;
+            aabb.max.x = pos.x + half_w;
+            aabb.max.y = pos.y + half_h;
+            aabb.max.z = pos.z + half_w;
+
+            ids[count] = id;
+            ++count;
+        }
+
+        return(count);
+    }
+
     IFB_INTERNAL void
     phys_cllsn_dtctr_run(
         phys_cllsn_dtctr* dtctr) {
 
         assert(dtctr             != NULL);
         assert(dtctr->cllsn_list != NULL);
+
+        // pairs are rebuilt every run
+        phys_cllsn_list_reset(dtctr->cllsn_list);
 
         // allocate an arena
         const hnd_arena h_arena = arena_alloc();
@@ -74,8 +127,22 @@ namespace ifb {
                     }
 
                     // build bounding box hierarchy / broad phase from list
-                    //TODO(SLD)
-             
+                    phys_bvh*  bvh   = phys_bvh_create(entity_count, h_arena);
+                    entity_id* ids   = (entity_id*)arena_push(h_arena, entity_count * sizeof(entity_id));
+                    phys_aabb* aabbs = (phys_aabb*)arena_push(h_arena, entity_count * sizeof(phys_aabb));
+                    if (bvh == NULL || ids == NULL || aabbs == NULL) {
+                        arena_revert(h_arena, save);
+                        continue;
+                    }
+
+                    const u32 count_bounded = phys_cllsn_dtctr_get_bounds(list, ids, aabbs);
+                    phys_bvh_build       (bvh, ids, aabbs, count_bounded);
+                    phys_bvh_query_pairs (bvh, dtctr->cllsn_list);
+
+                    const u32 count_pairs = phys_cllsn_list_get_count(dtctr->cllsn_list);
+                    if (count_pairs > 0) {
+                    }
+
                     // revert the arena
                     arena_revert(h_arena, save);
               }
