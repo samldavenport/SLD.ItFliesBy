@@ -4,7 +4,7 @@
 #include "ifb.hpp"
 #include "memory.hpp"
 #include "sld.hpp"
-#include "json.hpp"
+#include "ifb-json.hpp"
 
 namespace ifb {
 

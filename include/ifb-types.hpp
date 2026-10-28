@@ -75,7 +75,6 @@ namespace ifb {
     IFB_U8(map_wall_flags_u8);
 
     IFB_HANDLE(hnd_arena);
-    IFB_HANDLE(hnd_file);
     IFB_HANDLE(hnd_map);
     IFB_HANDLE(hnd_particle_emitter);
     IFB_HANDLE(hnd_sprite_atlas);

@@ -6,6 +6,7 @@
 #include "ifb-archetypes.hpp"
 #include "ifb-assets.hpp"
 #include "ifb-sprites.hpp"
+#include "ifb-files.hpp"
 #include "sld.hpp"
 #include "ifb-types.hpp"
 #include "ifb-platform.hpp"

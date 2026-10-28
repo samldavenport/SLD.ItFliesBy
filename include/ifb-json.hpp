@@ -2,7 +2,6 @@
 #define JSON_HPP
 
 #include "ifb-types.hpp"
-#include "memory.hpp"
 #include "sld.hpp"
 
 namespace ifb {

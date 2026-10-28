@@ -3,7 +3,6 @@
 
 #include "ifb.hpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
 #include "ifb-platform.hpp"
 
 namespace ifb {
@@ -20,6 +19,7 @@ namespace ifb {
     // PRIMITIVE TYPES
     //--------------------------------------------------------------------
 
+    IFB_HANDLE(hnd_file);
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES 
