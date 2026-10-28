@@ -4,7 +4,7 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "memory-reservation.cpp"
-#include "particle.hpp"
+#include "ifb-particle.hpp"
 #include "sld.hpp"
 #include <sld-strings.hpp>
 

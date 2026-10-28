@@ -1,9 +1,10 @@
-#ifndef WIN32_HPP
-#define WIN32_HPP
+#ifndef IFB_WIN32_HPP
+#define IFB_WIN32_HPP
 
 #include <Windows.h>
 #include <ShObjIdl.h>
 #include "ifb.hpp"
+#include "ifb-input.hpp"
 
 #define IFB_WIN32_API_FUNC
 #define IFB_WIN32_INTERNAL static
@@ -63,4 +64,4 @@ namespace ifb {
     );
 };
 
-#endif //WIN32_HPP
+#endif //IFB_WIN32_HPP

@@ -1,8 +1,8 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
-#include "ifb-types.hpp"
-#include "memory.hpp"
+#include "ifb-components.hpp"
+#include "ifb-memory.hpp"
 #include "sld.hpp"
 
 namespace ifb {

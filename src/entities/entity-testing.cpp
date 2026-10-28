@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-collections.hpp"
-#include "entity.hpp"
+#include "ifb-entities.hpp"
 namespace ifb {
 
     inline void test_create         (void);

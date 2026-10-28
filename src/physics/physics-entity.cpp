@@ -2,7 +2,7 @@
 
 #include "entity.cpp"
 #include "ifb-types.hpp"
-#include "physics.hpp"
+#include "ifb-physics.hpp"
 #include "component.hpp"
 #include "physics-internal.hpp"
 

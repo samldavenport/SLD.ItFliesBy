@@ -1,6 +1,6 @@
 #pragma once
 
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "eng-internal.hpp"
 
 namespace ifb {

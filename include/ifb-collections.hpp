@@ -4,7 +4,7 @@
 #include <sld.hpp>
 
 #include "ifb-types.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 
 namespace ifb {
 

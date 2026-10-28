@@ -3,7 +3,7 @@
 
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include "memory-reservation.cpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"

@@ -1,10 +1,10 @@
-#ifndef TILED_HPP
-#define TILED_HPP
+#ifndef IFB_TILED_HPP
+#define IFB_TILED_HPP
 
 #include "ifb.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "sld.hpp"
-#include "json.hpp"
+#include "ifb-json.hpp"
 
 namespace ifb {
 
@@ -602,4 +602,4 @@ namespace ifb {
     };
 };
 
-#endif //TILED_HPP
+#endif //IFB_TILED_HPP

@@ -2,8 +2,8 @@
 
 #include "entity.cpp"
 #include "ifb-collections.hpp"
-#include "ifb-entity.hpp"
-#include "quad.hpp"
+#include "ifb-entities.hpp"
+#include "ifb-quad.hpp"
 
 namespace ifb {
 

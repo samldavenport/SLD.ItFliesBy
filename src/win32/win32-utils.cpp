@@ -1,4 +1,4 @@
-#include "win32.hpp"
+#include "ifb-win32.hpp"
 
 namespace ifb {
 

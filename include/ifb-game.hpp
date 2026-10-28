@@ -2,7 +2,7 @@
 #define IFB_GAME_HPP
 
 #include "ifb-types.hpp"
-#include "ifb-engine.hpp"
+#include "ifb-map.hpp"
 
 namespace ifb {
 

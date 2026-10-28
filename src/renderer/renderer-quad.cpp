@@ -2,7 +2,7 @@
 
 #include "ifb-types.hpp"
 #include "render-buffers.cpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "renderer-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-opengl.hpp"

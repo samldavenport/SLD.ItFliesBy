@@ -3,8 +3,8 @@
 #include "ifb-collections.hpp"
 #include "renderer-internal.hpp"
 #include "eng-internal.hpp"
-#include "quad.hpp"
-#include "map.hpp"
+#include "ifb-quad.hpp"
+#include "ifb-map.hpp"
 
 namespace ifb {
 

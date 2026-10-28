@@ -1,6 +1,6 @@
 #pragma once
 
-#include "win32.hpp"
+#include "ifb-win32.hpp"
 #include "ifb-platform.hpp"
 #include <Windows.h>
 #include "win32-file.cpp"
