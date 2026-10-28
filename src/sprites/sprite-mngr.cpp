@@ -2,7 +2,7 @@
 
 #include "eng-internal.hpp"
 #include "ifb-types.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "sld.hpp"
 #include "sprite-internal.hpp"
 #include "sprites.hpp"

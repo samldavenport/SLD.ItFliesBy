@@ -2,8 +2,8 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
-#include "particle.hpp"
-#include "renderer.hpp"
+#include "ifb-particle.hpp"
+#include "ifb-renderer.hpp"
 
 namespace ifb {
 

@@ -6,7 +6,7 @@
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
 #include "ifb-types.hpp"
-#include "random.hpp"
+#include "ifb-random.hpp"
 #include "sld.hpp"
 
 namespace ifb {

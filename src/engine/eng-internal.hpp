@@ -3,15 +3,15 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
-#include "files.hpp"
-#include "renderer.hpp"
-#include "entity.hpp"
-#include "memory.hpp"
+#include "ifb-files.hpp"
+#include "ifb-renderer.hpp"
+#include "ifb-entities.hpp"
+#include "ifb-memory.hpp"
 #include "component.hpp"
-#include "physics.hpp"
-#include "map.hpp"
-#include "particle.hpp"
-#include "random.hpp"
+#include "ifb-physics.hpp"
+#include "ifb-map.hpp"
+#include "ifb-particle.hpp"
+#include "ifb-random.hpp"
 #include "sprites.hpp"
 
 #define IFB_ENG_API_FUNC

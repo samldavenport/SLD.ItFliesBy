@@ -1,6 +1,7 @@
 #pragma once
 
-#include "win32.hpp"
+#include "ifb-win32.hpp"
+#include "ifb-font-opensans.hpp"
 
 namespace ifb {
 

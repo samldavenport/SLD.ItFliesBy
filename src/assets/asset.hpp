@@ -1,12 +1,9 @@
 #ifndef ASSETS_HPP
 #define ASSETS_HPP
 
-#include "ifb-config.hpp"
-#include "ifb-types.hpp"
-#include "ifb.hpp"
-#include "memory-reservation.cpp"
+#include "ifb-assets.hpp"
+#include "ifb-memory.hpp"
 #include "sld.hpp"
-#include <sld-strings.hpp>
 
 namespace ifb {
 
@@ -17,10 +14,6 @@ namespace ifb {
     struct asset_mngr;
     struct asset_dictionary;
     struct asset_database;
-    struct asset_name;
-    struct asset_text;
-    struct asset_image;
-    struct asset_sprite_atlas;
     
     //--------------------------------------------------------------------
     // METHODS 

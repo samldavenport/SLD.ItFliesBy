@@ -3,7 +3,7 @@
 #include "ifb-types.hpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"
-#include "particle.hpp"
+#include "ifb-particle.hpp"
 #include "sld-strings.hpp"
 #include "sld-math-vec3.hpp"
 #include "sld.hpp"

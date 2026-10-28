@@ -2,7 +2,9 @@
 #define IFB_FILES_HPP
 
 #include "ifb.hpp"
-#include "memory.hpp"
+#include "ifb-config.hpp"
+#include "ifb-platform.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 
@@ -13,11 +15,6 @@ namespace ifb {
     //TODO(SAM): this should be the same as INVALID_HANDLE
     constexpr u32 FILE_HANDLE_INVALID = 0;
     constexpr u32 FILE_INDEX_INVALID  = 0xFFFFFFFF;
-
-    //--------------------------------------------------------------------
-    // PRIMITIVE TYPES
-    //--------------------------------------------------------------------
-
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES 

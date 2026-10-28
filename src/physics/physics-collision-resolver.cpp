@@ -6,7 +6,7 @@
 #include "component-tables.cpp"
 #include "entity.cpp"
 #include "ifb-types.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include "physics-collision-detection.cpp"
 #include "physics-internal.hpp"
 

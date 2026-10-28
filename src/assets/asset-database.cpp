@@ -5,8 +5,8 @@
 #include "file-rw.cpp"
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
-#include "memory.hpp"
-#include "files.hpp"
+#include "ifb-memory.hpp"
+#include "ifb-files.hpp"
 #include "sld.hpp"
 
 namespace ifb {

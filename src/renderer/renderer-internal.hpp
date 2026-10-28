@@ -2,7 +2,7 @@
 #define RENDERER_INTERNAL_HPP
 
 #include "ifb-types.hpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "sld-opengl.hpp"
 
 namespace ifb {

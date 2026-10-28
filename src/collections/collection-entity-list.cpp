@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-engine.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "ifb-collections.hpp"
 #include "ifb-types.hpp"
 #include "ifb-config.hpp"

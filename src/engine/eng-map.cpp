@@ -3,10 +3,10 @@
 #include "ifb-engine.hpp"
 #include "ifb-types.hpp"
 #include "component.hpp"
-#include "entity.hpp"
-#include "renderer.hpp"
+#include "ifb-entities.hpp"
+#include "ifb-renderer.hpp"
 #include "sld.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 
 namespace ifb {
 

@@ -3,10 +3,10 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "render-buffers.cpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "renderer-internal.hpp"
 #include "sld-opengl.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include "sld.hpp"
 #include "eng-internal.hpp"
 #include <cassert>

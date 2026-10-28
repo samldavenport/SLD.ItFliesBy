@@ -2,11 +2,11 @@
 
 #include "ifb-config.hpp"
 #include "component.hpp"
-#include "entity.hpp"
-#include "particle.hpp"
-#include "quad.hpp"
-#include "map.hpp"
-#include "renderer.hpp"
+#include "ifb-entities.hpp"
+#include "ifb-particle.hpp"
+#include "ifb-quad.hpp"
+#include "ifb-map.hpp"
+#include "ifb-renderer.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"
 

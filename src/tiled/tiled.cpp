@@ -1,9 +1,9 @@
 #pragma once
 
-#include "tiled.hpp"
+#include "ifb-tiled.hpp"
 #include "ifb-types.hpp"
 #include "json.cpp"
-#include "json.hpp"
+#include "ifb-json.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include <stdlib.h>
