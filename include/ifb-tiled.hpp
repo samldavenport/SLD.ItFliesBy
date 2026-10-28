@@ -1,5 +1,5 @@
-#ifndef TILED_HPP
-#define TILED_HPP
+#ifndef IFB_TILED_HPP
+#define IFB_TILED_HPP
 
 #include "ifb.hpp"
 #include "ifb-memory.hpp"
@@ -602,4 +602,4 @@ namespace ifb {
     };
 };
 
-#endif //TILED_HPP
+#endif //IFB_TILED_HPP

@@ -18,7 +18,7 @@
 #include "renderer.cpp"
 #include "ifb-renderer.hpp"
 #include "ifb-map.hpp"
-#include "tiled.hpp"
+#include "ifb-tiled.hpp"
 #include "ifb-memory.hpp"
 #include "eng-system.cpp"
 #include "asset.hpp"

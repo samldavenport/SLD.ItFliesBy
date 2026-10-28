@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tiled.hpp"
+#include "ifb-tiled.hpp"
 #include "ifb-types.hpp"
 #include "json.cpp"
 #include "ifb-json.hpp"
