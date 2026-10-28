@@ -2,7 +2,7 @@
 #define RENDERER_HPP
 
 #include <sld-opengl.hpp>
-#include <files.hpp>
+#include "ifb-files.hpp"
 
 #include "ifb-types.hpp"
 #include "ifb.hpp"

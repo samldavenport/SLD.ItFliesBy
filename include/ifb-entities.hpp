@@ -13,7 +13,6 @@ namespace ifb {
     
     constexpr u32 ENTITY_ID_INVALID = INVALID_U32;
     constexpr u32 ENTITY_TAG_SIZE   = 16;
-    
 
     //--------------------------------------------------------------------
     // ENTITY ARCHETYPES 

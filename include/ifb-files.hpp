@@ -2,7 +2,9 @@
 #define IFB_FILES_HPP
 
 #include "ifb.hpp"
-#include "memory.hpp"
+#include "ifb-config.hpp"
+#include "ifb-types.hpp"
+#include "ifb-platform.hpp"
 
 namespace ifb {
 
@@ -25,6 +27,7 @@ namespace ifb {
 
     struct file_mngr;
     struct file_path;
+    struct reservation;
 
     //--------------------------------------------------------------------
     // GLOBALS

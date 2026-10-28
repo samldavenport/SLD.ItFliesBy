@@ -6,7 +6,7 @@
 #include "asset.hpp"
 #include "asset-database.cpp"
 #include "asset-internal.hpp"
-#include "files.hpp"
+#include "ifb-files.hpp"
 #include "memory.hpp"
 #include "renderer.hpp"
 #include "sld-strings.hpp"
