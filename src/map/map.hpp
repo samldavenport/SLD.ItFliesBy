@@ -2,7 +2,7 @@
 #define MAP_HPP
 
 #include "ifb-types.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "memory.hpp"
 #include "sld.hpp"
 

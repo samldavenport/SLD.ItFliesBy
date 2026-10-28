@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include "component.hpp"
-#include "entity.hpp"
+#include "ifb-entities.hpp"
 #include "ifb-types.hpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"

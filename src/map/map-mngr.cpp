@@ -3,7 +3,7 @@
 #include "entity-lookup.cpp"
 #include "ifb-collections.hpp"
 #include "ifb-config.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "ifb-types.hpp"
 #include "map-internal.hpp"
 #include "eng-stack.cpp"

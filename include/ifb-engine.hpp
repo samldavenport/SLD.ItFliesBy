@@ -1,7 +1,7 @@
 #ifndef IFB_ENGINE_HPP
 #define IFB_ENGINE_HPP
 
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "ifb-components.hpp"
 #include "ifb-archetypes.hpp"
 #include "ifb-assets.hpp"

@@ -3,7 +3,7 @@
 #include "quad.hpp"
 #include "entity.cpp"
 #include "ifb-collections.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "component.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"

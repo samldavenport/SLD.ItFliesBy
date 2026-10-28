@@ -5,7 +5,7 @@
 #include "ifb-input.hpp"
 #include "files.hpp"
 #include "renderer.hpp"
-#include "entity.hpp"
+#include "ifb-entities.hpp"
 #include "memory.hpp"
 #include "component.hpp"
 #include "physics.hpp"

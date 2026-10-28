@@ -3,7 +3,7 @@
 
 #include "ifb-types.hpp"
 #include "ifb-collections.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "sld.hpp"
 #include "memory.hpp"
 

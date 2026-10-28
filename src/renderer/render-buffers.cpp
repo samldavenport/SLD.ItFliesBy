@@ -2,7 +2,7 @@
 
 #include "ifb-config.hpp"
 #include "component.hpp"
-#include "entity.hpp"
+#include "ifb-entities.hpp"
 #include "particle.hpp"
 #include "quad.hpp"
 #include "map.hpp"

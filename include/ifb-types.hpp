@@ -137,27 +137,6 @@ namespace ifb {
         u32 pixel_height;
     };
 
-    struct tag {
-        cchar cstr[16];
-        
-        tag(const cchar* cstr) {
-            memset((void*)this->cstr, 0, ENTITY_TAG_SIZE);
-            const u32 len = strnlen_s(cstr, ENTITY_TAG_SIZE);
-            (void)strncpy_s(this->cstr, cstr, len);
-        }
-        inline void
-        init(
-            const cchar* tag_cstr)  {
-            assert(cstr != NULL);
-            (void)strncpy_s(cstr, 16, tag_cstr, 16);
-        }
-
-        inline u32
-        hash(void) {
-            return(hash_u32((void*)cstr, 16));
-        }
-    };
-    
     struct map_tile {
         union {
             u32 val;

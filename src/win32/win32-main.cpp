@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 #include "ifb-engine.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "ifb-game.hpp"
 #include "ifb-input.hpp"
 #include "ifb-types.hpp"

@@ -8,7 +8,7 @@
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "map.hpp"
-#include "entity.hpp"
+#include "ifb-entities.hpp"
 #include "sprites.hpp"
 #include <cassert>
 #include <cmath>

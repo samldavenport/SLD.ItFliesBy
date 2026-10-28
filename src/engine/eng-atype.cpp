@@ -3,7 +3,7 @@
 
 #include "component.hpp"
 #include "entity.cpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "ifb-types.hpp"
 #include "map.hpp"
 #include <cassert>

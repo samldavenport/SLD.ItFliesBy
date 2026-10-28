@@ -1,12 +1,11 @@
 #pragma once
 
 #include "ifb-collections.hpp"
-#include "ifb-entity.hpp"
+#include "ifb-entities.hpp"
 #include "ifb-types.hpp"
 #include "map.hpp"
 #include "memory-arena.cpp"
 #include "physics-internal.hpp"
-#include "entity.hpp"
 
 namespace ifb {
 
