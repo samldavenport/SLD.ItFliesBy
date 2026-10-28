@@ -2,7 +2,7 @@
 #define PHYSICS_INTERNAL_HPP
 
 #include "ifb-types.hpp"
-#include "physics.hpp"
+#include "ifb-physics.hpp"
 
 namespace ifb {
 

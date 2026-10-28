@@ -13,7 +13,7 @@
 #include "particle-mngr.cpp"
 #include "particle-update.cpp"
 #include "physics-manager.cpp"
-#include "physics.hpp"
+#include "ifb-physics.hpp"
 #include "random-table.cpp"
 #include "renderer.cpp"
 #include "renderer.hpp"

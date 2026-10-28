@@ -8,7 +8,7 @@
 #include "ifb-entities.hpp"
 #include "ifb-memory.hpp"
 #include "component.hpp"
-#include "physics.hpp"
+#include "ifb-physics.hpp"
 #include "ifb-map.hpp"
 #include "ifb-particle.hpp"
 #include "random.hpp"
