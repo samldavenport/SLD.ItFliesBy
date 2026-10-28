@@ -10,7 +10,7 @@
 #include "component.hpp"
 #include "physics.hpp"
 #include "ifb-map.hpp"
-#include "particle.hpp"
+#include "ifb-particle.hpp"
 #include "random.hpp"
 #include "sprites.hpp"
 

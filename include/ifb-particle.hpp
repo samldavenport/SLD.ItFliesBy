@@ -1,5 +1,5 @@
-#ifndef PARTICLE_HPP
-#define PARTICLE_HPP
+#ifndef IFB_PARTICLE_HPP
+#define IFB_PARTICLE_HPP
 
 #include "ifb-types.hpp"
 #include "ifb.hpp"
@@ -85,4 +85,4 @@ namespace ifb {
     };
 };
 
-#endif //PARTICLE_HPP
+#endif //IFB_PARTICLE_HPP

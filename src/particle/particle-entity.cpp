@@ -7,7 +7,7 @@
 #include "ifb-types.hpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"
-#include "particle.hpp"
+#include "ifb-particle.hpp"
 #include "sld.hpp"
 
 namespace ifb {

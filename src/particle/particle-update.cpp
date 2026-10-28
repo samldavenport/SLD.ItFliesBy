@@ -7,7 +7,7 @@
 #include "particle-emitter.cpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"
-#include "particle.hpp"
+#include "ifb-particle.hpp"
 #include "random-table.cpp"
 #include "random.hpp"
 #include "sld-math-globals.hpp"
