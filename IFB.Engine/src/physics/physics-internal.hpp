@@ -2,9 +2,19 @@
 #define PHYSICS_INTERNAL_HPP
 
 #include "ifb-types.hpp"
-#include "ifb-physics.hpp"
+#include "ifb-memory.hpp"
+#include "ifb-collections.hpp"
+#include "ifb-map.hpp"
+#include "sld-math-types.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // TYPE DECLARATIONS
+    //--------------------------------------------------------------------
+
+    struct phys_mngr;
 
     //--------------------------------------------------------------------
     // METHOD DECLARATIONS

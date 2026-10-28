@@ -5,6 +5,7 @@
 #include "map-internal.hpp"
 #include "ifb-map.hpp"
 #include "map.cpp"
+#include "eng-types.hpp"
 
 namespace ifb {
 

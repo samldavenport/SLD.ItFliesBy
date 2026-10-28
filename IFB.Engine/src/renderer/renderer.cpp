@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ifb-renderer.hpp"
 #include "ifb-collections.hpp"
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
@@ -24,6 +23,7 @@
 #include "eng-platform.hpp"
 #include "file-internal.hpp"
 #include "memory-internal.hpp"
+#include "eng-types.hpp"
 
 namespace ifb {
 

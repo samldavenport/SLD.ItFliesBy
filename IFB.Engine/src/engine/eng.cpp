@@ -3,8 +3,11 @@
 #define IFB_ENGINE_DLL_EXPORT
 #define IFB_API_DLL_EXPORT
 
-// only the engine uses stb_image, so its implementation lives here
+// only the engine uses stb_image, so its implementation lives here; undefined
+// afterwards so the files that include stb_image.h only get the declarations
 #define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#undef STB_IMAGE_IMPLEMENTATION
 
 #include "asset.cpp"
 

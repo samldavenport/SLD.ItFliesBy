@@ -1,9 +1,7 @@
 #pragma once
 
-#include "ifb-tiled.hpp"
 #include "ifb-types.hpp"
 #include "json.cpp"
-#include "ifb-json.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include <stdlib.h>
@@ -11,6 +9,7 @@
 #include "json-internal.hpp"
 #include "memory-internal.hpp"
 #include "tiled-internal.hpp"
+#include "eng-types.hpp"
 
 using namespace sld;
 namespace ifb {

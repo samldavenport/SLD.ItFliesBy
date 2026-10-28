@@ -1,6 +1,7 @@
 #pragma once
 
 #include "eng-internal.hpp"
+#include "eng-input.hpp"
 
 #include "eng-stack.cpp"
 

@@ -2,6 +2,7 @@
 
 #include "ifb.hpp"
 #include "eng-internal.hpp"
+#include "eng-input.hpp"
 
 namespace ifb {
 

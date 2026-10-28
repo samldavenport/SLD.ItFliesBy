@@ -3,6 +3,7 @@
 #include <math.h>
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
+#include "eng-components.hpp"
 
 #include "component.hpp"
 #include "component-tables.cpp"

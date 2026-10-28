@@ -4,7 +4,6 @@
 #include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "ifb-components.hpp"
-#include "ifb-memory.hpp"
 
 namespace ifb {
 
@@ -44,36 +43,6 @@ namespace ifb {
     //--------------------------------------------------------------------
     // ENTITY TAG
     //--------------------------------------------------------------------
-
-    struct entity_tag {
-
-        cchar cstr[ENTITY_TAG_SIZE];
-
-        entity_tag(const cchar* cstr) {
-            memset((void*)this->cstr, 0, ENTITY_TAG_SIZE);
-            const u32 len = strnlen_s(cstr, ENTITY_TAG_SIZE);
-            (void)strncpy_s(this->cstr, cstr, len);
-        }
-
-        inline void
-        init(
-            const cchar* cstr) {
-
-            assert(cstr);
-
-            memset((void*)this->cstr, 0, ENTITY_TAG_SIZE);
-
-            const u32 len = strnlen_s(cstr, ENTITY_TAG_SIZE);
-            (void)strncpy_s(this->cstr, cstr, len);
-        }
-
-        inline entity_id
-        to_id(void) const {
-
-            const entity_id id = hash_u32((void*)this->cstr, ENTITY_TAG_SIZE);
-            return(id);
-        }
-    };
 
     struct entity_archetype {
 
@@ -148,32 +117,8 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct entity_mngr;
     struct entity_list;
 
-    //--------------------------------------------------------------------
-    // DEFINITIONS
-    //--------------------------------------------------------------------
-
-    struct entity_mngr {
-        struct {
-            struct {
-                entity_id*        id;
-                entity_tag*       tag;
-                entity_archetype* archetype;
-                u32*              sparse_index;
-            } dense;
-            struct {
-                u32* dense_index;
-            } sparse;
-        } data;
-        struct {
-            u32 dense;
-            u32 sparse;
-        } capacity;
-        reservation* res;
-        u32          count;
-    };
 };
 
 #endif //IFB_ENTITIES_HPP

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ifb-win32.hpp"
+#include "eng-input.hpp"
 
 namespace ifb {
     

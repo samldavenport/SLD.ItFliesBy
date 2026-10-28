@@ -4,6 +4,8 @@
 #include "ifb-components.hpp"
 #include "ifb-memory.hpp"
 #include "sld.hpp"
+#include "eng-components.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

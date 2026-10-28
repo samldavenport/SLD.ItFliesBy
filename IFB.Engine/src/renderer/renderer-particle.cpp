@@ -3,9 +3,8 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "ifb-particle.hpp"
-#include "ifb-quad.hpp"
+#include "quad-internal.hpp"
 #include "render-buffers.cpp"
-#include "ifb-renderer.hpp"
 #include "renderer-internal.hpp"
 #include "renderer-camera.cpp"
 #include "renderer-grid.cpp"
@@ -15,6 +14,7 @@
 #include "sld-opengl.hpp"
 #include <cassert>
 #include "particle-internal.hpp"
+#include "eng-types.hpp"
 
 namespace ifb {
 

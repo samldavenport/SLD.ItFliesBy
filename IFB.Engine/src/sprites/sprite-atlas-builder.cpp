@@ -4,6 +4,8 @@
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "asset.hpp"
+#include "asset-internal.hpp"
+#include "eng-types.hpp"
 
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>

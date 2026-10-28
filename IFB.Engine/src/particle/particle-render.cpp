@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cassert>
+#include "eng-types.hpp"
 
 #include "ifb-types.hpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"
 #include "ifb-particle.hpp"
-#include "ifb-quad.hpp"
+#include "quad-internal.hpp"
 #include "sld-math-vec3.hpp"
 #include "sld.hpp"
 

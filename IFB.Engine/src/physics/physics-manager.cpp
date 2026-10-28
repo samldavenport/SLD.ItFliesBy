@@ -3,7 +3,6 @@
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"
-#include "ifb-physics.hpp"
 #include "eng-internal.hpp"
 #include <cassert>
 #include <cstddef>

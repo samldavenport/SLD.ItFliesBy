@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <rapidjson/document.h>
-#include "ifb-json.hpp"
 #include "file-common.cpp"
 #include "file-ro.cpp"
 #include "ifb-types.hpp"

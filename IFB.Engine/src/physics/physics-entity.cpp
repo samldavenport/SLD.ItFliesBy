@@ -2,10 +2,10 @@
 
 #include "entity.cpp"
 #include "ifb-types.hpp"
-#include "ifb-physics.hpp"
 #include "component.hpp"
 #include "physics-internal.hpp"
 #include "entity-internal.hpp"
+#include "eng-components.hpp"
 
 namespace ifb {
 

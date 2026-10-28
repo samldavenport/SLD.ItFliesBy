@@ -6,6 +6,7 @@
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "memory-internal.hpp"
+#include "asset-internal.hpp"
 
 namespace ifb {
 

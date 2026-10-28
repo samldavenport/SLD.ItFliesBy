@@ -9,10 +9,11 @@
 #include "ifb-map.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
-#include "ifb-renderer.hpp"
+#include "renderer-internal.hpp"
 #include <cassert>
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
+#include "eng-components.hpp"
 
 namespace ifb {
 

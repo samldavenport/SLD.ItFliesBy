@@ -4,8 +4,47 @@
 #include "ifb-assets.hpp"
 #include "ifb-memory.hpp"
 #include "sld.hpp"
+#include "eng-memory.hpp"
+#include "eng-assets.hpp"
+#include "memory-internal.hpp"
+#include "types-internal.hpp"
+#include "eng-types.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    struct sprite_index;
+    struct asset_text {
+        hnd_asset hnd;
+        u32       size;
+        cchar*    cstr;
+    };
+
+    struct asset_image {
+        hnd_asset       hnd;
+        u32             width;
+        u32             height;
+        color_rgba_u32* pixels;
+    };
+
+    struct asset_index {
+        asset_type_u32 type;
+        u32            offset;
+        u32            size;
+    };
+
+    struct asset_sprite_atlas {
+        hnd_sprite*      array_handles;
+        sprite_index*    array_indexes;
+        pixel*           array_pixels;
+        hnd_sprite_atlas hnd;
+        u32              width;
+        u32              height;
+        u32              sprite_count;
+    };
 
     //--------------------------------------------------------------------
     // DECLARATIONS 

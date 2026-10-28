@@ -4,12 +4,73 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "ifb-map.hpp"
-#include "memory-reservation.cpp"
+#include "memory-internal.hpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"
 #include <cmath>
+#include "eng-types.hpp"
+#include "types-internal.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // DECLARATIONS
+    //--------------------------------------------------------------------
+
+    struct map_mngr;
+    struct map_color_table;
+    struct map_dimensions;
+
+    //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    static constexpr u32 MAP_NAME_LENGTH = 16;
+
+    //--------------------------------------------------------------------
+    // ENUMS
+    //--------------------------------------------------------------------
+
+    enum map_tile_flag_e {
+        map_tile_flag_e_textured    = bit_value(1), 
+        map_tile_flag_e_navigable   = bit_value(0),
+        map_tile_flag_e_wall_row    = bit_value(2), // render only, the tile is a row wall
+        map_tile_flag_e_wall_column = bit_value(3), // render only, the tile is a column wall
+    };
+
+    enum map_wall_flag_e {
+        map_wall_flag_e_placed   = bit_value(0),
+        map_wall_flag_e_textured = bit_value(1),
+    };
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
+
+    struct map_dimensions {
+        u32 count_rows;
+        u32 count_cols;
+        u32 count_chunks;
+    };
+
+    struct map_color_table {
+        color_rgba_u32 red_light;
+        color_rgba_u32 red_dark;
+        color_rgba_u32 orange_light;
+        color_rgba_u32 orange_dark;
+        color_rgba_u32 yellow_light;
+        color_rgba_u32 yellow_dark;
+        color_rgba_u32 green_light;
+        color_rgba_u32 green_dark;
+        color_rgba_u32 aqua_light;
+        color_rgba_u32 aqua_dark;
+        color_rgba_u32 blue_light;
+        color_rgba_u32 blue_dark;
+        color_rgba_u32 purple_light;
+        color_rgba_u32 purple_dark;
+        color_rgba_u32 gray_light;
+        color_rgba_u32 gray_dark;
+    };
 
     //--------------------------------------------------------------------
     // METHODS 

@@ -38,20 +38,11 @@ namespace ifb {
     using  cmpnt_position      = vec3;
     using  cmpnt_color         = color_rgba_u32;
     using  cmpnt_velocity      = vec3;
-    using  cmpnt_acceleration  = vec3;
     using  cmpnt_term_velocity = vec3;
 
     struct cmpnt_quad {
         f32 width;
         f32 height;
-    };
-
-    struct cmpnt_inv_mass {
-        f32 normal_val;
-    };
-
-    struct cmpnt_drag {
-        f32 normal_val;
     };
 
     struct cmpnt_spring {

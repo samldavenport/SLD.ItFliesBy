@@ -2,6 +2,7 @@
 #define MEMORY_INTERNAL_HPP
 
 #include "ifb-memory.hpp"
+#include "eng-memory.hpp"
 
 #define ifb_arena_push_struct(h_arena, type)        (type*)arena_push(h_arena, sizeof(type))
 #define ifb_arena_push_array(h_arena, count, type)  (type*)arena_push(h_arena, count * sizeof(type))
@@ -10,6 +11,34 @@
 #define ARENA_HANDLE_LARGE_BIT 0x80000000
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    struct memory_mngr;
+    struct reservation;
+    struct arena_allocator;
+    struct stack_allocator;
+    struct block_allocator;
+    struct global_allocator;
+
+    //--------------------------------------------------------------------
+    // TYPE DEFINITIONS
+    //--------------------------------------------------------------------
+
+    struct block_allocator {
+        addr start;
+        u32  block_size;
+        u32  block_count_total;
+        u32  block_mask_hi;
+        u32  block_mask_lo;
+    };
+
+    struct block_memory {
+        block_allocator* alctr;
+        u32              id;
+    };
 
     //--------------------------------------------------------------------
     // GLOBALS

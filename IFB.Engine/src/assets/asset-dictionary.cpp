@@ -13,6 +13,7 @@
 #include "file-internal.hpp"
 #include "json-internal.hpp"
 #include "memory-internal.hpp"
+#include "types-internal.hpp"
 
 namespace ifb {
 

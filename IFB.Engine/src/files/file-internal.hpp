@@ -2,8 +2,43 @@
 #define FILE_INTERNAL_HPP
 
 #include "ifb-files.hpp"
+#include "eng-platform.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // CONSTANTS
+    //--------------------------------------------------------------------
+
+    //TODO(SAM): this should be the same as INVALID_HANDLE
+    constexpr u32 FILE_HANDLE_INVALID = 0;
+
+    constexpr u32 FILE_INDEX_INVALID  = 0xFFFFFFFF;
+
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    struct file_mngr;
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
+
+    struct file_mngr {
+        struct {
+            hnd_file*     handle_internal; 
+            pfm_hnd_file* handle_platform;
+            u32*             io_length;
+            u32*             cursor;
+            file_path*       paths;
+        } array;
+        reservation* res;
+        byte*        file_data;
+        u32          file_count_max;
+        u32          file_granularity;
+    };
 
     //--------------------------------------------------------------------
     // GLOBALS

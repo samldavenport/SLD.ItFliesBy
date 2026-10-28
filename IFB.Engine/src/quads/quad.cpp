@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ifb-quad.hpp"
 #include "entity.cpp"
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
@@ -12,6 +11,8 @@
 #include "eng-collections.hpp"
 #include "entity-internal.hpp"
 #include "quad-internal.hpp"
+#include "eng-types.hpp"
+#include "eng-sprites.hpp"
 
 namespace ifb {
 

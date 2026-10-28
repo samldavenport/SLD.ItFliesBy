@@ -3,6 +3,9 @@
 
 #include "ifb-sprites.hpp"
 #include "ifb-memory.hpp"
+#include "eng-types.hpp"
+#include "memory-internal.hpp"
+#include "eng-sprites.hpp"
 
 namespace ifb {
 

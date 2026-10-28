@@ -1,16 +1,15 @@
-#ifndef IFB_RANDOM_HPP
-#define IFB_RANDOM_HPP
+#ifndef ENG_MEMORY_HPP
+#define ENG_MEMORY_HPP
 
-#include "ifb-types.hpp"
-#include "sld.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // DECLARATIONS
+    // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct random_table;
+    struct arena;
 };
 
-#endif //IFB_RANDOM_HPP
+#endif //ENG_MEMORY_HPP

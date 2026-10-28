@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-win32.hpp"
-#include "ifb-platform.hpp"
+#include "platform-internal.hpp"
 #include <Windows.h>
 #include "win32-file.cpp"
 #include "win32-file-dialog.cpp"

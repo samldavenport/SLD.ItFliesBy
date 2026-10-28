@@ -1,9 +1,16 @@
 #ifndef RANDOM_INTERNAL_HPP
 #define RANDOM_INTERNAL_HPP
 
-#include "ifb-random.hpp"
+#include "ifb-types.hpp"
+#include "sld.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // DECLARATIONS
+    //--------------------------------------------------------------------
+
+    struct random_table;
 
     //--------------------------------------------------------------------
     // METHODS

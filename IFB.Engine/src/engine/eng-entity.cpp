@@ -9,7 +9,6 @@
 #include "ifb-types.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
-#include "ifb-renderer.hpp"
 #include "sprites.hpp"
 #include <cassert>
 #include "entity-internal.hpp"

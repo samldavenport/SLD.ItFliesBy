@@ -1,7 +1,6 @@
 #ifndef IFB_SPRITES_HPP
 #define IFB_SPRITES_HPP
 
-#include "ifb-types.hpp"
 #include "ifb-assets.hpp"
 
 namespace ifb {
@@ -10,24 +9,6 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct sprite_info {
-        asset_name   name;
-        hnd_sprite   hnd;
-        u32          index;
-        u32          pixel_x;
-        u32          pixel_y;
-        u32          pixel_width;
-        u32          pixel_height;
-        u32          atlas_width;
-        u32          atlas_height;
-    };
-
-    struct sprite_index {
-        u32 width;
-        u32 height;
-        u32 offset;
-    };
-    
     struct sprite_atlas_info {
         u32 width;
         u32 height;

@@ -1,4 +1,4 @@
-#include "ifb-platform.hpp"
+#include "platform-internal.hpp"
 #include "eng-platform.hpp"
 
 namespace ifb {

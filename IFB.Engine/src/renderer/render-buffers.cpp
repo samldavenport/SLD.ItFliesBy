@@ -4,9 +4,7 @@
 #include "component.hpp"
 #include "ifb-entities.hpp"
 #include "ifb-particle.hpp"
-#include "ifb-quad.hpp"
 #include "ifb-map.hpp"
-#include "ifb-renderer.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"
 #include "eng-collections.hpp"
@@ -14,6 +12,8 @@
 #include "map-internal.hpp"
 #include "particle-internal.hpp"
 #include "quad-internal.hpp"
+#include "types-internal.hpp"
+#include "eng-types.hpp"
 
 namespace ifb {
 

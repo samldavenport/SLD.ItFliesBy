@@ -7,6 +7,8 @@
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "file-internal.hpp"
+#include "eng-assets.hpp"
+#include "eng-types.hpp"
 
 namespace ifb {
 

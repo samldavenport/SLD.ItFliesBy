@@ -4,12 +4,12 @@
 #include "ifb-types.hpp"
 #include "component.hpp"
 #include "ifb-entities.hpp"
-#include "ifb-renderer.hpp"
 #include "sld.hpp"
 #include "ifb-map.hpp"
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
 #include "renderer-internal.hpp"
+#include "eng-types.hpp"
 
 namespace ifb {
 

@@ -6,6 +6,7 @@
 #include "eng-internal.hpp"
 #include "ifb-types.hpp"
 #include "memory-internal.hpp"
+#include "eng-assets.hpp"
 
 namespace ifb {
 

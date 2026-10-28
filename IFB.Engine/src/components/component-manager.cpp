@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include "memory-internal.hpp"
+#include "eng-components.hpp"
 
 #include "component.hpp"
 #include "eng-internal.hpp"

@@ -3,6 +3,8 @@
 #include "ifb-win32.hpp"
 #include "ifb-font-opensans.hpp"
 #include "eng-platform.hpp"
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_win32.h>
 
 namespace ifb {
 

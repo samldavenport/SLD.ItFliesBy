@@ -1,6 +1,9 @@
 #pragma once
 
 #include "ifb.hpp"
+#include "eng-memory.hpp"
+#include "eng-types.hpp"
+#include <stb_image.h>
 
 namespace ifb {
 

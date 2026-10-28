@@ -1,9 +1,6 @@
 #ifndef IFB_COLLECTIONS_HPP
 #define IFB_COLLECTIONS_HPP
 
-#include <sld.hpp>
-
-#include "ifb-types.hpp"
 #include "ifb-entities.hpp"
 
 namespace ifb {
@@ -13,12 +10,6 @@ namespace ifb {
     //--------------------------------------------------------------------
       
     struct stack;
-    
-    //--------------------------------------------------------------------
-    // INDEX CACHE 
-    //--------------------------------------------------------------------
-
-    struct index_cache;
     
     //--------------------------------------------------------------------
     // ENTITY ID LIST 

@@ -1,11 +1,90 @@
 #ifndef ENG_PLATFORM_HPP
 #define ENG_PLATFORM_HPP
 
-#include "ifb-platform.hpp"
+#include "sld.hpp"
+#include "sld-opengl.hpp"
+#include "ifb-input.hpp"
+#include "ifb-types.hpp"
 
 #define IFB_PLATFORM_API
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // PRIMITIVE TYPES
+    //--------------------------------------------------------------------
+
+    typedef u32   pfm_file_mode;
+    typedef u32   pfm_file_access_flags;
+    typedef u32   pfm_file_share_flags;
+    typedef void* pfm_hnd_file;
+
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    struct pfm_window_config;
+    struct pfm_file_config;
+    struct pfm_file_buffer;
+    struct pfm_file_dialog;
+    struct pfm_monitor_info;
+    struct pfm_monitor_area;
+    struct pfm_memory_info;
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
+
+    struct pfm_window_config {
+        cchar* title;
+        struct  {
+            u32 x;
+            u32 y;
+            u32 width;
+            u32 height;
+        } init_dims;
+    };
+
+    struct pfm_file_config {
+        const cchar*          path;
+        pfm_file_mode         mode;
+        pfm_file_access_flags access_flags;
+        pfm_file_share_flags  share_flags;
+        bool                  is_async;
+    };
+
+    struct pfm_file_buffer {
+        byte* data;
+        u32   size;
+        u32   length;
+        u32   offset;
+        u32   cursor;
+    };
+
+    struct pfm_file_dialog {
+        const cchar* path;
+        const cchar* filter_type; 
+        const cchar* filter_desc; 
+    };
+
+    struct pfm_monitor_info {
+        u32 index;
+        u32 refresh_rate_hz;
+        u32 pixel_width;
+        u32 pixel_height;
+        u32 x;
+        u32 y;
+    };
+
+    struct pfm_monitor_area {
+        u32 virtual_pixel_width;
+        u32 virtual_pixel_height;
+    };
+
+    struct pfm_memory_info {
+        u32 size_page;
+        u32 size_granularity;
+    };
 
     //--------------------------------------------------------------------
     // context 

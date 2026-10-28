@@ -4,9 +4,23 @@
 #include "ifb-types.hpp"
 #include "ifb-config.hpp"
 #include "ifb-memory.hpp"
+#include "ifb-sprites.hpp"
+#include "eng-sprites.hpp"
+#include "eng-assets.hpp"
+#include "eng-types.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    struct sprite_index {
+        u32 width;
+        u32 height;
+        u32 offset;
+    };
 
     struct sprite_memory_block;
     struct sprite_memory;

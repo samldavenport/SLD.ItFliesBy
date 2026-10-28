@@ -3,12 +3,35 @@
 
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
-#include "memory-reservation.cpp"
+#include "memory-internal.hpp"
 #include "ifb-particle.hpp"
 #include "sld.hpp"
 #include <sld-strings.hpp>
+#include "eng-types.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // DECLARATIONS
+    //--------------------------------------------------------------------
+
+    struct particle_mngr;
+    struct particle_buffer;
+    struct particle_vertex;
+
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
+
+    struct particle_buffer {
+        u32       count;
+        particle* particles;
+    };
+
+    struct particle_vertex {
+        vec3           position;
+        color_rgba_u32 color;
+    };
 
     //--------------------------------------------------------------------
     // METHODS 

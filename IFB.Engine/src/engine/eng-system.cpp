@@ -2,7 +2,7 @@
 
 #include "eng-internal.hpp"
 #include "ifb-engine.hpp"
-#include "ifb-platform.hpp"
+#include "platform-internal.hpp"
 #include "sld.hpp"
 #include "eng-platform.hpp"
 

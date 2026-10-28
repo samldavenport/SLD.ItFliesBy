@@ -3,7 +3,6 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "render-buffers.cpp"
-#include "ifb-renderer.hpp"
 #include "renderer-internal.hpp"
 #include "sld-opengl.hpp"
 #include "ifb-map.hpp"

@@ -2,6 +2,8 @@
 
 #include "ifb-files.hpp"
 #include "file-internal.hpp"
+#include "platform-internal.hpp"
+#include "eng-platform.hpp"
 
 namespace ifb {
 

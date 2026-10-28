@@ -6,9 +6,8 @@
 
 #include "eng-internal.hpp"
 #include "ifb-config.hpp"
-#include "ifb-platform.hpp"
+#include "platform-internal.hpp"
 #include "ifb-types.hpp"
-#include "ifb-random.hpp"
 #include "sld.hpp"
 
 namespace ifb {

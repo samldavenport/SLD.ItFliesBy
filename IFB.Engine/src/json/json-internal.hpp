@@ -1,9 +1,19 @@
 #ifndef JSON_INTERNAL_HPP
 #define JSON_INTERNAL_HPP
 
-#include "ifb-json.hpp"
+#include "ifb-types.hpp"
+#include "sld.hpp"
 
 namespace ifb {
+
+    //--------------------------------------------------------------------
+    // DECLARATIONS
+    //--------------------------------------------------------------------
+
+    struct json_doc;
+    struct json_itr;
+    struct json_obj; 
+    struct json_arr;
 
     //--------------------------------------------------------------------
     // DOCUMENT METHODS 

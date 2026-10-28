@@ -9,6 +9,8 @@
 #include <cassert>
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
+#include "eng-archetypes.hpp"
+#include "eng-types.hpp"
 
 namespace ifb {
 

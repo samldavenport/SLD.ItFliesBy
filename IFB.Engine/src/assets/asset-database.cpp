@@ -10,6 +10,11 @@
 #include "sld.hpp"
 #include "file-internal.hpp"
 #include "memory-internal.hpp"
+#include "asset-internal.hpp"
+#include "eng-assets.hpp"
+#include "types-internal.hpp"
+#include "eng-types.hpp"
+#include "sprite-internal.hpp"
 
 namespace ifb {
     

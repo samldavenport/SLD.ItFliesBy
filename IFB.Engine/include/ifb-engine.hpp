@@ -2,17 +2,18 @@
 #define IFB_ENGINE_HPP
 
 #include "ifb-entities.hpp"
-#include "ifb-components.hpp"
-#include "ifb-archetypes.hpp"
-#include "ifb-assets.hpp"
-#include "ifb-sprites.hpp"
+#include "eng-components.hpp"
+#include "eng-archetypes.hpp"
+#include "eng-assets.hpp"
+#include "eng-sprites.hpp"
 #include "ifb-files.hpp"
 #include "ifb-map.hpp"
 #include "sld.hpp"
-#include "ifb-types.hpp"
+#include "eng-types.hpp"
 #include "eng-platform.hpp"
-#include "ifb-input.hpp"
+#include "eng-input.hpp"
 #include "eng-collections.hpp"
+#include "eng-memory.hpp"
 #include <imgui.h>
 
 using namespace sld;
