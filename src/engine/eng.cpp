@@ -70,6 +70,7 @@
 #include "physics-bvh.cpp"
 #include "physics-collision-detection.cpp"
 #include "physics-collision-list.cpp"
+#include "physics-collision-resolver.cpp"
 
 #include "quad.cpp"
 #include "quad-tests.cpp"

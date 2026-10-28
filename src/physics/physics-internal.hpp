@@ -43,7 +43,7 @@ namespace ifb {
     IFB_INTERNAL void              phys_frc_accmltr_reset      (phys_frc_accmltr* const accum);
    
     IFB_INTERNAL phys_frc_intgrtr* phys_frc_intgrtr_create     (void); 
-    IFB_INTERNAL void              phys_frc_intgrtr_run        (phys_frc_intgrtr* integrator, const phys_frc_accmltr* accum, const phys_cllsn_list* cllsn_list, const f32 dt);
+    IFB_INTERNAL void              phys_frc_intgrtr_run        (phys_frc_intgrtr* integrator, const phys_frc_accmltr* accum, const f32 dt);
     IFB_INTERNAL phys_frc_sprcalc* phys_frc_sprcalc_create     (void);
     IFB_INTERNAL void              phys_frc_sprcalc_run        (phys_frc_sprcalc* calc);
 

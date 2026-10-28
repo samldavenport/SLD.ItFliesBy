@@ -21,6 +21,7 @@ namespace ifb {
         phys_frc_intgrtr* force_integrator;
         phys_frc_sprcalc* spring_calculator;
         phys_cllsn_dtctr* collision_detector;
+        phys_cllsn_rslvr* collision_resolver;
     };
 
     //--------------------------------------------------------------------
@@ -47,6 +48,7 @@ namespace ifb {
         assert(_phys_mngr->force_integrator   != NULL);
         assert(_phys_mngr->spring_calculator  != NULL);
         assert(_phys_mngr->collision_detector != NULL);
+        assert(_phys_mngr->collision_resolver != NULL);
     }
 
     IFB_INTERNAL void
@@ -61,6 +63,7 @@ namespace ifb {
         _phys_mngr->force_accumulator  = phys_frc_accmltr_create ();
         _phys_mngr->force_integrator   = phys_frc_intgrtr_create (); 
         _phys_mngr->collision_detector = phys_cllsn_dtctr_create ();
+        _phys_mngr->collision_resolver = phys_cllsn_rslvr_create ();
 
         phys_mngr_validate();
     }
@@ -78,9 +81,11 @@ namespace ifb {
 
         const phys_cllsn_list* cllsn_list = phys_cllsn_dtctr_get_list(_phys_mngr->collision_detector);
 
+        // collisions are resolved after integration, once the components hold the new positions
         phys_cllsn_dtctr_run   (_phys_mngr->collision_detector, dt);
         phys_frc_sprcalc_run   (_phys_mngr->spring_calculator);
-        phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, cllsn_list, dt);
+        phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
+        phys_cllsn_rslvr_run   (_phys_mngr->collision_resolver, cllsn_list, dt);
         phys_frc_accmltr_reset (_phys_mngr->force_accumulator);
     }
 
