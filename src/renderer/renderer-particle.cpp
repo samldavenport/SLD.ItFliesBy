@@ -3,7 +3,7 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "ifb-particle.hpp"
-#include "quad.hpp"
+#include "ifb-quad.hpp"
 #include "render-buffers.cpp"
 #include "renderer.hpp"
 #include "renderer-internal.hpp"

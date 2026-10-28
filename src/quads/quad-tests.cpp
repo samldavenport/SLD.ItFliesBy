@@ -3,7 +3,7 @@
 #include "entity.cpp"
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
-#include "quad.hpp"
+#include "ifb-quad.hpp"
 
 namespace ifb {
 
