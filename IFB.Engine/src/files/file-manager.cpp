@@ -4,6 +4,9 @@
 #include "eng-internal.hpp"
 #include "ifb-config.hpp"
 #include "memory-reservation.cpp"
+#include "eng-platform.hpp"
+#include "file-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

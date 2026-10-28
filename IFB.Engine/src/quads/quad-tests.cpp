@@ -4,6 +4,10 @@
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
 #include "ifb-quad.hpp"
+#include "eng-collections.hpp"
+#include "entity-internal.hpp"
+#include "memory-internal.hpp"
+#include "quad-internal.hpp"
 
 namespace ifb {
 

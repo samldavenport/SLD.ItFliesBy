@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include "memory-internal.hpp"
 
 #include "eng-internal.hpp"
 #include "ifb-config.hpp"

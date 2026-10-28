@@ -3,6 +3,7 @@
 #include "ifb-types.hpp"
 #include "sld.hpp"
 #include <cassert>
+#include "eng-collections.hpp"
 
 namespace ifb {
 

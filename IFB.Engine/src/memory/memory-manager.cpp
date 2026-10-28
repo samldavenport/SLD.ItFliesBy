@@ -2,6 +2,8 @@
 
 #include "ifb-memory.hpp"
 #include "eng-internal.hpp"
+#include "eng-platform.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

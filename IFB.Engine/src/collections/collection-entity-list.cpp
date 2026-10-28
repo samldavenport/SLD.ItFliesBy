@@ -5,6 +5,7 @@
 #include "ifb-collections.hpp"
 #include "ifb-types.hpp"
 #include "ifb-config.hpp"
+#include "eng-collections.hpp"
 
 namespace ifb {
     

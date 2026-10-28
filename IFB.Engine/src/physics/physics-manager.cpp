@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstddef>
 #include "physics-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

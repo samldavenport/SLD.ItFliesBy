@@ -20,6 +20,10 @@
 #include "sld-math.hpp"
 #include "sld-opengl.hpp"
 #include "sprites.hpp"
+#include "eng-collections.hpp"
+#include "eng-platform.hpp"
+#include "file-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

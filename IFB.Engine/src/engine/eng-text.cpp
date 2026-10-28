@@ -5,6 +5,8 @@
 #include "ifb-types.hpp"
 #include "sld.hpp"
 #include <cassert>
+#include "file-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

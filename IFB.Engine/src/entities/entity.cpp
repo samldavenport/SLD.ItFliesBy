@@ -3,6 +3,7 @@
 #include "ifb-entities.hpp"
 #include "ifb-types.hpp"
 #include "sld.hpp"
+#include "entity-internal.hpp"
 
 namespace ifb {
 

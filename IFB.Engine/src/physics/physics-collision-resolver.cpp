@@ -1,6 +1,8 @@
 #pragma once
 
 #include <math.h>
+#include "entity-internal.hpp"
+#include "map-internal.hpp"
 
 #include "component.hpp"
 #include "component-tables.cpp"

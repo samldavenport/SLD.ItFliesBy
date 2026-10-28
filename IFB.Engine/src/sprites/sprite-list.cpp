@@ -5,6 +5,7 @@
 #include "ifb-types.hpp"
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

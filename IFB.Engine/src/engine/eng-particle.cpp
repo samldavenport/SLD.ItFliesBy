@@ -4,6 +4,8 @@
 #include "ifb-types.hpp"
 #include "ifb-particle.hpp"
 #include "ifb-renderer.hpp"
+#include "particle-internal.hpp"
+#include "renderer-internal.hpp"
 
 namespace ifb {
 

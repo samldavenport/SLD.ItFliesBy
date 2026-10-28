@@ -12,6 +12,7 @@
 #include "memory-reservation.cpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
     

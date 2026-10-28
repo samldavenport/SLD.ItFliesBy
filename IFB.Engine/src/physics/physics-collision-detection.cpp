@@ -6,6 +6,10 @@
 #include "ifb-map.hpp"
 #include "memory-arena.cpp"
 #include "physics-internal.hpp"
+#include "eng-collections.hpp"
+#include "entity-internal.hpp"
+#include "map-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

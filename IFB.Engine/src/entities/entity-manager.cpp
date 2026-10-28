@@ -3,6 +3,8 @@
 #include "ifb-entities.hpp"
 #include "eng-internal.hpp"
 #include "memory-reservation.cpp"
+#include "entity-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

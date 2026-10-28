@@ -3,6 +3,7 @@
 #include "ifb-types.hpp"
 #include "memory-arena.cpp"
 #include "physics-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

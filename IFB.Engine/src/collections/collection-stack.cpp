@@ -3,6 +3,7 @@
 #include "ifb-collections.hpp"
 #include "ifb-types.hpp"
 #include "ifb-engine.hpp"
+#include "eng-collections.hpp"
 
 namespace ifb {
 

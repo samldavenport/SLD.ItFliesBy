@@ -3,6 +3,7 @@
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
 #include "ifb-memory.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

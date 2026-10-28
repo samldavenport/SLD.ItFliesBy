@@ -7,6 +7,8 @@
 #include "ifb-types.hpp"
 #include "ifb-map.hpp"
 #include <cassert>
+#include "entity-internal.hpp"
+#include "map-internal.hpp"
 
 namespace ifb {
 

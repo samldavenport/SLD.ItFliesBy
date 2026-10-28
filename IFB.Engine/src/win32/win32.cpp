@@ -12,6 +12,7 @@
 #include "win32-system.cpp"
 #include "win32-window.cpp"
 #include "win32-utils.cpp"
+#include "eng-platform.hpp"
 
 namespace ifb {
     

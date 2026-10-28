@@ -12,6 +12,10 @@
 #include "ifb-renderer.hpp"
 #include "sprites.hpp"
 #include <cassert>
+#include "entity-internal.hpp"
+#include "physics-internal.hpp"
+#include "quad-internal.hpp"
+#include "renderer-internal.hpp"
 
 namespace ifb {
     

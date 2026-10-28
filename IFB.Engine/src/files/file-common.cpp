@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ifb-files.hpp"
+#include "eng-platform.hpp"
+#include "file-internal.hpp"
 
 namespace ifb {
 

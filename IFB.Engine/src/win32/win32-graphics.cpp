@@ -2,6 +2,7 @@
 
 #include "ifb-win32.hpp"
 #include "ifb-font-opensans.hpp"
+#include "eng-platform.hpp"
 
 namespace ifb {
 

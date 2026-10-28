@@ -18,7 +18,7 @@
 #   define IFB_API __declspec(dllimport)
 #endif
 
-// defined here instead of ifb-engine.hpp so headers it includes (like ifb-collections.hpp) can use it
+// defined here instead of ifb-engine.hpp so the engine headers it includes (like eng-collections.hpp) can use it
 #ifdef IFB_ENGINE_STATIC
 #   define IFB_ENGINE_API
 #elif defined(IFB_ENGINE_DLL_EXPORT)

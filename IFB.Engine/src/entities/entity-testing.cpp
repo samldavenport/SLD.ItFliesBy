@@ -2,6 +2,9 @@
 
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
+#include "eng-collections.hpp"
+#include "entity-internal.hpp"
+#include "memory-internal.hpp"
 namespace ifb {
 
     inline void test_create         (void);

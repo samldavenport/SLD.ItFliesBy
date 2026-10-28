@@ -2,6 +2,7 @@
 
 #include "ifb-entities.hpp"
 #include "component.hpp"
+#include "entity-internal.hpp"
 
 namespace ifb {
 

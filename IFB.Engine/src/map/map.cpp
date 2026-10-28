@@ -13,6 +13,8 @@
 #include <cassert>
 #include <cmath>
 #include <sld-strings.hpp>
+#include "eng-collections.hpp"
+#include "entity-internal.hpp"
 
 namespace ifb {
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include "memory-internal.hpp"
 
 #include "component.hpp"
 #include "eng-internal.hpp"

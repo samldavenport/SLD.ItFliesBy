@@ -23,6 +23,14 @@
 #include "eng-system.cpp"
 #include "asset.hpp"
 #include "sprites.hpp"
+#include "eng-platform.hpp"
+#include "entity-internal.hpp"
+#include "file-internal.hpp"
+#include "map-internal.hpp"
+#include "memory-internal.hpp"
+#include "physics-internal.hpp"
+#include "random-internal.hpp"
+#include "renderer-internal.hpp"
 
 namespace ifb {
 

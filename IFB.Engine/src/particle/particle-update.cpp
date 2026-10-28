@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cmath>
+#include "random-internal.hpp"
 
 #include "ifb-types.hpp"
 #include "particle-emitter.cpp"

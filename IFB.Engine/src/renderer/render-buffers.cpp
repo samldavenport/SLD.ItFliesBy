@@ -9,6 +9,11 @@
 #include "ifb-renderer.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"
+#include "eng-collections.hpp"
+#include "entity-internal.hpp"
+#include "map-internal.hpp"
+#include "particle-internal.hpp"
+#include "quad-internal.hpp"
 
 namespace ifb {
 

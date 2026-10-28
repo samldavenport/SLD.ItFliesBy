@@ -10,6 +10,9 @@
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "sld-strings.hpp"
+#include "file-internal.hpp"
+#include "json-internal.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
 

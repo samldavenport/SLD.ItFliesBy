@@ -11,6 +11,8 @@
 #include "quad.cpp"
 #include "ifb-renderer.hpp"
 #include <cassert>
+#include "entity-internal.hpp"
+#include "map-internal.hpp"
 
 namespace ifb {
 

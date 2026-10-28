@@ -7,6 +7,9 @@
 #include "ifb-renderer.hpp"
 #include "sld.hpp"
 #include "ifb-map.hpp"
+#include "entity-internal.hpp"
+#include "map-internal.hpp"
+#include "renderer-internal.hpp"
 
 namespace ifb {
 

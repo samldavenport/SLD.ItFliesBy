@@ -14,6 +14,7 @@
 #include "sld-math-mat4.hpp"
 #include "sld-opengl.hpp"
 #include <cassert>
+#include "particle-internal.hpp"
 
 namespace ifb {
 

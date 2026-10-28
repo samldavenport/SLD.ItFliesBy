@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include "entity-internal.hpp"
 
 #include "component.hpp"
 #include "ifb-entities.hpp"

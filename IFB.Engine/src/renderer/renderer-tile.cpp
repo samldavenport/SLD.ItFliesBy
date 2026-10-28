@@ -10,6 +10,7 @@
 #include "sld.hpp"
 #include "eng-internal.hpp"
 #include <cassert>
+#include "map-internal.hpp"
 
 namespace ifb {
 

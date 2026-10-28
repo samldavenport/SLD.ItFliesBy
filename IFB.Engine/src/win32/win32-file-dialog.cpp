@@ -5,6 +5,7 @@
 #include <shobjidl.h>
 #include "sld-strings.hpp"
 #include "sld.hpp"
+#include "eng-platform.hpp"
 
 namespace ifb {
 

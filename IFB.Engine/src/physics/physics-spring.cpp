@@ -12,6 +12,8 @@
 #include "sld-math-vec3.hpp"
 #include "physics-entity.cpp"
 #include "physics-internal.hpp"
+#include "eng-collections.hpp"
+#include "entity-internal.hpp"
 
 namespace ifb {
 

@@ -5,6 +5,9 @@
 #include "eng-internal.hpp"
 #include "ifb-quad.hpp"
 #include "ifb-map.hpp"
+#include "eng-collections.hpp"
+#include "map-internal.hpp"
+#include "quad-internal.hpp"
 
 namespace ifb {
 

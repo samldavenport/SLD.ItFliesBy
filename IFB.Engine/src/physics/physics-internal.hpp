@@ -7,6 +7,21 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
+    // METHOD DECLARATIONS
+    //--------------------------------------------------------------------
+
+    IFB_INTERNAL phys_mngr* phys_mngr_create             (void);
+    IFB_INTERNAL void       phys_mngr_validate           (void);
+    IFB_INTERNAL void       phys_mngr_startup            (reservation* res);
+    IFB_INTERNAL void       phys_mngr_shutdown           (void);
+    IFB_INTERNAL void       phys_mngr_simulate           (const hnd_map map, const f32 dt);
+
+    IFB_INTERNAL void       phys_entity_add_force        (const entity_id id, const vec3& force);
+    IFB_INTERNAL bool       phys_entity_remove_all_force (const entity_id id);
+    IFB_INTERNAL void       phys_entity_set_mass         (const entity_id id, const f32 mass);
+    IFB_INTERNAL void       phys_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
+
+    //--------------------------------------------------------------------
     // TYPE DECLARATIONS
     //--------------------------------------------------------------------
     

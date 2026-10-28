@@ -7,6 +7,9 @@
 #include "eng-internal.hpp"
 #include "sld.hpp"
 #include <cassert>
+#include "eng-collections.hpp"
+#include "eng-platform.hpp"
+#include "memory-internal.hpp"
 
 namespace ifb {
    

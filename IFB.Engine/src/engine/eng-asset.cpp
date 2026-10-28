@@ -10,6 +10,9 @@
 #include "ifb-memory.hpp"
 #include "ifb-renderer.hpp"
 #include "sld-strings.hpp"
+#include "file-internal.hpp"
+#include "memory-internal.hpp"
+#include "renderer-internal.hpp"
 
 namespace ifb {
 

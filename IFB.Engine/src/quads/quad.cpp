@@ -9,6 +9,9 @@
 #include "memory-arena.cpp"
 #include "particle-emitter.cpp"
 #include "sprite-mngr.cpp"
+#include "eng-collections.hpp"
+#include "entity-internal.hpp"
+#include "quad-internal.hpp"
 
 namespace ifb {
 
