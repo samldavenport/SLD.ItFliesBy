@@ -11,7 +11,7 @@
 #include "ifb-physics.hpp"
 #include "ifb-map.hpp"
 #include "ifb-particle.hpp"
-#include "random.hpp"
+#include "ifb-random.hpp"
 #include "sprites.hpp"
 
 #define IFB_ENG_API_FUNC

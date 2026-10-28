@@ -9,7 +9,7 @@
 #include "particle-mngr.cpp"
 #include "ifb-particle.hpp"
 #include "random-table.cpp"
-#include "random.hpp"
+#include "ifb-random.hpp"
 #include "sld-math-globals.hpp"
 #include "sld-math-vec3.hpp"
 #include "sld.hpp"
