@@ -7,9 +7,9 @@ namespace ifb {
 
     IFB_INTERNAL void
     gui_game_player_rig(
-        bool& is_open) {
+        bool&               is_open,
+        const game_context* game_ctx) {
 
-        const game_context*    game_ctx   = game_context_get_instance();
         const game_player_rig* player_rig = game_ctx->player_rig;
         const game_map*        map        = game_ctx->map;
 

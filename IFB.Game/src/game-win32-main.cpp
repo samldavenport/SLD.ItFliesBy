@@ -9,11 +9,9 @@
 #include "ifb-gui.hpp"
 #include "ifb.hpp"
 
-#include "collections.cpp"
 #include "game-context.cpp"
 #include "game-player-rig.cpp"
 #include "game-entity.cpp"
-#include "gui.cpp"
 #include "imgui.h"
 
 using namespace ifb;
@@ -84,7 +82,7 @@ static void
 render_proc(
     void) {
 
-    gui_render();
+    gui_render(game_ctx);
 }
 
 inline void

@@ -20,7 +20,7 @@ namespace ifb {
         assert(cache->capacity != 0);
     }
 
-    u32
+    IFB_ENGINE_API u32
     index_cache_memory_size(
         const u32 capacity) {
 
@@ -31,7 +31,7 @@ namespace ifb {
         return(size_total);
     }
 
-    index_cache* 
+    IFB_ENGINE_API index_cache* 
     index_cache_memory_create(
         const u32     capacity,
         memory& mem) {
@@ -49,7 +49,7 @@ namespace ifb {
         return(cache);
     }
 
-    index_cache*
+    IFB_ENGINE_API index_cache*
     index_cache_arena_create(
         const u32          capacity,
         const hnd_arena arena_hnd) {
@@ -73,7 +73,7 @@ namespace ifb {
         return(cache);
     }
     
-    void
+    IFB_ENGINE_API void
     index_cache_reset(
         index_cache* cache) {
 
@@ -88,7 +88,7 @@ namespace ifb {
         }
     }
 
-    void 
+    IFB_ENGINE_API void 
     index_cache_set_index_free(
         index_cache* cache,
         const u32    index) {
@@ -99,7 +99,7 @@ namespace ifb {
         cache->index[index] = false;
     }
 
-    void 
+    IFB_ENGINE_API void 
     index_cache_set_index_used(
         index_cache* cache,
         const u32    index) {
@@ -109,7 +109,7 @@ namespace ifb {
         cache->index[index] = true;
     }
 
-    u32
+    IFB_ENGINE_API u32
     index_cache_get_next_free(
         index_cache* cache) {
 
@@ -131,7 +131,7 @@ namespace ifb {
         return(index);
     }
     
-    u32
+    IFB_ENGINE_API u32
     index_cache_count_used(
         const index_cache* cache) {
     
@@ -149,7 +149,7 @@ namespace ifb {
         return(count);
     }
 
-    u32
+    IFB_ENGINE_API u32
     index_cache_count_free(
         const index_cache* cache) {
     
@@ -167,7 +167,7 @@ namespace ifb {
         return(count);
     }
 
-    u32
+    IFB_ENGINE_API u32
     index_cache_capacity(
         const index_cache* cache) {
 
@@ -175,7 +175,7 @@ namespace ifb {
         return(cache->capacity);
     } 
 
-    bool
+    IFB_ENGINE_API bool
     index_cache_is_index_free(
         const index_cache* cache,
         const u32 index) {

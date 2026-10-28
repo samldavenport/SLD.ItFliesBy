@@ -18,16 +18,17 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct gui_strings;
+    struct game_context;
 
     //--------------------------------------------------------------------
     // METHODS
     //--------------------------------------------------------------------
 
-    // context
-    IFB_INTERNAL void  gui_open               (void);
+    // context (gui_open and gui_render are called by the game, so they're not internal)
+                 void  gui_open               (void);
     IFB_INTERNAL void  gui_close              (void);
-    IFB_INTERNAL void  gui_render             (void);
-    IFB_INTERNAL void  gui_main_window        (void);
+                 void  gui_render             (const game_context* game_ctx);
+    IFB_INTERNAL void  gui_main_window        (const game_context* game_ctx);
 
     // engine
     IFB_INTERNAL void  gui_engine_imgui_demo             (bool& is_open);
@@ -37,7 +38,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_sprite_atlas_inspector (bool& is_open);
 
     // game
-    IFB_INTERNAL void  gui_game_player_rig       (bool& is_open);
+    IFB_INTERNAL void  gui_game_player_rig       (bool& is_open, const game_context* game_ctx);
     IFB_INTERNAL void  gui_game_asset_dictionary (bool& is_open);
     IFB_INTERNAL void  gui_game_asset_database   (bool& is_open);
 

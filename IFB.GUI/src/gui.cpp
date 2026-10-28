@@ -18,7 +18,7 @@ static bool _gui_is_open;
 
 namespace ifb {
 
-    IFB_INTERNAL void
+    void
     gui_open(
         void) {
 
@@ -32,20 +32,20 @@ namespace ifb {
         _gui_is_open = false;
     }
 
-    IFB_INTERNAL void
+    void
     gui_render(
-        void) {
+        const game_context* game_ctx) {
 
         if (!_gui_is_open) {
             return;
         }
 
-        gui_main_window       ();
+        gui_main_window       (game_ctx);
     }
 
     IFB_INTERNAL void
     gui_main_window(
-        void) {
+        const game_context* game_ctx) {
 
         static bool is_selected            = false;
         static bool eng_imgui_demo         = false;
@@ -120,7 +120,7 @@ namespace ifb {
         gui_renderer_camera               (rndr_camera);
         gui_entity_manager                (entity_manager);
         gui_quad_manager                  (quad_manager);
-        gui_game_player_rig               (player_rig);
+        gui_game_player_rig               (player_rig, game_ctx);
         gui_game_asset_dictionary         (asset_dictionary);
         gui_game_asset_database           (asset_database);
     }

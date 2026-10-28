@@ -1,8 +1,6 @@
 #ifndef IFB_HPP
 #define IFB_HPP
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_win32.h>
@@ -18,6 +16,15 @@
 #   define IFB_API __declspec(dllexport)
 #else
 #   define IFB_API __declspec(dllimport)
+#endif
+
+// defined here instead of ifb-engine.hpp so headers it includes (like ifb-collections.hpp) can use it
+#ifdef IFB_ENGINE_STATIC
+#   define IFB_ENGINE_API
+#elif defined(IFB_ENGINE_DLL_EXPORT)
+#   define IFB_ENGINE_API __declspec(dllexport)
+#else
+#   define IFB_ENGINE_API __declspec(dllimport)
 #endif
 
 using namespace sld;

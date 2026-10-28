@@ -9,8 +9,6 @@
 
 namespace ifb {
 
-    static game_context* _game_ctx;
-
     IFB_INTERNAL game_context*
     game_context_create_and_init(
         void) {
@@ -53,8 +51,6 @@ namespace ifb {
         rig->starting_map_hnd = map->eng_hnd;
         rig->current_map_hnd  = map->eng_hnd;
         game_player_rig_init (ctx->player_rig);
-
-        _game_ctx = ctx;
 
         entities->static_entity_0 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-0","WOOD",map->eng_hnd,0,3,3);
         entities->static_entity_1 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-1","WOOD",map->eng_hnd,0,3,7);
@@ -100,14 +96,6 @@ namespace ifb {
         eng_entity_render(entities->static_entity_1);
         eng_entity_render(entities->static_entity_2);
         eng_entity_render(entities->static_entity_3);
-    }
-    
-    IFB_INTERNAL game_context*
-    game_context_get_instance(
-        void) {
-
-        assert(_game_ctx);
-        return(_game_ctx);
     }
 };
 

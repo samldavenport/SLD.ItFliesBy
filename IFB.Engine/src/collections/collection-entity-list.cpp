@@ -23,7 +23,7 @@ namespace ifb {
     // METHODS 
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL u32
+    IFB_ENGINE_API u32
     entity_list_mem_req(
         void) {
 
@@ -36,7 +36,7 @@ namespace ifb {
         return(size_total);
     }
 
-    IFB_INTERNAL entity_list*
+    IFB_ENGINE_API entity_list*
     entity_list_memory_create(
         const memory& mem) {
 
@@ -54,7 +54,7 @@ namespace ifb {
         return(list);
     }
 
-    IFB_INTERNAL entity_list* 
+    IFB_ENGINE_API entity_list* 
     entity_list_arena_create(
         const hnd_arena a) {
 
@@ -78,7 +78,7 @@ namespace ifb {
     }
 
 
-    IFB_INTERNAL bool
+    IFB_ENGINE_API bool
     entity_list_add(
         entity_list*    el,
         const entity_id id) {
@@ -97,7 +97,7 @@ namespace ifb {
         return(can_add);
     }
 
-    IFB_INTERNAL bool
+    IFB_ENGINE_API bool
     entity_list_remove(
         entity_list*    el,
         const entity_id id) {
@@ -130,7 +130,7 @@ namespace ifb {
         return(false);
     }
 
-    IFB_INTERNAL void
+    IFB_ENGINE_API void
     entity_list_reset(
         entity_list* el) {
 
@@ -138,7 +138,7 @@ namespace ifb {
         el->count = 0;
     }
 
-    IFB_INTERNAL void
+    IFB_ENGINE_API void
     entity_list_validate(
         const entity_list* el) {
 
@@ -147,14 +147,14 @@ namespace ifb {
         assert(el->count    <= el->capacity);
     }
 
-    IFB_INTERNAL bool 
+    IFB_ENGINE_API bool 
     entity_list_is_null_or_empty(
         const entity_list* el) {
     
         return(el == NULL || el->count == 0);
     }
 
-    IFB_INTERNAL u32
+    IFB_ENGINE_API u32
     entity_list_capacity (
         const entity_list* el) {
 
@@ -162,7 +162,7 @@ namespace ifb {
         return(el->capacity);
     }
 
-    IFB_INTERNAL u32
+    IFB_ENGINE_API u32
     entity_list_count(
         const entity_list* el) {
 
@@ -170,7 +170,7 @@ namespace ifb {
         return(el->count);
     }
 
-    IFB_INTERNAL bool
+    IFB_ENGINE_API bool
     entity_list_contains(
         const entity_list* el,
         const entity_id    id) {
@@ -193,7 +193,7 @@ namespace ifb {
         return(does_contain);
     }
     
-    IFB_INTERNAL entity_id
+    IFB_ENGINE_API entity_id
     entity_list_index(
         const entity_list* el,
         const u32    index) {
@@ -204,7 +204,7 @@ namespace ifb {
         return(el->ids[index]);
     }
     
-    IFB_INTERNAL void
+    IFB_ENGINE_API void
     entity_list_lookup(
         const entity_list* el, 
         const u32          index,

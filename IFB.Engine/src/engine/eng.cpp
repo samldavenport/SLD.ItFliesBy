@@ -3,6 +3,9 @@
 #define IFB_ENGINE_DLL_EXPORT
 #define IFB_API_DLL_EXPORT
 
+// only the engine uses stb_image, so its implementation lives here
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "asset.cpp"
 
 #include "collections.cpp"

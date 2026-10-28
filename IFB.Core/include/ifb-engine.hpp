@@ -14,13 +14,6 @@
 #include "ifb-input.hpp"
 #include "ifb-collections.hpp"
 #include <imgui.h>
-#ifdef IFB_ENGINE_STATIC
-#   define IFB_ENGINE_API
-#elif defined(IFB_ENGINE_DLL_EXPORT)
-#   define IFB_ENGINE_API __declspec(dllexport)
-#else
-#   define IFB_ENGINE_API __declspec(dllimport)
-#endif
 
 using namespace sld;
 

@@ -36,7 +36,7 @@ namespace ifb {
     // PUBLIC METHODS 
     //--------------------------------------------------------------------
     
-    u32
+    IFB_ENGINE_API u32
     stack_memory_requirement(
         const u32 capacity) {
 
@@ -45,7 +45,7 @@ namespace ifb {
         return(size_req);
     }
 
-    stack*
+    IFB_ENGINE_API stack*
     stack_memory_create(
         const u32 capacity,
         memory&   mem) {
@@ -65,7 +65,7 @@ namespace ifb {
         return(s);
     }
 
-    stack*
+    IFB_ENGINE_API stack*
     stack_memory_create(
         memory& mem) {
 
@@ -81,7 +81,7 @@ namespace ifb {
         return(s);
     }
     
-    stack* 
+    IFB_ENGINE_API stack* 
     stack_arena_create(
         const u32          capacity,
         const hnd_arena arena_hnd) {
@@ -99,15 +99,15 @@ namespace ifb {
         return(s);
     }
 
-    u32
-    stack_size_get_capacity(
+    IFB_ENGINE_API u32
+    stack_get_capacity(
         const stack* s) {
 
         stack_validate(s);
         return(s->capacity);
     }
 
-    u32
+    IFB_ENGINE_API u32
     stack_get_position(
         const stack* s) {
 
@@ -115,7 +115,7 @@ namespace ifb {
         return(s->position);
     }
 
-    u32
+    IFB_ENGINE_API u32
     stack_get_size_free(
         const stack* s) {
 
@@ -125,7 +125,7 @@ namespace ifb {
         return(size_free);
     }
 
-    void*
+    IFB_ENGINE_API void*
     stack_get_head(
         const stack* s) {
 
@@ -133,7 +133,7 @@ namespace ifb {
         return((void*)s->start);
     }
 
-    void*
+    IFB_ENGINE_API void*
     stack_get_tail(
         const stack* s) {
 
@@ -145,7 +145,7 @@ namespace ifb {
     // PUBLIC METHODS
     //--------------------------------------------------------------------
 
-    u32 
+    IFB_ENGINE_API u32 
     stack_save(stack* s) {
 
         stack_validate(s);
@@ -156,7 +156,7 @@ namespace ifb {
         return(s->save);
     }
 
-    void 
+    IFB_ENGINE_API void 
     stack_reset(
         stack* s) {
 
@@ -165,7 +165,7 @@ namespace ifb {
         s->save     = 0;
     }
 
-    void* 
+    IFB_ENGINE_API void* 
     stack_push(
         stack* s,
         const u32 size) {
@@ -184,7 +184,7 @@ namespace ifb {
         return(push_mem);
     }
 
-    void
+    IFB_ENGINE_API void
     stack_pull(
         stack*    s,
         const u32 size) {
@@ -196,7 +196,7 @@ namespace ifb {
         }
     }
 
-    void
+    IFB_ENGINE_API void
     stack_revert(
         stack* s,
         const u32 save) {
