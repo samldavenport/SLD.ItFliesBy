@@ -2,7 +2,7 @@
 
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 

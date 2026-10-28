@@ -7,7 +7,7 @@
 #include "asset-database.cpp"
 #include "eng-asset.cpp"
 #include "renderer.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 

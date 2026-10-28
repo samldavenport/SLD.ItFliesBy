@@ -7,7 +7,7 @@
 #include "ifb-types.hpp"
 #include "map-internal.hpp"
 #include "eng-stack.cpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"
 #include "sld-strings.hpp"

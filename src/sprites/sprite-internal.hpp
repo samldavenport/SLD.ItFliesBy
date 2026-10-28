@@ -3,7 +3,7 @@
 
 #include "ifb-types.hpp"
 #include "ifb-config.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 

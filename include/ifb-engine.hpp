@@ -7,6 +7,7 @@
 #include "ifb-assets.hpp"
 #include "ifb-sprites.hpp"
 #include "ifb-files.hpp"
+#include "ifb-map.hpp"
 #include "sld.hpp"
 #include "ifb-types.hpp"
 #include "ifb-platform.hpp"

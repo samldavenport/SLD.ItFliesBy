@@ -3,7 +3,7 @@
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
 #include "ifb-types.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include "memory-arena.cpp"
 #include "physics-internal.hpp"
 

@@ -4,6 +4,7 @@
 #include "ifb.hpp"
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 
@@ -27,7 +28,6 @@ namespace ifb {
 
     struct file_mngr;
     struct file_path;
-    struct reservation;
 
     //--------------------------------------------------------------------
     // GLOBALS

@@ -6,7 +6,7 @@
 #include "ifb-entities.hpp"
 #include "renderer.hpp"
 #include "sld.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 
 namespace ifb {
 

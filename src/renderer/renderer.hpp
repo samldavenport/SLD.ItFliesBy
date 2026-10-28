@@ -7,7 +7,7 @@
 #include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "quad.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 namespace ifb {
 
     //--------------------------------------------------------------------

@@ -54,16 +54,6 @@ namespace ifb {
         f32 normal_val;
     };
 
-    // the position component is the source of truth for where an entity is
-    // h_map is the map the entity belongs to, the rest is the position
-    // measured in tiles from the map origin: columns along x, levels along y, rows along z
-    struct cmpnt_map_coords {
-        hnd_map h_map;
-        f32     col_x;
-        f32     lvl_y;
-        f32     row_z;
-    };
-
     struct cmpnt_spring {
         entity_id id;
         entity_id anchor;

@@ -2,7 +2,7 @@
 #define COMPONENTS_HPP
 
 #include "ifb-components.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "sld.hpp"
 
 namespace ifb {

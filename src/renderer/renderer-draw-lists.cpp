@@ -4,7 +4,7 @@
 #include "renderer-internal.hpp"
 #include "eng-internal.hpp"
 #include "quad.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 
 namespace ifb {
 

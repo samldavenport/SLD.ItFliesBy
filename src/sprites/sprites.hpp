@@ -2,7 +2,7 @@
 #define SPRITES_HPP
 
 #include "ifb-sprites.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 

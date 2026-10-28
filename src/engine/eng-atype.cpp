@@ -5,7 +5,7 @@
 #include "entity.cpp"
 #include "ifb-entities.hpp"
 #include "ifb-types.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include <cassert>
 
 namespace ifb {

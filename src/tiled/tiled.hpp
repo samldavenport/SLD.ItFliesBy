@@ -2,7 +2,7 @@
 #define TILED_HPP
 
 #include "ifb.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "sld.hpp"
 #include "ifb-json.hpp"
 

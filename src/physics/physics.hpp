@@ -2,7 +2,7 @@
 #define PHYSICS_HPP
 
 #include "ifb-types.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "ifb-collections.hpp"
 #include "sld-math-types.hpp"
 

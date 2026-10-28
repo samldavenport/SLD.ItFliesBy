@@ -4,6 +4,7 @@
 #include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "ifb-components.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 
@@ -149,7 +150,6 @@ namespace ifb {
 
     struct entity_mngr;
     struct entity_list;
-    struct reservation;
 
     //--------------------------------------------------------------------
     // GLOBALS

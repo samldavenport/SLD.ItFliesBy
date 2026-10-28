@@ -5,7 +5,7 @@
 #include "ifb-entities.hpp"
 #include "particle.hpp"
 #include "quad.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include "renderer.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"

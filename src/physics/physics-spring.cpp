@@ -6,7 +6,7 @@
 #include "ifb-config.hpp"
 #include "ifb-types.hpp"
 #include "physics.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "memory-arena.cpp"
 #include "ifb-entities.hpp"
 #include "sld-math-vec3.hpp"

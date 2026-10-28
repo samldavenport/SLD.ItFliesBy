@@ -6,7 +6,7 @@
 #include "renderer.hpp"
 #include "renderer-internal.hpp"
 #include "sld-opengl.hpp"
-#include "map.hpp"
+#include "ifb-map.hpp"
 #include "sld.hpp"
 #include "eng-internal.hpp"
 #include <cassert>

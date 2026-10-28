@@ -5,7 +5,7 @@
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
 #include "sld.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 
 namespace ifb {
 

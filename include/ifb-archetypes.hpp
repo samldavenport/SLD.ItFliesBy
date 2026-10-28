@@ -3,6 +3,7 @@
 
 #include "ifb.hpp"
 #include "ifb-components.hpp"
+#include "ifb-map.hpp"
 
 namespace ifb {
 

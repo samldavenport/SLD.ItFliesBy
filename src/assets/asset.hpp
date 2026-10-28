@@ -2,7 +2,7 @@
 #define ASSETS_HPP
 
 #include "ifb-assets.hpp"
-#include "memory.hpp"
+#include "ifb-memory.hpp"
 #include "sld.hpp"
 
 namespace ifb {
