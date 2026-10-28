@@ -56,13 +56,6 @@ namespace ifb {
         map_color_e_none         = 16,
     };
    
-    enum asset_type_e {
-        asset_type_e_text          = 0,
-        asset_type_e_image         = 1,
-        asset_type_e_sprite_atlas  = 2,
-        asset_type_e_count         = 3 
-    };
-
     enum particle_emitter_type_e {
         particle_emitter_type_e_parabolic = 0,
         particle_emitter_type_e_radial    = 1,
@@ -81,7 +74,6 @@ namespace ifb {
     IFB_U8(map_tile_flags_u8);
     IFB_U8(map_wall_flags_u8);
 
-    IFB_HANDLE(hnd_asset);
     IFB_HANDLE(hnd_arena);
     IFB_HANDLE(hnd_file);
     IFB_HANDLE(hnd_map);
@@ -223,130 +215,8 @@ namespace ifb {
     // ASSET TYPES
     //--------------------------------------------------------------------
     
-    struct asset_name {
-        cchar cstr [IFB_CONFIG_ASSET_NAME_SIZE];
-        
-        inline void
-        init(
-            const cchar* cstr) {
 
-            assert(cstr);
 
-            (void)cstr_nvar_copy(
-                cstr,
-                IFB_CONFIG_ASSET_NAME_SIZE,
-                this->cstr,
-                IFB_CONFIG_ASSET_NAME_SIZE
-            );
-        }
-
-        inline hnd_asset
-        to_handle(void) {
-
-            const hnd_asset hnd = hash_u32((void*)cstr, IFB_CONFIG_ASSET_NAME_SIZE);
-            assert(hnd != INVALID_HANDLE);
-
-            return(hnd);
-        }
-    };
-
-    struct text {
-        cchar* cstr;
-        u32    size;
-    };
-
-    struct asset_index {
-        asset_type_u32 type;
-        u32            offset;
-        u32            size;
-    };
-    
-    struct asset_dictionary_file_info {
-        const cchar* name;
-        const cchar* path;
-        u32          id;
-        u32          type;
-    };
-
-    struct asset_database_info {
-        cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
-        hnd_asset hnd;
-        u32       type;
-        u32       offset;
-        u32       size;
-    };
-
-    struct sprite_atlas_builder_info {
-        cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
-        hnd_asset hnd;
-        u32       width;
-        u32       height;
-    };
-
-    struct sprite_atlas_info {
-        u32 width;
-        u32 height;
-        u32 sprite_count;
-    };
-
-    struct sprite_atlas_sprite_info {
-        cchar      name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
-        hnd_sprite hnd;
-        u32        x;
-        u32        y;
-        u32        width;
-        u32        height;
-    };
-
-    struct asset_preview {
-        u32          type;
-        const cchar* text;
-        b32          is_text_truncated; // the file is bigger than the file buffer
-        u32          texture;
-        u32          width;
-        u32          height;
-    };
-
-    struct asset_text {
-        hnd_asset hnd;
-        u32       size;
-        cchar*    cstr;
-    };
-
-    struct asset_image {
-        hnd_asset       hnd;
-        u32             width;
-        u32             height;
-        color_rgba_u32* pixels;
-    };
-
-    struct sprite_info {
-        asset_name   name;
-        hnd_sprite   hnd;
-        u32          index;
-        u32          pixel_x;
-        u32          pixel_y;
-        u32          pixel_width;
-        u32          pixel_height;
-        u32          atlas_width;
-        u32          atlas_height;
-    };
-
-    struct sprite_index {
-        u32 width;
-        u32 height;
-        u32 offset;
-    };
-    
-    struct asset_sprite_atlas {
-        hnd_sprite*      array_handles;
-        sprite_index*    array_indexes;
-        pixel*           array_pixels;
-        hnd_sprite_atlas hnd;
-        u32              width;
-        u32              height;
-        u32              sprite_count;
-    };
 };
 
 #endif //IFB_TYPES_HPP

@@ -59,6 +59,11 @@ namespace ifb {
     constexpr u32 ENTITY_TAG_SIZE   = 16;
     constexpr f32 POS_MAX           =  1.0f;
     constexpr f32 POS_MIN           = -1.0f;
+    
+    struct text {
+        cchar* cstr;
+        u32    size;
+    };
 };
 
 
