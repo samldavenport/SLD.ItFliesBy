@@ -5,7 +5,7 @@
 #include "ifb-particle.hpp"
 #include "ifb-quad.hpp"
 #include "render-buffers.cpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "renderer-internal.hpp"
 #include "renderer-camera.cpp"
 #include "renderer-grid.cpp"

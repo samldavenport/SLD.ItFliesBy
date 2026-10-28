@@ -6,7 +6,7 @@
 #include "ifb-particle.hpp"
 #include "ifb-quad.hpp"
 #include "ifb-map.hpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"
 

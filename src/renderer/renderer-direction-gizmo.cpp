@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "renderer-internal.hpp"
 #include "eng-internal.hpp"
 

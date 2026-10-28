@@ -9,7 +9,7 @@
 #include "ifb-map.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include <cassert>
 
 namespace ifb {

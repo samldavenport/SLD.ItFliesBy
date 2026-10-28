@@ -8,7 +8,7 @@
 #include "asset-internal.hpp"
 #include "ifb-files.hpp"
 #include "ifb-memory.hpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "sld-strings.hpp"
 
 namespace ifb {

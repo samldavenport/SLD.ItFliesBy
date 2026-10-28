@@ -16,7 +16,7 @@
 #include "ifb-physics.hpp"
 #include "random-table.cpp"
 #include "renderer.cpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "ifb-map.hpp"
 #include "tiled.hpp"
 #include "ifb-memory.hpp"

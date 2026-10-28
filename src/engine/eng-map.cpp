@@ -4,7 +4,7 @@
 #include "ifb-types.hpp"
 #include "component.hpp"
 #include "ifb-entities.hpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "sld.hpp"
 #include "ifb-map.hpp"
 

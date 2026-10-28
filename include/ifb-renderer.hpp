@@ -1,5 +1,5 @@
-#ifndef RENDERER_HPP
-#define RENDERER_HPP
+#ifndef IFB_RENDERER_HPP
+#define IFB_RENDERER_HPP
 
 #include <sld-opengl.hpp>
 #include "ifb-files.hpp"
@@ -8,6 +8,7 @@
 #include "ifb.hpp"
 #include "ifb-quad.hpp"
 #include "ifb-map.hpp"
+#include "ifb-memory.hpp"
 namespace ifb {
 
     //--------------------------------------------------------------------
@@ -83,4 +84,4 @@ namespace ifb {
 
 };
 
-#endif //RENDERER_HPP
+#endif //IFB_RENDERER_HPP

@@ -4,7 +4,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
 #include "ifb-files.hpp"
-#include "renderer.hpp"
+#include "ifb-renderer.hpp"
 #include "ifb-entities.hpp"
 #include "ifb-memory.hpp"
 #include "component.hpp"
