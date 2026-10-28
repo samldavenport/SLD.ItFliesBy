@@ -14,28 +14,16 @@
 namespace ifb {
    
    
-    enum particle_emitter_type_e {
-        particle_emitter_type_e_parabolic = 0,
-        particle_emitter_type_e_radial    = 1,
-        particle_emitter_type_e_count     = 2
-    };
-
     //--------------------------------------------------------------------
     // STRONG TYPES
     //--------------------------------------------------------------------
 
-    IFB_U32(handle);
     IFB_U32(entity_id);
     IFB_U32(map_color_u32);
     IFB_U32(asset_type_u32);
-    
+
     IFB_U8(map_tile_flags_u8);
     IFB_U8(map_wall_flags_u8);
-
-    IFB_HANDLE(hnd_arena);
-    IFB_HANDLE(hnd_particle_emitter);
-    IFB_HANDLE(hnd_sprite_atlas);
-    IFB_HANDLE(hnd_sprite);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

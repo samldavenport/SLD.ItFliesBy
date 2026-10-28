@@ -1,3 +1,5 @@
+* text=auto eol=lf
+
 # binary engine formats, never diff or convert line endings
 *.ifbatlas binary
 *.ifbdb    binary

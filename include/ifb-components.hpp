@@ -70,6 +70,16 @@ namespace ifb {
         hnd_sprite_atlas h_atlas;
         u32              i_sprite;
     };
+
+    // the position component is the source of truth for where an entity is
+    // h_map is the map the entity belongs to, the rest is the position
+    // measured in tiles from the map origin: columns along x, levels along y, rows along z
+    struct cmpnt_map_coords {
+        hnd_map h_map;
+        f32     col_x;
+        f32     lvl_y;
+        f32     row_z;
+    };
 };
 
 #endif //IFB_COMPONENTS_HPP

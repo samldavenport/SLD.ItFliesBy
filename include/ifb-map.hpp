@@ -15,8 +15,6 @@ namespace ifb {
     // DECLARATIONS
     //--------------------------------------------------------------------
     
-    IFB_HANDLE(hnd_map);
-    
     struct map_mngr;
     struct map_color_table;
     struct map_dimensions;
@@ -68,20 +66,6 @@ namespace ifb {
         map_color_e_gray_light   = 14,
         map_color_e_gray_dark    = 15,
         map_color_e_none         = 16,
-    };
-
-    //--------------------------------------------------------------------
-    // COMPONENTS
-    //--------------------------------------------------------------------
-
-    // the position component is the source of truth for where an entity is
-    // h_map is the map the entity belongs to, the rest is the position
-    // measured in tiles from the map origin: columns along x, levels along y, rows along z
-    struct cmpnt_map_coords {
-        hnd_map h_map;
-        f32     col_x;
-        f32     lvl_y;
-        f32     row_z;
     };
 
     //--------------------------------------------------------------------

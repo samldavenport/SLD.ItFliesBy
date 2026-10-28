@@ -57,7 +57,21 @@ namespace ifb {
     constexpr u32 INVALID_ID        = INVALID_U32;
     constexpr f32 POS_MAX           =  1.0f;
     constexpr f32 POS_MIN           = -1.0f;
-    
+
+    //--------------------------------------------------------------------
+    // HANDLES
+    //--------------------------------------------------------------------
+
+    IFB_U32(handle);
+
+    IFB_HANDLE(hnd_arena);
+    IFB_HANDLE(hnd_asset);
+    IFB_HANDLE(hnd_file);
+    IFB_HANDLE(hnd_map);
+    IFB_HANDLE(hnd_particle_emitter);
+    IFB_HANDLE(hnd_sprite_atlas);
+    IFB_HANDLE(hnd_sprite);
+
     struct text {
         cchar* cstr;
         u32    size;
