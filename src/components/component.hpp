@@ -1,7 +1,7 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
-#include "ifb-types.hpp"
+#include "ifb-components.hpp"
 #include "memory.hpp"
 #include "sld.hpp"
 

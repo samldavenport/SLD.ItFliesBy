@@ -6,66 +6,19 @@
 #include <sld-math.hpp>
 #include <sld-strings.hpp>
 
+#include "ifb.hpp"
 #include "ifb-config.hpp"
 
-using namespace sld;
 
-#define IFB_INTERNAL static
-#define IFB_INLINE   inline
-
-#ifdef IFB_STATIC
-#   define IFB_API
-#elif defined(IFB_API_DLL_EXPORT)
-#   define IFB_API __declspec(dllexport)
-#else
-#   define IFB_API __declspec(dllimport)
-#endif
-
-#define IFB_U32(type)     struct type : sld::strong_u32 { using strong_u32::strong_u32; };
-#define IFB_U16(type)     struct type : sld::strong_u16 { using strong_u16::strong_u16; };
-#define IFB_U8(type)      struct type : sld::strong_u8  { using strong_u8::strong_u8;   };
-#define IFB_FLAGS32(type) struct type : flags           { using flags;                  };
-#define IFB_HANDLE(hnd)   struct hnd  : handle          { using handle::handle;         };
 
 namespace ifb {
    
     //--------------------------------------------------------------------
-    // CONSTANTS
-    //--------------------------------------------------------------------
-
-    constexpr u32 INVALID_U16       = 0xFFFF;
-    constexpr u32 INVALID_U32       = 0xFFFFFFFF;
-    constexpr u32 INVALID_INDEX     = INVALID_U32;
-    constexpr u32 INVALID_HASH_32   = INVALID_U32;
-    constexpr u32 ENTITY_ID_INVALID = INVALID_U32;
-    constexpr u32 INVALID_HANDLE    = INVALID_U32;
-    constexpr u32 INVALID_ID        = INVALID_U32;
-    constexpr u32 ENTITY_TAG_SIZE   = 16;
-    constexpr f32 POS_MAX           =  1.0f;
-    constexpr f32 POS_MIN           = -1.0f;
-
-    //--------------------------------------------------------------------
     // ENUMS 
     //--------------------------------------------------------------------
     
-    enum cmpnt_type_e {
-        cmpnt_type_e_none             = 0, 
-        cmpnt_type_e_position         = bit_value(0),
-        cmpnt_type_e_color            = bit_value(1),
-        cmpnt_type_e_quad             = bit_value(2),
-        cmpnt_type_e_velocity         = bit_value(3),
-        cmpnt_type_e_acceleration     = bit_value(4),
-        cmpnt_type_e_inv_mass         = bit_value(5),
-        cmpnt_type_e_drag             = bit_value(6),
-        cmpnt_type_e_term_velocity    = bit_value(7),
-        cmpnt_type_e_spring           = bit_value(8),
-        cmpnt_type_e_map_coords       = bit_value(9),
-        cmpnt_type_e_particle_emitter = bit_value(10),
-        cmpnt_type_e_sprite           = bit_value(11)
-    };
-    
     enum map_tile_flag_e {
-        map_tile_flag_e_textured  = bit_value(1), 
+        map_tile_flag_e_textured    = bit_value(1), 
         map_tile_flag_e_navigable   = bit_value(0),
         map_tile_flag_e_wall_row    = bit_value(2), // render only, the tile is a row wall
         map_tile_flag_e_wall_column = bit_value(3), // render only, the tile is a column wall
@@ -122,7 +75,6 @@ namespace ifb {
 
     IFB_U32(handle);
     IFB_U32(entity_id);
-    IFB_U32(component_type);
     IFB_U32(map_color_u32);
     IFB_U32(asset_type_u32);
     
@@ -395,94 +347,6 @@ namespace ifb {
         u32              height;
         u32              sprite_count;
     };
-
-    //--------------------------------------------------------------------
-    // COMPONENT TYPES
-    //--------------------------------------------------------------------
-    
-    using  cmpnt_position      = vec3;
-    using  cmpnt_color         = color_rgba_u32;
-    using  cmpnt_velocity      = vec3;
-    using  cmpnt_acceleration  = vec3;
-    using  cmpnt_term_velocity = vec3;
-   
-    struct cmpnt_quad {
-        f32 width;
-        f32 height;
-    };
-
-    struct cmpnt_inv_mass {
-        f32 normal_val;
-    };
-
-    struct cmpnt_drag {
-        f32 normal_val;
-    };
-
-    // the position component is the source of truth for where an entity is
-    // h_map is the map the entity belongs to, the rest is the position
-    // measured in tiles from the map origin: columns along x, levels along y, rows along z
-    struct cmpnt_map_coords {
-        hnd_map h_map;
-        f32     col_x;
-        f32     lvl_y;
-        f32     row_z;
-    };
-
-    struct cmpnt_spring {
-        entity_id id;
-        entity_id anchor;
-        f32       stiffness;
-        f32       damping;
-        f32       rest_length;
-    };
-    
-    struct cmpnt_particle_emitter {
-        hnd_particle_emitter hnd;
-    };
-
-    struct cmpnt_sprite {
-        hnd_sprite_atlas h_atlas;
-        u32              i_sprite;
-    };
-
-    //--------------------------------------------------------------------
-    // ARCHETYPES 
-    //--------------------------------------------------------------------
-
-    struct atype_particle {
-        cmpnt_position      position;
-        cmpnt_velocity      velocity;
-        cmpnt_acceleration  acceleration;
-        cmpnt_inv_mass      inv_mass;
-        cmpnt_drag          drag;
-        cmpnt_term_velocity term_velocity;
-    };
-    
-    struct atype_sprite {
-        cmpnt_position   position;
-        cmpnt_color      color;
-        cmpnt_quad       quad;
-        cmpnt_map_coords map_coords;
-        cmpnt_sprite     sprite;
-    };
-
-    struct atype_physics_sprite {
-        cmpnt_position      position;
-        cmpnt_color         color;
-        cmpnt_quad          quad;
-        cmpnt_velocity      velocity;
-        cmpnt_acceleration  acceleration;
-        cmpnt_inv_mass      inv_mass;
-        cmpnt_drag          drag;
-        cmpnt_term_velocity term_velocity;
-        cmpnt_map_coords    map_coords;
-        cmpnt_sprite        sprite;
-    };
-    
-    //--------------------------------------------------------------------
-    // SPRITE TYPES
-    //--------------------------------------------------------------------
 };
 
 #endif //IFB_TYPES_HPP

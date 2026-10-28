@@ -2,6 +2,8 @@
 #define IFB_ENGINE_HPP
 
 #include "ifb-entity.hpp"
+#include "ifb-components.hpp"
+#include "ifb-archetypes.hpp"
 #include "sld.hpp"
 #include "ifb-types.hpp"
 #include "ifb-platform.hpp"
