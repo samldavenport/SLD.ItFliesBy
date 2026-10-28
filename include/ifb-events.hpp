@@ -10,6 +10,8 @@ namespace ifb {
     IFB_INTERNAL event_mngr* event_mngr_create  (void);
     IFB_INTERNAL void        event_mngr_startup (void);
 
+
+
 };
 
 #endif //EVENTS_HPP
