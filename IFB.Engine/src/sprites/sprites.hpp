@@ -1,7 +1,7 @@
 #ifndef SPRITES_HPP
 #define SPRITES_HPP
 
-#include "ifb-sprites.hpp"
+#include "ifb.hpp"
 #include "ifb-memory.hpp"
 #include "eng-types.hpp"
 #include "memory-internal.hpp"

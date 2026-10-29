@@ -7,6 +7,8 @@
 #include <sld-opengl.hpp>
 #include <sld-math.hpp>
 
+#include "ifb-config.hpp"
+
 #ifdef IFB_STATIC
 #   define IFB_API
 #elif defined(IFB_API_DLL_EXPORT)
@@ -100,6 +102,10 @@ namespace ifb {
         f32 height;
     };
    
+    struct file_path {
+        cchar cstr[IFB_CONFIG_FILE_PATH_SIZE];
+    };
+    
     //--------------------------------------------------------------------
     // COMPONENTS 
     //--------------------------------------------------------------------
@@ -280,6 +286,7 @@ namespace ifb {
         component_type has_none;
     };
 
+    
     struct tag {
         cchar cstr[16];
         
@@ -300,8 +307,6 @@ namespace ifb {
             return(hash_u32((void*)cstr, 16));
         }
     };
-
-    struct entity_list;
 
 
     //--------------------------------------------------------------------
@@ -375,6 +380,24 @@ namespace ifb {
         map_color_e_none         = 16,
     };
 
+    //--------------------------------------------------------------------
+    // STRUCTURED TYPES
+    //--------------------------------------------------------------------
+
+    struct sprite_atlas_info {
+        u32 width;
+        u32 height;
+        u32 sprite_count;
+    };
+
+    struct sprite_atlas_sprite_info {
+        cchar      name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
+        hnd_sprite hnd;
+        u32        x;
+        u32        y;
+        u32        width;
+        u32        height;
+    };
 };
 
 

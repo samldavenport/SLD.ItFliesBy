@@ -1,7 +1,7 @@
 #ifndef FILE_INTERNAL_HPP
 #define FILE_INTERNAL_HPP
 
-#include "ifb-files.hpp"
+#include "ifb.hpp"
 #include "eng-platform.hpp"
 #include "memory-internal.hpp"
 

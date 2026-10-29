@@ -4,7 +4,6 @@
 #include "ifb.hpp"
 #include "eng-assets.hpp"
 #include "eng-sprites.hpp"
-#include "ifb-files.hpp"
 #include "sld.hpp"
 #include "eng-types.hpp"
 #include "eng-platform.hpp"

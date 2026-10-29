@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-files.hpp"
+#include "ifb.hpp"
 #include "eng-internal.hpp"
 #include "ifb-config.hpp"
 #include "memory-reservation.cpp"

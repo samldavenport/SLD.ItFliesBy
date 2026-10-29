@@ -1,7 +1,7 @@
 #ifndef ENG_SPRITES_HPP
 #define ENG_SPRITES_HPP
 
-#include "ifb-sprites.hpp"
+#include "ifb.hpp"
 #include "eng-assets.hpp"
 
 namespace ifb {

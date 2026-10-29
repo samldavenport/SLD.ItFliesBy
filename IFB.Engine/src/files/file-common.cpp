@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-files.hpp"
+#include "ifb.hpp"
 #include "eng-platform.hpp"
 #include "file-internal.hpp"
 

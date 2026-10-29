@@ -2,7 +2,6 @@
 #define RENDERER_INTERNAL_HPP
 
 #include "sld-opengl.hpp"
-#include "ifb-files.hpp"
 #include "ifb.hpp"
 #include "quad-internal.hpp"
 #include "ifb-memory.hpp"
