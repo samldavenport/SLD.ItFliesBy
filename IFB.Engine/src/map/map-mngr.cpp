@@ -1,7 +1,6 @@
 #include "component-tables.cpp"
 #include "eng-internal.hpp"
 #include "entity-lookup.cpp"
-#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"
 #include "map-internal.hpp"

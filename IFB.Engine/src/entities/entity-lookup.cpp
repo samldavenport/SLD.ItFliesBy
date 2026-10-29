@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ifb-collections.hpp"
 #include "entity-manager.cpp"
 #include "ifb.hpp"
 #include "eng-collections.hpp"

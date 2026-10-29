@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ifb-collections.hpp"
 #include "renderer-internal.hpp"
 #include "eng-internal.hpp"
 #include "ifb.hpp"

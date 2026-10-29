@@ -1,7 +1,6 @@
 #pragma once
 
 #include "component-tables.cpp"
-#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "map-internal.hpp"
 #include "ifb.hpp"

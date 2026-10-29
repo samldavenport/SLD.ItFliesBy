@@ -2,7 +2,6 @@
 #define QUAD_INTERNAL_HPP
 
 #include "ifb.hpp"
-#include "ifb-collections.hpp"
 #include "sld.hpp"
 #include "ifb-memory.hpp"
 #include "eng-types.hpp"

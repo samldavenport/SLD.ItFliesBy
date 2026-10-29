@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ifb-collections.hpp"
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"

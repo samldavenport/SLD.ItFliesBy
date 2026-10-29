@@ -1,7 +1,6 @@
 #pragma once
 
 #include "collection-entity-list.cpp"
-#include "ifb-collections.hpp"
 #include "component-tables.cpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"

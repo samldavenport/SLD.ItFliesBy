@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-collections.hpp"
+#include "ifb.hpp"
 #include "ifb-config.hpp"
 #include "platform-internal.hpp"
 #include "ifb-memory.hpp"

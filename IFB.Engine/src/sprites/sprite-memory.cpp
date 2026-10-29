@@ -1,4 +1,4 @@
-#include "ifb-collections.hpp"
+#include "ifb.hpp"
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "eng-internal.hpp"

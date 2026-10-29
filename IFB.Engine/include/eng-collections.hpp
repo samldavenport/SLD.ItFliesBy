@@ -1,15 +1,9 @@
 #ifndef ENG_COLLECTIONS_HPP
 #define ENG_COLLECTIONS_HPP
 
-#include "ifb-collections.hpp"
+#include "ifb.hpp"
 
 namespace ifb {
-
-    //--------------------------------------------------------------------
-    // INDEX CACHE
-    //--------------------------------------------------------------------
-
-    struct index_cache;
 
     //--------------------------------------------------------------------
     // STACK
