@@ -3,7 +3,6 @@
 #include "ifb-config.hpp"
 #include "component.hpp"
 #include "ifb.hpp"
-#include "ifb-map.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"
 #include "eng-collections.hpp"

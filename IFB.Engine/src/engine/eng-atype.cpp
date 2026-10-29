@@ -4,7 +4,6 @@
 #include "component.hpp"
 #include "entity.cpp"
 #include "ifb.hpp"
-#include "ifb-map.hpp"
 #include <cassert>
 #include "entity-internal.hpp"
 #include "map-internal.hpp"

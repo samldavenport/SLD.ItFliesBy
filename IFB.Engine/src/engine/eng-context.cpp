@@ -14,7 +14,6 @@
 #include "physics-manager.cpp"
 #include "random-table.cpp"
 #include "renderer.cpp"
-#include "ifb-map.hpp"
 #include "tiled-internal.hpp"
 #include "ifb-memory.hpp"
 #include "eng-system.cpp"

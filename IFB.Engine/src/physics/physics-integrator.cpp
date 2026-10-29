@@ -7,7 +7,6 @@
 #include "component.hpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"
-#include "ifb-map.hpp"
 #include "physics-force-accumulator.cpp"
 #include "physics-internal.hpp"
 #include "sld-math-types.hpp"

@@ -7,7 +7,6 @@
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
-#include "ifb-map.hpp"
 #include "sprites.hpp"
 #include <cassert>
 #include <cmath>

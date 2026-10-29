@@ -3,7 +3,7 @@
 #include "ifb-collections.hpp"
 #include "renderer-internal.hpp"
 #include "eng-internal.hpp"
-#include "ifb-map.hpp"
+#include "ifb.hpp"
 #include "eng-collections.hpp"
 #include "map-internal.hpp"
 #include "quad-internal.hpp"

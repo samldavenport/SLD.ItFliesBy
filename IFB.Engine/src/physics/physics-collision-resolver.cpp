@@ -8,7 +8,6 @@
 #include "component-tables.cpp"
 #include "entity.cpp"
 #include "ifb.hpp"
-#include "ifb-map.hpp"
 #include "physics-collision-detection.cpp"
 #include "physics-internal.hpp"
 

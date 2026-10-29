@@ -2,7 +2,6 @@
 
 #include "ifb-collections.hpp"
 #include "ifb.hpp"
-#include "ifb-map.hpp"
 #include "memory-arena.cpp"
 #include "physics-internal.hpp"
 #include "eng-collections.hpp"

@@ -5,7 +5,6 @@
 #include "render-buffers.cpp"
 #include "renderer-internal.hpp"
 #include "sld-opengl.hpp"
-#include "ifb-map.hpp"
 #include "sld.hpp"
 #include "eng-internal.hpp"
 #include <cassert>
