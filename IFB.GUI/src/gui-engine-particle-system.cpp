@@ -3,7 +3,6 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
-#include "ifb-particle.hpp"
 #include "ifb.hpp"
 #include "imgui.h"
 

@@ -8,7 +8,6 @@
 #include "particle-emitter.cpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"
-#include "ifb-particle.hpp"
 #include "random-table.cpp"
 #include "sld-math-globals.hpp"
 #include "sld-math-vec3.hpp"

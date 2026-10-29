@@ -4,7 +4,6 @@
 #include "ifb-config.hpp"
 #include "ifb.hpp"
 #include "memory-internal.hpp"
-#include "ifb-particle.hpp"
 #include "sld.hpp"
 #include <sld-strings.hpp>
 #include "eng-types.hpp"

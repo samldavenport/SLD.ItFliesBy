@@ -6,7 +6,6 @@
 #include "ifb.hpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"
-#include "ifb-particle.hpp"
 #include "quad-internal.hpp"
 #include "sld-math-vec3.hpp"
 #include "sld.hpp"

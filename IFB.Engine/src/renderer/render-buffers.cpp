@@ -3,7 +3,7 @@
 #include "ifb-config.hpp"
 #include "component.hpp"
 #include "ifb-entities.hpp"
-#include "ifb-particle.hpp"
+#include "ifb.hpp"
 #include "ifb-map.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"

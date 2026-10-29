@@ -10,7 +10,7 @@
 #include "component.hpp"
 #include "physics-internal.hpp"
 #include "ifb-map.hpp"
-#include "ifb-particle.hpp"
+#include "ifb.hpp"
 #include "random-internal.hpp"
 #include "sprites.hpp"
 #include "entity-internal.hpp"
