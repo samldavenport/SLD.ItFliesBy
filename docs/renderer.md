@@ -9,7 +9,7 @@ The game doesn't draw directly. Each frame it tells the renderer **what** to dra
 | Call | What it adds |
 | --- | --- |
 | `eng_map_render(h_map)` | Sets the map to draw. The map stays set until it's changed. |
-| `eng_entity_render(id)` | Adds the entity's quad, if it has a position, quad, and color. Also adds its particle emitter, if it has one. |
+| `eng_entity_render(id)` | Adds the entity's quad, if it has every component in `ENTITY_ARCHETYPE_SPRITE` (see [Quads](quads.md#quad-entities)). Also adds its particle emitter, if it has one. |
 
 These go into the renderer's **draw lists** (`renderer-draw-lists.cpp`). Entities have to be pushed again every frame: the lists are cleared after each draw, but the map stays set.
 
@@ -44,9 +44,9 @@ Entity quads (`src/quads/quad.cpp`, `eng-quad.hpp`) are built on the CPU every f
 - A quad is centered on its entity's position and sized by its `cmpnt_quad`.
 - It tilts toward the camera's pitch, but its horizontal axis stays locked to world x, so turning the camera left or right doesn't rotate it.
 - It pivots around its bottom edge, so its base stays on the ground and only the top tilts.
-- If the entity has a sprite, the quad samples that sprite's rectangle in the active atlas. Otherwise it's drawn in the entity's color.
+- If the entity's sprite is found, the quad samples that sprite's rectangle in the active atlas, tinted by the entity's color. Otherwise it's drawn in the entity's color.
 
-The number of quads is limited by `IFB_CONFIG_QUAD_MAX`, and particles share that same buffer.
+The number of quads is limited by `IFB_CONFIG_QUAD_MAX`, and particles share that same buffer. See [Quads](quads.md) for details.
 
 ## Map Tiles
 

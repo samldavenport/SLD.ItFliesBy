@@ -36,9 +36,9 @@ The game and GUI only talk to the engine through `ifb-engine.hpp`. Objects insid
 | System | Source | Description | Docs |
 | --- | --- | --- | --- |
 | **Context** | `src/engine/eng-context.cpp`, `eng-context.hpp` | Creates and starts every manager, runs the frame loop, and calls back into the game and GUI each frame. | [Architecture](docs/architecture.md) |
-| **Memory** | `src/memory`, `eng-memory.hpp` | Virtual memory reservations, arenas (normal and large), and block allocators. Each system gets its own reservation from the memory map the game passes in. | [Architecture](docs/architecture.md#memory) |
+| **Memory** | `src/memory`, `eng-memory.hpp` | Virtual memory reservations, the global stack, and arenas (normal and large). Each system gets its own reservation from the memory map the game passes in. | [Memory](docs/memory.md) |
 | **Assets** | `src/assets`, `eng-asset.hpp` | Text, images, and sprite atlases. Source files are listed in a JSON asset dictionary, packed into a binary asset database (`.ifbdb`), and loaded by name at runtime. | [Assets](docs/assets.md) |
-| **Sprites** | `src/sprites`, `eng-sprite.hpp` | Sprite atlases (`.ifbatlas`) packed from image assets. Includes the atlas builder and inspector used by the GUI. | [Assets](docs/assets.md#sprite-atlases) |
+| **Sprites** | `src/sprites`, `eng-sprite.hpp` | Sprite atlases (`.ifbatlas`) packed from image assets. Includes the atlas builder and inspector used by the GUI. | [Sprites](docs/sprites.md) |
 | **Entities** | `src/entities`, `eng-entity.hpp` | Entities are IDs hashed from a 16 character tag, stored in a sparse set along with each entity's archetype (component mask). | [Entities & Components](docs/entities-and-components.md) |
 | **Components** | `src/components`, `eng-component.hpp` | One array per component type (position, velocity, sprite, ...), indexed by the entity's sparse index. | [Entities & Components](docs/entities-and-components.md#components) |
 | **Archetypes** | `src/engine/eng-atype.cpp` | Predefined component sets (`sprite`, `particle`, `physics_sprite`) that can be read and written as one struct. | [Entities & Components](docs/entities-and-components.md#archetypes) |
@@ -46,12 +46,12 @@ The game and GUI only talk to the engine through `ifb-engine.hpp`. Objects insid
 | **Maps** | `src/map`, `eng-map.hpp` | Tile maps made of chunks, with floor tiles, row/column walls, colors, and sprites. Converts between world positions and map coordinates. | [Maps](docs/maps.md) |
 | **Particles** | `src/particle`, `eng-particle.hpp` | Parabolic (fountain) and radial (explosion) particle emitters, which can follow an entity. | [Particles](docs/particles.md) |
 | **Renderer** | `src/renderer`, `eng-renderer.hpp` | OpenGL rendering for quads, tiles, particles, the debug grid, and the direction gizmo. Owns the camera and viewport. | [Renderer](docs/renderer.md) |
-| **Quads** | `src/quads`, `eng-quad.hpp` | Quad vertex buffers used to draw sprites and colored entities. | |
-| **Files** | `src/files`, `eng-file.hpp` | File handles for reading and writing, plus the native file dialog. | |
-| **Input** | `src/engine/eng-input.cpp`, `eng-input.hpp` | Keyboard state. | |
-| **JSON / Tiled** | `src/json`, `src/tiled` | RapidJSON wrappers, and a parser for [Tiled](https://www.mapeditor.org/) map files. | |
-| **Random** | `src/random`, `eng-random.hpp` | A table of random values refreshed on a fixed frame interval. | |
-| **Platform (Win32)** | `src/win32`, `eng-platform.hpp` | Window, OpenGL context, memory, files, monitors, and system info for Windows. | |
+| **Quads** | `src/quads`, `eng-quad.hpp` | Quad vertex buffers used to draw sprites and colored entities. | [Quads](docs/quads.md) |
+| **Files** | `src/files`, `eng-file.hpp` | File handles for reading and writing, plus the native file dialog. | [Files](docs/files.md) |
+| **Input** | `src/engine/eng-input.cpp`, `eng-input.hpp` | Keyboard state. | [Input](docs/input.md) |
+| **JSON / Tiled** | `src/json`, `src/tiled` | RapidJSON wrappers, and a parser for [Tiled](https://www.mapeditor.org/) map files. | [JSON & Tiled](docs/json-and-tiled.md) |
+| **Random** | `src/random`, `eng-random.hpp` | A table of random values refreshed on a fixed frame interval. | [Random](docs/random.md) |
+| **Platform (Win32)** | `src/win32`, `eng-platform.hpp` | Window, OpenGL context, memory, files, monitors, and system info for Windows. | [Platform](docs/platform.md) |
 
 ## Building
 

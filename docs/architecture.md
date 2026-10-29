@@ -62,11 +62,12 @@ The engine doesn't use the C++ heap. All memory comes from reservations in the m
 
 | Allocator | Description |
 | --- | --- |
-| **Reservation** | A range of reserved virtual memory owned by one system. Pages are committed as they're needed. |
-| **Global stack** | The fixed stack buffer from the memory map. Used for long lived allocations made at startup (`global_alloc`). |
-| **Arena** | A bump allocator returned as an `hnd_arena`. Supports `save`/`revert` and `reset`. Arenas are committed in `IFB_CONFIG_ARENA_MEM_GRANULARITY` steps. |
-| **Large arena** | Same API as an arena, for bigger allocations (`eng_arena_large_alloc`). Large arena handles have the high bit set (`ARENA_HANDLE_LARGE_BIT`), so every arena function works with either kind. |
-| **Block allocator** | Fixed size blocks tracked with a bitmask. |
+| **Reservation** | A range of reserved virtual memory owned by one system. Pages are committed as they're taken. |
+| **Global stack** | The fixed stack buffer from the memory map. Used for allocations that live for the whole run (`global_alloc`). |
+| **Arena** | A fixed size bump allocator returned as an `hnd_arena`. Supports `save`/`revert` and `reset`. |
+| **Large arena** | Same API as an arena, for bigger allocations (`eng_arena_large_alloc`). Commits memory as it grows. |
+
+See [Memory](memory.md) for details.
 
 Sizes and capacities for every system are set in `IFB.Core/include/ifb-config.hpp`.
 

@@ -86,3 +86,5 @@ eng_entity_set_sprite(id, "CORE-SPRITES", "CONNOR-LEFT");
 ```
 
 Map tiles and walls take atlas and sprite names the same way (`eng_map_set_tile_sprite`, `eng_map_wall_set_sprite`).
+
+See [Sprites](sprites.md) for packing, the `.ifbatlas` file format, and sprite memory.
