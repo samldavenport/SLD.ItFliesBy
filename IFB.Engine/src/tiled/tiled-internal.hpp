@@ -2,7 +2,6 @@
 #define TILED_INTERNAL_HPP
 
 #include "ifb.hpp"
-#include "ifb-memory.hpp"
 #include "sld.hpp"
 #include "json-internal.hpp"
 #include "eng-types.hpp"

@@ -2,7 +2,6 @@
 #define INPUT_INTERNAL_HPP
 
 #include "ifb-input.hpp"
-#include "eng-input.hpp"
 #include "ifb.hpp"
 
 namespace ifb {

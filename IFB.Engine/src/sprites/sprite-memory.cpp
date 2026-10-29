@@ -2,7 +2,6 @@
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "eng-internal.hpp"
-#include "ifb-memory.hpp"
 #include "eng-collections.hpp"
 #include "memory-internal.hpp"
 

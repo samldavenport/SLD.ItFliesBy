@@ -15,7 +15,6 @@
 #include "random-table.cpp"
 #include "renderer.cpp"
 #include "tiled-internal.hpp"
-#include "ifb-memory.hpp"
 #include "eng-system.cpp"
 #include "asset.hpp"
 #include "sprites.hpp"

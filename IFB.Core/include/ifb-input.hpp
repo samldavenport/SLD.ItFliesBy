@@ -125,6 +125,7 @@ namespace ifb {
         input_keycode_e_media_play   = 0x030C,
     };
 
+    using input_keycode     = u16;
 };
 
 #endif //IFB_INPUT_HPP

@@ -6,7 +6,6 @@
 #include "asset.hpp"
 #include "asset-database.cpp"
 #include "eng-asset.cpp"
-#include "ifb-memory.hpp"
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "memory-internal.hpp"

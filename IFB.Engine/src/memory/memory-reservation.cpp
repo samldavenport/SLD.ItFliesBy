@@ -3,7 +3,6 @@
 #include "ifb.hpp"
 #include "ifb-config.hpp"
 #include "platform-internal.hpp"
-#include "ifb-memory.hpp"
 #include "eng-internal.hpp"
 #include "sld.hpp"
 #include <cassert>

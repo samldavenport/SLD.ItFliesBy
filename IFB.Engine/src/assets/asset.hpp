@@ -1,11 +1,8 @@
 #ifndef ASSETS_HPP
 #define ASSETS_HPP
 
-#include "ifb-assets.hpp"
-#include "ifb-memory.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
-#include "eng-memory.hpp"
-#include "eng-assets.hpp"
 #include "memory-internal.hpp"
 #include "types-internal.hpp"
 #include "eng-types.hpp"

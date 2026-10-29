@@ -4,7 +4,6 @@
 #include "component-tables.cpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"
-#include "ifb-memory.hpp"
 #include "memory-arena.cpp"
 #include "sld-math-vec3.hpp"
 #include "physics-entity.cpp"

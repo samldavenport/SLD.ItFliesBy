@@ -2,7 +2,6 @@
 #define PHYSICS_INTERNAL_HPP
 
 #include "ifb.hpp"
-#include "ifb-memory.hpp"
 #include "sld-math-types.hpp"
 #include "memory-internal.hpp"
 

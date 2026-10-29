@@ -1,11 +1,10 @@
 #pragma once
 
 #include "ifb-engine.hpp"
-#include "ifb-memory.hpp"
+#include "ifb.hpp"
 #include "eng-internal.hpp"
 #include "eng-platform.hpp"
 #include "memory-internal.hpp"
-#include "eng-memory.hpp"
 
 namespace ifb {
 

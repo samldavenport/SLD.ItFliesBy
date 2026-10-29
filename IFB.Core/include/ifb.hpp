@@ -6,6 +6,7 @@
 #include <sld.hpp>
 #include <sld-opengl.hpp>
 #include <sld-math.hpp>
+#include <sld-strings.hpp>
 
 #include "ifb-config.hpp"
 
@@ -308,6 +309,74 @@ namespace ifb {
         }
     };
 
+    //--------------------------------------------------------------------
+    // ASSETS 
+    //--------------------------------------------------------------------
+   
+    enum asset_type_e {
+        asset_type_e_text          = 0,
+        asset_type_e_image         = 1,
+        asset_type_e_sprite_atlas  = 2,
+        asset_type_e_count         = 3 
+    };
+
+    struct asset_database_info {
+        cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
+        hnd_asset hnd;
+        u32       type;
+        u32       offset;
+        u32       size;
+    };
+
+    struct sprite_atlas_builder_info {
+        cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
+        hnd_asset hnd;
+        u32       width;
+        u32       height;
+    };
+    
+    struct asset_dictionary_file_info {
+        const cchar* name;
+        const cchar* path;
+        u32          id;
+        u32          type;
+    };
+
+    struct asset_preview {
+        u32          type;
+        const cchar* text;
+        b32          is_text_truncated; // the file is bigger than the file buffer
+        u32          texture;
+        u32          width;
+        u32          height;
+    };
+    
+    struct asset_name {
+        cchar cstr [IFB_CONFIG_ASSET_NAME_SIZE];
+        
+        inline void
+        init(
+            const cchar* cstr) {
+
+            assert(cstr);
+
+            (void)cstr_nvar_copy(
+                cstr,
+                IFB_CONFIG_ASSET_NAME_SIZE,
+                this->cstr,
+                IFB_CONFIG_ASSET_NAME_SIZE
+            );
+        }
+
+        inline hnd_asset
+        to_handle(void) {
+
+            const hnd_asset hnd = hash_u32((void*)cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+            assert(hnd != INVALID_HANDLE);
+
+            return(hnd);
+        }
+    };
 
     //--------------------------------------------------------------------
     // PARTICLES 
@@ -381,9 +450,21 @@ namespace ifb {
     };
 
     //--------------------------------------------------------------------
-    // STRUCTURED TYPES
+    // SPRITES 
     //--------------------------------------------------------------------
 
+    struct sprite_info {
+        asset_name   name;
+        hnd_sprite   hnd;
+        u32          index;
+        u32          pixel_x;
+        u32          pixel_y;
+        u32          pixel_width;
+        u32          pixel_height;
+        u32          atlas_width;
+        u32          atlas_height;
+    };
+    
     struct sprite_atlas_info {
         u32 width;
         u32 height;
@@ -399,6 +480,5 @@ namespace ifb {
         u32        height;
     };
 };
-
 
 #endif //IFB_HPP

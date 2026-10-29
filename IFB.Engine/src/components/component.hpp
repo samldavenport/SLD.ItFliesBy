@@ -2,7 +2,6 @@
 #define COMPONENTS_HPP
 
 #include "ifb.hpp"
-#include "ifb-memory.hpp"
 #include "sld.hpp"
 #include "memory-internal.hpp"
 

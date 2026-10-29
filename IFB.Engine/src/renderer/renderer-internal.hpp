@@ -4,7 +4,6 @@
 #include "sld-opengl.hpp"
 #include "ifb.hpp"
 #include "quad-internal.hpp"
-#include "ifb-memory.hpp"
 #include "eng-types.hpp"
 #include "memory-internal.hpp"
 

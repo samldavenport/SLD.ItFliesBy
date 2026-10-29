@@ -6,12 +6,10 @@
 #include "asset.hpp"
 #include "asset-database.cpp"
 #include "asset-internal.hpp"
-#include "ifb-memory.hpp"
 #include "sld-strings.hpp"
 #include "file-internal.hpp"
 #include "memory-internal.hpp"
 #include "renderer-internal.hpp"
-#include "eng-assets.hpp"
 #include "eng-types.hpp"
 #include <stb_image.h>
 

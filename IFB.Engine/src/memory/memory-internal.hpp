@@ -1,7 +1,7 @@
 #ifndef MEMORY_INTERNAL_HPP
 #define MEMORY_INTERNAL_HPP
 
-#include "ifb-memory.hpp"
+#include "ifb.hpp"
 #include "eng-memory.hpp"
 
 #define ifb_arena_push_struct(h_arena, type)        (type*)arena_push(h_arena, sizeof(type))
@@ -22,7 +22,8 @@ namespace ifb {
     struct stack_allocator;
     struct block_allocator;
     struct global_allocator;
-
+    struct arena;
+    
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS
     //--------------------------------------------------------------------

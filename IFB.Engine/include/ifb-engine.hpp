@@ -2,14 +2,12 @@
 #define IFB_ENGINE_HPP
 
 #include "ifb.hpp"
-#include "eng-assets.hpp"
 #include "eng-sprites.hpp"
 #include "sld.hpp"
 #include "eng-types.hpp"
 #include "eng-platform.hpp"
-#include "eng-input.hpp"
+#include "ifb-input.hpp"
 #include "eng-collections.hpp"
-#include "eng-memory.hpp"
 #include <imgui.h>
 
 using namespace sld;
