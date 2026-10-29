@@ -1,5 +1,5 @@
-#ifndef RANDOM_INTERNAL_HPP
-#define RANDOM_INTERNAL_HPP
+#ifndef ENG_RANDOM_HPP
+#define ENG_RANDOM_HPP
 
 #include "ifb.hpp"
 #include "sld.hpp"
@@ -25,4 +25,4 @@ namespace ifb {
     IFB_INTERNAL f32           random_f32_range     (const f32 min, const f32 max);
 };
 
-#endif //RANDOM_INTERNAL_HPP
+#endif //ENG_RANDOM_HPP

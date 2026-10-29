@@ -5,8 +5,8 @@
 #include "ifb.hpp"
 #include "sld.hpp"
 #include <cassert>
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

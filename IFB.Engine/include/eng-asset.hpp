@@ -1,13 +1,13 @@
-#ifndef ASSET_INTERNAL_HPP
-#define ASSET_INTERNAL_HPP
+#ifndef ENG_ASSET_HPP
+#define ENG_ASSET_HPP
 
 #include "asset-database.cpp"
 #include "ifb.hpp"
 #include "json.cpp" //TODO(SAM): lets make this a header if possible
 #include "sld.hpp"
-#include "sprite-internal.hpp"
-#include "json-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-sprite.hpp"
+#include "eng-json.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -133,4 +133,4 @@ namespace ifb {
     };
 };
 
-#endif //ASSET_INTERNAL_HPP
+#endif //ENG_ASSET_HPP

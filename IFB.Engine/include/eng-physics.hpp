@@ -1,9 +1,9 @@
-#ifndef PHYSICS_INTERNAL_HPP
-#define PHYSICS_INTERNAL_HPP
+#ifndef ENG_PHYSICS_HPP
+#define ENG_PHYSICS_HPP
 
 #include "ifb.hpp"
 #include "sld-math-types.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -128,4 +128,4 @@ namespace ifb {
     };
 };
 
-#endif //PHYSICS_INTERNAL_HPP
+#endif //ENG_PHYSICS_HPP

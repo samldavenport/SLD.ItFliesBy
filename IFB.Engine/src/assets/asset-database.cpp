@@ -5,10 +5,10 @@
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
 #include "sld.hpp"
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
-#include "asset-internal.hpp"
-#include "sprite-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
+#include "eng-asset.hpp"
+#include "eng-sprite.hpp"
 
 namespace ifb {
     

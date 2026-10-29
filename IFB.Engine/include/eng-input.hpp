@@ -1,5 +1,5 @@
-#ifndef INPUT_INTERNAL_HPP
-#define INPUT_INTERNAL_HPP
+#ifndef ENG_INPUT_HPP
+#define ENG_INPUT_HPP
 
 #include "ifb-input.hpp"
 #include "ifb.hpp"
@@ -49,4 +49,4 @@ namespace ifb {
     };
 };
 
-#endif //INPUT_INTERNAL_HPP
+#endif //ENG_INPUT_HPP

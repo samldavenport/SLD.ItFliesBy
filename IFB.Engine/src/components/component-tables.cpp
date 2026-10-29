@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include "ifb.hpp"
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 
 namespace ifb {
    

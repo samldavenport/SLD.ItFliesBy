@@ -2,11 +2,11 @@
 
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 #include "sld.hpp"
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
-#include "renderer-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
+#include "eng-renderer.hpp"
 
 namespace ifb {
 

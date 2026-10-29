@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb.hpp"
-#include "particle-internal.hpp"
+#include "eng-particle.hpp"
 #include "particle-mngr.cpp"
 #include "sld-strings.hpp"
 #include "sld-math-vec3.hpp"

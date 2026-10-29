@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb.hpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math-vec3.hpp"
 #include "eng-context.hpp"

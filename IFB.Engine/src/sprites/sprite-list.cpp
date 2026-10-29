@@ -3,9 +3,9 @@
 #include "asset-mngr.cpp"
 #include "asset.cpp"
 #include "ifb.hpp"
-#include "sprite-internal.hpp"
-#include "memory-internal.hpp"
-#include "asset-internal.hpp"
+#include "eng-sprite.hpp"
+#include "eng-memory.hpp"
+#include "eng-asset.hpp"
 
 namespace ifb {
 

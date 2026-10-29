@@ -2,8 +2,8 @@
 
 #include "ifb.hpp"
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-memory.hpp"
 namespace ifb {
 
     inline void test_create         (void);

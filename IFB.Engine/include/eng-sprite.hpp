@@ -1,9 +1,9 @@
-#ifndef SPRITE_INTERNAL_HPP
-#define SPRITE_INTERNAL_HPP
+#ifndef ENG_SPRITE_HPP
+#define ENG_SPRITE_HPP
 
 #include "ifb.hpp"
 #include "ifb-config.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -111,4 +111,4 @@ namespace ifb {
         } header;
     };
 };
-#endif //SPRITE_INTERNAL_HPP
+#endif //ENG_SPRITE_HPP

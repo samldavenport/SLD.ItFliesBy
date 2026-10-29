@@ -1,10 +1,10 @@
 #pragma once
 
 #include "asset-database.cpp"
-#include "asset-internal.hpp"
+#include "eng-asset.hpp"
 #include "eng-context.hpp"
 #include "ifb.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

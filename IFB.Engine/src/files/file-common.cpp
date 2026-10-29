@@ -2,7 +2,7 @@
 
 #include "ifb.hpp"
 #include "ifb-platform.hpp"
-#include "file-internal.hpp"
+#include "eng-file.hpp"
 
 namespace ifb {
 

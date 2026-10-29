@@ -1,6 +1,7 @@
-#ifndef ENG_PLATFORM_HPP
-#define ENG_PLATFORM_HPP
+#ifndef IFB_PLATFORM_HPP
+#define IFB_PLATFORM_HPP
 
+#include "ifb.hpp"
 #include "sld.hpp"
 #include "sld-opengl.hpp"
 
@@ -156,4 +157,4 @@ namespace ifb {
     IFB_PLATFORM_API u64 pfm_system_frequency (void);
 };
 
-#endif //ENG_PLATFORM_HPP
+#endif //IFB_PLATFORM_HPP

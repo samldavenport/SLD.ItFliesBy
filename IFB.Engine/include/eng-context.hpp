@@ -1,18 +1,18 @@
-#ifndef IFB_ENG_INTERNAL_HPP
-#define IFB_ENG_INTERNAL_HPP
+#ifndef ENG_CONTEXT_HPP
+#define ENG_CONTEXT_HPP
 
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
-#include "renderer-internal.hpp"
-#include "component-internal.hpp"
-#include "physics-internal.hpp"
-#include "random-internal.hpp"
-#include "sprite-internal.hpp"
-#include "entity-internal.hpp"
-#include "file-internal.hpp"
-#include "map-internal.hpp"
-#include "memory-internal.hpp"
-#include "particle-internal.hpp"
+#include "eng-renderer.hpp"
+#include "eng-component.hpp"
+#include "eng-physics.hpp"
+#include "eng-random.hpp"
+#include "eng-sprite.hpp"
+#include "eng-entity.hpp"
+#include "eng-file.hpp"
+#include "eng-map.hpp"
+#include "eng-memory.hpp"
+#include "eng-particle.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -81,4 +81,4 @@ namespace ifb {
     IFB_ENG_INTERNAL u32  system_get_primary_monitor_height  (void);
 };
 
-#endif //IFB_ENG_INTERNAL_HPP
+#endif //ENG_CONTEXT_HPP

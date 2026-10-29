@@ -1,9 +1,9 @@
-#ifndef FILE_INTERNAL_HPP
-#define FILE_INTERNAL_HPP
+#ifndef ENG_FILE_HPP
+#define ENG_FILE_HPP
 
 #include "ifb.hpp"
 #include "ifb-platform.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -79,4 +79,4 @@ namespace ifb {
     IFB_INTERNAL u32           file_write                         (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 };
 
-#endif //FILE_INTERNAL_HPP
+#endif //ENG_FILE_HPP

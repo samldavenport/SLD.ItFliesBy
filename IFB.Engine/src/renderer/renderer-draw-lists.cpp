@@ -1,11 +1,11 @@
 #pragma once
 
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "eng-context.hpp"
 #include "ifb.hpp"
 #include "ifb-engine.hpp"
-#include "map-internal.hpp"
-#include "quad-internal.hpp"
+#include "eng-map.hpp"
+#include "eng-quad.hpp"
 
 namespace ifb {
 

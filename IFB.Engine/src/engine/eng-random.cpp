@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-engine.hpp"
-#include "random-internal.hpp"
+#include "eng-random.hpp"
 
 namespace ifb {
 

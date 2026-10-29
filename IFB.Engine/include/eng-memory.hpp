@@ -1,5 +1,5 @@
-#ifndef MEMORY_INTERNAL_HPP
-#define MEMORY_INTERNAL_HPP
+#ifndef ENG_MEMORY_HPP
+#define ENG_MEMORY_HPP
 
 #include "ifb.hpp"
 
@@ -89,4 +89,4 @@ namespace ifb {
     IFB_INTERNAL void         block_free                  (void* mem);
 };
 
-#endif //MEMORY_INTERNAL_HPP
+#endif //ENG_MEMORY_HPP

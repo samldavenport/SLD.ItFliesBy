@@ -3,9 +3,9 @@
 #include <cassert>
 
 #include "ifb.hpp"
-#include "particle-internal.hpp"
+#include "eng-particle.hpp"
 #include "particle-mngr.cpp"
-#include "quad-internal.hpp"
+#include "eng-quad.hpp"
 #include "sld-math-vec3.hpp"
 #include "sld.hpp"
 

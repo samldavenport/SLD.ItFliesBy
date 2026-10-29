@@ -2,11 +2,11 @@
 
 #include "ifb.hpp"
 #include "render-buffers.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-opengl.hpp"
 #include <cassert>
-#include "quad-internal.hpp"
+#include "eng-quad.hpp"
 
 namespace ifb {
 

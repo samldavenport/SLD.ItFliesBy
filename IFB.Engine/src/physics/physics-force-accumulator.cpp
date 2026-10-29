@@ -3,7 +3,7 @@
 #include "ifb-config.hpp"
 #include "ifb.hpp"
 #include "memory-reservation.cpp"
-#include "physics-internal.hpp"
+#include "eng-physics.hpp"
 
 namespace ifb {
 

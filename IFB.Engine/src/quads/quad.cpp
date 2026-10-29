@@ -1,14 +1,14 @@
 #pragma once
 
 #include "entity.cpp"
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "particle-emitter.cpp"
 #include "sprite-mngr.cpp"
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
-#include "quad-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-quad.hpp"
 
 namespace ifb {
 

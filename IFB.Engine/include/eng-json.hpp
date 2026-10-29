@@ -1,5 +1,5 @@
-#ifndef JSON_INTERNAL_HPP
-#define JSON_INTERNAL_HPP
+#ifndef ENG_JSON_HPP
+#define ENG_JSON_HPP
 
 #include "ifb.hpp"
 #include "sld.hpp"
@@ -68,4 +68,4 @@ namespace ifb {
     IFB_INTERNAL void            json_test          (void);
 };
 
-#endif //JSON_INTERNAL_HPP
+#endif //ENG_JSON_HPP

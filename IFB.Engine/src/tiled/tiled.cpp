@@ -6,9 +6,9 @@
 #include "sld.hpp"
 #include <stdlib.h>
 #include <stdint.h>
-#include "json-internal.hpp"
-#include "memory-internal.hpp"
-#include "tiled-internal.hpp"
+#include "eng-json.hpp"
+#include "eng-memory.hpp"
+#include "eng-tiled.hpp"
 
 using namespace sld;
 namespace ifb {

@@ -3,9 +3,9 @@
 #include "entity.cpp"
 #include "ifb.hpp"
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
-#include "memory-internal.hpp"
-#include "quad-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-memory.hpp"
+#include "eng-quad.hpp"
 
 namespace ifb {
 

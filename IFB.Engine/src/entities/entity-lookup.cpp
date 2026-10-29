@@ -3,7 +3,7 @@
 #include "entity-manager.cpp"
 #include "ifb.hpp"
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
+#include "eng-entity.hpp"
 
 namespace ifb {
 

@@ -1,15 +1,15 @@
 #pragma once
 
 #include <math.h>
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
 
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 #include "component-tables.cpp"
 #include "entity.cpp"
 #include "ifb.hpp"
 #include "physics-collision-detection.cpp"
-#include "physics-internal.hpp"
+#include "eng-physics.hpp"
 
 namespace ifb {
 

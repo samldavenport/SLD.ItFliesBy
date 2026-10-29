@@ -1,5 +1,5 @@
-#ifndef PLATFORM_INTERNAL_HPP
-#define PLATFORM_INTERNAL_HPP
+#ifndef ENG_PLATFORM_HPP
+#define ENG_PLATFORM_HPP
 
 #include "sld.hpp"
 #include "sld-opengl.hpp"
@@ -81,4 +81,4 @@ namespace ifb {
     };
 };
 
-#endif //PLATFORM_INTERNAL_HPP
+#endif //ENG_PLATFORM_HPP

@@ -3,13 +3,13 @@
 #include "entity-lookup.cpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"
-#include "map-internal.hpp"
+#include "eng-map.hpp"
 #include "eng-stack.cpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
     

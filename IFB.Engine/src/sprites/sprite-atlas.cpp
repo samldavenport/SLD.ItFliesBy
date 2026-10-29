@@ -4,8 +4,8 @@
 #include "file-ro.cpp"
 #include "file-rw.cpp"
 #include "ifb.hpp"
-#include "sprite-internal.hpp"
-#include "file-internal.hpp"
+#include "eng-sprite.hpp"
+#include "eng-file.hpp"
 
 namespace ifb {
 

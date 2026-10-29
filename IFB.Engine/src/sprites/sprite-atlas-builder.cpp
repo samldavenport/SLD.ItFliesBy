@@ -1,8 +1,8 @@
 #pragma once
 
 #include "sprite.cpp"
-#include "sprite-internal.hpp"
-#include "asset-internal.hpp"
+#include "eng-sprite.hpp"
+#include "eng-asset.hpp"
 #include "ifb.hpp"
 
 #define STB_RECT_PACK_IMPLEMENTATION

@@ -1,9 +1,9 @@
-#ifndef PARTICLE_INTERNAL_HPP
-#define PARTICLE_INTERNAL_HPP
+#ifndef ENG_PARTICLE_HPP
+#define ENG_PARTICLE_HPP
 
 #include "ifb-config.hpp"
 #include "ifb.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 #include "sld.hpp"
 #include <sld-strings.hpp>
 
@@ -130,4 +130,4 @@ namespace ifb {
     IFB_INTERNAL u32               particle_mngr_find_emitter_index_new      (const hnd_particle_emitter h_emitter);
 };
 
-#endif //PARTICLE_INTERNAL_HPP
+#endif //ENG_PARTICLE_HPP

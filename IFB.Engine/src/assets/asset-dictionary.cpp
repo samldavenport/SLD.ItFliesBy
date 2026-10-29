@@ -1,6 +1,6 @@
 #pragma once
 
-#include "asset-internal.hpp"
+#include "eng-asset.hpp"
 #include "file-common.cpp"
 #include "file-ro.cpp"
 #include "file-wo.cpp"
@@ -9,9 +9,9 @@
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "sld-strings.hpp"
-#include "file-internal.hpp"
-#include "json-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-json.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

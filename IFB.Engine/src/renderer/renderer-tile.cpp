@@ -3,12 +3,12 @@
 #include "ifb-config.hpp"
 #include "ifb.hpp"
 #include "render-buffers.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "sld-opengl.hpp"
 #include "sld.hpp"
 #include "eng-context.hpp"
 #include <cassert>
-#include "map-internal.hpp"
+#include "eng-map.hpp"
 
 namespace ifb {
 

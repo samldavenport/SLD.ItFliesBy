@@ -1,15 +1,15 @@
 #pragma once
 
 #include "ifb-config.hpp"
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 #include "ifb.hpp"
 #include "eng-context.hpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
-#include "particle-internal.hpp"
-#include "quad-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
+#include "eng-particle.hpp"
+#include "eng-quad.hpp"
 
 namespace ifb {
 

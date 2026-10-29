@@ -1,9 +1,9 @@
-#ifndef MAP_INTERNAL_HPP
-#define MAP_INTERNAL_HPP
+#ifndef ENG_MAP_HPP
+#define ENG_MAP_HPP
 
 #include "ifb-config.hpp"
 #include "ifb.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"
 #include <cmath>
@@ -307,4 +307,4 @@ namespace ifb {
     }
 };
 
-#endif //MAP_INTERNAL_HPP
+#endif //ENG_MAP_HPP

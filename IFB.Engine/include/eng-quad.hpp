@@ -1,5 +1,5 @@
-#ifndef QUAD_INTERNAL_HPP
-#define QUAD_INTERNAL_HPP
+#ifndef ENG_QUAD_HPP
+#define ENG_QUAD_HPP
 
 #include "ifb.hpp"
 #include "sld.hpp"
@@ -61,4 +61,4 @@ namespace ifb {
     IFB_INTERNAL bool quad_render        (quad_vertices& vertices,    const entity_id    id,        const orientation& camera_orientation);
 };
 
-#endif //QUAD_INTERNAL_HPP
+#endif //ENG_QUAD_HPP

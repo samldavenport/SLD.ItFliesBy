@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
 #include "eng-context.hpp"

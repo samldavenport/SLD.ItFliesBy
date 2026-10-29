@@ -2,11 +2,11 @@
 
 #include "ifb.hpp"
 #include "memory-arena.cpp"
-#include "physics-internal.hpp"
+#include "eng-physics.hpp"
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

@@ -1,8 +1,8 @@
 #include "ifb.hpp"
-#include "sprite-internal.hpp"
+#include "eng-sprite.hpp"
 #include "eng-context.hpp"
 #include "ifb-engine.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

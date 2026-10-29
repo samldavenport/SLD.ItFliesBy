@@ -4,11 +4,11 @@
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
 #include "asset-database.cpp"
-#include "asset-internal.hpp"
+#include "eng-asset.hpp"
 #include "sld-strings.hpp"
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
-#include "renderer-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
+#include "eng-renderer.hpp"
 #include <stb_image.h>
 
 namespace ifb {

@@ -7,9 +7,9 @@
 #include "memory-arena.cpp"
 #include "sld-math-vec3.hpp"
 #include "physics-entity.cpp"
-#include "physics-internal.hpp"
+#include "eng-physics.hpp"
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
+#include "eng-entity.hpp"
 
 namespace ifb {
 

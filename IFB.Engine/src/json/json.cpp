@@ -8,9 +8,9 @@
 #include "memory-arena.cpp"
 #include "rapidjson/allocators.h"
 #include "rapidjson/encodings.h"
-#include "file-internal.hpp"
-#include "json-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-json.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

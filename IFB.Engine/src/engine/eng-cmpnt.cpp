@@ -1,6 +1,6 @@
 #pragma once
 
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 #include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity.cpp"
@@ -8,10 +8,10 @@
 #include "ifb.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include <cassert>
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
 
 namespace ifb {
 

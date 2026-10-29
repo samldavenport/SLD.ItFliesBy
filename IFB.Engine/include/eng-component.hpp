@@ -1,9 +1,9 @@
-#ifndef COMPONENT_INTERNAL_HPP
-#define COMPONENT_INTERNAL_HPP
+#ifndef ENG_COMPONENT_HPP
+#define ENG_COMPONENT_HPP
 
 #include "ifb.hpp"
 #include "sld.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -78,4 +78,4 @@ namespace ifb {
         cmpnt_sprite*           array_sprite;
     };
 };
-#endif //COMPONENT_INTERNAL_HPP
+#endif //ENG_COMPONENT_HPP

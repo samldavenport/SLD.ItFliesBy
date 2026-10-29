@@ -2,11 +2,11 @@
 
 #include <cassert>
 #include <cmath>
-#include "random-internal.hpp"
+#include "eng-random.hpp"
 
 #include "ifb.hpp"
 #include "particle-emitter.cpp"
-#include "particle-internal.hpp"
+#include "eng-particle.hpp"
 #include "particle-mngr.cpp"
 #include "random-table.cpp"
 #include "sld-math-globals.hpp"

@@ -6,8 +6,8 @@
 #include "eng-context.hpp"
 #include <cassert>
 #include <cstddef>
-#include "physics-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-physics.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

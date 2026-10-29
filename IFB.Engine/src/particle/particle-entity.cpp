@@ -1,11 +1,11 @@
 #pragma once
 
 #include <cassert>
-#include "entity-internal.hpp"
+#include "eng-entity.hpp"
 
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 #include "ifb.hpp"
-#include "particle-internal.hpp"
+#include "eng-particle.hpp"
 #include "particle-mngr.cpp"
 #include "sld.hpp"
 

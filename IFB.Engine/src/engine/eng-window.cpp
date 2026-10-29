@@ -2,7 +2,7 @@
 
 #include "ifb.hpp"
 #include "eng-context.hpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 
 namespace ifb {
 

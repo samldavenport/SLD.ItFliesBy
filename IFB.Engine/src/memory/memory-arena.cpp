@@ -4,7 +4,7 @@
 #include "ifb.hpp"
 #include "eng-context.hpp"
 #include "ifb-platform.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

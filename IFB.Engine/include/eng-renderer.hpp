@@ -1,10 +1,10 @@
-#ifndef RENDERER_INTERNAL_HPP
-#define RENDERER_INTERNAL_HPP
+#ifndef ENG_RENDERER_HPP
+#define ENG_RENDERER_HPP
 
 #include "sld-opengl.hpp"
 #include "ifb.hpp"
-#include "quad-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-quad.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -158,4 +158,4 @@ namespace ifb {
     IFB_INTERNAL void                  renderer_tile_draw          (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const hnd_map map_hnd, const mat4& view_proj_xform);
 };
 
-#endif //RENDERER_INTERNAL_HPP
+#endif //ENG_RENDERER_HPP

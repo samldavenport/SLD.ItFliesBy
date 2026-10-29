@@ -2,13 +2,13 @@
 
 #include "ifb.hpp"
 #include "ifb-config.hpp"
-#include "platform-internal.hpp"
+#include "eng-platform.hpp"
 #include "eng-context.hpp"
 #include "sld.hpp"
 #include <cassert>
 #include "ifb-engine.hpp"
 #include "ifb-platform.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
    

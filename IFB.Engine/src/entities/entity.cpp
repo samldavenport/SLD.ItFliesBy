@@ -2,7 +2,7 @@
 
 #include "ifb.hpp"
 #include "sld.hpp"
-#include "entity-internal.hpp"
+#include "eng-entity.hpp"
 
 namespace ifb {
 

@@ -2,16 +2,16 @@
 
 #include "component-tables.cpp"
 #include "ifb-config.hpp"
-#include "map-internal.hpp"
+#include "eng-map.hpp"
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
-#include "sprite-internal.hpp"
+#include "eng-sprite.hpp"
 #include <cassert>
 #include <cmath>
 #include <sld-strings.hpp>
 #include "ifb-engine.hpp"
-#include "entity-internal.hpp"
+#include "eng-entity.hpp"
 
 namespace ifb {
 

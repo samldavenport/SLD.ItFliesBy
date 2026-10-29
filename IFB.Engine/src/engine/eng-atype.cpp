@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 #include "entity.cpp"
 #include "ifb.hpp"
 #include <cassert>
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
 
 namespace ifb {
 

@@ -3,7 +3,7 @@
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "render-buffers.cpp"
 #include "renderer-draw-lists.cpp"
 #include "renderer-quad.cpp"
@@ -17,11 +17,11 @@
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
 #include "sld-opengl.hpp"
-#include "sprite-internal.hpp"
+#include "eng-sprite.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-platform.hpp"
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
