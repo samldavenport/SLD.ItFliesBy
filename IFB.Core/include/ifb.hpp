@@ -588,6 +588,28 @@ namespace ifb {
             return(hash_u32((void*)cstr, 16));
         }
     };
+    
+    //--------------------------------------------------------------------
+    // EVENTS 
+    //--------------------------------------------------------------------
+    
+    IFB_U32(event_type_u32);
+    
+    
+    enum event_type_e {
+        event_type_e_key_down          = 0,
+        event_type_e_key_up            = 1,
+        event_type_e_mouse             = 2,
+        event_type_e_gamepad           = 3,
+        event_type_e_physics_collision = 4, 
+        event_type_e_count             = 5,
+    };
+
+    struct event_payload {
+        byte data[64];
+    };
+    
+    using fptr_event_listener = void * (event_payload*);
 };
 
 #endif //IFB_HPP

@@ -1,6 +1,7 @@
 #ifndef IFB_ENGINE_HPP
 #define IFB_ENGINE_HPP
 
+#include "eng-events.hpp"
 #include "ifb.hpp"
 #include "sld.hpp"
 #include "ifb-platform.hpp"
@@ -410,6 +411,13 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_list_contains         (const entity_list* el, const entity_id);
     IFB_ENGINE_API entity_id    eng_entity_list_index            (const entity_list* el, const u32 index);
     IFB_ENGINE_API void         eng_entity_list_lookup           (const entity_list* el, const u32 index, entity& e);
+
+    //--------------------------------------------------------------------
+    // EVENTS 
+    //--------------------------------------------------------------------
+   
+    IFB_ENGINE_API bool eng_event_listener_subscribe   (const fptr_event_listener listener); 
+    IFB_ENGINE_API bool eng_event_listener_unsubscribe (const fptr_event_listener listener); 
 
     //--------------------------------------------------------------------
     // DEFINITIONS
