@@ -3,7 +3,6 @@
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
 #include "component.hpp"
-#include "ifb-entities.hpp"
 #include "sld.hpp"
 #include "ifb-map.hpp"
 #include "entity-internal.hpp"

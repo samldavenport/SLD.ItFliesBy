@@ -1,7 +1,7 @@
 #ifndef IFB_COLLECTIONS_HPP
 #define IFB_COLLECTIONS_HPP
 
-#include "ifb-entities.hpp"
+#include "ifb.hpp"
 
 namespace ifb {
 

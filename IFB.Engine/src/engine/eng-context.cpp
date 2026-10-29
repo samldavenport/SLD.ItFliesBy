@@ -3,7 +3,6 @@
 #include "entity.cpp"
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
-#include "ifb-entities.hpp"
 #include "ifb-gui.hpp"
 #include "platform-internal.hpp"
 #include "ifb.hpp"

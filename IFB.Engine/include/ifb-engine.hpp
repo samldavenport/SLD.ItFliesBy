@@ -1,9 +1,7 @@
 #ifndef IFB_ENGINE_HPP
 #define IFB_ENGINE_HPP
 
-#include "ifb-entities.hpp"
-#include "eng-components.hpp"
-#include "eng-archetypes.hpp"
+#include "ifb.hpp"
 #include "eng-assets.hpp"
 #include "eng-sprites.hpp"
 #include "ifb-files.hpp"

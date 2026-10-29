@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-entities.hpp"
+#include "ifb.hpp"
 #include "component.hpp"
 #include "entity-internal.hpp"
 

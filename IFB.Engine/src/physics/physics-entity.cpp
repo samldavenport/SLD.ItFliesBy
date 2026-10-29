@@ -5,7 +5,6 @@
 #include "component.hpp"
 #include "physics-internal.hpp"
 #include "entity-internal.hpp"
-#include "eng-components.hpp"
 
 namespace ifb {
 

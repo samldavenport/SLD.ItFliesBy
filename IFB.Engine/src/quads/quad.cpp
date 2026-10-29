@@ -2,7 +2,6 @@
 
 #include "entity.cpp"
 #include "ifb-collections.hpp"
-#include "ifb-entities.hpp"
 #include "component.hpp"
 #include "ifb.hpp"
 #include "memory-arena.cpp"

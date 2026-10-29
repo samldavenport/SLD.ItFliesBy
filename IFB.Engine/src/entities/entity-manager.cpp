@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-entities.hpp"
+#include "ifb.hpp"
 #include "eng-internal.hpp"
 #include "memory-reservation.cpp"
 #include "entity-internal.hpp"

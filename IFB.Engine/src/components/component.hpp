@@ -1,10 +1,9 @@
 #ifndef COMPONENTS_HPP
 #define COMPONENTS_HPP
 
-#include "ifb-components.hpp"
+#include "ifb.hpp"
 #include "ifb-memory.hpp"
 #include "sld.hpp"
-#include "eng-components.hpp"
 #include "memory-internal.hpp"
 
 namespace ifb {

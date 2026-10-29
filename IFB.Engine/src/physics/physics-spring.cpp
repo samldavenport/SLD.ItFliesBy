@@ -7,7 +7,6 @@
 #include "ifb.hpp"
 #include "ifb-memory.hpp"
 #include "memory-arena.cpp"
-#include "ifb-entities.hpp"
 #include "sld-math-vec3.hpp"
 #include "physics-entity.cpp"
 #include "physics-internal.hpp"

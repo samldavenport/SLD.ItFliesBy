@@ -1,7 +1,6 @@
 #ifndef ENTITY_INTERNAL_HPP
 #define ENTITY_INTERNAL_HPP
 
-#include "ifb-entities.hpp"
 #include "ifb.hpp"
 #include "memory-internal.hpp"
 

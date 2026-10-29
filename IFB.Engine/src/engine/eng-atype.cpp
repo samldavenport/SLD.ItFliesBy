@@ -3,13 +3,11 @@
 
 #include "component.hpp"
 #include "entity.cpp"
-#include "ifb-entities.hpp"
 #include "ifb.hpp"
 #include "ifb-map.hpp"
 #include <cassert>
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
-#include "eng-archetypes.hpp"
 #include "eng-types.hpp"
 
 namespace ifb {

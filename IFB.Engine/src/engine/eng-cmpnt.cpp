@@ -13,7 +13,6 @@
 #include <cassert>
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
-#include "eng-components.hpp"
 
 namespace ifb {
 

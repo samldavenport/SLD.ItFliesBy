@@ -5,7 +5,6 @@
 #include "ifb-input.hpp"
 #include "ifb-files.hpp"
 #include "renderer-internal.hpp"
-#include "ifb-entities.hpp"
 #include "ifb-memory.hpp"
 #include "component.hpp"
 #include "physics-internal.hpp"

@@ -3,7 +3,6 @@
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
 #include "ifb.hpp"
-#include "ifb-entities.hpp"
 #include <cassert>
 #include <math.h>
 
