@@ -107,6 +107,32 @@ namespace ifb {
         cchar cstr[IFB_CONFIG_FILE_PATH_SIZE];
     };
     
+    using pixel            = color_rgba_u32;
+
+    struct orientation {
+        vec3 forward;
+        vec3 up;
+        vec3 right;
+    };
+
+    struct image {
+        struct {
+            union {
+                pixel* pixels;
+                byte*  bytes;
+                void*  vptr;
+                addr   address;
+            };
+            u32 size;
+        } data;
+        u32 pixel_width;
+        u32 pixel_height;
+    };
+
+    struct particle {
+        color_rgba_u32 color;
+        vec3           position;
+    };
     //--------------------------------------------------------------------
     // COMPONENTS 
     //--------------------------------------------------------------------
@@ -421,6 +447,8 @@ namespace ifb {
     //--------------------------------------------------------------------
     // MAP 
     //--------------------------------------------------------------------
+    
+    IFB_U32(map_color_u32);
     
     // row walls lie on the line z = row and run along x, on the min-z edge of tile (row, col)
     // column walls lie on the line x = col and run along z, on the min-x edge of tile (row, col)

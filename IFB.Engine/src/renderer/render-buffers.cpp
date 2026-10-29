@@ -11,7 +11,6 @@
 #include "particle-internal.hpp"
 #include "quad-internal.hpp"
 #include "types-internal.hpp"
-#include "eng-types.hpp"
 
 namespace ifb {
 

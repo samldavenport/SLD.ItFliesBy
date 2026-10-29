@@ -13,7 +13,6 @@
 #include "sld-opengl.hpp"
 #include <cassert>
 #include "particle-internal.hpp"
-#include "eng-types.hpp"
 
 namespace ifb {
 

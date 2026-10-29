@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include "eng-types.hpp"
 
 #include "ifb.hpp"
 #include "particle-internal.hpp"

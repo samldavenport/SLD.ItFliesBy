@@ -2,9 +2,7 @@
 #define IFB_ENGINE_HPP
 
 #include "ifb.hpp"
-#include "eng-sprites.hpp"
 #include "sld.hpp"
-#include "eng-types.hpp"
 #include "eng-platform.hpp"
 #include "ifb-input.hpp"
 #include "eng-collections.hpp"

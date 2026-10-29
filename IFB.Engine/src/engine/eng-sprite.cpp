@@ -10,8 +10,6 @@
 #include "sprite-internal.hpp"
 #include "memory-internal.hpp"
 #include "renderer-internal.hpp"
-#include "eng-types.hpp"
-#include "eng-sprites.hpp"
 
 namespace ifb {
 

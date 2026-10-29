@@ -7,7 +7,6 @@
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
 #include "renderer-internal.hpp"
-#include "eng-types.hpp"
 
 namespace ifb {
 

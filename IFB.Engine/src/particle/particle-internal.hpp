@@ -6,7 +6,6 @@
 #include "memory-internal.hpp"
 #include "sld.hpp"
 #include <sld-strings.hpp>
-#include "eng-types.hpp"
 
 namespace ifb {
 

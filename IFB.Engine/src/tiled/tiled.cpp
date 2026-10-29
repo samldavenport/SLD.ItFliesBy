@@ -9,7 +9,6 @@
 #include "json-internal.hpp"
 #include "memory-internal.hpp"
 #include "tiled-internal.hpp"
-#include "eng-types.hpp"
 
 using namespace sld;
 namespace ifb {

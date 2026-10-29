@@ -6,7 +6,6 @@
 #include "sld-math-vec3.hpp"
 #include "eng-internal.hpp"
 #include <cassert>
-#include "eng-types.hpp"
 
 namespace ifb {
 

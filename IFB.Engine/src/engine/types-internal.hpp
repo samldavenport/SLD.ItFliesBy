@@ -2,7 +2,6 @@
 #define TYPES_INTERNAL_HPP
 
 #include "ifb.hpp"
-#include "eng-types.hpp"
 
 namespace ifb {
 

@@ -10,7 +10,6 @@
 #include "file-internal.hpp"
 #include "memory-internal.hpp"
 #include "renderer-internal.hpp"
-#include "eng-types.hpp"
 #include <stb_image.h>
 
 namespace ifb {

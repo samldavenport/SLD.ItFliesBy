@@ -3,8 +3,6 @@
 
 #include "ifb.hpp"
 #include "ifb-config.hpp"
-#include "eng-sprites.hpp"
-#include "eng-types.hpp"
 #include "memory-internal.hpp"
 
 namespace ifb {

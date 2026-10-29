@@ -7,7 +7,6 @@
 #include "json.cpp" //TODO(SAM): lets make this a header if possible
 #include "sld.hpp"
 #include "types-internal.hpp"
-#include "eng-types.hpp"
 #include "sprite-internal.hpp"
 #include "json-internal.hpp"
 #include "memory-internal.hpp"

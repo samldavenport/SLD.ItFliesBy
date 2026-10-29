@@ -8,8 +8,6 @@
 #include "asset.hpp"
 #include "memory-internal.hpp"
 #include "asset-internal.hpp"
-#include "eng-types.hpp"
-#include "eng-sprites.hpp"
 
 namespace ifb {
 
