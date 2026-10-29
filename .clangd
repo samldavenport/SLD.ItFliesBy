@@ -1,34 +1,35 @@
-# The engine and exe are unity builds, so compile_commands.json only has
-# entries for eng.cpp and win32-main.cpp. For every other file clangd borrows
-# the command of whichever entry looks closest, and for include/ that is
-# SLD.Core's sld.cpp, which has none of the other sld include paths.
+# The engine, gui, and exe are unity builds, so compile_commands.json only has
+# entries for eng.cpp, gui.cpp, and game-win32-main.cpp. For every other file clangd
+# borrows the command of whichever entry looks closest, and for IFB.Core that
+# is SLD.Core's sld.cpp, which has none of the other sld include paths.
 #
 # Paths are relative to the build directory (build/<preset>).
 If:
-  PathMatch: (include|src)/.*
+  PathMatch: IFB\.(Core|Engine|GUI|Game)/.*
 CompileFlags:
   Add:
-    - -I../../include
+    - -I../../IFB.Core/include
+    - -I../../IFB.Engine/include
+    - -I../../IFB.GUI/src
+    - -I../../IFB.Game/src
     - -I../../SLD.Core/include
     - -I../../SLD.OpenGL/include
     - -I../../SLD.Math/include
     - -I../../SLD.Strings/include
-    - -I../../src/collections
-    - -I../../src/components
-    - -I../../src/engine
-    - -I../../src/entities
-    - -I../../src/files
-    - -I../../src/game
-    - -I../../src/gui
-    - -I../../src/json
-    - -I../../src/map
-    - -I../../src/memory
-    - -I../../src/particle
-    - -I../../src/physics
-    - -I../../src/quads
-    - -I../../src/renderer
-    - -I../../src/tiled
-    - -I../../src/win32
+    - -I../../IFB.Engine/src/collections
+    - -I../../IFB.Engine/src/components
+    - -I../../IFB.Engine/src/engine
+    - -I../../IFB.Engine/src/entities
+    - -I../../IFB.Engine/src/files
+    - -I../../IFB.Engine/src/json
+    - -I../../IFB.Engine/src/map
+    - -I../../IFB.Engine/src/memory
+    - -I../../IFB.Engine/src/particle
+    - -I../../IFB.Engine/src/physics
+    - -I../../IFB.Engine/src/quads
+    - -I../../IFB.Engine/src/renderer
+    - -I../../IFB.Engine/src/tiled
+    - -I../../IFB.Engine/src/win32
     - -Ivcpkg_installed/x64-windows/include
     - -DIFB_ENGINE_DLL_EXPORT
     - -DIFB_API_DLL_EXPORT

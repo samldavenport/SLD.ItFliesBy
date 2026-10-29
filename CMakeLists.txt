@@ -24,27 +24,48 @@ find_package(RapidJSON CONFIG REQUIRED)
 find_package(Stb       REQUIRED)
 
 #--------------------------------------------------------------------
+# CORE
+#--------------------------------------------------------------------
+
+# common structures shared by the engine and the game (header only)
+file(GLOB IFB_CORE_HEADERS CONFIGURE_DEPENDS IFB.Core/include/*.hpp)
+
+add_library(ifb_core INTERFACE)
+add_library(IFB::Core ALIAS ifb_core)
+
+target_sources(ifb_core INTERFACE ${IFB_CORE_HEADERS})
+
+# ifb.hpp includes the sld, imgui, and stb headers, so consumers need them too
+target_include_directories(ifb_core INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/IFB.Core/include
+    ${Stb_INCLUDE_DIR}
+)
+target_link_libraries(ifb_core INTERFACE
+    SLD::Core SLD::OpenGL SLD::Math SLD::Strings imgui::imgui
+)
+
+#--------------------------------------------------------------------
 # ENGINE
 #--------------------------------------------------------------------
 
 set(IFB_ENGINE_SOURCE_DIRS
-    src/assets
-    src/collections
-    src/components
-    src/engine
-    src/entities
-    src/files
-    src/json
-    src/map
-    src/memory
-    src/particle
-    src/physics
-    src/quads
-    src/random
-    src/renderer
-    src/sprites
-    src/tiled
-    src/win32
+    IFB.Engine/src/assets
+    IFB.Engine/src/collections
+    IFB.Engine/src/components
+    IFB.Engine/src/engine
+    IFB.Engine/src/entities
+    IFB.Engine/src/files
+    IFB.Engine/src/json
+    IFB.Engine/src/map
+    IFB.Engine/src/memory
+    IFB.Engine/src/particle
+    IFB.Engine/src/physics
+    IFB.Engine/src/quads
+    IFB.Engine/src/random
+    IFB.Engine/src/renderer
+    IFB.Engine/src/sprites
+    IFB.Engine/src/tiled
+    IFB.Engine/src/win32
 )
 
 # unity build: eng.cpp includes the other source files
@@ -53,71 +74,92 @@ foreach(DIR ${IFB_ENGINE_SOURCE_DIRS})
     list(APPEND IFB_ENGINE_UNITY_GLOBS ${DIR}/*.cpp ${DIR}/*.hpp)
 endforeach()
 file(GLOB IFB_ENGINE_UNITY_SOURCES CONFIGURE_DEPENDS ${IFB_ENGINE_UNITY_GLOBS})
-file(GLOB IFB_HEADERS              CONFIGURE_DEPENDS include/*.hpp)
+file(GLOB IFB_HEADERS              CONFIGURE_DEPENDS IFB.Engine/include/*.hpp)
 list(REMOVE_ITEM IFB_ENGINE_UNITY_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/engine/eng.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/win32/win32-main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/IFB.Engine/src/engine/eng.cpp
 )
 
 add_library(ifb_engine SHARED)
 add_library(IFB::Engine ALIAS ifb_engine)
 
 target_sources(ifb_engine PRIVATE
-    src/engine/eng.cpp
+    IFB.Engine/src/engine/eng.cpp
     ${IFB_ENGINE_UNITY_SOURCES}
     ${IFB_HEADERS}
 )
 set_source_files_properties(${IFB_ENGINE_UNITY_SOURCES} PROPERTIES HEADER_FILE_ONLY ON)
 
 target_include_directories(ifb_engine
-    PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}/IFB.Engine/include
     PRIVATE ${IFB_ENGINE_SOURCE_DIRS}
             ${Stb_INCLUDE_DIR}
 )
 
-# ifb.hpp includes the sld and imgui headers, so consumers need them too
 target_link_libraries(ifb_engine
-    PUBLIC  SLD::Core SLD::OpenGL SLD::Math SLD::Strings imgui::imgui
+    PUBLIC  IFB::Core
     PRIVATE rapidjson user32 gdi32
 )
 
 #--------------------------------------------------------------------
-# WIN32
+# GUI
 #--------------------------------------------------------------------
 
-# unity build: win32-main.cpp includes the other source files
-file(GLOB IFB_WIN32_UNITY_SOURCES CONFIGURE_DEPENDS
-    src/collections/*.cpp
-    src/game/*.cpp
-    src/gui/*.cpp
+# unity build: gui.cpp includes the other source files
+file(GLOB IFB_GUI_UNITY_SOURCES CONFIGURE_DEPENDS IFB.GUI/src/*.cpp)
+list(REMOVE_ITEM IFB_GUI_UNITY_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/IFB.GUI/src/gui.cpp
+)
+
+add_library(ifb_gui STATIC)
+add_library(IFB::GUI ALIAS ifb_gui)
+
+target_sources(ifb_gui PRIVATE
+    IFB.GUI/src/gui.cpp
+    ${IFB_GUI_UNITY_SOURCES}
+)
+set_source_files_properties(${IFB_GUI_UNITY_SOURCES} PROPERTIES HEADER_FILE_ONLY ON)
+
+target_include_directories(ifb_gui PRIVATE
+    IFB.GUI/src
+    ${Stb_INCLUDE_DIR}
+)
+
+target_link_libraries(ifb_gui PUBLIC IFB::Engine)
+
+#--------------------------------------------------------------------
+# GAME
+#--------------------------------------------------------------------
+
+# unity build: game-win32-main.cpp includes the other source files
+file(GLOB IFB_GAME_UNITY_SOURCES CONFIGURE_DEPENDS IFB.Game/src/*.cpp)
+list(REMOVE_ITEM IFB_GAME_UNITY_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/IFB.Game/src/game-win32-main.cpp
 )
 
 add_executable(ifb WIN32)
 
 target_sources(ifb PRIVATE
-    src/win32/win32-main.cpp
-    ${IFB_WIN32_UNITY_SOURCES}
+    IFB.Game/src/game-win32-main.cpp
+    ${IFB_GAME_UNITY_SOURCES}
 )
-set_source_files_properties(${IFB_WIN32_UNITY_SOURCES} PROPERTIES HEADER_FILE_ONLY ON)
+set_source_files_properties(${IFB_GAME_UNITY_SOURCES} PROPERTIES HEADER_FILE_ONLY ON)
 
 target_include_directories(ifb PRIVATE
-    src/collections
-    src/game
-    src/gui
-    src/win32
+    IFB.Game/src
     ${Stb_INCLUDE_DIR}
 )
 
-target_link_libraries(ifb PRIVATE IFB::Engine user32 kernel32)
+target_link_libraries(ifb PRIVATE IFB::Engine IFB::GUI user32 kernel32)
 
 #--------------------------------------------------------------------
 # COMMON
 #--------------------------------------------------------------------
 
 set_target_properties(ifb_engine PROPERTIES OUTPUT_NAME "ItFliesBy.Engine")
+set_target_properties(ifb_gui    PROPERTIES OUTPUT_NAME "ItFliesBy.GUI")
 set_target_properties(ifb        PROPERTIES OUTPUT_NAME "ItFliesBy")
 
-foreach(TARGET ifb_engine ifb)
+foreach(TARGET ifb_engine ifb_gui ifb)
     target_compile_features(${TARGET} PUBLIC cxx_std_17)
     set_target_properties(${TARGET} PROPERTIES
         CXX_EXTENSIONS           OFF
