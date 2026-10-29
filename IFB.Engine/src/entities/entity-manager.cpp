@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "memory-reservation.cpp"
 #include "entity-internal.hpp"
 #include "memory-internal.hpp"

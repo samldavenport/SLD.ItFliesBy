@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer-internal.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb.hpp"
 #include "ifb-engine.hpp"
 #include "map-internal.hpp"

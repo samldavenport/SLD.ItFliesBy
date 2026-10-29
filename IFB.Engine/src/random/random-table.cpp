@@ -4,7 +4,7 @@
 #include "ifb-platform.hpp"
 #include "random-internal.hpp"
 
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb-config.hpp"
 #include "platform-internal.hpp"
 #include "ifb.hpp"

@@ -2,7 +2,7 @@
 
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "sld.hpp"
 #include "entity-internal.hpp"
 #include "map-internal.hpp"

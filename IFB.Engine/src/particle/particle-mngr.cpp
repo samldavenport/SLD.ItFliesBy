@@ -3,7 +3,7 @@
 #include <cassert>
 #include "memory-internal.hpp"
 
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"
 #include "particle-internal.hpp"

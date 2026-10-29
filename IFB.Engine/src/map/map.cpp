@@ -6,7 +6,7 @@
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
-#include "sprites.hpp"
+#include "sprite-internal.hpp"
 #include <cassert>
 #include <cmath>
 #include <sld-strings.hpp>

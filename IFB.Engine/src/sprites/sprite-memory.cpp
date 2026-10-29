@@ -1,7 +1,6 @@
 #include "ifb.hpp"
-#include "sprites.hpp"
 #include "sprite-internal.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb-engine.hpp"
 #include "memory-internal.hpp"
 

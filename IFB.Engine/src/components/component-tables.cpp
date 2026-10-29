@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include "component.hpp"
 #include "ifb.hpp"
 #include "component-internal.hpp"
 

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "entity.cpp"
 #include "ifb.hpp"
 #include <cassert>

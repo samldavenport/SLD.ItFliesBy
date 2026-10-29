@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.cpp"
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "particle-emitter.cpp"

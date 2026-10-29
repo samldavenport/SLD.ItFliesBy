@@ -3,7 +3,7 @@
 #include "renderer-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include <cassert>
 #include <cmath>
 #include <math.h>

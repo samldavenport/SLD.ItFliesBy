@@ -4,7 +4,7 @@
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
 
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"
 #include "physics-force-accumulator.cpp"

@@ -3,7 +3,6 @@
 
 #include "ifb.hpp"
 #include "sld.hpp"
-#include "component.hpp"
 #include "memory-internal.hpp"
 
 namespace ifb {
@@ -11,8 +10,42 @@ namespace ifb {
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
-    
+
+    struct cmpnt_mngr;
     struct cmpnt_table;
+    
+    //--------------------------------------------------------------------
+    // INTERNAL METHODS
+    //--------------------------------------------------------------------
+
+    IFB_INTERNAL cmpnt_mngr* cmpnt_mngr_create             (void);
+    IFB_INTERNAL void        cmpnt_mngr_startup            (reservation* res);
+    
+    IFB_INTERNAL void        cmpnt_lookup_position         (const u32 sparse_index, cmpnt_position&         position);
+    IFB_INTERNAL void        cmpnt_lookup_color            (const u32 sparse_index, cmpnt_color&            color);
+    IFB_INTERNAL void        cmpnt_lookup_quad             (const u32 sparse_index, cmpnt_quad&             quad);
+    IFB_INTERNAL void        cmpnt_lookup_velocity         (const u32 sparse_index, cmpnt_velocity&         velocity);
+    IFB_INTERNAL void        cmpnt_lookup_acceleration     (const u32 sparse_index, cmpnt_acceleration&     acceleration);
+    IFB_INTERNAL void        cmpnt_lookup_inv_mass         (const u32 sparse_index, cmpnt_inv_mass&         inv_mass);
+    IFB_INTERNAL void        cmpnt_lookup_drag             (const u32 sparse_index, cmpnt_drag&             drag);
+    IFB_INTERNAL void        cmpnt_lookup_term_velocity    (const u32 sparse_index, cmpnt_term_velocity&    term_velocity);
+    IFB_INTERNAL void        cmpnt_lookup_spring           (const u32 sparse_index, cmpnt_spring&           spring);
+    IFB_INTERNAL void        cmpnt_lookup_map_coords       (const u32 sparse_index, cmpnt_map_coords&       map_coords);    
+    IFB_INTERNAL void        cmpnt_lookup_particle_emitter (const u32 sparse_index, cmpnt_particle_emitter& particle_emitter);    
+    IFB_INTERNAL void        cmpnt_lookup_sprite           (const u32 sparse_index, cmpnt_sprite&           sprite);
+
+    IFB_INTERNAL void        cmpnt_update_position         (const u32 sparse_index, const cmpnt_position&         position);
+    IFB_INTERNAL void        cmpnt_update_color            (const u32 sparse_index, const cmpnt_color&            color);
+    IFB_INTERNAL void        cmpnt_update_quad             (const u32 sparse_index, const cmpnt_quad&             quad);
+    IFB_INTERNAL void        cmpnt_update_velocity         (const u32 sparse_index, const cmpnt_velocity&         velocity);
+    IFB_INTERNAL void        cmpnt_update_acceleration     (const u32 sparse_index, const cmpnt_acceleration&     acceleration);
+    IFB_INTERNAL void        cmpnt_update_inv_mass         (const u32 sparse_index, const cmpnt_inv_mass&         inv_mass);
+    IFB_INTERNAL void        cmpnt_update_drag             (const u32 sparse_index, const cmpnt_drag&             drag);
+    IFB_INTERNAL void        cmpnt_update_term_velocity    (const u32 sparse_index, const cmpnt_term_velocity&    term_velocity);
+    IFB_INTERNAL void        cmpnt_update_spring           (const u32 sparse_index, const cmpnt_spring&           spring);
+    IFB_INTERNAL void        cmpnt_update_map_coords       (const u32 sparse_index, const cmpnt_map_coords&       map_coords);
+    IFB_INTERNAL void        cmpnt_update_particle_emitter (const u32 sparse_index, const cmpnt_particle_emitter& particle_emitter);
+    IFB_INTERNAL void        cmpnt_update_sprite           (const u32 sparse_index, const cmpnt_sprite&           sprite);
     
     //--------------------------------------------------------------------
     // GLOBALS
@@ -21,9 +54,15 @@ namespace ifb {
     static cmpnt_mngr* _cmpnt_mngr;
     
     //--------------------------------------------------------------------
-    // TABLE DEFINITIONS
+    // DEFINITIONS
     //--------------------------------------------------------------------
 
+    struct cmpnt_mngr {
+        reservation* res;
+        cmpnt_table* cmpnt_tbl;
+        u32          capacity;
+    };
+    
     struct cmpnt_table {
         cmpnt_position*         array_position; 
         cmpnt_color*            array_color;
@@ -37,16 +76,6 @@ namespace ifb {
         cmpnt_map_coords*       array_map_coords;
         cmpnt_particle_emitter* array_particle_emitter;
         cmpnt_sprite*           array_sprite;
-    };
-    
-    //--------------------------------------------------------------------
-    // COMPONENT MANAGER
-    //--------------------------------------------------------------------
-
-    struct cmpnt_mngr {
-        reservation* res;
-        cmpnt_table* cmpnt_tbl;
-        u32          capacity;
     };
 };
 #endif //COMPONENT_INTERNAL_HPP

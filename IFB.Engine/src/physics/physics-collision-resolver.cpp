@@ -4,7 +4,7 @@
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
 
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "component-tables.cpp"
 #include "entity.cpp"
 #include "ifb.hpp"

@@ -1,5 +1,5 @@
 #include "component-tables.cpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "entity-lookup.cpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"

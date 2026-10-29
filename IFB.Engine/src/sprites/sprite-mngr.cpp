@@ -1,10 +1,9 @@
 #pragma once
 
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb.hpp"
 #include "sld.hpp"
 #include "sprite-internal.hpp"
-#include "sprites.hpp"
 #include "memory-internal.hpp"
 #include "asset-internal.hpp"
 

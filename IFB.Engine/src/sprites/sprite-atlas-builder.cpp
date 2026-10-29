@@ -1,7 +1,6 @@
 #pragma once
 
 #include "sprite.cpp"
-#include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "asset-internal.hpp"
 #include "ifb.hpp"

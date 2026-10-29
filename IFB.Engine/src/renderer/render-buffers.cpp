@@ -1,9 +1,9 @@
 #pragma once
 
 #include "ifb-config.hpp"
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "ifb.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "renderer-internal.hpp"
 #include "ifb-engine.hpp"
 #include "entity-internal.hpp"

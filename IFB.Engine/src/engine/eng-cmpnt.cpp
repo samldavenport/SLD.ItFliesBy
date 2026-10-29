@@ -1,6 +1,6 @@
 #pragma once
 
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity.cpp"

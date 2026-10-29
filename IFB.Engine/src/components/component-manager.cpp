@@ -3,8 +3,7 @@
 #include <cassert>
 #include "memory-internal.hpp"
 
-#include "component.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb.hpp"
 #include "memory-reservation.cpp"
 #include "component-internal.hpp"

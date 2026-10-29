@@ -6,7 +6,7 @@
 #include "renderer-internal.hpp"
 #include "sld-opengl.hpp"
 #include "sld.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include <cassert>
 #include "map-internal.hpp"
 

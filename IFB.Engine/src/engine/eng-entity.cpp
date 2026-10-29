@@ -1,6 +1,6 @@
 #pragma once
 
-#include "component.hpp"
+#include "component-internal.hpp"
 #include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity.cpp"
@@ -9,7 +9,7 @@
 #include "ifb.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
-#include "sprites.hpp"
+#include "sprite-internal.hpp"
 #include <cassert>
 #include "entity-internal.hpp"
 #include "physics-internal.hpp"

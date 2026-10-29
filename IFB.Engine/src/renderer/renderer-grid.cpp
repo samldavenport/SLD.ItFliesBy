@@ -6,7 +6,7 @@
 #include "sld-math-mat4.hpp"
 #include "sld-math-types.hpp"
 #include "sld-opengl.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 
 namespace ifb {
 
