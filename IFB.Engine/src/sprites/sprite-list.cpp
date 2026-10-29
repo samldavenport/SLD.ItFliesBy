@@ -2,11 +2,10 @@
 
 #include "asset-mngr.cpp"
 #include "asset.cpp"
-#include "ifb-types.hpp"
-#include "sprites.hpp"
-#include "sprite-internal.hpp"
-#include "memory-internal.hpp"
-#include "asset-internal.hpp"
+#include "ifb.hpp"
+#include "eng-sprite.hpp"
+#include "eng-memory.hpp"
+#include "eng-asset.hpp"
 
 namespace ifb {
 

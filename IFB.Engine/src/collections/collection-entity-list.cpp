@@ -1,11 +1,8 @@
 #pragma once
 
 #include "ifb-engine.hpp"
-#include "ifb-entities.hpp"
-#include "ifb-collections.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-config.hpp"
-#include "eng-collections.hpp"
 
 namespace ifb {
     
@@ -25,7 +22,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_ENGINE_API u32
-    entity_list_mem_req(
+    eng_entity_list_mem_req(
         void) {
 
         const auto& cfg = config_instance();
@@ -38,11 +35,11 @@ namespace ifb {
     }
 
     IFB_ENGINE_API entity_list*
-    entity_list_memory_create(
+    eng_entity_list_memory_create(
         const memory& mem) {
 
         const auto& cfg    = config_instance();
-        const u32 size_min = entity_list_mem_req();
+        const u32 size_min = eng_entity_list_mem_req();
        
         assert(mem.address != 0);
         assert(mem.size >= size_min);
@@ -56,7 +53,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API entity_list* 
-    entity_list_arena_create(
+    eng_entity_list_arena_create(
         const hnd_arena a) {
 
         const u32 save = eng_arena_save(a);
@@ -80,18 +77,18 @@ namespace ifb {
 
 
     IFB_ENGINE_API bool
-    entity_list_add(
+    eng_entity_list_add(
         entity_list*    el,
         const entity_id id) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
         assert(id != ENTITY_ID_INVALID);
 
         if (el->count == el->capacity) {
             return(false);
         }
 
-        const bool can_add = !entity_list_contains(el, id);
+        const bool can_add = !eng_entity_list_contains(el, id);
         if (can_add) {
             el->ids[el->count++] = id;
         }
@@ -99,11 +96,11 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
-    entity_list_remove(
+    eng_entity_list_remove(
         entity_list*    el,
         const entity_id id) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
         assert(id != ENTITY_ID_INVALID);
 
         // check if the last element is the id
@@ -132,15 +129,15 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void
-    entity_list_reset(
+    eng_entity_list_reset(
         entity_list* el) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
         el->count = 0;
     }
 
     IFB_ENGINE_API void
-    entity_list_validate(
+    eng_entity_list_validate(
         const entity_list* el) {
 
         assert(el->ids      != NULL);
@@ -149,34 +146,34 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool 
-    entity_list_is_null_or_empty(
+    eng_entity_list_is_null_or_empty(
         const entity_list* el) {
     
         return(el == NULL || el->count == 0);
     }
 
     IFB_ENGINE_API u32
-    entity_list_capacity (
+    eng_entity_list_capacity (
         const entity_list* el) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
         return(el->capacity);
     }
 
     IFB_ENGINE_API u32
-    entity_list_count(
+    eng_entity_list_count(
         const entity_list* el) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
         return(el->count);
     }
 
     IFB_ENGINE_API bool
-    entity_list_contains(
+    eng_entity_list_contains(
         const entity_list* el,
         const entity_id    id) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
         assert(id != ENTITY_ID_INVALID);
 
         bool does_contain = false;
@@ -195,23 +192,23 @@ namespace ifb {
     }
     
     IFB_ENGINE_API entity_id
-    entity_list_index(
+    eng_entity_list_index(
         const entity_list* el,
         const u32    index) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
 
         assert(index < el->count);
         return(el->ids[index]);
     }
     
     IFB_ENGINE_API void
-    entity_list_lookup(
+    eng_entity_list_lookup(
         const entity_list* el, 
         const u32          index,
         entity&            e) {
 
-        entity_list_validate(el);
+        eng_entity_list_validate(el);
     
         assert(index < el->count);
 

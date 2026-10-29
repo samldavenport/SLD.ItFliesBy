@@ -1,12 +1,11 @@
 #pragma once
 
-#include "ifb-types.hpp"
-#include "renderer-internal.hpp"
+#include "ifb.hpp"
+#include "eng-renderer.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math-vec3.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include <cassert>
-#include "eng-types.hpp"
 
 namespace ifb {
 

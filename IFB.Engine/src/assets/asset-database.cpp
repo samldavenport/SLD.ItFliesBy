@@ -1,20 +1,14 @@
 #pragma once
 
 #include "asset-dictionary.cpp"
-#include "asset.hpp"
 #include "file-rw.cpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
-#include "ifb-memory.hpp"
-#include "ifb-files.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
-#include "asset-internal.hpp"
-#include "eng-assets.hpp"
-#include "types-internal.hpp"
-#include "eng-types.hpp"
-#include "sprite-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
+#include "eng-asset.hpp"
+#include "eng-sprite.hpp"
 
 namespace ifb {
     

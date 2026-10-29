@@ -1,11 +1,9 @@
-#ifndef COMPONENTS_HPP
-#define COMPONENTS_HPP
+#ifndef ENG_COMPONENT_HPP
+#define ENG_COMPONENT_HPP
 
-#include "ifb-components.hpp"
-#include "ifb-memory.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
-#include "eng-components.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -14,7 +12,8 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     struct cmpnt_mngr;
-
+    struct cmpnt_table;
+    
     //--------------------------------------------------------------------
     // INTERNAL METHODS
     //--------------------------------------------------------------------
@@ -47,6 +46,36 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_update_map_coords       (const u32 sparse_index, const cmpnt_map_coords&       map_coords);
     IFB_INTERNAL void        cmpnt_update_particle_emitter (const u32 sparse_index, const cmpnt_particle_emitter& particle_emitter);
     IFB_INTERNAL void        cmpnt_update_sprite           (const u32 sparse_index, const cmpnt_sprite&           sprite);
-};
+    
+    //--------------------------------------------------------------------
+    // GLOBALS
+    //--------------------------------------------------------------------
 
-#endif //COMPONENTS_HPP
+    static cmpnt_mngr* _cmpnt_mngr;
+    
+    //--------------------------------------------------------------------
+    // DEFINITIONS
+    //--------------------------------------------------------------------
+
+    struct cmpnt_mngr {
+        reservation* res;
+        cmpnt_table* cmpnt_tbl;
+        u32          capacity;
+    };
+    
+    struct cmpnt_table {
+        cmpnt_position*         array_position; 
+        cmpnt_color*            array_color;
+        cmpnt_quad*             array_quad; 
+        cmpnt_velocity*         array_velocity; 
+        cmpnt_acceleration*     array_acceleration;
+        cmpnt_inv_mass*         array_inv_mass;
+        cmpnt_drag*             array_drag;
+        cmpnt_term_velocity*    array_term_velocity; 
+        cmpnt_spring*           array_spring; 
+        cmpnt_map_coords*       array_map_coords;
+        cmpnt_particle_emitter* array_particle_emitter;
+        cmpnt_sprite*           array_sprite;
+    };
+};
+#endif //ENG_COMPONENT_HPP

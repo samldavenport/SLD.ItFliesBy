@@ -1,12 +1,11 @@
 #pragma once
 
 #include "entity.cpp"
-#include "ifb-collections.hpp"
-#include "ifb-entities.hpp"
-#include "eng-collections.hpp"
-#include "entity-internal.hpp"
-#include "memory-internal.hpp"
-#include "quad-internal.hpp"
+#include "ifb.hpp"
+#include "ifb-engine.hpp"
+#include "eng-entity.hpp"
+#include "eng-memory.hpp"
+#include "eng-quad.hpp"
 
 namespace ifb {
 
@@ -52,14 +51,14 @@ namespace ifb {
 
         const hnd_arena a = arena_alloc();
 
-        entity_list* quad_list = entity_list_arena_create(a);
+        entity_list* quad_list = eng_entity_list_arena_create(a);
         assert(quad_list);
 
         entity_query query = {0};
         query.has_all.val = ENTITY_ARCHETYPE_SPRITE.val;
         entity_lookup_list(quad_list, query);
             
-        const u32 quad_list_count = entity_list_count(quad_list);
+        const u32 quad_list_count = eng_entity_list_count(quad_list);
         for (
             u32 index = 0;
                 index < quad_list_count;
@@ -67,7 +66,7 @@ namespace ifb {
         ) {
 
             quad_entity q;
-            const entity_id quad_id  = entity_list_index(quad_list, index);
+            const entity_id quad_id  = eng_entity_list_index(quad_list, index);
             const bool      did_find = quad_lookup_by_id(q, quad_id);
             assert(did_find);
 

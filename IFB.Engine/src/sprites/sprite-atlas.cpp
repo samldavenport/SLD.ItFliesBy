@@ -3,12 +3,9 @@
 #include "eng-sprite.cpp"
 #include "file-ro.cpp"
 #include "file-rw.cpp"
-#include "ifb-types.hpp"
-#include "sprites.hpp"
-#include "sprite-internal.hpp"
-#include "file-internal.hpp"
-#include "eng-assets.hpp"
-#include "eng-types.hpp"
+#include "ifb.hpp"
+#include "eng-sprite.hpp"
+#include "eng-file.hpp"
 
 namespace ifb {
 

@@ -1,19 +1,17 @@
 #pragma once
 
-#include "component.hpp"
+#include "eng-component.hpp"
 #include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity.cpp"
 #include "entity-component.cpp"
-#include "ifb-types.hpp"
-#include "ifb-map.hpp"
+#include "ifb.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include <cassert>
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
-#include "eng-components.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
 
 namespace ifb {
 

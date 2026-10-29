@@ -71,13 +71,15 @@ set(IFB_ENGINE_SOURCE_DIRS
 # unity build: eng.cpp includes the other source files
 set(IFB_ENGINE_UNITY_GLOBS "")
 foreach(DIR ${IFB_ENGINE_SOURCE_DIRS})
-    list(APPEND IFB_ENGINE_UNITY_GLOBS ${DIR}/*.cpp ${DIR}/*.hpp)
+    list(APPEND IFB_ENGINE_UNITY_GLOBS ${DIR}/*.cpp)
 endforeach()
 file(GLOB IFB_ENGINE_UNITY_SOURCES CONFIGURE_DEPENDS ${IFB_ENGINE_UNITY_GLOBS})
-file(GLOB IFB_HEADERS              CONFIGURE_DEPENDS IFB.Engine/include/*.hpp)
 list(REMOVE_ITEM IFB_ENGINE_UNITY_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/IFB.Engine/src/engine/eng.cpp
 )
+
+# engine-only headers, kept out of IFB.Core so consumers don't see them
+file(GLOB IFB_ENGINE_HEADERS CONFIGURE_DEPENDS IFB.Engine/include/*.hpp)
 
 add_library(ifb_engine SHARED)
 add_library(IFB::Engine ALIAS ifb_engine)
@@ -85,14 +87,14 @@ add_library(IFB::Engine ALIAS ifb_engine)
 target_sources(ifb_engine PRIVATE
     IFB.Engine/src/engine/eng.cpp
     ${IFB_ENGINE_UNITY_SOURCES}
-    ${IFB_HEADERS}
+    ${IFB_ENGINE_HEADERS}
 )
 set_source_files_properties(${IFB_ENGINE_UNITY_SOURCES} PROPERTIES HEADER_FILE_ONLY ON)
 
-target_include_directories(ifb_engine
-    PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}/IFB.Engine/include
-    PRIVATE ${IFB_ENGINE_SOURCE_DIRS}
-            ${Stb_INCLUDE_DIR}
+target_include_directories(ifb_engine PRIVATE
+    IFB.Engine/include
+    ${IFB_ENGINE_SOURCE_DIRS}
+    ${Stb_INCLUDE_DIR}
 )
 
 target_link_libraries(ifb_engine

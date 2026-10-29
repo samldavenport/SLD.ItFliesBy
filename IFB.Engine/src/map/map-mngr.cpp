@@ -1,18 +1,15 @@
 #include "component-tables.cpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "entity-lookup.cpp"
-#include "ifb-collections.hpp"
 #include "ifb-config.hpp"
-#include "ifb-entities.hpp"
-#include "ifb-types.hpp"
-#include "map-internal.hpp"
+#include "ifb.hpp"
+#include "eng-map.hpp"
 #include "eng-stack.cpp"
-#include "ifb-map.hpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
     

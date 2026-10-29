@@ -1,14 +1,12 @@
 #pragma once
 
 #include <cassert>
-#include "memory-internal.hpp"
-#include "eng-components.hpp"
+#include "eng-memory.hpp"
 
-#include "component.hpp"
-#include "eng-internal.hpp"
-#include "ifb-types.hpp"
+#include "eng-context.hpp"
+#include "ifb.hpp"
 #include "memory-reservation.cpp"
-#include "component-internal.hpp"
+#include "eng-component.hpp"
 
 namespace ifb {
 

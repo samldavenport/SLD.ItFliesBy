@@ -1,15 +1,12 @@
 #pragma once
 
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
-#include "component.hpp"
-#include "ifb-entities.hpp"
+#include "ifb.hpp"
+#include "eng-component.hpp"
 #include "sld.hpp"
-#include "ifb-map.hpp"
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
-#include "renderer-internal.hpp"
-#include "eng-types.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
+#include "eng-renderer.hpp"
 
 namespace ifb {
 

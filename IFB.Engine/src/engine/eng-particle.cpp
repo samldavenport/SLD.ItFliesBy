@@ -1,10 +1,9 @@
 #pragma once
 
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
-#include "ifb-particle.hpp"
-#include "particle-internal.hpp"
-#include "renderer-internal.hpp"
+#include "ifb.hpp"
+#include "eng-particle.hpp"
+#include "eng-renderer.hpp"
 
 namespace ifb {
 

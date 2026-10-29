@@ -1,15 +1,14 @@
 #pragma once
 
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "render-buffers.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "sld-opengl.hpp"
-#include "ifb-map.hpp"
 #include "sld.hpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include <cassert>
-#include "map-internal.hpp"
+#include "eng-map.hpp"
 
 namespace ifb {
 

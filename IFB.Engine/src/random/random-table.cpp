@@ -1,13 +1,13 @@
 #pragma once
 
 #include <cassert>
-#include "eng-platform.hpp"
-#include "random-internal.hpp"
+#include "ifb-platform.hpp"
+#include "eng-random.hpp"
 
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb-config.hpp"
-#include "platform-internal.hpp"
-#include "ifb-types.hpp"
+#include "eng-platform.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
 
 namespace ifb {

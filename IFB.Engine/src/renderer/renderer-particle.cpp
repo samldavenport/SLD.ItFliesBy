@@ -1,11 +1,10 @@
 #pragma once
 
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
-#include "ifb-particle.hpp"
-#include "quad-internal.hpp"
+#include "ifb.hpp"
+#include "eng-quad.hpp"
 #include "render-buffers.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "renderer-camera.cpp"
 #include "renderer-grid.cpp"
 #include "renderer-quad.cpp"
@@ -13,8 +12,7 @@
 #include "sld-math-mat4.hpp"
 #include "sld-opengl.hpp"
 #include <cassert>
-#include "particle-internal.hpp"
-#include "eng-types.hpp"
+#include "eng-particle.hpp"
 
 namespace ifb {
 

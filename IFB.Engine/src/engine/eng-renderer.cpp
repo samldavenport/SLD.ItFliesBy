@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 
 namespace ifb {
 

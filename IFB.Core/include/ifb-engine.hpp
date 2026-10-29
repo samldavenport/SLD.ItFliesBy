@@ -1,19 +1,10 @@
 #ifndef IFB_ENGINE_HPP
 #define IFB_ENGINE_HPP
 
-#include "ifb-entities.hpp"
-#include "eng-components.hpp"
-#include "eng-archetypes.hpp"
-#include "eng-assets.hpp"
-#include "eng-sprites.hpp"
-#include "ifb-files.hpp"
-#include "ifb-map.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
-#include "eng-types.hpp"
-#include "eng-platform.hpp"
-#include "eng-input.hpp"
-#include "eng-collections.hpp"
-#include "eng-memory.hpp"
+#include "ifb-platform.hpp"
+#include "ifb-input.hpp"
 #include <imgui.h>
 
 using namespace sld;
@@ -366,6 +357,59 @@ namespace ifb {
     IFB_ENGINE_API u32          eng_image_size           (const hnd_file img_file_hnd);
     IFB_ENGINE_API const image* eng_image_load_to_arena  (const hnd_file img_file_hnd, const hnd_arena arena_hnd);
     IFB_ENGINE_API const image* eng_image_load_to_memory (const hnd_file img_file_hnd, const memory& mem);
+
+    //--------------------------------------------------------------------
+    // STACK
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API u32     eng_stack_memory_requirement (const u32 capacity);
+    IFB_ENGINE_API stack*  eng_stack_memory_create      (const u32 capacity, memory& mem);
+    IFB_ENGINE_API stack*  eng_stack_memory_create      (memory& mem);
+    IFB_ENGINE_API stack*  eng_stack_arena_create       (const u32 capacity, const hnd_arena arena_hnd);
+    IFB_ENGINE_API u32     eng_stack_get_capacity       (const stack* s);
+    IFB_ENGINE_API u32     eng_stack_get_position       (const stack* s);
+    IFB_ENGINE_API u32     eng_stack_get_size_free      (const stack* s);
+    IFB_ENGINE_API void*   eng_stack_get_head           (const stack* s);
+    IFB_ENGINE_API void*   eng_stack_get_tail           (const stack* s);
+    IFB_ENGINE_API u32     eng_stack_save               (stack* s);
+    IFB_ENGINE_API void    eng_stack_reset              (stack* s);
+    IFB_ENGINE_API void*   eng_stack_push               (stack* s, const u32 size);
+    IFB_ENGINE_API void    eng_stack_pull               (stack* s, const u32 size);
+    IFB_ENGINE_API void    eng_stack_revert             (stack* s, const u32 save);
+
+    //--------------------------------------------------------------------
+    // INDEX CACHE
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API u32          eng_index_cache_memory_size    (const u32 capacity);
+    IFB_ENGINE_API index_cache* eng_index_cache_memory_create  (const u32 capacity, memory& mem);
+    IFB_ENGINE_API index_cache* eng_index_cache_arena_create   (const u32 capacity, const hnd_arena arena_hnd);
+    IFB_ENGINE_API void         eng_index_cache_reset          (index_cache* cache);
+    IFB_ENGINE_API void         eng_index_cache_set_index_free (index_cache* cache, const u32 index);
+    IFB_ENGINE_API void         eng_index_cache_set_index_used (index_cache* cache, const u32 index);
+    IFB_ENGINE_API u32          eng_index_cache_get_next_free  (index_cache* cache);
+    IFB_ENGINE_API u32          eng_index_cache_count_used     (const index_cache* cache);
+    IFB_ENGINE_API u32          eng_index_cache_count_free     (const index_cache* cache);
+    IFB_ENGINE_API u32          eng_index_cache_capacity       (const index_cache* cache);
+    IFB_ENGINE_API bool         eng_index_cache_is_index_free  (const index_cache* cache, const u32 index);
+
+    //--------------------------------------------------------------------
+    // ENTITY ID LIST
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API u32          eng_entity_list_mem_req          (void);
+    IFB_ENGINE_API entity_list* eng_entity_list_memory_create    (const memory& mem);
+    IFB_ENGINE_API entity_list* eng_entity_list_arena_create     (const hnd_arena arena_hnd);
+    IFB_ENGINE_API bool         eng_entity_list_add              (entity_list* el, const entity_id id);
+    IFB_ENGINE_API bool         eng_entity_list_remove           (entity_list* el, const entity_id id);
+    IFB_ENGINE_API void         eng_entity_list_reset            (entity_list* el);
+    IFB_ENGINE_API void         eng_entity_list_validate         (const entity_list* el);
+    IFB_ENGINE_API bool         eng_entity_list_is_null_or_empty (const entity_list* el);
+    IFB_ENGINE_API u32          eng_entity_list_capacity         (const entity_list* el);
+    IFB_ENGINE_API u32          eng_entity_list_count            (const entity_list* el);
+    IFB_ENGINE_API bool         eng_entity_list_contains         (const entity_list* el, const entity_id);
+    IFB_ENGINE_API entity_id    eng_entity_list_index            (const entity_list* el, const u32 index);
+    IFB_ENGINE_API void         eng_entity_list_lookup           (const entity_list* el, const u32 index, entity& e);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

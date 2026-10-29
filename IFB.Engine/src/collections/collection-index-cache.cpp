@@ -1,9 +1,7 @@
-#include "ifb-collections.hpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
 #include <cassert>
-#include "eng-collections.hpp"
 
 namespace ifb {
 
@@ -22,7 +20,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API u32
-    index_cache_memory_size(
+    eng_index_cache_memory_size(
         const u32 capacity) {
 
         const u32 size_struct = sizeof(index_cache);
@@ -33,7 +31,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API index_cache* 
-    index_cache_memory_create(
+    eng_index_cache_memory_create(
         const u32     capacity,
         memory& mem) {
 
@@ -51,7 +49,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API index_cache*
-    index_cache_arena_create(
+    eng_index_cache_arena_create(
         const u32          capacity,
         const hnd_arena arena_hnd) {
 
@@ -75,7 +73,7 @@ namespace ifb {
     }
     
     IFB_ENGINE_API void
-    index_cache_reset(
+    eng_index_cache_reset(
         index_cache* cache) {
 
         index_cache_validate(cache); 
@@ -90,7 +88,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void 
-    index_cache_set_index_free(
+    eng_index_cache_set_index_free(
         index_cache* cache,
         const u32    index) {
     
@@ -101,7 +99,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void 
-    index_cache_set_index_used(
+    eng_index_cache_set_index_used(
         index_cache* cache,
         const u32    index) {
 
@@ -111,7 +109,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API u32
-    index_cache_get_next_free(
+    eng_index_cache_get_next_free(
         index_cache* cache) {
 
         index_cache_validate(cache);
@@ -133,7 +131,7 @@ namespace ifb {
     }
     
     IFB_ENGINE_API u32
-    index_cache_count_used(
+    eng_index_cache_count_used(
         const index_cache* cache) {
     
         index_cache_validate(cache);
@@ -151,7 +149,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API u32
-    index_cache_count_free(
+    eng_index_cache_count_free(
         const index_cache* cache) {
     
         index_cache_validate(cache);
@@ -169,7 +167,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API u32
-    index_cache_capacity(
+    eng_index_cache_capacity(
         const index_cache* cache) {
 
         index_cache_validate(cache);
@@ -177,7 +175,7 @@ namespace ifb {
     } 
 
     IFB_ENGINE_API bool
-    index_cache_is_index_free(
+    eng_index_cache_is_index_free(
         const index_cache* cache,
         const u32 index) {
     

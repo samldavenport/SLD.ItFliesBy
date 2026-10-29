@@ -1,10 +1,9 @@
 #pragma once
 
-#include "ifb-collections.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"
-#include "renderer-internal.hpp"
+#include "eng-renderer.hpp"
 #include "render-buffers.cpp"
 #include "renderer-draw-lists.cpp"
 #include "renderer-quad.cpp"
@@ -14,16 +13,15 @@
 #include "renderer-grid.cpp"
 #include "renderer-tile.cpp"
 #include "renderer-particle.cpp"
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
 #include "sld-opengl.hpp"
-#include "sprites.hpp"
-#include "eng-collections.hpp"
-#include "eng-platform.hpp"
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
-#include "eng-types.hpp"
+#include "eng-sprite.hpp"
+#include "ifb-engine.hpp"
+#include "ifb-platform.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -234,7 +232,7 @@ namespace ifb {
 
         assert(size != 0);
 
-        void* mem = stack_push(_renderer->memory.stack, size);
+        void* mem = eng_stack_push(_renderer->memory.stack, size);
 
         return(mem);
     }
@@ -289,13 +287,13 @@ namespace ifb {
         void) {
 
         memory mem;
-        mem.size = entity_list_mem_req();
+        mem.size = eng_entity_list_mem_req();
         mem.ptr  = renderer_memory_alloc(mem.size);
         if (mem.size == 0 || mem.address == 0) {
             return(NULL);
         }
 
-        entity_list* list = entity_list_memory_create(mem);
+        entity_list* list = eng_entity_list_memory_create(mem);
         return(list);
     }
     

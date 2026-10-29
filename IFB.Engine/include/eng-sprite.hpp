@@ -1,11 +1,9 @@
-#ifndef SPRITES_HPP
-#define SPRITES_HPP
+#ifndef ENG_SPRITE_HPP
+#define ENG_SPRITE_HPP
 
-#include "ifb-sprites.hpp"
-#include "ifb-memory.hpp"
-#include "eng-types.hpp"
-#include "memory-internal.hpp"
-#include "eng-sprites.hpp"
+#include "ifb.hpp"
+#include "ifb-config.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -18,6 +16,8 @@ namespace ifb {
     struct sprite_list_node;
     struct sprite_atlas_builder;
     struct sprite_atlas;
+    struct sprite_memory_block;
+    struct sprite_memory;
 
     //--------------------------------------------------------------------
     // METHODS 
@@ -37,7 +37,18 @@ namespace ifb {
     IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_handle       (const hnd_sprite_atlas h_atlas, const hnd_sprite h_sprite, const hnd_arena h_arena);
     IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_index        (const hnd_sprite_atlas h_atlas, const u32        i_sprite, const hnd_arena h_arena);
     IFB_INTERNAL image*                  sprite_mngr_get_sprite_atlas_image_by_handle (const hnd_sprite_atlas h_atlas, const hnd_arena h_arena);
-
+    IFB_INTERNAL sprite_memory*          sprite_mngr_get_memory    (void);
+    
+    // sprite memory
+    IFB_INTERNAL sprite_memory*          sprite_memory_create               (void);
+    IFB_INTERNAL void                    sprite_memory_init                 (sprite_memory* mem, reservation* res);
+    IFB_INTERNAL sprite_memory_block*    sprite_memory_alloc                (sprite_memory* mem);
+    IFB_INTERNAL void                    sprite_memory_free                 (sprite_memory* mem, sprite_memory_block* block);
+    IFB_INTERNAL u32                     sprite_memory_block_get_size_free  (sprite_memory_block* block);
+    IFB_INTERNAL void*                   sprite_memory_block_push           (sprite_memory_block* block, const u32 size);
+    IFB_INTERNAL void                    sprite_memory_block_reset          (sprite_memory_block* block);
+    IFB_INTERNAL void*                   sprite_memory_block_push_all       (sprite_memory_block* block);
+    
     // sprite atlas
     IFB_INTERNAL sprite_atlas*           sprite_atlas_create                     (void);
     IFB_INTERNAL void                    sprite_atlas_destroy                    (sprite_atlas* atlas);
@@ -72,6 +83,32 @@ namespace ifb {
     IFB_INTERNAL hnd_asset               sprite_list_get_img_asset_hnd           (const sprite_list_node* node);
     IFB_INTERNAL const dimensions_2d&    sprite_list_get_img_dims                (const sprite_list_node* node);
     IFB_INTERNAL hnd_sprite_atlas        sprite_list_save_to_atlas               (const sprite_list* list, const cchar* atlas, const hnd_arena h_arena);
-};
 
-#endif //SPRITES_HPP
+    //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
+
+    struct sprite_list_node {
+        sprite_list_node* next;
+        hnd_asset         h_img_asset;
+        dimensions_2d     img_dims;
+    };
+
+    struct sprite_list {
+        sprite_list_node* first; 
+        sprite_list_node* last; 
+    };
+    
+    struct sprite_atlas {
+        sprite_memory_block* mem_block;
+        const image*         img;
+        struct {
+            hnd_sprite*      array_handles;
+            asset_name*      array_name;
+            dimensions_2d*   array_dims;
+            u32*             array_offset;
+            u32              sprite_count;
+        } header;
+    };
+};
+#endif //ENG_SPRITE_HPP

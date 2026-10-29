@@ -1,12 +1,12 @@
 #pragma once
 
 #include <cassert>
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
-#include "eng-internal.hpp"
+#include "eng-context.hpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
-#include "particle-internal.hpp"
+#include "ifb.hpp"
+#include "eng-particle.hpp"
 #include "sld-math-types.hpp"
 #include "sld-strings.hpp"
 #include "sld.hpp"

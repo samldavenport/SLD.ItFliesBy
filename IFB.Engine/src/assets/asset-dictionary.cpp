@@ -1,19 +1,17 @@
 #pragma once
 
-#include "asset.hpp"
-#include "asset-internal.hpp"
+#include "eng-asset.hpp"
 #include "file-common.cpp"
 #include "file-ro.cpp"
 #include "file-wo.cpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "sld-strings.hpp"
-#include "file-internal.hpp"
-#include "json-internal.hpp"
-#include "memory-internal.hpp"
-#include "types-internal.hpp"
+#include "eng-file.hpp"
+#include "eng-json.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

@@ -1,14 +1,12 @@
 #pragma once
 
 #include <cassert>
-#include "entity-internal.hpp"
+#include "eng-entity.hpp"
 
-#include "component.hpp"
-#include "ifb-entities.hpp"
-#include "ifb-types.hpp"
-#include "particle-internal.hpp"
+#include "eng-component.hpp"
+#include "ifb.hpp"
+#include "eng-particle.hpp"
 #include "particle-mngr.cpp"
-#include "ifb-particle.hpp"
 #include "sld.hpp"
 
 namespace ifb {

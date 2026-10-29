@@ -1,17 +1,11 @@
 #pragma once
 
-#include "eng-internal.hpp"
-#include "ifb-types.hpp"
-#include "ifb-memory.hpp"
+#include "eng-context.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
-#include "sprite-internal.hpp"
-#include "sprites.hpp"
-#include "asset.hpp"
-#include "memory-internal.hpp"
-#include "eng-assets.hpp"
-#include "asset-internal.hpp"
-#include "eng-types.hpp"
-#include "eng-sprites.hpp"
+#include "eng-sprite.hpp"
+#include "eng-memory.hpp"
+#include "eng-asset.hpp"
 
 namespace ifb {
 

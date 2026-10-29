@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
-#include "physics-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-physics.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

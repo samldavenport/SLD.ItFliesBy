@@ -1,18 +1,15 @@
 #pragma once
 
 #include "collection-entity-list.cpp"
-#include "ifb-collections.hpp"
 #include "component-tables.cpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
-#include "ifb-memory.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
-#include "ifb-entities.hpp"
 #include "sld-math-vec3.hpp"
 #include "physics-entity.cpp"
-#include "physics-internal.hpp"
-#include "eng-collections.hpp"
-#include "entity-internal.hpp"
+#include "eng-physics.hpp"
+#include "ifb-engine.hpp"
+#include "eng-entity.hpp"
 
 namespace ifb {
 
@@ -51,7 +48,7 @@ namespace ifb {
         spring_calculator_load_exec(calc);
 
         calc->count = 0;
-        entity_list_reset(calc->entt_list);
+        eng_entity_list_reset(calc->entt_list);
         return;
     }
    
@@ -101,10 +98,10 @@ namespace ifb {
 
         // create the entity list
         memory list_mem;
-        list_mem.size = entity_list_mem_req();
+        list_mem.size = eng_entity_list_mem_req();
         list_mem.ptr  = phys_mngr_res_alloc(list_mem.size);
         assert(list_mem.ptr != NULL);
-        calc->entt_list = entity_list_memory_create(list_mem);
+        calc->entt_list = eng_entity_list_memory_create(list_mem);
         assert(calc->entt_list);
 
         return(calc);
@@ -120,7 +117,7 @@ namespace ifb {
             cmpnt_type_e_spring
         );
 
-        if (!entity_lookup_list(calc->entt_list, query) || entity_list_count(calc->entt_list) == 0) {
+        if (!entity_lookup_list(calc->entt_list, query) || eng_entity_list_count(calc->entt_list) == 0) {
             return(false);
         }
 
@@ -132,14 +129,14 @@ namespace ifb {
         cmpnt_position pos_anchor;
         cmpnt_velocity vel_spr;
 
-        const u32 list_count = entity_list_count(calc->entt_list);
+        const u32 list_count = eng_entity_list_count(calc->entt_list);
         for (
             u32 entity_index = 0;
                 entity_index < list_count;
               ++entity_index 
         ) {
             // get the spring id and sparse index
-            const entity_id spring_id           = entity_list_index(calc->entt_list, entity_index);
+            const entity_id spring_id           = eng_entity_list_index(calc->entt_list, entity_index);
             const u32       spring_sparse_index = entity_lookup_sparse_index(spring_id);
            
             // look up the spring info
@@ -171,7 +168,7 @@ namespace ifb {
     
         assert(
             calc->count <= calc->capacity && 
-            calc->count <= entity_list_count(calc->entt_list) 
+            calc->count <= eng_entity_list_count(calc->entt_list) 
         );
 
         return(true);

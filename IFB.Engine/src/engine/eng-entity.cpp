@@ -1,20 +1,20 @@
 #pragma once
 
-#include "component.hpp"
+#include "eng-component.hpp"
 #include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity.cpp"
 #include "entity-component.cpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
-#include "sprites.hpp"
+#include "eng-sprite.hpp"
 #include <cassert>
-#include "entity-internal.hpp"
-#include "physics-internal.hpp"
-#include "quad-internal.hpp"
-#include "renderer-internal.hpp"
+#include "eng-entity.hpp"
+#include "eng-physics.hpp"
+#include "eng-quad.hpp"
+#include "eng-renderer.hpp"
 
 namespace ifb {
     

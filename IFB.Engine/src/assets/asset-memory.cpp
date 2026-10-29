@@ -1,11 +1,10 @@
 #pragma once
 
-#include "asset.hpp"
-#include "asset-internal.hpp"
+#include "eng-asset.hpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-reservation.cpp"
-#include "memory-internal.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

@@ -2,17 +2,13 @@
 
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
-#include "asset.hpp"
+#include "ifb.hpp"
+#include "eng-asset.hpp"
 #include "asset-database.cpp"
 #include "eng-asset.cpp"
-#include "ifb-memory.hpp"
-#include "sprites.hpp"
-#include "sprite-internal.hpp"
-#include "memory-internal.hpp"
-#include "renderer-internal.hpp"
-#include "eng-types.hpp"
-#include "eng-sprites.hpp"
+#include "eng-sprite.hpp"
+#include "eng-memory.hpp"
+#include "eng-renderer.hpp"
 
 namespace ifb {
 

@@ -5,7 +5,7 @@
 #include "asset-dictionary.cpp"
 #include "asset-memory.cpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include <sld-strings.hpp>
 
 namespace ifb {

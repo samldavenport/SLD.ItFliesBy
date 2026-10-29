@@ -1,10 +1,8 @@
-#include "ifb-collections.hpp"
-#include "sprites.hpp"
-#include "sprite-internal.hpp"
-#include "eng-internal.hpp"
-#include "ifb-memory.hpp"
-#include "eng-collections.hpp"
-#include "memory-internal.hpp"
+#include "ifb.hpp"
+#include "eng-sprite.hpp"
+#include "eng-context.hpp"
+#include "ifb-engine.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -55,7 +53,7 @@ namespace ifb {
             memory stack_mem;
             stack_mem.size = block_size;
             stack_mem.ptr  = reservation_push_bytes(res, block_size);
-            block.stack    = stack_memory_create(stack_mem);
+            block.stack    = eng_stack_memory_create(stack_mem);
             block.index    = block_index;
             assert(block.stack);
         }
@@ -76,7 +74,7 @@ namespace ifb {
             if (!mem->block_is_allocated[block_index]) {
 
                 block = &mem->blocks[block_index];
-                stack_reset(block->stack);
+                eng_stack_reset(block->stack);
             
                 mem->block_is_allocated[block_index] = true;
                 break;
@@ -104,7 +102,7 @@ namespace ifb {
 
         assert(block);
 
-        const u32 size_free = stack_get_size_free(block->stack); 
+        const u32 size_free = eng_stack_get_size_free(block->stack); 
         return(size_free);
     }
 
@@ -116,7 +114,7 @@ namespace ifb {
         assert(block);
         assert(size != 0);
 
-        void* mem = stack_push(block->stack, size);
+        void* mem = eng_stack_push(block->stack, size);
         return(mem);    
     }
     
@@ -126,7 +124,7 @@ namespace ifb {
 
         assert(block);
 
-        stack_reset(block->stack);
+        eng_stack_reset(block->stack);
     }
     
     IFB_INTERNAL void*
@@ -134,8 +132,8 @@ namespace ifb {
         sprite_memory_block* block) {
 
         assert(block);
-        const u32 size_free = stack_get_size_free(block->stack);
-        void* mem = stack_push(block->stack, size_free);
+        const u32 size_free = eng_stack_get_size_free(block->stack);
+        void* mem = eng_stack_push(block->stack, size_free);
         assert(mem);
 
         return(mem);

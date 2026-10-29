@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ifb-files.hpp"
-#include "eng-internal.hpp"
+#include "ifb.hpp"
+#include "eng-context.hpp"
 #include "ifb-config.hpp"
 #include "memory-reservation.cpp"
-#include "eng-platform.hpp"
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
+#include "ifb-platform.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 

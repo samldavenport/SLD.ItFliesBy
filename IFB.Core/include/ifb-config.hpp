@@ -66,6 +66,11 @@ using namespace sld;
 
 namespace ifb {
 
+    enum config_mode_e {
+        config_mode_e_debug   = 0,
+        config_mode_e_release = 1
+    };
+
     struct config {
         static constexpr u32   asset_name_size                = IFB_CONFIG_ASSET_NAME_SIZE;
         static constexpr u32   asset_size_max                 = IFB_CONFIG_ASSET_SIZE_MAX;

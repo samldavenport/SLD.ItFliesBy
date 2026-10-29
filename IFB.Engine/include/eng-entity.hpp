@@ -1,9 +1,8 @@
-#ifndef ENTITY_INTERNAL_HPP
-#define ENTITY_INTERNAL_HPP
+#ifndef ENG_ENTITY_HPP
+#define ENG_ENTITY_HPP
 
-#include "ifb-entities.hpp"
-#include "ifb-types.hpp"
-#include "memory-internal.hpp"
+#include "ifb.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -114,4 +113,4 @@ namespace ifb {
     IFB_INTERNAL void             entity_test (void);
 };
 
-#endif //ENTITY_INTERNAL_HPP
+#endif //ENG_ENTITY_HPP

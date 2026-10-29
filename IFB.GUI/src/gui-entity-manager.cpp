@@ -2,7 +2,7 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
-#include "ifb-entities.hpp"
+#include "ifb.hpp"
 #include <stdio.h>
 
 namespace ifb {

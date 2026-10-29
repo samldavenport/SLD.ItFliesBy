@@ -1,15 +1,12 @@
 #pragma once
 
-#include "ifb-collections.hpp"
-#include "ifb-entities.hpp"
-#include "ifb-types.hpp"
-#include "ifb-map.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
-#include "physics-internal.hpp"
-#include "eng-collections.hpp"
-#include "entity-internal.hpp"
-#include "map-internal.hpp"
-#include "memory-internal.hpp"
+#include "eng-physics.hpp"
+#include "ifb-engine.hpp"
+#include "eng-entity.hpp"
+#include "eng-map.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -46,13 +43,13 @@ namespace ifb {
         );
 
         u32 count = 0;
-        const u32 entity_count = entity_list_count(list);
+        const u32 entity_count = eng_entity_list_count(list);
         for (
             u32 index = 0;
                 index < entity_count;
               ++index) {
 
-            const entity_id id = entity_list_index(list, index);
+            const entity_id id = eng_entity_list_index(list, index);
 
             entity e;
             if (!entity_lookup_by_id(e, id))        continue;
@@ -140,7 +137,7 @@ namespace ifb {
                     } 
 
                     // make sure we have entities to process
-                    const u32 entity_count = entity_list_count(list);
+                    const u32 entity_count = eng_entity_list_count(list);
                     if (entity_count == 0) {
                         arena_revert(h_arena, save);
                         continue;

@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cassert>
-#include "component.hpp"
-#include "ifb-types.hpp"
-#include "component-internal.hpp"
-#include "eng-components.hpp"
+#include "ifb.hpp"
+#include "eng-component.hpp"
 
 namespace ifb {
    

@@ -1,11 +1,9 @@
-#ifndef TILED_INTERNAL_HPP
-#define TILED_INTERNAL_HPP
+#ifndef ENG_TILED_HPP
+#define ENG_TILED_HPP
 
 #include "ifb.hpp"
-#include "ifb-memory.hpp"
 #include "sld.hpp"
-#include "json-internal.hpp"
-#include "eng-types.hpp"
+#include "eng-json.hpp"
 
 namespace ifb {
 
@@ -608,4 +606,4 @@ namespace ifb {
     IFB_INTERNAL tiled_point*                 tiled_point_parse            (hnd_arena a, const json_obj* obj);
 };
 
-#endif //TILED_INTERNAL_HPP
+#endif //ENG_TILED_HPP

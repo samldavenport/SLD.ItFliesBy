@@ -1,15 +1,14 @@
 #pragma once
 
-#include "ifb-collections.hpp"
+#include "ifb.hpp"
 #include "ifb-config.hpp"
-#include "platform-internal.hpp"
-#include "ifb-memory.hpp"
-#include "eng-internal.hpp"
+#include "eng-platform.hpp"
+#include "eng-context.hpp"
 #include "sld.hpp"
 #include <cassert>
-#include "eng-collections.hpp"
-#include "eng-platform.hpp"
-#include "memory-internal.hpp"
+#include "ifb-engine.hpp"
+#include "ifb-platform.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
    
@@ -132,7 +131,7 @@ namespace ifb {
         assert(size_min != 0);
 
         // get the page and aligned sizes
-        const u32 size_stack   = stack_memory_requirement(size_min); 
+        const u32 size_stack   = eng_stack_memory_requirement(size_min); 
         const u32 size_aligned = system_align_to_memory_page_size(size_stack);
         const u32 page_size    = system_get_memory_page_size();
         assert(size_aligned != 0);
@@ -158,7 +157,7 @@ namespace ifb {
         memory stack_mem;
         stack_mem.address = (addr)cmt;
         stack_mem.size    = size_aligned;
-        auto* s = stack_memory_create(stack_mem);   
+        auto* s = eng_stack_memory_create(stack_mem);   
         assert(s);
 
         return(s);
@@ -195,7 +194,7 @@ namespace ifb {
         stack_mem.address = (addr)cmt;
         stack_mem.size    = size_aligned;
         
-        stack* s = stack_memory_create(stack_mem);
+        stack* s = eng_stack_memory_create(stack_mem);
         return(s);
     }
     
@@ -209,7 +208,7 @@ namespace ifb {
         mem.size  = reservation_get_capacity (res);
         mem.ptr   = reservation_push_all     (res);
 
-        stack* s = stack_memory_create(mem);
+        stack* s = eng_stack_memory_create(mem);
 
         return(s);
     }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "physics-internal.hpp"
+#include "eng-physics.hpp"
 #include <cfloat>
 
 namespace ifb {

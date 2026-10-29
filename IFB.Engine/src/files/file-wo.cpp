@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ifb-files.hpp"
-#include "file-internal.hpp"
-#include "platform-internal.hpp"
+#include "ifb.hpp"
+#include "eng-file.hpp"
 #include "eng-platform.hpp"
+#include "ifb-platform.hpp"
 
 namespace ifb {
 

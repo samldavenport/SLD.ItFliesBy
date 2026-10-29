@@ -1,12 +1,11 @@
 #pragma once
 
-#include "ifb-collections.hpp"
-#include "renderer-internal.hpp"
-#include "eng-internal.hpp"
-#include "ifb-map.hpp"
-#include "eng-collections.hpp"
-#include "map-internal.hpp"
-#include "quad-internal.hpp"
+#include "eng-renderer.hpp"
+#include "eng-context.hpp"
+#include "ifb.hpp"
+#include "ifb-engine.hpp"
+#include "eng-map.hpp"
+#include "eng-quad.hpp"
 
 namespace ifb {
 
@@ -51,8 +50,8 @@ namespace ifb {
     
         // the map stays set until it's changed,
         // everything else gets pushed again every frame
-        entity_list_reset(lists->quads);
-        entity_list_reset(lists->particle_emitters);
+        eng_entity_list_reset(lists->quads);
+        eng_entity_list_reset(lists->particle_emitters);
     }
 
     IFB_INTERNAL bool
@@ -64,7 +63,7 @@ namespace ifb {
         assert(lists->quads);
         assert(id != ENTITY_ID_INVALID);
 
-        const bool did_push = quad_does_exist(id) && entity_list_add(lists->quads, id);
+        const bool did_push = quad_does_exist(id) && eng_entity_list_add(lists->quads, id);
         return(did_push);
     }
 
@@ -77,7 +76,7 @@ namespace ifb {
         assert(lists->particle_emitters);
         assert(id != ENTITY_ID_INVALID);
 
-        const bool did_push = entity_list_add(lists->particle_emitters, id);
+        const bool did_push = eng_entity_list_add(lists->particle_emitters, id);
         return(did_push);
     }
 
@@ -113,7 +112,7 @@ namespace ifb {
         assert(lists);
         assert(lists->quads);
 
-        entity_list_validate(lists->quads);
+        eng_entity_list_validate(lists->quads);
 
         return(lists->quads);
     }
@@ -125,7 +124,7 @@ namespace ifb {
         assert(lists);
         assert(lists->particle_emitters);
 
-        entity_list_validate(lists->particle_emitters);
+        eng_entity_list_validate(lists->particle_emitters);
 
         return(lists->particle_emitters);
     }

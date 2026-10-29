@@ -1,11 +1,9 @@
 #pragma once
 
 #include "sprite.cpp"
-#include "sprites.hpp"
-#include "sprite-internal.hpp"
-#include "asset.hpp"
-#include "asset-internal.hpp"
-#include "eng-types.hpp"
+#include "eng-sprite.hpp"
+#include "eng-asset.hpp"
+#include "ifb.hpp"
 
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>

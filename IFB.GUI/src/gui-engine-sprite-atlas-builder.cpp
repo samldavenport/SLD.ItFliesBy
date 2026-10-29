@@ -3,7 +3,7 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "imgui.h"
 #include "gui-game-asset-dictionary.cpp"
 #include "gui-game-asset-database.cpp"

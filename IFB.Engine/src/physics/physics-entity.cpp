@@ -1,11 +1,10 @@
 #pragma once
 
 #include "entity.cpp"
-#include "ifb-types.hpp"
-#include "component.hpp"
-#include "physics-internal.hpp"
-#include "entity-internal.hpp"
-#include "eng-components.hpp"
+#include "ifb.hpp"
+#include "eng-component.hpp"
+#include "eng-physics.hpp"
+#include "eng-entity.hpp"
 
 namespace ifb {
 

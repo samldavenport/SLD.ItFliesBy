@@ -2,18 +2,13 @@
 
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
-#include "asset.hpp"
+#include "ifb.hpp"
 #include "asset-database.cpp"
-#include "asset-internal.hpp"
-#include "ifb-files.hpp"
-#include "ifb-memory.hpp"
+#include "eng-asset.hpp"
 #include "sld-strings.hpp"
-#include "file-internal.hpp"
-#include "memory-internal.hpp"
-#include "renderer-internal.hpp"
-#include "eng-assets.hpp"
-#include "eng-types.hpp"
+#include "eng-file.hpp"
+#include "eng-memory.hpp"
+#include "eng-renderer.hpp"
 #include <stb_image.h>
 
 namespace ifb {

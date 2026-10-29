@@ -1,9 +1,8 @@
 #pragma once
 
-#include "ifb-memory.hpp"
-#include "eng-internal.hpp"
-#include "eng-platform.hpp"
-#include "memory-internal.hpp"
+#include "ifb.hpp"
+#include "eng-context.hpp"
+#include "ifb-platform.hpp"
 #include "eng-memory.hpp"
 
 namespace ifb {
