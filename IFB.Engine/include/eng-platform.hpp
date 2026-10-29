@@ -3,8 +3,6 @@
 
 #include "sld.hpp"
 #include "sld-opengl.hpp"
-#include "ifb-input.hpp"
-#include "ifb.hpp"
 
 #define IFB_PLATFORM_API
 

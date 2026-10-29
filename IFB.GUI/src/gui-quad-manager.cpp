@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ifb-engine.hpp"
+#include "eng-collections.hpp"
 #include "ifb.hpp"
 #include "ifb-gui.hpp"
 #include <stdio.h>
