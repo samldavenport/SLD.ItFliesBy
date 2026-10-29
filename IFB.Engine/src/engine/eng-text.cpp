@@ -2,7 +2,7 @@
 
 #include "file-common.cpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
 #include <cassert>
 #include "file-internal.hpp"

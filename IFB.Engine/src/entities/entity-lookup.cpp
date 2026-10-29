@@ -3,7 +3,7 @@
 #include "ifb-entities.hpp"
 #include "ifb-collections.hpp"
 #include "entity-manager.cpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "eng-collections.hpp"
 #include "entity-internal.hpp"
 

@@ -1,7 +1,7 @@
 #ifndef JSON_INTERNAL_HPP
 #define JSON_INTERNAL_HPP
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
 
 namespace ifb {

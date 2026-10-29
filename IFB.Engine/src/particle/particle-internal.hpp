@@ -2,7 +2,7 @@
 #define PARTICLE_INTERNAL_HPP
 
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-internal.hpp"
 #include "ifb-particle.hpp"
 #include "sld.hpp"

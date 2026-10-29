@@ -1,7 +1,7 @@
 #ifndef RANDOM_INTERNAL_HPP
 #define RANDOM_INTERNAL_HPP
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
 
 namespace ifb {

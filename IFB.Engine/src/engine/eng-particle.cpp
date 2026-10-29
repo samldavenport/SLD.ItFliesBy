@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-particle.hpp"
 #include "particle-internal.hpp"
 #include "renderer-internal.hpp"

@@ -4,7 +4,7 @@
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
 #include "component.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "particle-emitter.cpp"
 #include "sprite-mngr.cpp"

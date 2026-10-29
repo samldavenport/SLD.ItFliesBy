@@ -1,6 +1,6 @@
 #include "ifb-collections.hpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
 #include <cassert>
 #include "eng-collections.hpp"

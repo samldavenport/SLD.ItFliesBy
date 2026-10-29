@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.cpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "component.hpp"
 #include "physics-internal.hpp"
 #include "entity-internal.hpp"

@@ -6,7 +6,7 @@
 
 #include "component.hpp"
 #include "eng-internal.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-reservation.cpp"
 #include "component-internal.hpp"
 

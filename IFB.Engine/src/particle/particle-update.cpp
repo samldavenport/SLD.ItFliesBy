@@ -4,7 +4,7 @@
 #include <cmath>
 #include "random-internal.hpp"
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "particle-emitter.cpp"
 #include "particle-internal.hpp"
 #include "particle-mngr.cpp"

@@ -3,7 +3,7 @@
 #include "eng-sprite.cpp"
 #include "file-ro.cpp"
 #include "file-rw.cpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "sprites.hpp"
 #include "sprite-internal.hpp"
 #include "file-internal.hpp"

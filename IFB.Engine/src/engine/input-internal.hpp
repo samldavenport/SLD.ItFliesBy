@@ -3,7 +3,7 @@
 
 #include "ifb-input.hpp"
 #include "eng-input.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 
 namespace ifb {
 

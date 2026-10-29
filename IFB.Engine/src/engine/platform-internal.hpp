@@ -4,7 +4,7 @@
 #include "sld.hpp"
 #include "sld-opengl.hpp"
 #include "ifb-input.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "eng-platform.hpp"
 
 namespace ifb {

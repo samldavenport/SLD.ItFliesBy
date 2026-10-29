@@ -1,7 +1,7 @@
 #ifndef SPRITE_INTERNAL_HPP
 #define SPRITE_INTERNAL_HPP
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-config.hpp"
 #include "ifb-memory.hpp"
 #include "ifb-sprites.hpp"

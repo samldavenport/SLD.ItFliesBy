@@ -6,7 +6,7 @@
 #include "file-ro.cpp"
 #include "file-wo.cpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "sld-strings.hpp"

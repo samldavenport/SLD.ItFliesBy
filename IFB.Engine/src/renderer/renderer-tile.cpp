@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "render-buffers.cpp"
 #include "renderer-internal.hpp"
 #include "sld-opengl.hpp"

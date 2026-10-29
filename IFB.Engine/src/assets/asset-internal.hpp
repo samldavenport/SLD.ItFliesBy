@@ -3,7 +3,7 @@
 
 #include "asset-database.cpp"
 #include "asset.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "json.cpp" //TODO(SAM): lets make this a header if possible
 #include "sld.hpp"
 #include "ifb-assets.hpp"

@@ -5,7 +5,7 @@
 
 #include "eng-internal.hpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "particle-internal.hpp"
 #include "sld-math-types.hpp"
 #include "sld-strings.hpp"

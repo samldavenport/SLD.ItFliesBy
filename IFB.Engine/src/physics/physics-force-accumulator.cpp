@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-reservation.cpp"
 #include "physics-internal.hpp"
 

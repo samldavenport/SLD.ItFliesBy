@@ -1,7 +1,6 @@
 #ifndef IFB_ENTITIES_HPP
 #define IFB_ENTITIES_HPP
 
-#include "ifb-types.hpp"
 #include "ifb.hpp"
 #include "ifb-components.hpp"
 

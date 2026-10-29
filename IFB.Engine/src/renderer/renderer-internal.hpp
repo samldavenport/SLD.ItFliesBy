@@ -1,7 +1,6 @@
 #ifndef RENDERER_INTERNAL_HPP
 #define RENDERER_INTERNAL_HPP
 
-#include "ifb-types.hpp"
 #include "sld-opengl.hpp"
 #include "ifb-files.hpp"
 #include "ifb.hpp"

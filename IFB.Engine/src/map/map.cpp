@@ -4,7 +4,7 @@
 #include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "map-internal.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "ifb-map.hpp"

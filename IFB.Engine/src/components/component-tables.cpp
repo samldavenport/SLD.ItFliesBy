@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include "component.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "component-internal.hpp"
 #include "eng-components.hpp"
 

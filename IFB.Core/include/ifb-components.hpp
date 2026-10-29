@@ -1,7 +1,7 @@
 #ifndef IFB_COMPONENTS_HPP
 #define IFB_COMPONENTS_HPP
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 
 namespace ifb {
 

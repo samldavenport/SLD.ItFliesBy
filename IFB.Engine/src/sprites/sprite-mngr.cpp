@@ -1,7 +1,7 @@
 #pragma once
 
 #include "eng-internal.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-memory.hpp"
 #include "sld.hpp"
 #include "sprite-internal.hpp"

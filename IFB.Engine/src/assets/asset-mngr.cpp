@@ -4,7 +4,7 @@
 #include "asset.hpp"
 #include "asset-internal.hpp"
 #include "eng-internal.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-internal.hpp"
 #include "eng-assets.hpp"
 

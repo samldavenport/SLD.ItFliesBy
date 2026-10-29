@@ -4,7 +4,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
 #include "ifb-particle.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "imgui.h"
 
 namespace ifb {

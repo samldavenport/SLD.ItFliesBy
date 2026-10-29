@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-collections.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "memory-reservation.cpp"
 #include "renderer-internal.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-entities.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "sld.hpp"
 #include "entity-internal.hpp"
 

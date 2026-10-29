@@ -1,7 +1,7 @@
 #ifndef PHYSICS_INTERNAL_HPP
 #define PHYSICS_INTERNAL_HPP
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-memory.hpp"
 #include "ifb-collections.hpp"
 #include "ifb-map.hpp"

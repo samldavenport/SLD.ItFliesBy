@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "json.cpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"

@@ -2,7 +2,7 @@
 #define ENTITY_INTERNAL_HPP
 
 #include "ifb-entities.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-internal.hpp"
 
 namespace ifb {

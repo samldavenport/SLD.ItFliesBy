@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "renderer-internal.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math-vec3.hpp"

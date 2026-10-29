@@ -6,7 +6,7 @@
 #include "entity.cpp"
 #include "entity-component.cpp"
 #include "ifb-engine.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "physics-entity.cpp"
 #include "quad.cpp"
 #include "sprites.hpp"

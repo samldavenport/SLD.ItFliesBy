@@ -5,7 +5,6 @@
 #include "ifb-entities.hpp"
 #include "ifb-game.hpp"
 #include "ifb-input.hpp"
-#include "ifb-types.hpp"
 #include "ifb-gui.hpp"
 #include "ifb.hpp"
 

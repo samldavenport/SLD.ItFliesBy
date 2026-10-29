@@ -4,7 +4,7 @@
 #include <rapidjson/document.h>
 #include "file-common.cpp"
 #include "file-ro.cpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "rapidjson/allocators.h"
 #include "rapidjson/encodings.h"

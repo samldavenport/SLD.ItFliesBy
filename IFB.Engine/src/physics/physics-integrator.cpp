@@ -7,7 +7,7 @@
 
 #include "component.hpp"
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-entities.hpp"
 #include "ifb-map.hpp"
 #include "physics-force-accumulator.cpp"

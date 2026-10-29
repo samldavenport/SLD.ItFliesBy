@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-config.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-particle.hpp"
 #include "quad-internal.hpp"
 #include "render-buffers.cpp"

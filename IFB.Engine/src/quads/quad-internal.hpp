@@ -1,7 +1,7 @@
 #ifndef QUAD_INTERNAL_HPP
 #define QUAD_INTERNAL_HPP
 
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "ifb-collections.hpp"
 #include "ifb-entities.hpp"
 #include "sld.hpp"

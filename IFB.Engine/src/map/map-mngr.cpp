@@ -4,7 +4,7 @@
 #include "ifb-collections.hpp"
 #include "ifb-config.hpp"
 #include "ifb-entities.hpp"
-#include "ifb-types.hpp"
+#include "ifb.hpp"
 #include "map-internal.hpp"
 #include "eng-stack.cpp"
 #include "ifb-map.hpp"
