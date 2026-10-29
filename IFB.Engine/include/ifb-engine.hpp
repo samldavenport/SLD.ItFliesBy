@@ -5,7 +5,6 @@
 #include "sld.hpp"
 #include "eng-platform.hpp"
 #include "ifb-input.hpp"
-#include "eng-collections.hpp"
 #include <imgui.h>
 
 using namespace sld;
