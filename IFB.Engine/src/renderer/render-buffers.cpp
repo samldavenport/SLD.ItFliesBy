@@ -5,12 +5,11 @@
 #include "ifb.hpp"
 #include "eng-internal.hpp"
 #include "renderer-internal.hpp"
-#include "eng-collections.hpp"
+#include "ifb-engine.hpp"
 #include "entity-internal.hpp"
 #include "map-internal.hpp"
 #include "particle-internal.hpp"
 #include "quad-internal.hpp"
-#include "types-internal.hpp"
 
 namespace ifb {
 
@@ -181,7 +180,7 @@ namespace ifb {
 
         // the depth test always passes, so whatever renders last is in front
         // the quads go first so the particles are on top of them
-        if (entity_list_count(quad_list) != 0) {
+        if (eng_entity_list_count(quad_list) != 0) {
             quad_buf_vtx->size = quad_render_buffer(
                 quad_buf_vtx->data,
                 quad_buf_vtx->capacity,
@@ -193,14 +192,14 @@ namespace ifb {
         // the particles are quads too, they render into what is left of the buffer
         // if the buffer is full, the rest of the particles aren't rendered
         const entity_list* emitter_list  = render_lists_get_particle_emitters(lists);
-        const u32          emitter_count = entity_list_count(emitter_list);
+        const u32          emitter_count = eng_entity_list_count(emitter_list);
         for (
             u32 emitter_index = 0;
                 emitter_index < emitter_count;
               ++emitter_index) {
 
             entity e;
-            const entity_id emitter_id = entity_list_index(emitter_list, emitter_index);
+            const entity_id emitter_id = eng_entity_list_index(emitter_list, emitter_index);
             if (!entity_lookup_by_id(e, emitter_id)) continue;
 
             cmpnt_particle_emitter emitter;

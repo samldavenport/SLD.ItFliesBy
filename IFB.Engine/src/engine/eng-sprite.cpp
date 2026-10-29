@@ -3,7 +3,7 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
-#include "asset.hpp"
+#include "asset-internal.hpp"
 #include "asset-database.cpp"
 #include "eng-asset.cpp"
 #include "sprites.hpp"

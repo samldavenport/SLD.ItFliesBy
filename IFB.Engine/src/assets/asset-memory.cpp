@@ -1,6 +1,5 @@
 #pragma once
 
-#include "asset.hpp"
 #include "asset-internal.hpp"
 #include "ifb-config.hpp"
 #include "ifb.hpp"

@@ -6,7 +6,7 @@
 #include "memory-arena.cpp"
 #include "particle-emitter.cpp"
 #include "sprite-mngr.cpp"
-#include "eng-collections.hpp"
+#include "ifb-engine.hpp"
 #include "entity-internal.hpp"
 #include "quad-internal.hpp"
 
@@ -120,7 +120,7 @@ namespace ifb {
         assert(quad_list   != NULL);
 
         // make sure we have entities to render
-        const u32 count_entities = entity_list_count(quad_list);  
+        const u32 count_entities = eng_entity_list_count(quad_list);  
         if (count_entities == 0) return(0);
 
         // calculate the size needed to render the buffer,
@@ -137,7 +137,7 @@ namespace ifb {
                 quad_index < count_entities;
               ++quad_index) {
 
-            const entity_id quad_id       = entity_list_index(quad_list, quad_index);  
+            const entity_id quad_id       = eng_entity_list_index(quad_list, quad_index);  
             quad_vertices&  quad_vertices = vertex_buffer[vertex_index];
             if (quad_render(quad_vertices, quad_id, camera_orientation)) {
                 vertex_index++;

@@ -2,7 +2,7 @@
 
 #include "entity-manager.cpp"
 #include "ifb.hpp"
-#include "eng-collections.hpp"
+#include "ifb-engine.hpp"
 #include "entity-internal.hpp"
 
 namespace ifb {
@@ -13,8 +13,8 @@ namespace ifb {
         const entity_query& query) {
 
         entity_mngr_validate ();
-        entity_list_validate (list);
-        entity_list_reset    (list);
+        eng_entity_list_validate (list);
+        eng_entity_list_reset    (list);
 
         for (
             u32 dense_index = 0;
@@ -33,11 +33,11 @@ namespace ifb {
             );
 
             if (is_match) {
-                entity_list_add(list, curr_id);
+                eng_entity_list_add(list, curr_id);
             }
         }
 
-        const u32 count_added = entity_list_count(list); 
+        const u32 count_added = eng_entity_list_count(list); 
         return(count_added > 0);
     }
 

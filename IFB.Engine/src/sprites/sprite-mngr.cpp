@@ -5,7 +5,6 @@
 #include "sld.hpp"
 #include "sprite-internal.hpp"
 #include "sprites.hpp"
-#include "asset.hpp"
 #include "memory-internal.hpp"
 #include "asset-internal.hpp"
 

@@ -18,7 +18,7 @@
 #   define IFB_API __declspec(dllimport)
 #endif
 
-// defined here instead of ifb-engine.hpp so the engine headers it includes (like eng-collections.hpp) can use it
+// defined here instead of ifb-engine.hpp so the headers it includes can use it
 #ifdef IFB_ENGINE_STATIC
 #   define IFB_ENGINE_API
 #elif defined(IFB_ENGINE_DLL_EXPORT)
@@ -103,11 +103,19 @@ namespace ifb {
         f32 height;
     };
    
+
+    struct dimensions_3d {
+        f32 width;
+        f32 height;
+        f32 depth;
+    };
+    
     struct file_path {
         cchar cstr[IFB_CONFIG_FILE_PATH_SIZE];
     };
     
-    using pixel            = color_rgba_u32;
+    using pixel      = color_rgba_u32;
+    using origin_3d  = vec3;       
 
     struct orientation {
         vec3 forward;
@@ -346,6 +354,38 @@ namespace ifb {
         asset_type_e_count         = 3 
     };
 
+    struct sprite_index;
+    
+    IFB_U32(asset_type_u32);
+
+    struct asset_text {
+        hnd_asset hnd;
+        u32       size;
+        cchar*    cstr;
+    };
+
+    struct asset_image {
+        hnd_asset       hnd;
+        u32             width;
+        u32             height;
+        color_rgba_u32* pixels;
+    };
+
+    struct asset_index {
+        asset_type_u32 type;
+        u32            offset;
+        u32            size;
+    };
+
+    struct asset_sprite_atlas {
+        hnd_sprite*      array_handles;
+        sprite_index*    array_indexes;
+        pixel*           array_pixels;
+        hnd_sprite_atlas hnd;
+        u32              width;
+        u32              height;
+        u32              sprite_count;
+    };
     struct asset_database_info {
         cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
         hnd_asset hnd;
@@ -448,6 +488,8 @@ namespace ifb {
     // MAP 
     //--------------------------------------------------------------------
     
+    IFB_U8(map_tile_flags_u8);
+    IFB_U8(map_wall_flags_u8);
     IFB_U32(map_color_u32);
     
     // row walls lie on the line z = row and run along x, on the min-z edge of tile (row, col)
@@ -477,10 +519,30 @@ namespace ifb {
         map_color_e_none         = 16,
     };
 
+    struct map_tile {
+        union {
+            u32 val;
+            struct {
+                u16 index;
+                u8  color;
+                map_tile_flags_u8 flags; // map_tile_flag_e
+            };
+        };
+        f32 u_left;
+        f32 v_top;
+        f32 u_right;
+        f32 v_bottom;
+    };
     //--------------------------------------------------------------------
     // SPRITES 
     //--------------------------------------------------------------------
 
+    struct sprite_index {
+        u32 width;
+        u32 height;
+        u32 offset;
+    };
+    
     struct sprite_info {
         asset_name   name;
         hnd_sprite   hnd;

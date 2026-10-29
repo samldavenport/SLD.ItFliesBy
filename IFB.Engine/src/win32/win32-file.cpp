@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb-win32.hpp"
-#include "eng-platform.hpp"
+#include "ifb-platform.hpp"
 #include "platform-internal.hpp"
 
 namespace ifb {

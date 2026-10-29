@@ -3,7 +3,6 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
-#include "asset.hpp"
 #include "asset-database.cpp"
 #include "asset-internal.hpp"
 #include "sld-strings.hpp"

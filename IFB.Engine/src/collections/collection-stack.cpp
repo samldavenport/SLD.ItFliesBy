@@ -2,7 +2,6 @@
 
 #include "ifb.hpp"
 #include "ifb-engine.hpp"
-#include "eng-collections.hpp"
 
 namespace ifb {
 
@@ -37,7 +36,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_ENGINE_API u32
-    stack_memory_requirement(
+    eng_stack_memory_requirement(
         const u32 capacity) {
 
         const u32 size_struct = sizeof(stack);
@@ -46,7 +45,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API stack*
-    stack_memory_create(
+    eng_stack_memory_create(
         const u32 capacity,
         memory&   mem) {
 
@@ -54,7 +53,7 @@ namespace ifb {
         assert(mem.size    != 0);
         assert(mem.address != 0);
     
-        const u32 size_min = stack_memory_requirement(capacity);
+        const u32 size_min = eng_stack_memory_requirement(capacity);
 
         stack* s = (stack*)mem.ptr;
         s->start    = mem.address + sizeof(stack);
@@ -66,7 +65,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API stack*
-    stack_memory_create(
+    eng_stack_memory_create(
         memory& mem) {
 
         assert(mem.size > sizeof(stack));   
@@ -82,7 +81,7 @@ namespace ifb {
     }
     
     IFB_ENGINE_API stack* 
-    stack_arena_create(
+    eng_stack_arena_create(
         const u32          capacity,
         const hnd_arena arena_hnd) {
    
@@ -90,17 +89,17 @@ namespace ifb {
         assert(arena_hnd != INVALID_HANDLE);
 
         memory mem;
-        mem.size = stack_memory_requirement(capacity);
+        mem.size = eng_stack_memory_requirement(capacity);
         mem.ptr  = eng_arena_push(arena_hnd, mem.size);
     
-        stack* s = stack_memory_create(capacity, mem); 
+        stack* s = eng_stack_memory_create(capacity, mem); 
         assert(s);
 
         return(s);
     }
 
     IFB_ENGINE_API u32
-    stack_get_capacity(
+    eng_stack_get_capacity(
         const stack* s) {
 
         stack_validate(s);
@@ -108,7 +107,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API u32
-    stack_get_position(
+    eng_stack_get_position(
         const stack* s) {
 
         stack_validate(s);
@@ -116,7 +115,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API u32
-    stack_get_size_free(
+    eng_stack_get_size_free(
         const stack* s) {
 
         assert(s);
@@ -126,7 +125,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void*
-    stack_get_head(
+    eng_stack_get_head(
         const stack* s) {
 
         stack_validate(s);
@@ -134,7 +133,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void*
-    stack_get_tail(
+    eng_stack_get_tail(
         const stack* s) {
 
         stack_validate(s);
@@ -146,7 +145,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_ENGINE_API u32 
-    stack_save(stack* s) {
+    eng_stack_save(stack* s) {
 
         stack_validate(s);
 
@@ -157,7 +156,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void 
-    stack_reset(
+    eng_stack_reset(
         stack* s) {
 
         stack_validate(s);
@@ -166,7 +165,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void* 
-    stack_push(
+    eng_stack_push(
         stack* s,
         const u32 size) {
 
@@ -185,7 +184,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void
-    stack_pull(
+    eng_stack_pull(
         stack*    s,
         const u32 size) {
 
@@ -197,7 +196,7 @@ namespace ifb {
     }
 
     IFB_ENGINE_API void
-    stack_revert(
+    eng_stack_revert(
         stack* s,
         const u32 save) {
 

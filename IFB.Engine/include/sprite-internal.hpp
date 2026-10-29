@@ -11,11 +11,6 @@ namespace ifb {
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
-    struct sprite_index {
-        u32 width;
-        u32 height;
-        u32 offset;
-    };
 
     struct sprite_memory_block;
     struct sprite_memory;

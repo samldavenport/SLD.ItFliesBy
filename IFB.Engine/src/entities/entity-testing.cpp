@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ifb.hpp"
-#include "eng-collections.hpp"
+#include "ifb-engine.hpp"
 #include "entity-internal.hpp"
 #include "memory-internal.hpp"
 namespace ifb {
@@ -20,7 +20,7 @@ namespace ifb {
         // allocate arena 
         const hnd_arena a = arena_alloc();
 
-        entity_list* list = entity_list_arena_create(a);
+        entity_list* list = eng_entity_list_arena_create(a);
         assert(list);
 
         test_create         ();
@@ -88,7 +88,7 @@ namespace ifb {
         query.has_any = cmpnt_type_e_color;
 
         const bool did_find_colored_entities =  entity_lookup_list(list, query);
-        assert(did_find_colored_entities && entity_list_count(list) == 4);
+        assert(did_find_colored_entities && eng_entity_list_count(list) == 4);
 
         entity entity_8;
         const bool did_find_entity_8 = entity_lookup_by_tag(entity_8, "TEST-8");

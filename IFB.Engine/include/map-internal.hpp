@@ -7,7 +7,6 @@
 #include "sld-strings.hpp"
 #include "sld.hpp"
 #include <cmath>
-#include "types-internal.hpp"
 
 namespace ifb {
 

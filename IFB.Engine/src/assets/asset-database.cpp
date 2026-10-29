@@ -1,7 +1,6 @@
 #pragma once
 
 #include "asset-dictionary.cpp"
-#include "asset.hpp"
 #include "file-rw.cpp"
 #include "ifb-engine.hpp"
 #include "ifb.hpp"
@@ -9,7 +8,6 @@
 #include "file-internal.hpp"
 #include "memory-internal.hpp"
 #include "asset-internal.hpp"
-#include "types-internal.hpp"
 #include "sprite-internal.hpp"
 
 namespace ifb {

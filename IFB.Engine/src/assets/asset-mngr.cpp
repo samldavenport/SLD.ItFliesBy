@@ -1,7 +1,6 @@
 #pragma once
 
 #include "asset-database.cpp"
-#include "asset.hpp"
 #include "asset-internal.hpp"
 #include "eng-internal.hpp"
 #include "ifb.hpp"

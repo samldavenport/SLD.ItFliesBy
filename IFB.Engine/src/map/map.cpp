@@ -10,9 +10,8 @@
 #include <cassert>
 #include <cmath>
 #include <sld-strings.hpp>
-#include "eng-collections.hpp"
+#include "ifb-engine.hpp"
 #include "entity-internal.hpp"
-#include "types-internal.hpp"
 
 namespace ifb {
 
@@ -607,7 +606,7 @@ namespace ifb {
         assert(h_arena != INVALID_HANDLE);
 
         // create the entity list
-        entity_list* e_list = entity_list_arena_create(h_arena);
+        entity_list* e_list = eng_entity_list_arena_create(h_arena);
         if (e_list == NULL) {
             return(NULL);
         }
@@ -626,7 +625,7 @@ namespace ifb {
             if (e.archetype.has_any(cmpnt_type_e_map_coords)) {
                 cmpnt_lookup_map_coords(e.index_sparse, mc);
                 if (mc.h_map == h_map) {
-                    (void)entity_list_add(e_list, e.id);     
+                    (void)eng_entity_list_add(e_list, e.id);     
                 }    
             } 
         }
@@ -656,7 +655,7 @@ namespace ifb {
         }
 
         // create the entity list
-        entity_list* e_list = entity_list_arena_create(h_arena);
+        entity_list* e_list = eng_entity_list_arena_create(h_arena);
         if (e_list == NULL) {
             return(NULL);
         }
@@ -691,7 +690,7 @@ namespace ifb {
             const bool is_row_in_chunk = (mc.row_z >= row_min && mc.row_z < row_max);
             const bool is_col_in_chunk = (mc.col_x >= col_min && mc.col_x < col_max);
             if (is_row_in_chunk && is_col_in_chunk) {
-                (void)entity_list_add(e_list, e.id);
+                (void)eng_entity_list_add(e_list, e.id);
             }
         }
 

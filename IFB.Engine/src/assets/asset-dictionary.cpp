@@ -1,6 +1,5 @@
 #pragma once
 
-#include "asset.hpp"
 #include "asset-internal.hpp"
 #include "file-common.cpp"
 #include "file-ro.cpp"
@@ -13,7 +12,6 @@
 #include "file-internal.hpp"
 #include "json-internal.hpp"
 #include "memory-internal.hpp"
-#include "types-internal.hpp"
 
 namespace ifb {
 

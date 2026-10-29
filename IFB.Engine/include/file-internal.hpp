@@ -2,7 +2,7 @@
 #define FILE_INTERNAL_HPP
 
 #include "ifb.hpp"
-#include "eng-platform.hpp"
+#include "ifb-platform.hpp"
 #include "memory-internal.hpp"
 
 namespace ifb {

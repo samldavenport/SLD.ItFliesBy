@@ -4,7 +4,7 @@
 #include "ifb-engine.hpp"
 #include "platform-internal.hpp"
 #include "sld.hpp"
-#include "eng-platform.hpp"
+#include "ifb-platform.hpp"
 
 namespace ifb {
 

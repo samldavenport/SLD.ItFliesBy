@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include "eng-platform.hpp"
+#include "ifb-platform.hpp"
 #include "random-internal.hpp"
 
 #include "eng-internal.hpp"
