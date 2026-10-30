@@ -20,6 +20,7 @@ The game fills in an `eng_mem_map` (`ifb-engine.hpp`) and passes it to `eng_cont
 | `arenas_large` | 512 MB | [Large arenas](#large-arenas) |
 | `assets` | 128 MB | Asset manager |
 | `sprites` | 256 MB | [Sprite memory](sprites.md#memory) |
+| `events` | 64 KB | [Event manager](events.md) |
 | `core`, `gui`, `quads` | 64 MB each | Reserved by the game, but not used by the engine yet |
 
 `eng_context_startup` turns each used entry into a [reservation](#reservations) and passes it to its system's `*_startup` function.
