@@ -13,11 +13,13 @@ namespace ifb {
     // PRIMITIVE TYPES
     //--------------------------------------------------------------------
 
-    typedef u32   pfm_file_mode;
-    typedef u32   pfm_file_access_flags;
-    typedef u32   pfm_file_share_flags;
-    typedef void* pfm_hnd_file;
-    typedef u32   pfm_window_event_flags;
+    using pfm_file_mode          = u32;
+    using pfm_file_access_flags  = u32;
+    using pfm_file_share_flags   = u32;
+    using pfm_hnd_file           = void*;
+    using pfm_window_event_flags = u32;
+    using pfm_hnd_thread         = void*;
+    using pfm_fptr_thread_proc   = void (*) (void* ctx); 
     
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -32,7 +34,10 @@ namespace ifb {
     struct pfm_monitor_info;
     struct pfm_monitor_area;
     struct pfm_memory_info;
-
+    struct pfm_thread_mutex;
+    struct pfm_thread_cond;
+    struct pfm_thread;
+    
     //--------------------------------------------------------------------
     // ENUMS
     //--------------------------------------------------------------------
@@ -142,6 +147,16 @@ namespace ifb {
         u32 size_granularity;
     };
 
+    struct pfm_thread {
+        pfm_hnd_thread       hnd;
+        pfm_fptr_thread_proc proc;
+        u32                  index;
+        void*                ctx;
+    };
+
+    struct pfm_thread_mutex { void* ctx; };
+    struct pfm_thread_cond  { void* ctx; };
+
     //--------------------------------------------------------------------
     // context 
     //--------------------------------------------------------------------
@@ -212,6 +227,12 @@ namespace ifb {
    
     IFB_PLATFORM_API u64 pfm_system_timestamp (void);
     IFB_PLATFORM_API u64 pfm_system_frequency (void);
+
+    //--------------------------------------------------------------------
+    // THREADS 
+    //--------------------------------------------------------------------
+
+    
 };
 
 #endif //IFB_PLATFORM_HPP
