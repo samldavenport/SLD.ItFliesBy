@@ -609,7 +609,7 @@ namespace ifb {
         byte data[64];
     };
     
-    using fptr_event_listener = void * (event_payload*);
+    using fptr_event_listener = void (*) (const event_payload*);
 };
 
 #endif //IFB_HPP

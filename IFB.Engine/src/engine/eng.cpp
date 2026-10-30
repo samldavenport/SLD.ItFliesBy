@@ -44,6 +44,8 @@
 #include "entity-sparse-set.cpp"
 #include "entity-testing.cpp"
 
+#include "events.cpp"
+
 #include "file-manager.cpp"
 #include "file-common.cpp"
 // #include "file-ro.cpp"

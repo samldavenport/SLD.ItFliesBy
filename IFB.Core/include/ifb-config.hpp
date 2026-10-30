@@ -125,8 +125,6 @@ namespace ifb {
         static constexpr u32   event_queue_capacity           = IFB_CONFIG_EVENT_QUEUE_CAPACITY;
         static constexpr u32   event_type_max                 = IFB_CONFIG_EVENT_TYPE_MAX;
         static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;
-
-
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

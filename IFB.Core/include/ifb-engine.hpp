@@ -1,7 +1,6 @@
 #ifndef IFB_ENGINE_HPP
 #define IFB_ENGINE_HPP
 
-#include "eng-events.hpp"
 #include "ifb.hpp"
 #include "sld.hpp"
 #include "ifb-platform.hpp"
