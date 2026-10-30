@@ -36,6 +36,7 @@
 #include "eng-random.cpp"
 #include "eng-renderer.cpp"
 #include "eng-sprite.cpp"
+#include "eng-events.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"

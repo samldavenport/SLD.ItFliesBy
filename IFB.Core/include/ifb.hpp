@@ -595,7 +595,6 @@ namespace ifb {
     
     IFB_U32(event_type_u32);
     
-    
     enum event_type_e {
         event_type_e_key_down          = 0,
         event_type_e_key_up            = 1,
@@ -605,11 +604,20 @@ namespace ifb {
         event_type_e_count             = 5,
     };
 
-    struct event_payload {
-        byte data[64];
+    struct event_data_physics_collision {
+        entity_id a;
+        entity_id b;
     };
     
-    using fptr_event_listener = void (*) (const event_payload*);
+    struct event_payload {
+        union {
+            byte                         data[64];
+            event_data_physics_collision physics_collision;
+        } data;
+    };
+    
+    using fptr_event_listener = void (*) (const event_payload&);
+
 };
 
 #endif //IFB_HPP

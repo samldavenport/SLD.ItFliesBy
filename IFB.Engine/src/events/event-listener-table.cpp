@@ -102,11 +102,10 @@ namespace ifb {
     event_listener_table_execute(
         const event_listener_table* listener_table,
         const event_type_u32        type,
-        const event_payload*        payload) {
+        const event_payload&        payload) {
 
         assert(listener_table);
         assert(type.val < config::event_type_max);
-        assert(payload);
 
         const u32 count = listener_table->array_count[type.val];
         assert(count <= config::event_max_listeners_per_event);

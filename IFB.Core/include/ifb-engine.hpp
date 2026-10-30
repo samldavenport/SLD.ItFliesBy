@@ -415,8 +415,9 @@ namespace ifb {
     // EVENTS 
     //--------------------------------------------------------------------
    
-    IFB_ENGINE_API bool eng_event_listener_subscribe   (const fptr_event_listener listener); 
-    IFB_ENGINE_API bool eng_event_listener_unsubscribe (const fptr_event_listener listener); 
+    IFB_ENGINE_API bool eng_event_listener_subscribe   (const event_type_u32 type, const fptr_event_listener listener); 
+    IFB_ENGINE_API bool eng_event_listener_unsubscribe (const event_type_u32 type, const fptr_event_listener listener); 
+
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -452,6 +453,7 @@ namespace ifb {
         memory particles;
         memory assets;
         memory sprites;
+        memory events;
     };
 
     struct eng_game_context {
