@@ -13,7 +13,7 @@ namespace ifb {
     game_phys_cllsn_handler(
         const event_payload& payload) {
 
-        assert(false && "SUCCESS!!!");
+        //assert(false && "SUCCESS!!!");
     }
 
     IFB_INTERNAL game_context*
