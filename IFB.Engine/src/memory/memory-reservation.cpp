@@ -2,7 +2,6 @@
 
 #include "ifb.hpp"
 #include "ifb-config.hpp"
-#include "eng-platform.hpp"
 #include "eng-context.hpp"
 #include "sld.hpp"
 #include <cassert>

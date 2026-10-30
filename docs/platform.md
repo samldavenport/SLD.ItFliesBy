@@ -8,8 +8,7 @@ The rest of the engine only calls `pfm_*` functions, so another platform would n
 
 | Header | Contents |
 | --- | --- |
-| `IFB.Core/include/ifb-platform.hpp` | The platform interface: config structs and every `pfm_*` function |
-| `IFB.Engine/include/eng-platform.hpp` | Window event flags, file access/share/mode enums, and the window context |
+| `IFB.Core/include/ifb-platform.hpp` | The platform interface: window event flags, file access/share/mode enums, the window context, config structs, and every `pfm_*` function |
 | `IFB.Core/include/ifb-win32.hpp` | Win32 types: the window struct, the window callback, keycode translation, and string conversion |
 
 ## Functions

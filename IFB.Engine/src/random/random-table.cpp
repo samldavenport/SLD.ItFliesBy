@@ -6,7 +6,6 @@
 
 #include "eng-context.hpp"
 #include "ifb-config.hpp"
-#include "eng-platform.hpp"
 #include "ifb.hpp"
 #include "sld.hpp"
 

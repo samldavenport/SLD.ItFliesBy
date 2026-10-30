@@ -5,7 +5,7 @@
 #include <ShObjIdl.h>
 #include "ifb.hpp"
 #include "ifb-input.hpp"
-#include "eng-platform.hpp"
+#include "ifb-platform.hpp"
 
 #define IFB_WIN32_API_FUNC
 #define IFB_WIN32_INTERNAL static

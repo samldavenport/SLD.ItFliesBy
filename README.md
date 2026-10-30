@@ -52,7 +52,7 @@ The game and GUI only talk to the engine through `ifb-engine.hpp`. Objects insid
 | **Events** | `src/events`, `eng-events.hpp` | A queue of engine events, sent to subscribed listeners once per pass of the frame loop. Physics publishes collision events. | [Events](docs/events.md) |
 | **JSON / Tiled** | `src/json`, `src/tiled` | RapidJSON wrappers, and a parser for [Tiled](https://www.mapeditor.org/) map files. | [JSON & Tiled](docs/json-and-tiled.md) |
 | **Random** | `src/random`, `eng-random.hpp` | A table of random values refreshed on a fixed frame interval. | [Random](docs/random.md) |
-| **Platform (Win32)** | `src/win32`, `eng-platform.hpp` | Window, OpenGL context, memory, files, monitors, and system info for Windows. | [Platform](docs/platform.md) |
+| **Platform (Win32)** | `src/win32`, `ifb-platform.hpp` | Window, OpenGL context, memory, files, monitors, and system info for Windows. | [Platform](docs/platform.md) |
 
 ## Building
 

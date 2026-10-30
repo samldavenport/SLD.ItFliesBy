@@ -5,7 +5,6 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
-#include "eng-platform.hpp"
 #include "ifb.hpp"
 #include "eng-context.hpp"
 #include "imgui.h"

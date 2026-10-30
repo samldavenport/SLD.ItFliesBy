@@ -2,7 +2,6 @@
 
 #include "ifb-win32.hpp"
 #include "ifb-platform.hpp"
-#include "eng-platform.hpp"
 
 namespace ifb {
 

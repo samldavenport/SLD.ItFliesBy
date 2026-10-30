@@ -2,7 +2,6 @@
 
 #include "eng-context.hpp"
 #include "ifb-engine.hpp"
-#include "eng-platform.hpp"
 #include "sld.hpp"
 #include "ifb-platform.hpp"
 
