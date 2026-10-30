@@ -412,6 +412,14 @@ namespace ifb {
     IFB_ENGINE_API void         eng_entity_list_lookup           (const entity_list* el, const u32 index, entity& e);
 
     //--------------------------------------------------------------------
+    // EVENTS 
+    //--------------------------------------------------------------------
+   
+    IFB_ENGINE_API bool eng_event_listener_subscribe   (const event_type_u32 type, const fptr_event_listener listener); 
+    IFB_ENGINE_API bool eng_event_listener_unsubscribe (const event_type_u32 type, const fptr_event_listener listener); 
+
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
@@ -445,6 +453,7 @@ namespace ifb {
         memory particles;
         memory assets;
         memory sprites;
+        memory events;
     };
 
     struct eng_game_context {

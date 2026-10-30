@@ -27,7 +27,7 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 
 `wWinMain` in `game-win32-main.cpp`:
 
-1. Builds an `eng_mem_map`: a fixed stack buffer plus one `VirtualAlloc` reservation per system (core, files, rendering, entities, components, physics, tiles, particles, assets, sprites, arenas, ...).
+1. Builds an `eng_mem_map`: a fixed stack buffer plus one `VirtualAlloc` reservation per system (core, files, rendering, entities, components, physics, tiles, particles, assets, sprites, events, arenas, ...).
 2. Calls `eng_context_create` with the memory map and two callbacks: `game_proc` (game update) and `render_proc` (GUI render).
 3. Calls `eng_context_startup`, which starts every manager.
 4. Creates the game context (`game_context_create_and_init`) and opens the GUI.
@@ -43,6 +43,7 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 | `asset_mngr_update`, window frame start, process window events, `random_table_update` | new frame |
 | Game callback (`game_context_update_and_render`) | every iteration |
 | `phys_mngr_simulate(dt)` | every iteration |
+| `event_mngr_update`, which calls the [event](events.md) listeners | every iteration |
 | Particles follow their entities, then update | every iteration |
 | `renderer_draw_buffers`, GUI callback, present the frame | new frame |
 
@@ -50,7 +51,7 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 
 `phys_mngr_simulate` runs in this order:
 
-1. Collision detection (BVH broad phase)
+1. Collision detection (BVH broad phase), which publishes a collision [event](events.md) for each pair
 2. Spring forces
 3. Force integration, which writes new velocities and positions into the components
 4. Collision resolution, using the pairs found in step 1

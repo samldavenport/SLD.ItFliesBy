@@ -73,6 +73,8 @@ Collision is only checked between entities on the same **map chunk**. For each c
 
 All of this memory comes from a temporary arena that's freed at the end of detection.
 
+Detection then publishes an `event_type_e_physics_collision` event for each pair in the list. See [Events](events.md#physics-collisions).
+
 ### Bounding Boxes
 
 An entity's position is the center of its quad. The quad is `width × height`, and it's given a depth of `width` along z so it has volume to overlap with (`phys_aabb_half_extent_quad`).

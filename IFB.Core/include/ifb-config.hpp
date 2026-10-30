@@ -56,7 +56,10 @@ using namespace sld;
 #define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      4
 #define IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE          size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_SPRITES        (IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE * IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY)
-#define IFB_CONFIG_SPRITE_TABLE_CAPACITY         4
+#define IFB_CONFIG_SPRITE_TABLE_CAPACITY          4
+#define IFB_CONFIG_EVENT_QUEUE_CAPACITY           128 
+#define IFB_CONFIG_EVENT_TYPE_MAX                 64
+#define IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT  16
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -119,6 +122,9 @@ namespace ifb {
         static constexpr u32   sprite_mem_block_capacity      = IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY;
         static constexpr u32   sprite_mem_block_size          = IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE;
         static constexpr u32   sprite_atlas_table_capacity    = IFB_CONFIG_SPRITE_TABLE_CAPACITY;
+        static constexpr u32   event_queue_capacity           = IFB_CONFIG_EVENT_QUEUE_CAPACITY;
+        static constexpr u32   event_type_max                 = IFB_CONFIG_EVENT_TYPE_MAX;
+        static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

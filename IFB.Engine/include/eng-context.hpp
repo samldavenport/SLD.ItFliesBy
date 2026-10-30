@@ -1,6 +1,7 @@
 #ifndef ENG_CONTEXT_HPP
 #define ENG_CONTEXT_HPP
 
+#include "eng-events.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
 #include "eng-renderer.hpp"
@@ -48,6 +49,7 @@ namespace ifb {
         random_table*      random_table;
         asset_mngr*        asset_mngr;
         sprite_mngr*       sprite_mngr;
+        event_mngr*        event_mngr;
     } static * _eng_context;
 
     struct global_stack {

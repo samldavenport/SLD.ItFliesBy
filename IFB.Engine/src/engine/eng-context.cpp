@@ -1,5 +1,6 @@
 #pragma once
 
+#include "eng-events.hpp"
 #include "entity.cpp"
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
@@ -72,6 +73,7 @@ namespace ifb {
         _eng_context->random_table    = random_table_create();
         _eng_context->asset_mngr      = asset_mngr_create();
         _eng_context->sprite_mngr     = sprite_mngr_create();
+        _eng_context->event_mngr      = event_mngr_create();
         _eng_context->mem_map         = mem_map;
 
         assert(
@@ -90,7 +92,8 @@ namespace ifb {
             _eng_context->particle_mngr != NULL &&
             _eng_context->random_table  != NULL &&
             _eng_context->asset_mngr    != NULL &&
-            _eng_context->sprite_mngr   != NULL
+            _eng_context->sprite_mngr   != NULL &&
+            _eng_context->event_mngr    != NULL
         );
 
         return(_eng_context);
@@ -135,6 +138,7 @@ namespace ifb {
         reservation* res_particles  = reservation_create(mem_map->particles);
         reservation* res_assets     = reservation_create(mem_map->assets);
         reservation* res_sprites    = reservation_create(mem_map->sprites);
+        reservation* res_events     = reservation_create(mem_map->events);
         assert(res_files);
         assert(res_entities);
         assert(res_arenas);
@@ -146,18 +150,20 @@ namespace ifb {
         assert(res_particles);
         assert(res_assets);
         assert(res_sprites);
+        assert(res_events);
        
         // start systems
-        file_mngr_startup        (res_files);
-        entity_mngr_startup      (res_entities);
-        memory_mngr_startup      (res_arenas, res_arenas_lg);
-        cmpnt_mngr_startup       (res_components);
-        phys_mngr_startup        (res_physics);
-        map_mngr_startup         (res_tiles);
-        particle_mngr_startup    (res_particles);
-        asset_mngr_startup       (res_assets);
-        sprite_mngr_startup      (res_sprites);
-        renderer_startup         (res_renderer);
+        file_mngr_startup     (res_files);
+        entity_mngr_startup   (res_entities);
+        memory_mngr_startup   (res_arenas, res_arenas_lg);
+        cmpnt_mngr_startup    (res_components);
+        phys_mngr_startup     (res_physics);
+        map_mngr_startup      (res_tiles);
+        particle_mngr_startup (res_particles);
+        asset_mngr_startup    (res_assets);
+        sprite_mngr_startup   (res_sprites);
+        event_mngr_startup    (res_events);
+        renderer_startup      (res_renderer);
     }
 
     IFB_ENGINE_API bool 
@@ -193,6 +199,9 @@ namespace ifb {
 
         // simulate physics
         phys_mngr_simulate(dt);
+
+        // handle events
+        event_mngr_update();
 
         // update particles, the emitters on entities go where the physics put them
         particle_mngr_follow_entities();

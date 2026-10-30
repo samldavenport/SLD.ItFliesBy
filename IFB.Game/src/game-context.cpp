@@ -9,6 +9,13 @@
 
 namespace ifb {
 
+    IFB_INTERNAL void
+    game_phys_cllsn_handler(
+        const event_payload& payload) {
+
+        //assert(false && "SUCCESS!!!");
+    }
+
     IFB_INTERNAL game_context*
     game_context_create_and_init(
         void) {
@@ -62,6 +69,9 @@ namespace ifb {
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);
         assert(entities->static_entity_3 != ENTITY_ID_INVALID);
 
+
+        const bool did_subscribe = eng_event_listener_subscribe(event_type_e_physics_collision, game_phys_cllsn_handler);
+        assert(did_subscribe);
 
         return(ctx); 
     }

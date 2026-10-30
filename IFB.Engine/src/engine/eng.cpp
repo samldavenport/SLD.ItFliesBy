@@ -36,6 +36,7 @@
 #include "eng-random.cpp"
 #include "eng-renderer.cpp"
 #include "eng-sprite.cpp"
+#include "eng-events.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"
@@ -43,6 +44,8 @@
 #include "entity-manager.cpp"
 #include "entity-sparse-set.cpp"
 #include "entity-testing.cpp"
+
+#include "events.cpp"
 
 #include "file-manager.cpp"
 #include "file-common.cpp"
