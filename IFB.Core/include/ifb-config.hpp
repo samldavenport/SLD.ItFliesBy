@@ -60,6 +60,7 @@ using namespace sld;
 #define IFB_CONFIG_EVENT_QUEUE_CAPACITY           128 
 #define IFB_CONFIG_EVENT_TYPE_MAX                 64
 #define IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT  16
+#define IFB_CONFIG_THREAD_CAPACITY                32;
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -125,6 +126,7 @@ namespace ifb {
         static constexpr u32   event_queue_capacity           = IFB_CONFIG_EVENT_QUEUE_CAPACITY;
         static constexpr u32   event_type_max                 = IFB_CONFIG_EVENT_TYPE_MAX;
         static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;
+        static constexpr u32   thread_capacity                = IFB_CONFIG_THREAD_CAPACITY;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

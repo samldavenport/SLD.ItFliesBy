@@ -3,10 +3,7 @@
 #include <Windows.h>
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
-#include "ifb-input.hpp"
 #include "ifb-gui.hpp"
-#include "ifb.hpp"
-
 #include "game-context.cpp"
 #include "game-player-rig.cpp"
 #include "game-entity.cpp"
@@ -91,8 +88,6 @@ mem_map_init(
     
     mem_map.stack.size        = SIZE_STACK;
     mem_map.stack.ptr         = _stack_mem;
-    mem_map.core.size         = SIZE_RESERVATION; 
-    mem_map.core.ptr          = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.files.size        = SIZE_RESERVATION; 
     mem_map.files.ptr         = VirtualAlloc(NULL, SIZE_RESERVATION, MEM_RESERVE, PAGE_READONLY);
     mem_map.rendering.size    = SIZE_RESERVATION; 
@@ -124,7 +119,6 @@ mem_map_init(
     
     assert(
         mem_map.stack.ptr        != NULL &&        
-        mem_map.core.ptr         != NULL &&        
         mem_map.files.ptr        != NULL &&        
         mem_map.rendering.ptr    != NULL &&
         mem_map.entities.ptr     != NULL &&

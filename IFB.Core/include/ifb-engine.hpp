@@ -440,7 +440,6 @@ namespace ifb {
     struct eng_mem_map {
         memory stack;
         memory files;
-        memory core;
         memory rendering;
         memory entities;
         memory gui;
@@ -455,7 +454,6 @@ namespace ifb {
         memory sprites;
         memory events;
     };
-
 
     struct eng_game_context {
         int x;

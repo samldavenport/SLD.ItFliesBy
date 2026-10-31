@@ -147,15 +147,15 @@ namespace ifb {
         u32 size_granularity;
     };
 
+    
+    struct pfm_thread_mutex { void* ctx; };
+    struct pfm_thread_cond  { void* ctx; };
+
     struct pfm_thread {
         pfm_hnd_thread       hnd;
         pfm_fptr_thread_proc proc;
-        u32                  index;
         void*                ctx;
     };
-
-    struct pfm_thread_mutex { void* ctx; };
-    struct pfm_thread_cond  { void* ctx; };
 
     //--------------------------------------------------------------------
     // context 
@@ -225,14 +225,20 @@ namespace ifb {
     // SYSTEM
     //--------------------------------------------------------------------
    
-    IFB_PLATFORM_API u64 pfm_system_timestamp (void);
-    IFB_PLATFORM_API u64 pfm_system_frequency (void);
+    IFB_PLATFORM_API u64 pfm_system_timestamp               (void);
+    IFB_PLATFORM_API u64 pfm_system_frequency               (void);
+    IFB_PLATFORM_API u32 pfm_system_get_core_count          (void);
+    IFB_PLATFORM_API u32 pfm_system_get_current_core_number (void);
 
     //--------------------------------------------------------------------
     // THREADS 
     //--------------------------------------------------------------------
 
-    
+    IFB_PLATFORM_API pfm_hnd_thread pfm_thread_create         (pfm_fptr_thread_proc proc, void* ctx);
+    IFB_PLATFORM_API pfm_hnd_thread pfm_thread_get_current    (void);
+    IFB_PLATFORM_API void           pfm_thread_set_ideal_core (const pfm_hnd_thread thread, const u32 core_index);
+    IFB_PLATFORM_API void           pfm_thread_mutex_lock     (pfm_thread_mutex& mutex); 
+    IFB_PLATFORM_API void           pfm_thread_mutex_unlock   (pfm_thread_mutex& mutex); 
 };
 
 #endif //IFB_PLATFORM_HPP
