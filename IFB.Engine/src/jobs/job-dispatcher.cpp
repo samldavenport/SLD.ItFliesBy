@@ -106,4 +106,14 @@ namespace ifb {
         }
     }
 
+    IFB_INTERNAL bool
+    job_dspchr_add_job(
+        job& j) {
+
+        assert(_job_dspchr);
+        assert(_job_dspchr->queue);
+
+        const bool did_add = job_queue_enqueue(_job_dspchr->queue, j);
+        return(did_add);
+    }
 };

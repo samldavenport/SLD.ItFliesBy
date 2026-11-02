@@ -7,32 +7,42 @@
 
 namespace ifb {
 
+    //--------------------------------------------------------------------
+    // DECLARATIONS 
+    //--------------------------------------------------------------------
+
     struct job_dspchr;
-    struct job;
     struct job_worker;
     struct job_queue;
     struct job_worker_pool;
 
+    //--------------------------------------------------------------------
+    // METHODS 
+    //--------------------------------------------------------------------
 
-    IFB_INTERNAL job_dspchr*  job_dspchr_create   (void);
-    IFB_INTERNAL void         job_dspchr_startup  (reservation* res);
-    IFB_INTERNAL void         job_dspchr_shutdown (void);
-    IFB_INTERNAL void         job_dspchr_main     (void* ctx);
+    IFB_INTERNAL job_dspchr*      job_dspchr_create      (void);
+    IFB_INTERNAL void             job_dspchr_startup     (reservation* res);
+    IFB_INTERNAL void             job_dspchr_shutdown    (void);
+    IFB_INTERNAL void             job_dspchr_main        (void* ctx);
+    IFB_INTERNAL bool             job_dspchr_add_job     (job& j);
 
-    IFB_INTERNAL job_queue*   job_queue_create    (void);
-    IFB_INTERNAL void         job_queue_init      (job_queue* queue, memory queue_mem);
-    IFB_INTERNAL bool         job_queue_has_work  (const job_queue* queue);
-    IFB_INTERNAL bool         job_queue_enqueue   (job_queue* queue, const job& j);
-    IFB_INTERNAL bool         job_queue_dequeue   (job_queue* queue, job& j);
+    IFB_INTERNAL job_queue*       job_queue_create       (void);
+    IFB_INTERNAL void             job_queue_init         (job_queue* queue, memory queue_mem);
+    IFB_INTERNAL bool             job_queue_has_work     (const job_queue* queue);
+    IFB_INTERNAL bool             job_queue_enqueue      (job_queue* queue, const job& j);
+    IFB_INTERNAL bool             job_queue_dequeue      (job_queue* queue, job& j);
     
     IFB_INTERNAL job_worker_pool* job_worker_pool_create (void);
     IFB_INTERNAL void             job_worker_pool_init   (job_worker_pool* worker_pool);
 
+    //--------------------------------------------------------------------
+    // DEFINITIONS 
+    //--------------------------------------------------------------------
+    
     struct job_worker {
         pfm_hnd_thread h_pfm_thread;
         hnd_arena      h_arena;
     };
-
 
 };
 
