@@ -12,6 +12,7 @@ namespace ifb {
     static constexpr f32 GUI_DRAG_FLOAT_SPEED =  0.001f;
     static constexpr f32 GUI_DRAG_FLOAT_MIN   = -1.000f;
     static constexpr f32 GUI_DRAG_FLOAT_MAX   =  1.000f;
+    static constexpr f32 GUI_AUDIO_FADE_SECONDS = 0.020f;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -36,6 +37,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_particle_system        (bool& is_open);
     IFB_INTERNAL void  gui_engine_sprite_atlas_builder   (bool& is_open);
     IFB_INTERNAL void  gui_engine_sprite_atlas_inspector (bool& is_open);
+    IFB_INTERNAL void  gui_engine_audio_test             (bool& is_open);
 
     // game
     IFB_INTERNAL void  gui_game_player_rig       (bool& is_open, const game_context* game_ctx);
@@ -65,6 +67,8 @@ namespace ifb {
         inline static const char* menu_engine_menu_sprite_tools_item_atlas_builder   = "Sprite Atlas Builder";
         inline static const char* menu_engine_menu_sprite_tools_item_atlas_inspector = "Sprite Atlas Inspector";
         inline static const char* menu_engine_item_particle_system                   = "Particle System";
+        inline static const char* menu_engine_item_audio_test                        = "Audio Test";
+        inline static const char* window_engine_audio_test                           = "Audio Test";
         inline static const char* menu_entities                                      = "Entities";
         inline static const char* menu_entity_item_manager                           = "Entity Manager";
         inline static const char* menu_renderer                                      = "Renderer";

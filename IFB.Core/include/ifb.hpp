@@ -634,6 +634,29 @@ namespace ifb {
         job_ctx  ctx;
     };
 
+    //--------------------------------------------------------------------
+    // AUDIO
+    //--------------------------------------------------------------------
+
+    // interleaved samples from -1 to 1, only valid during the frame it was requested in
+    struct audio_buffer {
+        f32* samples;
+        u32  frame_count;
+        u32  channel_count;
+        u32  sample_rate;
+    };
+
+    struct audio_info {
+        bool is_device_ready;
+        u32  sample_rate;
+        u32  channel_count;
+        u32  latency_frames;
+        u32  frames_queued;
+        u32  frames_queued_min;
+        u32  underrun_count;
+        f32  frame_gap_ms;
+        f32  frame_gap_ms_max;
+    };
 
 };
 

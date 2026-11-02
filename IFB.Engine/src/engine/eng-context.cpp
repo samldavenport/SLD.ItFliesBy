@@ -1,5 +1,6 @@
 #pragma once
 
+#include "audio-mngr.cpp"
 #include "eng-events.hpp"
 #include "eng-jobs.hpp"
 #include "entity.cpp"
@@ -75,6 +76,7 @@ namespace ifb {
         _eng_context->sprite_mngr     = sprite_mngr_create();
         _eng_context->event_mngr      = event_mngr_create();
         _eng_context->job_dspchr      = job_dspchr_create();
+        _eng_context->audio_mngr      = audio_mngr_create();
         _eng_context->mem_map         = mem_map;
 
 
@@ -95,7 +97,8 @@ namespace ifb {
             _eng_context->random_table  != NULL &&
             _eng_context->asset_mngr    != NULL &&
             _eng_context->sprite_mngr   != NULL &&
-            _eng_context->event_mngr    != NULL
+            _eng_context->event_mngr    != NULL &&
+            _eng_context->audio_mngr    != NULL
         );
 
         return(_eng_context);
@@ -142,6 +145,7 @@ namespace ifb {
         reservation* res_sprites    = reservation_create(mem_map->sprites);
         reservation* res_events     = reservation_create(mem_map->events);
         reservation* res_jobs       = reservation_create(mem_map->jobs);
+        reservation* res_audio      = reservation_create(mem_map->audio);
         assert(res_files);
         assert(res_entities);
         assert(res_arenas);
@@ -155,6 +159,7 @@ namespace ifb {
         assert(res_sprites);
         assert(res_events);
         assert(res_jobs);
+        assert(res_audio);
        
         // start systems
         file_mngr_startup     (res_files);
@@ -169,6 +174,7 @@ namespace ifb {
         event_mngr_startup    (res_events);
         job_dspchr_startup    (res_jobs);
         renderer_startup      (res_renderer);
+        audio_mngr_startup    (res_audio);
     }
 
     IFB_ENGINE_API bool 
@@ -195,6 +201,7 @@ namespace ifb {
             pfm_window_frame_start   ();
             pfm_window_process_events();
             random_table_update      ();
+            audio_mngr_frame_start   ();
         }
 
         // game callback    
@@ -219,6 +226,9 @@ namespace ifb {
 
             _eng_context->render_callback();
 
+            // before the swap, which can block on vsync
+            audio_mngr_frame_end();
+
             // render frame
             pfm_window_frame_render();
         }
@@ -238,6 +248,9 @@ namespace ifb {
         job_dspchr_shutdown();
 
         asset_mngr_shutdown();
+
+        // the audio device needs COM, so this goes before the platform
+        audio_mngr_shutdown();
 
         // shut down the platform context
         pfm_context_shutdown();

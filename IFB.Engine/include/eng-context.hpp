@@ -1,6 +1,7 @@
 #ifndef ENG_CONTEXT_HPP
 #define ENG_CONTEXT_HPP
 
+#include "eng-audio.hpp"
 #include "eng-events.hpp"
 #include "eng-jobs.hpp"
 #include "ifb-engine.hpp"
@@ -51,6 +52,7 @@ namespace ifb {
         sprite_mngr*       sprite_mngr;
         event_mngr*        event_mngr;
         job_dspchr*        job_dspchr;
+        audio_mngr*        audio_mngr;
         f32                seconds_per_frame;
     } static * _eng_context;
 

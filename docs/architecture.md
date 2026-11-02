@@ -41,12 +41,12 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 | Step | When |
 | --- | --- |
 | Update system info and delta time | every iteration |
-| `asset_mngr_update`, window frame start, process window events, `random_table_update` | new frame |
+| `asset_mngr_update`, window frame start, process window events, `random_table_update`, `audio_mngr_frame_start` | new frame |
 | Game callback (`game_context_update_and_render`) | every iteration |
 | `phys_mngr_simulate(dt)` | every iteration |
 | `event_mngr_update`, which calls the [event](events.md) listeners | every iteration |
 | Particles follow their entities, then update | every iteration |
-| `renderer_draw_buffers`, GUI callback, present the frame | new frame |
+| `renderer_draw_buffers`, GUI callback, `audio_mngr_frame_end`, present the frame | new frame |
 
 ### Physics Step
 

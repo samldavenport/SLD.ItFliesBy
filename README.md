@@ -51,6 +51,7 @@ The game and GUI only talk to the engine through `ifb-engine.hpp`. Objects insid
 | **Input** | `src/engine/eng-input.cpp`, `eng-input.hpp` | Keyboard state. | [Input](docs/input.md) |
 | **Events** | `src/events`, `eng-events.hpp` | A queue of engine events, sent to subscribed listeners once per pass of the frame loop. Physics publishes collision events. | [Events](docs/events.md) |
 | **Jobs** | `src/jobs`, `eng-jobs.hpp` | A pool of worker threads that sleep until a job is added, and the rules for what jobs can call. | [Jobs](docs/jobs.md) |
+| **Audio** | `src/audio`, `eng-audio.hpp` | A buffer written each frame and sent to the output device, and a test window for checking that it plays cleanly. | [Audio](docs/audio.md) |
 | **JSON / Tiled** | `src/json`, `src/tiled` | RapidJSON wrappers, and a parser for [Tiled](https://www.mapeditor.org/) map files. | [JSON & Tiled](docs/json-and-tiled.md) |
 | **Random** | `src/random`, `eng-random.hpp` | A table of random values refreshed on a fixed frame interval. | [Random](docs/random.md) |
 | **Platform (Win32)** | `src/win32`, `ifb-platform.hpp` | Window, OpenGL context, memory, files, monitors, threads, and system info for Windows. | [Platform](docs/platform.md) |

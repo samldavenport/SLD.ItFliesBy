@@ -50,6 +50,7 @@ target_link_libraries(ifb_core INTERFACE
 
 set(IFB_ENGINE_SOURCE_DIRS
     IFB.Engine/src/assets
+    IFB.Engine/src/audio
     IFB.Engine/src/collections
     IFB.Engine/src/components
     IFB.Engine/src/engine
@@ -101,7 +102,7 @@ target_include_directories(ifb_engine PRIVATE
 
 target_link_libraries(ifb_engine
     PUBLIC  IFB::Core
-    PRIVATE rapidjson user32 gdi32
+    PRIVATE rapidjson user32 gdi32 ole32
 )
 
 #--------------------------------------------------------------------

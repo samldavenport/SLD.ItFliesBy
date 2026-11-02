@@ -2,6 +2,7 @@
 
 #include "ifb-win32.hpp"
 #include <Windows.h>
+#include "win32-audio.cpp"
 #include "win32-file.cpp"
 #include "win32-file-dialog.cpp"
 #include "win32-graphics.cpp"
