@@ -102,7 +102,7 @@ namespace ifb {
     IFB_ENGINE_API void         eng_file_close            (const hnd_file hnd);
     IFB_ENGINE_API u32          eng_file_get_size         (const hnd_file hnd);
     IFB_ENGINE_API void         eng_file_set_cursor       (const hnd_file hnd, const u32 cursor);
-    IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd, const u32 buffer_size);
+    IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd);
     IFB_ENGINE_API u32          eng_file_write            (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
@@ -418,6 +418,15 @@ namespace ifb {
     IFB_ENGINE_API bool eng_event_listener_subscribe   (const event_type_u32 type, const fptr_event_listener listener); 
     IFB_ENGINE_API bool eng_event_listener_unsubscribe (const event_type_u32 type, const fptr_event_listener listener); 
 
+    //--------------------------------------------------------------------
+    // JOBS 
+    //--------------------------------------------------------------------
+    
+    // returns false if the queue is full or the engine is shutting down
+    IFB_ENGINE_API bool eng_job_add  (const job& j);
+
+    // waits for every added job to finish, don't call this from a job
+    IFB_ENGINE_API void eng_job_wait (void);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -440,7 +449,6 @@ namespace ifb {
     struct eng_mem_map {
         memory stack;
         memory files;
-        memory core;
         memory rendering;
         memory entities;
         memory gui;
@@ -454,6 +462,7 @@ namespace ifb {
         memory assets;
         memory sprites;
         memory events;
+        memory jobs;
     };
 
     struct eng_game_context {

@@ -42,6 +42,7 @@ seed ^= seed << 5
 
 - **Results aren't repeatable.** The seed comes from the clock and there's no way to set it, so each run gives different numbers. Getting the same sequence for testing or replays would need a seed setting.
 - The table and its values are allocated on the [global stack](memory.md#global-stack) at startup.
+- **It's safe to call from [jobs](jobs.md).** A lock around the table means every call gets a different position, but threads share one stream, so what a job gets depends on timing. The lock is taken on every call, so a job that needs a lot of values is better off drawing one and using it to seed its own generator.
 
 ## Configuration
 

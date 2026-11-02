@@ -2,6 +2,7 @@
 #define ENG_CONTEXT_HPP
 
 #include "eng-events.hpp"
+#include "eng-jobs.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-input.hpp"
 #include "eng-renderer.hpp"
@@ -30,7 +31,6 @@ namespace ifb {
     struct global_stack;
 
     struct eng_context {
-        f32                seconds_per_frame;
         u64                frame_count;
         const eng_mem_map* mem_map;
         fptr_eng_game      game_callback;
@@ -50,6 +50,8 @@ namespace ifb {
         asset_mngr*        asset_mngr;
         sprite_mngr*       sprite_mngr;
         event_mngr*        event_mngr;
+        job_dspchr*        job_dspchr;
+        f32                seconds_per_frame;
     } static * _eng_context;
 
     struct global_stack {

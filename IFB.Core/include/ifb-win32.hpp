@@ -5,17 +5,12 @@
 #include <ShObjIdl.h>
 #include "ifb.hpp"
 #include "ifb-input.hpp"
-#include "eng-platform.hpp"
+#include "ifb-platform.hpp"
 
 #define IFB_WIN32_API_FUNC
 #define IFB_WIN32_INTERNAL static
 
 namespace ifb {
-
-    struct pfm_context {
-        IFileOpenDialog* dlg_file_open;
-        IFileSaveDialog* dlg_file_save;
-    } static _pfm_ctx;
 
     struct win32_window {
         LPWNDCLASS  class_type;
@@ -25,6 +20,18 @@ namespace ifb {
         b8          quit_received;
     };
 
+    struct win32_thread {
+        HANDLE hnd;
+        pfm_fptr_thread_proc proc;
+        void* ctx;
+    };
+   
+    // TODO(SLD): add window to the context
+    struct pfm_context {
+        IFileOpenDialog*   dlg_file_open;
+        IFileSaveDialog*   dlg_file_save;
+        win32_thread       threads [config::thread_capacity];
+    } static _pfm_ctx;
 
 
     inline win32_window&

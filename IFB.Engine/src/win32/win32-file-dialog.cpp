@@ -1,6 +1,5 @@
 #pragma once
 
-#include "eng-platform.hpp"
 #include "ifb-win32.hpp"
 #include <shobjidl.h>
 #include "sld-strings.hpp"

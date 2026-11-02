@@ -13,15 +13,20 @@ namespace ifb {
     // PRIMITIVE TYPES
     //--------------------------------------------------------------------
 
-    typedef u32   pfm_file_mode;
-    typedef u32   pfm_file_access_flags;
-    typedef u32   pfm_file_share_flags;
-    typedef void* pfm_hnd_file;
-
+    using pfm_file_mode          = u32;
+    using pfm_file_access_flags  = u32;
+    using pfm_file_share_flags   = u32;
+    using pfm_hnd_file           = void*;
+    using pfm_window_event_flags = u32;
+    using pfm_hnd_thread         = void*;
+    using pfm_fptr_thread_proc   = void (*) (void* ctx); 
+    
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
     //--------------------------------------------------------------------
 
+    struct pfm_context;
+    struct pfm_window_context;
     struct pfm_window_config;
     struct pfm_file_config;
     struct pfm_file_buffer;
@@ -29,11 +34,67 @@ namespace ifb {
     struct pfm_monitor_info;
     struct pfm_monitor_area;
     struct pfm_memory_info;
+    struct pfm_thread_mutex;
+    struct pfm_thread_cond;
+    
+    //--------------------------------------------------------------------
+    // ENUMS
+    //--------------------------------------------------------------------
+
+    enum pfm_window_event_flag_e {
+        pfm_window_event_flag_e_none              = 0,
+        pfm_window_event_flag_e_close             = bit_value(1),
+        pfm_window_event_flag_e_minimize          = bit_value(2),
+        pfm_window_event_flag_e_maximize          = bit_value(3),
+        pfm_window_event_flag_e_position_update   = bit_value(4),
+        pfm_window_event_flag_e_size_update       = bit_value(5),
+        pfm_window_event_flag_e_key_down          = bit_value(6),
+        pfm_window_event_flag_e_key_up            = bit_value(7),
+        pfm_window_event_flag_e_mouse_click_left  = bit_value(8),
+        pfm_window_event_flag_e_mouse_click_right = bit_value(9),
+        pfm_window_event_flag_e_mouse_move        = bit_value(10),
+        pfm_window_event_flag_e_mouse_scroll      = bit_value(11)
+    };
+
+    enum pfm_file_access_flag_e {
+        pfm_file_access_flag_e_none               = 0,        
+        pfm_file_access_flag_e_read               = bit_value(0),        
+        pfm_file_access_flag_e_write              = bit_value(1)
+    };
+
+    enum pfm_file_share_flag_e {
+        pfm_file_share_flag_e_none                = 0,
+        pfm_file_share_flag_e_read                = bit_value(0),
+        pfm_file_share_flag_e_write               = bit_value(1),
+        pfm_file_share_flag_e_delete              = bit_value(2)
+    };
+
+    enum pfm_file_mode_e {
+        pfm_file_mode_e_create_new                = 0, 
+        pfm_file_mode_e_open_existing             = 1, 
+        pfm_file_mode_e_open_always               = 2, 
+        pfm_file_mode_e_overwrite_existing        = 3 
+    };
 
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
+    struct pfm_window_context {
+        pfm_window_event_flags event_flags;
+        struct {
+            u32 width;
+            u32 height;
+            u32 x;
+            u32 y;
+        } dims;
+        struct {
+            u32 x;
+            u32 y;
+            f32 scroll;
+        } mouse;
+    };
+    
     struct pfm_window_config {
         cchar* title;
         struct  {
@@ -84,6 +145,10 @@ namespace ifb {
         u32 size_page;
         u32 size_granularity;
     };
+
+    
+    struct pfm_thread_mutex { void* ctx; };
+    struct pfm_thread_cond  { void* ctx; };
 
     //--------------------------------------------------------------------
     // context 
@@ -153,8 +218,33 @@ namespace ifb {
     // SYSTEM
     //--------------------------------------------------------------------
    
-    IFB_PLATFORM_API u64 pfm_system_timestamp (void);
-    IFB_PLATFORM_API u64 pfm_system_frequency (void);
+    IFB_PLATFORM_API u64 pfm_system_timestamp               (void);
+    IFB_PLATFORM_API u64 pfm_system_frequency               (void);
+    IFB_PLATFORM_API u32 pfm_system_get_core_count          (void);
+    IFB_PLATFORM_API u32 pfm_system_get_current_core_number (void);
+
+    //--------------------------------------------------------------------
+    // THREADS 
+    //--------------------------------------------------------------------
+
+    IFB_PLATFORM_API pfm_hnd_thread pfm_thread_create         (pfm_fptr_thread_proc proc, void* ctx);
+
+    // waits for the thread to exit, then frees the handle
+    // the handle must come from pfm_thread_create, and a thread can't join itself
+    IFB_PLATFORM_API void           pfm_thread_join           (const pfm_hnd_thread thread);
+
+    // only valid on the calling thread, don't store it or pass it to another thread
+    IFB_PLATFORM_API pfm_hnd_thread pfm_thread_get_current    (void);
+
+    // core_index is a physical core, from 0 up to pfm_system_get_core_count
+    // this is a hint to the scheduler, false means it wasn't applied
+    IFB_PLATFORM_API bool           pfm_thread_set_ideal_core (const pfm_hnd_thread thread, const u32 core_index);
+
+    IFB_PLATFORM_API void           pfm_thread_mutex_lock     (pfm_thread_mutex& mutex);
+    IFB_PLATFORM_API void           pfm_thread_mutex_unlock   (pfm_thread_mutex& mutex); 
+    IFB_PLATFORM_API void           pfm_thread_cond_wait      (pfm_thread_cond&  cond, pfm_thread_mutex& mutex);
+    IFB_PLATFORM_API void           pfm_thread_cond_wake_one  (pfm_thread_cond&  cond);
+    IFB_PLATFORM_API void           pfm_thread_cond_wake_all  (pfm_thread_cond&  cond);
 };
 
 #endif //IFB_PLATFORM_HPP

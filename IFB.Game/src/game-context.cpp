@@ -85,6 +85,7 @@ namespace ifb {
         assert(ctx->global_arena != INVALID_INDEX);
     }
 
+    
     IFB_INTERNAL void
     game_context_update_and_render(
         game_context* ctx) {
@@ -99,13 +100,22 @@ namespace ifb {
         game_player_rig_update_camera     (ctx->player_rig);
         game_map_update_and_render        (ctx->map);
 
-        cmpnt_position pos;
-        (void)eng_cmpnt_lookup_position(player_rig->connor_id, pos);
-    
         eng_entity_render(entities->static_entity_0);
         eng_entity_render(entities->static_entity_1);
         eng_entity_render(entities->static_entity_2);
         eng_entity_render(entities->static_entity_3);
-    }
-};
+ 
+        static const cchar test_text[] = "HELLO FROM JOB WORKER";
 
+        job test_job;
+        cstr_nvar_copy(
+            test_text,
+            sizeof(test_text),
+            (cchar*)test_job.ctx.data,
+            sizeof(test_job.ctx)
+        );
+
+    }
+
+
+};

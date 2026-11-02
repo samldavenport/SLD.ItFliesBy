@@ -37,6 +37,7 @@
 #include "eng-renderer.cpp"
 #include "eng-sprite.cpp"
 #include "eng-events.cpp"
+#include "eng-jobs.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"
@@ -52,6 +53,8 @@
 // #include "file-ro.cpp"
 #include "file-wo.cpp"
 #include "file-rw.cpp"
+
+#include "job.cpp"
 
 #include "json.cpp"
 

@@ -12,13 +12,16 @@ namespace ifb {
     // INTERNAL TYPE DEFINITIONS
     //--------------------------------------------------------------------
 
+    // the lock covers the free count and the lists, the rest doesn't change after startup
     struct arena_allocator {
-        memory mem;
-        u32    arena_size;
-        u32    arena_count_total;
-        u32    arena_count_free;
-        u32    handle_bit;
-        bool   is_commit_on_push;
+        memory           mem;
+        pfm_thread_mutex lock;
+        u32              arena_size;
+        u32              arena_count_total;
+        u32              arena_count_free;
+        u32              handle_bit;
+        u32              size_page;
+        bool             is_commit_on_push;
         struct {
             arena* free;
             arena* used;
@@ -27,6 +30,7 @@ namespace ifb {
 
     // the header is at the start of the arena, the memory pushed comes after it
     // size_committed includes the header
+    // any thread can alloc or free an arena, but only one thread can use it at a time
     struct arena {
         arena_allocator* alctr;
         arena*           next;
@@ -72,11 +76,20 @@ namespace ifb {
     arena_free(
         const hnd_arena hnd) {
 
-        arena*           a         = arena_from_handle(hnd);
-        arena_allocator* alctr     = a->alctr;
-        arena*           used_next = a->next;
-        arena*           used_prev = a->prev;
-        arena*           free_next = alctr->list.free;
+        arena*           a     = arena_from_handle(hnd);
+        arena_allocator* alctr = a->alctr;
+
+        // large arenas give their memory back
+        // this comes first, once the arena is on the free list it isn't ours
+        if (alctr->is_commit_on_push) {
+            arena_decommit(a);
+        }
+
+        pfm_thread_mutex_lock(alctr->lock);
+
+        arena* used_next = a->next;
+        arena* used_prev = a->prev;
+        arena* free_next = alctr->list.free;
 
         // update the used list
         if (used_next)             used_next->prev  = used_prev;
@@ -94,10 +107,7 @@ namespace ifb {
         alctr->list.free = a;
         ++alctr->arena_count_free;
 
-        // large arenas give their memory back
-        if (alctr->is_commit_on_push) {
-            arena_decommit(a);
-        }
+        pfm_thread_mutex_unlock(alctr->lock);
     }
 
     IFB_INTERNAL void
@@ -201,9 +211,12 @@ namespace ifb {
 
         arena_allocator_validate(alctr);
 
+        pfm_thread_mutex_lock(alctr->lock);
+
         // no arenas left
         arena* a = alctr->list.free;
         if (a == NULL) {
+            pfm_thread_mutex_unlock(alctr->lock);
             hnd_arena hnd = {INVALID_HANDLE};
             return(hnd);
         }
@@ -227,6 +240,8 @@ namespace ifb {
         a->position = 0;
 
         hnd_arena hnd = {a->id | alctr->handle_bit};
+
+        pfm_thread_mutex_unlock(alctr->lock);
         return(hnd);
     }
 
@@ -239,11 +254,7 @@ namespace ifb {
             alctr->mem.address       != 0    &&
             alctr->mem.size          != 0    &&
             alctr->arena_count_total != 0    &&
-            alctr->arena_size        != 0    &&
-            (
-                alctr->list.free != NULL ||
-                alctr->list.used != NULL
-            )
+            alctr->arena_size        != 0
         );
     }
 
@@ -328,7 +339,7 @@ namespace ifb {
     arena_decommit(
         arena* a) {
 
-        const u32 size_page = system_get_memory_page_size();
+        const u32 size_page = a->alctr->size_page;
         if (a->size_committed <= size_page) return;
 
         const void* body = (void*)((addr)a + size_page);

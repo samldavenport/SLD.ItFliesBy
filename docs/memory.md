@@ -21,6 +21,7 @@ The game fills in an `eng_mem_map` (`ifb-engine.hpp`) and passes it to `eng_cont
 | `assets` | 128 MB | Asset manager |
 | `sprites` | 256 MB | [Sprite memory](sprites.md#memory) |
 | `events` | 64 KB | [Event manager](events.md) |
+| `jobs` | 64 KB | [Job queue](jobs.md) |
 | `core`, `gui`, `quads` | 64 MB each | Reserved by the game, but not used by the engine yet |
 
 `eng_context_startup` turns each used entry into a [reservation](#reservations) and passes it to its system's `*_startup` function.
@@ -81,6 +82,14 @@ Inside the engine, `ifb_arena_push_struct(h_arena, type)` and `ifb_arena_push_ar
 The arena allocator splits its reservation into equal slots of `IFB_CONFIG_ARENA_MEM_GRANULARITY` (1 MB), so with a 64 MB reservation there are 64 arenas. Each slot starts with a small `arena` header, followed by the arena's memory. Free and used arenas are kept in two linked lists, and the handle is the slot's index.
 
 Normal arenas are **fully committed at startup**. Pushing only moves the position forward.
+
+Each [job worker](jobs.md#workers) keeps one normal arena for its whole run, so fewer than 64 are free for everything else.
+
+### Arenas and Threads
+
+Any thread can allocate or free an arena, because each allocator has a lock around its free and used lists. Pushing, saving, reverting, and resetting aren't locked, so only one thread can use a given arena at a time.
+
+The global stack and reservations aren't thread safe, but they're only used on the main thread, mostly during startup.
 
 ### Large Arenas
 

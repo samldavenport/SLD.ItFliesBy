@@ -1,11 +1,11 @@
 #pragma once
 
 #include "eng-events.hpp"
+#include "eng-jobs.hpp"
 #include "entity.cpp"
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
-#include "eng-platform.hpp"
 #include "ifb.hpp"
 #include "eng-context.hpp"
 #include "imgui.h"
@@ -74,7 +74,9 @@ namespace ifb {
         _eng_context->asset_mngr      = asset_mngr_create();
         _eng_context->sprite_mngr     = sprite_mngr_create();
         _eng_context->event_mngr      = event_mngr_create();
+        _eng_context->job_dspchr      = job_dspchr_create();
         _eng_context->mem_map         = mem_map;
+
 
         assert(
             _eng_context->mem_map       != NULL &&
@@ -139,6 +141,7 @@ namespace ifb {
         reservation* res_assets     = reservation_create(mem_map->assets);
         reservation* res_sprites    = reservation_create(mem_map->sprites);
         reservation* res_events     = reservation_create(mem_map->events);
+        reservation* res_jobs       = reservation_create(mem_map->jobs);
         assert(res_files);
         assert(res_entities);
         assert(res_arenas);
@@ -151,6 +154,7 @@ namespace ifb {
         assert(res_assets);
         assert(res_sprites);
         assert(res_events);
+        assert(res_jobs);
        
         // start systems
         file_mngr_startup     (res_files);
@@ -163,6 +167,7 @@ namespace ifb {
         asset_mngr_startup    (res_assets);
         sprite_mngr_startup   (res_sprites);
         event_mngr_startup    (res_events);
+        job_dspchr_startup    (res_jobs);
         renderer_startup      (res_renderer);
     }
 
@@ -228,6 +233,9 @@ namespace ifb {
         void) {
 
         //TODO(SLD)
+
+        // stop the workers first, their jobs can use the other systems
+        job_dspchr_shutdown();
 
         asset_mngr_shutdown();
 

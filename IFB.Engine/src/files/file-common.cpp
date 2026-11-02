@@ -20,10 +20,12 @@ namespace ifb {
         pfm_file_close(_file_mngr->array.handle_platform[index]);
 
         // free the table entry
+        pfm_thread_mutex_lock(_file_mngr->lock);
         _file_mngr->array.handle_internal [index] = FILE_HANDLE_INVALID;
         _file_mngr->array.handle_platform [index] = NULL;
         _file_mngr->array.io_length       [index] = 0;
         _file_mngr->array.cursor          [index] = 0;
+        pfm_thread_mutex_unlock(_file_mngr->lock);
     }
 
     IFB_INTERNAL u32

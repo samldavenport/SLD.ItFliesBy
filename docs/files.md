@@ -56,7 +56,13 @@ Things to know:
 - `eng_image_load_to_arena` and `eng_image_load_to_memory` read through `eng_file_read`, so they have the same limit.
 - Inside the engine, `file_read_to_buffer` reads directly into a buffer you provide, with no size limit. The asset database uses it for asset files.
 
-> **Note:** `ifb-engine.hpp` declares `eng_file_read(hnd, buffer_size)`, but `eng-file.cpp` defines `eng_file_read(hnd)` with no size. Calling the declared two-argument version from outside the engine would fail to link.
+## Threads
+
+Any thread can open or close a file, because the file manager has a lock around its table. It isn't held while the operating system opens the file, so a slow open doesn't hold up other threads.
+
+Reads, writes, and the cursor aren't locked, so only one thread can use an open file at a time. Don't open a path that's already open from another thread, because both opens get the same [handle](#handles). See the [thread rules](jobs.md#thread-rules).
+
+File dialogs are main thread only.
 
 ## File Dialogs
 

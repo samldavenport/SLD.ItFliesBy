@@ -27,11 +27,12 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 
 `wWinMain` in `game-win32-main.cpp`:
 
-1. Builds an `eng_mem_map`: a fixed stack buffer plus one `VirtualAlloc` reservation per system (core, files, rendering, entities, components, physics, tiles, particles, assets, sprites, events, arenas, ...).
+1. Builds an `eng_mem_map`: a fixed stack buffer plus one `VirtualAlloc` reservation per system (core, files, rendering, entities, components, physics, tiles, particles, assets, sprites, events, jobs, arenas, ...).
 2. Calls `eng_context_create` with the memory map and two callbacks: `game_proc` (game update) and `render_proc` (GUI render).
 3. Calls `eng_context_startup`, which starts every manager.
 4. Creates the game context (`game_context_create_and_init`) and opens the GUI.
 5. Calls `eng_context_run` until it returns `false`.
+6. Calls `eng_context_shutdown`, which stops the worker threads first, then shuts down the assets and the platform.
 
 ## Frame Loop
 
@@ -56,6 +57,12 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 3. Force integration, which writes new velocities and positions into the components
 4. Collision resolution, using the pairs found in step 1
 5. Reset the force accumulator
+
+## Threads
+
+The frame loop runs on the main thread, which owns the game world, the window, and all rendering. The engine also starts a pool of worker threads for [jobs](jobs.md), which sleep until a job is added. Nothing in the frame loop uses them yet.
+
+Only part of the engine is safe to call from a job. See the [thread rules](jobs.md#thread-rules).
 
 ## Memory
 

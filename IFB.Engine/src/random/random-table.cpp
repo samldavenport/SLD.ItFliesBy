@@ -6,18 +6,18 @@
 
 #include "eng-context.hpp"
 #include "ifb-config.hpp"
-#include "eng-platform.hpp"
 #include "ifb.hpp"
 #include "sld.hpp"
 
 namespace ifb {
 
     struct random_table {
-        u32  seed;
-        u32  count;
-        u32  position;
-        u32  frame_count;
-        u32* array_values;
+        pfm_thread_mutex lock;
+        u32              seed;
+        u32              count;
+        u32              position;
+        u32              frame_count;
+        u32*             array_values;
     } static * _random_table;
 
     //--------------------------------------------------------------------
@@ -55,6 +55,7 @@ namespace ifb {
         return(_random_table);
     }
 
+    // once the engine is running, the caller must hold the lock
     IFB_INTERNAL void
     random_table_refresh(
         void) {
@@ -86,11 +87,15 @@ namespace ifb {
 
         const auto& cfg = config_instance();
 
+        pfm_thread_mutex_lock(_random_table->lock);
+
         // the table is refreshed every so many frames
         ++_random_table->frame_count;
         if (_random_table->frame_count >= cfg.random_refresh_frames) {
             random_table_refresh();
         }
+
+        pfm_thread_mutex_unlock(_random_table->lock);
     }
 
     IFB_INTERNAL u32
@@ -100,6 +105,8 @@ namespace ifb {
         assert(_random_table);
         assert(_random_table->array_values);
 
+        pfm_thread_mutex_lock(_random_table->lock);
+
         // the table is also refreshed when it is used up
         if (_random_table->position >= _random_table->count) {
             random_table_refresh();
@@ -107,6 +114,8 @@ namespace ifb {
 
         const u32 value = _random_table->array_values[_random_table->position];
         ++_random_table->position;
+
+        pfm_thread_mutex_unlock(_random_table->lock);
         return(value);
     }
 

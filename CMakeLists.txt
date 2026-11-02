@@ -56,6 +56,7 @@ set(IFB_ENGINE_SOURCE_DIRS
     IFB.Engine/src/entities
     IFB.Engine/src/events
     IFB.Engine/src/files
+    IFB.Engine/src/jobs
     IFB.Engine/src/json
     IFB.Engine/src/map
     IFB.Engine/src/memory
