@@ -452,7 +452,7 @@ namespace ifb {
         memory assets;
         memory sprites;
         memory events;
-        memory threads;
+        memory jobs;
     };
 
     struct eng_game_context {

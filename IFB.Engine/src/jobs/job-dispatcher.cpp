@@ -11,22 +11,25 @@ namespace ifb {
     job_dspchr_create(
         void) {
 
-        auto dspchr = (job_dspchr*)global_alloc(sizeof(job_dspchr));
-        assert(dspchr);
+        _job_dspchr = (job_dspchr*)global_alloc(sizeof(job_dspchr));
+        assert(_job_dspchr);
 
-        dspchr->queue = job_queue_create();
-        assert(dspchr);
+        _job_dspchr->queue = job_queue_create();
+        _job_dspchr->worker_pool = job_worker_pool_create();
+        assert(_job_dspchr);
 
-        return(dspchr);
+        return(_job_dspchr);
     }
 
     IFB_INTERNAL void
     job_dspchr_startup(
-        void) {
+        reservation* res) {
 
+        assert(res);
         assert(_job_dspchr);   
         assert(_job_dspchr->queue);
 
+        _job_dspchr->res      = res;
         _job_dspchr->shutdown = false;
 
         memory queue_mem;
@@ -35,10 +38,8 @@ namespace ifb {
         assert(queue_mem.size != 0);
         assert(queue_mem.ptr  != NULL);
 
-        job_queue_init(_job_dspchr->queue, queue_mem);
-    
-        // get a count of CPU cores
-        const u32 core_count = pfm_system_get_core_count();
+        job_queue_init       (_job_dspchr->queue, queue_mem);
+        job_worker_pool_init (_job_dspchr->worker_pool); 
     }
 
     IFB_INTERNAL void

@@ -11,12 +11,12 @@ namespace ifb {
     struct job;
     struct job_worker;
     struct job_queue;
-    struct job_worker_array;
+    struct job_worker_pool;
 
     using job_proc = void (*) (const hnd_arena h_arena, void* ctx);
 
     IFB_INTERNAL job_dspchr*  job_dspchr_create   (void);
-    IFB_INTERNAL void         job_dspchr_startup  (void);
+    IFB_INTERNAL void         job_dspchr_startup  (reservation* res);
     IFB_INTERNAL void         job_dspchr_shutdown (void);
     IFB_INTERNAL void         job_dspchr_main     (void* ctx);
 
@@ -26,7 +26,8 @@ namespace ifb {
     IFB_INTERNAL bool         job_queue_enqueue   (job_queue* queue, const job& j);
     IFB_INTERNAL bool         job_queue_dequeue   (job_queue* queue, job& j);
     
-    IFB_INTERNAL job_worker_array* job_worker_array_create (void);
+    IFB_INTERNAL job_worker_pool* job_worker_pool_create (void);
+    IFB_INTERNAL void             job_worker_pool_init   (job_worker_pool* worker_pool);
 
     // aligned so a job can cast the data to its own context struct
     struct alignas(16) job_ctx {
@@ -50,20 +51,20 @@ namespace ifb {
         u32  count;
     };
 
-    struct job_worker_array {
+    struct job_worker_pool {
        job_worker  workers [config::thread_capacity];
        u32         count;
     };
 
     struct job_dspchr {
-        reservation*      res;
-        job_queue*        queue;
-        job_worker_array* workers;
-        pfm_thread_mutex  lock;
-        pfm_thread_cond   work_available;
-        pfm_thread_cond   all_done;
-        u32               unfinished; // jobs queued or running
-        bool              shutdown;
+        reservation*     res;
+        job_queue*       queue;
+        job_worker_pool* worker_pool;
+        pfm_thread_mutex lock;
+        pfm_thread_cond  work_available;
+        pfm_thread_cond  all_done;
+        u32              unfinished; // jobs queued or running
+        bool             shutdown;
     } static * _job_dspchr;
 
 };
