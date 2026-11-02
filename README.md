@@ -21,7 +21,7 @@ scripts/       PowerShell scripts for setup and building
 | Module | Target | Description |
 | --- | --- | --- |
 | **IFB.Core** | `IFB::Core` (header only) | Common types used across the project: handles and IDs, component and archetype structs, asset/sprite/map/particle info structs, and the build configuration in `ifb-config.hpp`. `ifb-engine.hpp` is the engine's public API: every `eng_*` function the game and GUI are allowed to call. |
-| **IFB.Engine** | `IFB::Engine` (`ItFliesBy.Engine.dll`) | The engine. Owns the window, input, memory, assets, entities and components, physics, events, maps, particles, sprites, and the renderer. Its internal headers in `IFB.Engine/include` (`eng-*.hpp`) aren't visible to other modules. |
+| **IFB.Engine** | `IFB::Engine` (`ItFliesBy.Engine.dll`) | The engine. Owns the window, input, memory, assets, entities and components, physics, events, jobs, maps, particles, sprites, and the renderer. Its internal headers in `IFB.Engine/include` (`eng-*.hpp`) aren't visible to other modules. |
 | **IFB.GUI** | `IFB::GUI` (`ItFliesBy.GUI.lib`) | ImGui tooling built on the public engine API: entity and quad managers, camera controls, the particle system editor, the sprite atlas builder and inspector, and asset dictionary/database editors. |
 | **IFB.Game** | `ifb` (`ItFliesBy.exe`) | The game. `game-win32-main.cpp` reserves memory, creates the engine context, and runs the main loop. The game code sets up the map, spawns entities, and drives the player rig. |
 | **SLD.Core** | `SLD::Core` | Base types (`u32`, `f32`, `cchar`, ...), strong typedefs, hashing, and memory helpers. |
@@ -53,7 +53,7 @@ The game and GUI only talk to the engine through `ifb-engine.hpp`. Objects insid
 | **Jobs** | `src/jobs`, `eng-jobs.hpp` | A pool of worker threads that sleep until a job is added, and the rules for what jobs can call. | [Jobs](docs/jobs.md) |
 | **JSON / Tiled** | `src/json`, `src/tiled` | RapidJSON wrappers, and a parser for [Tiled](https://www.mapeditor.org/) map files. | [JSON & Tiled](docs/json-and-tiled.md) |
 | **Random** | `src/random`, `eng-random.hpp` | A table of random values refreshed on a fixed frame interval. | [Random](docs/random.md) |
-| **Platform (Win32)** | `src/win32`, `ifb-platform.hpp` | Window, OpenGL context, memory, files, monitors, and system info for Windows. | [Platform](docs/platform.md) |
+| **Platform (Win32)** | `src/win32`, `ifb-platform.hpp` | Window, OpenGL context, memory, files, monitors, threads, and system info for Windows. | [Platform](docs/platform.md) |
 
 ## Building
 

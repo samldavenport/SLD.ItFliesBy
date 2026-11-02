@@ -23,10 +23,14 @@ if ($Clean) {
 }
 
 # the cmake presets locate the vcpkg toolchain through VCPKG_ROOT
-if (-not $env:VCPKG_ROOT) {
-    $Vcpkg = Get-Command vcpkg -ErrorAction SilentlyContinue
+# the VS developer shell points it at the copy bundled with Visual Studio, which needs
+# a baseline that vcpkg.json doesn't have, so that copy is never used
+if ((-not $env:VCPKG_ROOT) -or ($env:VCPKG_ROOT -like "*\Microsoft Visual Studio\*")) {
+    $Vcpkg = Get-Command vcpkg -All -ErrorAction SilentlyContinue |
+        Where-Object { $_.Source -notlike "*\Microsoft Visual Studio\*" } |
+        Select-Object -First 1
     if (-not $Vcpkg) {
-        throw "VCPKG_ROOT is not set and vcpkg was not found on PATH"
+        throw "vcpkg was not found on PATH, outside of the copy bundled with Visual Studio"
     }
     $env:VCPKG_ROOT = Split-Path -Parent $Vcpkg.Source
 }

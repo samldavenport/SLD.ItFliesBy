@@ -8,8 +8,10 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+            "environment": {
+                "CXX": "cl"
+            },
             "cacheVariables": {
-                "CMAKE_CXX_COMPILER": "cl",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "VCPKG_TARGET_TRIPLET": "x64-windows"
             }

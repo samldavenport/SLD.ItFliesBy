@@ -32,7 +32,7 @@ Subscribe after `eng_context_startup`, since that's what creates the listener ta
 | Piece | Source | Description |
 | --- | --- | --- |
 | **Manager** (`event_mngr`) | `event-mngr.cpp` | The singleton that owns the queue and the listener table, and the `events` reservation they're allocated from. |
-| **Queue** (`event_queue`) | `event-queue.cpp` | A fixed array of events (type and payload) and a count. |
+| **Queue** (`event_queue`) | `event-queue.cpp` | A fixed array of events (type and payload), a count, and a lock so any thread can publish. |
 | **Listener table** (`event_listener_table`) | `event-listener-table.cpp` | For each event type, a fixed array of function pointers and a count. |
 
 `eng_event_listener_subscribe` and `_unsubscribe` (`eng-events.cpp`) are thin wrappers over the manager, and are the only part of the system the game and GUI can call.
@@ -42,7 +42,7 @@ Subscribe after `eng_context_startup`, since that's what creates the listener ta
 1. A system fills in an `event_payload` and calls `event_mngr_publish`, which copies the type and payload to the end of the queue. Nothing is called yet.
 2. `eng_context_run` calls `event_mngr_update` after `phys_mngr_simulate`.
 3. `event_queue_execute_and_reset` goes through the queue in the order events were published. For each one, `event_listener_table_execute` calls every listener for that type, one after another.
-4. The queue's count is set back to `0`.
+4. Once it reaches the end of the queue, the count is set back to `0`. An event published during dispatch is added to the end, so it runs in the same pass.
 
 Dispatch happens on the same thread as the rest of the frame loop, so a slow listener slows down the whole pass. [Jobs](jobs.md) can publish from a worker, and their events still reach listeners on the main thread.
 
