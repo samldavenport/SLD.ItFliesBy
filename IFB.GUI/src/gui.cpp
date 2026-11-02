@@ -13,6 +13,7 @@
 #include "gui-game-asset-database.cpp"
 #include "gui-engine-sprite-atlas-builder.cpp"
 #include "gui-engine-sprite-atlas-inspector.cpp"
+#include "gui-engine-audio-test.cpp"
 
 static bool _gui_is_open;
 
@@ -59,6 +60,7 @@ namespace ifb {
         static bool asset_database         = false;
         static bool sprite_atlas_builder   = false;
         static bool sprite_atlas_inspector = false;
+        static bool eng_audio_test         = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -67,6 +69,7 @@ namespace ifb {
                 ImGui::MenuItem (_gui_str->menu_engine_item_imgui_demo,           NULL, &eng_imgui_demo);
                 ImGui::MenuItem (_gui_str->menu_engine_item_system,               NULL, &eng_system);
                 ImGui::MenuItem (_gui_str->menu_engine_item_particle_system,      NULL, &eng_particle_system);
+                ImGui::MenuItem (_gui_str->menu_engine_item_audio_test,           NULL, &eng_audio_test);
 
                 if (ImGui::BeginMenu(_gui_str->menu_engine_menu_sprite_tools)) {
                     ImGui::MenuItem (_gui_str->menu_engine_menu_sprite_tools_item_atlas_builder,   NULL, &sprite_atlas_builder);
@@ -117,6 +120,7 @@ namespace ifb {
         gui_engine_particle_system        (eng_particle_system);
         gui_engine_sprite_atlas_builder   (sprite_atlas_builder);
         gui_engine_sprite_atlas_inspector (sprite_atlas_inspector);
+        gui_engine_audio_test             (eng_audio_test);
         gui_renderer_camera               (rndr_camera);
         gui_entity_manager                (entity_manager);
         gui_quad_manager                  (quad_manager);

@@ -11,6 +11,8 @@
 
 #include "asset.cpp"
 
+#include "audio-mngr.cpp"
+
 #include "collections.cpp"
 
 #include "component-manager.cpp"
@@ -19,6 +21,7 @@
 #include "eng-arena.cpp"
 #include "eng-asset.cpp"
 #include "eng-atype.cpp"
+#include "eng-audio.cpp"
 #include "eng-cmpnt.cpp"
 #include "eng-camera.cpp"
 #include "eng-context.cpp"

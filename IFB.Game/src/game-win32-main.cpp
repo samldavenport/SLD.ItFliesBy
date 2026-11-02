@@ -18,7 +18,8 @@ static const u32 SIZE_ASSETS      = size_megabytes(128);
 static const u32 SIZE_ARENAS_LG   = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE;
 static const u32 SIZE_SPRITES     = IFB_CONFIG_MEMORY_RES_SIZE_SPRITES;
 static const u32 SIZE_EVENTS      = size_kilobytes(64);
-static const u32 SIZE_THREADS     = size_kilobytes(64); 
+static const u32 SIZE_THREADS     = size_kilobytes(64);
+static const u32 SIZE_AUDIO       = IFB_CONFIG_MEMORY_RES_SIZE_AUDIO;
 
 static byte _stack_mem[SIZE_STACK];
 
@@ -122,6 +123,8 @@ mem_map_init(
     mem_map.events.ptr        = VirtualAlloc(NULL, SIZE_EVENTS,      MEM_RESERVE, PAGE_READONLY);
     mem_map.jobs.size      = SIZE_THREADS;
     mem_map.jobs.ptr       = VirtualAlloc(NULL, SIZE_THREADS,     MEM_RESERVE, PAGE_READONLY);
+    mem_map.audio.size     = SIZE_AUDIO;
+    mem_map.audio.ptr      = VirtualAlloc(NULL, SIZE_AUDIO,       MEM_RESERVE, PAGE_READONLY);
 
     assert(
         mem_map.stack.ptr        != NULL &&        
@@ -139,6 +142,7 @@ mem_map_init(
         mem_map.assets.ptr       != NULL &&
         mem_map.sprites.ptr      != NULL &&
         mem_map.events.ptr       != NULL &&
-        mem_map.jobs.ptr         != NULL
+        mem_map.jobs.ptr         != NULL &&
+        mem_map.audio.ptr        != NULL
     );
 }

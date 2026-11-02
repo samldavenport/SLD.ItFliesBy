@@ -18,6 +18,7 @@ The rest of the engine only calls `pfm_*` functions, so another platform would n
 | Context | `pfm_context_startup`, `_shutdown` | `win32.cpp`: starts COM and creates the open and save dialog objects |
 | Window | `pfm_window_open`, `_frame_start`, `_frame_render`, `_process_events`, `_close`, `_quit_received` | `win32-window.cpp` |
 | Graphics | `pfm_graphics_init_opengl`, `_init_imgui` | `win32-graphics.cpp` |
+| Audio | `pfm_audio_init`, `_shutdown`, `_get_frame_capacity`, `_get_frames_queued`, `_write` | `win32-audio.cpp`: WASAPI in shared mode, see [Audio](audio.md) |
 | Monitor | `pfm_monitor_count`, `_get_primary_index`, `_get_working_area`, `_get_info` | `win32-monitor.cpp` |
 | Memory | `pfm_memory_commit`, `_decommit`, `_get_info` | `win32-memory.cpp`: `VirtualAlloc(MEM_COMMIT)` / `VirtualFree(MEM_DECOMMIT)`, page size and allocation granularity |
 | Files | `pfm_file_open`, `_size`, `_close`, `_read`, `_write` | `win32-file.cpp`: `CreateFile`, `ReadFile`, `WriteFile` |

@@ -429,6 +429,16 @@ namespace ifb {
     IFB_ENGINE_API void eng_job_wait (void);
 
     //--------------------------------------------------------------------
+    // AUDIO
+    //--------------------------------------------------------------------
+
+    // gets this frame's buffer, which starts out silent and goes to the device at the end of the frame
+    // call it from the gui or game callback, false means there's no buffer this frame
+    IFB_ENGINE_API bool eng_audio_get_buffer  (audio_buffer& buffer);
+    IFB_ENGINE_API void eng_audio_get_info    (audio_info& info);
+    IFB_ENGINE_API void eng_audio_reset_stats (void);
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
@@ -463,6 +473,7 @@ namespace ifb {
         memory sprites;
         memory events;
         memory jobs;
+        memory audio;
     };
 
     struct eng_game_context {

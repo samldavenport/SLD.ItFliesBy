@@ -61,6 +61,13 @@ using namespace sld;
 #define IFB_CONFIG_EVENT_TYPE_MAX                 64
 #define IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT  16
 #define IFB_CONFIG_THREAD_CAPACITY                32
+#define IFB_CONFIG_AUDIO_SAMPLE_RATE              48000
+#define IFB_CONFIG_AUDIO_CHANNEL_COUNT            2
+#define IFB_CONFIG_AUDIO_BUFFER_MS                100
+#define IFB_CONFIG_AUDIO_LATENCY_MS               50
+#define IFB_CONFIG_AUDIO_BUFFER_FRAMES            (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_BUFFER_MS / 1000)
+#define IFB_CONFIG_AUDIO_LATENCY_FRAMES           (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_LATENCY_MS / 1000)
+#define IFB_CONFIG_MEMORY_RES_SIZE_AUDIO          size_kilobytes(64)
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -127,6 +134,11 @@ namespace ifb {
         static constexpr u32   event_type_max                 = IFB_CONFIG_EVENT_TYPE_MAX;
         static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;
         static constexpr u32   thread_capacity                = IFB_CONFIG_THREAD_CAPACITY;
+        static constexpr u32   audio_sample_rate              = IFB_CONFIG_AUDIO_SAMPLE_RATE;
+        static constexpr u32   audio_channel_count            = IFB_CONFIG_AUDIO_CHANNEL_COUNT;
+        static constexpr u32   audio_buffer_ms                = IFB_CONFIG_AUDIO_BUFFER_MS;
+        static constexpr u32   audio_buffer_frames            = IFB_CONFIG_AUDIO_BUFFER_FRAMES;
+        static constexpr u32   audio_latency_frames           = IFB_CONFIG_AUDIO_LATENCY_FRAMES;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
         }; 

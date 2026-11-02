@@ -150,6 +150,12 @@ namespace ifb {
     struct pfm_thread_mutex { void* ctx; };
     struct pfm_thread_cond  { void* ctx; };
 
+    struct pfm_audio_config {
+        u32 sample_rate;
+        u32 channel_count;
+        u32 buffer_ms;
+    };
+
     //--------------------------------------------------------------------
     // context 
     //--------------------------------------------------------------------
@@ -185,10 +191,21 @@ namespace ifb {
     IFB_PLATFORM_API void  pfm_graphics_init_imgui       (void);
 
     //--------------------------------------------------------------------
+    // AUDIO
+    //--------------------------------------------------------------------
+
+    // main thread only, samples are interleaved 32 bit floats
+    IFB_PLATFORM_API bool pfm_audio_init               (const pfm_audio_config& cfg);
+    IFB_PLATFORM_API void pfm_audio_shutdown           (void);
+    IFB_PLATFORM_API u32  pfm_audio_get_frame_capacity (void);
+    IFB_PLATFORM_API bool pfm_audio_get_frames_queued  (u32& frames_queued);
+    IFB_PLATFORM_API bool pfm_audio_write              (const f32* samples, const u32 frame_count);
+
+    //--------------------------------------------------------------------
     // MEMORY
     //--------------------------------------------------------------------
 
-    IFB_PLATFORM_API void* pfm_memory_commit   (const void* res, const u32 offset, const u32 size);
+    IFB_PLATFORM_API void* pfm_memory_commit  (const void* res, const u32 offset, const u32 size);
     IFB_PLATFORM_API void  pfm_memory_decommit (const void* cmt, const u32 size);
     IFB_PLATFORM_API void  pfm_memory_get_info (pfm_memory_info& mem_info);
 
