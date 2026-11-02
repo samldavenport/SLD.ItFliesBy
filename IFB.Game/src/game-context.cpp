@@ -85,20 +85,6 @@ namespace ifb {
         assert(ctx->global_arena != INVALID_INDEX);
     }
 
-    struct test_job_ctx {
-        const cchar* text;
-    };
-    
-    IFB_INTERNAL void
-    test_job_proc(
-        const hnd_arena h_arena,
-        void*           ctx) {
-
-        assert(h_arena != INVALID_HANDLE);
-        assert(ctx != NULL);
-
-        auto text = (const cchar*)ctx;
-    }
     
     IFB_INTERNAL void
     game_context_update_and_render(
@@ -128,9 +114,7 @@ namespace ifb {
             (cchar*)test_job.ctx.data,
             sizeof(test_job.ctx)
         );
-        test_job.proc = test_job_proc; 
 
-        const bool added_job = eng_job_add(test_job);
     }
 
 
