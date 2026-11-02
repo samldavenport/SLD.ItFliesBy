@@ -53,6 +53,8 @@
 #include "file-wo.cpp"
 #include "file-rw.cpp"
 
+#include "job.cpp"
+
 #include "json.cpp"
 
 #include "map-mngr.cpp"

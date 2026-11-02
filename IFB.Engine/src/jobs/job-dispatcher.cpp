@@ -29,7 +29,13 @@ namespace ifb {
 
         _job_dspchr->shutdown = false;
 
-        job_queue_init(_job_dspchr->queue);
+        memory queue_mem;
+        queue_mem.size = reservation_get_capacity (_job_dspchr->res);
+        queue_mem.ptr  = reservation_push_all     (_job_dspchr->res);
+        assert(queue_mem.size != 0);
+        assert(queue_mem.ptr  != NULL);
+
+        job_queue_init(_job_dspchr->queue, queue_mem);
     
         // get a count of CPU cores
         const u32 core_count = pfm_system_get_core_count();
@@ -42,14 +48,6 @@ namespace ifb {
         _job_dspchr->shutdown = true;
     }
 
-    IFB_INTERNAL void*
-    job_dspchr_alloc(
-        const u32 size) {
-
-        auto mem = reservation_push_bytes(_job_dspchr->res, size);
-        return(mem);
-    }
-    
     IFB_INTERNAL void
     job_dspchr_main(
         void* ctx) {
