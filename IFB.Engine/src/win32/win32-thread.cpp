@@ -5,8 +5,11 @@
 
 namespace ifb {
 
+    static_assert(sizeof(pfm_thread_mutex) == sizeof(SRWLOCK),            "pfm_thread_mutex must match SRWLOCK");
+    static_assert(sizeof(pfm_thread_cond)  == sizeof(CONDITION_VARIABLE), "pfm_thread_cond must match CONDITION_VARIABLE");
+
     //--------------------------------------------------------------------
-    // INTERNAL METHODS 
+    // INTERNAL METHODS
     //--------------------------------------------------------------------
     
     IFB_WIN32_INTERNAL DWORD WINAPI
@@ -17,9 +20,52 @@ namespace ifb {
         thread->proc(thread->ctx);
         return(0);
     }
-   
+
+    // gets the first logical processor of a physical core
+    // returns false if the core doesn't exist or the query fails
+    IFB_WIN32_INTERNAL bool
+    win32_thread_get_core_processor(
+        const u32         core_index,
+        PROCESSOR_NUMBER& processor) {
+
+        alignas(SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX) BYTE buffer[16384];
+        DWORD size = sizeof(buffer);
+
+        const BOOL result = GetLogicalProcessorInformationEx(
+            RelationProcessorCore,
+            (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX)buffer,
+            &size
+        );
+        if (!result) return(false);
+
+        u32   i_core = 0;
+        DWORD offset = 0;
+        while(offset < size) {
+
+            const SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* info =
+                (const SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*)(buffer + offset);
+
+            if (i_core == core_index) {
+                const GROUP_AFFINITY& group = info->Processor.GroupMask[0];
+
+                BYTE bit = 0;
+                while(((group.Mask >> bit) & 1) == 0) ++bit;
+
+                processor.Group    = group.Group;
+                processor.Number   = bit;
+                processor.Reserved = 0;
+                return(true);
+            }
+
+            ++i_core;
+            offset += info->Size;
+        }
+
+        return(false);
+    }
+
     //--------------------------------------------------------------------
-    // API METHODS 
+    // API METHODS
     //--------------------------------------------------------------------
     
     IFB_PLATFORM_API pfm_hnd_thread
@@ -73,12 +119,18 @@ namespace ifb {
         return(hnd);
     }
     
-    IFB_PLATFORM_API void
+    IFB_PLATFORM_API bool
     pfm_thread_set_ideal_core(
         const pfm_hnd_thread thread,
         const u32            core_index) {
 
-        SetThreadIdealProcessor(thread, core_index);        
+        PROCESSOR_NUMBER processor;
+        if (!win32_thread_get_core_processor(core_index, processor)) {
+            return(false);
+        }
+
+        const BOOL result = SetThreadIdealProcessorEx(thread, &processor, NULL);
+        return(result != FALSE);
     }
     
     IFB_PLATFORM_API void
@@ -109,5 +161,19 @@ namespace ifb {
         );
         assert(result);
     } 
+    
+    IFB_PLATFORM_API void
+    pfm_thread_cond_wake_one(
+        pfm_thread_cond&  cond) {
+
+        WakeConditionVariable((PCONDITION_VARIABLE)&cond);
+    }
+
+    IFB_PLATFORM_API void
+    pfm_thread_cond_wake_all(
+        pfm_thread_cond&  cond) {
+
+        WakeAllConditionVariable((PCONDITION_VARIABLE)&cond);
+    }
 };
 

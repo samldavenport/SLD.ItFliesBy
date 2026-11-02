@@ -23,7 +23,6 @@ namespace ifb {
     struct eng_mem;
     struct eng_mem_map;
     struct eng_game_context;
-    struct eng_thread_pool;
 
     //--------------------------------------------------------------------
     // FUNCTION POINTERS 
@@ -453,6 +452,7 @@ namespace ifb {
         memory assets;
         memory sprites;
         memory events;
+        memory threads;
     };
 
     struct eng_game_context {

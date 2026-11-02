@@ -36,7 +36,6 @@ namespace ifb {
     struct pfm_memory_info;
     struct pfm_thread_mutex;
     struct pfm_thread_cond;
-    struct pfm_thread;
     
     //--------------------------------------------------------------------
     // ENUMS
@@ -151,12 +150,6 @@ namespace ifb {
     struct pfm_thread_mutex { void* ctx; };
     struct pfm_thread_cond  { void* ctx; };
 
-    struct pfm_thread {
-        pfm_hnd_thread       hnd;
-        pfm_fptr_thread_proc proc;
-        void*                ctx;
-    };
-
     //--------------------------------------------------------------------
     // context 
     //--------------------------------------------------------------------
@@ -235,10 +228,19 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_PLATFORM_API pfm_hnd_thread pfm_thread_create         (pfm_fptr_thread_proc proc, void* ctx);
+
+    // only valid on the calling thread, don't store it or pass it to another thread
     IFB_PLATFORM_API pfm_hnd_thread pfm_thread_get_current    (void);
-    IFB_PLATFORM_API void           pfm_thread_set_ideal_core (const pfm_hnd_thread thread, const u32 core_index);
-    IFB_PLATFORM_API void           pfm_thread_mutex_lock     (pfm_thread_mutex& mutex); 
+
+    // core_index is a physical core, from 0 up to pfm_system_get_core_count
+    // this is a hint to the scheduler, false means it wasn't applied
+    IFB_PLATFORM_API bool           pfm_thread_set_ideal_core (const pfm_hnd_thread thread, const u32 core_index);
+
+    IFB_PLATFORM_API void           pfm_thread_mutex_lock     (pfm_thread_mutex& mutex);
     IFB_PLATFORM_API void           pfm_thread_mutex_unlock   (pfm_thread_mutex& mutex); 
+    IFB_PLATFORM_API void           pfm_thread_cond_wait      (pfm_thread_cond&  cond, pfm_thread_mutex& mutex);
+    IFB_PLATFORM_API void           pfm_thread_cond_wake_one  (pfm_thread_cond&  cond);
+    IFB_PLATFORM_API void           pfm_thread_cond_wake_all  (pfm_thread_cond&  cond);
 };
 
 #endif //IFB_PLATFORM_HPP
