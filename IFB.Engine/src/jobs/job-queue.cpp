@@ -5,6 +5,13 @@
 
 namespace ifb {
 
+    struct job_queue {
+        job* job_array;
+        u32  head;
+        u32  capacity;
+        u32  count;
+    };
+    
     IFB_INTERNAL job_queue*
     job_queue_create(
         void) {

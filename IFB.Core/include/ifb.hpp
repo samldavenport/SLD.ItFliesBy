@@ -618,6 +618,23 @@ namespace ifb {
     
     using fptr_event_listener = void (*) (const event_payload&);
 
+    //--------------------------------------------------------------------
+    // JOBS 
+    //--------------------------------------------------------------------
+    
+    using job_proc = void (*) (const hnd_arena h_arena, void* ctx);
+    
+    // aligned so a job can cast the data to its own context struct
+    struct alignas(16) job_ctx {
+        byte data[64];
+    };
+    
+    struct job {
+        job_proc proc;  
+        job_ctx  ctx;
+    };
+
+
 };
 
 #endif //IFB_HPP

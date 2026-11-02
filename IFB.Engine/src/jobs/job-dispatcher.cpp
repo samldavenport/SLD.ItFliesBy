@@ -7,6 +7,18 @@
 
 namespace ifb {
 
+    struct job_dspchr {
+        reservation*     res;
+        job_queue*       queue;
+        job_worker_pool* worker_pool;
+        pfm_thread_mutex lock;
+        pfm_thread_cond  work_available;
+        pfm_thread_cond  all_done;
+        u32              unfinished; // jobs queued or running
+        bool             shutdown;
+    } static * _job_dspchr;
+
+
     IFB_INTERNAL job_dspchr*
     job_dspchr_create(
         void) {

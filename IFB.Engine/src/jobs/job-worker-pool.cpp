@@ -7,6 +7,11 @@
 
 namespace ifb {
 
+    struct job_worker_pool {
+       job_worker  workers [config::thread_capacity];
+       u32         count;
+    };
+    
     IFB_INTERNAL job_worker_pool*
     job_worker_pool_create(
         void) {
