@@ -102,7 +102,7 @@ namespace ifb {
     IFB_ENGINE_API void         eng_file_close            (const hnd_file hnd);
     IFB_ENGINE_API u32          eng_file_get_size         (const hnd_file hnd);
     IFB_ENGINE_API void         eng_file_set_cursor       (const hnd_file hnd, const u32 cursor);
-    IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd, const u32 buffer_size);
+    IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd);
     IFB_ENGINE_API u32          eng_file_write            (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
@@ -422,6 +422,11 @@ namespace ifb {
     // JOBS 
     //--------------------------------------------------------------------
     
+    // returns false if the queue is full or the engine is shutting down
+    IFB_ENGINE_API bool eng_job_add  (const job& j);
+
+    // waits for every added job to finish, don't call this from a job
+    IFB_ENGINE_API void eng_job_wait (void);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

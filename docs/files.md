@@ -56,8 +56,6 @@ Things to know:
 - `eng_image_load_to_arena` and `eng_image_load_to_memory` read through `eng_file_read`, so they have the same limit.
 - Inside the engine, `file_read_to_buffer` reads directly into a buffer you provide, with no size limit. The asset database uses it for asset files.
 
-> **Note:** `ifb-engine.hpp` declares `eng_file_read(hnd, buffer_size)`, but `eng-file.cpp` defines `eng_file_read(hnd)` with no size. Calling the declared two-argument version from outside the engine would fail to link.
-
 ## File Dialogs
 
 ```cpp

@@ -28,9 +28,7 @@ namespace ifb {
 
         assert(worker_pool);
        
-        // get a count of CPU cores
-        // this is also the amount of workers we'll have
-        // ideally one per core
+        // one worker per CPU core, leaving a core for the main thread
         const u32 core_count   = pfm_system_get_core_count();
         const u32 worker_count = (core_count > 1) ? (core_count - 1) : 0;
 
@@ -40,7 +38,7 @@ namespace ifb {
 
         for (
             u32 i_worker = 0;
-                i_worker < core_count;
+                i_worker < worker_pool->count;
               ++i_worker) {
 
             auto& worker = worker_pool->workers[i_worker];
@@ -51,5 +49,35 @@ namespace ifb {
             assert(worker.h_arena != INVALID_HANDLE);
             assert(worker.h_pfm_thread);
         }
+    }
+
+    IFB_INTERNAL void
+    job_worker_pool_join(
+        job_worker_pool* worker_pool) {
+
+        assert(worker_pool);
+
+        for (
+            u32 i_worker = 0;
+                i_worker < worker_pool->count;
+              ++i_worker) {
+
+            auto& worker = worker_pool->workers[i_worker];
+
+            // already joined by an earlier shutdown
+            if (worker.h_pfm_thread == NULL) continue;
+
+            pfm_thread_join(worker.h_pfm_thread);
+            worker.h_pfm_thread = NULL;
+        }
+    }
+
+    IFB_INTERNAL u32
+    job_worker_pool_get_count(
+        const job_worker_pool* worker_pool) {
+
+        assert(worker_pool);
+
+        return(worker_pool->count);
     }
 };

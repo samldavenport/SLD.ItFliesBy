@@ -26,7 +26,10 @@ namespace ifb {
     // DEFINITIONS
     //--------------------------------------------------------------------
 
+    // the lock covers the handle arrays when files open, close, and get looked up
+    // only one thread can use an open file at a time, so each file's io is unlocked
     struct file_mngr {
+        pfm_thread_mutex lock;
         struct {
             hnd_file*     handle_internal; 
             pfm_hnd_file* handle_platform;

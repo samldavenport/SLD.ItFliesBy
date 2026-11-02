@@ -234,6 +234,9 @@ namespace ifb {
 
         //TODO(SLD)
 
+        // stop the workers first, their jobs can use the other systems
+        job_dspchr_shutdown();
+
         asset_mngr_shutdown();
 
         // shut down the platform context

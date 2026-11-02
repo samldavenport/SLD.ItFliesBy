@@ -1,12 +1,15 @@
 #pragma once
 
 #include "eng-events.hpp"
+#include "ifb-platform.hpp"
 
 namespace ifb {
 
+    // any thread can publish, the listeners are only called on the main thread
     struct event_queue {
-        u32    count;
-        event  events [config::event_queue_capacity];
+        pfm_thread_mutex lock;
+        u32              count;
+        event            events [config::event_queue_capacity];
     };
 
     IFB_INTERNAL event_queue*
@@ -25,7 +28,9 @@ namespace ifb {
 
         assert(q);
 
+        pfm_thread_mutex_lock(q->lock);
         q->count = 0;
+        pfm_thread_mutex_unlock(q->lock);
     }
 
     IFB_INTERNAL bool
@@ -36,18 +41,22 @@ namespace ifb {
 
         assert(q);
         assert(type.val < config::event_type_max);
+
+        pfm_thread_mutex_lock(q->lock);
         assert(q->count <= config::event_queue_capacity);
 
         u32& index = q->count;
 
         if (index == config::event_queue_capacity) {
+            pfm_thread_mutex_unlock(q->lock);
             return(false);
         }
 
         q->events[index].type    = type;
         q->events[index].payload = payload;
         ++index;
-    
+
+        pfm_thread_mutex_unlock(q->lock);
         return(true);
     }
 
@@ -57,19 +66,29 @@ namespace ifb {
         const event_listener_table* listener_table) {
        
         assert(q);
-        assert(q->count <= config::event_queue_capacity);
         assert(listener_table);
 
-        for (
-            u32 i_event = 0;
-                i_event < q->count;
-              ++i_event) {
+        // each event is copied out, so nothing is locked while the listeners run
+        // an event published during this runs in this pass too
+        u32 i_event = 0;
+        for (;;) {
 
-            const auto& e = q->events[i_event];
-            event_listener_table_execute(listener_table, e.type, e.payload); 
-        } 
+            pfm_thread_mutex_lock(q->lock);
+            assert(q->count <= config::event_queue_capacity);
 
-        q->count = 0;
+            if (i_event >= q->count) {
+                q->count = 0;
+                pfm_thread_mutex_unlock(q->lock);
+                break;
+            }
+
+            const event e = q->events[i_event];
+            ++i_event;
+
+            pfm_thread_mutex_unlock(q->lock);
+
+            event_listener_table_execute(listener_table, e.type, e.payload);
+        }
     }
 
 };

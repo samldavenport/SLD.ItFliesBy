@@ -85,6 +85,7 @@ namespace ifb {
         );
     }
 
+    // the caller must hold the lock
     IFB_INTERNAL u32
     file_mngr_index_of_next_free(
         void) {
@@ -120,6 +121,8 @@ namespace ifb {
 
         u32 index_of = FILE_INDEX_INVALID;
 
+        pfm_thread_mutex_lock(_file_mngr->lock);
+
         for (
             u32 index = 0;
                 index < IFB_CONFIG_FILE_COUNT;
@@ -130,6 +133,8 @@ namespace ifb {
                 break;
             }
         }
+
+        pfm_thread_mutex_unlock(_file_mngr->lock);
 
         return(index_of);
     }
@@ -142,6 +147,8 @@ namespace ifb {
 
         u32 index_of = FILE_INDEX_INVALID;
 
+        pfm_thread_mutex_lock(_file_mngr->lock);
+
         for (
             u32 index = 0;
                 index < IFB_CONFIG_FILE_COUNT;
@@ -152,6 +159,8 @@ namespace ifb {
                 break;
             }
         }
+
+        pfm_thread_mutex_unlock(_file_mngr->lock);
 
         return(index_of);
     }
@@ -176,30 +185,43 @@ namespace ifb {
         file_mngr_assert_valid();
         assert(cfg);
 
-        // get index of next free file
-        const u32 index = file_mngr_index_of_next_free();
-        if (index == FILE_INDEX_INVALID) {
-            return(FILE_HANDLE_INVALID);
-        }
-
-        // open the file 
-        const pfm_hnd_file hnd_pfm = pfm_file_open(cfg);
-        if (hnd_pfm == NULL) {
-            return(FILE_HANDLE_INVALID);
-        }
-
         // create the file handle from the path
         const u32         path_length = strnlen_s (cfg->path, IFB_CONFIG_FILE_PATH_SIZE);
         const hnd_file hnd_ifb     = hash_u32  ((void*)&cfg->path[0], path_length);
 
+        // claim the next free file
+        pfm_thread_mutex_lock(_file_mngr->lock);
+        const u32 index = file_mngr_index_of_next_free();
+        if (index != FILE_INDEX_INVALID) {
+            _file_mngr->array.handle_internal[index] = hnd_ifb;
+        }
+        pfm_thread_mutex_unlock(_file_mngr->lock);
+
+        if (index == FILE_INDEX_INVALID) {
+            return(FILE_HANDLE_INVALID);
+        }
+
+        // open the file, this can be slow so nothing is locked
+        const pfm_hnd_file hnd_pfm = pfm_file_open(cfg);
+
+        pfm_thread_mutex_lock(_file_mngr->lock);
+        if (hnd_pfm == NULL) {
+            _file_mngr->array.handle_internal[index] = FILE_HANDLE_INVALID;
+        } else {
+            _file_mngr->array.handle_platform[index] = hnd_pfm;
+        }
+        pfm_thread_mutex_unlock(_file_mngr->lock);
+
+        if (hnd_pfm == NULL) {
+            return(FILE_HANDLE_INVALID);
+        }
+
         // commit memory
         const u32 offset = (index * _file_mngr->file_granularity);
-        void*     data   = (void*)&_file_mngr->file_data[offset]; 
+        void*     data   = (void*)&_file_mngr->file_data[offset];
 
 
         // update the table
-        _file_mngr->array.handle_internal [index] = hnd_ifb;
-        _file_mngr->array.handle_platform [index] = hnd_pfm;
         _file_mngr->array.io_length       [index] = 0;
         _file_mngr->array.cursor          [index] = 0;
         for (

@@ -116,6 +116,7 @@ namespace ifb {
         alctr->mem.size          = reservation_get_capacity (res);
         alctr->arena_size        = granularity;
         alctr->handle_bit        = ARENA_HANDLE_LARGE_BIT;
+        alctr->size_page         = size_page;
         alctr->is_commit_on_push = true;
         assert(alctr->mem.ptr != NULL);
 

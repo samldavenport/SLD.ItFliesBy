@@ -24,7 +24,8 @@ namespace ifb {
     IFB_INTERNAL void             job_dspchr_startup     (reservation* res);
     IFB_INTERNAL void             job_dspchr_shutdown    (void);
     IFB_INTERNAL void             job_dspchr_main        (void* ctx);
-    IFB_INTERNAL bool             job_dspchr_add_job     (job& j);
+    IFB_INTERNAL bool             job_dspchr_add_job     (const job& j);
+    IFB_INTERNAL void             job_dspchr_wait        (void);
 
     IFB_INTERNAL job_queue*       job_queue_create       (void);
     IFB_INTERNAL void             job_queue_init         (job_queue* queue, memory queue_mem);
@@ -34,6 +35,8 @@ namespace ifb {
     
     IFB_INTERNAL job_worker_pool* job_worker_pool_create (void);
     IFB_INTERNAL void             job_worker_pool_init   (job_worker_pool* worker_pool);
+    IFB_INTERNAL void             job_worker_pool_join   (job_worker_pool* worker_pool);
+    IFB_INTERNAL u32              job_worker_pool_get_count (const job_worker_pool* worker_pool);
 
     //--------------------------------------------------------------------
     // DEFINITIONS 

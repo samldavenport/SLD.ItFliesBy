@@ -229,6 +229,10 @@ namespace ifb {
 
     IFB_PLATFORM_API pfm_hnd_thread pfm_thread_create         (pfm_fptr_thread_proc proc, void* ctx);
 
+    // waits for the thread to exit, then frees the handle
+    // the handle must come from pfm_thread_create, and a thread can't join itself
+    IFB_PLATFORM_API void           pfm_thread_join           (const pfm_hnd_thread thread);
+
     // only valid on the calling thread, don't store it or pass it to another thread
     IFB_PLATFORM_API pfm_hnd_thread pfm_thread_get_current    (void);
 

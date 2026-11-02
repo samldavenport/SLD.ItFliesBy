@@ -44,7 +44,7 @@ Subscribe after `eng_context_startup`, since that's what creates the listener ta
 3. `event_queue_execute_and_reset` goes through the queue in the order events were published. For each one, `event_listener_table_execute` calls every listener for that type, one after another.
 4. The queue's count is set back to `0`.
 
-Dispatch happens on the same thread as the rest of the frame loop, so a slow listener slows down the whole pass.
+Dispatch happens on the same thread as the rest of the frame loop, so a slow listener slows down the whole pass. [Jobs](jobs.md) can publish from a worker, and their events still reach listeners on the main thread.
 
 ### Timing
 

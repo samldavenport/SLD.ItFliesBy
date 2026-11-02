@@ -64,6 +64,9 @@ wWinMain(
         running &= eng_context_run();
     }
 
+    // engine shutdown
+    eng_context_shutdown();
+
     return(0);
 }
 

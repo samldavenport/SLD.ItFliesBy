@@ -109,6 +109,36 @@ namespace ifb {
         return(thread->hnd);
     }
 
+    IFB_PLATFORM_API void
+    pfm_thread_join(
+        const pfm_hnd_thread thread) {
+
+        assert(thread);
+
+        // find the slot for this thread
+        win32_thread* slot = NULL;
+        for (
+            u32 i_thread = 0;
+                i_thread < config::thread_capacity;
+              ++i_thread) {
+
+            if (_pfm_ctx.threads[i_thread].hnd == thread) {
+                slot = &_pfm_ctx.threads[i_thread];
+                break;
+            }
+        }
+        assert(slot);
+
+        const DWORD result = WaitForSingleObject(slot->hnd, INFINITE);
+        assert(result == WAIT_OBJECT_0);
+
+        CloseHandle(slot->hnd);
+
+        slot->hnd  = NULL;
+        slot->proc = NULL;
+        slot->ctx  = NULL;
+    }
+
     IFB_PLATFORM_API pfm_hnd_thread
     pfm_thread_get_current(
         void) {
