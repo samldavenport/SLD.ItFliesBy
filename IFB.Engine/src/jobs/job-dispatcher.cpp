@@ -26,18 +26,28 @@ namespace ifb {
 
         assert(_job_dspchr);   
         assert(_job_dspchr->queue);
+
+        _job_dspchr->shutdown = false;
+
+        job_queue_init(_job_dspchr->queue);
+    
+        // get a count of CPU cores
+        const u32 core_count = pfm_system_get_core_count();
     }
 
     IFB_INTERNAL void
     job_dspchr_shutdown(
         void) {
 
+        _job_dspchr->shutdown = true;
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL void*
     job_dspchr_alloc(
-        void) {
+        const u32 size) {
 
+        auto mem = reservation_push_bytes(_job_dspchr->res, size);
+        return(mem);
     }
     
     IFB_INTERNAL void

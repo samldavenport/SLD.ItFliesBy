@@ -50,9 +50,8 @@ namespace ifb {
     };
 
     struct job_worker_array {
-       job_worker* workers;
+       job_worker  workers [config::thread_capacity];
        u32         count;
-       u32         capacity;
     };
 
     struct job_dspchr {
