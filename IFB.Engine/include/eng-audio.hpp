@@ -8,23 +8,23 @@ namespace ifb {
 
     struct audio_mngr;
 
-    IFB_INTERNAL audio_mngr*     audio_mngr_create      (void);
-    IFB_INTERNAL void            audio_mngr_startup     (reservation* res);
-    IFB_INTERNAL void            audio_mngr_shutdown    (void);
-    IFB_INTERNAL void            audio_mngr_frame_start (void); // measures the device, and clears the buffer for this frame
-    IFB_INTERNAL void            audio_mngr_frame_end   (void); // mixes the voices into the buffer, and sends it to the device
-    IFB_INTERNAL bool            audio_mngr_get_buffer  (audio_buffer& buffer);
-    IFB_INTERNAL void            audio_mngr_get_info    (audio_info& info);
-    IFB_INTERNAL void            audio_mngr_reset_stats (void);
-    IFB_INTERNAL void            audio_mngr_group_set_volume (const audio_group_e group, const f32 volume);
-    IFB_INTERNAL f32             audio_mngr_group_get_volume (const audio_group_e group);
-    IFB_INTERNAL void            audio_mngr_set_master_volume (const f32 volume);
-    IFB_INTERNAL f32             audio_mngr_get_master_volume (void);
+    IFB_INTERNAL audio_mngr*     audio_mngr_create               (void);
+    IFB_INTERNAL void            audio_mngr_startup              (reservation* res);
+    IFB_INTERNAL void            audio_mngr_shutdown             (void);
+    IFB_INTERNAL void            audio_mngr_frame_start          (void); // measures the device, and clears the buffer for this frame
+    IFB_INTERNAL void            audio_mngr_frame_end            (void); // mixes the voices into the buffer, and sends it to the device
+    IFB_INTERNAL bool            audio_mngr_get_buffer           (audio_buffer& buffer);
+    IFB_INTERNAL void            audio_mngr_get_info             (audio_info& info);
+    IFB_INTERNAL void            audio_mngr_reset_stats          (void);
+    IFB_INTERNAL void            audio_mngr_group_set_volume     (const audio_group_u32 group, const f32 volume);
+    IFB_INTERNAL f32             audio_mngr_group_get_volume     (const audio_group_u32 group);
+    IFB_INTERNAL void            audio_mngr_set_master_volume    (const f32 volume);
+    IFB_INTERNAL f32             audio_mngr_get_master_volume    (void);
 
     // voices
-    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play           (const wav* w, const audio_group_e group, const f32 volume, const bool is_looping);
-    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play_sound     (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
-    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_stream_sound   (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
+    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play           (const wav* w,      const audio_group_u32 group, const f32 volume, const bool is_looping);
+    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play_sound     (const cchar* name, const audio_group_u32 group, const f32 volume, const bool is_looping);
+    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_stream_sound   (const cchar* name, const audio_group_u32 group, const f32 volume, const bool is_looping);
     IFB_INTERNAL void            audio_mngr_voice_stop_all_sounds(void);
     IFB_INTERNAL void            audio_mngr_voice_stop           (const hnd_audio_voice h_voice);
     IFB_INTERNAL void            audio_mngr_voice_stop_now       (const hnd_audio_voice h_voice);

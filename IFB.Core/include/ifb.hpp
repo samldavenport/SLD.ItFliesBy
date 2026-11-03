@@ -675,30 +675,25 @@ namespace ifb {
         audio_group_e_count = 2
     };
 
+    IFB_U32(audio_group_u32);
+
     // interleaved samples from -1 to 1, only valid during the frame it was requested in
+    // the format is the device's, config::audio_sample_rate and config::audio_channel_count
     struct audio_buffer {
         f32* samples;
         u32  frame_count;
-        u32  channel_count;
-        u32  sample_rate;
     };
 
     struct audio_info {
         bool is_device_ready;
-        u32  sample_rate;
-        u32  channel_count;
-        u32  latency_frames;
         u32  frames_queued;
         u32  frames_queued_min;
         u32  underrun_count;
         f32  frame_gap_ms;
         f32  frame_gap_ms_max;
         u32  voice_count;
-        u32  voice_capacity;
         u32  preload_count;
-        u32  preload_capacity;
         u32  stream_count;
-        u32  stream_capacity;
         u32  stream_chunk_reads; // since the last reset
         u32  stream_underruns;   // frames a stream waited for its chunks, since the last reset
         u32  output_clips;       // samples that went past -1 to 1 and were clamped, since the last reset
@@ -706,17 +701,17 @@ namespace ifb {
 
     // the position is in frames of the source, which may not be at the device's sample rate
     struct audio_voice_info {
-        f64  position;
-        u32  frame_count;
-        u32  sample_rate;
-        f32  volume;
-        f32  gain;               // what it's playing at now, its volume times its group's, partway there while it fades
-        u32  group;
-        bool is_streaming;
-        bool is_paused;
-        bool is_looping;
-        bool is_stopping; // fading out, it's freed when the fade is done
-        cchar name[IFB_CONFIG_ASSET_NAME_SIZE + 1]; // the sound asset, empty for a wav that isn't one
+        f64              position;
+        u32              frame_count;
+        u32              sample_rate;
+        f32              volume;
+        f32              gain;               // what it's playing at now, its volume times its group's, partway there while it fades
+        audio_group_u32  group;
+        bool             is_streaming;
+        bool             is_paused;
+        bool             is_looping;
+        bool             is_stopping; // fading out, it's freed when the fade is done
+        cchar            name[IFB_CONFIG_ASSET_NAME_SIZE + 1]; // the sound asset, empty for a wav that isn't one
     };
 
 };

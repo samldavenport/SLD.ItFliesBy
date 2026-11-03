@@ -296,7 +296,7 @@ namespace ifb {
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn(); ImGui::TextUnformatted(info.name[0] != 0 ? info.name : "(a wav)");
                 ImGui::TableNextColumn(); ImGui::TextUnformatted(info.is_streaming ? "stream" : "memory");
-                ImGui::TableNextColumn(); ImGui::TextUnformatted((info.group < audio_group_e_count) ? _game_audio_group_names[info.group] : "?");
+                ImGui::TableNextColumn(); ImGui::TextUnformatted((info.group.val < audio_group_e_count) ? _game_audio_group_names[info.group.val] : "?");
                 ImGui::TableNextColumn(); ImGui::TextUnformatted(state);
                 ImGui::TableNextColumn();
                 {
@@ -321,10 +321,10 @@ namespace ifb {
 
         if (!ImGui::CollapsingHeader("Stats")) return;
 
-        const f32 ms_per_frame = 1000.0f / (f32)info.sample_rate;
-        ImGui::Text("Voices:          %u / %u", info.voice_count,   info.voice_capacity);
-        ImGui::Text("Streams:         %u / %u", info.stream_count,  info.stream_capacity);
-        ImGui::Text("Preloads:        %u / %u", info.preload_count, info.preload_capacity);
+        const f32 ms_per_frame = 1000.0f / (f32)config::audio_sample_rate;
+        ImGui::Text("Voices:          %u / %u", info.voice_count,   config::audio_voice_capacity);
+        ImGui::Text("Streams:         %u / %u", info.stream_count,  config::audio_stream_capacity);
+        ImGui::Text("Preloads:        %u / %u", info.preload_count, config::audio_preload_capacity);
         ImGui::Text("Queued:          %.1f ms (lowest %.1f ms)", info.frames_queued * ms_per_frame, info.frames_queued_min * ms_per_frame);
         ImGui::Text("Device Underruns %u", info.underrun_count);
         ImGui::Text("Chunk Reads:     %u", info.stream_chunk_reads);

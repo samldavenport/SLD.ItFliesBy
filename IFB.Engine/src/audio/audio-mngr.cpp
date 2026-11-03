@@ -8,6 +8,7 @@
 #include "eng-memory.hpp"
 #include "ifb-config.hpp"
 #include "ifb-platform.hpp"
+#include "ifb.hpp"
 #include "memory-reservation.cpp"
 #include "eng-wav.hpp"
 #include "eng-asset.hpp"
@@ -41,17 +42,17 @@ namespace ifb {
     // the gain fades toward the volume, or toward 0 when the voice is paused or stopping
     // the source has the samples, a voice playing a sound asset has it pinned through its source
     struct audio_voice {
-        audio_source source;
-        f64          position;   // in frames of the source
-        f64          step;       // source frames per device frame
-        u32          group;
-        f32        volume;
-        f32        gain;       // fades toward volume times the group's volume
-        u16        generation;
-        bool       is_active;
-        bool       is_paused;
-        bool       is_looping;
-        bool       is_stopping;
+        audio_source    source;
+        f64             position;   // in frames of the source
+        f64             step;       // source frames per device frame
+        audio_group_u32 group;
+        f32             volume;
+        f32             gain;       // fades toward volume times the group's volume
+        u16             generation;
+        bool            is_active;
+        bool            is_paused;
+        bool            is_looping;
+        bool            is_stopping;
     };
 
     // a preloaded sound has one pin however many times it's preloaded, the count is the unloads it takes to let it go
@@ -65,27 +66,25 @@ namespace ifb {
     struct audio_mngr {
         f32            group_volumes[audio_group_e_count];
         f32            master_volume;
-        f32            master_gain;     // fades toward master_volume, the same as a voice's gain
+        f32            master_gain;           // fades toward master_volume, the same as a voice's gain
         audio_voice*   voices;
         u32            voice_count;
         audio_preload* preloads;
         u32            preload_count;
-        f32*           scratch;         // AUDIO_SCRATCH_FRAMES frames of AUDIO_SCRATCH_CHANNELS, the source frames for one block
+        f32*           scratch;               // AUDIO_SCRATCH_FRAMES frames of AUDIO_SCRATCH_CHANNELS, the source frames for one block
         audio_stream*  streams;
         u32            stream_count;
-        u32            stream_chunk_reads;     // since the last reset
-        u32            stream_underrun_count;  // frames a stream held because its chunks weren't read yet, since the last reset
-        f32*           output;                 // the last IFB_CONFIG_AUDIO_OUTPUT_FRAMES frames sent to the device, a ring
-        u32            output_write;           // the next frame written in the ring, so the oldest one
-        u32            output_clip_count;      // samples clamped, since the last reset
-        f32*  samples;
-        u32   frame_capacity;    // the size of the samples buffer
-        u32   frame_count;       // the frames to write this frame
-        u32   latency_frames;    // the frames we keep queued on the device
-        u64   timestamp_prev;
-        bool  is_device_ready;
-        bool  is_frame_open;     // the buffer is only valid between frame start and end
-        bool  was_starved;       // only counts one underrun for each time the device runs dry
+        u32            stream_chunk_reads;    // since the last reset
+        u32            stream_underrun_count; // frames a stream held because its chunks weren't read yet, since the last reset
+        f32*           output;                // the last IFB_CONFIG_AUDIO_OUTPUT_FRAMES frames sent to the device, a ring
+        u32            output_write;          // the next frame written in the ring, so the oldest one
+        u32            output_clip_count;     // samples clamped, since the last reset
+        f32*           samples;
+        u32            frame_count;           // the frames to write this frame
+        u64            timestamp_prev;
+        bool           is_device_ready;
+        bool           is_frame_open;         // the buffer is only valid between frame start and end
+        bool           was_starved;           // only counts one underrun for each time the device runs dry
         struct {
             u32 frames_queued;
             u32 frames_queued_min;
@@ -99,12 +98,12 @@ namespace ifb {
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    inline audio_voice* audio_mngr_voice_from_handle (const hnd_audio_voice h_voice);
-    inline void         audio_mngr_voice_free        (audio_voice* voice);
-    inline hnd_audio_voice audio_mngr_voice_start    (const audio_source& src, const audio_group_e group, const f32 volume, const bool is_looping);
-    inline void         audio_mngr_voice_fetch       (const audio_voice* voice, const u32 frame_first, const u32 count, f32* out);
-    inline void         audio_mngr_voice_mix         (audio_voice* voice, const audio_buffer& buffer);
-    inline void         audio_mngr_mix_voices        (void);
+    inline audio_voice*    audio_mngr_voice_from_handle (const hnd_audio_voice h_voice);
+    inline void            audio_mngr_voice_free        (audio_voice* voice);
+    inline hnd_audio_voice audio_mngr_voice_start       (const audio_source& src, const audio_group_u32 group, const f32 volume, const bool is_looping);
+    inline void            audio_mngr_voice_fetch       (const audio_voice* voice, const u32 frame_first, const u32 count, f32* out);
+    inline void            audio_mngr_voice_mix         (audio_voice* voice, const audio_buffer& buffer);
+    inline void            audio_mngr_mix_voices        (void);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -193,9 +192,6 @@ namespace ifb {
         _audio_mngr->output_write      = 0;
         _audio_mngr->output_clip_count = 0;
 
-        _audio_mngr->frame_capacity = config::audio_buffer_frames;
-        _audio_mngr->latency_frames = config::audio_latency_frames;
-
         pfm_audio_config cfg;
         cfg.sample_rate   = config::audio_sample_rate;
         cfg.channel_count = channel_count;
@@ -278,13 +274,13 @@ namespace ifb {
         stats.frames_queued         = frames_queued;
 
         u32 frame_count = 0;
-        if (frames_queued < _audio_mngr->latency_frames) {
-            frame_count = _audio_mngr->latency_frames - frames_queued;
+        if (frames_queued < config::audio_latency_frames) {
+            frame_count = config::audio_latency_frames - frames_queued;
         }
 
         const u32 frames_free = pfm_audio_get_frame_capacity() - frames_queued;
-        if (frame_count > frames_free)                 frame_count = frames_free;
-        if (frame_count > _audio_mngr->frame_capacity) frame_count = _audio_mngr->frame_capacity;
+        if (frame_count > frames_free)                  frame_count = frames_free;
+        if (frame_count > config::audio_buffer_frames)  frame_count = config::audio_buffer_frames;
 
         // silence is what plays if nothing writes this frame
         const u32 size = frame_count * config::audio_channel_count * sizeof(f32);
@@ -319,10 +315,8 @@ namespace ifb {
 
         if (!_audio_mngr->is_frame_open) return(false);
 
-        buffer.samples       = _audio_mngr->samples;
-        buffer.frame_count   = _audio_mngr->frame_count;
-        buffer.channel_count = config::audio_channel_count;
-        buffer.sample_rate   = config::audio_sample_rate;
+        buffer.samples     = _audio_mngr->samples;
+        buffer.frame_count = _audio_mngr->frame_count;
         return(true);
     }
 
@@ -334,21 +328,15 @@ namespace ifb {
 
         const auto& stats = _audio_mngr->stats;
 
-        info.is_device_ready   = _audio_mngr->is_device_ready;
-        info.sample_rate       = config::audio_sample_rate;
-        info.channel_count     = config::audio_channel_count;
-        info.latency_frames    = _audio_mngr->latency_frames;
-        info.frames_queued     = stats.frames_queued;
-        info.frames_queued_min = stats.frames_queued_min;
-        info.underrun_count    = stats.underrun_count;
-        info.frame_gap_ms      = stats.frame_gap_ms;
-        info.frame_gap_ms_max  = stats.frame_gap_ms_max;
-        info.voice_count       = _audio_mngr->voice_count;
-        info.voice_capacity    = config::audio_voice_capacity;
+        info.is_device_ready    = _audio_mngr->is_device_ready;
+        info.frames_queued      = stats.frames_queued;
+        info.frames_queued_min  = stats.frames_queued_min;
+        info.underrun_count     = stats.underrun_count;
+        info.frame_gap_ms       = stats.frame_gap_ms;
+        info.frame_gap_ms_max   = stats.frame_gap_ms_max;
+        info.voice_count        = _audio_mngr->voice_count;
         info.preload_count      = _audio_mngr->preload_count;
-        info.preload_capacity   = config::audio_preload_capacity;
         info.stream_count       = _audio_mngr->stream_count;
-        info.stream_capacity    = config::audio_stream_capacity;
         info.stream_chunk_reads = _audio_mngr->stream_chunk_reads;
         info.stream_underruns   = _audio_mngr->stream_underrun_count;
         info.output_clips       = _audio_mngr->output_clip_count;
@@ -363,7 +351,7 @@ namespace ifb {
         auto& stats = _audio_mngr->stats;
         stats.underrun_count    = 0;
         stats.frame_gap_ms_max  = 0.0f;
-        stats.frames_queued_min = _audio_mngr->latency_frames;
+        stats.frames_queued_min = config::audio_latency_frames;
         _audio_mngr->stream_chunk_reads    = 0;
         _audio_mngr->stream_underrun_count = 0;
         _audio_mngr->output_clip_count     = 0;
@@ -428,10 +416,10 @@ namespace ifb {
     // returns an invalid handle if there's no sound by that name, no room for it, no device, or every voice is in use
     IFB_INTERNAL hnd_audio_voice
     audio_mngr_voice_play_sound(
-        const cchar*        name,
-        const audio_group_e group,
-        const f32           volume,
-        const bool          is_looping) {
+        const cchar*          name,
+        const audio_group_u32 group,
+        const f32             volume,
+        const bool            is_looping) {
 
         assert(_audio_mngr && name);
 
@@ -458,10 +446,10 @@ namespace ifb {
     // returns an invalid handle if there's no sound by that name, no bank, no device, or every stream or voice is in use
     IFB_INTERNAL hnd_audio_voice
     audio_mngr_voice_stream_sound(
-        const cchar*        name,
-        const audio_group_e group,
-        const f32           volume,
-        const bool          is_looping) {
+        const cchar*          name,
+        const audio_group_u32 group,
+        const f32             volume,
+        const bool            is_looping) {
 
         assert(_audio_mngr && name);
 
@@ -848,12 +836,12 @@ namespace ifb {
     // the voice takes over the source, including its pin, only if it starts
     inline hnd_audio_voice
     audio_mngr_voice_start(
-        const audio_source& src,
-        const audio_group_e group,
-        const f32           volume,
-        const bool          is_looping) {
+        const audio_source&   src,
+        const audio_group_u32 group,
+        const f32             volume,
+        const bool            is_looping) {
 
-        assert(group < audio_group_e_count);
+        assert(group.val < audio_group_e_count);
         assert(src.type != audio_source_type_e_none && src.frame_count != 0 && src.sample_rate != 0);
 
         hnd_audio_voice h_voice = {INVALID_HANDLE};
@@ -974,7 +962,7 @@ namespace ifb {
         const u32           channels    = src.channel_count;
         const f64           frame_count = (f64)src.frame_count;
         const bool          is_audible  = (!voice->is_paused && !voice->is_stopping);
-        const f32           gain_target = is_audible ? (voice->volume * _audio_mngr->group_volumes[voice->group]) : 0.0f;
+        const f32           gain_target = is_audible ? (voice->volume * _audio_mngr->group_volumes[voice->group.val]) : 0.0f;
         const f32           gain_step   = 1.0f / (f32)config::audio_fade_frames;
         f32*                scratch     = _audio_mngr->scratch;
 
@@ -1033,7 +1021,7 @@ namespace ifb {
 
                 for (
                     u32 i_channel = 0;
-                        i_channel < buffer.channel_count;
+                        i_channel < config::audio_channel_count;
                       ++i_channel) {
 
                     // mono goes to every channel
@@ -1041,7 +1029,7 @@ namespace ifb {
                     const f32 sample_a    = scratch[index_a + src_channel];
                     const f32 sample_b    = scratch[index_b + src_channel];
 
-                    buffer.samples[(i_frame * buffer.channel_count) + i_channel] += (sample_a + ((sample_b - sample_a) * blend)) * voice->gain;
+                    buffer.samples[(i_frame * config::audio_channel_count) + i_channel] += (sample_a + ((sample_b - sample_a) * blend)) * voice->gain;
                 }
 
                 position += voice->step;
@@ -1093,18 +1081,18 @@ namespace ifb {
 
             for (
                 u32 i_channel = 0;
-                    i_channel < buffer.channel_count;
+                    i_channel < config::audio_channel_count;
                   ++i_channel) {
 
-                f32& sample = buffer.samples[(i_frame * buffer.channel_count) + i_channel];
+                f32& sample = buffer.samples[(i_frame * config::audio_channel_count) + i_channel];
                 sample *= gain;
                 if      (sample >  1.0f) { sample =  1.0f; ++_audio_mngr->output_clip_count; }
                 else if (sample < -1.0f) { sample = -1.0f; ++_audio_mngr->output_clip_count; }
             }
 
             // a copy for the gui, what the device gets
-            f32* output = &_audio_mngr->output[_audio_mngr->output_write * buffer.channel_count];
-            memcpy(output, &buffer.samples[i_frame * buffer.channel_count], buffer.channel_count * sizeof(f32));
+            f32* output = &_audio_mngr->output[_audio_mngr->output_write * config::audio_channel_count];
+            memcpy(output, &buffer.samples[i_frame * config::audio_channel_count], config::audio_channel_count * sizeof(f32));
             _audio_mngr->output_write = (_audio_mngr->output_write + 1) % config::audio_output_frames;
         }
     }

@@ -1,7 +1,6 @@
 #ifndef ENG_ASSET_HPP
 #define ENG_ASSET_HPP
 
-#include "asset-database.cpp"
 #include "ifb.hpp"
 #include "json.cpp" //TODO(SAM): lets make this a header if possible
 #include "sld.hpp"
