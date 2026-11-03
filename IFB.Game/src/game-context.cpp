@@ -33,10 +33,20 @@ namespace ifb {
                 cllsn_data.b == entities->static_entity_3
         ); 
 
-        const bool should_play_boop = (has_connor && has_box);
-        if (should_play_boop) {
-            eng_audio_sound_play("BOOP", 0.5f, false);
-        }
+        if (!has_connor || !has_box) return;
+
+        // only a new bump, not every step connor stays against the box
+        auto       audio          = _game_ctx->audio;
+        const bool is_new_contact = (audio->time_s - audio->box_contact_time_s) >= GAME_BOOP_CONTACT_GAP_S;
+        audio->box_contact_time_s = audio->time_s;
+        if (!is_new_contact) return;
+
+        // and never on top of the last boop, the handle goes stale when it finishes
+        audio_voice_info info;
+        const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
+        if (is_boop_playing) return;
+
+        audio->h_boop = eng_audio_sound_play("BOOP", GAME_BOOP_VOLUME, false);
     }
 
     IFB_INTERNAL game_context*
@@ -51,18 +61,26 @@ namespace ifb {
         auto map      =        (game_map*)eng_arena_push(arena_h, sizeof(game_map));
         auto entities =   (game_entities*)eng_arena_push(arena_h, sizeof(game_entities));
         auto sprites  =    (game_sprites*)eng_arena_push(arena_h, sizeof(game_sprites));
+        auto audio    =      (game_audio*)eng_arena_push(arena_h, sizeof(game_audio));
 
         assert(ctx      != NULL);
         assert(rig      != NULL);
         assert(map      != NULL);
         assert(entities != NULL);
         assert(sprites  != NULL);
+        assert(audio    != NULL);
 
         ctx->global_arena = arena_h;
         ctx->player_rig   = rig;
-        ctx->map          = map; 
-        ctx->entities     = entities; 
-        ctx->sprites      = sprites; 
+        ctx->map          = map;
+        ctx->entities     = entities;
+        ctx->sprites      = sprites;
+        ctx->audio        = audio;
+
+        // nothing is playing, and the first contact counts as a bump
+        audio->h_boop             = {INVALID_HANDLE};
+        audio->time_s             = 0.0;
+        audio->box_contact_time_s = -GAME_BOOP_CONTACT_GAP_S;
 
         // load the sprite atlas
         sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
@@ -120,6 +138,9 @@ namespace ifb {
         auto player_rig = ctx->player_rig;
         auto map        = ctx->map;
         auto entities   = ctx->entities;
+
+        // the same step the physics uses, so the contact gap is measured in the time the collisions happen in
+        ctx->audio->time_s += eng_system_get_delta_time_s();
 
         game_player_rig_update_and_render (ctx->player_rig);
         game_player_rig_update_camera     (ctx->player_rig);
