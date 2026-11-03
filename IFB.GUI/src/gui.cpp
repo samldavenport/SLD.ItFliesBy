@@ -124,7 +124,7 @@ namespace ifb {
         gui_engine_sprite_atlas_builder   (sprite_atlas_builder);
         gui_engine_sprite_atlas_inspector (sprite_atlas_inspector);
         gui_engine_audio_test             (eng_audio_test);
-        gui_engine_wav_player             (eng_wav_player); // after the audio test, which overwrites the buffer
+        gui_engine_wav_player             (eng_wav_player);
         gui_renderer_camera               (rndr_camera);
         gui_entity_manager                (entity_manager);
         gui_quad_manager                  (quad_manager);
