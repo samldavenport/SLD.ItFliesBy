@@ -22,7 +22,7 @@ namespace ifb {
         entity e;
         const bool found_entity = (
             entity_lookup_by_id(e, id) &&
-            e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE)
+            e.archetype.has_all(ARCHETYPE_SPRITE)
         );
 
         if (!found_entity) {
@@ -52,8 +52,8 @@ namespace ifb {
 	const quad_entity& q) {
 
         assert(
-            q.archetype.has_all(ENTITY_ARCHETYPE_SPRITE) &&
-            q.id  != ENTITY_ID_INVALID                 &&
+            q.archetype.has_all(ARCHETYPE_SPRITE) &&
+            q.id  != ENTITY_ID_INVALID            &&
             q.tag != NULL 
         );
 
@@ -86,7 +86,7 @@ namespace ifb {
         entity e;
         const bool does_exist = (
             entity_lookup_by_id(e, id) &&
-            e.archetype.has_all(ENTITY_ARCHETYPE_SPRITE)
+            e.archetype.has_all(ARCHETYPE_SPRITE)
         );
 
         return(does_exist);

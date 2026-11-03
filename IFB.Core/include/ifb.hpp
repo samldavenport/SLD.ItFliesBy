@@ -552,13 +552,7 @@ namespace ifb {
         cmpnt_sprite        sprite;
     };
 
-    //--------------------------------------------------------------------
-    // ENTITIES
-    //--------------------------------------------------------------------
-
-    constexpr u32 ENTITY_ID_INVALID = INVALID_U32;
-
-    static const component_type ENTITY_ARCHETYPE_SPRITE = (
+    static const component_type ARCHETYPE_SPRITE = (
         cmpnt_type_e_position   |
         cmpnt_type_e_color      |
         cmpnt_type_e_quad       |
@@ -566,7 +560,7 @@ namespace ifb {
         cmpnt_type_e_sprite
     );
 
-    static const component_type ENTITY_ARCHETYPE_PHYSICS_PARTICLE = (
+    static const component_type ARCHETYPE_PHYSICS_PARTICLE = (
         cmpnt_type_e_position      |
         cmpnt_type_e_velocity      |
         cmpnt_type_e_acceleration  |
@@ -575,9 +569,9 @@ namespace ifb {
         cmpnt_type_e_term_velocity
     );
 
-    static const component_type ENTITY_ARCHETYPE_PHYSICS_SPRITE = (
-        ENTITY_ARCHETYPE_SPRITE |
-        ENTITY_ARCHETYPE_PHYSICS_PARTICLE
+    static const component_type ARCHETYPE_PHYSICS_SPRITE = (
+        ARCHETYPE_SPRITE |
+        ARCHETYPE_PHYSICS_PARTICLE
     );
 
     struct archetype {
@@ -607,6 +601,11 @@ namespace ifb {
         }
     };
 
+    //--------------------------------------------------------------------
+    // ENTITIES
+    //--------------------------------------------------------------------
+
+    constexpr u32 ENTITY_ID_INVALID = INVALID_U32;
     struct entity {
         const char* tag;
         entity_id   id;

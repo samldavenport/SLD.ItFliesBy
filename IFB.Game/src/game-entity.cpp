@@ -60,7 +60,7 @@ namespace ifb {
         if (id == ENTITY_ID_INVALID) return(ENTITY_ID_INVALID);
 
         bool did_spawn = true;
-        did_spawn &= eng_entity_add_components (id, ENTITY_ARCHETYPE_SPRITE);
+        did_spawn &= eng_entity_add_components (id, ARCHETYPE_SPRITE);
         did_spawn &= eng_atype_update_sprite   (id, sprite);
         did_spawn &= eng_entity_set_sprite     (id, atlas_name_cstr, sprite_name_cstr);
 

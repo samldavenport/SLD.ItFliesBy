@@ -88,7 +88,6 @@
 #include "physics-collision-resolver.cpp"
 
 #include "quad.cpp"
-#include "quad-tests.cpp"
 
 #include "random-table.cpp"
 #include "renderer.cpp"
