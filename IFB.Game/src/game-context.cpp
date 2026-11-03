@@ -23,14 +23,14 @@ namespace ifb {
 
         const bool has_connor = (cllsn_data.a == player_rig->connor_id || cllsn_data.b == player_rig->connor_id); 
         const bool has_box    = (
-                cllsn_data.a == entities->static_entity_0 ||
-                cllsn_data.b == entities->static_entity_0 ||
-                cllsn_data.a == entities->static_entity_1 ||
-                cllsn_data.b == entities->static_entity_1 ||
-                cllsn_data.a == entities->static_entity_2 ||
-                cllsn_data.b == entities->static_entity_2 ||
-                cllsn_data.a == entities->static_entity_3 ||
-                cllsn_data.b == entities->static_entity_3
+            cllsn_data.a == entities->static_entity_0 ||
+            cllsn_data.b == entities->static_entity_0 ||
+            cllsn_data.a == entities->static_entity_1 ||
+            cllsn_data.b == entities->static_entity_1 ||
+            cllsn_data.a == entities->static_entity_2 ||
+            cllsn_data.b == entities->static_entity_2 ||
+            cllsn_data.a == entities->static_entity_3 ||
+            cllsn_data.b == entities->static_entity_3
         ); 
 
         if (!has_connor || !has_box) return;
