@@ -58,18 +58,18 @@ namespace ifb {
         assert(_entity_mngr->capacity.sparse != 0);
         
         // cast pointers
-        const u32  size_entity_ids   = (sizeof(entity_id)        * _entity_mngr->capacity.dense);
-        const u32  size_entity_tags  = (sizeof(entity_tag)       * _entity_mngr->capacity.dense);
-        const u32  size_entity_arch  = (sizeof(entity_archetype) * _entity_mngr->capacity.dense); 
-        const u32  size_index_sparse = (sizeof(u32)              * _entity_mngr->capacity.dense); 
-        const u32  size_index_dense  = (sizeof(u32)              * _entity_mngr->capacity.sparse); 
+        const u32  size_entity_ids   = (sizeof(entity_id) * _entity_mngr->capacity.dense);
+        const u32  size_entity_tags  = (sizeof(tag)       * _entity_mngr->capacity.dense);
+        const u32  size_entity_arch  = (sizeof(archetype) * _entity_mngr->capacity.dense); 
+        const u32  size_index_sparse = (sizeof(u32)       * _entity_mngr->capacity.dense); 
+        const u32  size_index_dense  = (sizeof(u32)       * _entity_mngr->capacity.sparse); 
 
         // set the properties
-        _entity_mngr->data.dense.id           =        (entity_id*)reservation_push_bytes(res, size_entity_ids);
-        _entity_mngr->data.dense.tag          =       (entity_tag*)reservation_push_bytes(res, size_entity_tags);
-        _entity_mngr->data.dense.archetype    = (entity_archetype*)reservation_push_bytes(res, size_entity_arch);
-        _entity_mngr->data.dense.sparse_index =              (u32*)reservation_push_bytes(res, size_index_sparse);
-        _entity_mngr->data.sparse.dense_index =              (u32*)reservation_push_bytes(res, size_index_dense);
+        _entity_mngr->data.dense.id           = (entity_id*)reservation_push_bytes(res, size_entity_ids);
+        _entity_mngr->data.dense.tag          =       (tag*)reservation_push_bytes(res, size_entity_tags);
+        _entity_mngr->data.dense.archetype    = (archetype*)reservation_push_bytes(res, size_entity_arch);
+        _entity_mngr->data.dense.sparse_index =       (u32*)reservation_push_bytes(res, size_index_sparse);
+        _entity_mngr->data.sparse.dense_index =       (u32*)reservation_push_bytes(res, size_index_dense);
 
         assert(_entity_mngr->data.dense.id);
         assert(_entity_mngr->data.dense.tag);

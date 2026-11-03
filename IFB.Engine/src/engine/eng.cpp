@@ -48,7 +48,6 @@
 #include "entity-lookup.cpp"
 #include "entity-manager.cpp"
 #include "entity-sparse-set.cpp"
-#include "entity-testing.cpp"
 
 #include "events.cpp"
 

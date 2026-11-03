@@ -72,15 +72,16 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
-    constexpr u32 INVALID_U16       = 0xFFFF;
-    constexpr u32 INVALID_U32       = 0xFFFFFFFF;
-    constexpr u32 INVALID_INDEX     = INVALID_U32;
-    constexpr u32 INVALID_HASH_32   = INVALID_U32;
-    constexpr u32 INVALID_HANDLE    = INVALID_U32;
-    constexpr u32 INVALID_ID        = INVALID_U32;
-    constexpr f32 POS_MAX           =  1.0f;
-    constexpr f32 POS_MIN           = -1.0f;
-
+    constexpr u32 INVALID_U16     = 0xFFFF;
+    constexpr u32 INVALID_U32     = 0xFFFFFFFF;
+    constexpr u32 INVALID_INDEX   = INVALID_U32;
+    constexpr u32 INVALID_HASH_32 = INVALID_U32;
+    constexpr u32 INVALID_HANDLE  = INVALID_U32;
+    constexpr u32 INVALID_ID      = INVALID_U32;
+    constexpr f32 POS_MAX         =  1.0f;
+    constexpr f32 POS_MIN         = -1.0f;
+    constexpr u32 TAG_SIZE        = 16;
+    
     //--------------------------------------------------------------------
     // HANDLES & IDS
     //--------------------------------------------------------------------
@@ -100,6 +101,36 @@ namespace ifb {
     //--------------------------------------------------------------------
     // COMMON TYPES
     //--------------------------------------------------------------------
+
+    struct tag {
+
+        cchar cstr[TAG_SIZE];
+
+        tag(const cchar* cstr) {
+            memset((void*)this->cstr, 0, TAG_SIZE);
+            const u32 len = strnlen_s(cstr, TAG_SIZE);
+            (void)strncpy_s(this->cstr, cstr, len);
+        }
+
+        inline void
+        init(
+            const cchar* cstr) {
+
+            assert(cstr);
+
+            memset((void*)this->cstr, 0, TAG_SIZE);
+
+            const u32 len = strnlen_s(cstr, TAG_SIZE);
+            (void)strncpy_s(this->cstr, cstr, len);
+        }
+
+        inline entity_id
+        to_id(void) const {
+
+            const entity_id id = hash_u32((void*)this->cstr, TAG_SIZE);
+            return(id);
+        }
+    };
 
     using pixel      = color_rgba_u32;
     using origin_3d  = vec3;
@@ -526,7 +557,6 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     constexpr u32 ENTITY_ID_INVALID = INVALID_U32;
-    constexpr u32 ENTITY_TAG_SIZE   = 16;
 
     static const component_type ENTITY_ARCHETYPE_SPRITE = (
         cmpnt_type_e_position   |
@@ -550,12 +580,12 @@ namespace ifb {
         ENTITY_ARCHETYPE_PHYSICS_PARTICLE
     );
 
-    struct entity_archetype {
+    struct archetype {
 
         component_type cmpnt_mask;
 
-        entity_archetype(void) = default;
-        entity_archetype(const component_type val) : cmpnt_mask(val) {}
+        archetype(void) = default;
+        archetype(const component_type val) : cmpnt_mask(val) {}
 
         inline void reset(void) {
             cmpnt_mask = 0;
@@ -578,11 +608,11 @@ namespace ifb {
     };
 
     struct entity {
-        const char*      tag;
-        entity_id        id;
-        entity_archetype archetype;
-        u32              index_sparse;
-        u32              index_dense;
+        const char* tag;
+        entity_id   id;
+        archetype   archetype;
+        u32         index_sparse;
+        u32         index_dense;
     };
 
     struct quad_entity : entity {
@@ -598,26 +628,6 @@ namespace ifb {
         component_type has_none;
     };
 
-    struct tag {
-        cchar cstr[16];
-
-        tag(const cchar* cstr) {
-            memset((void*)this->cstr, 0, ENTITY_TAG_SIZE);
-            const u32 len = strnlen_s(cstr, ENTITY_TAG_SIZE);
-            (void)strncpy_s(this->cstr, cstr, len);
-        }
-        inline void
-        init(
-            const cchar* tag_cstr)  {
-            assert(cstr != NULL);
-            (void)strncpy_s(cstr, 16, tag_cstr, 16);
-        }
-
-        inline u32
-        hash(void) {
-            return(hash_u32((void*)cstr, 16));
-        }
-    };
     
     //--------------------------------------------------------------------
     // EVENTS 

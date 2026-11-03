@@ -18,7 +18,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     static u32    _selected_row                          = INVALID_INDEX;
-    static cchar  _input_tag[ENTITY_TAG_SIZE]            = {0};
+    static cchar  _input_tag[TAG_SIZE]            = {0};
     static cchar  _selection_label[SELECTION_LABEL_SIZE] = {0};
     static entity _selected_entity                       = {0};
 
@@ -58,12 +58,12 @@ namespace ifb {
     entity_input(
         void) {
 
-        ImGui::InputText("Entity Tag", _input_tag, ENTITY_TAG_SIZE, ImGuiInputFlags_None);
+        ImGui::InputText("Entity Tag", _input_tag, TAG_SIZE, ImGuiInputFlags_None);
         ImGui::SameLine();
         if (ImGui::Button("Create Entity")) {
             const entity_id id_new  = eng_entity_create(_input_tag);
             assert(id_new != ENTITY_ID_INVALID);
-            memset(_input_tag, 0, ENTITY_TAG_SIZE);
+            memset(_input_tag, 0, TAG_SIZE);
         }
     }
 

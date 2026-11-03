@@ -33,7 +33,7 @@ namespace ifb {
         
         assert(tag_cstr != NULL);
 
-        const entity_id id         = hash_u32((void*)tag_cstr, ENTITY_TAG_SIZE);
+        const entity_id id         = hash_u32((void*)tag_cstr, TAG_SIZE);
         const bool      did_update = entity_component_add(id, types);
         return(did_update);
     }
@@ -65,7 +65,7 @@ namespace ifb {
         
         assert(tag_cstr != NULL);
 
-        const entity_id id         = hash_u32((void*)tag_cstr, ENTITY_TAG_SIZE);
+        const entity_id id         = hash_u32((void*)tag_cstr, TAG_SIZE);
         const bool      did_update = entity_component_remove(id, types);
         return(did_update);
     }

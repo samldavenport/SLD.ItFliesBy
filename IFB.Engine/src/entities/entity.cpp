@@ -19,7 +19,7 @@ namespace ifb {
         }
 
         // create the id and tag
-        const entity_tag tag = tag_cstr;
+        const tag tag = tag_cstr;
         const entity_id  id  = tag.to_id(); 
         assert(id != ENTITY_ID_INVALID);
 
@@ -77,8 +77,8 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_add_archetype(
-        const entity_id        id,
-        const entity_archetype atype) {
+        const entity_id id,
+        const archetype atype) {
 
         assert(id != ENTITY_ID_INVALID);
 
@@ -92,8 +92,8 @@ namespace ifb {
 
     IFB_INTERNAL bool
     entity_remove_archetype(
-        const entity_id        id,
-        const entity_archetype atype) {
+        const entity_id id,
+        const archetype atype) {
         
         assert(id != ENTITY_ID_INVALID);
 

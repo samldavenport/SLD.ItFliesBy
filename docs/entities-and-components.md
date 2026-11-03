@@ -4,7 +4,7 @@ The engine uses an entity-component layout: an entity is an ID with a set of com
 
 ## Entities
 
-An entity is created from a tag of up to `ENTITY_TAG_SIZE` (16) characters. The `entity_id` is the hash of the tag, so the same tag always maps to the same ID, and tags must be unique.
+An entity is created from a tag of up to `TAG_SIZE` (16) characters. The `entity_id` is the hash of the tag, so the same tag always maps to the same ID, and tags must be unique.
 
 ```cpp
 entity_id id = eng_entity_create("CONNOR");
