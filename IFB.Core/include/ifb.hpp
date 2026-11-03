@@ -90,6 +90,7 @@ namespace ifb {
 
     IFB_HANDLE(hnd_arena);
     IFB_HANDLE(hnd_asset);
+    IFB_HANDLE(hnd_audio_voice);
     IFB_HANDLE(hnd_file);
     IFB_HANDLE(hnd_map);
     IFB_HANDLE(hnd_particle_emitter);
@@ -676,6 +677,19 @@ namespace ifb {
         u32  underrun_count;
         f32  frame_gap_ms;
         f32  frame_gap_ms_max;
+        u32  voice_count;
+        u32  voice_capacity;
+    };
+
+    // the position is in frames of the source, which may not be at the device's sample rate
+    struct audio_voice_info {
+        f64  position;
+        u32  frame_count;
+        u32  sample_rate;
+        f32  volume;
+        bool is_paused;
+        bool is_looping;
+        bool is_stopping; // fading out, it's freed when the fade is done
     };
 
 };

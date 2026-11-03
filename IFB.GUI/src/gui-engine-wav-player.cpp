@@ -24,30 +24,31 @@ namespace ifb {
     // DEFINITIONS
     //--------------------------------------------------------------------
 
-    // the position and gain carry over between frames, a jump in either is an audible click
+    // the audio manager plays the file, this keeps the settings for the next voice
+    // and the position while there's no voice, like after stopping
     struct wav_player_state {
-        const wav*  w;
-        hnd_arena   h_arena; // only valid when there's a wav
-        const char* status;
-        char        path [WAV_PLAYER_PATH_SIZE];
-        u32         frame_count;
-        u32         peak_count;
-        f64         position; // in frames of the file, which may not be at the device's sample rate
-        f32         gain;
-        f32         volume = 0.5f;
-        bool        is_playing;
-        bool        is_looping;
-        bool        is_rewinding; // stopped, and goes back to the start when the fade out is done
-        f32         peaks[WAV_PLAYER_PEAK_COUNT];
+        const wav*      w;
+        hnd_arena       h_arena; // only valid when there's a wav
+        hnd_audio_voice h_voice = {INVALID_HANDLE};
+        const char*     status;
+        char            path [WAV_PLAYER_PATH_SIZE];
+        u32             frame_count;
+        u32             peak_count;
+        f64             position;
+        f32             volume = 0.5f;
+        bool            is_playing;
+        bool            is_looping;
+        f32             peaks[WAV_PLAYER_PEAK_COUNT];
     } static _wav_player;
 
     //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS
     //--------------------------------------------------------------------
 
-    IFB_INLINE void wav_player_mix          (const bool is_open);
+    IFB_INLINE void wav_player_sync         (void);
     IFB_INLINE void wav_player_open         (void);
     IFB_INLINE void wav_player_close        (void);
+    IFB_INLINE void wav_player_play         (void);
     IFB_INLINE void wav_player_build_peaks  (void);
     IFB_INLINE void wav_player_controls     (void);
 
@@ -61,11 +62,16 @@ namespace ifb {
 
         auto& state = _wav_player;
 
-        // keep writing while the window closes, so the sound fades out instead of cutting off
-        if (!is_open) state.is_playing = false;
-        wav_player_mix(is_open);
+        wav_player_sync();
 
-        if (!is_open) return;
+        // closing the window pauses, the voice fades out and keeps its place
+        if (!is_open) {
+            if (state.is_playing) {
+                eng_audio_voice_set_paused(state.h_voice, true);
+                state.is_playing = false;
+            }
+            return;
+        }
 
         if (ImGui::Begin(_gui_str->window_engine_wav_player, &is_open)) {
 
@@ -101,81 +107,23 @@ namespace ifb {
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------
 
-    // adds to the buffer, so this can play on top of the audio test
+    // reads the voice back from the audio manager, it's freed when it reaches the end of the file
     IFB_INLINE void
-    wav_player_mix(
-        const bool is_open) {
+    wav_player_sync(
+        void) {
 
         auto& state = _wav_player;
-        if (!state.w) return;
+        if (state.h_voice == INVALID_HANDLE) return;
 
-        const bool is_audible = (state.is_playing && is_open);
-
-        audio_buffer buffer;
-        if (eng_audio_get_buffer(buffer) && (is_audible || state.gain > 0.0f)) {
-
-            const wav_format& format      = state.w->format;
-            const f64         step        = (f64)format.sample_rate / (f64)buffer.sample_rate;
-            const f32         gain_target = is_audible ? state.volume : 0.0f;
-            const f32         gain_step   = 1.0f / ((f32)buffer.sample_rate * GUI_AUDIO_FADE_SECONDS);
-
-            for (
-                u32 i_frame = 0;
-                    i_frame < buffer.frame_count;
-                  ++i_frame) {
-
-                if      (state.gain < gain_target) { state.gain += gain_step; if (state.gain > gain_target) state.gain = gain_target; }
-                else if (state.gain > gain_target) { state.gain -= gain_step; if (state.gain < gain_target) state.gain = gain_target; }
-
-                // the fade out is done
-                if (!is_audible && state.gain <= 0.0f) break;
-
-                // the end of the file
-                if (state.position >= (f64)state.frame_count) {
-                    if (state.is_looping) {
-                        state.position -= (f64)state.frame_count;
-                    }
-                    else {
-                        state.position   = 0.0;
-                        state.gain       = 0.0f;
-                        state.is_playing = false;
-                        break;
-                    }
-                }
-
-                // the file's sample rate may not match the device, so this blends the 2 closest frames
-                const u32 frame_a = (u32)state.position;
-                const f32 blend   = (f32)(state.position - (f64)frame_a);
-                u32       frame_b = frame_a + 1;
-                if (frame_b >= state.frame_count) {
-                    frame_b = state.is_looping ? 0 : frame_a;
-                }
-
-                for (
-                    u32 i_channel = 0;
-                        i_channel < buffer.channel_count;
-                      ++i_channel) {
-
-                    // mono goes to every channel, extra channels in the file are ignored
-                    const u32 file_channel = (i_channel < format.num_channels) ? i_channel : (u32)(format.num_channels - 1);
-
-                    const f32 sample_a = eng_wav_get_sample(state.w, frame_a, file_channel);
-                    const f32 sample_b = eng_wav_get_sample(state.w, frame_b, file_channel);
-                    const f32 sample   = (sample_a + ((sample_b - sample_a) * blend)) * state.gain;
-
-                    f32& out = buffer.samples[(i_frame * buffer.channel_count) + i_channel];
-                    out += sample;
-                    if      (out >  1.0f) out =  1.0f;
-                    else if (out < -1.0f) out = -1.0f;
-                }
-
-                state.position += step;
-            }
+        audio_voice_info info;
+        if (eng_audio_voice_get_info(state.h_voice, info)) {
+            state.position   = info.position;
+            state.is_playing = !info.is_paused;
         }
-
-        if (state.is_rewinding && state.gain <= 0.0f) {
-            state.position     = 0.0;
-            state.is_rewinding = false;
+        else {
+            state.h_voice    = {INVALID_HANDLE};
+            state.position   = 0.0;
+            state.is_playing = false;
         }
     }
 
@@ -203,37 +151,57 @@ namespace ifb {
         }
 
         if (state.w) {
-            eng_arena_free(state.h_arena);
+            wav_player_close();
         }
 
         strncpy_s(state.path, path, WAV_PLAYER_PATH_SIZE - 1);
-        state.w            = w;
-        state.h_arena      = h_arena;
-        state.frame_count  = eng_wav_get_frame_count(w);
-        state.position     = 0.0;
-        state.gain         = 0.0f;
-        state.is_playing   = false;
-        state.is_rewinding = false;
-        state.status       = "Opened the file";
+        state.w           = w;
+        state.h_arena     = h_arena;
+        state.frame_count = eng_wav_get_frame_count(w);
+        state.status      = "Opened the file";
 
         wav_player_build_peaks();
     }
 
+    // the voices have to go before the memory they read, including one that's still fading out after a stop
     IFB_INLINE void
     wav_player_close(
         void) {
 
         auto& state = _wav_player;
 
+        eng_audio_voice_stop_all_using(state.w);
         eng_arena_free(state.h_arena);
 
-        state.w            = NULL;
-        state.path[0]      = 0;
-        state.position     = 0.0;
-        state.gain         = 0.0f;
-        state.is_playing   = false;
-        state.is_rewinding = false;
-        state.status       = NULL;
+        state.w          = NULL;
+        state.h_voice    = {INVALID_HANDLE};
+        state.path[0]    = 0;
+        state.position   = 0.0;
+        state.is_playing = false;
+        state.status     = NULL;
+    }
+
+    // resumes the paused voice, or starts a new one where the position is
+    IFB_INLINE void
+    wav_player_play(
+        void) {
+
+        auto& state = _wav_player;
+
+        if (state.h_voice != INVALID_HANDLE) {
+            eng_audio_voice_set_paused(state.h_voice, false);
+            state.is_playing = true;
+            return;
+        }
+
+        state.h_voice = eng_audio_voice_play(state.w, state.volume, state.is_looping);
+        if (state.h_voice == INVALID_HANDLE) {
+            state.status = "Failed to play the file, there's no audio device or every voice is in use";
+            return;
+        }
+
+        eng_audio_voice_seek(state.h_voice, state.position);
+        state.is_playing = true;
     }
 
     // the loudest sample in each slice of the file, for the waveform
@@ -297,21 +265,28 @@ namespace ifb {
         ImGui::SeparatorText("Playback");
 
         if (ImGui::Button(state.is_playing ? "Pause" : "Play")) {
-            state.is_playing = !state.is_playing;
-            if (state.is_playing && state.is_rewinding) {
-                state.position     = 0.0;
-                state.is_rewinding = false;
+            if (state.is_playing) {
+                eng_audio_voice_set_paused(state.h_voice, true);
+                state.is_playing = false;
+            }
+            else {
+                wav_player_play();
             }
         }
 
+        // the voice fades out on its own, so the next play gets a new one from the start
         ImGui::SameLine();
         if (ImGui::Button("Stop")) {
-            state.is_playing   = false;
-            state.is_rewinding = true;
+            eng_audio_voice_stop(state.h_voice);
+            state.h_voice    = {INVALID_HANDLE};
+            state.position   = 0.0;
+            state.is_playing = false;
         }
 
         ImGui::SameLine();
-        ImGui::Checkbox("Loop", &state.is_looping);
+        if (ImGui::Checkbox("Loop", &state.is_looping)) {
+            eng_audio_voice_set_looping(state.h_voice, state.is_looping);
+        }
 
         ImGui::PlotHistogram(
             "##wav-player-peaks",
@@ -336,10 +311,12 @@ namespace ifb {
 
         f32 seconds = (f32)(state.position / (f64)format.sample_rate);
         if (ImGui::SliderFloat("Position", &seconds, 0.0f, duration, "%.2f s")) {
-            state.position     = (f64)seconds * (f64)format.sample_rate;
-            state.is_rewinding = false;
+            state.position = (f64)seconds * (f64)format.sample_rate;
+            eng_audio_voice_seek(state.h_voice, state.position);
         }
 
-        ImGui::SliderFloat("Volume", &state.volume, 0.0f, 1.0f, "%.2f");
+        if (ImGui::SliderFloat("Volume", &state.volume, 0.0f, 1.0f, "%.2f")) {
+            eng_audio_voice_set_volume(state.h_voice, state.volume);
+        }
     }
 };

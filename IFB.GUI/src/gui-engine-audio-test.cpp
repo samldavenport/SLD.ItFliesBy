@@ -142,6 +142,7 @@ namespace ifb {
             ImGui::Text("Frame Gap:      %.1f ms", info.frame_gap_ms);
             ImGui::Text("Frame Gap Max:  %.1f ms", info.frame_gap_ms_max);
             ImGui::Text("Underruns:      %u",      info.underrun_count);
+            ImGui::Text("Voices:         %u / %u", info.voice_count, info.voice_capacity);
 
             if (ImGui::Button("Reset Stats")) {
                 eng_audio_reset_stats();
