@@ -48,6 +48,7 @@ eng_audio_voice_stop       (h_voice);
 | Function | Description |
 | --- | --- |
 | `eng_audio_voice_play` | Start a voice from the beginning of a wav. Returns an invalid handle if there's no device or every voice is in use. |
+| `eng_audio_sound_play` | Start a voice on a [sound asset](assets.md#sounds) by name. Also returns an invalid handle if there's no sound by that name, or no room to load it. |
 | `eng_audio_voice_stop` | Fade out, then free the voice |
 | `eng_audio_voice_stop_now` | Free the voice without a fade |
 | `eng_audio_voice_stop_all_using` | Free every voice playing a wav, without a fade |
@@ -60,7 +61,7 @@ eng_audio_voice_stop       (h_voice);
 Things to know:
 
 - **A voice frees itself at the end of a wav** unless it's looping, so a sound can be played and forgotten. Its handle goes stale, and every call with a stale handle does nothing.
-- **The wav has to stay in memory until every voice playing it is freed.** A stopped voice keeps reading it while it fades out, so call `eng_audio_voice_stop_all_using` before freeing it.
+- **The wav has to stay in memory until every voice playing it is freed.** A stopped voice keeps reading it while it fades out, so call `eng_audio_voice_stop_all_using` before freeing it. Sound assets take care of this themselves, a voice keeps its sound pinned until it's freed.
 - **Every change fades over 20 ms** (`IFB_CONFIG_AUDIO_FADE_MS`): starting, stopping, pausing, resuming, and volume. Seeking doesn't fade, so it can click once.
 - **The mix clips.** Voices are added together and clamped to `-1` to `1` once at the end, so many loud voices at once will distort.
 - **Voices are main thread only**, like the rest of audio.

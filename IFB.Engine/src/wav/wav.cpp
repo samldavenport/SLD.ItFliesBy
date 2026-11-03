@@ -5,22 +5,21 @@
 
 namespace ifb {
 
-    IFB_INTERNAL wav*
-    wav_parse_data(
-        const byte*     data,
-        const u32       length,
-        const hnd_arena h_arena) {
+    // the samples aren't copied, w.data points into the file's data, so it has to outlive the wav
+    IFB_INTERNAL bool
+    wav_parse_in_place(
+        const byte* data,
+        const u32   length,
+        wav&        w) {
 
-        assert(h_arena != INVALID_HANDLE);
-
-        if (!data || length < WAV_RIFF_HEADER) return(NULL);
+        if (!data || length < WAV_RIFF_HEADER) return(false);
 
         // validate the riff header
         u32 riff_id = 0;
         u32 wave_id = 0;
         memcpy(&riff_id, data,     sizeof(u32));
         memcpy(&wave_id, data + 8, sizeof(u32));
-        if (riff_id != WAV_CSTR_RIFF || wave_id != WAV_CSTR_WAVE) return(NULL);
+        if (riff_id != WAV_CSTR_RIFF || wave_id != WAV_CSTR_WAVE) return(false);
 
         wav_format  format    = {};
         bool        has_fmt   = false;
@@ -38,10 +37,10 @@ namespace ifb {
             pos += WAV_CHUNK_HEADER;
 
             // the chunk is truncated or corrupt
-            if (chunk_size > length - pos) return(NULL);
+            if (chunk_size > length - pos) return(false);
 
             if (chunk_id == WAV_CSTR_FMT_) {
-                if (chunk_size < sizeof(wav_format)) return(NULL);
+                if (chunk_size < sizeof(wav_format)) return(false);
                 memcpy(&format, data + pos, sizeof(wav_format));
                 has_fmt = true;
             }
@@ -55,7 +54,7 @@ namespace ifb {
             if (advance >= length - pos) break;
             pos += advance;
         }
-        if (!has_fmt || !samples) return(NULL);
+        if (!has_fmt || !samples) return(false);
 
         // validate the format
         bool is_valid = true;
@@ -72,7 +71,25 @@ namespace ifb {
         );
         is_valid &= (format.block_align == (format.num_channels * format.bits_per_sample) / 8);
         is_valid &= (data_size >= format.block_align);
-        if (!is_valid) return(NULL);
+        if (!is_valid) return(false);
+
+        w.format     = format;
+        w.data.bytes = (byte*)samples;
+        w.data.size  = data_size;
+        return(true);
+    }
+
+    // the wav and a copy of its samples go in the arena, so the file's data can go away
+    IFB_INTERNAL wav*
+    wav_parse_data(
+        const byte*     data,
+        const u32       length,
+        const hnd_arena h_arena) {
+
+        assert(h_arena != INVALID_HANDLE);
+
+        wav parsed;
+        if (!wav_parse_in_place(data, length, parsed)) return(NULL);
 
         // save the position in the arena
         const u32 save = arena_save(h_arena);
@@ -82,16 +99,15 @@ namespace ifb {
         if (!w) return(NULL);
 
         // allocate the wav data
-        w->data.bytes = (byte*)arena_push(h_arena, data_size);
+        *w            = parsed;
+        w->data.bytes = (byte*)arena_push(h_arena, parsed.data.size);
         if (w->data.bytes == NULL) {
             arena_revert(h_arena, save);
             return(NULL);
         }
 
         // copy the wav data
-        w->format    = format;
-        w->data.size = data_size;
-        (void)memcpy((void*)w->data.bytes, samples, data_size);
+        (void)memcpy((void*)w->data.bytes, parsed.data.bytes, parsed.data.size);
 
         return(w);
     }
@@ -137,4 +153,68 @@ namespace ifb {
         return(0.0f);
     }
 
+    // the frames the wav has once it's converted to sample_rate
+    IFB_INTERNAL u32
+    wav_convert_frame_count(
+        const wav& w,
+        const u32  sample_rate) {
+
+        const u64 frame_count_in  = (w.data.size / w.format.block_align);
+        const u64 frame_count_out = (frame_count_in * sample_rate) / w.format.sample_rate;
+        return((frame_count_out != 0) ? (u32)frame_count_out : 1);
+    }
+
+    // the channels the wav has once it's converted, mono stays mono and everything else is stereo
+    IFB_INTERNAL u32
+    wav_convert_channel_count(
+        const wav& w) {
+
+        return((w.format.num_channels == 1) ? 1 : 2);
+    }
+
+    // converts to interleaved 16 bit samples at sample_rate, with wav_convert_channel_count channels
+    // samples needs room for wav_convert_frame_count frames, past the first 2 channels are dropped
+    // the rate is changed by blending the 2 closest frames
+    IFB_INTERNAL void
+    wav_convert_to_s16(
+        const wav& w,
+        const u32  sample_rate,
+        s16*       samples) {
+
+        assert(samples);
+
+        const u32 frame_count_in  = (w.data.size / w.format.block_align);
+        const u32 frame_count_out = wav_convert_frame_count(w, sample_rate);
+        const u32 channel_count   = wav_convert_channel_count(w);
+        const f64 step            = (f64)w.format.sample_rate / (f64)sample_rate;
+
+        for (
+            u32 i_frame = 0;
+                i_frame < frame_count_out;
+              ++i_frame) {
+
+            const f64 position = (f64)i_frame * step;
+            const u32 frame_a  = (u32)position;
+            const f32 blend    = (f32)(position - (f64)frame_a);
+            const u32 frame_b  = (frame_a + 1 < frame_count_in) ? (frame_a + 1) : frame_a;
+
+            for (
+                u32 i_channel = 0;
+                    i_channel < channel_count;
+                  ++i_channel) {
+
+                const f32 sample_a = wav_read_sample(&w, frame_a, i_channel);
+                const f32 sample_b = wav_read_sample(&w, frame_b, i_channel);
+                const f32 sample   = sample_a + ((sample_b - sample_a) * blend);
+
+                // rounded, and clamped since a full scale sample from a higher bit depth can round past the top
+                f32 scaled = sample * 32768.0f;
+                scaled = (scaled >= 0.0f) ? (scaled + 0.5f) : (scaled - 0.5f);
+                if      (scaled >  32767.0f) scaled =  32767.0f;
+                else if (scaled < -32768.0f) scaled = -32768.0f;
+
+                samples[(i_frame * channel_count) + i_channel] = (s16)scaled;
+            }
+        }
+    }
 };

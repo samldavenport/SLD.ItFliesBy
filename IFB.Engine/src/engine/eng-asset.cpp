@@ -9,6 +9,8 @@
 #include "eng-file.hpp"
 #include "eng-memory.hpp"
 #include "eng-renderer.hpp"
+#include "eng-audio.hpp"
+#include "eng-wav.hpp"
 #include <stb_image.h>
 
 namespace ifb {
@@ -47,9 +49,11 @@ namespace ifb {
     static_assert(eng_asset_preview_e_count == RENDERER_ASSET_PREVIEW_COUNT);
 
     // the text of the last file that was previewed has its own arena
+    // a sound in the arena can be playing, so its voices are stopped before the arena is reused
     struct eng_asset_preview {
-        bool      is_init;
-        hnd_arena h_arena;
+        bool       is_init;
+        hnd_arena  h_arena;
+        const wav* sound;
     } static _eng_asset_preview[eng_asset_preview_e_count];
 
     //--------------------------------------------------------------------
@@ -69,6 +73,8 @@ namespace ifb {
     IFB_INLINE bool                              eng_asset_preview_load_text    (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_preview_load_image   (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_preview_load_sprite_atlas (const cchar* path, asset_preview& preview);
+    IFB_INLINE bool                              eng_asset_preview_load_sound   (const cchar* path, asset_preview& preview);
+    IFB_INLINE bool                              eng_asset_copy_file            (const hnd_file h_src, const hnd_file h_dst, byte* chunk, const u32 size_chunk);
     IFB_INLINE bool                              eng_asset_path_is_separator    (const cchar c);
     IFB_INLINE bool                              eng_asset_path_is_absolute     (const cchar* path);
     IFB_INLINE bool                              eng_asset_path_equals          (const cchar* path_a, const cchar* path_b);
@@ -194,7 +200,8 @@ namespace ifb {
         const bool is_in_use = (
             eng_asset_dictionary_has_id(dict->text_files,         id) ||
             eng_asset_dictionary_has_id(dict->image_files,        id) ||
-            eng_asset_dictionary_has_id(dict->sprite_atlas_files, id)
+            eng_asset_dictionary_has_id(dict->sprite_atlas_files, id) ||
+            eng_asset_dictionary_has_id(dict->sound_files,        id)
         );
         if (is_in_use) return(INVALID_HANDLE);
 
@@ -208,6 +215,7 @@ namespace ifb {
                 case asset_type_e_text:         hnd = asset_dictionary_add_text_file         (dict, name_upper, path_copy, state.h_arena); break;
                 case asset_type_e_image:        hnd = asset_dictionary_add_image_file        (dict, name_upper, path_copy, state.h_arena); break;
                 case asset_type_e_sprite_atlas: hnd = asset_dictionary_add_sprite_atlas_file (dict, name_upper, path_copy, state.h_arena); break;
+                case asset_type_e_sound:        hnd = asset_dictionary_add_sound_file        (dict, name_upper, path_copy, state.h_arena); break;
                 default: break;
             }
         }
@@ -321,6 +329,7 @@ namespace ifb {
             case asset_type_e_text:         did_load = eng_asset_preview_load_text         (path, preview); break;
             case asset_type_e_image:        did_load = eng_asset_preview_load_image        (path, preview); break;
             case asset_type_e_sprite_atlas: did_load = eng_asset_preview_load_sprite_atlas (path, preview); break;
+            case asset_type_e_sound:        did_load = eng_asset_preview_load_sound        (path, preview); break;
             default: break;
         }
 
@@ -423,8 +432,8 @@ namespace ifb {
         auto& state = _eng_asset_database;
         if (!state.db) return;
 
-        file_close (state.db->file_handle);
-        arena_free (state.h_arena);
+        asset_database_close (state.db);
+        arena_free           (state.h_arena);
         state.db = NULL;
     }
 
@@ -442,6 +451,9 @@ namespace ifb {
             eng_asset_database_set_error("There is no database open to copy");
             return(false);
         }
+
+        // a voice playing a sound asset keeps it pinned, and the database can't close with anything pinned
+        audio_mngr_voice_stop_all_sounds();
 
         if (!asset_mngr_close_database()) {
             eng_asset_database_set_error("Failed to close the runtime database, an asset is pinned");
@@ -466,31 +478,49 @@ namespace ifb {
         }
 
         if (is_valid) {
-
-            const u32 size_file = file_get_size(h_src);
-            for (
-                u32 offset = 0;
-                    offset < size_file && is_valid;
-                    offset += COPY_CHUNK_SIZE) {
-
-                const u32 size_left  = size_file - offset;
-                const u32 size_chunk = (size_left < COPY_CHUNK_SIZE) ? size_left : COPY_CHUNK_SIZE;
-                is_valid = asset_database_read_at(h_src, offset, size_chunk, chunk);
-                if (is_valid) {
-                    (void)asset_database_write_at(h_dst, offset, size_chunk, chunk);
-                }
-            }
+            is_valid = eng_asset_copy_file(h_src, h_dst, chunk, COPY_CHUNK_SIZE);
             if (!is_valid) {
                 eng_asset_database_set_error("Failed to read the open database");
             }
         }
+        if (h_dst != FILE_HANDLE_INVALID) file_close(h_dst);
+
+        // the sounds are in the bank, which goes next to the runtime database
+        // without sounds an old bank there is left alone, the new database won't open it
+        const hnd_file h_bank_src     = asset_database_get_bank(state.db);
+        bool           is_bank_copied = (h_bank_src != FILE_HANDLE_INVALID);
+        cchar          path_bank[ENG_ASSET_PATH_SIZE];
+        if (is_valid && is_bank_copied) {
+
+            is_bank_copied = asset_database_bank_path(cfg.asset_database_path, path_bank);
+            const hnd_file h_bank_dst = is_bank_copied ? file_wo_overwrite(path_bank) : hnd_file{FILE_HANDLE_INVALID};
+            is_bank_copied = (h_bank_dst != FILE_HANDLE_INVALID) && eng_asset_copy_file(h_bank_src, h_bank_dst, chunk, COPY_CHUNK_SIZE);
+            if (h_bank_dst != FILE_HANDLE_INVALID) file_close(h_bank_dst);
+
+            if (!is_bank_copied) {
+                eng_asset_database_set_error("Failed to copy the sound bank to the working directory");
+                is_valid = false;
+            }
+        }
 
         if (h_arena != INVALID_HANDLE) arena_free(h_arena);
-        if (h_dst   != FILE_HANDLE_INVALID) file_close(h_dst);
 
         // the runtime database comes back even if the copy failed, a partial copy won't load
         if (!asset_mngr_open_database() && is_valid) {
             eng_asset_database_set_error("Copied the database, but failed to load it as the runtime database");
+            is_valid = false;
+        }
+
+        // everything but the sounds works without the bank, but they won't play
+        // the runtime can still have a bank that matches, like when the same database is copied again without its bank
+        const asset_database* db_runtime = asset_mngr_get_database();
+        const bool            is_silent  = (
+            db_runtime != NULL                                &&
+            asset_database_needs_bank (db_runtime)            &&
+            asset_database_get_bank   (db_runtime) == FILE_HANDLE_INVALID
+        );
+        if (is_valid && is_silent) {
+            eng_asset_database_set_error("Copied the database, but its sound bank is missing or doesn't match, so its sounds won't play");
             is_valid = false;
         }
 
@@ -558,6 +588,17 @@ namespace ifb {
             if (!txt) return(false);
 
             preview.text = txt->cstr;
+            return(true);
+        }
+
+        // a sound is previewed as it was converted, so it sounds the way the game will play it
+        if (preview.type == asset_type_e_sound) {
+
+            const asset_sound* snd = asset_database_load_sound_by_handle_to_arena(db, h_asset, h_arena);
+            if (!snd) return(false);
+
+            preview.sound = &snd->w;
+            _eng_asset_preview[eng_asset_preview_e_database].sound = preview.sound;
             return(true);
         }
 
@@ -651,7 +692,8 @@ namespace ifb {
         asset_dictionary_file_list* lists[asset_type_e_count] = {
             &dict->text_files,
             &dict->image_files,
-            &dict->sprite_atlas_files
+            &dict->sprite_atlas_files,
+            &dict->sound_files
         };
 
         // the build needs the header in its arena with each file
@@ -756,6 +798,44 @@ namespace ifb {
                 return(false);
             }
         }
+        // sounds are read straight into the arena too, and the build needs room for the file and the converted samples
+        else if (type == asset_type_e_sound) {
+
+            const u32 save      = arena_save(h_arena);
+            byte*     file_data = (size <= arena_size_free(h_arena)) ? (byte*)arena_push(h_arena, size) : NULL;
+            if (!file_data) {
+                eng_asset_database_set_error("%s is %u bytes, which is too big to load: %s", node->name, size, path);
+                return(false);
+            }
+
+            const hnd_file h_file_sound = file_ro_open_existing(path);
+            bool           is_valid     = (h_file_sound != FILE_HANDLE_INVALID);
+            if (is_valid) {
+                file_set_cursor(h_file_sound, 0);
+                is_valid = (file_read_to_buffer(h_file_sound, size, file_data) == size);
+                file_close(h_file_sound);
+            }
+
+            wav w;
+            is_valid = is_valid && wav_parse_in_place(file_data, size, w);
+            const u64 size_samples = is_valid
+                ? (u64)wav_convert_frame_count(w, WAV_SOUND_SAMPLE_RATE) * wav_convert_channel_count(w) * sizeof(s16)
+                : 0;
+            arena_revert(h_arena, save);
+
+            if (!is_valid) {
+                eng_asset_database_set_error("%s isn't a wav that can be read, it has to be 8, 16, 24, or 32 bit PCM: %s", node->name, path);
+                return(false);
+            }
+
+            // the build has the file and the converted samples in its arena at once, and the game loads the samples into asset memory
+            const u64 size_build = (u64)size + size_samples + size_header;
+            const u64 size_asset = size_samples + sizeof(asset_sound);
+            if (size_build > IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY || size_asset > IFB_CONFIG_ASSET_SIZE_MAX) {
+                eng_asset_database_set_error("%s is %u bytes, which is too big to convert: %s", node->name, size, path);
+                return(false);
+            }
+        }
         else if (size > size_max) {
             eng_asset_database_set_error("%s is %u bytes, files can be up to %u bytes: %s", node->name, size, size_max, path);
             return(false);
@@ -816,6 +896,7 @@ namespace ifb {
         preview.texture           = 0;
         preview.width             = 0;
         preview.height            = 0;
+        preview.sound             = NULL;
     }
 
     // the arena is emptied for the next preview
@@ -829,6 +910,12 @@ namespace ifb {
             state.h_arena = arena_large_alloc();
             state.is_init = (state.h_arena != INVALID_HANDLE);
             if (!state.is_init) return(INVALID_HANDLE);
+        }
+
+        // the last sound previewed here may still be playing
+        if (state.sound) {
+            audio_mngr_voice_stop_all_using(state.sound);
+            state.sound = NULL;
         }
         arena_reset(state.h_arena);
 
@@ -919,6 +1006,39 @@ namespace ifb {
         return(true);
     }
 
+    // the sound is played as it is in the file, the build converts it
+    // the file stays in the arena, the samples are read where they are in it
+    IFB_INLINE bool
+    eng_asset_preview_load_sound(
+        const cchar*   path,
+        asset_preview& preview) {
+
+        const hnd_arena h_arena = eng_asset_preview_get_arena(eng_asset_preview_e_dictionary);
+        if (h_arena == INVALID_HANDLE) return(false);
+
+        const hnd_file h_file = file_ro_open_existing(path);
+        if (h_file == FILE_HANDLE_INVALID) return(false);
+
+        const u32 size = file_get_size(h_file);
+        const u32 size_push = sizeof(wav) + size;
+        byte*     data      = (size != 0 && size_push <= arena_size_free(h_arena)) ? (byte*)arena_push(h_arena, size_push) : NULL;
+        bool      is_valid  = (data != NULL);
+        if (is_valid) {
+            file_set_cursor(h_file, 0);
+            is_valid = (file_read_to_buffer(h_file, size, data + sizeof(wav)) == size);
+        }
+        file_close(h_file);
+
+        // the wav goes in front of the file data
+        wav* w = (wav*)data;
+        is_valid = is_valid && wav_parse_in_place(data + sizeof(wav), size, *w);
+        if (!is_valid) return(false);
+
+        preview.sound = w;
+        _eng_asset_preview[eng_asset_preview_e_dictionary].sound = w;
+        return(true);
+    }
+
     // there is always a dictionary to edit, it starts out empty
     IFB_INLINE asset_dictionary*
     eng_asset_dictionary_get(
@@ -991,7 +1111,8 @@ namespace ifb {
         asset_dictionary_file_list* lists[asset_type_e_count] = {
             &state.dict->text_files,
             &state.dict->image_files,
-            &state.dict->sprite_atlas_files
+            &state.dict->sprite_atlas_files,
+            &state.dict->sound_files
         };
 
         for (
@@ -1033,6 +1154,28 @@ namespace ifb {
             if (dir[index] == 0) break;
         }
 
+        return(true);
+    }
+
+    // copies the whole file a chunk at a time, the files can be bigger than an arena
+    IFB_INLINE bool
+    eng_asset_copy_file(
+        const hnd_file h_src,
+        const hnd_file h_dst,
+        byte*          chunk,
+        const u32      size_chunk_max) {
+
+        const u32 size_file = file_get_size(h_src);
+        for (
+            u32 offset = 0;
+                offset < size_file;
+                offset += size_chunk_max) {
+
+            const u32 size_left  = size_file - offset;
+            const u32 size_chunk = (size_left < size_chunk_max) ? size_left : size_chunk_max;
+            if (!asset_database_read_at(h_src, offset, size_chunk, chunk)) return(false);
+            (void)asset_database_write_at(h_dst, offset, size_chunk, chunk);
+        }
         return(true);
     }
 

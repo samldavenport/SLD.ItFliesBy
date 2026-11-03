@@ -1,3 +1,6 @@
 # binary engine formats, never diff or convert line endings
 *.ifbatlas binary
 *.ifbdb    binary
+
+# sound banks are big and change with every database build, so they're stored with git lfs
+*.ifbsnd filter=lfs diff=lfs merge=lfs -text

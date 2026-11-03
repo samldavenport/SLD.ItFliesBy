@@ -35,6 +35,16 @@ namespace ifb {
         return(audio_mngr_voice_play(w, volume, is_looping));
     }
 
+    IFB_ENGINE_API hnd_audio_voice
+    eng_audio_sound_play(
+        const cchar* name,
+        const f32    volume,
+        const bool   is_looping) {
+
+        assert(name);
+        return(audio_mngr_voice_play_sound(name, volume, is_looping));
+    }
+
     IFB_ENGINE_API void
     eng_audio_voice_stop(
         const hnd_audio_voice h_voice) {

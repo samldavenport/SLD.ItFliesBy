@@ -9,6 +9,7 @@
 #include "eng-memory.hpp"
 #include "eng-asset.hpp"
 #include "eng-sprite.hpp"
+#include "eng-wav.hpp"
 
 namespace ifb {
     
@@ -41,6 +42,21 @@ namespace ifb {
     // - indexes             | n * 12 bytes
     // - pixels (rgba)       | w * h * 4 bytes
     //--------------------------------------------------------------------
+    // SOUND FORMAT
+    //--------------------------------------------------------------------
+    // - sample rate         | 4 bytes
+    // - channel count (c)   | 4 bytes, 1 or 2
+    // - frame count (n)     | 4 bytes
+    // - samples             | n * c * 2 bytes, interleaved 16 bit pcm
+    //--------------------------------------------------------------------
+    // SOUND BANK FORMAT
+    //--------------------------------------------------------------------
+    // sounds are kept out of the database, in a bank file next to it with the same name and ASSET_DB_BANK_EXTENSION
+    // the database still has an index for each sound, and its offset and size are in the bank
+    // - verification string | 12 bytes
+    // - signature           | 4 bytes, the hash of the database's handles and indexes, so a bank only loads with its own database
+    // - sounds              | each one in the sound format
+    //--------------------------------------------------------------------
 
     //--------------------------------------------------------------------
     // CONSTANTS
@@ -51,12 +67,18 @@ namespace ifb {
     // has to match SPRITE_ATLAS_VERIFICATION_CSTR, the atlas files are read here so the sprites aren't needed
     static constexpr cchar ASSET_DB_SPRITE_ATLAS_VERIFICATION_CSTR[] = "IFBSPRITEATLAS";
 
+    static constexpr cchar ASSET_DB_BANK_VERIFICATION_CSTR[] = "IFBSOUNDBANK";
+    static constexpr cchar ASSET_DB_BANK_EXTENSION[]         = ".ifbsnd";
+    static constexpr u32   ASSET_DB_BANK_HEADER_SIZE         = (sizeof(ASSET_DB_BANK_VERIFICATION_CSTR) - 1) + sizeof(u32);
+
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS 
     //--------------------------------------------------------------------
 
+    // the bank is FILE_HANDLE_INVALID if there are no sounds, or the bank is missing or belongs to another database
     struct asset_database {
         hnd_file          file_handle;
+        hnd_file          bank_handle;
         u32               asset_count;
         hnd_asset*        array_handles;
         asset_name*       array_names;
@@ -78,6 +100,11 @@ namespace ifb {
     inline u64       asset_database_sprite_atlas_size (const asset_database* db, const asset_index& index, u32* header);
     inline bool      asset_database_sprite_atlas_read (const asset_database* db, const asset_index& index, const hnd_asset h_asset, const u32* header, asset_sprite_atlas* atlas);
     inline void      asset_sprite_atlas_set_arrays    (asset_sprite_atlas* atlas);
+    inline u64       asset_database_sound_size        (const asset_database* db, const asset_index& index, u32* header);
+    inline bool      asset_database_sound_read        (const asset_database* db, const asset_index& index, const hnd_asset h_asset, const u32* header, asset_sound* snd);
+    inline bool      asset_database_has_sounds        (const asset_database* db);
+    inline u32       asset_database_signature         (const asset_database* db);
+    inline void      asset_database_open_bank         (asset_database* db, const cchar* path);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DECLARATIONS 
@@ -140,6 +167,7 @@ namespace ifb {
             return(NULL);
         }
         db->file_handle = h_file;
+        db->bank_handle = FILE_HANDLE_INVALID;
         db->asset_count = asset_count;
 
         // allocate space for the arrays 
@@ -163,17 +191,18 @@ namespace ifb {
         is_valid &= asset_database_read_at(h_file, (u32)offset_indexes, sizeof(asset_index) * asset_count, db->array_indexes);
 
         // make sure every index points at data inside the file
+        // sounds are in the bank, they're checked when it's opened
         for (
             u32 index = 0;
                 index < asset_count && is_valid;
               ++index) {
 
-            const asset_index& idx = db->array_indexes[index];
-            const u64          end = (u64)idx.offset + idx.size;
+            const asset_index& idx      = db->array_indexes[index];
+            const u64          end      = (u64)idx.offset + idx.size;
+            const bool         is_sound = (idx.type.val == asset_type_e_sound);
 
             is_valid &= (idx.type.val < asset_type_e_count);
-            is_valid &= (idx.offset   >= offset_data);
-            is_valid &= (end          <= size_file);
+            is_valid &= is_sound || (idx.offset >= offset_data && end <= size_file);
         }
 
         if (!is_valid) {
@@ -182,6 +211,8 @@ namespace ifb {
             return(NULL);
         }
 
+        // without its bank, everything but the sounds still loads
+        asset_database_open_bank(db, path);
         return(db);
     }
 
@@ -225,9 +256,25 @@ namespace ifb {
 
         // open the file, an old database there is replaced
         db->file_handle = file_rw_overwrite(path);
+        db->bank_handle = FILE_HANDLE_INVALID;
         if (db->file_handle == FILE_HANDLE_INVALID) {
             arena_revert(h_arena, init_save);
             return(NULL);
+        }
+
+        // the sounds go in the bank, which is only made if there are any
+        // an old bank is left alone if there aren't, nothing opens it without sounds in the database
+        if (dict->sound_files.first != NULL) {
+
+            cchar path_bank[IFB_CONFIG_FILE_PATH_SIZE];
+            if (asset_database_bank_path(path, path_bank)) {
+                db->bank_handle = file_rw_overwrite(path_bank);
+            }
+            if (db->bank_handle == FILE_HANDLE_INVALID) {
+                file_close(db->file_handle);
+                arena_revert(h_arena, init_save);
+                return(NULL);
+            }
         }
 
         // header offsets, the verification string is written without its null terminator
@@ -239,7 +286,9 @@ namespace ifb {
         const u32 offset_data       = offset_indexes + (sizeof(asset_index) * asset_count); 
 
         // the asset data goes after the header, we write the header once we know the indexes
+        // the sounds go after the bank's header the same way
         u32 offset_cur  = offset_data;
+        u32 offset_bank = ASSET_DB_BANK_HEADER_SIZE;
         u32 index_cur   = 0;
 
         // save our place
@@ -337,6 +386,51 @@ namespace ifb {
             // revert the arena
             arena_revert(h_arena, write_asset_save);
         }
+
+        // write the sound files to the bank, converted so they all have the same format
+        for (
+            auto node = dict->sound_files.first;
+                 node != NULL;
+                 node = node->next) {
+
+            // the whole file is read into the arena, it should always be a wav that can be read
+            const hnd_file h_file    = file_ro_open_existing(node->path);
+            assert(h_file != FILE_HANDLE_INVALID);
+            const u32      size_file = file_get_size(h_file);
+            byte*          file_data = (byte*)arena_push(h_arena, size_file);
+            assert(file_data);
+            file_set_cursor(h_file, 0);
+            const u32 bytes_read = file_read_to_buffer(h_file, size_file, file_data);
+            file_close(h_file);
+            assert(bytes_read == size_file);
+
+            // the samples are read where they are in the file, so the file is only in the arena once
+            wav        w;
+            const bool did_parse = wav_parse_in_place(file_data, size_file, w);
+            assert(did_parse);
+
+            const u32 header[3] = {
+                WAV_SOUND_SAMPLE_RATE,
+                wav_convert_channel_count (w),
+                wav_convert_frame_count   (w, WAV_SOUND_SAMPLE_RATE)
+            };
+            const u32 size_samples = header[1] * header[2] * sizeof(s16);
+            s16*      samples      = (s16*)arena_push(h_arena, size_samples);
+            assert(samples);
+            wav_convert_to_s16(w, WAV_SOUND_SAMPLE_RATE, samples);
+
+            // write the format and samples to the bank
+            const u32 offset_asset = offset_bank;
+            offset_bank += asset_database_write_at(db->bank_handle, offset_bank, sizeof(header), header);
+            offset_bank += asset_database_write_at(db->bank_handle, offset_bank, size_samples,   samples);
+
+            // update the index, the offset is in the bank
+            asset_database_set_index(db, index_cur, node, asset_type_e_sound, offset_asset, offset_bank - offset_asset);
+            ++index_cur;
+
+            // revert the arena
+            arena_revert(h_arena, write_asset_save);
+        }
         assert(index_cur == asset_count);
 
         // now that the indexes are filled in, write the header
@@ -345,6 +439,14 @@ namespace ifb {
         (void)asset_database_write_at(db->file_handle, offset_handles, sizeof(hnd_asset)   * asset_count,   db->array_handles);
         (void)asset_database_write_at(db->file_handle, offset_names,   sizeof(asset_name)  * asset_count,   db->array_names);
         (void)asset_database_write_at(db->file_handle, offset_indexes, sizeof(asset_index) * asset_count,   db->array_indexes);
+
+        // the bank's signature comes from the indexes, so it goes last
+        if (db->bank_handle != FILE_HANDLE_INVALID) {
+            const u32 size_bank_verification = sizeof(ASSET_DB_BANK_VERIFICATION_CSTR) - 1;
+            const u32 signature              = asset_database_signature(db);
+            (void)asset_database_write_at(db->bank_handle, 0,                      size_bank_verification, ASSET_DB_BANK_VERIFICATION_CSTR);
+            (void)asset_database_write_at(db->bank_handle, size_bank_verification, sizeof(u32),            &signature);
+        }
 
         return(db);
     }
@@ -884,6 +986,82 @@ namespace ifb {
         return(atlas);
     }
     
+    IFB_INTERNAL const asset_sound*
+    asset_database_load_sound_by_handle_to_arena(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        const hnd_arena       h_arena) {
+
+        assert(db);
+        assert(h_arena != INVALID_HANDLE);
+
+        asset_index index;
+        if (db->bank_handle == FILE_HANDLE_INVALID || !asset_database_find(db, h_asset, asset_type_e_sound, index)) {
+            return(NULL);
+        }
+
+        // the header has to agree with the index
+        u32       header[3] = { 0, 0, 0 };
+        const u64 size_push = asset_database_sound_size(db, index, header);
+        if (size_push == 0 || size_push > arena_size_free(h_arena)) {
+            return(NULL);
+        }
+
+        // the samples go right after the struct
+        const u32 save = arena_save(h_arena);
+        auto      snd  = (asset_sound*)arena_push(h_arena, (u32)size_push);
+        if (!snd) {
+            return(NULL);
+        }
+
+        if (!asset_database_sound_read(db, index, h_asset, header, snd)) {
+            arena_revert(h_arena, save);
+            return(NULL);
+        }
+
+        return(snd);
+    }
+
+    IFB_INTERNAL const asset_sound*
+    asset_database_load_sound_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&               mem) {
+
+        assert(db);
+        assert(mem.size    != 0);
+        assert(mem.address != 0);
+
+        asset_index index;
+        if (db->bank_handle == FILE_HANDLE_INVALID || !asset_database_find(db, h_asset, asset_type_e_sound, index)) {
+            return(NULL);
+        }
+
+        // the header has to agree with the index, and the data has to fit
+        u32       header[3]   = { 0, 0, 0 };
+        const u64 size_needed = asset_database_sound_size(db, index, header);
+        if (size_needed == 0 || mem.size < size_needed) {
+            return(NULL);
+        }
+
+        // the samples go right after the struct
+        auto snd = (asset_sound*)mem.ptr;
+        if (!asset_database_sound_read(db, index, h_asset, header, snd)) {
+            return(NULL);
+        }
+
+        return(snd);
+    }
+
+    // the samples are right after the struct
+    // the pointer is always set from the struct, so this also fixes it after the data moves
+    IFB_INTERNAL void
+    asset_sound_set_samples(
+        asset_sound* snd) {
+
+        snd->w.data.bytes = ((byte*)snd) + sizeof(asset_sound);
+    }
+
     IFB_INTERNAL u32
     asset_database_get_asset_count(
         const asset_database* db) {
@@ -898,6 +1076,56 @@ namespace ifb {
 
         assert(db);
         file_close(db->file_handle);
+        if (db->bank_handle != FILE_HANDLE_INVALID) {
+            file_close(db->bank_handle);
+        }
+    }
+
+    // the database's path with the bank's extension in place of its own
+    // false if the path doesn't fit
+    IFB_INTERNAL bool
+    asset_database_bank_path(
+        const cchar* path_database,
+        cchar*       path_bank) {
+
+        assert(path_database && path_bank);
+
+        // the extension is the last dot after the last separator
+        const u32 length = cstr_nvar_length(path_database, IFB_CONFIG_FILE_PATH_SIZE);
+        u32       length_stem = length;
+        for (
+            u32 index = 0;
+                index < length;
+              ++index) {
+
+            const cchar c = path_database[index];
+            if      (c == '/' || c == '\\') length_stem = length;
+            else if (c == '.')               length_stem = index;
+        }
+
+        const u32 length_ext = sizeof(ASSET_DB_BANK_EXTENSION) - 1;
+        if (length_stem + length_ext >= IFB_CONFIG_FILE_PATH_SIZE) return(false);
+
+        memcpy(path_bank,               path_database,           length_stem);
+        memcpy(path_bank + length_stem, ASSET_DB_BANK_EXTENSION, length_ext);
+        path_bank[length_stem + length_ext] = 0;
+        return(true);
+    }
+
+    IFB_INTERNAL hnd_file
+    asset_database_get_bank(
+        const asset_database* db) {
+
+        assert(db);
+        return(db->bank_handle);
+    }
+
+    IFB_INTERNAL bool
+    asset_database_needs_bank(
+        const asset_database* db) {
+
+        assert(db);
+        return(asset_database_has_sounds(db));
     }    
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS 
@@ -972,6 +1200,137 @@ namespace ifb {
             atlas->array_handles
         );
         return(did_read);
+    }
+
+    // the size of the sound once it's loaded, the struct followed by its samples
+    // the header is the sample rate, channel count, and frame count, 0 if it doesn't agree with the index
+    inline u64
+    asset_database_sound_size(
+        const asset_database* db,
+        const asset_index&    index,
+        u32*                  header) {
+
+        const u32 size_header = sizeof(u32) * 3;
+        if (index.size < size_header) return(0);
+        if (!asset_database_read_at(db->bank_handle, index.offset, size_header, header)) return(0);
+
+        const u32 sample_rate   = header[0];
+        const u32 channel_count = header[1];
+        const u32 frame_count   = header[2];
+        const u64 size_samples  = (u64)frame_count * channel_count * sizeof(s16);
+
+        const bool is_valid = (
+            sample_rate != 0                           &&
+            (channel_count == 1 || channel_count == 2) &&
+            frame_count != 0                           &&
+            index.size  == size_header + size_samples
+        );
+        if (!is_valid) return(0);
+
+        return(sizeof(asset_sound) + size_samples);
+    }
+
+    // the format comes from the header, the samples are read straight into place after the struct
+    inline bool
+    asset_database_sound_read(
+        const asset_database* db,
+        const asset_index&    index,
+        const hnd_asset       h_asset,
+        const u32*            header,
+        asset_sound*          snd) {
+
+        const u32 size_header   = sizeof(u32) * 3;
+        const u32 channel_count = header[1];
+
+        snd->hnd                      = h_asset;
+        snd->w.format.audio_format    = WAV_FORMAT_PCM;
+        snd->w.format.num_channels    = (u16)channel_count;
+        snd->w.format.sample_rate     = header[0];
+        snd->w.format.block_align     = (u16)(channel_count * sizeof(s16));
+        snd->w.format.byte_rate       = header[0] * snd->w.format.block_align;
+        snd->w.format.bits_per_sample = 16;
+        snd->w.data.size              = index.size - size_header;
+        asset_sound_set_samples(snd);
+
+        const bool did_read = asset_database_read_at(
+            db->bank_handle,
+            index.offset + size_header,
+            snd->w.data.size,
+            snd->w.data.bytes
+        );
+        return(did_read);
+    }
+
+    inline bool
+    asset_database_has_sounds(
+        const asset_database* db) {
+
+        for (
+            u32 index = 0;
+                index < db->asset_count;
+              ++index) {
+
+            if (db->array_indexes[index].type.val == asset_type_e_sound) return(true);
+        }
+        return(false);
+    }
+
+    // the handles and indexes change with every build, and they're the same bytes in the file and in memory
+    inline u32
+    asset_database_signature(
+        const asset_database* db) {
+
+        const u32 hash_handles = hash_u32((void*)db->array_handles, db->asset_count * sizeof(hnd_asset));
+        const u32 hash_indexes = hash_u32((void*)db->array_indexes, db->asset_count * sizeof(asset_index));
+        return(hash_handles ^ (hash_indexes + 0x9E3779B9 + (hash_handles << 6) + (hash_handles >> 2)));
+    }
+
+    // the bank stays closed if the database has no sounds, or the bank is missing, damaged, or belongs to another database
+    inline void
+    asset_database_open_bank(
+        asset_database* db,
+        const cchar*    path) {
+
+        db->bank_handle = FILE_HANDLE_INVALID;
+        if (!asset_database_has_sounds(db)) return;
+
+        cchar path_bank[IFB_CONFIG_FILE_PATH_SIZE];
+        if (!asset_database_bank_path(path, path_bank)) return;
+
+        const hnd_file h_bank = file_ro_open_existing(path_bank);
+        if (h_bank == FILE_HANDLE_INVALID) return;
+
+        // the verification string and the signature
+        const u32 size_bank         = file_get_size(h_bank);
+        const u32 size_verification = sizeof(ASSET_DB_BANK_VERIFICATION_CSTR) - 1;
+        cchar     verification[sizeof(ASSET_DB_BANK_VERIFICATION_CSTR) - 1];
+        u32       signature = 0;
+
+        bool is_valid = (size_bank >= ASSET_DB_BANK_HEADER_SIZE);
+        is_valid = is_valid && asset_database_read_at(h_bank, 0,                 size_verification, verification);
+        is_valid = is_valid && asset_database_read_at(h_bank, size_verification, sizeof(u32),       &signature);
+        is_valid = is_valid && (memcmp(verification, ASSET_DB_BANK_VERIFICATION_CSTR, size_verification) == 0);
+        is_valid = is_valid && (signature == asset_database_signature(db));
+
+        // every sound has to be inside the bank
+        for (
+            u32 index = 0;
+                index < db->asset_count && is_valid;
+              ++index) {
+
+            const asset_index& idx = db->array_indexes[index];
+            if (idx.type.val != asset_type_e_sound) continue;
+
+            const u64 end = (u64)idx.offset + idx.size;
+            is_valid &= (idx.offset >= ASSET_DB_BANK_HEADER_SIZE);
+            is_valid &= (end        <= size_bank);
+        }
+
+        if (!is_valid) {
+            file_close(h_bank);
+            return;
+        }
+        db->bank_handle = h_bank;
     }
 
     // the handles, indexes, and pixels are right after the struct, in that order

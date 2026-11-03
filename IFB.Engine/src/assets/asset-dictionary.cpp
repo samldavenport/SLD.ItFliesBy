@@ -31,6 +31,8 @@ namespace ifb {
             dict->image_files.last  = NULL;
             dict->sprite_atlas_files.first = NULL;
             dict->sprite_atlas_files.last  = NULL;
+            dict->sound_files.first        = NULL;
+            dict->sound_files.last         = NULL;
         }
         return(dict);
     }
@@ -68,10 +70,12 @@ namespace ifb {
             const json_arr* arr_text  = json_doc_get_arr(doc, "text");
             const json_arr* arr_image = json_doc_get_arr(doc, "image");
             const json_arr* arr_atlas = json_doc_get_arr(doc, "sprite_atlas");
+            const json_arr* arr_sound = json_doc_get_arr(doc, "sound");
 
             did_load &= asset_dictionary_file_list_load_from_json(dict->text_files,         arr_text,  h_arena);
             did_load &= asset_dictionary_file_list_load_from_json(dict->image_files,        arr_image, h_arena);
             did_load &= asset_dictionary_file_list_load_from_json(dict->sprite_atlas_files, arr_atlas, h_arena);
+            did_load &= asset_dictionary_file_list_load_from_json(dict->sound_files,        arr_sound, h_arena);
         }
 
         if (!did_load) {
@@ -100,6 +104,7 @@ namespace ifb {
         size += asset_dictionary_file_list_json_size(dict->text_files);
         size += asset_dictionary_file_list_json_size(dict->image_files);
         size += asset_dictionary_file_list_json_size(dict->sprite_atlas_files);
+        size += asset_dictionary_file_list_json_size(dict->sound_files);
 
         auto buffer = (cchar*)arena_push(h_arena, size);
         if (!buffer) return(false);
@@ -108,7 +113,8 @@ namespace ifb {
         length = asset_dictionary_json_write_cstr      (buffer, length, "{\n");
         length = asset_dictionary_file_list_json_write (dict->text_files,         "text",         false, buffer, length);
         length = asset_dictionary_file_list_json_write (dict->image_files,        "image",        false, buffer, length);
-        length = asset_dictionary_file_list_json_write (dict->sprite_atlas_files, "sprite_atlas", true,  buffer, length);
+        length = asset_dictionary_file_list_json_write (dict->sprite_atlas_files, "sprite_atlas", false, buffer, length);
+        length = asset_dictionary_file_list_json_write (dict->sound_files,        "sound",        true,  buffer, length);
         length = asset_dictionary_json_write_cstr      (buffer, length, "}\n");
         assert(length < size);
         buffer[length] = 0;
@@ -159,6 +165,17 @@ namespace ifb {
         return(hnd);
     }
 
+    IFB_INTERNAL hnd_asset
+    asset_dictionary_add_sound_file(
+        asset_dictionary* dict,
+        const cchar*      name,
+        const cchar*      path,
+        const hnd_arena   h_arena) {
+
+        const hnd_asset hnd = asset_dictionary_file_list_add_node(dict->sound_files, name, path, h_arena);
+        return(hnd);
+    }
+
     IFB_INTERNAL bool
     asset_dictionary_remove_file(
         asset_dictionary* dict,
@@ -181,6 +198,9 @@ namespace ifb {
         if (!did_remove) {
             did_remove = asset_dictionary_file_list_remove_node(dict->sprite_atlas_files, id);
         }
+        if (!did_remove) {
+            did_remove = asset_dictionary_file_list_remove_node(dict->sound_files, id);
+        }
 
         return(did_remove);
     }
@@ -194,7 +214,8 @@ namespace ifb {
         const u32 count = (
             asset_dictionary_file_list_count(dict->text_files)  +
             asset_dictionary_file_list_count(dict->image_files) +
-            asset_dictionary_file_list_count(dict->sprite_atlas_files)
+            asset_dictionary_file_list_count(dict->sprite_atlas_files) +
+            asset_dictionary_file_list_count(dict->sound_files)
         );
 
         return(count);
@@ -216,6 +237,7 @@ namespace ifb {
             case asset_type_e_text:         return(&dict->text_files);
             case asset_type_e_image:        return(&dict->image_files);
             case asset_type_e_sprite_atlas: return(&dict->sprite_atlas_files);
+            case asset_type_e_sound:        return(&dict->sound_files);
             default:                        return(NULL);
         }
     }
