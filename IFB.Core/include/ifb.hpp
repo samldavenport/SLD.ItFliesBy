@@ -697,6 +697,11 @@ namespace ifb {
         u32  voice_capacity;
         u32  preload_count;
         u32  preload_capacity;
+        u32  stream_count;
+        u32  stream_capacity;
+        u32  stream_chunk_reads; // since the last reset
+        u32  stream_underruns;   // frames a stream waited for its chunks, since the last reset
+        u32  output_clips;       // samples that went past -1 to 1 and were clamped, since the last reset
     };
 
     // the position is in frames of the source, which may not be at the device's sample rate
@@ -705,10 +710,13 @@ namespace ifb {
         u32  frame_count;
         u32  sample_rate;
         f32  volume;
+        f32  gain;               // what it's playing at now, its volume times its group's, partway there while it fades
         u32  group;
+        bool is_streaming;
         bool is_paused;
         bool is_looping;
         bool is_stopping; // fading out, it's freed when the fade is done
+        cchar name[IFB_CONFIG_ASSET_NAME_SIZE + 1]; // the sound asset, empty for a wav that isn't one
     };
 
 };

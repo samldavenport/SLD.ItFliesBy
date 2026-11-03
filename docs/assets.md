@@ -154,6 +154,6 @@ The signature is a hash of the database's handles and indexes, which change with
 
 **Copy to Runtime** copies the bank too. If the runtime ends up without a bank that matches, the copy reports that the sounds won't play.
 
-The bank has its own file handle, so reading sounds doesn't move the database's cursor, which is what streaming will need.
+The bank has its own file handle, so reading sounds doesn't move the database's cursor. [Streaming](audio.md#streaming) reads sounds straight from it.
 
 The bank is committed with the database, but it's stored with [Git LFS](https://git-lfs.com) (`*.ifbsnd` in `.gitattributes`), so the repo history only holds a small pointer for each version. `scripts/Initialize-Repo.ps1` sets up LFS and downloads the banks. A clone without LFS gets the pointer files instead, which don't pass the bank's verification, so the game runs with its sounds silent.

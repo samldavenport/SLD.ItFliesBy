@@ -6,12 +6,14 @@ The audio system sends samples to the default output device. The device is opene
 | --- | --- |
 | `IFB.Core/include/ifb.hpp` | `audio_buffer` and `audio_info` |
 | `IFB.Engine/include/eng-audio.hpp`, `src/audio/audio-mngr.cpp` | The audio manager |
+| `IFB.Engine/src/audio/audio-source.cpp` | Where a voice gets its samples from |
 | `IFB.Engine/src/engine/eng-audio.cpp` | The public `eng_audio_*` functions |
 | `IFB.Engine/src/win32/win32-audio.cpp` | The WASAPI implementation |
 | `IFB.GUI/src/gui-engine-audio-test.cpp` | The audio test window |
 | `IFB.Engine/include/eng-wav.hpp`, `src/wav/wav.cpp` | Parsing WAV files and decoding their samples |
 | `IFB.Engine/src/engine/eng-wav.cpp` | The public `eng_wav_*` functions |
 | `IFB.GUI/src/gui-engine-wav-player.cpp` | The WAV player window |
+| `IFB.GUI/src/gui-game-audio.cpp` | The game audio window |
 
 ## Format
 
@@ -50,6 +52,7 @@ eng_audio_voice_stop       (h_voice);
 | `eng_audio_voice_play` | Start a voice from the beginning of a wav, in a [group](#volume-groups). Returns an invalid handle if there's no device or every voice is in use. |
 | `eng_audio_sound_play` | Start a voice on a [sound asset](assets.md#sounds) by name. Also returns an invalid handle if there's no sound by that name, or no room to load it. |
 | `eng_audio_sound_preload` / `_unload` | Load a sound ahead of time and keep it in memory, see [Preloading](assets.md#preloading) |
+| `eng_audio_sound_stream` | Start a voice on a sound asset by name, read from the bank a chunk at a time instead of loading it, see [Streaming](#streaming) |
 | `eng_audio_voice_stop` | Fade out, then free the voice |
 | `eng_audio_voice_stop_now` | Free the voice without a fade |
 | `eng_audio_voice_stop_all_using` | Free every voice playing a wav, without a fade |
@@ -69,6 +72,21 @@ Things to know:
 - **Without a device, voices don't advance.** If the device goes away, the voices that were playing stay where they were.
 
 Each voice resamples on its own, so a wav at any sample rate plays at the right speed. It blends the 2 closest frames, which is fine for a preview but loses some of the high end.
+
+### Sources
+
+A voice reads its samples through an `audio_source` (`audio-source.cpp`), so the mixer doesn't care where they come from. A memory source reads a wav that's already in memory, and a stream source reads a sound from the bank a chunk at a time.
+
+| Function | Description |
+| --- | --- |
+| `audio_source_from_memory` | A source for a wav in memory. With a sound asset's handle, the source holds its pin. |
+| `audio_source_from_stream` | A source for an open stream, which the source gives back when it's released |
+| `audio_source_read` | Read a range of frames as floats, at most 2 channels (mono stays mono, extra channels are dropped). The frames have to be inside the source. Returns the frames it read, and a stream can come up short. |
+| `audio_source_release` | Let go of the source, and unpin its sound asset if it has one |
+
+The mixer works on a voice a block of up to 256 device frames at a time. It reads the source frames that block needs into a scratch buffer first, handling the loop and the end itself: a looping voice wraps around, and one that isn't holds its last frame. Then it blends from the scratch buffer. A source at a high sample rate needs more of its frames for each block, so its blocks are shorter, and anything the source comes up short on is played as silence.
+
+Sound assets are always 16 bit, so a memory source reads them directly. Other wavs, like the ones the WAV Player opens, go through `wav_read_sample`.
 
 ## Latency
 
@@ -94,6 +112,49 @@ If there's no device at startup, or the device goes away while running (like unp
 | Voices | The voices in use, out of the pool |
 
 The wave fades in and out over 20 ms when it starts and stops, so those aren't heard as clicks. Switching waves or changing the frequency keeps the phase, but a switch between waves can still click once because the value jumps. That isn't a skip.
+
+## Streaming
+
+`eng_audio_sound_stream` plays a sound asset without loading it. It's read from the [sound bank](assets.md#sound-bank) a chunk at a time while it plays, so a long sound like music doesn't take its whole size in memory, or hitch the frame it starts in. It returns an ordinary voice, so pausing, seeking, looping, volume, groups, and stopping all work the same.
+
+```cpp
+hnd_audio_voice h_music = eng_audio_sound_stream("PIANO", audio_group_e_music, 0.5f, true);
+```
+
+Whether a sound streams is up to the call, not the sound, so the same sound can be streamed in one place and loaded in another. Stream long sounds, and load the short ones that play often.
+
+| Setting | Value | |
+| --- | --- | --- |
+| `IFB_CONFIG_AUDIO_STREAM_CAPACITY` | 4 | Streams that can play at once. Another one returns an invalid handle. |
+| `IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES` | 32768 | Frames in a chunk, about 0.7 seconds |
+| `IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT` | 3 | Chunks each stream keeps |
+
+Each stream has a ring of chunks, set aside when the engine starts (1.5 MB for all of them, in the audio reservation), so starting one never allocates. Before a streaming voice is mixed, it asks for the chunk its position is in and the 2 after it, if the ring doesn't have them or isn't already reading them. A looping stream's chunks after the last one are the first ones again, so the loop doesn't wait on the disk.
+
+### Reading on Worker Threads
+
+Each chunk is read by a [job](jobs.md) on a worker thread, so the main thread never waits on the disk.
+
+1. The main thread picks a slot for the chunk, marks it loading, and adds a job to read it.
+2. The job reads the chunk from the bank into the slot, then marks it ready, or failed if the read didn't work.
+3. The next time the voice is mixed, the main thread sees it's ready and the mixer can read it. A read that's already done when the job is added is used the same frame.
+
+Only the main thread decides which chunk goes in which slot, and it never reuses a slot that's still loading. A stream with a read out can't be started again either, even after its voice is gone, so a late read can't write into another sound. The chunk's state is the only thing the two threads share, and it's behind the stream's lock.
+
+The bank is read from the main thread too, when a sound is loaded, and the file manager gives both the same handle and cursor. Every read from the bank goes through the database's bank lock, so a read is a cursor move and a read together.
+
+Things to know:
+
+- **A stream waits instead of skipping.** If the chunks a frame needs aren't read yet, the voice isn't mixed that frame and its position holds, so it picks up where it left off instead of jumping ahead. Each frame it waits is counted, as **Stream Waits** in the Audio Test.
+- **Starting and seeking wait for the read.** A stream starts once its first chunk is in, usually the frame it's started or the one after, and a seek to a place that isn't in the ring waits the same way.
+- **Chunks are asked for well ahead.** The chunk 2 ahead of the one playing is asked for as soon as the playhead enters a chunk, so a read has about 0.7 to 1.4 seconds to finish before it's needed.
+- **A chunk that can't be read is silence.** The voice waits, and the chunk is asked for again every frame until it reads.
+- **A stopping voice that's waiting is freed.** It was fading out anyway.
+- **Nothing is pinned or loaded.** Preloading doesn't apply, and a stream doesn't count against asset memory.
+- **Copy to Runtime stops every stream**, and waits for any reads that are still out before the bank is closed.
+- **With one core there are no workers**, so the job runs as it's added, on the main thread. That's the same as reading synchronously.
+
+The **Audio Test** window shows the streams in use, the chunks read, and the stream waits since the stats were reset. The database window has **Stream From Runtime** next to **Play From Runtime**.
 
 ## Volume Groups
 
@@ -135,6 +196,28 @@ f32 volume = eng_audio_get_master_volume();
 A voice plays at its own volume, times its group's, times the master. The master runs from `0` to `1`, values outside that are clamped, it starts at `1`, and it isn't saved. A change fades over 20 ms like the others. It's applied before the mix is clamped, so turning it down brings a loud sum of voices back under `1` instead of clipping.
 
 The **Audio Test** window has a slider for it above the groups.
+
+## Game Audio Window
+
+**Game > Audio** shows the game's sound while it plays.
+
+| Section | What's in it |
+| --- | --- |
+| Volume | The master volume and each group's |
+| Music | The game's music voice: pause, restart, stop, loop, seek, and its volume. A stopped one can be started again. |
+| Sound Effects | A button that plays BOOP the way the game does, without the bump's debounce |
+| Output | A peak meter for each channel, in decibels with a marker that holds the peak, and a scope of the last 2048 frames. **Fit to the peak** scales the scope so quiet sound can be seen. A meter turns red when it clips. |
+| Voices | Every voice playing, including the engine's tools: the sound, whether it's streamed or in memory, its group, state, position, volume, and the gain it's playing at now |
+| Stats | Voices, streams, preloads, the device queue and underruns, chunk reads, stream waits, and clipped samples |
+
+The GUI is drawn before the mix, so it can't read the final output from the buffer. The audio manager keeps a copy of the last `IFB_CONFIG_AUDIO_OUTPUT_FRAMES` (4096) frames it sent to the device, after the mix, the master volume, and the clamp, for tools like this:
+
+| Function | Description |
+| --- | --- |
+| `eng_audio_get_output` | Copy the last frames sent to the device, oldest first, as a left and a right channel |
+| `eng_audio_get_voices` | The handles of the voices playing, to pass to `eng_audio_voice_get_info` |
+
+`audio_voice_info` also has the sound's name (empty for a wav that isn't a sound asset), whether it's streamed, and its gain, which is its volume times its group's once any fade is done. `audio_info` counts the samples that were clamped since the stats were reset, as `output_clips`.
 
 ## WAV Player
 

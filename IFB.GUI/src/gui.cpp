@@ -15,6 +15,7 @@
 #include "gui-engine-sprite-atlas-inspector.cpp"
 #include "gui-engine-audio-test.cpp"
 #include "gui-engine-wav-player.cpp"
+#include "gui-game-audio.cpp"
 
 static bool _gui_is_open;
 
@@ -57,6 +58,7 @@ namespace ifb {
         static bool entity_manager         = false;
         static bool quad_manager           = false;
         static bool player_rig             = false;
+        static bool game_audio             = false;
         static bool asset_dictionary       = false;
         static bool asset_database         = false;
         static bool sprite_atlas_builder   = false;
@@ -86,6 +88,7 @@ namespace ifb {
             if (ImGui::BeginMenu(_gui_str->menu_game)) {
 
                 ImGui::MenuItem (_gui_str->menu_game_item_player_rig, NULL, &player_rig);
+                ImGui::MenuItem (_gui_str->menu_game_item_audio,      NULL, &game_audio);
                
                 if (ImGui::BeginMenu(_gui_str->menu_game_menu_assets)) {
                     
@@ -129,6 +132,7 @@ namespace ifb {
         gui_entity_manager                (entity_manager);
         gui_quad_manager                  (quad_manager);
         gui_game_player_rig               (player_rig, game_ctx);
+        gui_game_audio                    (game_audio, game_ctx);
         gui_game_asset_dictionary         (asset_dictionary);
         gui_game_asset_database           (asset_database);
     }

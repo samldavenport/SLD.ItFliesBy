@@ -76,9 +76,12 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // the bank is FILE_HANDLE_INVALID if there are no sounds, or the bank is missing or belongs to another database
+    // every read from the bank goes through bank_lock, since streams read it from worker threads
+    // the file manager gives every open of a path the same handle and cursor, so a read is a cursor move and a read that can't be split
     struct asset_database {
         hnd_file          file_handle;
         hnd_file          bank_handle;
+        mutable pfm_thread_mutex bank_lock;
         u32               asset_count;
         hnd_asset*        array_handles;
         asset_name*       array_names;
@@ -91,6 +94,7 @@ namespace ifb {
     
     inline bool      asset_database_find      (const asset_database* db, const hnd_asset h_asset,const asset_type_e type, asset_index& index);
     inline bool      asset_database_read_at   (const hnd_file h_file, const u32 offset, const u32 size, void* data);
+    inline bool      asset_database_read_bank (const asset_database* db, const u32 offset, const u32 size, void* data);
     inline u32       asset_database_write_at  (const hnd_file h_file, const u32 offset, const u32 size, const void* data);
     inline void      asset_database_set_index (asset_database* db,    const u32 index,  const asset_dictionary_file_node* node, const asset_type_u32 type,const u32 offset,const u32 size);
     inline hnd_asset asset_database_handle_of (const cchar* name_cstr);
@@ -168,6 +172,7 @@ namespace ifb {
         }
         db->file_handle = h_file;
         db->bank_handle = FILE_HANDLE_INVALID;
+        db->bank_lock   = {};
         db->asset_count = asset_count;
 
         // allocate space for the arrays 
@@ -257,6 +262,7 @@ namespace ifb {
         // open the file, an old database there is replaced
         db->file_handle = file_rw_overwrite(path);
         db->bank_handle = FILE_HANDLE_INVALID;
+        db->bank_lock   = {};
         if (db->file_handle == FILE_HANDLE_INVALID) {
             arena_revert(h_arena, init_save);
             return(NULL);
@@ -1212,7 +1218,7 @@ namespace ifb {
 
         const u32 size_header = sizeof(u32) * 3;
         if (index.size < size_header) return(0);
-        if (!asset_database_read_at(db->bank_handle, index.offset, size_header, header)) return(0);
+        if (!asset_database_read_bank(db, index.offset, size_header, header)) return(0);
 
         const u32 sample_rate   = header[0];
         const u32 channel_count = header[1];
@@ -1252,8 +1258,8 @@ namespace ifb {
         snd->w.data.size              = index.size - size_header;
         asset_sound_set_samples(snd);
 
-        const bool did_read = asset_database_read_at(
-            db->bank_handle,
+        const bool did_read = asset_database_read_bank(
+            db,
             index.offset + size_header,
             snd->w.data.size,
             snd->w.data.bytes
@@ -1357,6 +1363,23 @@ namespace ifb {
         file_set_cursor(h_file, offset);
         const u32  bytes_read = file_read_to_buffer(h_file, size, (byte*)data);
         const bool did_read   = (bytes_read == size);
+
+        return(did_read);
+    }
+
+    // the bank can be read from any thread, the lock keeps a read from being split by another one
+    inline bool
+    asset_database_read_bank(
+        const asset_database* db,
+        const u32             offset,
+        const u32             size,
+        void*                 data) {
+
+        if (db->bank_handle == FILE_HANDLE_INVALID) return(false);
+
+        pfm_thread_mutex_lock(db->bank_lock);
+        const bool did_read = asset_database_read_at(db->bank_handle, offset, size, data);
+        pfm_thread_mutex_unlock(db->bank_lock);
 
         return(did_read);
     }

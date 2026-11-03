@@ -438,6 +438,12 @@ namespace ifb {
     IFB_ENGINE_API void eng_audio_get_info    (audio_info& info);
     IFB_ENGINE_API void eng_audio_reset_stats (void);
 
+    // for tools: the voices playing, and what was sent to the device
+    // get_voices fills handles with up to capacity of them, pass each to eng_audio_voice_get_info
+    // get_output copies the last frame_count frames, up to IFB_CONFIG_AUDIO_OUTPUT_FRAMES, oldest first, after the mix and the master volume
+    IFB_ENGINE_API u32  eng_audio_get_voices  (hnd_audio_voice* handles, const u32 capacity);
+    IFB_ENGINE_API u32  eng_audio_get_output  (f32* left, f32* right, const u32 frame_count);
+
     // a voice plays at its own volume times its group's, from 0 to 1, and every group starts at 1
     // a change fades over IFB_CONFIG_AUDIO_FADE_MS, on the voices that are playing too
     IFB_ENGINE_API void eng_audio_group_set_volume (const audio_group_e group, const f32 volume);
@@ -456,6 +462,10 @@ namespace ifb {
     // plays a sound asset from the runtime database by name, it's loaded if it isn't in memory
     // the sound stays in memory while the voice plays, there's nothing to free
     IFB_ENGINE_API hnd_audio_voice eng_audio_sound_play           (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
+
+    // plays a sound asset by name, reading it from the bank a chunk at a time instead of loading it, for music and other long sounds
+    // the voice works the same as any other, but only IFB_CONFIG_AUDIO_STREAM_CAPACITY can play at once
+    IFB_ENGINE_API hnd_audio_voice eng_audio_sound_stream         (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
 
     // loads a sound now, like during a loading screen, so its first play doesn't have to
     // it stays in memory until it's unloaded as many times as it was preloaded, the engine lets go of the rest at shutdown

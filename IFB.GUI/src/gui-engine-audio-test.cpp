@@ -164,6 +164,9 @@ namespace ifb {
             ImGui::Text("Underruns:      %u",      info.underrun_count);
             ImGui::Text("Voices:         %u / %u", info.voice_count, info.voice_capacity);
             ImGui::Text("Preloads:       %u / %u", info.preload_count, info.preload_capacity);
+            ImGui::Text("Streams:        %u / %u", info.stream_count, info.stream_capacity);
+            ImGui::Text("Chunk Reads:    %u",      info.stream_chunk_reads);
+            ImGui::Text("Stream Waits:   %u",      info.stream_underruns);
 
             if (ImGui::Button("Reset Stats")) {
                 eng_audio_reset_stats();

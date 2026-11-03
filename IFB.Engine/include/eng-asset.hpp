@@ -22,12 +22,21 @@ namespace ifb {
     struct asset_memory_block;
     struct asset_memory;
     struct asset_dictionary_file_list;
+
+    // where a sound's samples are in the bank, so it can be read a piece at a time instead of all at once
+    struct asset_sound_stream_info {
+        u32 sample_rate;
+        u32 channel_count;
+        u32 frame_count;
+        u32 offset_samples; // in the bank
+    };
+
     //--------------------------------------------------------------------
     // METHODS 
     //--------------------------------------------------------------------
 
     // asset
-    IFB_INTERNAL hnd_asset          asset_name_cstr_to_handle          (const cchar* name_cstr);
+    IFB_INTERNAL hnd_asset                 asset_name_cstr_to_handle          (const cchar* name_cstr);
 
     // manager
     IFB_INTERNAL asset_mngr*               asset_mngr_create                   (void);
@@ -46,32 +55,34 @@ namespace ifb {
     IFB_INTERNAL hnd_asset                 asset_mngr_load_sound               (const cchar* name);
     IFB_INTERNAL const asset_sound*        asset_mngr_pin_sound                (const hnd_asset hnd); // loads it if it isn't in memory
     IFB_INTERNAL void                      asset_mngr_unpin                    (const hnd_asset hnd);
+    IFB_INTERNAL bool                      asset_mngr_get_sound_stream_info    (const hnd_asset hnd, asset_sound_stream_info& info);
+    IFB_INTERNAL bool                      asset_mngr_read_sound_samples       (const asset_sound_stream_info& info, const u32 frame, const u32 frame_count, s16* samples);
     IFB_INTERNAL asset_database*           asset_mngr_get_database             (void);
 
     // dictionary
-    IFB_INTERNAL asset_dictionary*  asset_dictionary_create                (const hnd_arena arena);
-    IFB_INTERNAL asset_dictionary*  asset_dictionary_load_from_json        (const cchar*    path,const hnd_arena h_arena);
-    IFB_INTERNAL bool               asset_dictionary_save_to_json          (asset_dictionary* dict, const cchar* path, const hnd_arena h_arena);
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_text_file         (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_image_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_sprite_atlas_file (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
-    IFB_INTERNAL hnd_asset          asset_dictionary_add_sound_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
-    IFB_INTERNAL bool               asset_dictionary_remove_file           (asset_dictionary* dict, const cchar* name);
-    IFB_INTERNAL u32                asset_dictionary_count_assets          (const asset_dictionary* dict);
+    IFB_INTERNAL asset_dictionary*         asset_dictionary_create                (const hnd_arena arena);
+    IFB_INTERNAL asset_dictionary*         asset_dictionary_load_from_json        (const cchar*    path,const hnd_arena h_arena);
+    IFB_INTERNAL bool                      asset_dictionary_save_to_json          (asset_dictionary* dict, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL hnd_asset                 asset_dictionary_add_text_file         (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
+    IFB_INTERNAL hnd_asset                 asset_dictionary_add_image_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
+    IFB_INTERNAL hnd_asset                 asset_dictionary_add_sprite_atlas_file (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL hnd_asset                 asset_dictionary_add_sound_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL bool                      asset_dictionary_remove_file           (asset_dictionary* dict, const cchar* name);
+    IFB_INTERNAL u32                       asset_dictionary_count_assets          (const asset_dictionary* dict);
 
     // database
-    IFB_INTERNAL asset_database*    asset_database_load                           (const cchar* path, const hnd_arena h_arena);
-    IFB_INTERNAL asset_database*    asset_database_build                          (const cchar* path, const asset_dictionary* dict, const hnd_arena);
-    IFB_INTERNAL bool               asset_database_get_index                      (const asset_database* db, const cchar* name_cstr, asset_index& index);
-    IFB_INTERNAL const asset_name*  asset_database_get_name                       (const asset_database* db, const hnd_asset h_asset);
-    IFB_INTERNAL const asset_text*  asset_database_load_text_by_handle_to_arena   (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
-    IFB_INTERNAL const asset_text*  asset_database_load_text_by_name_to_arena     (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
-    IFB_INTERNAL const asset_image* asset_database_load_image_by_handle_to_arena  (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
-    IFB_INTERNAL const asset_image* asset_database_load_image_by_name_to_arena    (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
-    IFB_INTERNAL const asset_text*  asset_database_load_text_by_handle_to_memory  (const asset_database* db, const hnd_asset h_asset,   memory& mem);
-    IFB_INTERNAL const asset_text*  asset_database_load_text_by_name_to_memory    (const asset_database* db, const cchar*    name_cstr, memory& mem);
-    IFB_INTERNAL const asset_image* asset_database_load_image_by_handle_to_memory (const asset_database* db, const hnd_asset h_asset,   memory& mem);
-    IFB_INTERNAL const asset_image* asset_database_load_image_by_name_to_memory   (const asset_database* db, const cchar*    name_cstr, memory& mem);
+    IFB_INTERNAL asset_database*           asset_database_load                                  (const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL asset_database*           asset_database_build                                 (const cchar* path, const asset_dictionary* dict, const hnd_arena);
+    IFB_INTERNAL bool                      asset_database_get_index                             (const asset_database* db, const cchar* name_cstr, asset_index& index);
+    IFB_INTERNAL const asset_name*         asset_database_get_name                              (const asset_database* db, const hnd_asset h_asset);
+    IFB_INTERNAL const asset_text*         asset_database_load_text_by_handle_to_arena          (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
+    IFB_INTERNAL const asset_text*         asset_database_load_text_by_name_to_arena            (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
+    IFB_INTERNAL const asset_image*        asset_database_load_image_by_handle_to_arena         (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
+    IFB_INTERNAL const asset_image*        asset_database_load_image_by_name_to_arena           (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
+    IFB_INTERNAL const asset_text*         asset_database_load_text_by_handle_to_memory         (const asset_database* db, const hnd_asset h_asset,   memory& mem);
+    IFB_INTERNAL const asset_text*         asset_database_load_text_by_name_to_memory           (const asset_database* db, const cchar*    name_cstr, memory& mem);
+    IFB_INTERNAL const asset_image*        asset_database_load_image_by_handle_to_memory        (const asset_database* db, const hnd_asset h_asset,   memory& mem);
+    IFB_INTERNAL const asset_image*        asset_database_load_image_by_name_to_memory          (const asset_database* db, const cchar*    name_cstr, memory& mem);
     IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_handle_to_arena  (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
     IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_name_to_arena    (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
     IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_handle_to_memory (const asset_database* db, const hnd_asset h_asset,   memory& mem);
@@ -81,16 +92,16 @@ namespace ifb {
     IFB_INTERNAL const asset_sound*        asset_database_load_sound_by_handle_to_memory        (const asset_database* db, const hnd_asset h_asset, memory& mem);
     IFB_INTERNAL void                      asset_sound_set_samples                              (asset_sound* snd);
 
-    IFB_INTERNAL asset_memory* asset_memory_create        (void);
-    IFB_INTERNAL void          asset_memory_init          (asset_memory* asset_mem, reservation* res);
-    IFB_INTERNAL bool          asset_memory_alloc         (asset_memory* asset_mem, const hnd_asset hnd, const u32 size, asset_memory_block& block);
-    IFB_INTERNAL void          asset_memory_free          (asset_memory* asset_mem, const asset_memory_block& block);
-    IFB_INTERNAL void          asset_memory_update        (asset_memory* asset_mem, const u64 frame);
-    IFB_INTERNAL u32           asset_memory_count_pinned  (const asset_memory* asset_mem);
-    IFB_INTERNAL bool          asset_memory_mark_for_free (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
-    IFB_INTERNAL addr          asset_memory_get_data      (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
-    IFB_INTERNAL addr          asset_memory_pin           (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
-    IFB_INTERNAL void          asset_memory_unpin         (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL asset_memory*             asset_memory_create        (void);
+    IFB_INTERNAL void                      asset_memory_init          (asset_memory* asset_mem, reservation* res);
+    IFB_INTERNAL bool                      asset_memory_alloc         (asset_memory* asset_mem, const hnd_asset hnd, const u32 size, asset_memory_block& block);
+    IFB_INTERNAL void                      asset_memory_free          (asset_memory* asset_mem, const asset_memory_block& block);
+    IFB_INTERNAL void                      asset_memory_update        (asset_memory* asset_mem, const u64 frame);
+    IFB_INTERNAL u32                       asset_memory_count_pinned  (const asset_memory* asset_mem);
+    IFB_INTERNAL bool                      asset_memory_mark_for_free (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL addr                      asset_memory_get_data      (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL addr                      asset_memory_pin           (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
+    IFB_INTERNAL void                      asset_memory_unpin         (asset_memory* asset_mem, const asset_memory_block& block, const hnd_asset hnd);
 
     
     IFB_INTERNAL const asset_dictionary_file_list*
