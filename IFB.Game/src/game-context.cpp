@@ -13,7 +13,30 @@ namespace ifb {
     game_phys_cllsn_handler(
         const event_payload& payload) {
 
-        //assert(false && "SUCCESS!!!");
+        assert(_game_ctx);
+        assert(_game_ctx->entities);
+        assert(_game_ctx->player_rig);
+
+        const auto  entities   = _game_ctx->entities;
+        const auto  player_rig = _game_ctx->player_rig;
+        const auto& cllsn_data = payload.data.physics_collision; 
+
+        const bool has_connor = (cllsn_data.a == player_rig->connor_id || cllsn_data.b == player_rig->connor_id); 
+        const bool has_box    = (
+                cllsn_data.a == entities->static_entity_0 ||
+                cllsn_data.b == entities->static_entity_0 ||
+                cllsn_data.a == entities->static_entity_1 ||
+                cllsn_data.b == entities->static_entity_1 ||
+                cllsn_data.a == entities->static_entity_2 ||
+                cllsn_data.b == entities->static_entity_2 ||
+                cllsn_data.a == entities->static_entity_3 ||
+                cllsn_data.b == entities->static_entity_3
+        ); 
+
+        const bool should_play_boop = (has_connor && has_box);
+        if (should_play_boop) {
+            eng_audio_sound_play("BOOP", 0.5f, false);
+        }
     }
 
     IFB_INTERNAL game_context*
@@ -72,6 +95,8 @@ namespace ifb {
 
         const bool did_subscribe = eng_event_listener_subscribe(event_type_e_physics_collision, game_phys_cllsn_handler);
         assert(did_subscribe);
+
+        _game_ctx = ctx;
 
         return(ctx); 
     }
