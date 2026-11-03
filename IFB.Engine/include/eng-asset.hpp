@@ -43,6 +43,9 @@ namespace ifb {
     IFB_INTERNAL const asset_image*        asset_mngr_get_image                (const hnd_asset hnd);
     IFB_INTERNAL const asset_sprite_atlas* asset_mngr_get_sprite_atlas         (const hnd_asset hnd);
     IFB_INTERNAL const asset_name*         asset_mngr_get_name                 (const hnd_asset hnd);
+    IFB_INTERNAL hnd_asset                 asset_mngr_load_sound               (const cchar* name);
+    IFB_INTERNAL const asset_sound*        asset_mngr_pin_sound                (const hnd_asset hnd); // loads it if it isn't in memory
+    IFB_INTERNAL void                      asset_mngr_unpin                    (const hnd_asset hnd);
     IFB_INTERNAL asset_database*           asset_mngr_get_database             (void);
 
     // dictionary
@@ -52,6 +55,7 @@ namespace ifb {
     IFB_INTERNAL hnd_asset          asset_dictionary_add_text_file         (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
     IFB_INTERNAL hnd_asset          asset_dictionary_add_image_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
     IFB_INTERNAL hnd_asset          asset_dictionary_add_sprite_atlas_file (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL hnd_asset          asset_dictionary_add_sound_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
     IFB_INTERNAL bool               asset_dictionary_remove_file           (asset_dictionary* dict, const cchar* name);
     IFB_INTERNAL u32                asset_dictionary_count_assets          (const asset_dictionary* dict);
 
@@ -73,6 +77,9 @@ namespace ifb {
     IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_handle_to_memory (const asset_database* db, const hnd_asset h_asset,   memory& mem);
     IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_name_to_memory   (const asset_database* db, const cchar*    name_cstr, memory& mem);
     IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_file                (const cchar* path, const hnd_arena h_arena);
+    IFB_INTERNAL const asset_sound*        asset_database_load_sound_by_handle_to_arena         (const asset_database* db, const hnd_asset h_asset, const hnd_arena h_arena);
+    IFB_INTERNAL const asset_sound*        asset_database_load_sound_by_handle_to_memory        (const asset_database* db, const hnd_asset h_asset, memory& mem);
+    IFB_INTERNAL void                      asset_sound_set_samples                              (asset_sound* snd);
 
     IFB_INTERNAL asset_memory* asset_memory_create        (void);
     IFB_INTERNAL void          asset_memory_init          (asset_memory* asset_mem, reservation* res);
@@ -105,8 +112,11 @@ namespace ifb {
     IFB_INTERNAL u32       asset_dictionary_file_list_json_write     (const asset_dictionary_file_list& list, const cchar* name, const bool is_last, cchar* buffer, const u32 offset); 
     IFB_INTERNAL u32       asset_dictionary_file_list_count          (const asset_dictionary_file_list& list);
 
-    IFB_INTERNAL u32  asset_database_get_asset_count (const asset_database* db);
-    IFB_INTERNAL void asset_database_close           (const asset_database* db);
+    IFB_INTERNAL u32      asset_database_get_asset_count (const asset_database* db);
+    IFB_INTERNAL void     asset_database_close           (const asset_database* db);
+    IFB_INTERNAL bool     asset_database_bank_path       (const cchar* path_database, cchar* path_bank);
+    IFB_INTERNAL hnd_file asset_database_get_bank        (const asset_database* db); // FILE_HANDLE_INVALID if there's no bank open
+    IFB_INTERNAL bool     asset_database_needs_bank      (const asset_database* db); // true if it has sounds
 
     
     struct asset_dictionary_file_node {
@@ -125,6 +135,7 @@ namespace ifb {
         asset_dictionary_file_list text_files;
         asset_dictionary_file_list image_files;
         asset_dictionary_file_list sprite_atlas_files;
+        asset_dictionary_file_list sound_files;
     };
 
     struct asset_memory_block {

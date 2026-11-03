@@ -11,5 +11,9 @@
     ],
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }
+    ],
+    "sound": [
+        { "name": "PIANO", "path": "sounds/piano.wav" },
+        { "name": "BOOP", "path": "sounds/boop.wav" }
     ]
 }

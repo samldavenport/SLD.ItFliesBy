@@ -9,6 +9,7 @@
 #include "ifb-platform.hpp"
 #include "memory-reservation.cpp"
 #include "eng-wav.hpp"
+#include "eng-asset.hpp"
 
 namespace ifb {
 
@@ -29,8 +30,10 @@ namespace ifb {
 
     // the position and gain carry over between frames, a jump in either is an audible click
     // the gain fades toward the volume, or toward 0 when the voice is paused or stopping
+    // a voice playing a sound asset keeps it pinned, so the samples can't move while it reads them
     struct audio_voice {
         const wav* w;
+        hnd_asset  h_sound;    // INVALID_HANDLE if the wav isn't a sound asset
         f64        position;   // in frames of the wav
         f64        step;       // wav frames per device frame
         u32        frame_count;
@@ -121,6 +124,16 @@ namespace ifb {
         void) {
 
         assert(_audio_mngr);
+
+        // the voices go first, so the sounds they pinned are unpinned before the assets shut down
+        for (
+            u32 index = 0;
+                index < config::audio_voice_capacity;
+              ++index) {
+
+            audio_voice& voice = _audio_mngr->voices[index];
+            if (voice.is_active) audio_mngr_voice_free(&voice);
+        }
 
         pfm_audio_shutdown();
         _audio_mngr->is_device_ready = false;
@@ -270,6 +283,7 @@ namespace ifb {
 
             // the generation is kept, it's what makes the old handles stale
             voice.w           = w;
+            voice.h_sound     = {INVALID_HANDLE};
             voice.position    = 0.0;
             voice.step        = (f64)w->format.sample_rate / (f64)config::audio_sample_rate;
             voice.frame_count = (w->data.size / w->format.block_align);
@@ -285,6 +299,54 @@ namespace ifb {
             return(h_voice);
         }
         return(h_voice);
+    }
+
+    // loads the sound from the runtime database if it isn't in memory, and keeps it pinned while the voice plays
+    // returns an invalid handle if there's no sound by that name, no room for it, no device, or every voice is in use
+    IFB_INTERNAL hnd_audio_voice
+    audio_mngr_voice_play_sound(
+        const cchar* name,
+        const f32    volume,
+        const bool   is_looping) {
+
+        assert(_audio_mngr && name);
+
+        hnd_audio_voice h_voice = {INVALID_HANDLE};
+        if (!_audio_mngr->is_device_ready) return(h_voice);
+
+        const hnd_asset h_sound = asset_mngr_load_sound(name);
+        if (h_sound == INVALID_HANDLE) return(h_voice);
+
+        const asset_sound* snd = asset_mngr_pin_sound(h_sound);
+        if (!snd) return(h_voice);
+
+        h_voice = audio_mngr_voice_play(&snd->w, volume, is_looping);
+        if (h_voice == INVALID_HANDLE) {
+            asset_mngr_unpin(h_sound);
+            return(h_voice);
+        }
+
+        audio_mngr_voice_from_handle(h_voice)->h_sound = h_sound;
+        return(h_voice);
+    }
+
+    // frees every voice playing a sound asset without a fade, so nothing is pinned
+    IFB_INTERNAL void
+    audio_mngr_voice_stop_all_sounds(
+        void) {
+
+        assert(_audio_mngr);
+
+        for (
+            u32 index = 0;
+                index < config::audio_voice_capacity;
+              ++index) {
+
+            audio_voice& voice = _audio_mngr->voices[index];
+            if (voice.is_active && voice.h_sound != INVALID_HANDLE) {
+                audio_mngr_voice_free(&voice);
+            }
+        }
     }
 
     IFB_INTERNAL void
@@ -409,6 +471,11 @@ namespace ifb {
         audio_voice* voice) {
 
         assert(voice->is_active && _audio_mngr->voice_count > 0);
+
+        if (voice->h_sound != INVALID_HANDLE) {
+            asset_mngr_unpin(voice->h_sound);
+            voice->h_sound = {INVALID_HANDLE};
+        }
 
         voice->is_active = false;
         voice->w         = NULL;

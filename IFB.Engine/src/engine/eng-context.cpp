@@ -247,10 +247,11 @@ namespace ifb {
         // stop the workers first, their jobs can use the other systems
         job_dspchr_shutdown();
 
-        asset_mngr_shutdown();
-
         // the audio device needs COM, so this goes before the platform
+        // and its voices unpin their sounds, so it goes before the assets
         audio_mngr_shutdown();
+
+        asset_mngr_shutdown();
 
         // shut down the platform context
         pfm_context_shutdown();

@@ -268,6 +268,57 @@ namespace ifb {
         return(atlas);
     }
 
+    // loads the sound into asset memory if it isn't already there
+    // returns INVALID_HANDLE if there's no sound by that name, or no room for it
+    IFB_INTERNAL hnd_asset
+    asset_mngr_load_sound(
+        const cchar* name) {
+
+        assert(_asset_mngr);
+        assert(name);
+
+        const hnd_asset hnd = asset_database_handle_of(name);
+        if (hnd == INVALID_HANDLE) return(INVALID_HANDLE);
+
+        const addr data = asset_mngr_get_or_load(hnd, asset_type_e_sound);
+        if (!data) return(INVALID_HANDLE);
+
+        return(hnd);
+    }
+
+    // loads the sound if it was evicted, then pins it so it can't move or be freed
+    // the audio mixer reads the samples between frames, so a voice keeps its sound pinned until it's freed
+    // every pin needs a matching asset_mngr_unpin, and the runtime database can't be closed while one is pinned
+    IFB_INTERNAL const asset_sound*
+    asset_mngr_pin_sound(
+        const hnd_asset hnd) {
+
+        assert(_asset_mngr);
+
+        if (!asset_mngr_get_or_load(hnd, asset_type_e_sound)) return(NULL);
+
+        const u32  slot = asset_database_slot_of(_asset_mngr->db, hnd);
+        const addr data = asset_memory_pin(_asset_mngr->mem, _asset_mngr->array_blocks[slot], hnd);
+        assert(data);
+
+        // the sample pointer was set when it was loaded, and the data may have moved since
+        auto snd = (asset_sound*)data;
+        asset_sound_set_samples(snd);
+        return(snd);
+    }
+
+    IFB_INTERNAL void
+    asset_mngr_unpin(
+        const hnd_asset hnd) {
+
+        assert(_asset_mngr && _asset_mngr->db);
+
+        const u32 slot = asset_database_slot_of(_asset_mngr->db, hnd);
+        assert(slot != INVALID_INDEX);
+
+        asset_memory_unpin(_asset_mngr->mem, _asset_mngr->array_blocks[slot], hnd);
+    }
+
     // the name doesn't need the asset to be loaded, it's always in the database
     // NULL if there's no database or the asset isn't in it
     IFB_INTERNAL const asset_name*
@@ -343,6 +394,9 @@ namespace ifb {
             case (asset_type_e_sprite_atlas): {
                 did_load = asset_database_load_sprite_atlas_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
             } break;
+            case (asset_type_e_sound): {
+                did_load = asset_database_load_sound_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
+            } break;
             default: break;
         }
 
@@ -381,6 +435,12 @@ namespace ifb {
             case asset_type_e_sprite_atlas: {
                 if (index.size < (sizeof(u32) * 3)) return(0);
                 size = (u64)sizeof(asset_sprite_atlas) + (index.size - (sizeof(u32) * 3));
+            } break;
+
+            // sounds have their sample rate, channel count, and frame count in front of the samples in the file
+            case asset_type_e_sound: {
+                if (index.size < (sizeof(u32) * 3)) return(0);
+                size = (u64)sizeof(asset_sound) + (index.size - (sizeof(u32) * 3));
             } break;
 
             default: return(0);

@@ -442,6 +442,10 @@ namespace ifb {
     // the wav has to stay in memory until every voice playing it is freed, see eng_audio_voice_stop_all_using
     // a handle goes stale when its voice is freed, then the calls on it do nothing and get_info returns false
     IFB_ENGINE_API hnd_audio_voice eng_audio_voice_play           (const wav* w, const f32 volume, const bool is_looping);
+
+    // plays a sound asset from the runtime database by name, it's loaded if it isn't in memory
+    // the sound stays in memory while the voice plays, there's nothing to free
+    IFB_ENGINE_API hnd_audio_voice eng_audio_sound_play           (const cchar* name, const f32 volume, const bool is_looping);
     IFB_ENGINE_API void            eng_audio_voice_stop           (const hnd_audio_voice h_voice); // fades out, then frees
     IFB_ENGINE_API void            eng_audio_voice_stop_now       (const hnd_audio_voice h_voice); // frees without a fade
     IFB_ENGINE_API void            eng_audio_voice_stop_all_using (const wav* w);                  // frees without a fade, call it before freeing a wav

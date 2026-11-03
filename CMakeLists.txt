@@ -190,6 +190,7 @@ file(GLOB IFB_ASSETS CONFIGURE_DEPENDS
     assets/shaders/*.glsl
     assets/json/*.json
     assets/*.ifbdb
+    assets/*.ifbsnd
 )
 
 set(IFB_ASSETS_OUT "")

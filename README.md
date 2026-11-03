@@ -63,11 +63,12 @@ Requirements:
 - Windows with Visual Studio (MSVC) and the C++ workload
 - CMake 3.21+ and Ninja
 - [vcpkg](https://github.com/microsoft/vcpkg), with `VCPKG_ROOT` set or `vcpkg` on your `PATH`
+- [Git LFS](https://git-lfs.com), for the sound banks (`*.ifbsnd`)
 
 vcpkg installs `glew`, `imgui` (Win32 + OpenGL3 bindings, docking), `stb`, and `rapidjson` from `vcpkg.json`.
 
 ```powershell
-# pull the SLD submodules
+# pull the SLD submodules, set up git lfs, and download the sound banks
 ./scripts/Initialize-Repo.ps1
 
 # build (Debug by default)

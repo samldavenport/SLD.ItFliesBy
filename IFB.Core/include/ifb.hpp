@@ -186,7 +186,8 @@ namespace ifb {
         asset_type_e_text          = 0,
         asset_type_e_image         = 1,
         asset_type_e_sprite_atlas  = 2,
-        asset_type_e_count         = 3
+        asset_type_e_sound         = 3,
+        asset_type_e_count         = 4
     };
 
     struct sprite_index;
@@ -247,6 +248,13 @@ namespace ifb {
         u32              sprite_count;
     };
 
+    // always 16 bit pcm, the database converts sounds when it's built
+    // the samples go right after the struct, and w.data.bytes points at them
+    struct asset_sound {
+        hnd_asset hnd;
+        wav       w;
+    };
+
     struct asset_database_info {
         cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
         hnd_asset hnd;
@@ -269,6 +277,7 @@ namespace ifb {
         u32          texture;
         u32          width;
         u32          height;
+        const wav*   sound;             // valid until the next preview in the same window
     };
 
     //--------------------------------------------------------------------

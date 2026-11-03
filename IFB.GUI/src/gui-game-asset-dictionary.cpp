@@ -21,26 +21,30 @@ namespace ifb {
     static const char* _asset_dictionary_type_names[asset_type_e_count] = {
         "Text",
         "Image",
-        "Sprite Atlas"
+        "Sprite Atlas",
+        "Sound"
     };
 
     static const char* _asset_dictionary_list_names[asset_type_e_count] = {
         "Text Files",
         "Image Files",
-        "Sprite Atlases"
+        "Sprite Atlases",
+        "Sounds"
     };
 
     // the platform only reads the first 16 characters of a filter
     static const char* _asset_dictionary_type_filter_types[asset_type_e_count] = {
         "*.*",
         "*.png;*.jpg",
-        "*.ifbatlas"
+        "*.ifbatlas",
+        "*.wav"
     };
 
     static const char* _asset_dictionary_type_filter_descs[asset_type_e_count] = {
         "All Files",
         "Images",
-        "Sprite Atlas"
+        "Sprite Atlas",
+        "WAV Audio"
     };
 
     //--------------------------------------------------------------------
@@ -60,6 +64,11 @@ namespace ifb {
         u32                      selected_id;
         asset_preview            preview;
     } static _asset_dictionary;
+
+    // the previews share one voice, a sound preview is only played from one window at a time
+    // the engine stops it when the preview it was playing is replaced, so the handle can go stale on its own
+    static hnd_audio_voice _asset_preview_voice = {INVALID_HANDLE};
+    static const wav*      _asset_preview_wav   = NULL;
 
     //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS
@@ -420,12 +429,45 @@ namespace ifb {
         gui_asset_preview("asset-dictionary-preview", state.preview);
     }
 
-    // text in a scrolling box, or an image scaled down to fit
+    // text in a scrolling box, an image scaled down to fit, or a sound with a play button
     // returns true if an image was drawn, then the image is the last item so its rect can be drawn over
     IFB_INLINE bool
     gui_asset_preview(
         const char*          str_id,
         const asset_preview& preview) {
+
+        if (preview.type == asset_type_e_sound) {
+
+            const wav*        w           = preview.sound;
+            const wav_format& format      = w->format;
+            const u32         frame_count = eng_wav_get_frame_count(w);
+            const f32         duration    = (f32)frame_count / (f32)format.sample_rate;
+
+            ImGui::Text("%u Hz, %u bit, %u channels", format.sample_rate, format.bits_per_sample, format.num_channels);
+            ImGui::Text("%.2f seconds, %.1f MB", duration, (f32)w->data.size / (1024.0f * 1024.0f));
+
+            // the voice may be playing a different preview
+            audio_voice_info info;
+            const bool is_playing = (
+                _asset_preview_wav == w &&
+                eng_audio_voice_get_info(_asset_preview_voice, info)
+            );
+
+            ImGui::PushID(str_id);
+            if (ImGui::Button(is_playing ? "Stop" : "Play")) {
+                eng_audio_voice_stop(_asset_preview_voice);
+                if (!is_playing) {
+                    _asset_preview_voice = eng_audio_voice_play(w, 0.5f, false);
+                    _asset_preview_wav   = w;
+                }
+            }
+            ImGui::PopID();
+
+            ImGui::SameLine();
+            const f32 progress = is_playing ? (f32)(info.position / (f64)frame_count) : 0.0f;
+            ImGui::ProgressBar(progress, ImVec2(-1.0f, 0.0f), "");
+            return(false);
+        }
 
         if (preview.type == asset_type_e_text) {
 
