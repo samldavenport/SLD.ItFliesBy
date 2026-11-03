@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <math.h>
 
 #include "eng-audio.hpp"
 #include "eng-context.hpp"
@@ -10,6 +11,7 @@
 #include "memory-reservation.cpp"
 #include "eng-wav.hpp"
 #include "eng-asset.hpp"
+#include "audio-source.cpp"
 
 namespace ifb {
 
@@ -24,20 +26,25 @@ namespace ifb {
 
     static_assert(IFB_CONFIG_AUDIO_VOICE_CAPACITY <= AUDIO_VOICE_INDEX_MASK, "the voice index doesn't fit in a handle");
 
+    // a voice is mixed a block of device frames at a time, the source frames for a block are read into the scratch buffer first
+    // a source at a higher sample rate needs more of its frames for a block, so its blocks are shorter to fit
+    static constexpr u32 AUDIO_MIX_BLOCK_FRAMES   = 256;
+    static constexpr u32 AUDIO_SCRATCH_FRAMES     = 1024;
+    static constexpr u32 AUDIO_SCRATCH_CHANNELS   = 2;
+    static constexpr u32 AUDIO_SCRATCH_PAD_FRAMES = 4;   // the frame after the last one, for blending, plus room for rounding
+
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
     // the position and gain carry over between frames, a jump in either is an audible click
     // the gain fades toward the volume, or toward 0 when the voice is paused or stopping
-    // a voice playing a sound asset keeps it pinned, so the samples can't move while it reads them
+    // the source has the samples, a voice playing a sound asset has it pinned through its source
     struct audio_voice {
-        const wav* w;
-        hnd_asset  h_sound;    // INVALID_HANDLE if the wav isn't a sound asset
-        f64        position;   // in frames of the wav
-        f64        step;       // wav frames per device frame
-        u32        frame_count;
-        u32        group;
+        audio_source source;
+        f64          position;   // in frames of the source
+        f64          step;       // source frames per device frame
+        u32          group;
         f32        volume;
         f32        gain;       // fades toward volume times the group's volume
         u16        generation;
@@ -63,6 +70,7 @@ namespace ifb {
         u32            voice_count;
         audio_preload* preloads;
         u32            preload_count;
+        f32*           scratch;         // AUDIO_SCRATCH_FRAMES frames of AUDIO_SCRATCH_CHANNELS, the source frames for one block
         f32*  samples;
         u32   frame_capacity;    // the size of the samples buffer
         u32   frame_count;       // the frames to write this frame
@@ -86,6 +94,8 @@ namespace ifb {
 
     inline audio_voice* audio_mngr_voice_from_handle (const hnd_audio_voice h_voice);
     inline void         audio_mngr_voice_free        (audio_voice* voice);
+    inline hnd_audio_voice audio_mngr_voice_start    (const audio_source& src, const audio_group_e group, const f32 volume, const bool is_looping);
+    inline void         audio_mngr_voice_fetch       (const audio_voice* voice, const u32 frame_first, const u32 count, f32* out);
     inline void         audio_mngr_voice_mix         (audio_voice* voice, const audio_buffer& buffer);
     inline void         audio_mngr_mix_voices        (void);
 
@@ -136,6 +146,10 @@ namespace ifb {
         assert(_audio_mngr->preloads);
         memset(_audio_mngr->preloads, 0, preloads_size);
         _audio_mngr->preload_count = 0;
+
+        const u32 scratch_size = AUDIO_SCRATCH_FRAMES * AUDIO_SCRATCH_CHANNELS * sizeof(f32);
+        _audio_mngr->scratch   = (f32*)reservation_push_bytes(res, scratch_size);
+        assert(_audio_mngr->scratch);
 
         _audio_mngr->frame_capacity = config::audio_buffer_frames;
         _audio_mngr->latency_frames = config::audio_latency_frames;
@@ -355,38 +369,9 @@ namespace ifb {
         const bool          is_looping) {
 
         assert(_audio_mngr && w);
-        assert(group < audio_group_e_count);
 
-        hnd_audio_voice h_voice = {INVALID_HANDLE};
-        if (!_audio_mngr->is_device_ready) return(h_voice);
-
-        for (
-            u32 index = 0;
-                index < config::audio_voice_capacity;
-              ++index) {
-
-            audio_voice& voice = _audio_mngr->voices[index];
-            if (voice.is_active) continue;
-
-            // the generation is kept, it's what makes the old handles stale
-            voice.w           = w;
-            voice.h_sound     = {INVALID_HANDLE};
-            voice.position    = 0.0;
-            voice.step        = (f64)w->format.sample_rate / (f64)config::audio_sample_rate;
-            voice.frame_count = (w->data.size / w->format.block_align);
-            voice.group       = group;
-            voice.volume      = volume;
-            voice.gain        = 0.0f;
-            voice.is_active   = true;
-            voice.is_paused   = false;
-            voice.is_looping  = is_looping;
-            voice.is_stopping = false;
-            ++_audio_mngr->voice_count;
-
-            h_voice.val = ((u32)voice.generation << AUDIO_VOICE_GENERATION_SHIFT) | index;
-            return(h_voice);
-        }
-        return(h_voice);
+        const audio_source src = audio_source_from_memory(w, {INVALID_HANDLE});
+        return(audio_mngr_voice_start(src, group, volume, is_looping));
     }
 
     // loads the sound from the runtime database if it isn't in memory, and keeps it pinned while the voice plays
@@ -409,13 +394,12 @@ namespace ifb {
         const asset_sound* snd = asset_mngr_pin_sound(h_sound);
         if (!snd) return(h_voice);
 
-        h_voice = audio_mngr_voice_play(&snd->w, group, volume, is_looping);
+        // the source keeps the pin, and lets go of it when the voice is freed
+        audio_source src = audio_source_from_memory(&snd->w, h_sound);
+        h_voice = audio_mngr_voice_start(src, group, volume, is_looping);
         if (h_voice == INVALID_HANDLE) {
-            asset_mngr_unpin(h_sound);
-            return(h_voice);
+            audio_source_release(src);
         }
-
-        audio_mngr_voice_from_handle(h_voice)->h_sound = h_sound;
         return(h_voice);
     }
 
@@ -432,7 +416,7 @@ namespace ifb {
               ++index) {
 
             audio_voice& voice = _audio_mngr->voices[index];
-            if (voice.is_active && voice.h_sound != INVALID_HANDLE) {
+            if (voice.is_active && voice.source.h_sound != INVALID_HANDLE) {
                 audio_mngr_voice_free(&voice);
             }
         }
@@ -581,7 +565,7 @@ namespace ifb {
               ++index) {
 
             audio_voice& voice = _audio_mngr->voices[index];
-            if (voice.is_active && voice.w == w) {
+            if (voice.is_active && voice.source.type == audio_source_type_e_memory && voice.source.w == w) {
                 audio_mngr_voice_free(&voice);
             }
         }
@@ -623,7 +607,7 @@ namespace ifb {
         audio_voice* voice = audio_mngr_voice_from_handle(h_voice);
         if (!voice) return;
 
-        const f64 position_max = (f64)voice->frame_count;
+        const f64 position_max = (f64)voice->source.frame_count;
         voice->position = (position < 0.0)          ? 0.0
                         : (position > position_max) ? position_max
                         : position;
@@ -638,8 +622,8 @@ namespace ifb {
         if (!voice) return(false);
 
         info.position    = voice->position;
-        info.frame_count = voice->frame_count;
-        info.sample_rate = voice->w->format.sample_rate;
+        info.frame_count = voice->source.frame_count;
+        info.sample_rate = voice->source.sample_rate;
         info.volume      = voice->volume;
         info.group       = voice->group;
         info.is_paused   = voice->is_paused;
@@ -676,15 +660,110 @@ namespace ifb {
 
         assert(voice->is_active && _audio_mngr->voice_count > 0);
 
-        if (voice->h_sound != INVALID_HANDLE) {
-            asset_mngr_unpin(voice->h_sound);
-            voice->h_sound = {INVALID_HANDLE};
-        }
+        audio_source_release(voice->source);
 
         voice->is_active = false;
-        voice->w         = NULL;
         ++voice->generation;
         --_audio_mngr->voice_count;
+    }
+
+    // returns an invalid handle if there's no device, since nothing would mix the voice, or if every voice is in use
+    // the voice takes over the source, including its pin, only if it starts
+    inline hnd_audio_voice
+    audio_mngr_voice_start(
+        const audio_source& src,
+        const audio_group_e group,
+        const f32           volume,
+        const bool          is_looping) {
+
+        assert(group < audio_group_e_count);
+        assert(src.type != audio_source_type_e_none && src.frame_count != 0 && src.sample_rate != 0);
+
+        hnd_audio_voice h_voice = {INVALID_HANDLE};
+        if (!_audio_mngr->is_device_ready) return(h_voice);
+
+        for (
+            u32 index = 0;
+                index < config::audio_voice_capacity;
+              ++index) {
+
+            audio_voice& voice = _audio_mngr->voices[index];
+            if (voice.is_active) continue;
+
+            // the generation is kept, it's what makes the old handles stale
+            voice.source      = src;
+            voice.position    = 0.0;
+            voice.step        = (f64)src.sample_rate / (f64)config::audio_sample_rate;
+            voice.group       = group;
+            voice.volume      = volume;
+            voice.gain        = 0.0f;
+            voice.is_active   = true;
+            voice.is_paused   = false;
+            voice.is_looping  = is_looping;
+            voice.is_stopping = false;
+            ++_audio_mngr->voice_count;
+
+            h_voice.val = ((u32)voice.generation << AUDIO_VOICE_GENERATION_SHIFT) | index;
+            return(h_voice);
+        }
+        return(h_voice);
+    }
+
+    // reads count frames from frame_first on, where the frames can run past the end of the source
+    // a looping voice wraps back to the start, any number of times for a short source
+    // a voice that isn't looping holds its last frame, so the end blends into it the same as it always did
+    // a source that comes up short is filled out with silence
+    inline void
+    audio_mngr_voice_fetch(
+        const audio_voice* voice,
+        const u32          frame_first,
+        const u32          count,
+        f32*               out) {
+
+        const audio_source& src         = voice->source;
+        const u32           frame_count = src.frame_count;
+        const u32           channels    = src.channel_count;
+
+        u32 i_frame = 0;
+        while (i_frame < count) {
+
+            const u64 frame = (u64)frame_first + i_frame;
+            u32       index = 0;
+            u32       run   = 0;
+
+            if (voice->is_looping) {
+                index = (u32)(frame % frame_count);
+                run   = frame_count - index;
+            }
+            else if (frame < frame_count) {
+                index = (u32)frame;
+                run   = frame_count - index;
+            }
+            else {
+                // past the end, every frame left is the last one
+                const u32 last = (i_frame != 0) ? (i_frame - 1) : 0;
+                if (i_frame == 0) {
+                    (void)audio_source_read(src, frame_count - 1, 1, out);
+                    ++i_frame;
+                }
+                for (
+                    ;
+                    i_frame < count;
+                  ++i_frame) {
+
+                    memcpy(out + (i_frame * channels), out + (last * channels), channels * sizeof(f32));
+                }
+                break;
+            }
+
+            if (run > count - i_frame) run = count - i_frame;
+
+            const u32 did_read = audio_source_read(src, index, run, out + (i_frame * channels));
+            if (did_read < run) {
+                memset(out + ((i_frame + did_read) * channels), 0, (run - did_read) * channels * sizeof(f32));
+            }
+            i_frame += run;
+        }
     }
 
     inline void
@@ -692,55 +771,88 @@ namespace ifb {
         audio_voice*        voice,
         const audio_buffer& buffer) {
 
-        const wav*        w           = voice->w;
-        const u32         channels    = w->format.num_channels;
-        const bool        is_audible  = (!voice->is_paused && !voice->is_stopping);
-        const f32         gain_target = is_audible ? (voice->volume * _audio_mngr->group_volumes[voice->group]) : 0.0f;
-        const f32         gain_step   = 1.0f / (f32)config::audio_fade_frames;
+        const audio_source& src         = voice->source;
+        const u32           channels    = src.channel_count;
+        const f64           frame_count = (f64)src.frame_count;
+        const bool          is_audible  = (!voice->is_paused && !voice->is_stopping);
+        const f32           gain_target = is_audible ? (voice->volume * _audio_mngr->group_volumes[voice->group]) : 0.0f;
+        const f32           gain_step   = 1.0f / (f32)config::audio_fade_frames;
+        f32*                scratch     = _audio_mngr->scratch;
 
-        for (
-            u32 i_frame = 0;
-                i_frame < buffer.frame_count;
-              ++i_frame) {
+        // the block has to fit its source frames in the scratch buffer
+        const u32 step_ceil = (u32)voice->step + 1;
+        u32       block_max = ((AUDIO_SCRATCH_FRAMES - AUDIO_SCRATCH_PAD_FRAMES) / step_ceil) + 1;
+        if (block_max > AUDIO_MIX_BLOCK_FRAMES) block_max = AUDIO_MIX_BLOCK_FRAMES;
 
-            if      (voice->gain < gain_target) { voice->gain += gain_step; if (voice->gain > gain_target) voice->gain = gain_target; }
-            else if (voice->gain > gain_target) { voice->gain -= gain_step; if (voice->gain < gain_target) voice->gain = gain_target; }
+        bool is_done = false;
+        u32  i_frame = 0;
+        while (i_frame < buffer.frame_count && !is_done) {
 
-            // the fade out is done, a paused voice holds its position until it's resumed
-            if (!is_audible && voice->gain <= 0.0f) break;
-
-            // the end of the wav
-            if (voice->position >= (f64)voice->frame_count) {
+            // a seek can put the position at the end, and a looping voice comes back around between blocks
+            if (voice->position >= frame_count) {
                 if (!voice->is_looping) {
                     audio_mngr_voice_free(voice);
                     return;
                 }
-                voice->position -= (f64)voice->frame_count;
+                voice->position = fmod(voice->position, frame_count);
             }
 
-            // the wav's sample rate may not match the device, so this blends the 2 closest frames
-            const u32 frame_a = (u32)voice->position;
-            const f32 blend   = (f32)(voice->position - (f64)frame_a);
-            u32       frame_b = frame_a + 1;
-            if (frame_b >= voice->frame_count) {
-                frame_b = voice->is_looping ? 0 : frame_a;
-            }
+            // the source frames for the whole block, the positions in the block don't wrap, the fetch does
+            const u32 block_count = (buffer.frame_count - i_frame < block_max) ? (buffer.frame_count - i_frame) : block_max;
+            const u32 frame_first = (u32)voice->position;
+            const f64 position_end = voice->position + ((f64)(block_count - 1) * voice->step);
+            const u32 fetch_count  = ((u32)position_end - frame_first) + AUDIO_SCRATCH_PAD_FRAMES;
+            assert(fetch_count <= AUDIO_SCRATCH_FRAMES);
+            audio_mngr_voice_fetch(voice, frame_first, fetch_count, scratch);
 
+            f64 position = voice->position;
             for (
-                u32 i_channel = 0;
-                    i_channel < buffer.channel_count;
-                  ++i_channel) {
+                u32 i_block = 0;
+                    i_block < block_count;
+                  ++i_block, ++i_frame) {
 
-                // mono goes to every channel, extra channels in the wav are ignored
-                const u32 wav_channel = (i_channel < channels) ? i_channel : (channels - 1);
+                if      (voice->gain < gain_target) { voice->gain += gain_step; if (voice->gain > gain_target) voice->gain = gain_target; }
+                else if (voice->gain > gain_target) { voice->gain -= gain_step; if (voice->gain < gain_target) voice->gain = gain_target; }
 
-                const f32 sample_a = wav_read_sample(w, frame_a, wav_channel);
-                const f32 sample_b = wav_read_sample(w, frame_b, wav_channel);
+                // the fade out is done, a paused voice holds its position until it's resumed
+                if (!is_audible && voice->gain <= 0.0f) {
+                    is_done = true;
+                    break;
+                }
 
-                buffer.samples[(i_frame * buffer.channel_count) + i_channel] += (sample_a + ((sample_b - sample_a) * blend)) * voice->gain;
+                // the end of a voice that isn't looping
+                if (!voice->is_looping && position >= frame_count) {
+                    audio_mngr_voice_free(voice);
+                    return;
+                }
+
+                // the source's sample rate may not match the device, so this blends the 2 closest frames
+                const u32 frame_a = (u32)position;
+                const f32 blend   = (f32)(position - (f64)frame_a);
+                const u32 index_a = (frame_a - frame_first) * channels;
+                const u32 index_b = index_a + channels;
+
+                for (
+                    u32 i_channel = 0;
+                        i_channel < buffer.channel_count;
+                      ++i_channel) {
+
+                    // mono goes to every channel
+                    const u32 src_channel = (i_channel < channels) ? i_channel : (channels - 1);
+                    const f32 sample_a    = scratch[index_a + src_channel];
+                    const f32 sample_b    = scratch[index_b + src_channel];
+
+                    buffer.samples[(i_frame * buffer.channel_count) + i_channel] += (sample_a + ((sample_b - sample_a) * blend)) * voice->gain;
+                }
+
+                position += voice->step;
             }
+            voice->position = position;
+        }
 
-            voice->position += voice->step;
+        // a looping voice's position stays inside the source
+        if (voice->is_looping && voice->position >= frame_count) {
+            voice->position = fmod(voice->position, frame_count);
         }
 
         if (voice->is_stopping && voice->gain <= 0.0f) {

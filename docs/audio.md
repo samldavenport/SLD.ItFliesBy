@@ -6,6 +6,7 @@ The audio system sends samples to the default output device. The device is opene
 | --- | --- |
 | `IFB.Core/include/ifb.hpp` | `audio_buffer` and `audio_info` |
 | `IFB.Engine/include/eng-audio.hpp`, `src/audio/audio-mngr.cpp` | The audio manager |
+| `IFB.Engine/src/audio/audio-source.cpp` | Where a voice gets its samples from |
 | `IFB.Engine/src/engine/eng-audio.cpp` | The public `eng_audio_*` functions |
 | `IFB.Engine/src/win32/win32-audio.cpp` | The WASAPI implementation |
 | `IFB.GUI/src/gui-engine-audio-test.cpp` | The audio test window |
@@ -69,6 +70,20 @@ Things to know:
 - **Without a device, voices don't advance.** If the device goes away, the voices that were playing stay where they were.
 
 Each voice resamples on its own, so a wav at any sample rate plays at the right speed. It blends the 2 closest frames, which is fine for a preview but loses some of the high end.
+
+### Sources
+
+A voice reads its samples through an `audio_source` (`audio-source.cpp`), so the mixer doesn't care where they come from. The only kind now is a memory source, a wav that's already in memory. Streaming will add a kind that reads a sound from the bank a chunk at a time.
+
+| Function | Description |
+| --- | --- |
+| `audio_source_from_memory` | A source for a wav in memory. With a sound asset's handle, the source holds its pin. |
+| `audio_source_read` | Read a range of frames as floats, at most 2 channels (mono stays mono, extra channels are dropped). The frames have to be inside the source. Returns the frames it read, and a stream can come up short. |
+| `audio_source_release` | Let go of the source, and unpin its sound asset if it has one |
+
+The mixer works on a voice a block of up to 256 device frames at a time. It reads the source frames that block needs into a scratch buffer first, handling the loop and the end itself: a looping voice wraps around, and one that isn't holds its last frame. Then it blends from the scratch buffer. A source at a high sample rate needs more of its frames for each block, so its blocks are shorter, and anything the source comes up short on is played as silence.
+
+Sound assets are always 16 bit, so a memory source reads them directly. Other wavs, like the ones the WAV Player opens, go through `wav_read_sample`.
 
 ## Latency
 
