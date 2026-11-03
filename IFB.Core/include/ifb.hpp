@@ -143,6 +143,26 @@ namespace ifb {
         u32 pixel_height;
     };
 
+    // the first 16 bytes of the "fmt " chunk
+    struct wav_format {
+        u16 audio_format;     // format type
+        u16 num_channels;     // number of channels
+        u32 sample_rate;      // sample rate
+        u32 byte_rate;        // (sample_rate * bits_per_sample * num_channels) / 8
+        u16 block_align;      // (bits_per_sample * channels) / 8
+        u16 bits_per_sample;  // bits per sample
+    };
+
+    struct wav_data {
+        byte* bytes;
+        u32   size;
+    };
+
+    struct wav {
+        wav_format format;
+        wav_data   data;
+    };
+
     //--------------------------------------------------------------------
     // COLLECTIONS
     //--------------------------------------------------------------------

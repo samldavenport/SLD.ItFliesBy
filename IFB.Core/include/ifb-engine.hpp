@@ -439,6 +439,17 @@ namespace ifb {
     IFB_ENGINE_API void eng_audio_reset_stats (void);
 
     //--------------------------------------------------------------------
+    // WAV
+    //--------------------------------------------------------------------
+
+    // pcm only, 8, 16, 24, or 32 bit. returns NULL if the file can't be read or the arena is too small
+    IFB_ENGINE_API const wav* eng_wav_load_to_arena   (const cchar* path, const hnd_arena h_arena);
+    IFB_ENGINE_API u32        eng_wav_get_frame_count (const wav* w);
+
+    // one sample from -1 to 1
+    IFB_ENGINE_API f32        eng_wav_get_sample      (const wav* w, const u32 frame, const u32 channel);
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
