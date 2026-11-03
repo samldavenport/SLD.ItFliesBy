@@ -317,6 +317,14 @@ namespace ifb {
                     ? "Playing the sound from the runtime database"
                     : "Failed to play the sound, it may not be in the runtime database, or there's no audio device";
             }
+
+            ImGui::SameLine();
+            if (ImGui::Button("Stream From Runtime") && eng_asset_database_get_info(state.selected_index, info)) {
+                const hnd_audio_voice h_voice = eng_audio_sound_stream(info.name, audio_group_e_sfx, 0.5f, false);
+                state.status = (h_voice != INVALID_HANDLE)
+                    ? "Streaming the sound from the runtime database"
+                    : "Failed to stream the sound, it may not be in the runtime database, every stream may be in use, or there's no audio device";
+            }
         }
     }
 };

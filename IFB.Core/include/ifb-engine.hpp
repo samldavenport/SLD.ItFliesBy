@@ -457,6 +457,10 @@ namespace ifb {
     // the sound stays in memory while the voice plays, there's nothing to free
     IFB_ENGINE_API hnd_audio_voice eng_audio_sound_play           (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
 
+    // plays a sound asset by name, reading it from the bank a chunk at a time instead of loading it, for music and other long sounds
+    // the voice works the same as any other, but only IFB_CONFIG_AUDIO_STREAM_CAPACITY can play at once
+    IFB_ENGINE_API hnd_audio_voice eng_audio_sound_stream         (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
+
     // loads a sound now, like during a loading screen, so its first play doesn't have to
     // it stays in memory until it's unloaded as many times as it was preloaded, the engine lets go of the rest at shutdown
     // false if there's no sound by that name, no room for it, or IFB_CONFIG_AUDIO_PRELOAD_CAPACITY sounds are already preloaded

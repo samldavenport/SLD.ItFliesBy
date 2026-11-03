@@ -319,6 +319,56 @@ namespace ifb {
         asset_memory_unpin(_asset_mngr->mem, _asset_mngr->array_blocks[slot], hnd);
     }
 
+    // the sound isn't loaded, this only reads its format from the bank, so it can be streamed
+    // false if there's no runtime database, no sound by that handle, or no bank that matches it
+    IFB_INTERNAL bool
+    asset_mngr_get_sound_stream_info(
+        const hnd_asset          hnd,
+        asset_sound_stream_info& info) {
+
+        assert(_asset_mngr);
+
+        const asset_database* db = _asset_mngr->db;
+        if (!db || hnd == INVALID_HANDLE)                        return(false);
+        if (asset_database_get_bank(db) == FILE_HANDLE_INVALID) return(false);
+
+        asset_index index;
+        if (!asset_database_find(db, hnd, asset_type_e_sound, index)) return(false);
+
+        // the header has to agree with the index
+        u32 header[3] = { 0, 0, 0 };
+        if (asset_database_sound_size(db, index, header) == 0) return(false);
+
+        info.sample_rate    = header[0];
+        info.channel_count  = header[1];
+        info.frame_count    = header[2];
+        info.offset_samples = index.offset + (sizeof(u32) * 3);
+        return(true);
+    }
+
+    // reads frames straight from the bank, interleaved 16 bit samples with the sound's channels
+    // the frames have to be inside the sound, and the runtime database can't have changed since the info was read
+    IFB_INTERNAL bool
+    asset_mngr_read_sound_samples(
+        const asset_sound_stream_info& info,
+        const u32                      frame,
+        const u32                      frame_count,
+        s16*                           samples) {
+
+        assert(_asset_mngr && samples);
+        assert((u64)frame + frame_count <= info.frame_count);
+
+        const asset_database* db = _asset_mngr->db;
+        if (!db) return(false);
+
+        const hnd_file h_bank = asset_database_get_bank(db);
+        if (h_bank == FILE_HANDLE_INVALID) return(false);
+
+        const u32 size_frame = info.channel_count * sizeof(s16);
+        const u32 offset     = info.offset_samples + (frame * size_frame);
+        return(asset_database_read_at(h_bank, offset, frame_count * size_frame, samples));
+    }
+
     // the name doesn't need the asset to be loaded, it's always in the database
     // NULL if there's no database or the asset isn't in it
     IFB_INTERNAL const asset_name*

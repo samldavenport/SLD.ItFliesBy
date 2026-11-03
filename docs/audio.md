@@ -51,6 +51,7 @@ eng_audio_voice_stop       (h_voice);
 | `eng_audio_voice_play` | Start a voice from the beginning of a wav, in a [group](#volume-groups). Returns an invalid handle if there's no device or every voice is in use. |
 | `eng_audio_sound_play` | Start a voice on a [sound asset](assets.md#sounds) by name. Also returns an invalid handle if there's no sound by that name, or no room to load it. |
 | `eng_audio_sound_preload` / `_unload` | Load a sound ahead of time and keep it in memory, see [Preloading](assets.md#preloading) |
+| `eng_audio_sound_stream` | Start a voice on a sound asset by name, read from the bank a chunk at a time instead of loading it, see [Streaming](#streaming) |
 | `eng_audio_voice_stop` | Fade out, then free the voice |
 | `eng_audio_voice_stop_now` | Free the voice without a fade |
 | `eng_audio_voice_stop_all_using` | Free every voice playing a wav, without a fade |
@@ -73,11 +74,12 @@ Each voice resamples on its own, so a wav at any sample rate plays at the right 
 
 ### Sources
 
-A voice reads its samples through an `audio_source` (`audio-source.cpp`), so the mixer doesn't care where they come from. The only kind now is a memory source, a wav that's already in memory. Streaming will add a kind that reads a sound from the bank a chunk at a time.
+A voice reads its samples through an `audio_source` (`audio-source.cpp`), so the mixer doesn't care where they come from. A memory source reads a wav that's already in memory, and a stream source reads a sound from the bank a chunk at a time.
 
 | Function | Description |
 | --- | --- |
 | `audio_source_from_memory` | A source for a wav in memory. With a sound asset's handle, the source holds its pin. |
+| `audio_source_from_stream` | A source for an open stream, which the source gives back when it's released |
 | `audio_source_read` | Read a range of frames as floats, at most 2 channels (mono stays mono, extra channels are dropped). The frames have to be inside the source. Returns the frames it read, and a stream can come up short. |
 | `audio_source_release` | Let go of the source, and unpin its sound asset if it has one |
 
@@ -109,6 +111,33 @@ If there's no device at startup, or the device goes away while running (like unp
 | Voices | The voices in use, out of the pool |
 
 The wave fades in and out over 20 ms when it starts and stops, so those aren't heard as clicks. Switching waves or changing the frequency keeps the phase, but a switch between waves can still click once because the value jumps. That isn't a skip.
+
+## Streaming
+
+`eng_audio_sound_stream` plays a sound asset without loading it. It's read from the [sound bank](assets.md#sound-bank) a chunk at a time while it plays, so a long sound like music doesn't take its whole size in memory, or hitch the frame it starts in. It returns an ordinary voice, so pausing, seeking, looping, volume, groups, and stopping all work the same.
+
+```cpp
+hnd_audio_voice h_music = eng_audio_sound_stream("PIANO", audio_group_e_music, 0.5f, true);
+```
+
+Whether a sound streams is up to the call, not the sound, so the same sound can be streamed in one place and loaded in another. Stream long sounds, and load the short ones that play often.
+
+| Setting | Value | |
+| --- | --- | --- |
+| `IFB_CONFIG_AUDIO_STREAM_CAPACITY` | 4 | Streams that can play at once. Another one returns an invalid handle. |
+| `IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES` | 32768 | Frames in a chunk, about 0.7 seconds |
+| `IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT` | 3 | Chunks each stream keeps |
+
+Each stream has a ring of chunks, set aside when the engine starts (1.5 MB for all of them, in the audio reservation), so starting one never allocates. Before a streaming voice is mixed, its ring is topped up to hold the chunk the position is in and the 2 after it, reading the ones it's missing from the bank. A looping stream's chunks after the last one are the first ones again, so the loop doesn't wait on the disk. A seek reads the chunks it lands on before the next mix. Starting a stream reads its first chunks right away, so it starts on time.
+
+Things to know:
+
+- **The reads are on the main thread for now.** A chunk is read when the playhead reaches the chunk before it, which is about 128 KB of stereo every 0.7 seconds, and seeking reads up to 3 at once. They're small reads from the bank's own file, but a slow disk can still hitch a frame. Reading on a worker thread is next.
+- **A chunk that can't be read plays as silence**, and the voice keeps going. It's read again the next frame.
+- **Nothing is pinned or loaded.** Preloading doesn't apply, and a stream doesn't count against asset memory.
+- **Copy to Runtime stops every stream**, the same as the loaded sounds, since the bank they read from is replaced.
+
+The **Audio Test** window shows the streams in use and the chunks read since the stats were reset, and the database window has **Stream From Runtime** next to **Play From Runtime**.
 
 ## Volume Groups
 

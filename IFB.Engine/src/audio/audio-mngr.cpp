@@ -71,6 +71,9 @@ namespace ifb {
         audio_preload* preloads;
         u32            preload_count;
         f32*           scratch;         // AUDIO_SCRATCH_FRAMES frames of AUDIO_SCRATCH_CHANNELS, the source frames for one block
+        audio_stream*  streams;
+        u32            stream_count;
+        u32            stream_chunk_reads; // since the last reset
         f32*  samples;
         u32   frame_capacity;    // the size of the samples buffer
         u32   frame_count;       // the frames to write this frame
@@ -150,6 +153,32 @@ namespace ifb {
         const u32 scratch_size = AUDIO_SCRATCH_FRAMES * AUDIO_SCRATCH_CHANNELS * sizeof(f32);
         _audio_mngr->scratch   = (f32*)reservation_push_bytes(res, scratch_size);
         assert(_audio_mngr->scratch);
+
+        // the chunks are set aside up front, so starting a stream never allocates
+        const u32 streams_size      = config::audio_stream_capacity * sizeof(audio_stream);
+        const u32 chunk_size        = AUDIO_STREAM_CHUNK_FRAMES * AUDIO_STREAM_CHANNELS_MAX * sizeof(s16);
+        const u32 chunk_memory_size = config::audio_stream_capacity * AUDIO_STREAM_CHUNK_COUNT * chunk_size;
+        _audio_mngr->streams        = (audio_stream*)reservation_push_bytes(res, streams_size);
+        byte* chunk_memory          = (byte*)reservation_push_bytes(res, chunk_memory_size);
+        assert(_audio_mngr->streams && chunk_memory);
+        memset(_audio_mngr->streams, 0, streams_size);
+        for (
+            u32 i_stream = 0;
+                i_stream < config::audio_stream_capacity;
+              ++i_stream) {
+
+            for (
+                u32 i_chunk = 0;
+                    i_chunk < AUDIO_STREAM_CHUNK_COUNT;
+                  ++i_chunk) {
+
+                const u32 offset = ((i_stream * AUDIO_STREAM_CHUNK_COUNT) + i_chunk) * chunk_size;
+                _audio_mngr->streams[i_stream].chunks[i_chunk].samples = (s16*)(chunk_memory + offset);
+                _audio_mngr->streams[i_stream].chunks[i_chunk].index   = INVALID_INDEX;
+            }
+        }
+        _audio_mngr->stream_count       = 0;
+        _audio_mngr->stream_chunk_reads = 0;
 
         _audio_mngr->frame_capacity = config::audio_buffer_frames;
         _audio_mngr->latency_frames = config::audio_latency_frames;
@@ -303,8 +332,11 @@ namespace ifb {
         info.frame_gap_ms_max  = stats.frame_gap_ms_max;
         info.voice_count       = _audio_mngr->voice_count;
         info.voice_capacity    = config::audio_voice_capacity;
-        info.preload_count     = _audio_mngr->preload_count;
-        info.preload_capacity  = config::audio_preload_capacity;
+        info.preload_count      = _audio_mngr->preload_count;
+        info.preload_capacity   = config::audio_preload_capacity;
+        info.stream_count       = _audio_mngr->stream_count;
+        info.stream_capacity    = config::audio_stream_capacity;
+        info.stream_chunk_reads = _audio_mngr->stream_chunk_reads;
     }
 
     IFB_INTERNAL void
@@ -317,6 +349,7 @@ namespace ifb {
         stats.underrun_count    = 0;
         stats.frame_gap_ms_max  = 0.0f;
         stats.frames_queued_min = _audio_mngr->latency_frames;
+        _audio_mngr->stream_chunk_reads = 0;
     }
 
     // the voices fade to it, since the mixer reads it for the gain they fade toward
@@ -403,7 +436,55 @@ namespace ifb {
         return(h_voice);
     }
 
-    // frees every voice playing a sound asset without a fade, so nothing is pinned
+    // the sound is read from the bank a chunk at a time while it plays, instead of being loaded
+    // the first chunks are read now, so it starts right away
+    // returns an invalid handle if there's no sound by that name, no bank, no device, or every stream or voice is in use
+    IFB_INTERNAL hnd_audio_voice
+    audio_mngr_voice_stream_sound(
+        const cchar*        name,
+        const audio_group_e group,
+        const f32           volume,
+        const bool          is_looping) {
+
+        assert(_audio_mngr && name);
+
+        hnd_audio_voice h_voice = {INVALID_HANDLE};
+        if (!_audio_mngr->is_device_ready) return(h_voice);
+
+        const hnd_asset h_sound = asset_name_cstr_to_handle(name);
+        if (h_sound == INVALID_HANDLE) return(h_voice);
+
+        asset_sound_stream_info info;
+        if (!asset_mngr_get_sound_stream_info(h_sound, info)) return(h_voice);
+
+        audio_stream* stream = NULL;
+        for (
+            u32 i_stream = 0;
+                i_stream < config::audio_stream_capacity && !stream;
+              ++i_stream) {
+
+            if (!_audio_mngr->streams[i_stream].is_active) stream = &_audio_mngr->streams[i_stream];
+        }
+        if (!stream) return(h_voice);
+
+        audio_stream_open(stream, h_sound, info);
+        const u32 reads_before = stream->chunk_reads;
+        audio_stream_refill(stream, 0.0, is_looping);
+        _audio_mngr->stream_chunk_reads += (stream->chunk_reads - reads_before);
+
+        // the voice takes the stream, and gives it back when it's freed
+        audio_source src = audio_source_from_stream(stream);
+        h_voice = audio_mngr_voice_start(src, group, volume, is_looping);
+        if (h_voice == INVALID_HANDLE) {
+            audio_source_release(src);
+            return(h_voice);
+        }
+
+        ++_audio_mngr->stream_count;
+        return(h_voice);
+    }
+
+    // frees every voice playing a sound asset without a fade, so nothing is pinned or reading the bank
     IFB_INTERNAL void
     audio_mngr_voice_stop_all_sounds(
         void) {
@@ -416,7 +497,8 @@ namespace ifb {
               ++index) {
 
             audio_voice& voice = _audio_mngr->voices[index];
-            if (voice.is_active && voice.source.h_sound != INVALID_HANDLE) {
+            const bool is_sound = (voice.source.h_sound != INVALID_HANDLE || voice.source.type == audio_source_type_e_stream);
+            if (voice.is_active && is_sound) {
                 audio_mngr_voice_free(&voice);
             }
         }
@@ -660,6 +742,10 @@ namespace ifb {
 
         assert(voice->is_active && _audio_mngr->voice_count > 0);
 
+        if (voice->source.type == audio_source_type_e_stream) {
+            assert(_audio_mngr->stream_count > 0);
+            --_audio_mngr->stream_count;
+        }
         audio_source_release(voice->source);
 
         voice->is_active = false;
@@ -770,6 +856,15 @@ namespace ifb {
     audio_mngr_voice_mix(
         audio_voice*        voice,
         const audio_buffer& buffer) {
+
+        // a stream reads the chunks this frame needs before it's mixed, a seek since the last frame included
+        // a frame is shorter than a chunk, so the chunk under the playhead and the next one cover it
+        if (voice->source.type == audio_source_type_e_stream) {
+            audio_stream* stream       = voice->source.stream;
+            const u32     reads_before = stream->chunk_reads;
+            audio_stream_refill(stream, voice->position, voice->is_looping);
+            _audio_mngr->stream_chunk_reads += (stream->chunk_reads - reads_before);
+        }
 
         const audio_source& src         = voice->source;
         const u32           channels    = src.channel_count;

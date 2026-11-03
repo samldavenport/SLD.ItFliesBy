@@ -24,6 +24,7 @@ namespace ifb {
     // voices
     IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play           (const wav* w, const audio_group_e group, const f32 volume, const bool is_looping);
     IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play_sound     (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
+    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_stream_sound   (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
     IFB_INTERNAL void            audio_mngr_voice_stop_all_sounds(void);
     IFB_INTERNAL void            audio_mngr_voice_stop           (const hnd_audio_voice h_voice);
     IFB_INTERNAL void            audio_mngr_voice_stop_now       (const hnd_audio_voice h_voice);

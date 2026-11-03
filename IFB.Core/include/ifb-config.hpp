@@ -69,9 +69,12 @@ using namespace sld;
 #define IFB_CONFIG_AUDIO_LATENCY_FRAMES           (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_LATENCY_MS / 1000)
 #define IFB_CONFIG_AUDIO_VOICE_CAPACITY           32
 #define IFB_CONFIG_AUDIO_PRELOAD_CAPACITY         64
+#define IFB_CONFIG_AUDIO_STREAM_CAPACITY          4
+#define IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES      32768
+#define IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT       3
 #define IFB_CONFIG_AUDIO_FADE_MS                  20
 #define IFB_CONFIG_AUDIO_FADE_FRAMES              (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_FADE_MS / 1000)
-#define IFB_CONFIG_MEMORY_RES_SIZE_AUDIO          size_kilobytes(128)
+#define IFB_CONFIG_MEMORY_RES_SIZE_AUDIO          size_megabytes(2)
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -145,6 +148,9 @@ namespace ifb {
         static constexpr u32   audio_latency_frames           = IFB_CONFIG_AUDIO_LATENCY_FRAMES;
         static constexpr u32   audio_voice_capacity           = IFB_CONFIG_AUDIO_VOICE_CAPACITY;
         static constexpr u32   audio_preload_capacity         = IFB_CONFIG_AUDIO_PRELOAD_CAPACITY;
+        static constexpr u32   audio_stream_capacity          = IFB_CONFIG_AUDIO_STREAM_CAPACITY;
+        static constexpr u32   audio_stream_chunk_frames      = IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES;
+        static constexpr u32   audio_stream_chunk_count       = IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT;
         static constexpr u32   audio_fade_frames              = IFB_CONFIG_AUDIO_FADE_FRAMES;
         static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
             IFB_CONFIG_WINDOW_TITLE
