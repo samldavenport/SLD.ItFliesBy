@@ -312,7 +312,7 @@ namespace ifb {
 
             asset_database_info info;
             if (ImGui::Button("Play From Runtime") && eng_asset_database_get_info(state.selected_index, info)) {
-                const hnd_audio_voice h_voice = eng_audio_sound_play(info.name, 0.5f, false);
+                const hnd_audio_voice h_voice = eng_audio_sound_play(info.name, audio_group_e_sfx, 0.5f, false);
                 state.status = (h_voice != INVALID_HANDLE)
                     ? "Playing the sound from the runtime database"
                     : "Failed to play the sound, it may not be in the runtime database, or there's no audio device";

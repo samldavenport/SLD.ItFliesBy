@@ -132,6 +132,26 @@ namespace ifb {
                 ImVec2(-1.0f, 96.0f)
             );
 
+            // the group volumes are the engine's, so they're read back every frame
+            ImGui::SeparatorText("Groups");
+
+            f32 master_volume = eng_audio_get_master_volume();
+            if (ImGui::SliderFloat("Master", &master_volume, 0.0f, 1.0f, "%.2f")) {
+                eng_audio_set_master_volume(master_volume);
+            }
+
+            static const char* group_names[audio_group_e_count] = { "SFX", "Music" };
+            for (
+                u32 group = 0;
+                    group < audio_group_e_count;
+                  ++group) {
+
+                f32 group_volume = eng_audio_group_get_volume((audio_group_e)group);
+                if (ImGui::SliderFloat(group_names[group], &group_volume, 0.0f, 1.0f, "%.2f")) {
+                    eng_audio_group_set_volume((audio_group_e)group, group_volume);
+                }
+            }
+
             ImGui::SeparatorText("Buffer");
 
             const f32 ms_per_frame = 1000.0f / (f32)info.sample_rate;
@@ -143,6 +163,7 @@ namespace ifb {
             ImGui::Text("Frame Gap Max:  %.1f ms", info.frame_gap_ms_max);
             ImGui::Text("Underruns:      %u",      info.underrun_count);
             ImGui::Text("Voices:         %u / %u", info.voice_count, info.voice_capacity);
+            ImGui::Text("Preloads:       %u / %u", info.preload_count, info.preload_capacity);
 
             if (ImGui::Button("Reset Stats")) {
                 eng_audio_reset_stats();

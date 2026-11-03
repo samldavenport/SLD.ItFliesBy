@@ -452,10 +452,12 @@ namespace ifb {
             return(false);
         }
 
-        // a voice playing a sound asset keeps it pinned, and the database can't close with anything pinned
-        audio_mngr_voice_stop_all_sounds();
+        // sound voices and preloads keep their sounds pinned, and the database can't close with anything pinned
+        // the preloads are pinned again once the runtime database is back
+        audio_mngr_sounds_release();
 
         if (!asset_mngr_close_database()) {
+            audio_mngr_sounds_reacquire();
             eng_asset_database_set_error("Failed to close the runtime database, an asset is pinned");
             return(false);
         }
@@ -510,6 +512,7 @@ namespace ifb {
             eng_asset_database_set_error("Copied the database, but failed to load it as the runtime database");
             is_valid = false;
         }
+        audio_mngr_sounds_reacquire();
 
         // everything but the sounds works without the bank, but they won't play
         // the runtime can still have a bank that matches, like when the same database is copied again without its bank

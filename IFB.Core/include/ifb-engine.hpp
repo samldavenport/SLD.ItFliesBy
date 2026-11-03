@@ -438,14 +438,30 @@ namespace ifb {
     IFB_ENGINE_API void eng_audio_get_info    (audio_info& info);
     IFB_ENGINE_API void eng_audio_reset_stats (void);
 
+    // a voice plays at its own volume times its group's, from 0 to 1, and every group starts at 1
+    // a change fades over IFB_CONFIG_AUDIO_FADE_MS, on the voices that are playing too
+    IFB_ENGINE_API void eng_audio_group_set_volume (const audio_group_e group, const f32 volume);
+    IFB_ENGINE_API f32  eng_audio_group_get_volume (const audio_group_e group);
+
+    // scales everything that goes to the device, after the groups, from 0 to 1, and it starts at 1
+    // it covers anything written to the buffer directly too, and a change fades over IFB_CONFIG_AUDIO_FADE_MS
+    IFB_ENGINE_API void eng_audio_set_master_volume (const f32 volume);
+    IFB_ENGINE_API f32  eng_audio_get_master_volume (void);
+
     // voices are mixed into the buffer at the end of the frame, after the game and gui callbacks
     // the wav has to stay in memory until every voice playing it is freed, see eng_audio_voice_stop_all_using
     // a handle goes stale when its voice is freed, then the calls on it do nothing and get_info returns false
-    IFB_ENGINE_API hnd_audio_voice eng_audio_voice_play           (const wav* w, const f32 volume, const bool is_looping);
+    IFB_ENGINE_API hnd_audio_voice eng_audio_voice_play           (const wav* w, const audio_group_e group, const f32 volume, const bool is_looping);
 
     // plays a sound asset from the runtime database by name, it's loaded if it isn't in memory
     // the sound stays in memory while the voice plays, there's nothing to free
-    IFB_ENGINE_API hnd_audio_voice eng_audio_sound_play           (const cchar* name, const f32 volume, const bool is_looping);
+    IFB_ENGINE_API hnd_audio_voice eng_audio_sound_play           (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping);
+
+    // loads a sound now, like during a loading screen, so its first play doesn't have to
+    // it stays in memory until it's unloaded as many times as it was preloaded, the engine lets go of the rest at shutdown
+    // false if there's no sound by that name, no room for it, or IFB_CONFIG_AUDIO_PRELOAD_CAPACITY sounds are already preloaded
+    IFB_ENGINE_API bool            eng_audio_sound_preload        (const cchar* name);
+    IFB_ENGINE_API void            eng_audio_sound_unload         (const cchar* name);
     IFB_ENGINE_API void            eng_audio_voice_stop           (const hnd_audio_voice h_voice); // fades out, then frees
     IFB_ENGINE_API void            eng_audio_voice_stop_now       (const hnd_audio_voice h_voice); // frees without a fade
     IFB_ENGINE_API void            eng_audio_voice_stop_all_using (const wav* w);                  // frees without a fade, call it before freeing a wav

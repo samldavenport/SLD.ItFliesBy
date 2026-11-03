@@ -28,21 +28,68 @@ namespace ifb {
 
     IFB_ENGINE_API hnd_audio_voice
     eng_audio_voice_play(
-        const wav* w,
-        const f32  volume,
-        const bool is_looping) {
+        const wav*          w,
+        const audio_group_e group,
+        const f32           volume,
+        const bool          is_looping) {
 
-        return(audio_mngr_voice_play(w, volume, is_looping));
+        return(audio_mngr_voice_play(w, group, volume, is_looping));
     }
 
     IFB_ENGINE_API hnd_audio_voice
     eng_audio_sound_play(
-        const cchar* name,
-        const f32    volume,
-        const bool   is_looping) {
+        const cchar*        name,
+        const audio_group_e group,
+        const f32           volume,
+        const bool          is_looping) {
 
         assert(name);
-        return(audio_mngr_voice_play_sound(name, volume, is_looping));
+        return(audio_mngr_voice_play_sound(name, group, volume, is_looping));
+    }
+
+    IFB_ENGINE_API void
+    eng_audio_group_set_volume(
+        const audio_group_e group,
+        const f32           volume) {
+
+        audio_mngr_group_set_volume(group, volume);
+    }
+
+    IFB_ENGINE_API void
+    eng_audio_set_master_volume(
+        const f32 volume) {
+
+        audio_mngr_set_master_volume(volume);
+    }
+
+    IFB_ENGINE_API f32
+    eng_audio_get_master_volume(
+        void) {
+
+        return(audio_mngr_get_master_volume());
+    }
+
+    IFB_ENGINE_API f32
+    eng_audio_group_get_volume(
+        const audio_group_e group) {
+
+        return(audio_mngr_group_get_volume(group));
+    }
+
+    IFB_ENGINE_API bool
+    eng_audio_sound_preload(
+        const cchar* name) {
+
+        assert(name);
+        return(audio_mngr_sound_preload(name));
+    }
+
+    IFB_ENGINE_API void
+    eng_audio_sound_unload(
+        const cchar* name) {
+
+        assert(name);
+        audio_mngr_sound_unload(name);
     }
 
     IFB_ENGINE_API void

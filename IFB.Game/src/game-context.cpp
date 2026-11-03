@@ -46,7 +46,7 @@ namespace ifb {
         const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
         if (is_boop_playing) return;
 
-        audio->h_boop = eng_audio_sound_play("BOOP", GAME_BOOP_VOLUME, false);
+        audio->h_boop = eng_audio_sound_play("BOOP", audio_group_e_sfx, GAME_BOOP_VOLUME, false);
     }
 
     IFB_INTERNAL game_context*
@@ -81,6 +81,10 @@ namespace ifb {
         audio->h_boop             = {INVALID_HANDLE};
         audio->time_s             = 0.0;
         audio->box_contact_time_s = -GAME_BOOP_CONTACT_GAP_S;
+
+        // loaded now so the first bump doesn't wait on the disk, it stays loaded for the whole game
+        // without the sound bank it fails, and the boop just doesn't play
+        (void)eng_audio_sound_preload("BOOP");
 
         // load the sprite atlas
         sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");

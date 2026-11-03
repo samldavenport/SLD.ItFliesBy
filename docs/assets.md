@@ -103,15 +103,39 @@ The build reads the whole file and writes the converted samples, so both have to
 Play a sound by name. It's loaded from the runtime database if it isn't in memory yet:
 
 ```cpp
-hnd_audio_voice h_voice = eng_audio_sound_play("PIANO", 0.5f, false);
+hnd_audio_voice h_voice = eng_audio_sound_play("PIANO", audio_group_e_music, 0.5f, false);
 ```
 
 The voice keeps the sound pinned in asset memory while it plays, so the samples can't move or be evicted under it, and unpins it when the voice is freed. There's nothing to free. See [Audio](audio.md#voices) for what you can do with the voice.
 
 Things to know:
 
-- **The first play loads the sound**, on the main thread, so a long sound can hitch the frame it's first played in.
-- **Copying a database to the runtime stops every sound that's playing**, without a fade, since the runtime database can't close while anything is pinned.
+- **The first play loads the sound**, on the main thread, so a long sound can hitch the frame it's first played in. [Preload](#preloading) it to load it ahead of time.
+- **Copying a database to the runtime stops every sound that's playing**, without a fade, since the runtime database can't close while anything is pinned. Preloaded sounds are loaded again from the new database.
+
+### Preloading
+
+`eng_audio_sound_preload` loads a sound now, like at startup or during a loading screen, so its first play doesn't wait on the disk. A loaded asset can still be evicted when it hasn't been used in a while (`IFB_CONFIG_ASSET_EXPIRE_FRAMES`) or when asset memory needs the room, so a preloaded sound is pinned and stays in memory until it's unloaded.
+
+```cpp
+eng_audio_sound_preload ("BOOP"); // at startup
+eng_audio_sound_play    ("BOOP", audio_group_e_sfx, 0.25f, false);
+eng_audio_sound_unload  ("BOOP"); // when it isn't needed any more
+```
+
+| Function | Description |
+| --- | --- |
+| `eng_audio_sound_preload` | Load the sound if it isn't in memory, and keep it there. Returns `false` if there's no sound by that name, no room for it, or `IFB_CONFIG_AUDIO_PRELOAD_CAPACITY` (64) sounds are already preloaded. |
+| `eng_audio_sound_unload` | Undo one preload. After the last one the sound can be evicted again, it isn't freed right away. A sound that isn't preloaded is ignored. |
+
+Things to know:
+
+- **Preloads are counted.** Preloading a sound twice takes two unloads to let it go, so different parts of the game can preload the same sound without stepping on each other. It's still one copy in memory.
+- **There's nothing to clean up at shutdown.** The engine lets go of anything still preloaded.
+- **Preloads survive Copy to Runtime.** They're let go while the runtime database is replaced, then loaded from the new one. A preload whose sound isn't in the new database is dropped.
+- **Preloaded sounds take memory for as long as they're held**, and a pinned block can't be moved, which keeps its partition from being compacted. Preload the sounds that need to start right away, like short effects, and unload what a level doesn't use.
+
+The **Audio Test** window shows how many sounds are preloaded.
 - **Sounds are big.** A minute of stereo is about 11 MB in the bank.
 
 In the GUI, the dictionary previews the `.wav` as it is in the file, and the database previews it as it was converted. **Play From Runtime** in the database window plays it the way the game does, through the runtime database.

@@ -668,6 +668,13 @@ namespace ifb {
     // AUDIO
     //--------------------------------------------------------------------
 
+    // every voice is in a group, and the group's volume scales the voice's own
+    enum audio_group_e {
+        audio_group_e_sfx   = 0,
+        audio_group_e_music = 1,
+        audio_group_e_count = 2
+    };
+
     // interleaved samples from -1 to 1, only valid during the frame it was requested in
     struct audio_buffer {
         f32* samples;
@@ -688,6 +695,8 @@ namespace ifb {
         f32  frame_gap_ms_max;
         u32  voice_count;
         u32  voice_capacity;
+        u32  preload_count;
+        u32  preload_capacity;
     };
 
     // the position is in frames of the source, which may not be at the device's sample rate
@@ -696,6 +705,7 @@ namespace ifb {
         u32  frame_count;
         u32  sample_rate;
         f32  volume;
+        u32  group;
         bool is_paused;
         bool is_looping;
         bool is_stopping; // fading out, it's freed when the fade is done
