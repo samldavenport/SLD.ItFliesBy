@@ -13,7 +13,40 @@ namespace ifb {
     game_phys_cllsn_handler(
         const event_payload& payload) {
 
-        //assert(false && "SUCCESS!!!");
+        assert(_game_ctx);
+        assert(_game_ctx->entities);
+        assert(_game_ctx->player_rig);
+
+        const auto  entities   = _game_ctx->entities;
+        const auto  player_rig = _game_ctx->player_rig;
+        const auto& cllsn_data = payload.data.physics_collision; 
+
+        const bool has_connor = (cllsn_data.a == player_rig->connor_id || cllsn_data.b == player_rig->connor_id); 
+        const bool has_box    = (
+            cllsn_data.a == entities->static_entity_0 ||
+            cllsn_data.b == entities->static_entity_0 ||
+            cllsn_data.a == entities->static_entity_1 ||
+            cllsn_data.b == entities->static_entity_1 ||
+            cllsn_data.a == entities->static_entity_2 ||
+            cllsn_data.b == entities->static_entity_2 ||
+            cllsn_data.a == entities->static_entity_3 ||
+            cllsn_data.b == entities->static_entity_3
+        ); 
+
+        if (!has_connor || !has_box) return;
+
+        // only a new bump, not every step connor stays against the box
+        auto       audio          = _game_ctx->audio;
+        const bool is_new_contact = (audio->time_s - audio->box_contact_time_s) >= GAME_BOOP_CONTACT_GAP_S;
+        audio->box_contact_time_s = audio->time_s;
+        if (!is_new_contact) return;
+
+        // and never on top of the last boop, the handle goes stale when it finishes
+        audio_voice_info info;
+        const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
+        if (is_boop_playing) return;
+
+        audio->h_boop = eng_audio_sound_play("BOOP", audio_group_e_sfx, GAME_BOOP_VOLUME, false);
     }
 
     IFB_INTERNAL game_context*
@@ -28,18 +61,30 @@ namespace ifb {
         auto map      =        (game_map*)eng_arena_push(arena_h, sizeof(game_map));
         auto entities =   (game_entities*)eng_arena_push(arena_h, sizeof(game_entities));
         auto sprites  =    (game_sprites*)eng_arena_push(arena_h, sizeof(game_sprites));
+        auto audio    =      (game_audio*)eng_arena_push(arena_h, sizeof(game_audio));
 
         assert(ctx      != NULL);
         assert(rig      != NULL);
         assert(map      != NULL);
         assert(entities != NULL);
         assert(sprites  != NULL);
+        assert(audio    != NULL);
 
         ctx->global_arena = arena_h;
         ctx->player_rig   = rig;
-        ctx->map          = map; 
-        ctx->entities     = entities; 
-        ctx->sprites      = sprites; 
+        ctx->map          = map;
+        ctx->entities     = entities;
+        ctx->sprites      = sprites;
+        ctx->audio        = audio;
+
+        // nothing is playing, and the first contact counts as a bump
+        audio->h_boop             = {INVALID_HANDLE};
+        audio->time_s             = 0.0;
+        audio->box_contact_time_s = -GAME_BOOP_CONTACT_GAP_S;
+
+        // loaded now so the first bump doesn't wait on the disk, it stays loaded for the whole game
+        // without the sound bank it fails, and the boop just doesn't play
+        (void)eng_audio_sound_preload("BOOP");
 
         // load the sprite atlas
         sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
@@ -73,6 +118,8 @@ namespace ifb {
         const bool did_subscribe = eng_event_listener_subscribe(event_type_e_physics_collision, game_phys_cllsn_handler);
         assert(did_subscribe);
 
+        _game_ctx = ctx;
+
         return(ctx); 
     }
     
@@ -95,6 +142,9 @@ namespace ifb {
         auto player_rig = ctx->player_rig;
         auto map        = ctx->map;
         auto entities   = ctx->entities;
+
+        // the same step the physics uses, so the contact gap is measured in the time the collisions happen in
+        ctx->audio->time_s += eng_system_get_delta_time_s();
 
         game_player_rig_update_and_render (ctx->player_rig);
         game_player_rig_update_camera     (ctx->player_rig);

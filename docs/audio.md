@@ -25,7 +25,7 @@ Everything runs on the main thread, in the [frame loop](architecture.md#frame-lo
 | --- | --- | --- |
 | `audio_mngr_frame_start` | Start of the frame | Reads how many frames are queued on the device, updates the stats, and clears the buffer to silence |
 | `eng_audio_get_buffer` | Game or GUI callback | Gets the buffer, with enough frames to fill the queue back up to the target latency |
-| `audio_mngr_frame_end` | Before the swap | Mixes the [voices](#voices) into the buffer, clamps it, and sends it to the device |
+| `audio_mngr_frame_end` | Before the swap | Mixes the [voices](#voices) into the buffer, scales it by the [master volume](#master-volume), clamps it, and sends it to the device |
 
 The buffer always goes to the device, so if nothing writes to it, silence plays. The frame count changes every frame, so anything generating sound has to keep its own position (like the phase of a wave) between frames.
 
@@ -38,7 +38,7 @@ Most sound should go through voices instead of the buffer. Writing to the buffer
 A voice plays a `wav` from memory. The audio manager has a fixed pool of them (`IFB_CONFIG_AUDIO_VOICE_CAPACITY`, 32) and mixes every active one at the end of the frame, after the game and GUI callbacks, so they're added to anything written to the buffer directly.
 
 ```cpp
-hnd_audio_voice h_voice = eng_audio_voice_play(w, 0.5f, false);
+hnd_audio_voice h_voice = eng_audio_voice_play(w, audio_group_e_sfx, 0.5f, false);
 
 eng_audio_voice_set_paused (h_voice, true);
 eng_audio_voice_seek       (h_voice, 0.0);
@@ -47,8 +47,9 @@ eng_audio_voice_stop       (h_voice);
 
 | Function | Description |
 | --- | --- |
-| `eng_audio_voice_play` | Start a voice from the beginning of a wav. Returns an invalid handle if there's no device or every voice is in use. |
+| `eng_audio_voice_play` | Start a voice from the beginning of a wav, in a [group](#volume-groups). Returns an invalid handle if there's no device or every voice is in use. |
 | `eng_audio_sound_play` | Start a voice on a [sound asset](assets.md#sounds) by name. Also returns an invalid handle if there's no sound by that name, or no room to load it. |
+| `eng_audio_sound_preload` / `_unload` | Load a sound ahead of time and keep it in memory, see [Preloading](assets.md#preloading) |
 | `eng_audio_voice_stop` | Fade out, then free the voice |
 | `eng_audio_voice_stop_now` | Free the voice without a fade |
 | `eng_audio_voice_stop_all_using` | Free every voice playing a wav, without a fade |
@@ -93,6 +94,47 @@ If there's no device at startup, or the device goes away while running (like unp
 | Voices | The voices in use, out of the pool |
 
 The wave fades in and out over 20 ms when it starts and stops, so those aren't heard as clicks. Switching waves or changing the frequency keeps the phase, but a switch between waves can still click once because the value jumps. That isn't a skip.
+
+## Volume Groups
+
+Every voice is in a group, given when it's played, and plays at its own volume times its group's. A settings menu can turn the music down without touching the sound effects, or the game can duck the music under a cutscene.
+
+| Group | For |
+| --- | --- |
+| `audio_group_e_sfx` | Sound effects, and the engine's tools (the WAV Player and the asset previews) |
+| `audio_group_e_music` | Music |
+
+```cpp
+eng_audio_group_set_volume (audio_group_e_music, 0.5f);
+f32 volume = eng_audio_group_get_volume(audio_group_e_music);
+```
+
+| Function | Description |
+| --- | --- |
+| `eng_audio_group_set_volume` | Set a group's volume, from `0` to `1`, values outside that are clamped |
+| `eng_audio_group_get_volume` | A group's volume |
+
+Things to know:
+
+- **Every group starts at `1`**, and the volumes aren't saved. A settings menu has to save and restore them itself.
+- **A change fades over 20 ms** on the voices that are playing, the same as a voice's own volume, so it doesn't click.
+- **A voice in a group at `0` still plays.** It's silent, but its position moves and it frees itself at the end, so turning the group back up brings it in where it would be.
+- **The voice's own volume doesn't change.** `eng_audio_voice_get_info` still returns the volume it was given, and its group.
+
+The **Audio Test** window has a slider for each group.
+
+## Master Volume
+
+The master volume scales everything that goes to the device, after the voices are mixed. Since it's applied to the whole buffer, it also covers sound written to the buffer directly, like the audio test's wave, which the groups don't.
+
+```cpp
+eng_audio_set_master_volume(0.8f);
+f32 volume = eng_audio_get_master_volume();
+```
+
+A voice plays at its own volume, times its group's, times the master. The master runs from `0` to `1`, values outside that are clamped, it starts at `1`, and it isn't saved. A change fades over 20 ms like the others. It's applied before the mix is clamped, so turning it down brings a loud sum of voices back under `1` instead of clipping.
+
+The **Audio Test** window has a slider for it above the groups.
 
 ## WAV Player
 

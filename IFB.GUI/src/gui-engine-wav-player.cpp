@@ -194,7 +194,7 @@ namespace ifb {
             return;
         }
 
-        state.h_voice = eng_audio_voice_play(state.w, state.volume, state.is_looping);
+        state.h_voice = eng_audio_voice_play(state.w, audio_group_e_sfx, state.volume, state.is_looping);
         if (state.h_voice == INVALID_HANDLE) {
             state.status = "Failed to play the file, there's no audio device or every voice is in use";
             return;

@@ -37,8 +37,9 @@ namespace ifb {
         f64        position;   // in frames of the wav
         f64        step;       // wav frames per device frame
         u32        frame_count;
+        u32        group;
         f32        volume;
-        f32        gain;
+        f32        gain;       // fades toward volume times the group's volume
         u16        generation;
         bool       is_active;
         bool       is_paused;
@@ -46,9 +47,22 @@ namespace ifb {
         bool       is_stopping;
     };
 
+    // a preloaded sound has one pin however many times it's preloaded, the count is the unloads it takes to let it go
+    // it's unpinned while the runtime database is replaced, and pinned again from the new one
+    struct audio_preload {
+        hnd_asset hnd;
+        u32       count;     // 0 if the entry is free
+        bool      is_pinned;
+    };
+
     struct audio_mngr {
-        audio_voice* voices;
-        u32          voice_count;
+        f32            group_volumes[audio_group_e_count];
+        f32            master_volume;
+        f32            master_gain;     // fades toward master_volume, the same as a voice's gain
+        audio_voice*   voices;
+        u32            voice_count;
+        audio_preload* preloads;
+        u32            preload_count;
         f32*  samples;
         u32   frame_capacity;    // the size of the samples buffer
         u32   frame_count;       // the frames to write this frame
@@ -107,6 +121,22 @@ namespace ifb {
         memset(_audio_mngr->voices, 0, voices_size);
         _audio_mngr->voice_count = 0;
 
+        for (
+            u32 group = 0;
+                group < audio_group_e_count;
+              ++group) {
+
+            _audio_mngr->group_volumes[group] = 1.0f;
+        }
+        _audio_mngr->master_volume = 1.0f;
+        _audio_mngr->master_gain   = 1.0f;
+
+        const u32 preloads_size = config::audio_preload_capacity * sizeof(audio_preload);
+        _audio_mngr->preloads   = (audio_preload*)reservation_push_bytes(res, preloads_size);
+        assert(_audio_mngr->preloads);
+        memset(_audio_mngr->preloads, 0, preloads_size);
+        _audio_mngr->preload_count = 0;
+
         _audio_mngr->frame_capacity = config::audio_buffer_frames;
         _audio_mngr->latency_frames = config::audio_latency_frames;
 
@@ -134,6 +164,18 @@ namespace ifb {
             audio_voice& voice = _audio_mngr->voices[index];
             if (voice.is_active) audio_mngr_voice_free(&voice);
         }
+
+        // and the preloads let go of theirs
+        for (
+            u32 index = 0;
+                index < config::audio_preload_capacity;
+              ++index) {
+
+            audio_preload& preload = _audio_mngr->preloads[index];
+            if (preload.is_pinned) asset_mngr_unpin(preload.hnd);
+            preload = {};
+        }
+        _audio_mngr->preload_count = 0;
 
         pfm_audio_shutdown();
         _audio_mngr->is_device_ready = false;
@@ -247,6 +289,8 @@ namespace ifb {
         info.frame_gap_ms_max  = stats.frame_gap_ms_max;
         info.voice_count       = _audio_mngr->voice_count;
         info.voice_capacity    = config::audio_voice_capacity;
+        info.preload_count     = _audio_mngr->preload_count;
+        info.preload_capacity  = config::audio_preload_capacity;
     }
 
     IFB_INTERNAL void
@@ -261,14 +305,57 @@ namespace ifb {
         stats.frames_queued_min = _audio_mngr->latency_frames;
     }
 
+    // the voices fade to it, since the mixer reads it for the gain they fade toward
+    IFB_INTERNAL void
+    audio_mngr_group_set_volume(
+        const audio_group_e group,
+        const f32           volume) {
+
+        assert(_audio_mngr && group < audio_group_e_count);
+
+        _audio_mngr->group_volumes[group] = (volume < 0.0f) ? 0.0f
+                                          : (volume > 1.0f) ? 1.0f
+                                          : volume;
+    }
+
+    // the whole buffer is scaled at the end of the frame, so it covers everything written to it, not just the voices
+    IFB_INTERNAL void
+    audio_mngr_set_master_volume(
+        const f32 volume) {
+
+        assert(_audio_mngr);
+
+        _audio_mngr->master_volume = (volume < 0.0f) ? 0.0f
+                                   : (volume > 1.0f) ? 1.0f
+                                   : volume;
+    }
+
+    IFB_INTERNAL f32
+    audio_mngr_get_master_volume(
+        void) {
+
+        assert(_audio_mngr);
+        return(_audio_mngr->master_volume);
+    }
+
+    IFB_INTERNAL f32
+    audio_mngr_group_get_volume(
+        const audio_group_e group) {
+
+        assert(_audio_mngr && group < audio_group_e_count);
+        return(_audio_mngr->group_volumes[group]);
+    }
+
     // returns an invalid handle if there's no device, since nothing would mix the voice, or if every voice is in use
     IFB_INTERNAL hnd_audio_voice
     audio_mngr_voice_play(
-        const wav* w,
-        const f32  volume,
-        const bool is_looping) {
+        const wav*          w,
+        const audio_group_e group,
+        const f32           volume,
+        const bool          is_looping) {
 
         assert(_audio_mngr && w);
+        assert(group < audio_group_e_count);
 
         hnd_audio_voice h_voice = {INVALID_HANDLE};
         if (!_audio_mngr->is_device_ready) return(h_voice);
@@ -287,6 +374,7 @@ namespace ifb {
             voice.position    = 0.0;
             voice.step        = (f64)w->format.sample_rate / (f64)config::audio_sample_rate;
             voice.frame_count = (w->data.size / w->format.block_align);
+            voice.group       = group;
             voice.volume      = volume;
             voice.gain        = 0.0f;
             voice.is_active   = true;
@@ -305,9 +393,10 @@ namespace ifb {
     // returns an invalid handle if there's no sound by that name, no room for it, no device, or every voice is in use
     IFB_INTERNAL hnd_audio_voice
     audio_mngr_voice_play_sound(
-        const cchar* name,
-        const f32    volume,
-        const bool   is_looping) {
+        const cchar*        name,
+        const audio_group_e group,
+        const f32           volume,
+        const bool          is_looping) {
 
         assert(_audio_mngr && name);
 
@@ -320,7 +409,7 @@ namespace ifb {
         const asset_sound* snd = asset_mngr_pin_sound(h_sound);
         if (!snd) return(h_voice);
 
-        h_voice = audio_mngr_voice_play(&snd->w, volume, is_looping);
+        h_voice = audio_mngr_voice_play(&snd->w, group, volume, is_looping);
         if (h_voice == INVALID_HANDLE) {
             asset_mngr_unpin(h_sound);
             return(h_voice);
@@ -345,6 +434,120 @@ namespace ifb {
             audio_voice& voice = _audio_mngr->voices[index];
             if (voice.is_active && voice.h_sound != INVALID_HANDLE) {
                 audio_mngr_voice_free(&voice);
+            }
+        }
+    }
+
+    // loads the sound if it isn't in memory, and keeps it there until it's unloaded as many times as it was preloaded
+    // false if there's no sound by that name, no room for it, or every preload is in use
+    IFB_INTERNAL bool
+    audio_mngr_sound_preload(
+        const cchar* name) {
+
+        assert(_audio_mngr && name);
+
+        const hnd_asset h_sound = asset_mngr_load_sound(name);
+        if (h_sound == INVALID_HANDLE) return(false);
+
+        // it may already be preloaded
+        audio_preload* entry_free = NULL;
+        for (
+            u32 index = 0;
+                index < config::audio_preload_capacity;
+              ++index) {
+
+            audio_preload& preload = _audio_mngr->preloads[index];
+            if (preload.count == 0) {
+                if (!entry_free) entry_free = &preload;
+                continue;
+            }
+            if (preload.hnd == h_sound) {
+                ++preload.count;
+                return(true);
+            }
+        }
+        if (!entry_free) return(false);
+
+        if (!asset_mngr_pin_sound(h_sound)) return(false);
+
+        entry_free->hnd       = h_sound;
+        entry_free->count     = 1;
+        entry_free->is_pinned = true;
+        ++_audio_mngr->preload_count;
+        return(true);
+    }
+
+    // the last unload unpins it, so it can be evicted, it isn't freed right away
+    // a sound that isn't preloaded is ignored
+    IFB_INTERNAL void
+    audio_mngr_sound_unload(
+        const cchar* name) {
+
+        assert(_audio_mngr && name);
+
+        const hnd_asset h_sound = asset_name_cstr_to_handle(name);
+        if (h_sound == INVALID_HANDLE) return;
+
+        for (
+            u32 index = 0;
+                index < config::audio_preload_capacity;
+              ++index) {
+
+            audio_preload& preload = _audio_mngr->preloads[index];
+            if (preload.count == 0 || preload.hnd != h_sound) continue;
+
+            --preload.count;
+            if (preload.count == 0) {
+                if (preload.is_pinned) asset_mngr_unpin(preload.hnd);
+                preload = {};
+                --_audio_mngr->preload_count;
+            }
+            return;
+        }
+    }
+
+    // the runtime database can't close while anything is pinned
+    // the preloads are kept, so they can be pinned again once it's open
+    IFB_INTERNAL void
+    audio_mngr_sounds_release(
+        void) {
+
+        assert(_audio_mngr);
+
+        audio_mngr_voice_stop_all_sounds();
+
+        for (
+            u32 index = 0;
+                index < config::audio_preload_capacity;
+              ++index) {
+
+            audio_preload& preload = _audio_mngr->preloads[index];
+            if (!preload.is_pinned) continue;
+
+            asset_mngr_unpin(preload.hnd);
+            preload.is_pinned = false;
+        }
+    }
+
+    // a preload whose sound isn't in the new database, or doesn't fit, is dropped
+    IFB_INTERNAL void
+    audio_mngr_sounds_reacquire(
+        void) {
+
+        assert(_audio_mngr);
+
+        for (
+            u32 index = 0;
+                index < config::audio_preload_capacity;
+              ++index) {
+
+            audio_preload& preload = _audio_mngr->preloads[index];
+            if (preload.count == 0 || preload.is_pinned) continue;
+
+            preload.is_pinned = (asset_mngr_pin_sound(preload.hnd) != NULL);
+            if (!preload.is_pinned) {
+                preload = {};
+                --_audio_mngr->preload_count;
             }
         }
     }
@@ -438,6 +641,7 @@ namespace ifb {
         info.frame_count = voice->frame_count;
         info.sample_rate = voice->w->format.sample_rate;
         info.volume      = voice->volume;
+        info.group       = voice->group;
         info.is_paused   = voice->is_paused;
         info.is_looping  = voice->is_looping;
         info.is_stopping = voice->is_stopping;
@@ -491,7 +695,7 @@ namespace ifb {
         const wav*        w           = voice->w;
         const u32         channels    = w->format.num_channels;
         const bool        is_audible  = (!voice->is_paused && !voice->is_stopping);
-        const f32         gain_target = is_audible ? voice->volume : 0.0f;
+        const f32         gain_target = is_audible ? (voice->volume * _audio_mngr->group_volumes[voice->group]) : 0.0f;
         const f32         gain_step   = 1.0f / (f32)config::audio_fade_frames;
 
         for (
@@ -544,7 +748,8 @@ namespace ifb {
         }
     }
 
-    // the voices add to the buffer, then the sum is clamped once so a loud mix clips instead of wrapping
+    // the voices add to the buffer, then the sum is scaled by the master volume and clamped once, so a loud mix clips instead of wrapping
+    // the master volume applies to anything written to the buffer directly too
     inline void
     audio_mngr_mix_voices(
         void) {
@@ -563,15 +768,28 @@ namespace ifb {
             }
         }
 
-        const u32 sample_count = buffer.frame_count * buffer.channel_count;
-        for (
-            u32 i_sample = 0;
-                i_sample < sample_count;
-              ++i_sample) {
+        const f32 gain_target = _audio_mngr->master_volume;
+        const f32 gain_step   = 1.0f / (f32)config::audio_fade_frames;
+        f32&      gain        = _audio_mngr->master_gain;
 
-            f32& sample = buffer.samples[i_sample];
-            if      (sample >  1.0f) sample =  1.0f;
-            else if (sample < -1.0f) sample = -1.0f;
+        for (
+            u32 i_frame = 0;
+                i_frame < buffer.frame_count;
+              ++i_frame) {
+
+            if      (gain < gain_target) { gain += gain_step; if (gain > gain_target) gain = gain_target; }
+            else if (gain > gain_target) { gain -= gain_step; if (gain < gain_target) gain = gain_target; }
+
+            for (
+                u32 i_channel = 0;
+                    i_channel < buffer.channel_count;
+                  ++i_channel) {
+
+                f32& sample = buffer.samples[(i_frame * buffer.channel_count) + i_channel];
+                sample *= gain;
+                if      (sample >  1.0f) sample =  1.0f;
+                else if (sample < -1.0f) sample = -1.0f;
+            }
         }
     }
 };
