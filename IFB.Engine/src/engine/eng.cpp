@@ -41,6 +41,7 @@
 #include "eng-sprite.cpp"
 #include "eng-events.cpp"
 #include "eng-jobs.cpp"
+#include "eng-wav.cpp"
 
 #include "entity.cpp"
 #include "entity-component.cpp"
@@ -97,7 +98,7 @@
 
 #include "tiled.cpp"
 
-
+#include "wav.cpp"
 
 #include "win32.cpp"
 

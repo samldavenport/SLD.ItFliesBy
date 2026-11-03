@@ -9,6 +9,9 @@ The audio system sends samples to the default output device. The device is opene
 | `IFB.Engine/src/engine/eng-audio.cpp` | The public `eng_audio_*` functions |
 | `IFB.Engine/src/win32/win32-audio.cpp` | The WASAPI implementation |
 | `IFB.GUI/src/gui-engine-audio-test.cpp` | The audio test window |
+| `IFB.Engine/include/eng-wav.hpp`, `src/wav/wav.cpp` | Parsing WAV files and decoding their samples |
+| `IFB.Engine/src/engine/eng-wav.cpp` | The public `eng_wav_*` functions |
+| `IFB.GUI/src/gui-engine-wav-player.cpp` | The WAV player window |
 
 ## Format
 
@@ -51,3 +54,13 @@ If there's no device at startup, or the device goes away while running (like unp
 | Underruns | The number of times the device ran out of samples |
 
 The wave fades in and out over 20 ms when it starts and stops, so those aren't heard as clicks. Switching waves or changing the frequency keeps the phase, but a switch between waves can still click once because the value jumps. That isn't a skip.
+
+## WAV Player
+
+**Engine > WAV Player** opens a `.wav` file and plays it, with a waveform, a position slider, volume, and looping. It adds to the buffer after the audio test writes, so both can be heard at once.
+
+Files have to be uncompressed PCM at 8, 16, 24, or 32 bit. Files that use the extensible format header, 32 bit float, or compression won't open. The samples have to fit in one large arena (64 MB). Loading takes a second large arena for as long as it takes to read the file.
+
+The device always runs at 48 kHz, so other sample rates are resampled by blending the 2 closest frames. Mono files play on both channels, and past the first 2 channels of a file are ignored.
+
+The file is loaded on the main thread, and the file dialog blocks it too, so the sound pauses and can underrun while choosing a file.

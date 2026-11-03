@@ -68,6 +68,7 @@ set(IFB_ENGINE_SOURCE_DIRS
     IFB.Engine/src/renderer
     IFB.Engine/src/sprites
     IFB.Engine/src/tiled
+    IFB.Engine/src/wav
     IFB.Engine/src/win32
 )
 
