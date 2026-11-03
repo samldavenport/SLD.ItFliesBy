@@ -348,6 +348,7 @@ namespace ifb {
 
     // reads frames straight from the bank, interleaved 16 bit samples with the sound's channels
     // the frames have to be inside the sound, and the runtime database can't have changed since the info was read
+    // this is the one asset call a worker thread can make, the bank's reads are locked and the database isn't replaced while a read is out
     IFB_INTERNAL bool
     asset_mngr_read_sound_samples(
         const asset_sound_stream_info& info,
@@ -366,7 +367,7 @@ namespace ifb {
 
         const u32 size_frame = info.channel_count * sizeof(s16);
         const u32 offset     = info.offset_samples + (frame * size_frame);
-        return(asset_database_read_at(h_bank, offset, frame_count * size_frame, samples));
+        return(asset_database_read_bank(db, offset, frame_count * size_frame, samples));
     }
 
     // the name doesn't need the asset to be loaded, it's always in the database

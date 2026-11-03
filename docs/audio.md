@@ -128,16 +128,32 @@ Whether a sound streams is up to the call, not the sound, so the same sound can 
 | `IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES` | 32768 | Frames in a chunk, about 0.7 seconds |
 | `IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT` | 3 | Chunks each stream keeps |
 
-Each stream has a ring of chunks, set aside when the engine starts (1.5 MB for all of them, in the audio reservation), so starting one never allocates. Before a streaming voice is mixed, its ring is topped up to hold the chunk the position is in and the 2 after it, reading the ones it's missing from the bank. A looping stream's chunks after the last one are the first ones again, so the loop doesn't wait on the disk. A seek reads the chunks it lands on before the next mix. Starting a stream reads its first chunks right away, so it starts on time.
+Each stream has a ring of chunks, set aside when the engine starts (1.5 MB for all of them, in the audio reservation), so starting one never allocates. Before a streaming voice is mixed, it asks for the chunk its position is in and the 2 after it, if the ring doesn't have them or isn't already reading them. A looping stream's chunks after the last one are the first ones again, so the loop doesn't wait on the disk.
+
+### Reading on Worker Threads
+
+Each chunk is read by a [job](jobs.md) on a worker thread, so the main thread never waits on the disk.
+
+1. The main thread picks a slot for the chunk, marks it loading, and adds a job to read it.
+2. The job reads the chunk from the bank into the slot, then marks it ready, or failed if the read didn't work.
+3. The next time the voice is mixed, the main thread sees it's ready and the mixer can read it. A read that's already done when the job is added is used the same frame.
+
+Only the main thread decides which chunk goes in which slot, and it never reuses a slot that's still loading. A stream with a read out can't be started again either, even after its voice is gone, so a late read can't write into another sound. The chunk's state is the only thing the two threads share, and it's behind the stream's lock.
+
+The bank is read from the main thread too, when a sound is loaded, and the file manager gives both the same handle and cursor. Every read from the bank goes through the database's bank lock, so a read is a cursor move and a read together.
 
 Things to know:
 
-- **The reads are on the main thread for now.** A chunk is read when the playhead reaches the chunk before it, which is about 128 KB of stereo every 0.7 seconds, and seeking reads up to 3 at once. They're small reads from the bank's own file, but a slow disk can still hitch a frame. Reading on a worker thread is next.
-- **A chunk that can't be read plays as silence**, and the voice keeps going. It's read again the next frame.
+- **A stream waits instead of skipping.** If the chunks a frame needs aren't read yet, the voice isn't mixed that frame and its position holds, so it picks up where it left off instead of jumping ahead. Each frame it waits is counted, as **Stream Waits** in the Audio Test.
+- **Starting and seeking wait for the read.** A stream starts once its first chunk is in, usually the frame it's started or the one after, and a seek to a place that isn't in the ring waits the same way.
+- **Chunks are asked for well ahead.** The chunk 2 ahead of the one playing is asked for as soon as the playhead enters a chunk, so a read has about 0.7 to 1.4 seconds to finish before it's needed.
+- **A chunk that can't be read is silence.** The voice waits, and the chunk is asked for again every frame until it reads.
+- **A stopping voice that's waiting is freed.** It was fading out anyway.
 - **Nothing is pinned or loaded.** Preloading doesn't apply, and a stream doesn't count against asset memory.
-- **Copy to Runtime stops every stream**, the same as the loaded sounds, since the bank they read from is replaced.
+- **Copy to Runtime stops every stream**, and waits for any reads that are still out before the bank is closed.
+- **With one core there are no workers**, so the job runs as it's added, on the main thread. That's the same as reading synchronously.
 
-The **Audio Test** window shows the streams in use and the chunks read since the stats were reset, and the database window has **Stream From Runtime** next to **Play From Runtime**.
+The **Audio Test** window shows the streams in use, the chunks read, and the stream waits since the stats were reset. The database window has **Stream From Runtime** next to **Play From Runtime**.
 
 ## Volume Groups
 

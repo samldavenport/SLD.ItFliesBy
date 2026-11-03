@@ -700,6 +700,7 @@ namespace ifb {
         u32  stream_count;
         u32  stream_capacity;
         u32  stream_chunk_reads; // since the last reset
+        u32  stream_underruns;   // frames a stream waited for its chunks, since the last reset
     };
 
     // the position is in frames of the source, which may not be at the device's sample rate

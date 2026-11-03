@@ -73,7 +73,8 @@ namespace ifb {
         f32*           scratch;         // AUDIO_SCRATCH_FRAMES frames of AUDIO_SCRATCH_CHANNELS, the source frames for one block
         audio_stream*  streams;
         u32            stream_count;
-        u32            stream_chunk_reads; // since the last reset
+        u32            stream_chunk_reads;     // since the last reset
+        u32            stream_underrun_count;  // frames a stream held because its chunks weren't read yet, since the last reset
         f32*  samples;
         u32   frame_capacity;    // the size of the samples buffer
         u32   frame_count;       // the frames to write this frame
@@ -175,10 +176,12 @@ namespace ifb {
                 const u32 offset = ((i_stream * AUDIO_STREAM_CHUNK_COUNT) + i_chunk) * chunk_size;
                 _audio_mngr->streams[i_stream].chunks[i_chunk].samples = (s16*)(chunk_memory + offset);
                 _audio_mngr->streams[i_stream].chunks[i_chunk].index   = INVALID_INDEX;
+                _audio_mngr->streams[i_stream].chunks[i_chunk].state   = audio_stream_chunk_state_e_empty;
             }
         }
-        _audio_mngr->stream_count       = 0;
-        _audio_mngr->stream_chunk_reads = 0;
+        _audio_mngr->stream_count          = 0;
+        _audio_mngr->stream_chunk_reads    = 0;
+        _audio_mngr->stream_underrun_count = 0;
 
         _audio_mngr->frame_capacity = config::audio_buffer_frames;
         _audio_mngr->latency_frames = config::audio_latency_frames;
@@ -337,6 +340,7 @@ namespace ifb {
         info.stream_count       = _audio_mngr->stream_count;
         info.stream_capacity    = config::audio_stream_capacity;
         info.stream_chunk_reads = _audio_mngr->stream_chunk_reads;
+        info.stream_underruns   = _audio_mngr->stream_underrun_count;
     }
 
     IFB_INTERNAL void
@@ -349,7 +353,8 @@ namespace ifb {
         stats.underrun_count    = 0;
         stats.frame_gap_ms_max  = 0.0f;
         stats.frames_queued_min = _audio_mngr->latency_frames;
-        _audio_mngr->stream_chunk_reads = 0;
+        _audio_mngr->stream_chunk_reads    = 0;
+        _audio_mngr->stream_underrun_count = 0;
     }
 
     // the voices fade to it, since the mixer reads it for the gain they fade toward
@@ -437,7 +442,7 @@ namespace ifb {
     }
 
     // the sound is read from the bank a chunk at a time while it plays, instead of being loaded
-    // the first chunks are read now, so it starts right away
+    // the first chunks are asked for now, and the voice waits for them, so it starts a frame or two later
     // returns an invalid handle if there's no sound by that name, no bank, no device, or every stream or voice is in use
     IFB_INTERNAL hnd_audio_voice
     audio_mngr_voice_stream_sound(
@@ -463,14 +468,14 @@ namespace ifb {
                 i_stream < config::audio_stream_capacity && !stream;
               ++i_stream) {
 
-            if (!_audio_mngr->streams[i_stream].is_active) stream = &_audio_mngr->streams[i_stream];
+            // a stream that was just let go can still have a read out, it can't be used until that's done
+            audio_stream& candidate = _audio_mngr->streams[i_stream];
+            if (!candidate.is_active && !audio_stream_is_loading(&candidate)) stream = &candidate;
         }
         if (!stream) return(h_voice);
 
         audio_stream_open(stream, h_sound, info);
-        const u32 reads_before = stream->chunk_reads;
-        audio_stream_refill(stream, 0.0, is_looping);
-        _audio_mngr->stream_chunk_reads += (stream->chunk_reads - reads_before);
+        _audio_mngr->stream_chunk_reads += audio_stream_refill(stream, 0.0, is_looping);
 
         // the voice takes the stream, and gives it back when it's freed
         audio_source src = audio_source_from_stream(stream);
@@ -572,7 +577,7 @@ namespace ifb {
         }
     }
 
-    // the runtime database can't close while anything is pinned
+    // the runtime database can't close while anything is pinned, or while a stream is reading its bank
     // the preloads are kept, so they can be pinned again once it's open
     IFB_INTERNAL void
     audio_mngr_sounds_release(
@@ -581,6 +586,20 @@ namespace ifb {
         assert(_audio_mngr);
 
         audio_mngr_voice_stop_all_sounds();
+
+        // the streams' voices are gone, but their reads can still be out
+        // the only jobs are these reads, so waiting on every job is quick
+        bool is_loading = false;
+        for (
+            u32 i_stream = 0;
+                i_stream < config::audio_stream_capacity;
+              ++i_stream) {
+
+            is_loading |= audio_stream_is_loading(&_audio_mngr->streams[i_stream]);
+        }
+        if (is_loading) {
+            job_dspchr_wait();
+        }
 
         for (
             u32 index = 0;
@@ -857,13 +876,26 @@ namespace ifb {
         audio_voice*        voice,
         const audio_buffer& buffer) {
 
-        // a stream reads the chunks this frame needs before it's mixed, a seek since the last frame included
-        // a frame is shorter than a chunk, so the chunk under the playhead and the next one cover it
+        // a stream asks for the chunks around the playhead, a seek since the last frame included
+        // if the ones this frame needs aren't read yet, it holds where it is instead of skipping ahead
         if (voice->source.type == audio_source_type_e_stream) {
-            audio_stream* stream       = voice->source.stream;
-            const u32     reads_before = stream->chunk_reads;
-            audio_stream_refill(stream, voice->position, voice->is_looping);
-            _audio_mngr->stream_chunk_reads += (stream->chunk_reads - reads_before);
+            audio_stream* stream = voice->source.stream;
+            _audio_mngr->stream_chunk_reads += audio_stream_refill(stream, voice->position, voice->is_looping);
+
+            const u32 frames_needed = (u32)((f64)buffer.frame_count * voice->step) + AUDIO_SCRATCH_PAD_FRAMES;
+            if (!audio_stream_has_frames(stream, voice->position, frames_needed, voice->is_looping)) {
+
+                // a stopping voice was on its way out anyway
+                if (voice->is_stopping) {
+                    audio_mngr_voice_free(voice);
+                    return;
+                }
+
+                // a voice that can be heard waits, which is an underrun, a silent one just waits
+                const bool is_heard = (!voice->is_paused && voice->volume > 0.0f) || voice->gain > 0.0f;
+                if (is_heard) ++_audio_mngr->stream_underrun_count;
+                return;
+            }
         }
 
         const audio_source& src         = voice->source;

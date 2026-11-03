@@ -2,7 +2,9 @@
 
 The job system (`IFB.Engine/src/jobs`, `eng-jobs.hpp`) runs work on a pool of worker threads. Workers sleep until a job is added, so an idle pool doesn't use any CPU time.
 
-The frame loop doesn't use jobs yet, and neither does the game. Everything still runs on the main thread unless something calls `eng_job_add`.
+The frame loop doesn't use jobs yet, and neither does the game. The one thing that does is audio streaming, which reads each chunk of a stream with a job (see [Audio](audio.md#reading-on-worker-threads)). Everything else runs on the main thread unless something calls `eng_job_add`.
+
+Since `eng_job_wait` waits on every job, a wait also waits on any stream reads that are out. They're short reads, but keep it in mind if a wait ever lands in the frame loop.
 
 ## Adding Jobs
 
