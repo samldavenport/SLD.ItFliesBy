@@ -86,6 +86,10 @@ namespace ifb {
         // without the sound bank it fails, and the boop just doesn't play
         (void)eng_audio_sound_preload("BOOP");
 
+        // the music is streamed from the sound bank instead of loaded, and loops for the whole game
+        // it's in the music group, so it can be turned down without the sound effects
+        audio->h_music = eng_audio_sound_stream("PIANO", audio_group_e_music, GAME_MUSIC_VOLUME, true);
+
         // load the sprite atlas
         sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
         sprites->i_sprite_connor = eng_sprite_atlas_lookup_sprite_index (sprites->h_atlas, "CONNOR");
