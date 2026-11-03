@@ -296,7 +296,7 @@ namespace ifb {
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn(); ImGui::TextUnformatted(info.name[0] != 0 ? info.name : "(a wav)");
                 ImGui::TableNextColumn(); ImGui::TextUnformatted(info.is_streaming ? "stream" : "memory");
-                ImGui::TableNextColumn(); ImGui::TextUnformatted((info.group < audio_group_e_count) ? _game_audio_group_names[info.group] : "?");
+                ImGui::TableNextColumn(); ImGui::TextUnformatted((info.group.val < audio_group_e_count) ? _game_audio_group_names[info.group.val] : "?");
                 ImGui::TableNextColumn(); ImGui::TextUnformatted(state);
                 ImGui::TableNextColumn();
                 {

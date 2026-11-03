@@ -675,6 +675,8 @@ namespace ifb {
         audio_group_e_count = 2
     };
 
+    IFB_U32(audio_group_u32);
+
     // interleaved samples from -1 to 1, only valid during the frame it was requested in
     struct audio_buffer {
         f32* samples;
@@ -706,17 +708,17 @@ namespace ifb {
 
     // the position is in frames of the source, which may not be at the device's sample rate
     struct audio_voice_info {
-        f64  position;
-        u32  frame_count;
-        u32  sample_rate;
-        f32  volume;
-        f32  gain;               // what it's playing at now, its volume times its group's, partway there while it fades
-        u32  group;
-        bool is_streaming;
-        bool is_paused;
-        bool is_looping;
-        bool is_stopping; // fading out, it's freed when the fade is done
-        cchar name[IFB_CONFIG_ASSET_NAME_SIZE + 1]; // the sound asset, empty for a wav that isn't one
+        f64              position;
+        u32              frame_count;
+        u32              sample_rate;
+        f32              volume;
+        f32              gain;               // what it's playing at now, its volume times its group's, partway there while it fades
+        audio_group_u32  group;
+        bool             is_streaming;
+        bool             is_paused;
+        bool             is_looping;
+        bool             is_stopping; // fading out, it's freed when the fade is done
+        cchar            name[IFB_CONFIG_ASSET_NAME_SIZE + 1]; // the sound asset, empty for a wav that isn't one
     };
 
 };
