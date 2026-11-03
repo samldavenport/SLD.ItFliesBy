@@ -75,6 +75,9 @@ namespace ifb {
         u32            stream_count;
         u32            stream_chunk_reads;     // since the last reset
         u32            stream_underrun_count;  // frames a stream held because its chunks weren't read yet, since the last reset
+        f32*           output;                 // the last IFB_CONFIG_AUDIO_OUTPUT_FRAMES frames sent to the device, a ring
+        u32            output_write;           // the next frame written in the ring, so the oldest one
+        u32            output_clip_count;      // samples clamped, since the last reset
         f32*  samples;
         u32   frame_capacity;    // the size of the samples buffer
         u32   frame_count;       // the frames to write this frame
@@ -182,6 +185,13 @@ namespace ifb {
         _audio_mngr->stream_count          = 0;
         _audio_mngr->stream_chunk_reads    = 0;
         _audio_mngr->stream_underrun_count = 0;
+
+        const u32 output_size = config::audio_output_frames * config::audio_channel_count * sizeof(f32);
+        _audio_mngr->output   = (f32*)reservation_push_bytes(res, output_size);
+        assert(_audio_mngr->output);
+        memset(_audio_mngr->output, 0, output_size);
+        _audio_mngr->output_write      = 0;
+        _audio_mngr->output_clip_count = 0;
 
         _audio_mngr->frame_capacity = config::audio_buffer_frames;
         _audio_mngr->latency_frames = config::audio_latency_frames;
@@ -341,6 +351,7 @@ namespace ifb {
         info.stream_capacity    = config::audio_stream_capacity;
         info.stream_chunk_reads = _audio_mngr->stream_chunk_reads;
         info.stream_underruns   = _audio_mngr->stream_underrun_count;
+        info.output_clips       = _audio_mngr->output_clip_count;
     }
 
     IFB_INTERNAL void
@@ -355,6 +366,7 @@ namespace ifb {
         stats.frames_queued_min = _audio_mngr->latency_frames;
         _audio_mngr->stream_chunk_reads    = 0;
         _audio_mngr->stream_underrun_count = 0;
+        _audio_mngr->output_clip_count     = 0;
     }
 
     // the voices fade to it, since the mixer reads it for the gain they fade toward
@@ -725,12 +737,72 @@ namespace ifb {
         info.position    = voice->position;
         info.frame_count = voice->source.frame_count;
         info.sample_rate = voice->source.sample_rate;
-        info.volume      = voice->volume;
-        info.group       = voice->group;
-        info.is_paused   = voice->is_paused;
-        info.is_looping  = voice->is_looping;
-        info.is_stopping = voice->is_stopping;
+        info.volume       = voice->volume;
+        info.gain         = voice->gain;
+        info.group        = voice->group;
+        info.is_streaming = (voice->source.type == audio_source_type_e_stream);
+        info.is_paused    = voice->is_paused;
+        info.is_looping   = voice->is_looping;
+        info.is_stopping  = voice->is_stopping;
+
+        // the name is only in the database, it's up to IFB_CONFIG_ASSET_NAME_SIZE without a terminator
+        info.name[0] = 0;
+        if (voice->source.h_sound != INVALID_HANDLE) {
+            const asset_name* name = asset_mngr_get_name(voice->source.h_sound);
+            if (name) {
+                memcpy(info.name, name->cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+                info.name[IFB_CONFIG_ASSET_NAME_SIZE] = 0;
+            }
+        }
         return(true);
+    }
+
+    // the handles of the voices playing, in the order of the pool, up to capacity
+    IFB_INTERNAL u32
+    audio_mngr_get_voices(
+        hnd_audio_voice* handles,
+        const u32        capacity) {
+
+        assert(_audio_mngr && (handles || capacity == 0));
+
+        u32 count = 0;
+        for (
+            u32 index = 0;
+                index < config::audio_voice_capacity && count < capacity;
+              ++index) {
+
+            const audio_voice& voice = _audio_mngr->voices[index];
+            if (!voice.is_active) continue;
+
+            handles[count].val = ((u32)voice.generation << AUDIO_VOICE_GENERATION_SHIFT) | index;
+            ++count;
+        }
+        return(count);
+    }
+
+    // the last frames sent to the device, oldest first, a channel each
+    // left and right need room for frame_count, which is cut to IFB_CONFIG_AUDIO_OUTPUT_FRAMES
+    IFB_INTERNAL u32
+    audio_mngr_get_output(
+        f32*      left,
+        f32*      right,
+        const u32 frame_count) {
+
+        assert(_audio_mngr && left && right);
+        static_assert(IFB_CONFIG_AUDIO_CHANNEL_COUNT == 2, "the output is copied as a left and right channel");
+
+        const u32 frames = (frame_count < config::audio_output_frames) ? frame_count : config::audio_output_frames;
+        u32       read   = (_audio_mngr->output_write + config::audio_output_frames - frames) % config::audio_output_frames;
+        for (
+            u32 i_frame = 0;
+                i_frame < frames;
+              ++i_frame) {
+
+            left [i_frame] = _audio_mngr->output[(read * 2) + 0];
+            right[i_frame] = _audio_mngr->output[(read * 2) + 1];
+            read = (read + 1) % config::audio_output_frames;
+        }
+        return(frames);
     }
 
     //--------------------------------------------------------------------
@@ -1026,9 +1098,14 @@ namespace ifb {
 
                 f32& sample = buffer.samples[(i_frame * buffer.channel_count) + i_channel];
                 sample *= gain;
-                if      (sample >  1.0f) sample =  1.0f;
-                else if (sample < -1.0f) sample = -1.0f;
+                if      (sample >  1.0f) { sample =  1.0f; ++_audio_mngr->output_clip_count; }
+                else if (sample < -1.0f) { sample = -1.0f; ++_audio_mngr->output_clip_count; }
             }
+
+            // a copy for the gui, what the device gets
+            f32* output = &_audio_mngr->output[_audio_mngr->output_write * buffer.channel_count];
+            memcpy(output, &buffer.samples[i_frame * buffer.channel_count], buffer.channel_count * sizeof(f32));
+            _audio_mngr->output_write = (_audio_mngr->output_write + 1) % config::audio_output_frames;
         }
     }
 };

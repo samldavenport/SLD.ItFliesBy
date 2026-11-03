@@ -438,6 +438,12 @@ namespace ifb {
     IFB_ENGINE_API void eng_audio_get_info    (audio_info& info);
     IFB_ENGINE_API void eng_audio_reset_stats (void);
 
+    // for tools: the voices playing, and what was sent to the device
+    // get_voices fills handles with up to capacity of them, pass each to eng_audio_voice_get_info
+    // get_output copies the last frame_count frames, up to IFB_CONFIG_AUDIO_OUTPUT_FRAMES, oldest first, after the mix and the master volume
+    IFB_ENGINE_API u32  eng_audio_get_voices  (hnd_audio_voice* handles, const u32 capacity);
+    IFB_ENGINE_API u32  eng_audio_get_output  (f32* left, f32* right, const u32 frame_count);
+
     // a voice plays at its own volume times its group's, from 0 to 1, and every group starts at 1
     // a change fades over IFB_CONFIG_AUDIO_FADE_MS, on the voices that are playing too
     IFB_ENGINE_API void eng_audio_group_set_volume (const audio_group_e group, const f32 volume);

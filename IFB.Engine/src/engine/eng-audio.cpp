@@ -66,6 +66,23 @@ namespace ifb {
         audio_mngr_group_set_volume(group, volume);
     }
 
+    IFB_ENGINE_API u32
+    eng_audio_get_voices(
+        hnd_audio_voice* handles,
+        const u32        capacity) {
+
+        return(audio_mngr_get_voices(handles, capacity));
+    }
+
+    IFB_ENGINE_API u32
+    eng_audio_get_output(
+        f32*      left,
+        f32*      right,
+        const u32 frame_count) {
+
+        return(audio_mngr_get_output(left, right, frame_count));
+    }
+
     IFB_ENGINE_API void
     eng_audio_set_master_volume(
         const f32 volume) {

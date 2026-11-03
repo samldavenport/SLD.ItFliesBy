@@ -34,6 +34,8 @@ namespace ifb {
     IFB_INTERNAL void            audio_mngr_voice_set_looping    (const hnd_audio_voice h_voice, const bool is_looping);
     IFB_INTERNAL void            audio_mngr_voice_seek           (const hnd_audio_voice h_voice, const f64 position);
     IFB_INTERNAL bool            audio_mngr_voice_get_info       (const hnd_audio_voice h_voice, audio_voice_info& info);
+    IFB_INTERNAL u32             audio_mngr_get_voices           (hnd_audio_voice* handles, const u32 capacity);
+    IFB_INTERNAL u32             audio_mngr_get_output           (f32* left, f32* right, const u32 frame_count);
 
     // preloaded sounds stay pinned in asset memory, so they're never evicted
     IFB_INTERNAL bool            audio_mngr_sound_preload        (const cchar* name);

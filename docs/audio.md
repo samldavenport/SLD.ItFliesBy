@@ -13,6 +13,7 @@ The audio system sends samples to the default output device. The device is opene
 | `IFB.Engine/include/eng-wav.hpp`, `src/wav/wav.cpp` | Parsing WAV files and decoding their samples |
 | `IFB.Engine/src/engine/eng-wav.cpp` | The public `eng_wav_*` functions |
 | `IFB.GUI/src/gui-engine-wav-player.cpp` | The WAV player window |
+| `IFB.GUI/src/gui-game-audio.cpp` | The game audio window |
 
 ## Format
 
@@ -195,6 +196,28 @@ f32 volume = eng_audio_get_master_volume();
 A voice plays at its own volume, times its group's, times the master. The master runs from `0` to `1`, values outside that are clamped, it starts at `1`, and it isn't saved. A change fades over 20 ms like the others. It's applied before the mix is clamped, so turning it down brings a loud sum of voices back under `1` instead of clipping.
 
 The **Audio Test** window has a slider for it above the groups.
+
+## Game Audio Window
+
+**Game > Audio** shows the game's sound while it plays.
+
+| Section | What's in it |
+| --- | --- |
+| Volume | The master volume and each group's |
+| Music | The game's music voice: pause, restart, stop, loop, seek, and its volume. A stopped one can be started again. |
+| Sound Effects | A button that plays BOOP the way the game does, without the bump's debounce |
+| Output | A peak meter for each channel, in decibels with a marker that holds the peak, and a scope of the last 2048 frames. **Fit to the peak** scales the scope so quiet sound can be seen. A meter turns red when it clips. |
+| Voices | Every voice playing, including the engine's tools: the sound, whether it's streamed or in memory, its group, state, position, volume, and the gain it's playing at now |
+| Stats | Voices, streams, preloads, the device queue and underruns, chunk reads, stream waits, and clipped samples |
+
+The GUI is drawn before the mix, so it can't read the final output from the buffer. The audio manager keeps a copy of the last `IFB_CONFIG_AUDIO_OUTPUT_FRAMES` (4096) frames it sent to the device, after the mix, the master volume, and the clamp, for tools like this:
+
+| Function | Description |
+| --- | --- |
+| `eng_audio_get_output` | Copy the last frames sent to the device, oldest first, as a left and a right channel |
+| `eng_audio_get_voices` | The handles of the voices playing, to pass to `eng_audio_voice_get_info` |
+
+`audio_voice_info` also has the sound's name (empty for a wav that isn't a sound asset), whether it's streamed, and its gain, which is its volume times its group's once any fade is done. `audio_info` counts the samples that were clamped since the stats were reset, as `output_clips`.
 
 ## WAV Player
 
