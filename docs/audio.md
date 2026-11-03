@@ -29,6 +29,8 @@ Everything runs on the main thread, in the [frame loop](architecture.md#frame-lo
 | `eng_audio_get_buffer` | Game or GUI callback | Gets the buffer, with enough frames to fill the queue back up to the target latency |
 | `audio_mngr_frame_end` | Before the swap | Mixes the [voices](#voices) into the buffer, scales it by the [master volume](#master-volume), clamps it, and sends it to the device |
 
+The buffer is interleaved in the device's format, `config::audio_sample_rate` and `config::audio_channel_count`. Neither the buffer nor `audio_info` carries the format or the pool capacities, so read those from the config.
+
 The buffer always goes to the device, so if nothing writes to it, silence plays. The frame count changes every frame, so anything generating sound has to keep its own position (like the phase of a wave) between frames.
 
 The game callback can run several times in one frame, and every call gets the same buffer. Write to it once per frame.

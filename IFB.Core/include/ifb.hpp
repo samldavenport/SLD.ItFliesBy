@@ -678,29 +678,22 @@ namespace ifb {
     IFB_U32(audio_group_u32);
 
     // interleaved samples from -1 to 1, only valid during the frame it was requested in
+    // the format is the device's, config::audio_sample_rate and config::audio_channel_count
     struct audio_buffer {
         f32* samples;
         u32  frame_count;
-        u32  channel_count;
-        u32  sample_rate;
     };
 
     struct audio_info {
         bool is_device_ready;
-        u32  sample_rate;
-        u32  channel_count;
-        u32  latency_frames;
         u32  frames_queued;
         u32  frames_queued_min;
         u32  underrun_count;
         f32  frame_gap_ms;
         f32  frame_gap_ms_max;
         u32  voice_count;
-        u32  voice_capacity;
         u32  preload_count;
-        u32  preload_capacity;
         u32  stream_count;
-        u32  stream_capacity;
         u32  stream_chunk_reads; // since the last reset
         u32  stream_underruns;   // frames a stream waited for its chunks, since the last reset
         u32  output_clips;       // samples that went past -1 to 1 and were clamped, since the last reset

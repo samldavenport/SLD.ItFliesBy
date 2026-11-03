@@ -66,9 +66,9 @@ namespace ifb {
         audio_buffer buffer;
         if (eng_audio_get_buffer(buffer) && (is_audible || gain > 0.0f)) {
 
-            const f32 phase_step  = frequency / (f32)buffer.sample_rate;
+            const f32 phase_step  = frequency / (f32)config::audio_sample_rate;
             const f32 gain_target = is_audible ? volume : 0.0f;
-            const f32 gain_step   = 1.0f / ((f32)buffer.sample_rate * GUI_AUDIO_FADE_SECONDS);
+            const f32 gain_step   = 1.0f / ((f32)config::audio_sample_rate * GUI_AUDIO_FADE_SECONDS);
 
             for (
                 u32 i_frame = 0;
@@ -85,10 +85,10 @@ namespace ifb {
 
                 for (
                     u32 i_channel = 0;
-                        i_channel < buffer.channel_count;
+                        i_channel < config::audio_channel_count;
                       ++i_channel) {
 
-                    buffer.samples[(i_frame * buffer.channel_count) + i_channel] = sample;
+                    buffer.samples[(i_frame * config::audio_channel_count) + i_channel] = sample;
                 }
 
                 scope[scope_write] = sample;
@@ -154,17 +154,17 @@ namespace ifb {
 
             ImGui::SeparatorText("Buffer");
 
-            const f32 ms_per_frame = 1000.0f / (f32)info.sample_rate;
-            ImGui::Text("Format:         %u Hz, %u channels", info.sample_rate, info.channel_count);
-            ImGui::Text("Target Latency: %.1f ms", info.latency_frames    * ms_per_frame);
+            const f32 ms_per_frame = 1000.0f / (f32)config::audio_sample_rate;
+            ImGui::Text("Format:         %u Hz, %u channels", config::audio_sample_rate, config::audio_channel_count);
+            ImGui::Text("Target Latency: %.1f ms", config::audio_latency_frames * ms_per_frame);
             ImGui::Text("Queued:         %.1f ms", info.frames_queued     * ms_per_frame);
             ImGui::Text("Queued Min:     %.1f ms", info.frames_queued_min * ms_per_frame);
             ImGui::Text("Frame Gap:      %.1f ms", info.frame_gap_ms);
             ImGui::Text("Frame Gap Max:  %.1f ms", info.frame_gap_ms_max);
             ImGui::Text("Underruns:      %u",      info.underrun_count);
-            ImGui::Text("Voices:         %u / %u", info.voice_count, info.voice_capacity);
-            ImGui::Text("Preloads:       %u / %u", info.preload_count, info.preload_capacity);
-            ImGui::Text("Streams:        %u / %u", info.stream_count, info.stream_capacity);
+            ImGui::Text("Voices:         %u / %u", info.voice_count, config::audio_voice_capacity);
+            ImGui::Text("Preloads:       %u / %u", info.preload_count, config::audio_preload_capacity);
+            ImGui::Text("Streams:        %u / %u", info.stream_count, config::audio_stream_capacity);
             ImGui::Text("Chunk Reads:    %u",      info.stream_chunk_reads);
             ImGui::Text("Stream Waits:   %u",      info.stream_underruns);
 
