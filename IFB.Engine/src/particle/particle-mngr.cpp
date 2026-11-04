@@ -56,7 +56,7 @@ namespace ifb {
 
         // every emitter gets a full buffer of particles
         const auto& cfg            = config_instance();
-        const u32   particle_count = capacity * cfg.particle_bufffer_count;
+        const u32   particle_count = capacity * cfg.particle_buffer_count;
 
         particle_mngr_sizes sizes;
         sizes.hnd      = capacity       * sizeof(hnd_particle_emitter);
@@ -178,7 +178,7 @@ namespace ifb {
                 emitter_index < _particle_mngr->capacity;
               ++emitter_index) {
 
-            const u32         particle_index = emitter_index * cfg.particle_bufffer_count;
+            const u32         particle_index = emitter_index * cfg.particle_buffer_count;
             particle_emitter& emitter        = _particle_mngr->array_emitters[emitter_index];
 
             _particle_mngr->array_hnd[emitter_index] = INVALID_HANDLE;

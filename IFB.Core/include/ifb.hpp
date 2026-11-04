@@ -22,14 +22,6 @@
 #   define IFB_API __declspec(dllimport)
 #endif
 
-// defined here instead of ifb-engine.hpp so the headers it includes can use it
-#ifdef IFB_ENGINE_STATIC
-#   define IFB_ENGINE_API
-#elif defined(IFB_ENGINE_DLL_EXPORT)
-#   define IFB_ENGINE_API __declspec(dllexport)
-#else
-#   define IFB_ENGINE_API __declspec(dllimport)
-#endif
 
 //--------------------------------------------------------------------
 // MACROS
@@ -141,7 +133,7 @@ namespace ifb {
     };
 
     struct file_path {
-        cchar cstr[IFB_CONFIG_FILE_PATH_SIZE];
+        cchar cstr[config::file_path_size];
     };
 
     struct dimensions_2d {
@@ -224,7 +216,7 @@ namespace ifb {
     struct sprite_index;
 
     struct asset_name {
-        cchar cstr [IFB_CONFIG_ASSET_NAME_SIZE];
+        cchar cstr [config::asset_name_size];
 
         inline void
         init(
@@ -234,16 +226,16 @@ namespace ifb {
 
             (void)cstr_nvar_copy(
                 cstr,
-                IFB_CONFIG_ASSET_NAME_SIZE,
+                config::asset_name_size,
                 this->cstr,
-                IFB_CONFIG_ASSET_NAME_SIZE
+                config::asset_name_size 
             );
         }
 
         inline hnd_asset
         to_handle(void) {
 
-            const hnd_asset hnd = hash_u32((void*)cstr, IFB_CONFIG_ASSET_NAME_SIZE);
+            const hnd_asset hnd = hash_u32((void*)cstr, config::asset_name_size);
             assert(hnd != INVALID_HANDLE);
 
             return(hnd);
@@ -287,7 +279,7 @@ namespace ifb {
     };
 
     struct asset_database_info {
-        cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
+        cchar     name [config::asset_name_size + 1];
         hnd_asset hnd;
         u32       type;
         u32       offset;
@@ -340,7 +332,7 @@ namespace ifb {
     };
 
     struct sprite_atlas_sprite_info {
-        cchar      name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
+        cchar      name [config::asset_name_size + 1];
         hnd_sprite hnd;
         u32        x;
         u32        y;
@@ -349,7 +341,7 @@ namespace ifb {
     };
 
     struct sprite_atlas_builder_info {
-        cchar     name [IFB_CONFIG_ASSET_NAME_SIZE + 1];
+        cchar     name [config::asset_name_size + 1];
         hnd_asset hnd;
         u32       width;
         u32       height;
@@ -606,6 +598,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     constexpr u32 ENTITY_ID_INVALID = INVALID_U32;
+    
     struct entity {
         const char* tag;
         entity_id   id;
@@ -720,7 +713,7 @@ namespace ifb {
         bool             is_paused;
         bool             is_looping;
         bool             is_stopping; // fading out, it's freed when the fade is done
-        cchar            name[IFB_CONFIG_ASSET_NAME_SIZE + 1]; // the sound asset, empty for a wav that isn't one
+        cchar            name[config::asset_name_size + 1]; // the sound asset, empty for a wav that isn't one
     };
 
 };

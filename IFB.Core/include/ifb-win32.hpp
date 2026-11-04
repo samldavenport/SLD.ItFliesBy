@@ -26,19 +26,13 @@ namespace ifb {
         void* ctx;
     };
    
-    // TODO(SLD): add window to the context
     struct pfm_context {
         IFileOpenDialog*   dlg_file_open;
         IFileSaveDialog*   dlg_file_save;
         win32_thread       threads [config::thread_capacity];
+        win32_window       window;
     } static _pfm_ctx;
 
-
-    inline win32_window&
-    win32_window_instance(void) {
-        static win32_window window;
-        return(window);
-    }
 
     LPWNDCLASS win32_window_class_instance(void);    
     
@@ -48,7 +42,6 @@ namespace ifb {
         WPARAM w_param,
         LPARAM l_param
     );
-
 
     input_keycode
     win32_input_get_keycode(

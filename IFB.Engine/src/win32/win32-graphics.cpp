@@ -12,8 +12,8 @@ namespace ifb {
     pfm_graphics_init_opengl(
         gl_context* ctx) {
 
-        win32_window&  window      = win32_window_instance();
-        color_rgba_u32 clear_color = 0x282828FF;
+        win32_window&  window      = _pfm_ctx.window;
+        color_rgba_u32 clear_color = 0x212121FF;
 
         RECT window_rect;
         GetWindowRect(window.handle, &window_rect);
@@ -37,7 +37,7 @@ namespace ifb {
         assert(imgui_context);
 
         // initialize win32/opengl methods
-        win32_window&  window = win32_window_instance();
+        win32_window&  window = _pfm_ctx.window;
         bool did_init_impl = true;
         did_init_impl &= ImGui_ImplWin32_InitForOpenGL (window.handle);
         did_init_impl &= ImGui_ImplOpenGL3_Init        ("#version 330");

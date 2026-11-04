@@ -193,7 +193,6 @@ namespace ifb {
             elapsed_time = 0.0f;
         }
 
-        //TODO(SAM): pass the opengl context to the platform
         // start new frame
         if (elapsed_time == 0.0f) {
             ++_eng_context->frame_count;
@@ -242,7 +241,7 @@ namespace ifb {
     eng_context_shutdown(
         void) {
 
-        //TODO(SLD)
+        //TODO(SLD): many of the managers are missing their shutdown implementations
 
         // stop the workers first, their jobs can use the other systems
         job_dspchr_shutdown();

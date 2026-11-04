@@ -79,28 +79,28 @@ namespace ifb {
     // every read from the bank goes through bank_lock, since streams read it from worker threads
     // the file manager gives every open of a path the same handle and cursor, so a read is a cursor move and a read that can't be split
     struct asset_database {
-        hnd_file          file_handle;
-        hnd_file          bank_handle;
+        hnd_asset*               array_handles;
+        asset_name*              array_names;
+        asset_index*             array_indexes;
         mutable pfm_thread_mutex bank_lock;
-        u32               asset_count;
-        hnd_asset*        array_handles;
-        asset_name*       array_names;
-        asset_index*      array_indexes;
+        hnd_file                 file_handle;
+        hnd_file                 bank_handle;
+        u32                      asset_count;
     };
    
     //--------------------------------------------------------------------
     // INLINE METHOD DECLARATIONS 
     //--------------------------------------------------------------------
     
-    inline bool      asset_database_find      (const asset_database* db, const hnd_asset h_asset,const asset_type_e type, asset_index& index);
-    inline bool      asset_database_read_at   (const hnd_file h_file, const u32 offset, const u32 size, void* data);
-    inline bool      asset_database_read_bank (const asset_database* db, const u32 offset, const u32 size, void* data);
-    inline u32       asset_database_write_at  (const hnd_file h_file, const u32 offset, const u32 size, const void* data);
-    inline void      asset_database_set_index (asset_database* db,    const u32 index,  const asset_dictionary_file_node* node, const asset_type_u32 type,const u32 offset,const u32 size);
-    inline hnd_asset asset_database_handle_of (const cchar* name_cstr);
-    inline bool      asset_database_index_of  (const asset_database* db, const hnd_asset hnd, asset_index& index);
-    inline u32       asset_database_slot_of   (const asset_database* db, const hnd_asset hnd);
-    inline bool      asset_database_find      (const asset_database* db, const hnd_asset h_asset, const asset_type_e type, asset_index& index);
+    inline bool      asset_database_find              (const asset_database* db, const hnd_asset h_asset,const asset_type_e type, asset_index& index);
+    inline bool      asset_database_read_at           (const hnd_file h_file, const u32 offset, const u32 size, void* data);
+    inline bool      asset_database_read_bank         (const asset_database* db, const u32 offset, const u32 size, void* data);
+    inline u32       asset_database_write_at          (const hnd_file h_file, const u32 offset, const u32 size, const void* data);
+    inline void      asset_database_set_index         (asset_database* db,    const u32 index,  const asset_dictionary_file_node* node, const asset_type_u32 type,const u32 offset,const u32 size);
+    inline hnd_asset asset_database_handle_of         (const cchar* name_cstr);
+    inline bool      asset_database_index_of          (const asset_database* db, const hnd_asset hnd, asset_index& index);
+    inline u32       asset_database_slot_of           (const asset_database* db, const hnd_asset hnd);
+    inline bool      asset_database_find              (const asset_database* db, const hnd_asset h_asset, const asset_type_e type, asset_index& index);
     inline u64       asset_database_sprite_atlas_size (const asset_database* db, const asset_index& index, u32* header);
     inline bool      asset_database_sprite_atlas_read (const asset_database* db, const asset_index& index, const hnd_asset h_asset, const u32* header, asset_sprite_atlas* atlas);
     inline void      asset_sprite_atlas_set_arrays    (asset_sprite_atlas* atlas);

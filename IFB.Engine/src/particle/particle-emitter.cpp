@@ -31,7 +31,7 @@ namespace ifb {
 
         assert(name           != NULL);
         assert(count          != 0);
-        assert(count          <= cfg.particle_bufffer_count);
+        assert(count          <= cfg.particle_buffer_count);
         assert(lifespan_ms    >  0);
         assert(spawn_delay_ms >= 0);
         assert(spawn_radius   >= 0);
@@ -77,10 +77,10 @@ namespace ifb {
         emitter.position        = {0.0f, 0.0f, 0.0f};
 
         // clear the particle arrays
-        zero_memory((void*)emitter.array_life_ms,  cfg.particle_bufffer_count * sizeof(f32));
-        zero_memory((void*)emitter.array_colors,   cfg.particle_bufffer_count * sizeof(color_rgba_u32));
-        zero_memory((void*)emitter.array_position, cfg.particle_bufffer_count * sizeof(vec3));
-        zero_memory((void*)emitter.array_velocity, cfg.particle_bufffer_count * sizeof(vec3));
+        zero_memory((void*)emitter.array_life_ms,  cfg.particle_buffer_count * sizeof(f32));
+        zero_memory((void*)emitter.array_colors,   cfg.particle_buffer_count * sizeof(color_rgba_u32));
+        zero_memory((void*)emitter.array_position, cfg.particle_buffer_count * sizeof(vec3));
+        zero_memory((void*)emitter.array_velocity, cfg.particle_buffer_count * sizeof(vec3));
 
         return(emitter_index_new);
     }
@@ -276,7 +276,7 @@ namespace ifb {
         // nothing changes unless everything is valid
         const bool is_valid = (
             info.count          != 0                          &&
-            info.count          <= cfg.particle_bufffer_count &&
+            info.count          <= cfg.particle_buffer_count &&
             info.lifespan_ms    >  0.0f                       &&
             info.spawn_delay_ms >= 0.0f                       &&
             info.spawn_radius   >= 0.0f                       &&
@@ -291,7 +291,7 @@ namespace ifb {
         // so a new count starts the emitter over with no particles
         if (info.count != emitter.count) {
 
-            zero_memory((void*)emitter.array_life_ms, cfg.particle_bufffer_count * sizeof(f32));
+            zero_memory((void*)emitter.array_life_ms, cfg.particle_buffer_count * sizeof(f32));
             emitter.count       = info.count;
             emitter.spawn_index = 0;
 

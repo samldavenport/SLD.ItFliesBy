@@ -287,7 +287,7 @@ namespace ifb {
         void) {
 
         memory mem;
-        mem.size = eng_entity_list_mem_req();
+        mem.size = eng_entity_list_memory_size();
         mem.ptr  = renderer_memory_alloc(mem.size);
         if (mem.size == 0 || mem.address == 0) {
             return(NULL);

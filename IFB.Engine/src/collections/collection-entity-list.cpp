@@ -22,7 +22,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_ENGINE_API u32
-    eng_entity_list_mem_req(
+    eng_entity_list_memory_size(
         void) {
 
         const auto& cfg = config_instance();
@@ -39,7 +39,7 @@ namespace ifb {
         const memory& mem) {
 
         const auto& cfg    = config_instance();
-        const u32 size_min = eng_entity_list_mem_req();
+        const u32 size_min = eng_entity_list_memory_size();
        
         assert(mem.address != 0);
         assert(mem.size >= size_min);

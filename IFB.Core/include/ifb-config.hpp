@@ -5,77 +5,76 @@
 
 using namespace sld;
 
+#define IFB_CONFIG_ARENA_LARGE_COMMIT_GRANULARITY size_kilobytes(64)
+#define IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY    size_megabytes(64)
+#define IFB_CONFIG_ARENA_MEM_GRANULARITY          size_megabytes(1)
+#define IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES  240
+#define IFB_CONFIG_ASSET_DATABASE_PATH            "asset-database.ifbdb"
+#define IFB_CONFIG_ASSET_EXPIRE_FRAMES            7200
+#define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     64
+#define IFB_CONFIG_ASSET_LARGE_DATA_SIZE          size_megabytes(64)
+#define IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT    1
+#define IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY    256
+#define IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE         size_megabytes(1)
+#define IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT   48
 #define IFB_CONFIG_ASSET_NAME_SIZE                16
 #define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(64)
-#define IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT    32
-#define IFB_CONFIG_ASSET_SMALL_DATA_SIZE          size_kilobytes(64)
 #define IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY     64
-#define IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT   48
-#define IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE         size_megabytes(1)
-#define IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY    256
-#define IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT    1
-#define IFB_CONFIG_ASSET_LARGE_DATA_SIZE          size_megabytes(64)
-#define IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY     64
-#define IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES  240
-#define IFB_CONFIG_ASSET_EXPIRE_FRAMES            7200
-#define IFB_CONFIG_ASSET_DATABASE_PATH            "asset-database.ifbdb"
+#define IFB_CONFIG_ASSET_SMALL_DATA_SIZE          size_kilobytes(64)
+#define IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT    32
+#define IFB_CONFIG_AUDIO_BUFFER_FRAMES            (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_BUFFER_MS / 1000)
+#define IFB_CONFIG_AUDIO_BUFFER_MS                100
+#define IFB_CONFIG_AUDIO_CHANNEL_COUNT            2
+#define IFB_CONFIG_AUDIO_FADE_FRAMES              (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_FADE_MS / 1000)
+#define IFB_CONFIG_AUDIO_FADE_MS                  20
+#define IFB_CONFIG_AUDIO_LATENCY_FRAMES           (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_LATENCY_MS / 1000)
+#define IFB_CONFIG_AUDIO_LATENCY_MS               50
+#define IFB_CONFIG_AUDIO_OUTPUT_FRAMES            4096
+#define IFB_CONFIG_AUDIO_PRELOAD_CAPACITY         64
+#define IFB_CONFIG_AUDIO_SAMPLE_RATE              48000
+#define IFB_CONFIG_AUDIO_STREAM_CAPACITY          4
+#define IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT       3
+#define IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES      32768
+#define IFB_CONFIG_AUDIO_VOICE_CAPACITY           32
 #define IFB_CONFIG_BUILD_MODE                     0
+#define IFB_CONFIG_DEFAULT_FPS                    240
+#define IFB_CONFIG_ENTITY_CAPACITY                1024
+#define IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT  16
+#define IFB_CONFIG_EVENT_QUEUE_CAPACITY           128
+#define IFB_CONFIG_EVENT_TYPE_MAX                 64
+#define IFB_CONFIG_FILE_COUNT                     64
+#define IFB_CONFIG_FILE_GRANULARITY               size_kilobytes(64)
+#define IFB_CONFIG_FILE_PATH_SIZE                 256
+#define IFB_CONFIG_MAP_CAPACITY                   64
+#define IFB_CONFIG_MAP_CHUNK_CAPACITY             64
+#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE         size_kilobytes(400) // (tile capacity + 2 * wall capacity) * sizeof(map_tile)
+#define IFB_CONFIG_MAP_TILE_CAPACITY              4096
+#define IFB_CONFIG_MAP_TILE_UNIT_SIZE             0.2
+#define IFB_CONFIG_MAP_WALL_CAPACITY              8192
+#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS         size_megabytes(128)
+#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE   size_megabytes(512)
+#define IFB_CONFIG_MEMORY_RES_SIZE_AUDIO          size_megabytes(2)
+#define IFB_CONFIG_MEMORY_RES_SIZE_FILES          size_megabytes(64)
+#define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING      size_megabytes(64)
+#define IFB_CONFIG_MEMORY_RES_SIZE_SPRITES        (IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE * IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY)
+#define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
+#define IFB_CONFIG_PHYSICS_WORLD_COUNT            8
+#define IFB_CONFIG_PHYSICS_WORLD_SIZE             size_kilobytes(64)
+#define IFB_CONFIG_QUAD_MAX                       1024
+#define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
+#define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
+#define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
+#define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100       0.75f
+#define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      4
+#define IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE          size_megabytes(64)
+#define IFB_CONFIG_SPRITE_TABLE_CAPACITY          4
+#define IFB_CONFIG_THREAD_CAPACITY                32
+#define IFB_CONFIG_WINDOW_MAX_KEYS                8
+#define IFB_CONFIG_WINDOW_START_HEIGHT            768
+#define IFB_CONFIG_WINDOW_START_WIDTH             1024
 #define IFB_CONFIG_WINDOW_TITLE_DEBUG             "It Flies By (Debug)"
 #define IFB_CONFIG_WINDOW_TITLE_RELEASE           "It Flies By"
 #define IFB_CONFIG_WINDOW_TITLE_SIZE              32
-#define IFB_CONFIG_WINDOW_START_WIDTH             1024
-#define IFB_CONFIG_WINDOW_START_HEIGHT            768
-#define IFB_CONFIG_WINDOW_MAX_KEYS                8
-#define IFB_CONFIG_DEFAULT_FPS                    240 
-#define IFB_CONFIG_MEMORY_RES_SIZE_CORE           size_megabytes(64)
-#define IFB_CONFIG_MEMORY_RES_SIZE_FILES          size_megabytes(64)
-#define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING      size_megabytes(64)
-#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS         size_megabytes(128)
-#define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE   size_megabytes(512)
-#define IFB_CONFIG_FILE_PATH_SIZE                 256              
-#define IFB_CONFIG_FILE_COUNT                     64              
-#define IFB_CONFIG_FILE_GRANULARITY               size_kilobytes(64)              
-#define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
-#define IFB_CONFIG_ARENA_MEM_GRANULARITY          size_megabytes(1)
-#define IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY    size_megabytes(64)
-#define IFB_CONFIG_ARENA_LARGE_COMMIT_GRANULARITY size_kilobytes(64)
-#define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100       0.75f
-#define IFB_CONFIG_ENTITY_CAPACITY                1024
-#define IFB_CONFIG_QUAD_MAX                       1024
-#define IFB_CONFIG_PHYSICS_WORLD_SIZE             size_kilobytes(64)
-#define IFB_CONFIG_PHYSICS_WORLD_COUNT            8
-#define IFB_CONFIG_MAP_CAPACITY                   64 
-#define IFB_CONFIG_MAP_TILE_UNIT_SIZE             0.2
-#define IFB_CONFIG_MAP_CHUNK_CAPACITY             64 
-#define IFB_CONFIG_MAP_TILE_CAPACITY              4096 
-#define IFB_CONFIG_MAP_WALL_CAPACITY              8192
-#define IFB_CONFIG_MAP_RENDER_BUFFER_SIZE         size_kilobytes(400) // (tile capacity + 2 * wall capacity) * sizeof(map_tile)
-#define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
-#define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
-#define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
-#define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      4
-#define IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE          size_megabytes(64)
-#define IFB_CONFIG_MEMORY_RES_SIZE_SPRITES        (IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE * IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY)
-#define IFB_CONFIG_SPRITE_TABLE_CAPACITY          4
-#define IFB_CONFIG_EVENT_QUEUE_CAPACITY           128 
-#define IFB_CONFIG_EVENT_TYPE_MAX                 64
-#define IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT  16
-#define IFB_CONFIG_THREAD_CAPACITY                32
-#define IFB_CONFIG_AUDIO_SAMPLE_RATE              48000
-#define IFB_CONFIG_AUDIO_CHANNEL_COUNT            2
-#define IFB_CONFIG_AUDIO_BUFFER_MS                100
-#define IFB_CONFIG_AUDIO_LATENCY_MS               50
-#define IFB_CONFIG_AUDIO_BUFFER_FRAMES            (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_BUFFER_MS / 1000)
-#define IFB_CONFIG_AUDIO_LATENCY_FRAMES           (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_LATENCY_MS / 1000)
-#define IFB_CONFIG_AUDIO_VOICE_CAPACITY           32
-#define IFB_CONFIG_AUDIO_PRELOAD_CAPACITY         64
-#define IFB_CONFIG_AUDIO_STREAM_CAPACITY          4
-#define IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES      32768
-#define IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT       3
-#define IFB_CONFIG_AUDIO_OUTPUT_FRAMES            4096
-#define IFB_CONFIG_AUDIO_FADE_MS                  20
-#define IFB_CONFIG_AUDIO_FADE_FRAMES              (IFB_CONFIG_AUDIO_SAMPLE_RATE * IFB_CONFIG_AUDIO_FADE_MS / 1000)
-#define IFB_CONFIG_MEMORY_RES_SIZE_AUDIO          size_megabytes(2)
 
 #if (IFB_CONFIG_BUILD_MODE==0)
 #   define IFB_CONFIG_WINDOW_TITLE IFB_CONFIG_WINDOW_TITLE_DEBUG
@@ -91,74 +90,73 @@ namespace ifb {
     };
 
     struct config {
-        static constexpr u32   asset_name_size                = IFB_CONFIG_ASSET_NAME_SIZE;
-        static constexpr u32   asset_size_max                 = IFB_CONFIG_ASSET_SIZE_MAX;
-        static constexpr u32   asset_small_partition_count    = IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT;
-        static constexpr u32   asset_small_data_size          = IFB_CONFIG_ASSET_SMALL_DATA_SIZE;
-        static constexpr u32   asset_small_block_capacity     = IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY;
-        static constexpr u32   asset_medium_partition_count   = IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT;
-        static constexpr u32   asset_medium_data_size         = IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE;
-        static constexpr u32   asset_medium_block_capacity    = IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY;
-        static constexpr u32   asset_large_partition_count    = IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT;
-        static constexpr u32   asset_large_data_size          = IFB_CONFIG_ASSET_LARGE_DATA_SIZE;
-        static constexpr u32   asset_large_block_capacity     = IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY;
-        static constexpr u32   asset_cleanup_interval_frames  = IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES;
-        static constexpr u32   asset_expire_frames            = IFB_CONFIG_ASSET_EXPIRE_FRAMES;
-        static constexpr u32   build_mode                     = IFB_CONFIG_BUILD_MODE;
-        static constexpr u32   window_start_width             = IFB_CONFIG_WINDOW_START_WIDTH;
-        static constexpr u32   window_start_height            = IFB_CONFIG_WINDOW_START_HEIGHT;
-        static constexpr u32   window_max_keys                = IFB_CONFIG_WINDOW_MAX_KEYS;
-        static constexpr u32   default_fps                    = IFB_CONFIG_DEFAULT_FPS;
-        static constexpr u32   memory_size_core               = IFB_CONFIG_MEMORY_RES_SIZE_CORE;
-        static constexpr u32   memory_size_files              = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
-        static constexpr u32   memory_size_rendering          = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
-        static constexpr u32   memory_size_arenas             = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
-        static constexpr u32   memory_size_arenas_large       = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE;
-        static constexpr u32   file_path_size                 = IFB_CONFIG_FILE_PATH_SIZE; 
-        static constexpr u32   file_count                     = IFB_CONFIG_FILE_COUNT;
-        static constexpr u32   file_granularity               = IFB_CONFIG_FILE_GRANULARITY;
-        static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
         static constexpr u32   arena_granularity              = IFB_CONFIG_ARENA_MEM_GRANULARITY;
-        static constexpr u32   arena_large_granularity        = IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY;
         static constexpr u32   arena_large_commit_granularity = IFB_CONFIG_ARENA_LARGE_COMMIT_GRANULARITY;
-        static constexpr f32   sparse_set_max_load_p100       = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
-        static constexpr u32   entity_capacity                = IFB_CONFIG_ENTITY_CAPACITY;
-        static constexpr u32   quad_capacity                  = IFB_CONFIG_QUAD_MAX;
-        static constexpr u32   physics_world_size             = IFB_CONFIG_PHYSICS_WORLD_SIZE;
-        static constexpr u32   physics_world_count            = IFB_CONFIG_PHYSICS_WORLD_COUNT;
-        static constexpr u32   map_capacity                   = IFB_CONFIG_MAP_CAPACITY;
-        static constexpr f32   map_tile_unit_size             = IFB_CONFIG_MAP_TILE_UNIT_SIZE;
-        static constexpr u32   map_tile_capacity              = IFB_CONFIG_MAP_TILE_CAPACITY;
-        static constexpr u32   map_wall_capacity              = IFB_CONFIG_MAP_WALL_CAPACITY; // per orientation
-        static constexpr u32   map_chunk_capacity             = IFB_CONFIG_MAP_CHUNK_CAPACITY;
-        static constexpr u32   map_render_buffer_size         = IFB_CONFIG_MAP_RENDER_BUFFER_SIZE;
-        static constexpr u32   particle_bufffer_count         = IFB_CONFIG_PARTICLE_BUFFER_COUNT;
-        static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
-        static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
-        static constexpr u32   sprite_mem_block_capacity      = IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY;
-        static constexpr u32   sprite_mem_block_size          = IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE;
-        static constexpr u32   sprite_atlas_table_capacity    = IFB_CONFIG_SPRITE_TABLE_CAPACITY;
-        static constexpr u32   event_queue_capacity           = IFB_CONFIG_EVENT_QUEUE_CAPACITY;
-        static constexpr u32   event_type_max                 = IFB_CONFIG_EVENT_TYPE_MAX;
-        static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;
-        static constexpr u32   thread_capacity                = IFB_CONFIG_THREAD_CAPACITY;
-        static constexpr u32   audio_sample_rate              = IFB_CONFIG_AUDIO_SAMPLE_RATE;
-        static constexpr u32   audio_channel_count            = IFB_CONFIG_AUDIO_CHANNEL_COUNT;
-        static constexpr u32   audio_buffer_ms                = IFB_CONFIG_AUDIO_BUFFER_MS;
-        static constexpr u32   audio_buffer_frames            = IFB_CONFIG_AUDIO_BUFFER_FRAMES;
-        static constexpr u32   audio_latency_frames           = IFB_CONFIG_AUDIO_LATENCY_FRAMES;
-        static constexpr u32   audio_voice_capacity           = IFB_CONFIG_AUDIO_VOICE_CAPACITY;
-        static constexpr u32   audio_preload_capacity         = IFB_CONFIG_AUDIO_PRELOAD_CAPACITY;
-        static constexpr u32   audio_stream_capacity          = IFB_CONFIG_AUDIO_STREAM_CAPACITY;
-        static constexpr u32   audio_stream_chunk_frames      = IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES;
-        static constexpr u32   audio_stream_chunk_count       = IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT;
-        static constexpr u32   audio_output_frames            = IFB_CONFIG_AUDIO_OUTPUT_FRAMES;
-        static constexpr u32   audio_fade_frames              = IFB_CONFIG_AUDIO_FADE_FRAMES;
-        static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
-            IFB_CONFIG_WINDOW_TITLE
-        }; 
+        static constexpr u32   arena_large_granularity        = IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY;
+        static constexpr u32   asset_cleanup_interval_frames  = IFB_CONFIG_ASSET_CLEANUP_INTERVAL_FRAMES;
         static constexpr cchar asset_database_path[IFB_CONFIG_FILE_PATH_SIZE] = {
             IFB_CONFIG_ASSET_DATABASE_PATH
+        };
+        static constexpr u32   asset_expire_frames            = IFB_CONFIG_ASSET_EXPIRE_FRAMES;
+        static constexpr u32   asset_large_block_capacity     = IFB_CONFIG_ASSET_LARGE_BLOCK_CAPACITY;
+        static constexpr u32   asset_large_data_size          = IFB_CONFIG_ASSET_LARGE_DATA_SIZE;
+        static constexpr u32   asset_large_partition_count    = IFB_CONFIG_ASSET_LARGE_PARTITION_COUNT;
+        static constexpr u32   asset_medium_block_capacity    = IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY;
+        static constexpr u32   asset_medium_data_size         = IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE;
+        static constexpr u32   asset_medium_partition_count   = IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT;
+        static constexpr u32   asset_name_size                = IFB_CONFIG_ASSET_NAME_SIZE;
+        static constexpr u32   asset_size_max                 = IFB_CONFIG_ASSET_SIZE_MAX;
+        static constexpr u32   asset_small_block_capacity     = IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY;
+        static constexpr u32   asset_small_data_size          = IFB_CONFIG_ASSET_SMALL_DATA_SIZE;
+        static constexpr u32   asset_small_partition_count    = IFB_CONFIG_ASSET_SMALL_PARTITION_COUNT;
+        static constexpr u32   audio_buffer_frames            = IFB_CONFIG_AUDIO_BUFFER_FRAMES;
+        static constexpr u32   audio_buffer_ms                = IFB_CONFIG_AUDIO_BUFFER_MS;
+        static constexpr u32   audio_channel_count            = IFB_CONFIG_AUDIO_CHANNEL_COUNT;
+        static constexpr u32   audio_fade_frames              = IFB_CONFIG_AUDIO_FADE_FRAMES;
+        static constexpr u32   audio_latency_frames           = IFB_CONFIG_AUDIO_LATENCY_FRAMES;
+        static constexpr u32   audio_output_frames            = IFB_CONFIG_AUDIO_OUTPUT_FRAMES;
+        static constexpr u32   audio_preload_capacity         = IFB_CONFIG_AUDIO_PRELOAD_CAPACITY;
+        static constexpr u32   audio_sample_rate              = IFB_CONFIG_AUDIO_SAMPLE_RATE;
+        static constexpr u32   audio_stream_capacity          = IFB_CONFIG_AUDIO_STREAM_CAPACITY;
+        static constexpr u32   audio_stream_chunk_count       = IFB_CONFIG_AUDIO_STREAM_CHUNK_COUNT;
+        static constexpr u32   audio_stream_chunk_frames      = IFB_CONFIG_AUDIO_STREAM_CHUNK_FRAMES;
+        static constexpr u32   audio_voice_capacity           = IFB_CONFIG_AUDIO_VOICE_CAPACITY;
+        static constexpr u32   build_mode                     = IFB_CONFIG_BUILD_MODE;
+        static constexpr u32   default_fps                    = IFB_CONFIG_DEFAULT_FPS;
+        static constexpr u32   entity_capacity                = IFB_CONFIG_ENTITY_CAPACITY;
+        static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;
+        static constexpr u32   event_queue_capacity           = IFB_CONFIG_EVENT_QUEUE_CAPACITY;
+        static constexpr u32   event_type_max                 = IFB_CONFIG_EVENT_TYPE_MAX;
+        static constexpr u32   file_count                     = IFB_CONFIG_FILE_COUNT;
+        static constexpr u32   file_granularity               = IFB_CONFIG_FILE_GRANULARITY;
+        static constexpr u32   file_path_size                 = IFB_CONFIG_FILE_PATH_SIZE;
+        static constexpr u32   map_capacity                   = IFB_CONFIG_MAP_CAPACITY;
+        static constexpr u32   map_chunk_capacity             = IFB_CONFIG_MAP_CHUNK_CAPACITY;
+        static constexpr u32   map_render_buffer_size         = IFB_CONFIG_MAP_RENDER_BUFFER_SIZE;
+        static constexpr u32   map_tile_capacity              = IFB_CONFIG_MAP_TILE_CAPACITY;
+        static constexpr f32   map_tile_unit_size             = IFB_CONFIG_MAP_TILE_UNIT_SIZE;
+        static constexpr u32   map_wall_capacity              = IFB_CONFIG_MAP_WALL_CAPACITY; // per orientation
+        static constexpr u32   memory_size_arenas             = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
+        static constexpr u32   memory_size_arenas_large       = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS_LARGE;
+        static constexpr u32   memory_size_files              = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
+        static constexpr u32   memory_size_rendering          = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
+        static constexpr u32   particle_buffer_count         = IFB_CONFIG_PARTICLE_BUFFER_COUNT;
+        static constexpr u32   physics_world_count            = IFB_CONFIG_PHYSICS_WORLD_COUNT;
+        static constexpr u32   physics_world_size             = IFB_CONFIG_PHYSICS_WORLD_SIZE;
+        static constexpr u32   quad_capacity                  = IFB_CONFIG_QUAD_MAX;
+        static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
+        static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
+        static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
+        static constexpr f32   sparse_set_max_load_p100       = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
+        static constexpr u32   sprite_atlas_table_capacity    = IFB_CONFIG_SPRITE_TABLE_CAPACITY;
+        static constexpr u32   sprite_mem_block_capacity      = IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY;
+        static constexpr u32   sprite_mem_block_size          = IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE;
+        static constexpr u32   thread_capacity                = IFB_CONFIG_THREAD_CAPACITY;
+        static constexpr u32   window_max_keys                = IFB_CONFIG_WINDOW_MAX_KEYS;
+        static constexpr u32   window_start_height            = IFB_CONFIG_WINDOW_START_HEIGHT;
+        static constexpr u32   window_start_width             = IFB_CONFIG_WINDOW_START_WIDTH;
+        static constexpr cchar window_title[IFB_CONFIG_WINDOW_TITLE_SIZE] = {
+            IFB_CONFIG_WINDOW_TITLE
         };
     };
 
