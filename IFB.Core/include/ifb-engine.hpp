@@ -362,7 +362,7 @@ namespace ifb {
     // STACK
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API u32     eng_stack_memory_requirement (const u32 capacity);
+    IFB_ENGINE_API u32     eng_stack_memory_size (const u32 capacity);
     IFB_ENGINE_API stack*  eng_stack_memory_create      (const u32 capacity, memory& mem);
     IFB_ENGINE_API stack*  eng_stack_memory_create      (memory& mem);
     IFB_ENGINE_API stack*  eng_stack_arena_create       (const u32 capacity, const hnd_arena arena_hnd);
@@ -397,7 +397,7 @@ namespace ifb {
     // ENTITY ID LIST
     //--------------------------------------------------------------------
 
-    IFB_ENGINE_API u32          eng_entity_list_mem_req          (void);
+    IFB_ENGINE_API u32          eng_entity_list_memory_size      (void);
     IFB_ENGINE_API entity_list* eng_entity_list_memory_create    (const memory& mem);
     IFB_ENGINE_API entity_list* eng_entity_list_arena_create     (const hnd_arena arena_hnd);
     IFB_ENGINE_API bool         eng_entity_list_add              (entity_list* el, const entity_id id);

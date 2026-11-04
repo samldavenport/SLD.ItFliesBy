@@ -98,7 +98,7 @@ namespace ifb {
 
         // create the entity list
         memory list_mem;
-        list_mem.size = eng_entity_list_mem_req();
+        list_mem.size = eng_entity_list_memory_size();
         list_mem.ptr  = phys_mngr_res_alloc(list_mem.size);
         assert(list_mem.ptr != NULL);
         calc->entt_list = eng_entity_list_memory_create(list_mem);

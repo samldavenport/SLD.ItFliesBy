@@ -36,7 +36,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_ENGINE_API u32
-    eng_stack_memory_requirement(
+    eng_stack_memory_size(
         const u32 capacity) {
 
         const u32 size_struct = sizeof(stack);
@@ -53,7 +53,7 @@ namespace ifb {
         assert(mem.size    != 0);
         assert(mem.address != 0);
     
-        const u32 size_min = eng_stack_memory_requirement(capacity);
+        const u32 size_min = eng_stack_memory_size(capacity);
 
         stack* s = (stack*)mem.ptr;
         s->start    = mem.address + sizeof(stack);
@@ -89,7 +89,7 @@ namespace ifb {
         assert(arena_hnd != INVALID_HANDLE);
 
         memory mem;
-        mem.size = eng_stack_memory_requirement(capacity);
+        mem.size = eng_stack_memory_size(capacity);
         mem.ptr  = eng_arena_push(arena_hnd, mem.size);
     
         stack* s = eng_stack_memory_create(capacity, mem); 

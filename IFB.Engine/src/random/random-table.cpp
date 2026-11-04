@@ -12,12 +12,12 @@
 namespace ifb {
 
     struct random_table {
+        u32*             array_values;
         pfm_thread_mutex lock;
         u32              seed;
         u32              count;
         u32              position;
         u32              frame_count;
-        u32*             array_values;
     } static * _random_table;
 
     //--------------------------------------------------------------------
@@ -39,15 +39,14 @@ namespace ifb {
     random_table_create(
         void) {
 
-        const auto& cfg = config_instance();
-        assert(cfg.random_table_count != 0);
+        assert(config::random_table_count  != 0);
 
         _random_table = global_alloc<random_table>();
         assert(_random_table);
 
         _random_table->seed         = (u32)pfm_system_timestamp() | 1;
-        _random_table->count        = cfg.random_table_count;
-        _random_table->array_values = global_alloc<u32>(cfg.random_table_count);
+        _random_table->count        = config::random_table_count; 
+        _random_table->array_values = global_alloc<u32>(config::random_table_count);
         assert(_random_table->array_values);
 
         random_table_refresh();

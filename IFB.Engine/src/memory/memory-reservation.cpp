@@ -130,7 +130,7 @@ namespace ifb {
         assert(size_min != 0);
 
         // get the page and aligned sizes
-        const u32 size_stack   = eng_stack_memory_requirement(size_min); 
+        const u32 size_stack   = eng_stack_memory_size(size_min); 
         const u32 size_aligned = system_align_to_memory_page_size(size_stack);
         const u32 page_size    = system_get_memory_page_size();
         assert(size_aligned != 0);
