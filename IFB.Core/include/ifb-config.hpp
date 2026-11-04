@@ -27,7 +27,6 @@ using namespace sld;
 #define IFB_CONFIG_WINDOW_START_HEIGHT            768
 #define IFB_CONFIG_WINDOW_MAX_KEYS                8
 #define IFB_CONFIG_DEFAULT_FPS                    240 
-#define IFB_CONFIG_MEMORY_RES_SIZE_CORE           size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_FILES          size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_RENDERING      size_megabytes(64)
 #define IFB_CONFIG_MEMORY_RES_SIZE_ARENAS         size_megabytes(128)
@@ -109,7 +108,6 @@ namespace ifb {
         static constexpr u32   window_start_height            = IFB_CONFIG_WINDOW_START_HEIGHT;
         static constexpr u32   window_max_keys                = IFB_CONFIG_WINDOW_MAX_KEYS;
         static constexpr u32   default_fps                    = IFB_CONFIG_DEFAULT_FPS;
-        static constexpr u32   memory_size_core               = IFB_CONFIG_MEMORY_RES_SIZE_CORE;
         static constexpr u32   memory_size_files              = IFB_CONFIG_MEMORY_RES_SIZE_FILES;
         static constexpr u32   memory_size_rendering          = IFB_CONFIG_MEMORY_RES_SIZE_RENDERING;
         static constexpr u32   memory_size_arenas             = IFB_CONFIG_MEMORY_RES_SIZE_ARENAS;
