@@ -9,8 +9,15 @@
 
 using namespace sld;
 
-#define ifb_eng_arena_push_struct(a, type, count) (type*)eng_arena_push(a, sizeof(type) * count)
+#ifdef IFB_ENGINE_STATIC
+#   define IFB_ENGINE_API
+#elif defined(IFB_ENGINE_DLL_EXPORT)
+#   define IFB_ENGINE_API __declspec(dllexport)
+#else
+#   define IFB_ENGINE_API __declspec(dllimport)
+#endif
 
+#define ifb_eng_arena_push_struct(a, type, count) (type*)eng_arena_push(a, sizeof(type) * count)
 
 namespace ifb {
     

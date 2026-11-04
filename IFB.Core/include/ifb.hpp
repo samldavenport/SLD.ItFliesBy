@@ -22,14 +22,6 @@
 #   define IFB_API __declspec(dllimport)
 #endif
 
-// defined here instead of ifb-engine.hpp so the headers it includes can use it
-#ifdef IFB_ENGINE_STATIC
-#   define IFB_ENGINE_API
-#elif defined(IFB_ENGINE_DLL_EXPORT)
-#   define IFB_ENGINE_API __declspec(dllexport)
-#else
-#   define IFB_ENGINE_API __declspec(dllimport)
-#endif
 
 //--------------------------------------------------------------------
 // MACROS
