@@ -42,9 +42,9 @@ namespace ifb {
     static constexpr f32 GAME_MUSIC_VOLUME       = 0.3f;
 
     struct game_audio {
-        hnd_audio_voice h_music;           // INVALID_HANDLE if it couldn't start, like without the sound bank
-        hnd_audio_voice h_boop;            // stale once the boop finishes
-        f64             time_s;            // since the game started
+        hnd_audio_voice h_music;            // INVALID_HANDLE if it couldn't start, like without the sound bank
+        hnd_audio_voice h_boop;             // stale once the boop finishes
+        f64             time_s;             // since the game started
         f64             box_contact_time_s; // the last collision event between connor and a box
     };
 

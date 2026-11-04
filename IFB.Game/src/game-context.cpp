@@ -146,9 +146,11 @@ namespace ifb {
         auto player_rig = ctx->player_rig;
         auto map        = ctx->map;
         auto entities   = ctx->entities;
+        auto audio      = ctx->audio;
 
-        // the same step the physics uses, so the contact gap is measured in the time the collisions happen in
-        ctx->audio->time_s += eng_system_get_delta_time_s();
+        eng_audio_voice_stop(audio->h_music);
+
+        audio->time_s += eng_system_get_delta_time_s();
 
         game_player_rig_update_and_render (ctx->player_rig);
         game_player_rig_update_camera     (ctx->player_rig);
@@ -158,17 +160,6 @@ namespace ifb {
         eng_entity_render(entities->static_entity_1);
         eng_entity_render(entities->static_entity_2);
         eng_entity_render(entities->static_entity_3);
- 
-        static const cchar test_text[] = "HELLO FROM JOB WORKER";
-
-        job test_job;
-        cstr_nvar_copy(
-            test_text,
-            sizeof(test_text),
-            (cchar*)test_job.ctx.data,
-            sizeof(test_job.ctx)
-        );
-
     }
 
 
