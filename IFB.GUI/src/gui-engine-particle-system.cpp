@@ -194,7 +194,7 @@ namespace ifb {
 
         ImGui::InputText  ("Name",            state.name, PARTICLE_SYSTEM_NAME_SIZE);
         ImGui::Combo      ("Type",            &state.type, _particle_system_type_names, particle_emitter_type_e_count);
-        ImGui::DragInt    ("Count",           &state.count,          1.0f,   1,      cfg.particle_bufffer_count);
+        ImGui::DragInt    ("Count",           &state.count,          1.0f,   1,      cfg.particle_buffer_count);
         ImGui::DragFloat  ("Lifespan (ms)",   &state.lifespan_ms,    10.0f,  1.0f,   60000.0f, "%.1f");
         ImGui::DragFloat  ("Spawn Delay (ms)",&state.spawn_delay_ms, 1.0f,   0.0f,   10000.0f, "%.1f");
         ImGui::DragFloat  ("Spawn Radius",    &state.spawn_radius,   0.001f, 0.0f,   100.0f,   "%.3f");
@@ -354,7 +354,7 @@ namespace ifb {
         // a new count starts the emitter over with no particles
         bool did_change = false;
         did_change |= ImGui::DragFloat3 ("Position",         info.position.v,      0.01f, -100.0f, 100.0f,                     "%.2f", flags);
-        did_change |= ImGui::DragInt    ("Count",            &count,               1.0f,   1,      cfg.particle_bufffer_count, "%d",   flags);
+        did_change |= ImGui::DragInt    ("Count",            &count,               1.0f,   1,      cfg.particle_buffer_count, "%d",   flags);
         did_change |= ImGui::DragFloat  ("Lifespan (ms)",    &info.lifespan_ms,    10.0f,  1.0f,   60000.0f,                   "%.1f", flags);
         did_change |= ImGui::DragFloat  ("Spawn Delay (ms)", &info.spawn_delay_ms, 1.0f,   0.0f,   10000.0f,                   "%.1f", flags);
         did_change |= ImGui::DragFloat  ("Spawn Radius",     &info.spawn_radius,   0.001f, 0.0f,   100.0f,                     "%.3f", flags);
