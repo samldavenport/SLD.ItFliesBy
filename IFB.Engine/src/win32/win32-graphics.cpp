@@ -13,7 +13,7 @@ namespace ifb {
         gl_context* ctx) {
 
         win32_window&  window      = _pfm_ctx.window;
-        color_rgba_u32 clear_color = 0x282828FF;
+        color_rgba_u32 clear_color = 0x212121FF;
 
         RECT window_rect;
         GetWindowRect(window.handle, &window_rect);

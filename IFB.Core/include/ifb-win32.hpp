@@ -43,7 +43,6 @@ namespace ifb {
         LPARAM l_param
     );
 
-
     input_keycode
     win32_input_get_keycode(
         const WPARAM wparam,
