@@ -5,12 +5,9 @@
 #include "ifb-input.hpp"
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_win32.h>
+#include "ifb-engine.hpp"
 
 namespace ifb {
-
-
-
-    static win32_window _window;
 
     //--------------------------------------------------------------------
     // PLATFORM API METHODS
@@ -21,7 +18,7 @@ namespace ifb {
         const pfm_window_config* cfg) {
 
         // window instance
-        win32_window& window = win32_window_instance();
+        win32_window& window = _pfm_ctx.window; 
         window.quit_received = false;
 
         // window class
@@ -56,7 +53,7 @@ namespace ifb {
     pfm_window_frame_start(
         void) {
 
-        win32_window& window = win32_window_instance();
+        win32_window& window = _pfm_ctx.window;
 
         gl_context_clear_viewport(&window.context);
         
@@ -69,7 +66,7 @@ namespace ifb {
     pfm_window_frame_render(
         void) {
 
-        win32_window& window = win32_window_instance();
+        win32_window& window = _pfm_ctx.window;
 
         // render imgui
         ImGui::Render();
@@ -86,7 +83,7 @@ namespace ifb {
         void) {
  
         // window instance
-        win32_window& window = win32_window_instance();
+        win32_window& window = _pfm_ctx.window;
 
         MSG  msg;
         const UINT msg_filter_min = 0;
@@ -227,7 +224,7 @@ namespace ifb {
     pfm_window_quit_received(
         void) {
 
-        auto& window = win32_window_instance();
+        auto& window = _pfm_ctx.window;
         return(window.quit_received);
 
     }
