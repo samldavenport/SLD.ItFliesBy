@@ -64,27 +64,24 @@ namespace ifb {
     };
 
     struct audio_mngr {
-        f32            group_volumes[audio_group_e_count];
-        f32            master_volume;
-        f32            master_gain;           // fades toward master_volume, the same as a voice's gain
         audio_voice*   voices;
-        u32            voice_count;
         audio_preload* preloads;
-        u32            preload_count;
-        f32*           scratch;               // AUDIO_SCRATCH_FRAMES frames of AUDIO_SCRATCH_CHANNELS, the source frames for one block
         audio_stream*  streams;
+        f32*           scratch;               // AUDIO_SCRATCH_FRAMES frames of AUDIO_SCRATCH_CHANNELS, the source frames for one block
+        f32*           output;                // the last IFB_CONFIG_AUDIO_OUTPUT_FRAMES frames sent to the device, a ring
+        f32*           samples;
+        u64            timestamp_prev;
+        u32            preload_count;
         u32            stream_count;
         u32            stream_chunk_reads;    // since the last reset
         u32            stream_underrun_count; // frames a stream held because its chunks weren't read yet, since the last reset
-        f32*           output;                // the last IFB_CONFIG_AUDIO_OUTPUT_FRAMES frames sent to the device, a ring
         u32            output_write;          // the next frame written in the ring, so the oldest one
         u32            output_clip_count;     // samples clamped, since the last reset
-        f32*           samples;
+        f32            group_volumes[audio_group_e_count];
+        f32            master_volume;
+        f32            master_gain;           // fades toward master_volume, the same as a voice's gain
+        u32            voice_count;
         u32            frame_count;           // the frames to write this frame
-        u64            timestamp_prev;
-        bool           is_device_ready;
-        bool           is_frame_open;         // the buffer is only valid between frame start and end
-        bool           was_starved;           // only counts one underrun for each time the device runs dry
         struct {
             u32 frames_queued;
             u32 frames_queued_min;
@@ -92,6 +89,9 @@ namespace ifb {
             f32 frame_gap_ms;
             f32 frame_gap_ms_max;
         } stats;
+        bool           is_device_ready;
+        bool           is_frame_open;         // the buffer is only valid between frame start and end
+        bool           was_starved;           // only counts one underrun for each time the device runs dry
     } static * _audio_mngr;
 
     //--------------------------------------------------------------------
