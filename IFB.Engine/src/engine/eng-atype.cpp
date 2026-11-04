@@ -74,7 +74,7 @@ namespace ifb {
 
         entity e;
         result  &= entity_lookup_by_id  (e, id);
-        result  &= e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_SPRITE);        
+        result  &= e.archetype.has_all(ARCHETYPE_PHYSICS_SPRITE);        
            
         if (result) {
             cmpnt_lookup_position     (e.index_sparse, physics_quad.position);
@@ -151,7 +151,7 @@ namespace ifb {
    
         entity e;
         const bool does_exist    = entity_lookup_by_id  (e, id);
-        const bool has_component = e.archetype.has_all(ENTITY_ARCHETYPE_PHYSICS_SPRITE); 
+        const bool has_component = e.archetype.has_all(ARCHETYPE_PHYSICS_SPRITE); 
         const bool can_update    = (does_exist && has_component); 
 
         if (can_update) {

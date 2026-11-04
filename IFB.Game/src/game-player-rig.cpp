@@ -160,7 +160,7 @@ namespace ifb {
         const f32 drag     = 0.01f;
         
         // connor belongs to the map, so he can't walk off of it
-        eng_entity_add_components      (player_rig->connor_id, ENTITY_ARCHETYPE_PHYSICS_SPRITE);
+        eng_entity_add_components      (player_rig->connor_id, ARCHETYPE_PHYSICS_SPRITE);
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_map_coords);
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_sprite);
         eng_cmpnt_update_map_coords    (player_rig->connor_id, spawn_coords);
@@ -169,7 +169,7 @@ namespace ifb {
         eng_cmpnt_update_drag          (player_rig->connor_id, drag); 
         eng_cmpnt_update_term_velocity (player_rig->connor_id, tv);
 
-        eng_entity_add_components      (player_rig->jig_id, ENTITY_ARCHETYPE_PHYSICS_SPRITE);
+        eng_entity_add_components      (player_rig->jig_id, ARCHETYPE_PHYSICS_SPRITE);
         eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_spring);
         eng_entity_add_components      (player_rig->jig_id, cmpnt_type_e_sprite);
         eng_cmpnt_update_quad          (player_rig->jig_id, quad_jig);
