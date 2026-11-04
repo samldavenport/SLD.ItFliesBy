@@ -26,7 +26,7 @@ The wrapper has three types:
 
 | Type | Get members by | Functions |
 | --- | --- | --- |
-| `json_doc` | name | `json_doc_get_obj`, `_arr`, `_cstr`, `_bool`, `_u32`, `_s32`, `_u64`, `_s64`, `_f32`, `_f64` |
+| `json_doc` | name | `json_doc_get_root` (the whole document as a `json_obj`), `json_doc_get_obj`, `_arr`, `_cstr`, `_bool`, `_u32`, `_s32`, `_u64`, `_s64`, `_f32`, `_f64` |
 | `json_obj` | name | `json_obj_get_obj`, `_arr`, `_cstr`, `_bool`, `_u32`, `_s32`, `_u64`, `_s64`, `_f32`, `_f64` |
 | `json_arr` | index | `json_arr_get_count`, `_obj`, `_bool`, `_u32`, `_s32`, `_u64`, `_s64`, `_f32`, `_f64` |
 
@@ -62,7 +62,7 @@ Since nothing is freed until the arena is, parse large documents in an arena you
 tiled_map* map = tiled_map_create(h_arena, size, json_text);
 ```
 
-`tiled_map_create` parses the JSON, gets the map object, and fills in a `tiled_map`, with everything allocated in the arena.
+`tiled_map_create` parses the JSON, reads the map from the document root, and fills in a `tiled_map`, with everything allocated in the arena.
 
 ### Status
 
@@ -74,7 +74,7 @@ The Tiled parser is **unfinished and not used yet**. Nothing outside `tiled.cpp`
 | Grid | Stub, returns `NULL` (`TODO`) |
 | Object layers, objects, chunks, text, tiles, Wang sets, Wang colors, Wang tiles, templates | Declared in `eng-tiled.hpp`, but not implemented |
 
-Also worth checking before using it: `tiled_map_create` looks for a member called `"map"`, but Tiled's JSON export puts the map's properties at the top level of the file.
+`tiled_map_create` reads the map's fields from the top level of the file (`json_doc_get_root`), which is where Tiled's JSON export puts them.
 
 ### String Enums
 

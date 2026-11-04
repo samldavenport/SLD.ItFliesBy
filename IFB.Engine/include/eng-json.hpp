@@ -20,7 +20,8 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_INTERNAL json_doc*       json_doc_create   (const hnd_arena arena_hnd, const u32 json_cstr_length, const cchar* json_cstr_ptr);
-    IFB_INTERNAL void            json_doc_validate (const json_doc* doc);         
+    IFB_INTERNAL void            json_doc_validate (const json_doc* doc);
+    IFB_INTERNAL const json_obj* json_doc_get_root (const json_doc* doc);
     IFB_INTERNAL const json_obj* json_doc_get_obj  (const json_doc* doc, const cchar* name);
     IFB_INTERNAL const json_arr* json_doc_get_arr  (const json_doc* doc, const cchar* name);
     IFB_INTERNAL const cchar*    json_doc_get_cstr (const json_doc* doc, const cchar* name);

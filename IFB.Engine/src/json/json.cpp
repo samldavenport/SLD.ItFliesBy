@@ -121,7 +121,18 @@ namespace ifb {
         assert(doc);
         assert(doc->base.IsObject());
     }
-    
+
+    IFB_INTERNAL const json_obj*
+    json_doc_get_root(
+        const json_doc* doc) {
+
+        json_doc_validate(doc);
+
+        // the document is the root value
+        const json_obj_base* root = &doc->base;
+        return((const json_obj*)root);
+    }
+
     IFB_INTERNAL const json_obj*
     json_doc_get_obj(
         const json_doc* doc,

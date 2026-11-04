@@ -107,7 +107,7 @@ namespace ifb {
     
     IFB_INTERNAL tiled_map*
     tiled_map_create(
-        hnd_arena       a,
+        hnd_arena    a,
         const u32    json_src_length,
         const cchar* json_src_ptr) {
 
@@ -118,8 +118,8 @@ namespace ifb {
         const json_doc* doc = json_doc_create(a, json_src_length, json_src_ptr);
         assert(doc);
 
-        // get the map object
-        const json_obj* map_obj = json_doc_get_obj(doc, "map");
+        // tiled puts the map's fields at the top level of the file
+        const json_obj* map_obj = json_doc_get_root(doc);
 
         // create the map
         tiled_map* map = tiled_map_parse(a, map_obj);
