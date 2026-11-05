@@ -1,0 +1,51 @@
+{
+    "version": 1,
+    "name":    "dev-map",
+    "rows":    25,
+    "cols":    25,
+
+    "chunks": [
+        {
+            "row": 0, "col": 0, "rows": 10, "cols": 10,
+            "color":   "none",
+            "atlas":   "CORE-SPRITES",
+            "sprites": ["GRASS", "WOOD"],
+            "tiles": [
+                1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]
+        },
+        {
+            "row": 5, "col": 10, "rows": 5, "cols": 5,
+            "color":   "none",
+            "atlas":   "CORE-SPRITES",
+            "sprites": ["WOOD"],
+            "tiles": [
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0
+            ]
+        },
+        {
+            "row": 10, "col": 5, "rows": 10, "cols": 10,
+            "color": "gray_dark"
+        }
+    ],
+
+    "walls": [
+        { "orientation": "row",    "row": 0, "col": 0,  "length": 10, "color": "gray_dark"  },
+        { "orientation": "column", "row": 0, "col": 0,  "length": 10, "color": "gray_light" },
+        { "orientation": "column", "row": 0, "col": 10, "length": 7,  "color": "gray_light" },
+        { "orientation": "row",    "row": 5, "col": 10, "length": 5,  "color": "gray_dark"  }
+    ]
+}
