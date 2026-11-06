@@ -39,6 +39,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_sprite_atlas_inspector (bool& is_open);
     IFB_INTERNAL void  gui_engine_audio_test             (bool& is_open);
     IFB_INTERNAL void  gui_engine_wav_player             (bool& is_open);
+    IFB_INTERNAL void  gui_engine_hash_calculator        (bool& is_open);
 
     // game
     IFB_INTERNAL void  gui_game_player_rig       (bool& is_open, const game_context* game_ctx);
@@ -73,6 +74,9 @@ namespace ifb {
         inline static const char* window_engine_audio_test                           = "Audio Test";
         inline static const char* menu_engine_item_wav_player                        = "WAV Player";
         inline static const char* window_engine_wav_player                           = "WAV Player";
+        inline static const char* menu_engine_menu_tools                             = "Tools";
+        inline static const char* menu_engine_menu_tools_item_hash_calculator        = "Hash Calculator";
+        inline static const char* window_engine_hash_calculator                      = "Hash Calculator";
         inline static const char* menu_entities                                      = "Entities";
         inline static const char* menu_entity_item_manager                           = "Entity Manager";
         inline static const char* menu_renderer                                      = "Renderer";

@@ -1,9 +1,12 @@
 #pragma once
 
 #include "component-tables.cpp"
+#include "eng-json.hpp"
+#include "eng-memory.hpp"
 #include "ifb-config.hpp"
 #include "eng-map.hpp"
 #include "ifb.hpp"
+#include "json.cpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "eng-sprite.hpp"
@@ -894,6 +897,150 @@ namespace ifb {
 
         const bool is_placed = map_has_wall(map_index, (s32)row, (s32)col, orientation);
         return(is_placed);
+    }
+   
+    inline map_color_u32
+    map_parse_color_from_cstr(
+        const cchar* cstr) {
+
+        assert(cstr);
+
+
+        static const u32 hash_color_none         = 0xA5447BC9; // "none"        
+        static const u32 hash_color_red_light    = 0xBB5A31FE; // "red_light"   
+        static const u32 hash_color_red_dark     = 0xC5B3AA05; // "red_dark"    
+        static const u32 hash_color_orange_light = 0x4F626D22; // "orange_light"
+        static const u32 hash_color_orange_dark  = 0x90F57670; // "orange_dark" 
+        static const u32 hash_color_yellow_light = 0x3C1E4D9E; // "yellow_light"
+        static const u32 hash_color_yellow_dark  = 0xCCBEF4B1; // "yellow_dark" 
+        static const u32 hash_color_green_light  = 0x049E82C8; // "green_light" 
+        static const u32 hash_color_green_dark   = 0xDB369439; // "green_dark"  
+        static const u32 hash_color_aqua_light   = 0xA10F1ACC; // "aqua_light"  
+        static const u32 hash_color_aqua_dark    = 0x8C72645F; // "aqua_dark"   
+        static const u32 hash_color_blue_light   = 0x85FA5873; // "blue_light"  
+        static const u32 hash_color_blue_dark    = 0x669C41FF; // "blue_dark"   
+        static const u32 hash_color_purple_light = 0x27749FD3; // "purple_light"
+        static const u32 hash_color_purple_dark  = 0xBCAA404F; // "purple_dark" 
+        static const u32 hash_color_gray_light   = 0x8534C8FA; // "gray_light"  
+        static const u32 hash_color_gray_dark    = 0xF4149944; // "gray_dark"   
+
+        // hash the color string
+        const u32 chunk_base_color_cstr_len = cstr_nvar_length (cstr, 16);
+        const u32 chunk_base_color_hash     = cstr_nvar_hash   (chunk_base_color_cstr, chunk_base_color_cstr_len); 
+      
+        // get the color
+        map_color_u32 chunk_base_color;
+        switch(chunk_base_color_hash) {
+            case(hash_color_red_light):     chunk_base_color = map_color_e_red_light;    break;   
+            case(hash_color_red_dark):      chunk_base_color = map_color_e_red_dark;     break;    
+            case(hash_color_orange_light):  chunk_base_color = map_color_e_orange_light; break;
+            case(hash_color_orange_dark):   chunk_base_color = map_color_e_orange_dark;  break; 
+            case(hash_color_yellow_light):  chunk_base_color = map_color_e_yellow_light; break;
+            case(hash_color_yellow_dark):   chunk_base_color = map_color_e_yellow_dark;  break; 
+            case(hash_color_green_light):   chunk_base_color = map_color_e_green_light;  break; 
+            case(hash_color_green_dark):    chunk_base_color = map_color_e_green_dark;   break;  
+            case(hash_color_aqua_light):    chunk_base_color = map_color_e_aqua_light;   break;  
+            case(hash_color_aqua_dark):     chunk_base_color = map_color_e_aqua_dark;    break;   
+            case(hash_color_blue_light):    chunk_base_color = map_color_e_blue_light;   break;  
+            case(hash_color_blue_dark):     chunk_base_color = map_color_e_blue_dark;    break;   
+            case(hash_color_purple_light):  chunk_base_color = map_color_e_purple_light; break;
+            case(hash_color_purple_dark):   chunk_base_color = map_color_e_purple_dark;  break; 
+            case(hash_color_gray_light):    chunk_base_color = map_color_e_gray_light;   break;  
+            case(hash_color_gray_dark):     chunk_base_color = map_color_e_gray_dark;    break;   
+            case(hash_color_none):          chunk_base_color = map_color_e_none;         break;        
+            default:                        chunk_base_color = map_color_e_none;         break;
+        }
+    
+        return(chunk_base_color);
+    }
+
+
+    IFB_INTERNAL hnd_map
+    map_parse_from_json(
+        const cchar*    json_data,
+        const u32       json_length,
+        const hnd_arena h_arena) {
+
+        assert(json_data   != NULL);
+        assert(json_length != 0);
+        assert(h_arena     != INVALID_HANDLE);
+
+        // save our spot in the arena
+        const u32 save = arena_save(h_arena);
+
+        // create the document
+        const json_doc* doc = json_doc_create(h_arena, json_length, json_data);
+        if (!doc) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        }
+
+        // get the root object
+        const json_obj* map_obj = json_doc_get_root(doc);
+        if (!map_obj) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        } 
+
+        assert(map_obj);
+   
+        // get the map properties
+        const cchar*    map_name_cstr   = json_obj_get_cstr  (map_obj, "name");  
+        const u32       map_rows        = json_obj_get_u32   (map_obj, "rows");  
+        const u32       map_cols        = json_obj_get_u32   (map_obj, "cols");  
+        const json_arr* map_chunk_array = json_obj_get_arr   (map_obj, "chunks");
+        const json_arr* map_wall_array  = json_obj_get_arr   (map_obj, "walls");
+        const u32       map_chunk_count = json_arr_get_count (map_chunk_array);
+        const u32       map_wall_count  = json_arr_get_count (map_chunk_array);
+
+        // we need a minimum of these properties to create a map
+        const bool can_create = (
+            map_name_cstr   != NULL &&
+            map_rows        >  0    &&
+            map_cols        >  0    &&
+            map_chunk_array != NULL
+        );
+
+        if (!can_create) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        }
+
+        const hnd_map map = map_create(
+            map_name_cstr,
+            map_rows,
+            map_cols
+        );
+
+        if (map == INVALID_HANDLE) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        }
+        
+        for (
+            u32 i_chunk = 0;
+                i_chunk < map_chunk_count;
+              ++i_chunk) {
+
+            // get the next chunk
+            // we have a count, it should exist
+            const json_obj* chunk_obj = json_arr_get_obj(map_chunk_array, i_chunk);
+            assert(chunk_obj);
+
+            // get the chunk properties
+            const u32       chunk_map_row         = json_obj_get_u32  (chunk_obj, "row");
+            const u32       chunk_map_col         = json_obj_get_u32  (chunk_obj, "col");
+            const u32       chunk_row_count       = json_obj_get_u32  (chunk_obj, "rows");
+            const u32       chunk_col_count       = json_obj_get_u32  (chunk_obj, "cols");
+            const cchar*    chunk_sprite_atlas    = json_obj_get_cstr (chunk_obj, "atlas");
+            const cchar*    chunk_base_color_cstr = json_obj_get_cstr (chunk_obj, "color");
+            const json_arr* chunk_sprite_array    = json_obj_get_arr  (chunk_obj, "sprites");
+            const json_arr* chunk_tiles_array     = json_obj_get_arr  (chunk_obj, "tiles");
+            const u32 chunk_tiles_count = 
+
+            // parse the base color
+            const map_color_u32 chunk_base_color = map_parse_color_from_cstr(chunk_base_color_cstr); 
+        }
     }
     
     //--------------------------------------------------------------------
