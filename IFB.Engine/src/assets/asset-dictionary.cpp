@@ -63,7 +63,8 @@ namespace ifb {
         const json_doc* doc = json_doc_create(h_arena, size, data);
         file_close(h_file);
 
-        asset_dictionary* dict = asset_dictionary_create(h_arena);
+        // the document is NULL if the file isn't valid json
+        asset_dictionary* dict = (doc != NULL) ? asset_dictionary_create(h_arena) : NULL;
 
         bool did_load = (dict != NULL);
         if (did_load) {

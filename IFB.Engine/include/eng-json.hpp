@@ -48,12 +48,18 @@ namespace ifb {
     IFB_INTERNAL f32             json_obj_get_f32  (const json_obj* obj, const cchar* name);
     IFB_INTERNAL f64             json_obj_get_f64  (const json_obj* obj, const cchar* name);
 
+    // these return false instead of asserting when the member is missing or the wrong type
+    IFB_INTERNAL bool            json_obj_has_member   (const json_obj* obj, const cchar* name);
+    IFB_INTERNAL bool            json_obj_try_get_u32  (const json_obj* obj, const cchar* name, u32& val);
+    IFB_INTERNAL bool            json_obj_try_get_cstr (const json_obj* obj, const cchar* name, const cchar*& val);
+
     //--------------------------------------------------------------------
     // ARRAY METHODS
     //--------------------------------------------------------------------
 
     IFB_INTERNAL u32             json_arr_get_count (const json_arr* arr);
     IFB_INTERNAL const json_obj* json_arr_get_obj   (const json_arr* arr, const u32 index); 
+    IFB_INTERNAL const cchar*    json_arr_get_cstr  (const json_arr* arr, const u32 index);
     IFB_INTERNAL bool            json_arr_get_bool  (const json_arr* arr, const u32 index); 
     IFB_INTERNAL u32             json_arr_get_u32   (const json_arr* arr, const u32 index);
     IFB_INTERNAL s32             json_arr_get_s32   (const json_arr* arr, const u32 index);
@@ -61,6 +67,11 @@ namespace ifb {
     IFB_INTERNAL s64             json_arr_get_s64   (const json_arr* arr, const u32 index);
     IFB_INTERNAL f32             json_arr_get_f32   (const json_arr* arr, const u32 index);
     IFB_INTERNAL f64             json_arr_get_f64   (const json_arr* arr, const u32 index);
+
+    // these return false instead of asserting when the index is out of range or the value is the wrong type
+    IFB_INTERNAL bool            json_arr_try_get_s32  (const json_arr* arr, const u32 index, s32& val);
+    IFB_INTERNAL bool            json_arr_try_get_f32  (const json_arr* arr, const u32 index, f32& val);
+    IFB_INTERNAL bool            json_arr_try_get_cstr (const json_arr* arr, const u32 index, const cchar*& val);
 
     //--------------------------------------------------------------------
     // TEST METHODS

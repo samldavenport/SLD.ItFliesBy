@@ -7,6 +7,8 @@
 #include "eng-entity.hpp"
 #include "eng-map.hpp"
 #include "eng-renderer.hpp"
+#include "eng-asset.hpp"
+#include "eng-memory.hpp"
 
 namespace ifb {
 
@@ -27,8 +29,38 @@ namespace ifb {
         );
 
         return(hnd);
-    } 
-    
+    }
+
+    // builds a map from a text asset in the runtime database, see docs/map-format.md
+    // the atlases the map uses have to be loaded first
+    IFB_ENGINE_API hnd_map
+    eng_map_load(
+        const cchar* asset_name) {
+
+        assert(asset_name != NULL);
+
+        const asset_database* db = asset_mngr_get_database();
+        if (db == NULL) {
+            return(INVALID_HANDLE);
+        }
+
+        // the text and the parsed document only live while the map is built, the map copies what it needs
+        const hnd_arena h_arena = arena_alloc();
+        if (h_arena == INVALID_HANDLE) {
+            return(INVALID_HANDLE);
+        }
+
+        hnd_map h_map = INVALID_HANDLE;
+
+        const asset_text* txt = asset_database_load_text_by_name_to_arena(db, asset_name, h_arena);
+        if (txt != NULL && txt->size != 0) {
+            h_map = map_parse_from_json(txt->cstr, txt->size, h_arena);
+        }
+
+        arena_free(h_arena);
+        return(h_map);
+    }
+
     IFB_ENGINE_API u32 
     eng_map_chunk_create(
         const hnd_map       map_hnd,
