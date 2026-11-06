@@ -93,6 +93,7 @@ namespace ifb {
         inline static const char* menu_game_menu_assets                              = "Assets";
         inline static const char* menu_game_menu_assets_item_dictionary              = "Asset Dictionary";
         inline static const char* menu_game_menu_assets_item_database                = "Asset Database";
+        inline static const char* menu_engine_menu_tools_item_map_builder            = "Map Builder";
     } static * _gui_str;
 };
 
