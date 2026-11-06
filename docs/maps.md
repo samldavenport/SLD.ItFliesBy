@@ -50,7 +50,7 @@ for (u32 col = 0; col < 10; ++col) {
 eng_map_render(h_map);
 ```
 
-See `IFB.Game/src/game-map.cpp` for the map the game builds. Maps can also be described in a JSON file: see [Map Format](map-format.md).
+Maps can also be described in a JSON file and loaded from the asset database with `eng_map_load("DEV-MAP")`, which is how the game gets its map (`IFB.Game/src/game-map.cpp`). See [Map Format](map-format.md).
 
 ## Chunks
 

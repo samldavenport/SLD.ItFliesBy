@@ -20,7 +20,7 @@ for (u32 i = 0; i < count; ++i) {
 }
 ```
 
-`json_doc_create` parses `size` bytes of JSON text into a document. All of the document's memory comes from the arena you pass in, so the document and every string and value read from it stay valid until that arena is reverted, reset, or freed.
+`json_doc_create` parses `size` bytes of JSON text into a document. It returns `NULL` if the text isn't valid JSON or the root isn't an object. All of the document's memory comes from the arena you pass in, so the document and every string and value read from it stay valid until that arena is reverted, reset, or freed.
 
 The wrapper has three types:
 
@@ -32,8 +32,8 @@ The wrapper has three types:
 
 Things to know:
 
-- **Getters expect the member to exist with the right type.** Most of them assert it in debug builds, and some (like `json_doc_get_cstr`) don't check at all. There's no "has member" function yet, so check the shape of the JSON you're reading.
-- Arrays have no string getter (`json_arr_get_cstr`).
+- **Getters expect the member to exist with the right type.** Most of them assert it in debug builds, and some (like `json_doc_get_cstr`) don't check at all.
+- **For files that might be wrong, use the `try_get` functions.** They return `false` instead of asserting when a member is missing, an index is out of range, or the value is the wrong type: `json_obj_try_get_u32`, `json_obj_try_get_cstr`, `json_arr_try_get_s32`, `json_arr_try_get_f32`, and `json_arr_try_get_cstr`. `json_obj_has_member` tells an optional member that's missing apart from one that's there with the wrong type.
 - The wrapper only reads JSON. Files like the asset dictionary are written by building the JSON text directly (`asset_dictionary_file_list_json_write`).
 
 ### Arena Allocator
@@ -66,7 +66,7 @@ tiled_map* map = tiled_map_create(h_arena, size, json_text);
 
 ### Status
 
-The Tiled parser is **unfinished and not used yet**. Nothing outside `tiled.cpp` calls it, and engine maps are built in code (see [Maps](maps.md)).
+The Tiled parser is **unfinished and not used yet**. Nothing outside `tiled.cpp` calls it, and engine maps are loaded from the project's own format instead (see [Map Format](map-format.md)).
 
 | Part | Status |
 | --- | --- |

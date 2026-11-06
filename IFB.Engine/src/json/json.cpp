@@ -111,6 +111,12 @@ namespace ifb {
       
         doc->base.Parse(json_cstr_ptr, json_cstr_length);
 
+        // the getters expect an object at the root, so anything else fails here
+        // the document's memory stays in the arena for the caller to revert
+        if (doc->base.HasParseError() || !doc->base.IsObject()) {
+            return(NULL);
+        }
+
         return(doc);
     }
     
@@ -393,6 +399,51 @@ namespace ifb {
 
         return((*obj)[name].GetUint());
     }
+
+    IFB_INTERNAL bool
+    json_obj_has_member(
+        const json_obj* obj,
+        const cchar*    name) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        return(obj->HasMember(name));
+    }
+
+    IFB_INTERNAL bool
+    json_obj_try_get_u32(
+        const json_obj* obj,
+        const cchar*    name,
+        u32&            val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        auto member = obj->FindMember(name);
+        if (member == obj->MemberEnd()) return(false);
+        if (!member->value.IsUint())    return(false);
+
+        val = member->value.GetUint();
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    json_obj_try_get_cstr(
+        const json_obj* obj,
+        const cchar*    name,
+        const cchar*&   val) {
+
+        assert(obj  != NULL);
+        assert(name != NULL);
+
+        auto member = obj->FindMember(name);
+        if (member == obj->MemberEnd()) return(false);
+        if (!member->value.IsString())  return(false);
+
+        val = member->value.GetString();
+        return(true);
+    }
     
     IFB_INTERNAL s32 
     json_obj_get_s32(
@@ -497,6 +548,58 @@ namespace ifb {
 
         return(arr_base.Size());
     }
+
+    IFB_INTERNAL bool
+    json_arr_try_get_s32(
+        const json_arr* arr,
+        const u32       index,
+        s32&            val) {
+
+        assert(arr && arr->IsArray());
+
+        if (index >= json_arr_get_count(arr)) return(false);
+
+        const auto& inst = (*arr)[index];
+        if (!inst.IsInt()) return(false);
+
+        val = inst.GetInt();
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    json_arr_try_get_f32(
+        const json_arr* arr,
+        const u32       index,
+        f32&            val) {
+
+        assert(arr && arr->IsArray());
+
+        if (index >= json_arr_get_count(arr)) return(false);
+
+        // any number works, so 1 is as good as 1.0
+        const auto& inst = (*arr)[index];
+        if (!inst.IsNumber()) return(false);
+
+        val = (f32)inst.GetDouble();
+        return(true);
+    }
+
+    IFB_INTERNAL bool
+    json_arr_try_get_cstr(
+        const json_arr* arr,
+        const u32       index,
+        const cchar*&   val) {
+
+        assert(arr && arr->IsArray());
+
+        if (index >= json_arr_get_count(arr)) return(false);
+
+        const auto& inst = (*arr)[index];
+        if (!inst.IsString()) return(false);
+
+        val = inst.GetString();
+        return(true);
+    }
     
     IFB_INTERNAL const json_obj*
     json_arr_get_obj(
@@ -515,6 +618,24 @@ namespace ifb {
         return(obj);
     }
 
+    IFB_INTERNAL const cchar*
+    json_arr_get_cstr(
+        const json_arr* arr,
+        const u32       index) {
+
+        assert(arr && arr->IsArray()); 
+
+        const u32 count = json_arr_get_count(arr);
+        assert(index < count);
+
+        const auto& inst   = (*arr)[index]; 
+        const bool  is_str = inst.IsString(); 
+
+        assert(is_str);
+
+        return(inst.GetString());
+    }
+    
     IFB_INTERNAL bool
     json_arr_get_bool(
         const json_arr* arr,

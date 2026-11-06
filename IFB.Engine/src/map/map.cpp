@@ -1,9 +1,12 @@
 #pragma once
 
 #include "component-tables.cpp"
+#include "eng-json.hpp"
+#include "eng-memory.hpp"
 #include "ifb-config.hpp"
 #include "eng-map.hpp"
 #include "ifb.hpp"
+#include "json.cpp"
 #include "memory-arena.cpp"
 #include "sld.hpp"
 #include "eng-sprite.hpp"
@@ -895,7 +898,353 @@ namespace ifb {
         const bool is_placed = map_has_wall(map_index, (s32)row, (s32)col, orientation);
         return(is_placed);
     }
-    
+   
+    // false if the string isn't one of the color names
+    inline bool
+    map_parse_color_from_cstr(
+        const cchar*   cstr,
+        map_color_u32& color) {
+
+        if (cstr == NULL) return(false);
+
+        static const u32 hash_color_none         = 0xA5447BC9; // "none"        
+        static const u32 hash_color_red_light    = 0xBB5A31FE; // "red_light"   
+        static const u32 hash_color_red_dark     = 0xC5B3AA05; // "red_dark"    
+        static const u32 hash_color_orange_light = 0x4F626D22; // "orange_light"
+        static const u32 hash_color_orange_dark  = 0x90F57670; // "orange_dark" 
+        static const u32 hash_color_yellow_light = 0x3C1E4D9E; // "yellow_light"
+        static const u32 hash_color_yellow_dark  = 0xCCBEF4B1; // "yellow_dark" 
+        static const u32 hash_color_green_light  = 0x049E82C8; // "green_light" 
+        static const u32 hash_color_green_dark   = 0xDB369439; // "green_dark"  
+        static const u32 hash_color_aqua_light   = 0xA10F1ACC; // "aqua_light"  
+        static const u32 hash_color_aqua_dark    = 0x8C72645F; // "aqua_dark"   
+        static const u32 hash_color_blue_light   = 0x85FA5873; // "blue_light"  
+        static const u32 hash_color_blue_dark    = 0x669C41FF; // "blue_dark"   
+        static const u32 hash_color_purple_light = 0x27749FD3; // "purple_light"
+        static const u32 hash_color_purple_dark  = 0xBCAA404F; // "purple_dark" 
+        static const u32 hash_color_gray_light   = 0x8534C8FA; // "gray_light"  
+        static const u32 hash_color_gray_dark    = 0xF4149944; // "gray_dark"   
+
+        // hash the color string, the longest name is 12 characters
+        const u32 cstr_len = cstr_nvar_length(cstr, 16);
+        if (cstr_len == 0) return(false);
+        const u32 cstr_hash = cstr_nvar_hash(cstr, cstr_len);
+
+        // get the color
+        switch(cstr_hash) {
+            case(hash_color_red_light):     color = map_color_e_red_light;    return(true);
+            case(hash_color_red_dark):      color = map_color_e_red_dark;     return(true);
+            case(hash_color_orange_light):  color = map_color_e_orange_light; return(true);
+            case(hash_color_orange_dark):   color = map_color_e_orange_dark;  return(true);
+            case(hash_color_yellow_light):  color = map_color_e_yellow_light; return(true);
+            case(hash_color_yellow_dark):   color = map_color_e_yellow_dark;  return(true);
+            case(hash_color_green_light):   color = map_color_e_green_light;  return(true);
+            case(hash_color_green_dark):    color = map_color_e_green_dark;   return(true);
+            case(hash_color_aqua_light):    color = map_color_e_aqua_light;   return(true);
+            case(hash_color_aqua_dark):     color = map_color_e_aqua_dark;    return(true);
+            case(hash_color_blue_light):    color = map_color_e_blue_light;   return(true);
+            case(hash_color_blue_dark):     color = map_color_e_blue_dark;    return(true);
+            case(hash_color_purple_light):  color = map_color_e_purple_light; return(true);
+            case(hash_color_purple_dark):   color = map_color_e_purple_dark;  return(true);
+            case(hash_color_gray_light):    color = map_color_e_gray_light;   return(true);
+            case(hash_color_gray_dark):     color = map_color_e_gray_dark;    return(true);
+            case(hash_color_none):          color = map_color_e_none;         return(true);
+            default:                        return(false);
+        }
+    }
+
+    // one entry in the chunks array, see docs/map-format.md
+    inline bool
+    map_parse_chunk_from_json(
+        const hnd_map   h_map,
+        const json_obj* chunk_obj) {
+
+        if (chunk_obj == NULL) return(false);
+
+        // the chunk's area and color are required
+        u32           chunk_map_row   = 0;
+        u32           chunk_map_col   = 0;
+        u32           chunk_row_count = 0;
+        u32           chunk_col_count = 0;
+        const cchar*  chunk_color_cstr = NULL;
+        map_color_u32 chunk_color;
+
+        const bool has_chunk = (
+            json_obj_try_get_u32      (chunk_obj, "row",   chunk_map_row)    &&
+            json_obj_try_get_u32      (chunk_obj, "col",   chunk_map_col)    &&
+            json_obj_try_get_u32      (chunk_obj, "rows",  chunk_row_count)  &&
+            json_obj_try_get_u32      (chunk_obj, "cols",  chunk_col_count)  &&
+            json_obj_try_get_cstr     (chunk_obj, "color", chunk_color_cstr) &&
+            map_parse_color_from_cstr (chunk_color_cstr,   chunk_color)      &&
+            chunk_row_count > 0 &&
+            chunk_col_count > 0
+        );
+        if (!has_chunk) return(false);
+
+        const u32 chunk_index = map_chunk_create(
+            h_map,
+            chunk_row_count,
+            chunk_col_count,
+            chunk_map_row,
+            chunk_map_col,
+            chunk_color
+        );
+        if (chunk_index == INVALID_INDEX) return(false);
+
+        // atlas, sprites, and tiles come together
+        // a chunk with none of them is a solid color
+        const bool has_atlas   = json_obj_has_member(chunk_obj, "atlas");
+        const bool has_sprites = json_obj_has_member(chunk_obj, "sprites");
+        const bool has_tiles   = json_obj_has_member(chunk_obj, "tiles");
+        if (!has_atlas && !has_sprites && !has_tiles) return(true);
+        if (!has_atlas || !has_sprites || !has_tiles) return(false);
+
+        const cchar*    chunk_atlas   = NULL;
+        const json_arr* chunk_sprites = json_obj_get_arr(chunk_obj, "sprites");
+        const json_arr* chunk_tiles   = json_obj_get_arr(chunk_obj, "tiles");
+        const bool      is_valid      = (
+            json_obj_try_get_cstr(chunk_obj, "atlas", chunk_atlas) &&
+            chunk_sprites != NULL &&
+            chunk_tiles   != NULL
+        );
+        if (!is_valid) return(false);
+
+        // one tile entry per chunk tile, and at least one sprite for them to use
+        const u32 chunk_sprite_count = json_arr_get_count(chunk_sprites);
+        const u32 chunk_tile_count   = chunk_row_count * chunk_col_count;
+        if (chunk_sprite_count == 0)                             return(false);
+        if (json_arr_get_count(chunk_tiles) != chunk_tile_count) return(false);
+
+        for (
+            u32 i_row = 0;
+                i_row < chunk_row_count;
+              ++i_row) {
+
+            for (
+                u32 i_col = 0;
+                    i_col < chunk_col_count;
+                  ++i_col) {
+
+                // tiles are row-major, each entry is an index into sprites
+                const u32 i_tile   = (i_row * chunk_col_count) + i_col;
+                s32       i_sprite = -1;
+                if (!json_arr_try_get_s32(chunk_tiles, i_tile, i_sprite)) return(false);
+
+                // -1 keeps the chunk's color
+                if (i_sprite == -1) continue;
+                if (i_sprite < 0 || (u32)i_sprite >= chunk_sprite_count) return(false);
+
+                const cchar* sprite_cstr = NULL;
+                if (!json_arr_try_get_cstr(chunk_sprites, (u32)i_sprite, sprite_cstr)) return(false);
+
+                // tiles are set by map coordinates, not chunk coordinates
+                const bool did_set = map_tile_set_sprite(
+                    h_map,
+                    chunk_map_row + i_row,
+                    chunk_map_col + i_col,
+                    chunk_atlas,
+                    sprite_cstr
+                );
+                if (!did_set) return(false);
+            }
+        }
+
+        return(true);
+    }
+
+    // one entry in the walls array, a straight run of walls, see docs/map-format.md
+    inline bool
+    map_parse_wall_from_json(
+        const hnd_map   h_map,
+        const json_obj* wall_obj) {
+
+        if (wall_obj == NULL) return(false);
+
+        // the run's orientation, start, and color are required
+        const cchar*  wall_orientation_cstr = NULL;
+        const cchar*  wall_color_cstr       = NULL;
+        u32           wall_row              = 0;
+        u32           wall_col              = 0;
+        map_color_u32 wall_color;
+
+        const bool has_wall = (
+            json_obj_try_get_cstr     (wall_obj, "orientation", wall_orientation_cstr) &&
+            json_obj_try_get_u32      (wall_obj, "row",         wall_row)              &&
+            json_obj_try_get_u32      (wall_obj, "col",         wall_col)              &&
+            json_obj_try_get_cstr     (wall_obj, "color",       wall_color_cstr)       &&
+            map_parse_color_from_cstr (wall_color_cstr,         wall_color)
+        );
+        if (!has_wall) return(false);
+
+        map_wall_orientation_e wall_orientation;
+        if      (strcmp(wall_orientation_cstr, "row")    == 0) wall_orientation = map_wall_orientation_e_row;
+        else if (strcmp(wall_orientation_cstr, "column") == 0) wall_orientation = map_wall_orientation_e_column;
+        else return(false);
+
+        // the length is optional, but if it's there it has to be a positive number
+        u32 wall_length = 1;
+        if (json_obj_has_member(wall_obj, "length")) {
+            if (!json_obj_try_get_u32(wall_obj, "length", wall_length)) return(false);
+            if (wall_length == 0)                                        return(false);
+        }
+
+        // the sprite is optional, but needs both the atlas and the sprite name
+        const bool   has_atlas   = json_obj_has_member(wall_obj, "atlas");
+        const bool   has_sprite  = json_obj_has_member(wall_obj, "sprite");
+        const cchar* wall_atlas  = NULL;
+        const cchar* wall_sprite = NULL;
+        if (has_atlas != has_sprite) return(false);
+        if (has_sprite) {
+            const bool is_valid = (
+                json_obj_try_get_cstr(wall_obj, "atlas",  wall_atlas) &&
+                json_obj_try_get_cstr(wall_obj, "sprite", wall_sprite)
+            );
+            if (!is_valid) return(false);
+        }
+
+        // row walls run along x (columns), column walls run along z (rows)
+        const bool is_row = (wall_orientation == map_wall_orientation_e_row);
+        for (
+            u32 i_wall = 0;
+                i_wall < wall_length;
+              ++i_wall) {
+
+            const u32 row = is_row ? wall_row : (wall_row + i_wall);
+            const u32 col = is_row ? (wall_col + i_wall) : wall_col;
+
+            if (!map_wall_set(h_map, row, col, wall_orientation, wall_color)) return(false);
+            if (has_sprite && !map_wall_set_sprite(h_map, row, col, wall_orientation, wall_atlas, wall_sprite)) return(false);
+        }
+
+        return(true);
+    }
+
+    // builds a map from a map file, see docs/map-format.md
+    // the document is parsed in the arena and reverted before returning, the map copies what it needs
+    // on any failure, the partly built map is destroyed and the handle is invalid
+    IFB_INTERNAL hnd_map
+    map_parse_from_json(
+        const cchar*    json_data,
+        const u32       json_length,
+        const hnd_arena h_arena) {
+
+        assert(json_data   != NULL);
+        assert(json_length != 0);
+        assert(h_arena     != INVALID_HANDLE);
+
+        static constexpr u32 MAP_FORMAT_VERSION   = 1;
+        static constexpr u32 MAP_NAME_LENGTH_MAX  = 15; // the name buffer is 16 with the terminator
+
+        // save our spot in the arena
+        const u32 save = arena_save(h_arena);
+
+        // create the document, it's NULL if the json is invalid or the root isn't an object
+        const json_doc* doc = json_doc_create(h_arena, json_length, json_data);
+        if (!doc) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        }
+
+        // the map's fields are at the top level of the file
+        const json_obj* map_obj = json_doc_get_root(doc);
+        assert(map_obj);
+
+        // get the map properties
+        u32             map_version     = 0;
+        const cchar*    map_name_cstr   = NULL;
+        u32             map_rows        = 0;
+        u32             map_cols        = 0;
+        const json_arr* map_chunk_array = json_obj_get_arr(map_obj, "chunks");
+
+        // we need a minimum of these properties to create a map
+        const bool can_create = (
+            json_obj_try_get_u32  (map_obj, "version", map_version)   &&
+            json_obj_try_get_cstr (map_obj, "name",    map_name_cstr) &&
+            json_obj_try_get_u32  (map_obj, "rows",    map_rows)      &&
+            json_obj_try_get_u32  (map_obj, "cols",    map_cols)      &&
+            map_version     == MAP_FORMAT_VERSION &&
+            map_rows        >  0                  &&
+            map_cols        >  0                  &&
+            map_chunk_array != NULL
+        );
+        if (!can_create) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        }
+
+        // the name has to fit the map's name buffer
+        const u32 map_name_length = cstr_nvar_length(map_name_cstr, MAP_NAME_LENGTH_MAX + 1);
+        if (map_name_length == 0 || map_name_length > MAP_NAME_LENGTH_MAX) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        }
+
+        const hnd_map h_map = map_create(
+            map_name_cstr,
+            map_rows,
+            map_cols
+        );
+        if (h_map == INVALID_HANDLE) {
+            arena_revert(h_arena, save);
+            return(INVALID_HANDLE);
+        }
+
+        bool did_parse = true;
+
+        // the origin is optional, but if it's there it has to be [x, y, z]
+        if (did_parse && json_obj_has_member(map_obj, "origin")) {
+            const json_arr* map_origin_array = json_obj_get_arr(map_obj, "origin");
+            vec3            map_origin;
+            did_parse = (
+                map_origin_array != NULL                     &&
+                json_arr_get_count(map_origin_array) == 3    &&
+                json_arr_try_get_f32(map_origin_array, 0, map_origin.x) &&
+                json_arr_try_get_f32(map_origin_array, 1, map_origin.y) &&
+                json_arr_try_get_f32(map_origin_array, 2, map_origin.z) &&
+                map_set_origin(h_map, map_origin)
+            );
+        }
+
+        // chunks come before walls, because walls have to be on the edge of a chunk tile
+        // a chunk's index is its position in the array
+        const u32 map_chunk_count = json_arr_get_count(map_chunk_array);
+        for (
+            u32 i_chunk = 0;
+                did_parse && i_chunk < map_chunk_count;
+              ++i_chunk) {
+
+            const json_obj* chunk_obj = json_arr_get_obj(map_chunk_array, i_chunk);
+            did_parse = map_parse_chunk_from_json(h_map, chunk_obj);
+        }
+
+        // walls are optional, but if they're there they have to be an array
+        if (did_parse && json_obj_has_member(map_obj, "walls")) {
+
+            const json_arr* map_wall_array = json_obj_get_arr(map_obj, "walls");
+            did_parse = (map_wall_array != NULL);
+
+            const u32 map_wall_count = did_parse ? json_arr_get_count(map_wall_array) : 0;
+            for (
+                u32 i_wall = 0;
+                    did_parse && i_wall < map_wall_count;
+                  ++i_wall) {
+
+                const json_obj* wall_obj = json_arr_get_obj(map_wall_array, i_wall);
+                did_parse = map_parse_wall_from_json(h_map, wall_obj);
+            }
+        }
+
+        // don't leave a partly built map behind, another map could get its handle from the same name
+        if (!did_parse) {
+            map_destroy(h_map);
+        }
+
+        // the map doesn't point into the document, so we're done with it either way
+        arena_revert(h_arena, save);
+
+        return(did_parse ? h_map : INVALID_HANDLE);
+    }
+
     //--------------------------------------------------------------------
     // INTERNAL METHODS 
     //--------------------------------------------------------------------

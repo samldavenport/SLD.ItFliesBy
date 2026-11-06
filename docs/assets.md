@@ -5,6 +5,7 @@ Assets go through two stages: an editable JSON **asset dictionary** that lists s
 ```
 assets/images/*.png ─┐
 assets/sprites/*.ifbatlas ─┤
+assets/maps/*.json ─┤
 assets/json/*.json ─┼──> asset-dictionary.json ──(build)──> asset-database.ifbdb ──> runtime
 assets/sounds/*.wav ─┘
 ```
@@ -13,7 +14,7 @@ assets/sounds/*.wav ─┘
 
 | Type | `asset_type_e` | Runtime struct | Description |
 | --- | --- | --- | --- |
-| Text | `asset_type_e_text` | `asset_text` | Raw text, such as JSON. |
+| Text | `asset_type_e_text` | `asset_text` | Raw text, such as JSON. Maps are text assets, see [Map Format](map-format.md#loading). |
 | Image | `asset_type_e_image` | `asset_image` | RGBA pixels, decoded with stb_image. |
 | Sprite atlas | `asset_type_e_sprite_atlas` | `asset_sprite_atlas` | A packed image plus the name, position, and size of each sprite in it. |
 | Sound | `asset_type_e_sound` | `asset_sound` | 16 bit PCM at 48 kHz, mono or stereo, converted from a `.wav` when the database is built. |

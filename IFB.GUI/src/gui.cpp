@@ -15,6 +15,7 @@
 #include "gui-engine-sprite-atlas-inspector.cpp"
 #include "gui-engine-audio-test.cpp"
 #include "gui-engine-wav-player.cpp"
+#include "gui-engine-hash-calculator.cpp"
 #include "gui-game-audio.cpp"
 
 static bool _gui_is_open;
@@ -65,6 +66,7 @@ namespace ifb {
         static bool sprite_atlas_inspector = false;
         static bool eng_audio_test         = false;
         static bool eng_wav_player         = false;
+        static bool eng_hash_calculator    = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -79,6 +81,11 @@ namespace ifb {
                 if (ImGui::BeginMenu(_gui_str->menu_engine_menu_sprite_tools)) {
                     ImGui::MenuItem (_gui_str->menu_engine_menu_sprite_tools_item_atlas_builder,   NULL, &sprite_atlas_builder);
                     ImGui::MenuItem (_gui_str->menu_engine_menu_sprite_tools_item_atlas_inspector, NULL, &sprite_atlas_inspector);
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu(_gui_str->menu_engine_menu_tools)) {
+                    ImGui::MenuItem (_gui_str->menu_engine_menu_tools_item_hash_calculator, NULL, &eng_hash_calculator);
                     ImGui::EndMenu();
                 }
 
@@ -128,6 +135,7 @@ namespace ifb {
         gui_engine_sprite_atlas_inspector (sprite_atlas_inspector);
         gui_engine_audio_test             (eng_audio_test);
         gui_engine_wav_player             (eng_wav_player);
+        gui_engine_hash_calculator        (eng_hash_calculator);
         gui_renderer_camera               (rndr_camera);
         gui_entity_manager                (entity_manager);
         gui_quad_manager                  (quad_manager);
