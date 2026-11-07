@@ -52,6 +52,10 @@ eng_map_render(h_map);
 
 Maps can also be described in a JSON file and loaded from the asset database with `eng_map_load("DEV-MAP")`, which is how the game gets its map (`IFB.Game/src/game-map.cpp`). See [Map Format](map-format.md).
 
+### Loading a Map Twice
+
+A map's handle is the hash of its name, so two maps can't have the same name. `eng_map_load_as(asset_name, map_name)` loads a map asset under a different name, which is how the map builder gets its own copy of a map the game has loaded. `eng_map_destroy` frees a map's slot so it can be used again.
+
 ## Chunks
 
 `eng_map_chunk_create(h_map, count_rows, count_cols, origin_row, origin_col, base_color)` adds a chunk and returns its index, or `INVALID_INDEX` if it doesn't fit.
@@ -111,6 +115,16 @@ Non-navigable tiles are solid squares. Walls are slabs `MAP_WALL_HALF_THICKNESS`
 ## Rendering
 
 `eng_map_render` sets the map the renderer draws. The map is packed into a buffer of `map_tile` values (`map_render_buffer`), floor tiles first and walls after. The tile shaders (`assets/shaders/tile-vert.glsl`, `tile-frag.glsl`) build a quad for each tile and stand walls up on their edges. Textured tiles sample the chunk's sprite atlas, and the rest use the color table.
+
+## Map Builder
+
+**Engine > Tools > Map Builder** (`IFB.GUI/src/gui-engine-map-builder.cpp`) previews a map the way the game draws it. It's the start of a tool for building maps, and it can't edit them yet.
+
+- Pick a map asset (any text asset in the runtime database) and press **Load**. The builder loads its own copy as `MAP-BUILDER` with `eng_map_load_as`, so the game's map isn't touched.
+- The view is the [map view](renderer.md#map-view), with the same tile shader, atlas, and projection as the game.
+- **Left drag** pans along the ground, **right drag** orbits around the point the camera looks at, and the **mouse wheel** zooms.
+- **Frame Map** looks down at the middle of the map's chunks. **Game View** puts the camera at the game camera's angle and distance.
+- The tile under the mouse is outlined, and its row and column are shown above the view.
 
 ## Configuration
 

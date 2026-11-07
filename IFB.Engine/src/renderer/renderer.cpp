@@ -13,6 +13,7 @@
 #include "renderer-grid.cpp"
 #include "renderer-tile.cpp"
 #include "renderer-particle.cpp"
+#include "renderer-map-view.cpp"
 #include "eng-context.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
@@ -55,6 +56,7 @@ namespace ifb {
         render_lists*                lists;
         render_buffers*              buffers;
         renderer_particle_view*      particle_view;
+        renderer_map_view*           map_view;
         render_textures*             textures;
         struct {
             renderer_quad_shader*            quad;
@@ -208,6 +210,10 @@ namespace ifb {
         _renderer->particle_view = renderer_particle_view_create();
         renderer_particle_view_init(_renderer->particle_view, _renderer->gl, _renderer->buffers, _renderer->shader.quad);
 
+        // the map view draws with the tile shader, so it goes after the shaders too
+        _renderer->map_view = renderer_map_view_create();
+        renderer_map_view_init(_renderer->map_view, _renderer->gl);
+
         // close the shader files
         file_close(file_hnd_quad_vert);
         file_close(file_hnd_quad_frag);
@@ -276,6 +282,9 @@ namespace ifb {
 
         // the particle view draws offscreen, then puts the window viewport back
         renderer_particle_view_draw(_renderer->particle_view, gl, buffers, _renderer->shader.quad, _renderer->shader.grid);
+
+        // the map view reuses the tile buffer, so it goes after the game's map is drawn
+        renderer_map_view_draw(_renderer->map_view, gl, buffers, _renderer->shader.tile, _renderer->shader.grid);
         gl_context_update_viewport(gl, 0, 0, (u32)_renderer->viewport->width, (u32)_renderer->viewport->height);
 
         // the lists get filled again next frame
@@ -560,6 +569,66 @@ namespace ifb {
         assert(_renderer);
         assert(_renderer->particle_view);
         return(_renderer->particle_view->gl.texture);
+    }
+
+    IFB_INTERNAL void
+    renderer_request_map_view(
+        const hnd_map h_map,
+        const u32     width,
+        const u32     height) {
+
+        assert(_renderer);
+        renderer_map_view_request(_renderer->map_view, h_map, width, height);
+    }
+
+    IFB_INTERNAL u32
+    renderer_get_map_view_texture(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->map_view);
+        return(_renderer->map_view->gl.texture);
+    }
+
+    IFB_INTERNAL void
+    renderer_get_map_view_camera(
+        vec3& origin,
+        vec3& target) {
+
+        assert(_renderer);
+        assert(_renderer->map_view);
+        origin = renderer_camera_get_origin(_renderer->map_view->camera);
+        target = renderer_camera_get_target(_renderer->map_view->camera);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_map_view_camera(
+        const vec3& origin,
+        const vec3& target) {
+
+        assert(_renderer);
+        assert(_renderer->map_view);
+        renderer_camera_set_origin(_renderer->map_view->camera, origin);
+        renderer_camera_set_target(_renderer->map_view->camera, target);
+    }
+
+    // the view projection of the last size the view was requested at
+    IFB_INTERNAL void
+    renderer_get_map_view_xform(
+        mat4& xform) {
+
+        assert(_renderer);
+        assert(_renderer->map_view);
+        renderer_map_view_get_view_proj(_renderer->map_view, xform);
+    }
+
+    IFB_INTERNAL void
+    renderer_set_map_view_grid_visible(
+        const bool is_visible) {
+
+        assert(_renderer);
+        assert(_renderer->map_view);
+        _renderer->map_view->is_grid_visible = is_visible;
     }
 
     // a texture for the gui to preview an image in each slot, the pixels are rgba8 from the top row down

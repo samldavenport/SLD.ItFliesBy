@@ -65,6 +65,8 @@ namespace ifb {
         map_wall_array&  row_walls    = tbl_map->row_wall_array    [index];
         map_wall_array&  column_walls = tbl_map->column_wall_array [index];
 
+        // the handle hashes all 16 bytes, so a reused slot can't keep the end of an old name
+        zero_memory((void*)&name, sizeof(name));
         cstr_c16_init(&name, map_name);
         hnd = cstr_c16_hash(&name);
         dims.count_chunks = 0;
@@ -1122,11 +1124,14 @@ namespace ifb {
     // builds a map from a map file, see docs/map-format.md
     // the document is parsed in the arena and reverted before returning, the map copies what it needs
     // on any failure, the partly built map is destroyed and the handle is invalid
+    // a map's handle is the hash of its name, so name_override (or NULL for the file's name)
+    // lets the same file be loaded twice, like the game's copy and the map builder's
     IFB_INTERNAL hnd_map
     map_parse_from_json(
         const cchar*    json_data,
         const u32       json_length,
-        const hnd_arena h_arena) {
+        const hnd_arena h_arena,
+        const cchar*    name_override) {
 
         assert(json_data   != NULL);
         assert(json_length != 0);
@@ -1172,15 +1177,21 @@ namespace ifb {
             return(INVALID_HANDLE);
         }
 
-        // the name has to fit the map's name buffer
-        const u32 map_name_length = cstr_nvar_length(map_name_cstr, MAP_NAME_LENGTH_MAX + 1);
-        if (map_name_length == 0 || map_name_length > MAP_NAME_LENGTH_MAX) {
+        // the file's name and the override both have to fit the map's name buffer
+        const cchar* map_create_name = (name_override != NULL) ? name_override : map_name_cstr;
+        const u32    map_name_length = cstr_nvar_length(map_name_cstr,   MAP_NAME_LENGTH_MAX + 1);
+        const u32    map_create_len  = cstr_nvar_length(map_create_name, MAP_NAME_LENGTH_MAX + 1);
+        const bool   is_name_valid   = (
+            map_name_length != 0 && map_name_length <= MAP_NAME_LENGTH_MAX &&
+            map_create_len  != 0 && map_create_len  <= MAP_NAME_LENGTH_MAX
+        );
+        if (!is_name_valid) {
             arena_revert(h_arena, save);
             return(INVALID_HANDLE);
         }
 
         const hnd_map h_map = map_create(
-            map_name_cstr,
+            map_create_name,
             map_rows,
             map_cols
         );

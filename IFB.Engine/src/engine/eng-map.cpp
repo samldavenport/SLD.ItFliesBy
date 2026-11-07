@@ -37,6 +37,17 @@ namespace ifb {
     eng_map_load(
         const cchar* asset_name) {
 
+        const hnd_map h_map = eng_map_load_as(asset_name, NULL);
+        return(h_map);
+    }
+
+    // like eng_map_load, but the map is named map_name instead of the name in the file
+    // a map's handle is the hash of its name, so this is how one file is loaded more than once
+    IFB_ENGINE_API hnd_map
+    eng_map_load_as(
+        const cchar* asset_name,
+        const cchar* map_name) {
+
         assert(asset_name != NULL);
 
         const asset_database* db = asset_mngr_get_database();
@@ -54,7 +65,7 @@ namespace ifb {
 
         const asset_text* txt = asset_database_load_text_by_name_to_arena(db, asset_name, h_arena);
         if (txt != NULL && txt->size != 0) {
-            h_map = map_parse_from_json(txt->cstr, txt->size, h_arena);
+            h_map = map_parse_from_json(txt->cstr, txt->size, h_arena, map_name);
         }
 
         arena_free(h_arena);
@@ -91,6 +102,61 @@ namespace ifb {
         const hnd_map map) {
 
         assert(map != INVALID_HANDLE);
+        (void)map_destroy(map);
+    }
+
+    //--------------------------------------------------------------------
+    // MAP VIEW
+    //--------------------------------------------------------------------
+
+    // draws the map offscreen this frame, with the map view's camera
+    // like the particle view, it only draws on frames it's requested
+    IFB_ENGINE_API void
+    eng_map_view_request(
+        const hnd_map h_map,
+        const u32     width,
+        const u32     height) {
+
+        renderer_request_map_view(h_map, width, height);
+    }
+
+    IFB_ENGINE_API u32
+    eng_map_view_get_texture(
+        void) {
+
+        return(renderer_get_map_view_texture());
+    }
+
+    IFB_ENGINE_API void
+    eng_map_view_get_camera(
+        vec3& origin,
+        vec3& target) {
+
+        renderer_get_map_view_camera(origin, target);
+    }
+
+    IFB_ENGINE_API void
+    eng_map_view_set_camera(
+        const vec3& origin,
+        const vec3& target) {
+
+        renderer_set_map_view_camera(origin, target);
+    }
+
+    // the view projection for the size the view was last requested at,
+    // for turning a point in the view into a ray, or a world position into the view
+    IFB_ENGINE_API void
+    eng_map_view_get_xform(
+        mat4& xform) {
+
+        renderer_get_map_view_xform(xform);
+    }
+
+    IFB_ENGINE_API void
+    eng_map_view_set_grid_visible(
+        const bool is_visible) {
+
+        renderer_set_map_view_grid_visible(is_visible);
     }
 
     IFB_ENGINE_API bool 

@@ -24,7 +24,8 @@ These go into the renderer's **draw lists** (`renderer-draw-lists.cpp`). Entitie
 | 3 | Grid | Draw the debug grid, if it's visible. |
 | 4 | Quads | Draw entity quads, then particles, with the quad shader. |
 | 5 | Particle view | Draw the offscreen [particle view](particles.md#particle-view), if it was requested this frame. |
-| 6 | Reset | Clear the draw lists for the next frame. |
+| 6 | Map view | Draw the offscreen [map view](#map-view), if it was requested this frame. |
+| 7 | Reset | Clear the draw lists for the next frame. |
 
 After that, the engine calls the GUI render callback, so ImGui draws on top of everything, and presents the frame.
 
@@ -89,12 +90,29 @@ Shaders are loaded from the working directory at startup. CMake copies `assets/s
 | Grid | `grid-vert.glsl`, `grid-frag.glsl` | The debug grid |
 | Direction gizmo | `direction-gizmo-shader-vert.glsl`, `direction-gizmo-shader-frag.glsl` | An axis gizmo. It's set up at startup, but its draw call is currently commented out. |
 
+## Map View
+
+The map view (`renderer-map-view.cpp`) is an offscreen render of one map, with its own camera, for tools like the [map builder](maps.md#map-builder). It works like the particle view: a framebuffer with a color texture and a depth buffer, drawn only on frames it's requested, and shown in the GUI with `ImGui::Image`.
+
+It draws with the same tile shader, active atlas, and projection as the game, so a map looks the way it does in the game. It packs its map into the same tile buffer the game's map uses, so it draws after the game's map, which is packed again next frame.
+
+| Function | Description |
+| --- | --- |
+| `eng_map_view_request(h_map, width, height)` | Draw the map into the view at the end of this frame, resizing the texture if needed |
+| `eng_map_view_get_texture` | The view's OpenGL texture. It's drawn upside down, so show it with the UVs flipped, `(0, 1)` to `(1, 0)`. |
+| `eng_map_view_get_camera` / `_set_camera` | The view camera's origin and target |
+| `eng_map_view_get_xform` | The view projection for the size the view was last drawn at, for projecting world points into the view |
+| `eng_map_view_set_grid_visible` | Draw the debug grid in the view |
+
+`mat4_invert` in SLD.Math isn't implemented yet, so to turn a point in the view into a ray, build it from the camera: `1 / r1c1` and `1 / r0c0` of the projection are the tangents of half the vertical and horizontal fields of view. The map builder does this in `map_builder_update_hover`.
+
 ## Other Features
 
 | Function | Description |
 | --- | --- |
 | `eng_renderer_is_grid_visible` / `_set_grid_visible` | Toggle the debug grid |
 | `eng_particle_view_request` | Draw the offscreen particle view this frame (see [Particles](particles.md#particle-view)) |
+| `eng_map_view_request` | Draw the offscreen map view this frame (see [Map View](#map-view)) |
 
 The renderer also has `RENDERER_ASSET_PREVIEW_COUNT` (4) textures, one for each GUI window that previews assets.
 

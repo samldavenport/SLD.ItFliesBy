@@ -97,7 +97,7 @@ namespace ifb {
     IFB_INTERNAL entity_list*             map_get_entities_in_chunk (const hnd_map h_map, const u32 chunk_index, const hnd_arena h_arena);
     IFB_INTERNAL bool                     map_tile_set_sprite       (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                      
     IFB_INTERNAL bool                     map_chunk_set_sprite      (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
-    IFB_INTERNAL hnd_map                  map_parse_from_json       (const cchar* json_data, const u32 json_length, const hnd_arena h_arena);
+    IFB_INTERNAL hnd_map                  map_parse_from_json       (const cchar* json_data, const u32 json_length, const hnd_arena h_arena, const cchar* name_override);
 
     // map walls
     // row walls are on the min-z edge of tile (row, col), row can be count_rows for the far edge

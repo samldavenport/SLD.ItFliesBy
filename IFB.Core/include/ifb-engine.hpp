@@ -254,6 +254,7 @@ namespace ifb {
    
     IFB_ENGINE_API hnd_map eng_map_create               (const cchar*  name,  const u32 count_rows, const u32 count_cols);
     IFB_ENGINE_API hnd_map eng_map_load                 (const cchar*  asset_name);
+    IFB_ENGINE_API hnd_map eng_map_load_as              (const cchar*  asset_name, const cchar* map_name);
     IFB_ENGINE_API u32     eng_map_chunk_create         (const hnd_map h_map, const u32 count_rows, const u32 count_cols, const u32 origin_row, const u32 origin_col, const map_color_u32 base_color);
     IFB_ENGINE_API bool    eng_map_get_entity_coords    (const hnd_map h_map, const entity_id id, cmpnt_map_coords& coords);
     IFB_ENGINE_API void    eng_map_destroy              (const hnd_map h_map);
@@ -271,6 +272,14 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_wall_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_ENGINE_API bool    eng_map_wall_clear           (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
     IFB_ENGINE_API bool    eng_map_wall_is_placed       (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
+
+    // map view, an offscreen render of one map with its own camera, for tools
+    IFB_ENGINE_API void    eng_map_view_request         (const hnd_map h_map, const u32 width, const u32 height);
+    IFB_ENGINE_API u32     eng_map_view_get_texture     (void);
+    IFB_ENGINE_API void    eng_map_view_get_camera      (vec3& origin, vec3& target);
+    IFB_ENGINE_API void    eng_map_view_set_camera      (const vec3& origin, const vec3& target);
+    IFB_ENGINE_API void    eng_map_view_get_xform       (mat4& xform);
+    IFB_ENGINE_API void    eng_map_view_set_grid_visible(const bool is_visible);
 
     //--------------------------------------------------------------------
     // PARTICLES 
