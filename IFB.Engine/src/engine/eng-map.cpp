@@ -8,6 +8,8 @@
 #include "eng-map.hpp"
 #include "eng-renderer.hpp"
 #include "eng-asset.hpp"
+#include "eng-file.hpp"
+#include "eng-json.hpp"
 #include "eng-memory.hpp"
 
 namespace ifb {
@@ -96,6 +98,80 @@ namespace ifb {
 
         return(chunk_index);
     } 
+
+    // the most text a map file can be, the most tiles and wall runs a map can have fit well inside it
+    static constexpr u32 ENG_MAP_SAVE_CAPACITY = (u32)size_megabytes(8);
+
+    // writes the map as a map file at path, see docs/map-format.md, named map_name
+    // the file is replaced if it's there, false if the map can't be written or the file can't be
+    IFB_ENGINE_API bool
+    eng_map_save(
+        const hnd_map h_map,
+        const cchar*  map_name,
+        const cchar*  path) {
+
+        assert(h_map    != INVALID_HANDLE);
+        assert(map_name != NULL);
+        assert(path     != NULL);
+
+        const hnd_arena h_arena = arena_large_alloc();
+        if (h_arena == INVALID_HANDLE) return(false);
+
+        bool did_save = false;
+
+        cchar* buffer = (cchar*)arena_push(h_arena, ENG_MAP_SAVE_CAPACITY);
+        const u32 length = (buffer != NULL) ? map_write_json(h_map, map_name, buffer, ENG_MAP_SAVE_CAPACITY) : 0;
+        if (length != 0) {
+            const hnd_file h_file = file_wo_overwrite(path);
+            if (h_file != FILE_HANDLE_INVALID) {
+                did_save = (file_write(h_file, length, (const byte*)buffer) == length);
+                file_close(h_file);
+            }
+        }
+
+        arena_free(h_arena);
+        return(did_save);
+    }
+
+    // the name inside a map asset, which is what eng_map_load names the map
+    // false if there's no text asset by that name, or it isn't a map file with a name
+    IFB_ENGINE_API bool
+    eng_map_asset_get_name(
+        const cchar* asset_name,
+        cchar*       name,
+        const u32    name_size) {
+
+        assert(asset_name != NULL);
+        assert(name       != NULL);
+        assert(name_size  != 0);
+
+        name[0] = 0;
+
+        const asset_database* db = asset_mngr_get_database();
+        if (db == NULL) return(false);
+
+        const hnd_arena h_arena = arena_alloc();
+        if (h_arena == INVALID_HANDLE) return(false);
+
+        bool did_get = false;
+
+        const asset_text* txt = asset_database_load_text_by_name_to_arena(db, asset_name, h_arena);
+        const json_doc*   doc = (txt != NULL && txt->size != 0) ? json_doc_create(h_arena, txt->size, txt->cstr) : NULL;
+        if (doc != NULL) {
+            const cchar* file_name = NULL;
+            if (json_obj_try_get_cstr(json_doc_get_root(doc), "name", file_name)) {
+                const u32 length = cstr_nvar_length(file_name, name_size);
+                if (length != 0 && length < name_size) {
+                    memcpy(name, file_name, length);
+                    name[length] = 0;
+                    did_get = true;
+                }
+            }
+        }
+
+        arena_free(h_arena);
+        return(did_get);
+    }
 
     IFB_ENGINE_API void
     eng_map_destroy(
@@ -256,6 +332,46 @@ namespace ifb {
             origin_col
         );
         return(did_get);
+    }
+
+    IFB_ENGINE_API u32
+    eng_map_get_chunk_count(
+        const hnd_map map) {
+
+        assert(map != INVALID_HANDLE);
+        return(map_get_chunk_count(map));
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_chunk_get_info(
+        const hnd_map   map,
+        const u32       chunk_index,
+        map_chunk_info& info) {
+
+        assert(map != INVALID_HANDLE);
+        return(map_chunk_get_info(map, chunk_index, info));
+    }
+
+    // sets the color of the chunk's tiles, the ones without sprites show it and the ones with sprites are tinted by it
+    IFB_ENGINE_API bool
+    eng_map_chunk_set_color(
+        const hnd_map       map,
+        const u32           chunk_index,
+        const map_color_u32 color) {
+
+        assert(map != INVALID_HANDLE);
+        return(map_chunk_set_color(map, chunk_index, color));
+    }
+
+    // removes the chunk with its tiles and walls, the chunks after it move down one index
+    // walls it shares with another chunk move to that chunk
+    IFB_ENGINE_API bool
+    eng_map_chunk_destroy(
+        const hnd_map map,
+        const u32     chunk_index) {
+
+        assert(map != INVALID_HANDLE);
+        return(map_chunk_destroy(map, chunk_index));
     }
 
     IFB_ENGINE_API bool

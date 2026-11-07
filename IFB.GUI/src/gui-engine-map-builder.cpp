@@ -35,6 +35,11 @@ namespace ifb {
     static constexpr f32 MAP_BUILDER_THUMB_SIZE    = 48.0f;
 
     static constexpr u32 MAP_BUILDER_NAME_SIZE     = config::asset_name_size + 1;
+    static constexpr u32 MAP_BUILDER_MAP_NAME_SIZE = 16; // a map's name is up to 15 characters
+    static constexpr u32 MAP_BUILDER_PATH_SIZE     = IFB_CONFIG_FILE_PATH_SIZE;
+
+    static const char* _map_builder_filter_type = "*.json";
+    static const char* _map_builder_filter_desc = "Map File";
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -43,6 +48,7 @@ namespace ifb {
     enum map_builder_tool_e {
         map_builder_tool_e_move  = 0, // left drag pans
         map_builder_tool_e_brush = 1, // left click and drag paints tiles
+        map_builder_tool_e_chunk = 2, // left drag adds a chunk, left click selects one
     };
 
     // an orbit camera around a target, turned into an origin and target for the map view
@@ -72,7 +78,9 @@ namespace ifb {
     struct map_builder_state {
         hnd_map            h_map = {INVALID_HANDLE};
         char               asset_name [MAP_BUILDER_NAME_SIZE];
-        char               status     [128];
+        char               map_name   [MAP_BUILDER_MAP_NAME_SIZE]; // the name the map is saved with
+        char               save_path  [MAP_BUILDER_PATH_SIZE];     // empty until the map is saved
+        char               status     [MAP_BUILDER_PATH_SIZE + 128];
         map_builder_camera camera;
         map_builder_hover  hover;
         map_builder_brush  brush;
@@ -81,6 +89,13 @@ namespace ifb {
         u32                cols;
         bool               show_grid;
         bool               is_modified;
+        u32                selected_chunk;    // INVALID_INDEX when no chunk is selected
+        u32                new_chunk_color;   // map_color_e for chunks the chunk tool adds
+        bool               is_dragging_chunk;
+        s32                drag_row;          // the tile the chunk drag started on
+        s32                drag_col;
+        s32                drag_end_row;      // the last tile it was dragged over
+        s32                drag_end_col;
     } static _map_builder;
 
 
@@ -93,6 +108,7 @@ namespace ifb {
     IFB_INLINE void map_builder_palette_atlas    (void);
     IFB_INLINE void map_builder_select_atlas     (const char* atlas_name);
     IFB_INLINE void map_builder_load             (const char* asset_name);
+    IFB_INLINE void map_builder_save             (const bool is_save_as);
     IFB_INLINE void map_builder_unload           (void);
     IFB_INLINE void map_builder_frame_map        (void);
     IFB_INLINE void map_builder_game_view        (void);
@@ -101,6 +117,14 @@ namespace ifb {
     IFB_INLINE void map_builder_update_camera    (const ImVec2& image_min, const ImVec2& size, const bool is_active, const bool is_hovered);
     IFB_INLINE void map_builder_update_hover     (const ImVec2& image_min, const ImVec2& size, const bool is_hovered);
     IFB_INLINE void map_builder_paint            (void);
+    IFB_INLINE bool map_builder_color_combo      (const char* label, u32& color);
+    IFB_INLINE void map_builder_chunk_panel      (void);
+    IFB_INLINE void map_builder_delete_selected_chunk (void);
+    IFB_INLINE void map_builder_chunk_drag_rect  (u32& row_min, u32& col_min, u32& row_max, u32& col_max);
+    IFB_INLINE bool map_builder_chunk_rect_is_free (const u32 row_min, const u32 col_min, const u32 row_max, const u32 col_max);
+    IFB_INLINE void map_builder_chunk_tool       (const bool is_active);
+    IFB_INLINE void map_builder_draw_floor_rect  (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size, const u32 row_min, const u32 col_min, const u32 row_max, const u32 col_max, const ImU32 fill, const ImU32 outline, const f32 thickness);
+    IFB_INLINE void map_builder_draw_chunks      (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size);
     IFB_INLINE void map_builder_draw_hover       (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size);
     IFB_INLINE void map_builder_hover_text       (void);
     IFB_INLINE bool map_builder_get_map_origin   (vec3& origin);
@@ -129,6 +153,9 @@ namespace ifb {
             state.camera.pitch     = MAP_BUILDER_GAME_PITCH;
             state.camera.distance  = MAP_BUILDER_GAME_DISTANCE;
             state.tool             = map_builder_tool_e_move;
+            state.selected_chunk   = INVALID_INDEX;
+            state.new_chunk_color  = (u32)map_color_e_gray_light;
+            state.is_dragging_chunk = false;
             state.show_grid        = false;
             state.is_modified      = false;
             state.status[0]        = 0;
@@ -197,6 +224,30 @@ namespace ifb {
         }
         ImGui::EndDisabled();
 
+        // the map's name goes in the file, it's what eng_map_load names the map
+        ImGui::SameLine();
+        ImGui::BeginDisabled(state.h_map == INVALID_HANDLE);
+        ImGui::SetNextItemWidth(130.0f);
+        ImGui::InputTextWithHint("##map-name", "map name", state.map_name, MAP_BUILDER_MAP_NAME_SIZE);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+            ImGui::SetTooltip("The name saved in the file, up to 15 characters");
+        }
+
+        // saving asks where the first time, then saves there until another map is loaded
+        ImGui::SameLine();
+        if (ImGui::Button("Save")) {
+            map_builder_save(false);
+        }
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+            if (state.save_path[0] != 0) ImGui::SetTooltip("Save to %s", state.save_path);
+            else                         ImGui::SetTooltip("Pick where to save the map");
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save As...")) {
+            map_builder_save(true);
+        }
+        ImGui::EndDisabled();
+
         ImGui::SameLine();
         ImGui::BeginDisabled(state.h_map == INVALID_HANDLE);
         if (ImGui::Button("Frame Map")) map_builder_frame_map();
@@ -217,6 +268,8 @@ namespace ifb {
         ImGui::RadioButton("Move",  &tool, (int)map_builder_tool_e_move);
         ImGui::SameLine();
         ImGui::RadioButton("Brush", &tool, (int)map_builder_tool_e_brush);
+        ImGui::SameLine();
+        ImGui::RadioButton("Chunk", &tool, (int)map_builder_tool_e_chunk);
         state.tool = (map_builder_tool_e)tool;
 
         // what's loaded, what's under the mouse, and how to move around
@@ -241,6 +294,9 @@ namespace ifb {
         if (state.tool == map_builder_tool_e_brush) {
             ImGui::TextDisabled("   left: paint   middle drag: pan   right drag: orbit   wheel: zoom");
         }
+        else if (state.tool == map_builder_tool_e_chunk) {
+            ImGui::TextDisabled("   left drag: add chunk   left click: select   delete: remove   middle drag: pan   right drag: orbit");
+        }
         else {
             ImGui::TextDisabled("   left or middle drag: pan   right drag: orbit   wheel: zoom");
         }
@@ -252,6 +308,12 @@ namespace ifb {
 
         auto& state = _map_builder;
         auto& brush = state.brush;
+
+        // the chunk tool fills chunks with the brush, so the sprites stay below it
+        if (state.tool == map_builder_tool_e_chunk) {
+            map_builder_chunk_panel();
+            ImGui::SeparatorText("Brush");
+        }
 
         map_builder_palette_atlas();
 
@@ -268,7 +330,7 @@ namespace ifb {
         if (ImGui::Selectable("No sprite", brush.i_sprite == INVALID_INDEX)) {
             brush.i_sprite       = INVALID_INDEX;
             brush.sprite_name[0] = 0;
-            state.tool           = map_builder_tool_e_brush;
+            if (state.tool != map_builder_tool_e_chunk) state.tool = map_builder_tool_e_brush;
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Paints the chunk's color, like -1 in a map file");
@@ -320,7 +382,7 @@ namespace ifb {
             if (ImGui::ImageButton("##sprite", (ImTextureID)(intptr_t)texture, ImVec2(MAP_BUILDER_THUMB_SIZE, MAP_BUILDER_THUMB_SIZE), uv0, uv1)) {
                 brush.i_sprite = i_sprite;
                 strncpy_s(brush.sprite_name, name, MAP_BUILDER_NAME_SIZE - 1);
-                state.tool = map_builder_tool_e_brush;
+                if (state.tool != map_builder_tool_e_chunk) state.tool = map_builder_tool_e_brush;
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("%s", name);
@@ -414,10 +476,56 @@ namespace ifb {
             return;
         }
 
-        state.status[0]   = 0;
-        state.is_modified = false;
+        state.status[0]    = 0;
+        state.save_path[0] = 0;
+        state.is_modified  = false;
+
+        // the builder's copy is named MAP-BUILDER, so the file's own name is read from the asset
+        if (!eng_map_asset_get_name(asset_name, state.map_name, MAP_BUILDER_MAP_NAME_SIZE)) {
+            state.map_name[0] = 0;
+        }
         (void)eng_map_get_dimensions(state.h_map, state.rows, state.cols);
         map_builder_frame_map();
+    }
+
+    // writes the map to its file, a map file like the one it was loaded from, see docs/map-format.md
+    // the game reads maps from the asset database, so the database has to be rebuilt to pick it up
+    IFB_INLINE void
+    map_builder_save(
+        const bool is_save_as) {
+
+        auto& state = _map_builder;
+        if (state.h_map == INVALID_HANDLE) return;
+
+        if (state.map_name[0] == 0) {
+            snprintf(state.status, sizeof(state.status), "Give the map a name before saving it");
+            return;
+        }
+
+        // ask where to save the first time, or when saving somewhere else
+        if (is_save_as || state.save_path[0] == 0) {
+            const char* path = eng_file_dialog_save(_map_builder_filter_type, _map_builder_filter_desc);
+            if (path == NULL || path[0] == 0) return;
+
+            char new_path[MAP_BUILDER_PATH_SIZE];
+            strncpy_s(new_path, path, MAP_BUILDER_PATH_SIZE - 1);
+
+            // the dialog doesn't add the extension
+            const size_t length = strlen(new_path);
+            const bool   has_ext = (length >= 5 && _stricmp(new_path + length - 5, ".json") == 0);
+            if (!has_ext) {
+                strncat_s(new_path, MAP_BUILDER_PATH_SIZE, ".json", MAP_BUILDER_PATH_SIZE - length - 1);
+            }
+            strncpy_s(state.save_path, new_path, MAP_BUILDER_PATH_SIZE - 1);
+        }
+
+        if (!eng_map_save(state.h_map, state.map_name, state.save_path)) {
+            snprintf(state.status, sizeof(state.status), "Couldn't save the map to %s", state.save_path);
+            return;
+        }
+
+        state.is_modified = false;
+        snprintf(state.status, sizeof(state.status), "Saved to %s, rebuild the asset database to load it in the game", state.save_path);
     }
 
     IFB_INLINE void
@@ -434,6 +542,8 @@ namespace ifb {
         state.cols           = 0;
         state.is_modified    = false;
         state.hover.is_valid = false;
+        state.selected_chunk    = INVALID_INDEX;
+        state.is_dragging_chunk = false;
     }
 
     // look down at the middle of the chunks, far enough back to see all of them
@@ -532,6 +642,18 @@ namespace ifb {
             map_builder_paint();
         }
 
+        if (state.tool == map_builder_tool_e_chunk) {
+            map_builder_chunk_tool(is_active);
+
+            const bool is_focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+            if (is_focused && !ImGui::GetIO().WantTextInput && ImGui::IsKeyPressed(ImGuiKey_Delete)) {
+                map_builder_delete_selected_chunk();
+            }
+        }
+        else {
+            state.is_dragging_chunk = false;
+        }
+
         // the view draws at the end of this frame, so the image shows last frame's render
         eng_map_view_request(state.h_map, (u32)size.x, (u32)size.y);
 
@@ -550,6 +672,9 @@ namespace ifb {
             return;
         }
 
+        if (state.tool == map_builder_tool_e_chunk) {
+            map_builder_draw_chunks(draw_list, image_min, size);
+        }
         map_builder_draw_hover(draw_list, image_min, size);
     }
 
@@ -693,6 +818,319 @@ namespace ifb {
         else {
             snprintf(state.status, sizeof(state.status), "Couldn't paint row %u, col %u", row, col);
         }
+    }
+
+    //--------------------------------------------------------------------
+    // CHUNK TOOL
+    //--------------------------------------------------------------------
+
+    // the color names, in map_color_e order, the same names as in a map file
+    static const char* MAP_BUILDER_COLOR_NAMES[] = {
+        "red_light",    "red_dark",
+        "orange_light", "orange_dark",
+        "yellow_light", "yellow_dark",
+        "green_light",  "green_dark",
+        "aqua_light",   "aqua_dark",
+        "blue_light",   "blue_dark",
+        "purple_light", "purple_dark",
+        "gray_light",   "gray_dark",
+        "none",
+    };
+
+    IFB_INLINE bool
+    map_builder_color_combo(
+        const char* label,
+        u32&        color) {
+
+        const u32   count   = sizeof(MAP_BUILDER_COLOR_NAMES) / sizeof(MAP_BUILDER_COLOR_NAMES[0]);
+        const char* preview = (color < count) ? MAP_BUILDER_COLOR_NAMES[color] : "?";
+
+        bool did_change = false;
+        if (ImGui::BeginCombo(label, preview)) {
+            for (u32 i = 0; i < count; ++i) {
+                if (ImGui::Selectable(MAP_BUILDER_COLOR_NAMES[i], color == i)) {
+                    color      = i;
+                    did_change = true;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        return(did_change);
+    }
+
+    // the chunk tool's part of the palette panel
+    IFB_INLINE void
+    map_builder_chunk_panel(
+        void) {
+
+        auto& state = _map_builder;
+
+        ImGui::SeparatorText("Chunks");
+        if (state.h_map == INVALID_HANDLE) {
+            ImGui::TextDisabled("No map loaded");
+            return;
+        }
+
+        ImGui::TextWrapped("Drag on the map to add a chunk. Click a chunk to select it.");
+
+        ImGui::TextUnformatted("New chunk color");
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        map_builder_color_combo("##new-chunk-color", state.new_chunk_color);
+
+        ImGui::TextDisabled("%u chunks", eng_map_get_chunk_count(state.h_map));
+
+        map_chunk_info info;
+        if (state.selected_chunk == INVALID_INDEX || !eng_map_chunk_get_info(state.h_map, state.selected_chunk, info)) {
+            state.selected_chunk = INVALID_INDEX;
+            return;
+        }
+
+        ImGui::SeparatorText("Selected");
+        ImGui::Text("Chunk %u", state.selected_chunk);
+        ImGui::Text("%u x %u at row %u, col %u", info.count_rows, info.count_cols, info.origin_row, info.origin_col);
+
+        ImGui::TextUnformatted("Color");
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        u32 color = info.color;
+        if (map_builder_color_combo("##chunk-color", color)) {
+            if (eng_map_chunk_set_color(state.h_map, state.selected_chunk, map_color_u32(color))) {
+                state.is_modified = true;
+            }
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Tiles without a sprite show it, tiles with one are tinted by it");
+        }
+
+        // fill with whatever the brush paints, a sprite or no sprite
+        const bool is_clearing = (state.brush.i_sprite == INVALID_INDEX);
+        char fill_label[64];
+        snprintf(fill_label, sizeof(fill_label), "Fill with %s", is_clearing ? "no sprite" : state.brush.sprite_name);
+        if (ImGui::Button(fill_label, ImVec2(-FLT_MIN, 0.0f))) {
+            if (is_clearing) {
+                for (u32 r = 0; r < info.count_rows; ++r) {
+                    for (u32 c = 0; c < info.count_cols; ++c) {
+                        eng_map_clear_tile_sprite(state.h_map, info.origin_row + r, info.origin_col + c);
+                    }
+                }
+                state.is_modified = true;
+                state.status[0]   = 0;
+            }
+            else if (eng_map_chunk_set_sprite(state.h_map, state.selected_chunk, state.brush.atlas_name, state.brush.sprite_name)) {
+                state.is_modified = true;
+                state.status[0]   = 0;
+            }
+            else {
+                snprintf(state.status, sizeof(state.status), "Couldn't fill chunk %u with %s", state.selected_chunk, state.brush.sprite_name);
+            }
+        }
+
+        if (ImGui::Button("Delete chunk", ImVec2(-FLT_MIN, 0.0f))) {
+            map_builder_delete_selected_chunk();
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Also the Delete key. Its tiles and walls go with it.");
+        }
+    }
+
+    IFB_INLINE void
+    map_builder_delete_selected_chunk(
+        void) {
+
+        auto& state = _map_builder;
+        if (state.h_map == INVALID_HANDLE || state.selected_chunk == INVALID_INDEX) return;
+
+        if (eng_map_chunk_destroy(state.h_map, state.selected_chunk)) {
+            snprintf(state.status, sizeof(state.status), "Deleted chunk %u, the chunks after it moved down one", state.selected_chunk);
+            state.selected_chunk = INVALID_INDEX;
+            state.is_modified    = true;
+        }
+    }
+
+    // the tile rectangle from where the drag started to the tile under the mouse, the max is one past the last tile
+    IFB_INLINE void
+    map_builder_chunk_drag_rect(
+        u32& row_min,
+        u32& col_min,
+        u32& row_max,
+        u32& col_max) {
+
+        const auto& state = _map_builder;
+        const s32 r0 = state.drag_row;
+        const s32 c0 = state.drag_col;
+        const s32 r1 = state.drag_end_row;
+        const s32 c1 = state.drag_end_col;
+
+        row_min = (u32)((r0 < r1) ? r0 : r1);
+        col_min = (u32)((c0 < c1) ? c0 : c1);
+        row_max = (u32)((r0 < r1) ? r1 : r0) + 1;
+        col_max = (u32)((c0 < c1) ? c1 : c0) + 1;
+    }
+
+    // a chunk fits if it's on the map and doesn't overlap another one, the same rules as eng_map_chunk_create
+    IFB_INLINE bool
+    map_builder_chunk_rect_is_free(
+        const u32 row_min,
+        const u32 col_min,
+        const u32 row_max,
+        const u32 col_max) {
+
+        const auto& state = _map_builder;
+        if (row_max > state.rows || col_max > state.cols) return(false);
+
+        const u32 count = eng_map_get_chunk_count(state.h_map);
+        for (u32 i = 0; i < count; ++i) {
+            map_chunk_info info;
+            if (!eng_map_chunk_get_info(state.h_map, i, info)) continue;
+            const bool is_overlapping = (
+                row_min < (info.origin_row + info.count_rows) && info.origin_row < row_max &&
+                col_min < (info.origin_col + info.count_cols) && info.origin_col < col_max
+            );
+            if (is_overlapping) return(false);
+        }
+        return(true);
+    }
+
+    // dragging adds a chunk, clicking one tile selects the chunk on it or clears the selection
+    IFB_INLINE void
+    map_builder_chunk_tool(
+        const bool is_active) {
+
+        auto&       state = _map_builder;
+        const auto& hover = state.hover;
+        if (state.h_map == INVALID_HANDLE) return;
+
+        if (is_active && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && hover.is_valid) {
+            state.is_dragging_chunk = true;
+            state.drag_row          = hover.row;
+            state.drag_col          = hover.col;
+            state.drag_end_row      = hover.row;
+            state.drag_end_col      = hover.col;
+        }
+
+        if (!state.is_dragging_chunk) return;
+
+        // the end stays on the last tile the mouse was over, so leaving the map doesn't lose it
+        if (hover.is_valid) {
+            state.drag_end_row = hover.row;
+            state.drag_end_col = hover.col;
+        }
+
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) return;
+        state.is_dragging_chunk = false;
+
+        u32 row_min, col_min, row_max, col_max;
+        map_builder_chunk_drag_rect(row_min, col_min, row_max, col_max);
+
+        // one tile is a click
+        if ((row_max - row_min) == 1 && (col_max - col_min) == 1) {
+            map_tile_info tile;
+            state.selected_chunk = eng_map_get_tile_info(state.h_map, row_min, col_min, tile)
+                ? tile.chunk_index
+                : INVALID_INDEX;
+            return;
+        }
+
+        if (!map_builder_chunk_rect_is_free(row_min, col_min, row_max, col_max)) {
+            snprintf(state.status, sizeof(state.status), "A chunk can't overlap another chunk");
+            return;
+        }
+
+        const u32 chunk_index = eng_map_chunk_create(
+            state.h_map,
+            row_max - row_min,
+            col_max - col_min,
+            row_min,
+            col_min,
+            map_color_u32(state.new_chunk_color));
+
+        if (chunk_index == INVALID_INDEX) {
+            snprintf(state.status, sizeof(state.status), "Couldn't add a %u x %u chunk, the map may be out of room for tiles or walls",
+                row_max - row_min, col_max - col_min);
+            return;
+        }
+
+        state.selected_chunk = chunk_index;
+        state.is_modified    = true;
+        state.status[0]      = 0;
+    }
+
+    // outlines a rectangle of tiles on the floor, the max is one past the last tile
+    IFB_INLINE void
+    map_builder_draw_floor_rect(
+        ImDrawList*   draw_list,
+        const ImVec2& image_min,
+        const ImVec2& size,
+        const u32     row_min,
+        const u32     col_min,
+        const u32     row_max,
+        const u32     col_max,
+        const ImU32   fill,
+        const ImU32   outline,
+        const f32     thickness) {
+
+        vec3 map_origin;
+        if (!map_builder_get_map_origin(map_origin)) return;
+
+        mat4 xform;
+        eng_map_view_get_xform(xform);
+
+        const f32 tile = IFB_CONFIG_MAP_TILE_UNIT_SIZE;
+        const f32 x0   = map_origin.x + ((f32)col_min * tile);
+        const f32 x1   = map_origin.x + ((f32)col_max * tile);
+        const f32 z0   = map_origin.z + ((f32)row_min * tile);
+        const f32 z1   = map_origin.z + ((f32)row_max * tile);
+        const vec3 corners[4] = {
+            { x0, map_origin.y, z0 },
+            { x1, map_origin.y, z0 },
+            { x1, map_origin.y, z1 },
+            { x0, map_origin.y, z1 },
+        };
+
+        ImVec2 points[4];
+        for (u32 i = 0; i < 4; ++i) {
+            if (!map_builder_world_to_screen(xform, corners[i], image_min, size, points[i])) return;
+        }
+
+        draw_list->PushClipRect(image_min, ImVec2(image_min.x + size.x, image_min.y + size.y), true);
+        if (fill != 0) draw_list->AddQuadFilled(points[0], points[1], points[2], points[3], fill);
+        draw_list->AddQuad(points[0], points[1], points[2], points[3], outline, thickness);
+        draw_list->PopClipRect();
+    }
+
+    // every chunk's outline, the selected chunk, and the chunk being dragged out
+    IFB_INLINE void
+    map_builder_draw_chunks(
+        ImDrawList*   draw_list,
+        const ImVec2& image_min,
+        const ImVec2& size) {
+
+        const auto& state = _map_builder;
+
+        const u32 count = eng_map_get_chunk_count(state.h_map);
+        for (u32 i = 0; i < count; ++i) {
+            map_chunk_info info;
+            if (!eng_map_chunk_get_info(state.h_map, i, info)) continue;
+
+            const bool  is_selected = (i == state.selected_chunk);
+            const ImU32 outline     = is_selected ? IM_COL32(64, 220, 255, 255) : IM_COL32(255, 255, 255, 90);
+            const ImU32 fill        = is_selected ? IM_COL32(64, 220, 255, 40)  : 0;
+            map_builder_draw_floor_rect(
+                draw_list, image_min, size,
+                info.origin_row, info.origin_col,
+                info.origin_row + info.count_rows, info.origin_col + info.count_cols,
+                fill, outline, is_selected ? 2.5f : 1.0f);
+        }
+
+        if (!state.is_dragging_chunk) return;
+
+        u32 row_min, col_min, row_max, col_max;
+        map_builder_chunk_drag_rect(row_min, col_min, row_max, col_max);
+        if ((row_max - row_min) == 1 && (col_max - col_min) == 1) return;
+
+        const bool  is_free = map_builder_chunk_rect_is_free(row_min, col_min, row_max, col_max);
+        const ImU32 fill    = is_free ? IM_COL32(64, 255, 120, 56)  : IM_COL32(255, 64, 64, 56);
+        const ImU32 outline = is_free ? IM_COL32(64, 255, 120, 255) : IM_COL32(255, 64, 64, 255);
+        map_builder_draw_floor_rect(draw_list, image_min, size, row_min, col_min, row_max, col_max, fill, outline, 2.0f);
     }
 
     // the hovered tile, its chunk, and what's on it

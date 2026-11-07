@@ -100,6 +100,7 @@ namespace ifb {
     IFB_INTERNAL bool                     map_tile_get_info         (const hnd_map h_map, const u32 row, const u32 col, map_tile_info& info);                      
     IFB_INTERNAL bool                     map_chunk_set_sprite      (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_INTERNAL hnd_map                  map_parse_from_json       (const cchar* json_data, const u32 json_length, const hnd_arena h_arena, const cchar* name_override);
+    IFB_INTERNAL u32                      map_write_json            (const hnd_map h_map, const cchar* map_name, cchar* buffer, const u32 capacity);
 
     // map walls
     // row walls are on the min-z edge of tile (row, col), row can be count_rows for the far edge
@@ -136,6 +137,22 @@ namespace ifb {
     map_chunk_destroy(
         const hnd_map map_hnd,
         const u32        chunk_index
+    );
+    IFB_INTERNAL bool
+    map_chunk_set_color(
+        const hnd_map       map_hnd,
+        const u32           chunk_index,
+        const map_color_u32 color
+    );
+    IFB_INTERNAL bool
+    map_chunk_get_info(
+        const hnd_map   map_hnd,
+        const u32       chunk_index,
+        map_chunk_info& info
+    );
+    IFB_INTERNAL u32
+    map_get_chunk_count(
+        const hnd_map map_hnd
     );
 
     //--------------------------------------------------------------------

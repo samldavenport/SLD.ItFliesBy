@@ -325,6 +325,16 @@ namespace ifb {
         u32          atlas_height;
     };
 
+    // one chunk of a map
+    struct map_chunk_info {
+        u32              origin_row;
+        u32              origin_col;
+        u32              count_rows;
+        u32              count_cols;
+        u32              color;   // map_color_e
+        hnd_sprite_atlas h_atlas; // INVALID_HANDLE until a tile or wall in it has a sprite
+    };
+
     // what's on one floor tile of a map
     struct map_tile_info {
         u32              chunk_index; // the chunk the tile is on

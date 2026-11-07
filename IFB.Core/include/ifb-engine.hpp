@@ -257,6 +257,8 @@ namespace ifb {
     IFB_ENGINE_API hnd_map eng_map_create               (const cchar*  name,  const u32 count_rows, const u32 count_cols);
     IFB_ENGINE_API hnd_map eng_map_load                 (const cchar*  asset_name);
     IFB_ENGINE_API hnd_map eng_map_load_as              (const cchar*  asset_name, const cchar* map_name);
+    IFB_ENGINE_API bool    eng_map_save                 (const hnd_map h_map, const cchar* map_name, const cchar* path);
+    IFB_ENGINE_API bool    eng_map_asset_get_name       (const cchar*  asset_name, cchar* name, const u32 name_size);
     IFB_ENGINE_API u32     eng_map_chunk_create         (const hnd_map h_map, const u32 count_rows, const u32 count_cols, const u32 origin_row, const u32 origin_col, const map_color_u32 base_color);
     IFB_ENGINE_API bool    eng_map_get_entity_coords    (const hnd_map h_map, const entity_id id, cmpnt_map_coords& coords);
     IFB_ENGINE_API void    eng_map_destroy              (const hnd_map h_map);
@@ -267,6 +269,10 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_get_dimensions       (const hnd_map h_map, u32& count_rows, u32& count_cols);
     IFB_ENGINE_API bool    eng_map_is_in_bounds         (const cmpnt_map_coords& coords);
     IFB_ENGINE_API bool    eng_map_chunk_get_dimensions (const hnd_map h_map, const u32 chunk_index, u32& count_rows, u32& count_cols, u32& origin_row, u32& origin_col);
+    IFB_ENGINE_API u32     eng_map_get_chunk_count      (const hnd_map h_map);
+    IFB_ENGINE_API bool    eng_map_chunk_get_info       (const hnd_map h_map, const u32 chunk_index, map_chunk_info& info);
+    IFB_ENGINE_API bool    eng_map_chunk_set_color      (const hnd_map h_map, const u32 chunk_index, const map_color_u32 color);
+    IFB_ENGINE_API bool    eng_map_chunk_destroy        (const hnd_map h_map, const u32 chunk_index);
     IFB_ENGINE_API bool    eng_map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
     IFB_ENGINE_API bool    eng_map_set_tile_sprite      (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_ENGINE_API bool    eng_map_clear_tile_sprite    (const hnd_map h_map, const u32 row, const u32 col);

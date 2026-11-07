@@ -15,6 +15,10 @@
 #include <sld-strings.hpp>
 #include "ifb-engine.hpp"
 #include "eng-entity.hpp"
+#include "eng-asset.hpp"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
 
 namespace ifb {
 
@@ -1306,6 +1310,341 @@ namespace ifb {
         arena_revert(h_arena, save);
 
         return(did_parse ? h_map : INVALID_HANDLE);
+    }
+
+    //--------------------------------------------------------------------
+    // WRITING MAP FILES
+    //--------------------------------------------------------------------
+
+    // the color names in a map file, in map_color_e order, see docs/map-format.md
+    static const cchar* MAP_JSON_COLOR_NAMES[] = {
+        "red_light",    "red_dark",
+        "orange_light", "orange_dark",
+        "yellow_light", "yellow_dark",
+        "green_light",  "green_dark",
+        "aqua_light",   "aqua_dark",
+        "blue_light",   "blue_dark",
+        "purple_light", "purple_dark",
+        "gray_light",   "gray_dark",
+        "none",
+    };
+
+    // the most different sprites one chunk can use in a map file
+    static constexpr u32 MAP_JSON_PALETTE_CAPACITY = 256;
+
+    struct map_json_writer {
+        cchar* buffer;
+        u32    capacity;
+        u32    length;
+        bool   is_ok;
+    };
+
+    // appends to the text, and stops writing for good if it doesn't fit
+    inline void
+    map_json_write(
+        map_json_writer& w,
+        const cchar*     format,
+        ...) {
+
+        if (!w.is_ok) return;
+
+        va_list args;
+        va_start(args, format);
+        const s32 count = vsnprintf(w.buffer + w.length, w.capacity - w.length, format, args);
+        va_end(args);
+
+        if (count < 0 || (u32)count >= (w.capacity - w.length)) {
+            w.is_ok = false;
+            return;
+        }
+        w.length += (u32)count;
+    }
+
+    inline const cchar*
+    map_json_color_name(
+        const u32 color) {
+
+        const u32 count = sizeof(MAP_JSON_COLOR_NAMES) / sizeof(MAP_JSON_COLOR_NAMES[0]);
+        return((color < count) ? MAP_JSON_COLOR_NAMES[color] : NULL);
+    }
+
+    // asset names fill all 16 characters, so they're copied somewhere with room for the terminator
+    inline bool
+    map_json_atlas_name(
+        const hnd_sprite_atlas h_atlas,
+        cchar*                 name) {
+
+        name[0] = 0;
+
+        const asset_database* db = asset_mngr_get_database();
+        if (db == NULL || h_atlas == INVALID_HANDLE) return(false);
+
+        // the atlas handle is the atlas's asset handle
+        const asset_name* atlas_name = asset_database_get_name(db, hnd_asset(h_atlas.val));
+        if (atlas_name == NULL) return(false);
+
+        memcpy(name, atlas_name->cstr, config::asset_name_size);
+        name[config::asset_name_size] = 0;
+        return(name[0] != 0);
+    }
+
+    inline bool
+    map_json_sprite_name(
+        const hnd_sprite_atlas h_atlas,
+        const u32              i_sprite,
+        cchar*                 name) {
+
+        name[0] = 0;
+
+        sprite_info info;
+        if (!sprite_mngr_get_sprite_info_by_index(h_atlas, i_sprite, info)) return(false);
+
+        memcpy(name, info.name.cstr, config::asset_name_size);
+        name[config::asset_name_size] = 0;
+        return(name[0] != 0);
+    }
+
+    // one chunk of the chunks array
+    // a chunk's sprites are listed most used first, so a chunk filled with one sprite has it at index 0
+    inline bool
+    map_json_write_chunk(
+        map_json_writer& w,
+        const map_chunk& chunk,
+        const bool       is_last) {
+
+        const cchar* color_name = map_json_color_name(chunk.base_color.val);
+        if (color_name == NULL) return(false);
+
+        // the sprites the chunk's tiles use, and how many tiles use each one
+        u32 palette_sprite [MAP_JSON_PALETTE_CAPACITY];
+        u32 palette_count  [MAP_JSON_PALETTE_CAPACITY];
+        u32 palette_size = 0;
+
+        const u32 tile_count = chunk.count_rows * chunk.count_cols;
+        for (u32 i_tile = 0; i_tile < tile_count; ++i_tile) {
+
+            const map_floor_tile& tile = chunk.floor[i_tile];
+            const bool is_textured = (tile.flags & (u8)map_tile_flag_e_textured) != 0;
+            if (!is_textured || tile.i_sprite == INVALID_INDEX) continue;
+
+            u32 i_palette = 0;
+            while (i_palette < palette_size && palette_sprite[i_palette] != tile.i_sprite) ++i_palette;
+            if (i_palette == palette_size) {
+                if (palette_size == MAP_JSON_PALETTE_CAPACITY) return(false);
+                palette_sprite[palette_size] = tile.i_sprite;
+                palette_count [palette_size] = 0;
+                ++palette_size;
+            }
+            ++palette_count[i_palette];
+        }
+
+        // most used first, ties in atlas order, so saving the same map twice gives the same file
+        for (u32 i = 1; i < palette_size; ++i) {
+            const u32 sprite = palette_sprite[i];
+            const u32 count  = palette_count[i];
+            u32 j = i;
+            while (j > 0 && (palette_count[j - 1] < count || (palette_count[j - 1] == count && palette_sprite[j - 1] > sprite))) {
+                palette_sprite[j] = palette_sprite[j - 1];
+                palette_count [j] = palette_count [j - 1];
+                --j;
+            }
+            palette_sprite[j] = sprite;
+            palette_count [j] = count;
+        }
+
+        map_json_write(w, "        {\n");
+        map_json_write(w, "            \"row\": %u, \"col\": %u, \"rows\": %u, \"cols\": %u,\n",
+            chunk.origin_row, chunk.origin_col, chunk.count_rows, chunk.count_cols);
+
+        // a chunk with no sprites is a solid color
+        if (palette_size == 0) {
+            map_json_write(w, "            \"color\": \"%s\"\n", color_name);
+        }
+        else {
+            cchar atlas_name[config::asset_name_size + 1];
+            if (!map_json_atlas_name(chunk.h_atlas, atlas_name)) return(false);
+
+            map_json_write(w, "            \"color\":   \"%s\",\n", color_name);
+            map_json_write(w, "            \"atlas\":   \"%s\",\n", atlas_name);
+            map_json_write(w, "            \"sprites\": [");
+            for (u32 i_palette = 0; i_palette < palette_size; ++i_palette) {
+                cchar sprite_name[config::asset_name_size + 1];
+                if (!map_json_sprite_name(chunk.h_atlas, palette_sprite[i_palette], sprite_name)) return(false);
+                map_json_write(w, (i_palette == 0) ? "\"%s\"" : ", \"%s\"", sprite_name);
+            }
+            map_json_write(w, "],\n");
+
+            // one line per chunk row, each entry an index into sprites, or -1 for no sprite
+            map_json_write(w, "            \"tiles\": [\n");
+            for (u32 i_row = 0; i_row < chunk.count_rows; ++i_row) {
+                map_json_write(w, "                ");
+                for (u32 i_col = 0; i_col < chunk.count_cols; ++i_col) {
+
+                    const map_floor_tile& tile = chunk.floor[(i_row * chunk.count_cols) + i_col];
+                    const bool is_textured = (tile.flags & (u8)map_tile_flag_e_textured) != 0;
+
+                    s32 entry = -1;
+                    for (u32 i_palette = 0; is_textured && i_palette < palette_size; ++i_palette) {
+                        if (palette_sprite[i_palette] == tile.i_sprite) { entry = (s32)i_palette; break; }
+                    }
+
+                    const bool is_last_tile = (i_row + 1 == chunk.count_rows) && (i_col + 1 == chunk.count_cols);
+                    map_json_write(w, is_last_tile ? "%d" : ((i_col + 1 == chunk.count_cols) ? "%d," : "%d, "), entry);
+                }
+                map_json_write(w, "\n");
+            }
+            map_json_write(w, "            ]\n");
+        }
+
+        map_json_write(w, is_last ? "        }\n" : "        },\n");
+        return(true);
+    }
+
+    // walls are written as runs, straight lines of walls next to each other that look the same
+    // each wall is read from the chunk that owns its edge, which is the one map_wall_set writes to
+    inline bool
+    map_json_write_walls(
+        map_json_writer&      w,
+        const u32             map_index,
+        const map_dimensions& dims) {
+
+        bool is_first_run = true;
+
+        for (u32 i_orientation = 0; i_orientation < 2; ++i_orientation) {
+
+            const map_wall_orientation_e orientation = (i_orientation == 0)
+                ? map_wall_orientation_e_row
+                : map_wall_orientation_e_column;
+            const bool   is_row           = (orientation == map_wall_orientation_e_row);
+            const cchar* orientation_name = is_row ? "row" : "column";
+
+            // row walls run along columns on the lines z = 0 to rows, column walls run along rows on x = 0 to cols
+            const u32 line_count = is_row ? (dims.count_rows + 1) : (dims.count_cols + 1);
+            const u32 step_count = is_row ?  dims.count_cols      :  dims.count_rows;
+
+            for (u32 i_line = 0; i_line < line_count; ++i_line) {
+
+                u32 i_step = 0;
+                while (i_step < step_count) {
+
+                    const s32 row = is_row ? (s32)i_line : (s32)i_step;
+                    const s32 col = is_row ? (s32)i_step : (s32)i_line;
+
+                    map_chunk*           chunk = NULL;
+                    const map_wall_tile* wall  = map_find_wall(map_index, row, col, orientation, &chunk);
+                    if (wall == NULL || (wall->flags & (u8)map_wall_flag_e_placed) == 0) {
+                        ++i_step;
+                        continue;
+                    }
+
+                    // the run goes on while the next wall is placed and looks the same
+                    const hnd_sprite_atlas h_atlas = (wall->i_sprite != INVALID_INDEX) ? chunk->h_atlas : hnd_sprite_atlas(INVALID_HANDLE);
+                    u32 length = 1;
+                    while ((i_step + length) < step_count) {
+
+                        const s32 next_row = is_row ? row : (row + (s32)length);
+                        const s32 next_col = is_row ? (col + (s32)length) : col;
+
+                        map_chunk*           next_chunk = NULL;
+                        const map_wall_tile* next       = map_find_wall(map_index, next_row, next_col, orientation, &next_chunk);
+                        if (next == NULL || (next->flags & (u8)map_wall_flag_e_placed) == 0) break;
+
+                        const hnd_sprite_atlas next_atlas = (next->i_sprite != INVALID_INDEX) ? next_chunk->h_atlas : hnd_sprite_atlas(INVALID_HANDLE);
+                        const bool is_same = (
+                            next->base_color == wall->base_color &&
+                            next->i_sprite   == wall->i_sprite   &&
+                            next_atlas       == h_atlas
+                        );
+                        if (!is_same) break;
+                        ++length;
+                    }
+
+                    const cchar* color_name = map_json_color_name(wall->base_color.val);
+                    if (color_name == NULL) return(false);
+
+                    map_json_write(w, is_first_run ? ",\n\n    \"walls\": [\n" : ",\n");
+                    is_first_run = false;
+
+                    map_json_write(w, "        { \"orientation\": \"%s\", \"row\": %d, \"col\": %d, \"length\": %u, \"color\": \"%s\"",
+                        orientation_name, row, col, length, color_name);
+
+                    if (wall->i_sprite != INVALID_INDEX) {
+                        cchar atlas_name  [config::asset_name_size + 1];
+                        cchar sprite_name [config::asset_name_size + 1];
+                        if (!map_json_atlas_name  (h_atlas, atlas_name))                 return(false);
+                        if (!map_json_sprite_name (h_atlas, wall->i_sprite, sprite_name)) return(false);
+                        map_json_write(w, ", \"atlas\": \"%s\", \"sprite\": \"%s\"", atlas_name, sprite_name);
+                    }
+                    map_json_write(w, " }");
+
+                    i_step += length;
+                }
+            }
+        }
+
+        // close the walls array, or the chunks array if there were no walls
+        map_json_write(w, is_first_run ? "\n" : "\n    ]\n");
+        return(true);
+    }
+
+    // writes a map as a map file, see docs/map-format.md, with map_name as its name
+    // returns the length of the text, or 0 if the map can't be written or doesn't fit in the buffer
+    IFB_INTERNAL u32
+    map_write_json(
+        const hnd_map h_map,
+        const cchar*  map_name,
+        cchar*        buffer,
+        const u32     capacity) {
+
+        assert(map_name != NULL);
+        assert(buffer   != NULL);
+        assert(capacity != 0);
+
+        static constexpr u32 MAP_NAME_LENGTH_MAX = 15; // the name buffer is 16 with the terminator
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) return(0);
+
+        const u32 name_length = cstr_nvar_length(map_name, MAP_NAME_LENGTH_MAX + 1);
+        if (name_length == 0 || name_length > MAP_NAME_LENGTH_MAX) return(0);
+
+        // the name goes in a json string as it is, so it can't have characters that need escaping
+        for (u32 i = 0; i < name_length; ++i) {
+            if (map_name[i] == '"' || map_name[i] == '\\' || (u8)map_name[i] < 0x20) return(0);
+        }
+
+        const map_dimensions& dims   = map_get_dimensions(map_index);
+        const vec3&           origin = _map_mngr->tbl_map->origin[map_index];
+
+        map_json_writer w;
+        w.buffer   = buffer;
+        w.capacity = capacity;
+        w.length   = 0;
+        w.is_ok    = true;
+
+        map_json_write(w, "{\n");
+        map_json_write(w, "    \"version\": 1,\n");
+        map_json_write(w, "    \"name\":    \"%s\",\n", map_name);
+        map_json_write(w, "    \"rows\":    %u,\n", dims.count_rows);
+        map_json_write(w, "    \"cols\":    %u,\n", dims.count_cols);
+
+        // the origin is optional, so it's only written when it isn't the default
+        // 9 significant digits gives back the same f32
+        if (origin.x != 0.0f || origin.y != 0.0f || origin.z != 0.0f) {
+            map_json_write(w, "    \"origin\":  [%.9g, %.9g, %.9g],\n", origin.x, origin.y, origin.z);
+        }
+
+        map_json_write(w, "\n    \"chunks\": [\n");
+        for (u32 i_chunk = 0; i_chunk < dims.count_chunks; ++i_chunk) {
+            const map_chunk& chunk = map_get_chunk(map_index, i_chunk);
+            if (!map_json_write_chunk(w, chunk, (i_chunk + 1) == dims.count_chunks)) return(0);
+        }
+        map_json_write(w, "    ]");
+
+        if (!map_json_write_walls(w, map_index, dims)) return(0);
+        map_json_write(w, "}\n");
+
+        return(w.is_ok ? w.length : 0);
     }
 
     //--------------------------------------------------------------------
