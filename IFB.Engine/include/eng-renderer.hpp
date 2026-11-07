@@ -26,6 +26,7 @@ namespace ifb {
     struct renderer_tile_vertex;
     struct renderer_tile_shader;
     struct renderer_particle_shader;
+    struct renderer_parallax_shader;
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -172,6 +173,11 @@ namespace ifb {
     IFB_INTERNAL renderer_tile_shader* renderer_tile_shader_create (void);
     IFB_INTERNAL void                  renderer_tile_shader_init   (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL void                  renderer_tile_draw          (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const hnd_map map_hnd, const mat4& view_proj_xform);
+
+    // parallax
+    IFB_INTERNAL renderer_parallax_shader* renderer_parallax_shader_create (void);
+    IFB_INTERNAL renderer_parallax_shader* renderer_parallax_shader_init   (renderer_parallax_shader* shdr, gl_context* gl, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL renderer_parallax_shader* renderer_parallax_shader_draw   (renderer_parallax_shader* shdr, gl_context* gl);
 };
 
 #endif //ENG_RENDERER_HPP

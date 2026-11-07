@@ -26,7 +26,10 @@
         { "name": "TILE-RED-1", "path": "images/tile-red-1.png" },
         { "name": "TILE-RED-2", "path": "images/tile-red-2.png" },
         { "name": "TILE-YELLOW-1", "path": "images/tile-yellow-1.png" },
-        { "name": "TILE-YELLOW-2", "path": "images/tile-yellow-2.png" }
+        { "name": "TILE-YELLOW-2", "path": "images/tile-yellow-2.png" },
+        { "name": "PARALLAX-FRONT", "path": "images/parallax-front.png" },
+        { "name": "PARALLAX-MID", "path": "images/parallax-mid.png" },
+        { "name": "PARALLAX-BACK", "path": "images/parallax-back.png" }
     ],
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }
