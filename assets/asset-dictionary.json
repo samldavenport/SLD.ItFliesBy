@@ -10,7 +10,23 @@
         { "name": "CONNOR-RIGHT", "path": "images/connor-right.png" },
         { "name": "JIG-RIGHT", "path": "images/jig-right.png" },
         { "name": "GRASS", "path": "images/grass.png" },
-        { "name": "WOOD", "path": "images/wood.png" }
+        { "name": "WOOD", "path": "images/wood.png" },
+        { "name": "TILE-AQUA-1", "path": "images/tile-aqua-1.png" },
+        { "name": "TILE-AQUA-2", "path": "images/tile-aqua-2.png" },
+        { "name": "TILE-BLUE-1", "path": "images/tile-blue-1.png" },
+        { "name": "TILE-BLUE-2", "path": "images/tile-blue-2.png" },
+        { "name": "TILE-GRAY-1", "path": "images/tile-gray-1.png" },
+        { "name": "TILE-GREEN-1", "path": "images/tile-green-1.png" },
+        { "name": "TILE-GREEN-2", "path": "images/tile-green-2.png" },
+        { "name": "TILE-ORANGE-1", "path": "images/tile-orange-1.png" },
+        { "name": "TILE-ORANGE-2", "path": "images/tile-orange-2.png" },
+        { "name": "TILE-GRAY-2", "path": "images/tile-gray-2.png" },
+        { "name": "TILE-PURPLE-1", "path": "images/tile-purple-1.png" },
+        { "name": "TILE-PURPLE-2", "path": "images/tile-purple-2.png" },
+        { "name": "TILE-RED-1", "path": "images/tile-red-1.png" },
+        { "name": "TILE-RED-2", "path": "images/tile-red-2.png" },
+        { "name": "TILE-YELLOW-1", "path": "images/tile-yellow-1.png" },
+        { "name": "TILE-YELLOW-2", "path": "images/tile-yellow-2.png" }
     ],
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }

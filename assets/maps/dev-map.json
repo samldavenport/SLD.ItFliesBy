@@ -38,14 +38,56 @@
         },
         {
             "row": 10, "col": 5, "rows": 10, "cols": 10,
-            "color": "gray_dark"
+            "color":   "none",
+            "atlas":   "CORE-SPRITES",
+            "sprites": ["TILE-GREEN-2"],
+            "tiles": [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]
+        },
+        {
+            "row": 0, "col": 15, "rows": 20, "cols": 10,
+            "color":   "none",
+            "atlas":   "CORE-SPRITES",
+            "sprites": ["TILE-GRAY-2"],
+            "tiles": [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]
         }
     ],
 
     "walls": [
-        { "orientation": "row",    "row": 0, "col": 0,  "length": 10, "color": "gray_dark"  },
-        { "orientation": "column", "row": 0, "col": 0,  "length": 10, "color": "gray_light" },
-        { "orientation": "column", "row": 0, "col": 10, "length": 7,  "color": "gray_light" },
-        { "orientation": "row",    "row": 5, "col": 10, "length": 5,  "color": "gray_dark"  }
+        { "orientation": "row", "row": 0, "col": 0, "length": 10, "color": "gray_dark" },
+        { "orientation": "row", "row": 5, "col": 10, "length": 5, "color": "gray_dark" },
+        { "orientation": "column", "row": 0, "col": 0, "length": 10, "color": "gray_light" },
+        { "orientation": "column", "row": 0, "col": 10, "length": 7, "color": "gray_light" }
     ]
 }
