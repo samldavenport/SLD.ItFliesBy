@@ -92,7 +92,9 @@ namespace ifb {
             entity_query query;
             query.has_all.val = ARCHETYPE_SPRITE.val;
             const bool has_entities = eng_entity_query(quad_list, query);    
+            // the table still has to be ended, BeginTable pushed an id
             if (!has_entities) {
+                ImGui::EndTable();
                 return;
             }
 

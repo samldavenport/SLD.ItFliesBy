@@ -58,6 +58,10 @@ namespace ifb {
     // controls
     IFB_INTERNAL void  gui_control_vec3       (const char* name, vec3& v);
 
+    // table columns
+    IFB_INTERNAL void  gui_table_column_fixed   (const char* label, const char* widest_value, const f32 extra_width = 0.0f);
+    IFB_INTERNAL void  gui_table_column_stretch (const char* label, const f32 weight = 1.0f);
+
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------

@@ -51,5 +51,30 @@ namespace ifb {
         ImGui::DragFloat(lbl_y.cstr, &v.y, GUI_DRAG_FLOAT_SPEED, GUI_DRAG_FLOAT_MIN, GUI_DRAG_FLOAT_MAX, "%.5f");
         ImGui::DragFloat(lbl_z.cstr, &v.z, GUI_DRAG_FLOAT_SPEED, GUI_DRAG_FLOAT_MIN, GUI_DRAG_FLOAT_MAX, "%.5f");
     }
+
+    // a column as wide as its header or the widest value it shows, whichever is wider, plus extra_width for padding like a button's
+    // without a width, a resizable table sizes a fixed column from what it held the first frame it was drawn,
+    // which can be nothing, and that width is saved in imgui.ini
+    IFB_INTERNAL void
+    gui_table_column_fixed(
+        const char* label,
+        const char* widest_value,
+        const f32   extra_width) {
+
+        const f32 width_label = ImGui::CalcTextSize(label, NULL, true).x;
+        const f32 width_value = ImGui::CalcTextSize(widest_value).x + extra_width;
+        const f32 width       = (width_label > width_value) ? width_label : width_value;
+
+        ImGui::TableSetupColumn(label, ImGuiTableColumnFlags_WidthFixed, width);
+    }
+
+    // a column that shares whatever the fixed columns leave, by weight
+    IFB_INTERNAL void
+    gui_table_column_stretch(
+        const char* label,
+        const f32   weight) {
+
+        ImGui::TableSetupColumn(label, ImGuiTableColumnFlags_WidthStretch, weight);
+    }
 };
 

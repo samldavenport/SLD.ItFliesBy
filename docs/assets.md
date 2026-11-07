@@ -14,10 +14,15 @@ assets/sounds/*.wav ─┘
 
 | Type | `asset_type_e` | Runtime struct | Description |
 | --- | --- | --- | --- |
-| Text | `asset_type_e_text` | `asset_text` | Raw text, such as JSON. Maps are text assets, see [Map Format](map-format.md#loading). |
+| Text | `asset_type_e_text` | `asset_text` | Raw text. |
+| Map | `asset_type_e_map` | `asset_map` | A [map file](map-format.md)'s JSON. The build checks that it's valid JSON. It's only parsed into a map when it's loaded, because that needs its atlases. |
 | Image | `asset_type_e_image` | `asset_image` | RGBA pixels, decoded with stb_image. |
 | Sprite atlas | `asset_type_e_sprite_atlas` | `asset_sprite_atlas` | A packed image plus the name, position, and size of each sprite in it. |
 | Sound | `asset_type_e_sound` | `asset_sound` | 16 bit PCM at 48 kHz, mono or stereo, converted from a `.wav` when the database is built. |
+
+Each kind of JSON the game loads gets its own type, rather than all of it being text. That way a type can be listed, checked when the database is built, and loaded on its own. Maps are stored the same way as text (a size, then the bytes), but in their own group. Other JSON assets, such as levels, should get their own type the same way.
+
+`asset_type_e` values are stored in the database, so a new type goes at the end, before `asset_type_e_count`.
 
 ## Names and Handles
 
@@ -30,6 +35,9 @@ Assets are referred to by name. Names are up to `IFB_CONFIG_ASSET_NAME_SIZE` (16
 ```json
 {
     "text": [],
+    "map": [
+        { "name": "DEV-MAP", "path": "maps/dev-map.json" }
+    ],
     "image": [
         { "name": "GRASS", "path": "images/grass.png" }
     ],
@@ -49,15 +57,21 @@ Edit it in the GUI under **Game > Assets > Asset Dictionary**, or through the AP
 | `eng_asset_dictionary_new` / `_load` / `_save` | Create, load, or save a dictionary |
 | `eng_asset_dictionary_add_file` / `_remove_file` | Add or remove an entry |
 | `eng_asset_dictionary_get_file_count` / `_get_file_info` | List the entries of a type |
-| `eng_asset_dictionary_load_preview` | Load a text, image, or sound preview for the GUI |
+| `eng_asset_dictionary_load_preview` | Load a text, image, or sound preview for the GUI. A map is previewed as its JSON. |
 
 ## Asset Database
 
 `eng_asset_database_build(path_dictionary, path_database)` reads every file in the dictionary and writes them to a single `.ifbdb` file, with an index (`asset_index`: type, offset, size) for each asset. Sounds go in a [sound bank](#sound-bank) next to it instead.
 
+The assets are grouped by type: text, maps, images, then sprite atlases, each in dictionary order. All of one type sit together in the file, so they can be read in one pass.
+
 At startup the engine opens `IFB_CONFIG_ASSET_DATABASE_PATH` (`asset-database.ifbdb`) and its bank (`asset-database.ifbsnd`) from the working directory. CMake copies `assets/*.ifbdb` and `assets/*.ifbsnd` into `build/<preset>/bin`, so **rebuild the database and commit it** after changing the dictionary or any source asset.
 
 The **Game > Assets > Asset Database** window can build, open, and preview a database. `eng_asset_database_copy_to_runtime` replaces the database the running game is using with the open one.
+
+**Open Runtime** opens the database the game is running from, so you can see what the game actually has. The game keeps its own copy open, so it isn't affected.
+- **Opening it by path:** `eng_asset_runtime_get_path` gives the runtime database's absolute path, and the window opens it with that. The file manager finds an open file by the path it was opened with, so opening the database by the relative path the game uses would share the game's file entry.
+- **Copy to Runtime is off for it:** `eng_asset_database_is_runtime` says whether the open database is the runtime one (it compares absolute paths, ignoring case and slash direction). Copying the runtime database onto itself would empty it, so `eng_asset_database_copy_to_runtime` refuses, and the window disables the button.
 
 ## Runtime Memory
 

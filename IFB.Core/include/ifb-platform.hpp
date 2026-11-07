@@ -223,6 +223,7 @@ namespace ifb {
     IFB_PLATFORM_API u32          pfm_file_write         (const pfm_hnd_file file, pfm_file_buffer* buffer);
     IFB_PLATFORM_API u32          pfm_file_async_read    (const pfm_hnd_file file, pfm_file_buffer* buffer);
     IFB_PLATFORM_API u32          pfm_file_async_write   (const pfm_hnd_file file, pfm_file_buffer* buffer);
+    IFB_PLATFORM_API bool         pfm_file_get_full_path (const cchar* path, cchar* path_out, const u32 path_out_size);
 
     //--------------------------------------------------------------------
     // FILE DIALOG 

@@ -272,13 +272,13 @@ namespace ifb {
 
         if (ImGui::BeginTable("tbl-game-audio-voices", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable)) {
 
-            ImGui::TableSetupColumn ("Sound");
-            ImGui::TableSetupColumn ("Source", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("Group",  ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("State",  ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("Position");
-            ImGui::TableSetupColumn ("Volume", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("Gain",   ImGuiTableColumnFlags_WidthFixed);
+            gui_table_column_stretch ("Sound");
+            gui_table_column_fixed   ("Source", "memory");
+            gui_table_column_fixed   ("Group",  "Music");
+            gui_table_column_fixed   ("State",  "stopping");
+            gui_table_column_stretch ("Position");
+            gui_table_column_fixed   ("Volume", "00.00");
+            gui_table_column_fixed   ("Gain",   "00.00");
             ImGui::TableHeadersRow  ();
 
             for (

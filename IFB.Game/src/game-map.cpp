@@ -11,7 +11,7 @@ namespace ifb {
     game_map_init(
         game_map* map) {
 
-        // DEV-MAP is assets/maps/dev-map.json, a text asset in the asset database
+        // DEV-MAP is assets/maps/dev-map.json, a map asset in the asset database
         // it uses CORE-SPRITES, so the atlas has to be loaded first
         map->eng_hnd = eng_map_load("DEV-MAP");
         assert(map->eng_hnd != INVALID_HANDLE);

@@ -27,6 +27,12 @@ namespace ifb {
     // - size (n)            | 4 bytes
     // - text                | n bytes 
     //--------------------------------------------------------------------
+    // MAP FORMAT
+    //--------------------------------------------------------------------
+    // the same as text, the map file's json
+    // - size (n)            | 4 bytes
+    // - json                | n bytes
+    //--------------------------------------------------------------------
     // IMAGE FORMAT
     //--------------------------------------------------------------------
     // - pixel width (w)     | 4 bytes
@@ -48,6 +54,11 @@ namespace ifb {
     // - channel count (c)   | 4 bytes, 1 or 2
     // - frame count (n)     | 4 bytes
     // - samples             | n * c * 2 bytes, interleaved 16 bit pcm
+    //--------------------------------------------------------------------
+    // ORDER
+    //--------------------------------------------------------------------
+    // the assets are grouped by type: text, maps, images, sprite atlases, then sounds in the bank
+    // each group is in dictionary order
     //--------------------------------------------------------------------
     // SOUND BANK FORMAT
     //--------------------------------------------------------------------
@@ -109,6 +120,8 @@ namespace ifb {
     inline bool      asset_database_has_sounds        (const asset_database* db);
     inline u32       asset_database_signature         (const asset_database* db);
     inline void      asset_database_open_bank         (asset_database* db, const cchar* path);
+    inline u32       asset_database_write_sized_files (asset_database* db, const asset_dictionary_file_list& list, const asset_type_e type, u32& index_cur, u32 offset_cur, const hnd_arena h_arena);
+    inline bool      asset_database_sized_size        (const asset_database* db, const hnd_asset h_asset, const asset_type_e type, asset_index& index, u32& size);
 
     //--------------------------------------------------------------------
     // INTERNAL METHOD DECLARATIONS 
@@ -300,35 +313,9 @@ namespace ifb {
         // save our place
         const u32 write_asset_save = arena_save(h_arena);
 
-        // write the text files to the database
-        for (
-            auto node = dict->text_files.first;
-                 node != NULL;
-                 node = node->next) {
-
-            // open the next file, it should always exist
-            const hnd_file h_file = file_ro_open_existing(node->path);
-            assert(h_file != FILE_HANDLE_INVALID);
-
-            // load the file contents 
-            const text* txt = eng_text_file_load_to_arena(h_file, h_arena); 
-            file_close(h_file);
-            assert(txt != NULL);
-     
-            // write the size and text to the file
-            const u32 offset_asset = offset_cur;
-            offset_cur += asset_database_write_at(db->file_handle, offset_cur, sizeof(u32), &txt->size);
-            if (txt->size > 0) {
-                offset_cur += asset_database_write_at(db->file_handle, offset_cur, txt->size, txt->cstr);
-            }
-
-            // update the index
-            asset_database_set_index(db, index_cur, node, asset_type_e_text, offset_asset, offset_cur - offset_asset);
-            ++index_cur;
-
-            // revert the arena
-            arena_revert(h_arena, write_asset_save);
-        }
+        // text and maps are both a size and then the file, maps get their own group after the text
+        offset_cur = asset_database_write_sized_files(db, dict->text_files, asset_type_e_text, index_cur, offset_cur, h_arena);
+        offset_cur = asset_database_write_sized_files(db, dict->map_files,  asset_type_e_map,  index_cur, offset_cur, h_arena);
 
         // write the image files to the database
         for (
@@ -489,6 +476,81 @@ namespace ifb {
         return(&db->array_names[slot]);
     }
     
+    IFB_INTERNAL const asset_map*
+    asset_database_load_map_by_handle_to_arena(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        const hnd_arena       h_arena) {
+
+        assert(db);
+        assert(h_arena != INVALID_HANDLE);
+
+        asset_index index;
+        u32         size = 0;
+        if (!asset_database_sized_size(db, h_asset, asset_type_e_map, index, size)) return(NULL);
+
+        // the json goes right after the struct, with a null terminator
+        const u32 save      = arena_save(h_arena);
+        const u32 size_push = sizeof(asset_map) + size + 1;
+        auto      map       = (asset_map*)arena_push(h_arena, size_push);
+        if (!map) return(NULL);
+        zero_memory((void*)map, size_push);
+
+        map->hnd  = h_asset;
+        map->size = size;
+        map->json = ((cchar*)map) + sizeof(asset_map);
+
+        if (size > 0 && !asset_database_read_at(db->file_handle, index.offset + sizeof(u32), size, map->json)) {
+            arena_revert(h_arena, save);
+            return(NULL);
+        }
+        return(map);
+    }
+
+    IFB_INTERNAL const asset_map*
+    asset_database_load_map_by_name_to_arena(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        const hnd_arena       h_arena) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) return(NULL);
+
+        return(asset_database_load_map_by_handle_to_arena(db, h_asset, h_arena));
+    }
+
+    IFB_INTERNAL const asset_map*
+    asset_database_load_map_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&               mem) {
+
+        assert(db);
+        assert(mem.size    != 0);
+        assert(mem.address != 0);
+
+        asset_index index;
+        u32         size = 0;
+        if (!asset_database_sized_size(db, h_asset, asset_type_e_map, index, size)) return(NULL);
+
+        // make sure the data can fit
+        const u32 size_needed = sizeof(asset_map) + size + 1;
+        if (mem.size < size_needed) return(NULL);
+
+        zero_memory(mem);
+
+        // the json goes right after the struct, with a null terminator
+        auto map  = (asset_map*)mem.ptr;
+        map->hnd  = h_asset;
+        map->size = size;
+        map->json = ((cchar*)map) + sizeof(asset_map);
+
+        if (size > 0 && !asset_database_read_at(db->file_handle, index.offset + sizeof(u32), size, map->json)) return(NULL);
+        return(map);
+    }
+
     IFB_INTERNAL const asset_text*
     asset_database_load_text_by_handle_to_arena(
         const asset_database* db,
@@ -1289,6 +1351,69 @@ namespace ifb {
         const u32 hash_handles = hash_u32((void*)db->array_handles, db->asset_count * sizeof(hnd_asset));
         const u32 hash_indexes = hash_u32((void*)db->array_indexes, db->asset_count * sizeof(asset_index));
         return(hash_handles ^ (hash_indexes + 0x9E3779B9 + (hash_handles << 6) + (hash_handles >> 2)));
+    }
+
+    // writes each file in the list as a size and then its bytes, the way text and maps are stored
+    // returns the offset after the last one, and moves index_cur past their indexes
+    inline u32
+    asset_database_write_sized_files(
+        asset_database*                   db,
+        const asset_dictionary_file_list& list,
+        const asset_type_e                type,
+        u32&                              index_cur,
+        u32                               offset_cur,
+        const hnd_arena                   h_arena) {
+
+        const u32 save = arena_save(h_arena);
+
+        for (
+            auto node = list.first;
+                 node != NULL;
+                 node = node->next) {
+
+            // open the next file, it should always exist
+            const hnd_file h_file = file_ro_open_existing(node->path);
+            assert(h_file != FILE_HANDLE_INVALID);
+
+            // load the file contents
+            const text* txt = eng_text_file_load_to_arena(h_file, h_arena);
+            file_close(h_file);
+            assert(txt != NULL);
+
+            // write the size and the bytes
+            const u32 offset_asset = offset_cur;
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, sizeof(u32), &txt->size);
+            if (txt->size > 0) {
+                offset_cur += asset_database_write_at(db->file_handle, offset_cur, txt->size, txt->cstr);
+            }
+
+            asset_database_set_index(db, index_cur, node, type, offset_asset, offset_cur - offset_asset);
+            ++index_cur;
+
+            arena_revert(h_arena, save);
+        }
+
+        return(offset_cur);
+    }
+
+    // finds a text or map asset and reads its size, which has to agree with the index
+    inline bool
+    asset_database_sized_size(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        const asset_type_e    type,
+        asset_index&          index,
+        u32&                  size) {
+
+        assert(db);
+        assert(db->file_handle != FILE_HANDLE_INVALID);
+
+        if (!asset_database_find(db, h_asset, type, index)) return(false);
+
+        size = 0;
+        bool is_valid = asset_database_read_at(db->file_handle, index.offset, sizeof(u32), &size);
+        is_valid     &= (index.size == (u64)sizeof(u32) + size);
+        return(is_valid);
     }
 
     // the bank stays closed if the database has no sounds, or the bank is missing, damaged, or belongs to another database

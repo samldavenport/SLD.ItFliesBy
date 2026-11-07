@@ -135,12 +135,12 @@ namespace ifb {
         if (ImGui::BeginTable("tbl-sprite-atlas-inspector", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY, ImVec2(0.0f, -height_preview))) {
 
             ImGui::TableSetupScrollFreeze (0, 1);
-            ImGui::TableSetupColumn       ("Name");
-            ImGui::TableSetupColumn       ("Handle", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn       ("X",      ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn       ("Y",      ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn       ("Width",  ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn       ("Height", ImGuiTableColumnFlags_WidthFixed);
+            gui_table_column_stretch      ("Name");
+            gui_table_column_fixed        ("Handle", "DDDDDDDD");
+            gui_table_column_fixed        ("X",      "00000");
+            gui_table_column_fixed        ("Y",      "00000");
+            gui_table_column_fixed        ("Width",  "00000");
+            gui_table_column_fixed        ("Height", "00000");
             ImGui::TableHeadersRow        ();
 
             for (

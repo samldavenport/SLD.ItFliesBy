@@ -181,6 +181,24 @@ namespace ifb {
         return(hnd);
     }
 
+    // loads the map's json into asset memory if it isn't already there
+    // returns INVALID_HANDLE if there's no map by that name, or no room for it
+    IFB_INTERNAL hnd_asset
+    asset_mngr_load_map(
+        const cchar* name) {
+
+        assert(_asset_mngr);
+        assert(name);
+
+        const hnd_asset hnd = asset_database_handle_of(name);
+        if (hnd == INVALID_HANDLE) return(INVALID_HANDLE);
+
+        const addr data = asset_mngr_get_or_load(hnd, asset_type_e_map);
+        if (!data) return(INVALID_HANDLE);
+
+        return(hnd);
+    }
+
     // loads the image into asset memory if it isn't already there
     // returns INVALID_HANDLE if there's no image by that name, or no room for it
     IFB_INTERNAL hnd_asset
@@ -232,6 +250,23 @@ namespace ifb {
         auto txt  = (asset_text*)data;
         txt->cstr = (cchar*)(data + sizeof(asset_text));
         return(txt);
+    }
+
+    // if the map was evicted, it's loaded again
+    // the pointer is only valid until the next asset load or asset_mngr_update, either can move the data
+    IFB_INTERNAL const asset_map*
+    asset_mngr_get_map(
+        const hnd_asset hnd) {
+
+        assert(_asset_mngr);
+
+        const addr data = asset_mngr_get_or_load(hnd, asset_type_e_map);
+        if (!data) return(NULL);
+
+        // the json pointer was set when it was loaded, and the data may have moved since
+        auto map  = (asset_map*)data;
+        map->json = (cchar*)(data + sizeof(asset_map));
+        return(map);
     }
 
     // if the image was evicted, it's loaded again
@@ -448,6 +483,9 @@ namespace ifb {
             case (asset_type_e_sound): {
                 did_load = asset_database_load_sound_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
             } break;
+            case (asset_type_e_map): {
+                did_load = asset_database_load_map_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
+            } break;
             default: break;
         }
 
@@ -474,6 +512,12 @@ namespace ifb {
             case asset_type_e_text: {
                 if (index.size < sizeof(u32)) return(0);
                 size = (u64)sizeof(asset_text) + (index.size - sizeof(u32)) + 1;
+            } break;
+
+            // maps are stored like text
+            case asset_type_e_map: {
+                if (index.size < sizeof(u32)) return(0);
+                size = (u64)sizeof(asset_map) + (index.size - sizeof(u32)) + 1;
             } break;
 
             // images have their dimensions in front of the pixels in the file

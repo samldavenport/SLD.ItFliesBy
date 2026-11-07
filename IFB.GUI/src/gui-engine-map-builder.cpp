@@ -241,7 +241,7 @@ namespace ifb {
         map_builder_new_map_popup();
         ImGui::SameLine();
 
-        // maps are text assets, so any text asset in the runtime database can be picked
+        // only map assets are listed
         const char* preview = (state.asset_name[0] != 0) ? state.asset_name : "Select a map asset";
         ImGui::SetNextItemWidth(220.0f);
         if (ImGui::BeginCombo("##map-asset", preview)) {
@@ -249,7 +249,7 @@ namespace ifb {
             for (u32 i = 0; i < count; ++i) {
                 asset_database_info info;
                 if (!eng_asset_runtime_get_info(i, info))   continue;
-                if (info.type != asset_type_e_text)         continue;
+                if (info.type != asset_type_e_map)          continue;
 
                 const bool is_selected = (strncmp(info.name, state.asset_name, MAP_BUILDER_NAME_SIZE) == 0);
                 if (ImGui::Selectable(info.name, is_selected)) {
@@ -654,7 +654,7 @@ namespace ifb {
         state.is_modified = true;
         if (state.status[0] == 0) {
             snprintf(state.status, sizeof(state.status),
-                "New %u x %u map. Save it to assets/maps, then add it to the asset dictionary as a text asset to load it in the game", rows, cols);
+                "New %u x %u map. Save it to assets/maps, then add it to the asset dictionary as a map asset to load it in the game", rows, cols);
         }
 
         // with no chunk yet, the chunk tool is how to start

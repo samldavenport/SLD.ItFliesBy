@@ -135,7 +135,7 @@ Non-navigable tiles are solid squares. Walls are slabs `MAP_WALL_HALF_THICKNESS`
 **Engine > Tools > Map Builder** (`IFB.GUI/src/gui-engine-map-builder.cpp`) previews and edits a map the way the game draws it, and saves it as a [map file](map-format.md). It can make new maps, add and remove chunks, paint floor tiles, and place walls.
 
 - **New...** makes a new map, see [New Maps](#new-maps).
-- Pick a map asset (any text asset in the runtime database) and press **Load**. The builder loads its own copy as `MAP-BUILDER` with `eng_map_load_as`, so the game's map isn't touched. Once you've painted, the button says **Reload**, and pressing it throws away anything that isn't saved.
+- Pick a map asset (the list shows the runtime database's map assets) and press **Load**. The builder loads its own copy as `MAP-BUILDER` with `eng_map_load_as`, so the game's map isn't touched. Once you've painted, the button says **Reload**, and pressing it throws away anything that isn't saved.
 - The view is the [map view](renderer.md#map-view), with the same tile shader, atlas, and projection as the game.
 - **Frame Map** looks down at the middle of the map's chunks. **Game View** puts the camera at the game camera's angle and distance.
 
@@ -148,7 +148,7 @@ The new map replaces the builder's map. It counts as modified until it's saved, 
 To use a new map in the game:
 
 1. Save it in `assets/maps/`.
-2. Add it to the `text` list in `assets/asset-dictionary.json`, see [Loading](map-format.md#loading).
+2. Add it to the `map` list in `assets/asset-dictionary.json`, see [Loading](map-format.md#loading).
 3. Rebuild the asset database, and load it with `eng_map_load`.
 
 ### Tools
