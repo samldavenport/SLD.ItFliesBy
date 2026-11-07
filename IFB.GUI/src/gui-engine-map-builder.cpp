@@ -178,29 +178,29 @@ namespace ifb {
         // start where the game's camera starts, until a map is framed
         static bool is_initialized = false;
         if (!is_initialized) {
-            is_initialized         = true;
-            state.camera.target    = { 0.0f, 0.2f, 0.1f };
-            state.camera.yaw       = 0.0f;
-            state.camera.pitch     = MAP_BUILDER_GAME_PITCH;
-            state.camera.distance  = MAP_BUILDER_GAME_DISTANCE;
-            state.tool             = map_builder_tool_e_move;
-            state.selected_chunk   = INVALID_INDEX;
-            state.new_chunk_color  = (u32)map_color_e_gray_light;
+            is_initialized          = true;
+            state.camera.target     = { 0.0f, 0.2f, 0.1f };
+            state.camera.yaw        = 0.0f;
+            state.camera.pitch      = MAP_BUILDER_GAME_PITCH;
+            state.camera.distance   = MAP_BUILDER_GAME_DISTANCE;
+            state.tool              = map_builder_tool_e_move;
+            state.selected_chunk    = INVALID_INDEX;
+            state.new_chunk_color   = (u32)map_color_e_gray_light;
             state.is_dragging_chunk = false;
-            state.wall_color       = (u32)map_color_e_gray_dark;
+            state.wall_color        = (u32)map_color_e_gray_dark;
             strncpy_s(state.new_name, "new-map", MAP_BUILDER_MAP_NAME_SIZE - 1);
             state.new_rows             = 25;
             state.new_cols             = 25;
             state.new_has_chunk        = true;
             state.new_chunk_color_fill = (u32)map_color_e_gray_light;
-            state.is_wall_erase    = false;
-            state.is_dragging_wall = false;
-            state.show_grid        = false;
-            state.is_modified      = false;
-            state.status[0]        = 0;
-            state.asset_name[0]    = 0;
-            state.brush.h_atlas    = INVALID_HANDLE;
-            state.brush.i_sprite   = INVALID_INDEX;
+            state.is_wall_erase        = false;
+            state.is_dragging_wall     = false;
+            state.show_grid            = false;
+            state.is_modified          = false;
+            state.status[0]            = 0;
+            state.asset_name[0]        = 0;
+            state.brush.h_atlas        = INVALID_HANDLE;
+            state.brush.i_sprite       = INVALID_INDEX;
             state.brush.atlas_name[0]  = 0;
             state.brush.sprite_name[0] = 0;
         }
