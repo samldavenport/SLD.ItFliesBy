@@ -7,7 +7,6 @@ uniform sampler2DArray u_layers;
 
 // only xy is used, it's a vec4 so the array can be set with glUniform4fv
 uniform vec4 u_uv_offset[PARALLAX_LAYER_COUNT];
-uniform vec2 u_uv_scale;
 
 in  vec2 vert_uv;
 out vec4 frag_color;
@@ -19,9 +18,9 @@ void main() {
     // composite back to front
     for (int i_layer = 0; i_layer < PARALLAX_LAYER_COUNT; ++i_layer) {
 
-        vec2 uv     = vert_uv * u_uv_scale + u_uv_offset[i_layer].xy;
-        vec4 texel  = texture(u_layers, vec3(uv, float(i_layer)));
-        color       = mix(color, texel, texel.a);
+        vec2 uv    = vert_uv + u_uv_offset[i_layer].xy;
+        vec4 texel = texture(u_layers, vec3(uv, float(i_layer)));
+        color      = mix(color, texel, texel.a);
     }
 
     frag_color = color;

@@ -14,12 +14,25 @@ namespace ifb {
     static constexpr u32   PARALLAX_LAYER_COUNT          = 3;
     static constexpr u32   PARALLAX_VERTEX_COUNT         = 6;
     static constexpr u32   PARALLAX_TEXTURE_SLOT         = 1; // the sprite atlas is on slot 0
-    static const     char* PARALLAX_UNIFORM_NAME_LAYERS  = "u_layers";
-    static const     char* PARALLAX_UNIFORM_NAME_OFFSET  = "u_uv_offset";
-    static const     char* PARALLAX_UNIFORM_NAME_SCALE   = "u_uv_scale";
+    static const     char* PARALLAX_UNIFORM_NAME_LAYERS     = "u_layers";
+    static const     char* PARALLAX_UNIFORM_NAME_OFFSET     = "u_uv_offset";
+    static const     char* PARALLAX_UNIFORM_NAME_VIEW_PROJ  = "u_view_proj";
+    static const     char* PARALLAX_UNIFORM_NAME_BACKDROP   = "u_backdrop";
+    static const     char* PARALLAX_UNIFORM_NAME_IMAGE_SIZE = "u_image_size";
+    static const     char* PARALLAX_UNIFORM_NAME_CAMERA_X   = "u_camera_x";
 
-    // how far each layer scrolls in uv per world unit the camera moves, back to front
-    static constexpr f32   PARALLAX_DEFAULT_FACTORS[PARALLAX_LAYER_COUNT] = { 0.05f, 0.15f, 0.35f };
+    // how wide one image is in the world, the height follows the image's aspect ratio
+    static constexpr f32   PARALLAX_IMAGE_WORLD_WIDTH = 1.5f;
+
+    // the backdrop is wider than the view so its edges never show
+    static constexpr f32   PARALLAX_BACKDROP_MARGIN   = 3.0f;
+
+    // how far behind the map's far edge the backdrop stands, in world units
+    static constexpr f32   PARALLAX_BACKDROP_INSET    = 0.05f;
+
+    // how fast each layer scrolls compared to the map, back to front
+    // 0 stays put like it's infinitely far away, 1 moves with the backdrop
+    static constexpr f32   PARALLAX_DEFAULT_FACTORS[PARALLAX_LAYER_COUNT] = { 0.1f, 0.3f, 0.6f };
 
     struct renderer_parallax_shader {
         struct {
@@ -29,7 +42,10 @@ namespace ifb {
             gl_texture texture;       // GL_TEXTURE_2D_ARRAY, layer 0 is the back
             gl_uniform u_layers;
             gl_uniform u_uv_offset;
-            gl_uniform u_uv_scale;
+            gl_uniform u_view_proj;
+            gl_uniform u_backdrop;
+            gl_uniform u_image_size;
+            gl_uniform u_camera_x;
         } gl;
         f32  factors[PARALLAX_LAYER_COUNT];
         u32  texture_width;
@@ -88,11 +104,17 @@ namespace ifb {
         // get the uniform locations
         shdr->gl.u_layers    = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_LAYERS);
         shdr->gl.u_uv_offset = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_OFFSET);
-        shdr->gl.u_uv_scale  = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_SCALE);
+        shdr->gl.u_view_proj  = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_VIEW_PROJ);
+        shdr->gl.u_backdrop   = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_BACKDROP);
+        shdr->gl.u_image_size = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_IMAGE_SIZE);
+        shdr->gl.u_camera_x   = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_CAMERA_X);
         assert(
-            shdr->gl.u_layers    != GL_UNIFORM_INVALID &&
-            shdr->gl.u_uv_offset != GL_UNIFORM_INVALID &&
-            shdr->gl.u_uv_scale  != GL_UNIFORM_INVALID
+            shdr->gl.u_layers     != GL_UNIFORM_INVALID &&
+            shdr->gl.u_uv_offset  != GL_UNIFORM_INVALID &&
+            shdr->gl.u_view_proj  != GL_UNIFORM_INVALID &&
+            shdr->gl.u_backdrop   != GL_UNIFORM_INVALID &&
+            shdr->gl.u_image_size != GL_UNIFORM_INVALID &&
+            shdr->gl.u_camera_x   != GL_UNIFORM_INVALID
         );
 
         // nothing is drawn until the layers are set
@@ -196,38 +218,57 @@ namespace ifb {
     }
 
     // draws behind everything, so it goes before the map
+    // the backdrop stands on the ground at backdrop_z, facing the camera
     IFB_INTERNAL void
     renderer_parallax_shader_draw(
         renderer_parallax_shader* shdr,
         gl_context*               gl,
+        const mat4&               view_proj_xform,
         const vec3&               camera_origin,
-        const f32                 viewport_width,
-        const f32                 viewport_height) {
+        const f32                 fov_y,
+        const f32                 aspect_ratio,
+        const f32                 backdrop_z) {
 
         assert(shdr);
         assert(gl);
 
-        if (!shdr->is_set)                                  return;
-        if (viewport_width <= 0.0f || viewport_height <= 0.0f) return;
+        if (!shdr->is_set)                          return;
+        if (fov_y <= 0.0f || aspect_ratio <= 0.0f)  return;
 
-        // each layer scrolls by its own factor, kept in [0, 1) so the uvs don't lose precision
+        // the backdrop has to be in front of the camera
+        const f32 distance = camera_origin.z - backdrop_z;
+        if (distance <= 0.0f) return;
+
+        // the size of one image in the world, its bottom is on the ground
+        const f32 aspect_texture = (f32)shdr->texture_width / (f32)shdr->texture_height;
+        const f32 image_size[2]  = { PARALLAX_IMAGE_WORLD_WIDTH, PARALLAX_IMAGE_WORLD_WIDTH / aspect_texture };
+
+        // cover everything the camera can see at that distance
+        // the top goes past the view, the layers clamp to their top row up there
+        const f32 tan_half_fov = tanf(fov_y * 0.5f);
+        const f32 half_width   = distance * tan_half_fov * aspect_ratio * PARALLAX_BACKDROP_MARGIN;
+        const f32 top          = camera_origin.y + (distance * tan_half_fov * 2.0f) + image_size[1];
+        const f32 backdrop[4]  = {
+            camera_origin.x - half_width, // x left
+            camera_origin.x + half_width, // x right
+            top,                          // y top
+            backdrop_z                    // z
+        };
+
+        // each layer scrolls by its own fraction of the map's speed
+        // kept in [0, 1) so the uvs don't lose precision
         f32 offsets[PARALLAX_LAYER_COUNT * 4];
         for (
             u32 i_layer = 0;
                 i_layer < PARALLAX_LAYER_COUNT;
               ++i_layer) {
 
-            const f32 u = camera_origin.x * shdr->factors[i_layer];
+            const f32 u = (camera_origin.x * shdr->factors[i_layer]) / image_size[0];
             offsets[(i_layer * 4) + 0] = u - floorf(u);
             offsets[(i_layer * 4) + 1] = 0.0f;
             offsets[(i_layer * 4) + 2] = 0.0f;
             offsets[(i_layer * 4) + 3] = 0.0f;
         }
-
-        // fill the screen vertically and keep the image's aspect ratio
-        const f32 aspect_viewport = viewport_width / viewport_height;
-        const f32 aspect_texture  = (f32)shdr->texture_width / (f32)shdr->texture_height;
-        const f32 scale[2]        = { aspect_viewport / aspect_texture, 1.0f };
 
         gl_context_set_shader_program (gl, shdr->gl.program);
         gl_context_set_vertex_object  (gl, shdr->gl.vertex);
@@ -236,14 +277,16 @@ namespace ifb {
         glActiveTexture (GL_TEXTURE0 + PARALLAX_TEXTURE_SLOT);
         glBindTexture   (GL_TEXTURE_2D_ARRAY, shdr->gl.texture);
 
-        gl_uniform_set_s32x1     (gl, shdr->gl.u_layers,    (s32)PARALLAX_TEXTURE_SLOT);
-        gl_uniform_set_f32_array (gl, shdr->gl.u_uv_offset, offsets, PARALLAX_LAYER_COUNT);
-        gl_uniform_set_f32x2     (gl, shdr->gl.u_uv_scale,  scale);
+        gl_uniform_set_s32x1     (gl, shdr->gl.u_layers,     (s32)PARALLAX_TEXTURE_SLOT);
+        gl_uniform_set_f32_array (gl, shdr->gl.u_uv_offset,  offsets, PARALLAX_LAYER_COUNT);
+        gl_uniform_set_mat4      (gl, shdr->gl.u_view_proj,  view_proj_xform.m);
+        gl_uniform_set_f32x4     (gl, shdr->gl.u_backdrop,   backdrop);
+        gl_uniform_set_f32x2     (gl, shdr->gl.u_image_size, image_size);
+        gl_uniform_set_f32x1     (gl, shdr->gl.u_camera_x,   camera_origin.x);
 
-        // the background stays out of the depth buffer so the map's depth isn't touched
-        glDepthMask              (GL_FALSE);
+        // the backdrop writes depth like any other surface, so the grid past the map stays hidden behind it
+        // the map is in front of it, so the map's depth test still passes
         gl_context_draw_vertices (gl, PARALLAX_VERTEX_COUNT);
-        glDepthMask              (GL_TRUE);
 
         // put the texture state back for the sprite atlas
         glBindTexture   (GL_TEXTURE_2D_ARRAY, GL_ID_INVALID);

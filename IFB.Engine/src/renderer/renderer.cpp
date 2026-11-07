@@ -291,14 +291,21 @@ namespace ifb {
         render_buffers_render_quads   (buffers, lists, _renderer->cam);
 
         // buffers -> shaders
-        // the parallax background goes first so everything draws over it
-        renderer_parallax_shader_draw(
-            _renderer->shader.parallax,
-            gl,
-            renderer_camera_get_origin(_renderer->cam),
-            _renderer->viewport->width,
-            _renderer->viewport->height
-        );
+        // the parallax backdrop stands on the far edge of the map
+        // it goes first so everything draws over it
+        const hnd_map h_map = render_lists_get_map(lists);
+        f32  backdrop_z     = 0.0f;
+        if (renderer_get_parallax_backdrop_z(h_map, backdrop_z)) {
+            renderer_parallax_shader_draw(
+                _renderer->shader.parallax,
+                gl,
+                view_proj_xform,
+                renderer_camera_get_origin(_renderer->cam),
+                _renderer->viewport->fov_y,
+                renderer_viewport_get_aspect_ratio(_renderer->viewport),
+                backdrop_z
+            );
+        }
         //renderer_direction_gizmo_draw (view_proj_xform);
         renderer_tile_draw           (_renderer->shader.tile, gl, buffers, render_lists_get_map(lists), view_proj_xform);
         if (_renderer->is_grid_visible) {
@@ -488,6 +495,29 @@ namespace ifb {
 
         const bool did_set = render_lists_set_map(_renderer->lists, h_map);
         return(did_set);
+    }
+
+    // the far edge of the map, where the parallax backdrop stands
+    // the camera looks down -z, so the far edge is the first row
+    IFB_INTERNAL bool
+    renderer_get_parallax_backdrop_z(
+        const hnd_map h_map,
+        f32&          backdrop_z) {
+
+        if (h_map == INVALID_HANDLE) return(false);
+
+        vec3 map_origin;
+        u32  row_min = 0;
+        u32  col_min = 0;
+        u32  row_max = 0;
+        u32  col_max = 0;
+        if (!map_get_origin           (h_map, map_origin))                         return(false);
+        if (!map_get_navigable_bounds (h_map, row_min, col_min, row_max, col_max)) return(false);
+
+        // it sits a little behind the edge so it doesn't fight the back wall for depth
+        const auto& cfg = config_instance();
+        backdrop_z = map_origin.z + ((f32)row_min * cfg.map_tile_unit_size) - PARALLAX_BACKDROP_INSET;
+        return(true);
     }
 
     // the names are image assets, they all have to be the same size
