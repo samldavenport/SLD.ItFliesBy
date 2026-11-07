@@ -186,6 +186,20 @@ namespace ifb {
             }
         }
 
+        // the database the game is running from, read only, the game keeps using its own copy of it
+        ImGui::SameLine();
+        if (ImGui::Button("Open Runtime")) {
+
+            char path[ASSET_DATABASE_PATH_SIZE];
+            const bool did_get  = eng_asset_runtime_get_path(path, ASSET_DATABASE_PATH_SIZE);
+            const bool did_load = did_get && eng_asset_database_load(path);
+            asset_database_opened(did_load, path);
+
+            state.status = did_load ? "Opened the runtime database"
+                         : did_get  ? eng_asset_database_get_error()
+                                    : "Failed to find the runtime database's path";
+        }
+
         ImGui::SameLine();
         if (ImGui::Button("Close")) {
             eng_asset_database_close();
@@ -195,7 +209,7 @@ namespace ifb {
 
         // the engine reads the runtime database from the working directory, the open one replaces it
         ImGui::SameLine();
-        ImGui::BeginDisabled(state.file_path[0] == 0);
+        ImGui::BeginDisabled(state.file_path[0] == 0 || eng_asset_database_is_runtime());
         if (ImGui::Button("Copy to Runtime")) {
             state.status = eng_asset_database_copy_to_runtime()
                 ? "Copied the database to the runtime database"
@@ -204,9 +218,10 @@ namespace ifb {
         ImGui::EndDisabled();
 
         ImGui::Text(
-            "%s (%u assets)",
+            "%s (%u assets)%s",
             state.file_path[0] != 0 ? state.file_path : "(none)",
-            eng_asset_database_get_count()
+            eng_asset_database_get_count(),
+            eng_asset_database_is_runtime() ? ", the runtime database" : ""
         );
 
         ImGui::Text(
@@ -231,11 +246,11 @@ namespace ifb {
 
         if (ImGui::BeginTable("tbl-asset-database", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable)) {
 
-            ImGui::TableSetupColumn ("Name");
-            ImGui::TableSetupColumn ("Type",   ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("Handle", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("Offset", ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("Size",   ImGuiTableColumnFlags_WidthFixed);
+            gui_table_column_stretch ("Name");
+            gui_table_column_fixed   ("Type",   "Sprite Atlas");
+            gui_table_column_fixed   ("Handle", "DDDDDDDD");
+            gui_table_column_fixed   ("Offset", "0000000000"); // the most digits a u32 has
+            gui_table_column_fixed   ("Size",   "0000000000");
             ImGui::TableHeadersRow  ();
 
             const u32 count = eng_asset_database_get_count();

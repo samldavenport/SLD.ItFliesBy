@@ -1,5 +1,7 @@
 {
     "text": [
+    ],
+    "map": [
         { "name": "DEV-MAP", "path": "maps/dev-map.json" }
     ],
     "image": [

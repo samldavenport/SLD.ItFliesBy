@@ -45,9 +45,11 @@ namespace ifb {
     IFB_INTERNAL bool                      asset_mngr_open_database            (void);
     IFB_INTERNAL bool                      asset_mngr_close_database           (void);
     IFB_INTERNAL hnd_asset                 asset_mngr_load_text                (const cchar* name);
+    IFB_INTERNAL hnd_asset                 asset_mngr_load_map                 (const cchar* name);
     IFB_INTERNAL hnd_asset                 asset_mngr_load_image               (const cchar* name);
     IFB_INTERNAL hnd_asset                 asset_mngr_load_sprite_atlas        (const cchar* name);
     IFB_INTERNAL const asset_text*         asset_mngr_get_text                 (const hnd_asset hnd);
+    IFB_INTERNAL const asset_map*          asset_mngr_get_map                  (const hnd_asset hnd);
     IFB_INTERNAL const asset_image*        asset_mngr_get_image                (const hnd_asset hnd);
     IFB_INTERNAL const asset_sprite_atlas* asset_mngr_get_sprite_atlas         (const hnd_asset hnd);
     IFB_INTERNAL const asset_name*         asset_mngr_get_name                 (const hnd_asset hnd);
@@ -63,6 +65,7 @@ namespace ifb {
     IFB_INTERNAL asset_dictionary*         asset_dictionary_load_from_json        (const cchar*    path,const hnd_arena h_arena);
     IFB_INTERNAL bool                      asset_dictionary_save_to_json          (asset_dictionary* dict, const cchar* path, const hnd_arena h_arena);
     IFB_INTERNAL hnd_asset                 asset_dictionary_add_text_file         (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
+    IFB_INTERNAL hnd_asset                 asset_dictionary_add_map_file          (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
     IFB_INTERNAL hnd_asset                 asset_dictionary_add_image_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena); 
     IFB_INTERNAL hnd_asset                 asset_dictionary_add_sprite_atlas_file (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
     IFB_INTERNAL hnd_asset                 asset_dictionary_add_sound_file        (asset_dictionary* dict, const cchar* name, const cchar* path, const hnd_arena h_arena);
@@ -80,6 +83,9 @@ namespace ifb {
     IFB_INTERNAL const asset_image*        asset_database_load_image_by_name_to_arena           (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
     IFB_INTERNAL const asset_text*         asset_database_load_text_by_handle_to_memory         (const asset_database* db, const hnd_asset h_asset,   memory& mem);
     IFB_INTERNAL const asset_text*         asset_database_load_text_by_name_to_memory           (const asset_database* db, const cchar*    name_cstr, memory& mem);
+    IFB_INTERNAL const asset_map*          asset_database_load_map_by_handle_to_arena           (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
+    IFB_INTERNAL const asset_map*          asset_database_load_map_by_name_to_arena             (const asset_database* db, const cchar*    name_cstr, const hnd_arena h_arena);
+    IFB_INTERNAL const asset_map*          asset_database_load_map_by_handle_to_memory          (const asset_database* db, const hnd_asset h_asset,   memory& mem);
     IFB_INTERNAL const asset_image*        asset_database_load_image_by_handle_to_memory        (const asset_database* db, const hnd_asset h_asset,   memory& mem);
     IFB_INTERNAL const asset_image*        asset_database_load_image_by_name_to_memory          (const asset_database* db, const cchar*    name_cstr, memory& mem);
     IFB_INTERNAL const asset_sprite_atlas* asset_database_load_sprite_atlas_by_handle_to_arena  (const asset_database* db, const hnd_asset h_asset,   const hnd_arena h_arena);
@@ -146,6 +152,7 @@ namespace ifb {
         asset_dictionary_file_list image_files;
         asset_dictionary_file_list sprite_atlas_files;
         asset_dictionary_file_list sound_files;
+        asset_dictionary_file_list map_files;
     };
 
     struct asset_memory_block {

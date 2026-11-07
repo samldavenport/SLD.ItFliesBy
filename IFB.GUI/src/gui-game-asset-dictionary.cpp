@@ -22,14 +22,16 @@ namespace ifb {
         "Text",
         "Image",
         "Sprite Atlas",
-        "Sound"
+        "Sound",
+        "Map"
     };
 
     static const char* _asset_dictionary_list_names[asset_type_e_count] = {
         "Text Files",
         "Image Files",
         "Sprite Atlases",
-        "Sounds"
+        "Sounds",
+        "Maps"
     };
 
     // the platform only reads the first 16 characters of a filter
@@ -37,14 +39,16 @@ namespace ifb {
         "*.*",
         "*.png;*.jpg",
         "*.ifbatlas",
-        "*.wav"
+        "*.wav",
+        "*.json"
     };
 
     static const char* _asset_dictionary_type_filter_descs[asset_type_e_count] = {
         "All Files",
         "Images",
         "Sprite Atlas",
-        "WAV Audio"
+        "WAV Audio",
+        "Map JSON"
     };
 
     //--------------------------------------------------------------------
@@ -338,10 +342,10 @@ namespace ifb {
         ImGui::PushID(type);
         if (ImGui::BeginTable("tbl-asset-dictionary", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable)) {
 
-            ImGui::TableSetupColumn ("Name");
-            ImGui::TableSetupColumn ("ID",   ImGuiTableColumnFlags_WidthFixed);
-            ImGui::TableSetupColumn ("Path");
-            ImGui::TableSetupColumn ("",     ImGuiTableColumnFlags_WidthFixed);
+            gui_table_column_stretch ("Name", 1.0f);
+            gui_table_column_fixed   ("ID",   "DDDDDDDD");
+            gui_table_column_stretch ("Path", 2.0f);
+            gui_table_column_fixed   ("",     "Remove", ImGui::GetStyle().FramePadding.x * 2.0f);
             ImGui::TableHeadersRow  ();
 
             const u32 count = eng_asset_dictionary_get_file_count(type);
@@ -469,7 +473,7 @@ namespace ifb {
             return(false);
         }
 
-        if (preview.type == asset_type_e_text) {
+        if (preview.type == asset_type_e_text || preview.type == asset_type_e_map) {
 
             if (preview.is_text_truncated) {
                 ImGui::TextUnformatted("The file is too big, this is only the start of it");

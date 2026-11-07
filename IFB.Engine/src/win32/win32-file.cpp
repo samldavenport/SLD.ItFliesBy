@@ -80,6 +80,22 @@ namespace ifb {
         return(size.QuadPart);
     }
 
+    // the absolute path of a path relative to the working directory, an absolute path is just normalized
+    // false if it doesn't fit
+    IFB_WIN32_API_FUNC bool
+    pfm_file_get_full_path(
+        const cchar* path,
+        cchar*       path_out,
+        const u32    path_out_size) {
+
+        assert(path);
+        assert(path_out);
+        assert(path_out_size != 0);
+
+        const DWORD length = GetFullPathNameA(path, path_out_size, path_out, NULL);
+        return(length != 0 && length < path_out_size);
+    }
+
     IFB_WIN32_API_FUNC void
     pfm_file_close(
         const pfm_hnd_file file) {

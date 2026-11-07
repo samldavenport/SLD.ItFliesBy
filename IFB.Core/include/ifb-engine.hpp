@@ -135,11 +135,13 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_asset_database_load              (const cchar* path);
     IFB_ENGINE_API void         eng_asset_database_close             (void);
     IFB_ENGINE_API bool         eng_asset_database_copy_to_runtime   (void);
+    IFB_ENGINE_API bool         eng_asset_database_is_runtime        (void);
     IFB_ENGINE_API const cchar* eng_asset_database_get_error         (void);
     IFB_ENGINE_API u32          eng_asset_database_get_count         (void);
     IFB_ENGINE_API bool         eng_asset_database_get_info          (const u32 index, asset_database_info& info);
     IFB_ENGINE_API bool         eng_asset_database_load_preview      (const u32 index, asset_preview& preview);
     IFB_ENGINE_API u32          eng_asset_runtime_get_count          (void);
+    IFB_ENGINE_API bool         eng_asset_runtime_get_path           (cchar* path, const u32 path_size);
     IFB_ENGINE_API bool         eng_asset_runtime_get_info           (const u32 index, asset_database_info& info);
     IFB_ENGINE_API bool         eng_asset_runtime_load_image_preview (const cchar* name, asset_preview& preview);
 

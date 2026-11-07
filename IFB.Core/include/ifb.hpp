@@ -210,7 +210,8 @@ namespace ifb {
         asset_type_e_image         = 1,
         asset_type_e_sprite_atlas  = 2,
         asset_type_e_sound         = 3,
-        asset_type_e_count         = 4
+        asset_type_e_map           = 4,
+        asset_type_e_count         = 5
     };
 
     struct sprite_index;
@@ -252,6 +253,14 @@ namespace ifb {
         hnd_asset hnd;
         u32       size;
         cchar*    cstr;
+    };
+
+    // a map file's json, see docs/map-format.md
+    // it's stored like text, but in its own group so maps can be found and loaded apart from other json
+    struct asset_map {
+        hnd_asset hnd;
+        u32       size;
+        cchar*    json; // null terminated
     };
 
     struct asset_image {

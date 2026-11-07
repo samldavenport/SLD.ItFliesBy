@@ -66,7 +66,7 @@ namespace ifb {
             return(INVALID_HANDLE);
         }
 
-        // the text and the parsed document only live while the map is built, the map copies what it needs
+        // the json and the parsed document only live while the map is built, the map copies what it needs
         const hnd_arena h_arena = arena_alloc();
         if (h_arena == INVALID_HANDLE) {
             return(INVALID_HANDLE);
@@ -74,9 +74,9 @@ namespace ifb {
 
         hnd_map h_map = INVALID_HANDLE;
 
-        const asset_text* txt = asset_database_load_text_by_name_to_arena(db, asset_name, h_arena);
-        if (txt != NULL && txt->size != 0) {
-            h_map = map_parse_from_json(txt->cstr, txt->size, h_arena, map_name);
+        const asset_map* map = asset_database_load_map_by_name_to_arena(db, asset_name, h_arena);
+        if (map != NULL && map->size != 0) {
+            h_map = map_parse_from_json(map->json, map->size, h_arena, map_name);
         }
 
         arena_free(h_arena);
@@ -164,8 +164,8 @@ namespace ifb {
 
         bool did_get = false;
 
-        const asset_text* txt = asset_database_load_text_by_name_to_arena(db, asset_name, h_arena);
-        const json_doc*   doc = (txt != NULL && txt->size != 0) ? json_doc_create(h_arena, txt->size, txt->cstr) : NULL;
+        const asset_map* map = asset_database_load_map_by_name_to_arena(db, asset_name, h_arena);
+        const json_doc*  doc = (map != NULL && map->size != 0) ? json_doc_create(h_arena, map->size, map->json) : NULL;
         if (doc != NULL) {
             const cchar* file_name = NULL;
             if (json_obj_try_get_cstr(json_doc_get_root(doc), "name", file_name)) {

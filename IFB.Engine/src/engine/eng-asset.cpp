@@ -35,7 +35,8 @@ namespace ifb {
     struct eng_asset_database {
         hnd_arena       h_arena;
         asset_database* db;
-        cchar           error[ENG_ASSET_ERROR_SIZE];
+        cchar           path  [ENG_ASSET_PATH_SIZE]; // the open database's absolute path, empty if it's unknown
+        cchar           error [ENG_ASSET_ERROR_SIZE];
     } static _eng_asset_database;
 
     // the dictionary, the database, the runtime database, and the atlas inspector each have a preview, so every window can show one
@@ -75,6 +76,8 @@ namespace ifb {
     IFB_INLINE bool                              eng_asset_preview_load_sprite_atlas (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_preview_load_sound   (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_copy_file            (const hnd_file h_src, const hnd_file h_dst, byte* chunk, const u32 size_chunk);
+    IFB_INLINE void                              eng_asset_database_set_path    (const cchar* path);
+    IFB_INLINE bool                              eng_asset_path_equals_nocase   (const cchar* path_a, const cchar* path_b);
     IFB_INLINE bool                              eng_asset_path_is_separator    (const cchar c);
     IFB_INLINE bool                              eng_asset_path_is_absolute     (const cchar* path);
     IFB_INLINE bool                              eng_asset_path_equals          (const cchar* path_a, const cchar* path_b);
@@ -201,7 +204,8 @@ namespace ifb {
             eng_asset_dictionary_has_id(dict->text_files,         id) ||
             eng_asset_dictionary_has_id(dict->image_files,        id) ||
             eng_asset_dictionary_has_id(dict->sprite_atlas_files, id) ||
-            eng_asset_dictionary_has_id(dict->sound_files,        id)
+            eng_asset_dictionary_has_id(dict->sound_files,        id) ||
+            eng_asset_dictionary_has_id(dict->map_files,          id)
         );
         if (is_in_use) return(INVALID_HANDLE);
 
@@ -216,6 +220,7 @@ namespace ifb {
                 case asset_type_e_image:        hnd = asset_dictionary_add_image_file        (dict, name_upper, path_copy, state.h_arena); break;
                 case asset_type_e_sprite_atlas: hnd = asset_dictionary_add_sprite_atlas_file (dict, name_upper, path_copy, state.h_arena); break;
                 case asset_type_e_sound:        hnd = asset_dictionary_add_sound_file        (dict, name_upper, path_copy, state.h_arena); break;
+                case asset_type_e_map:          hnd = asset_dictionary_add_map_file          (dict, name_upper, path_copy, state.h_arena); break;
                 default: break;
             }
         }
@@ -327,6 +332,7 @@ namespace ifb {
         bool did_load = false;
         switch (preview.type) {
             case asset_type_e_text:         did_load = eng_asset_preview_load_text         (path, preview); break;
+            case asset_type_e_map:          did_load = eng_asset_preview_load_text         (path, preview); break;
             case asset_type_e_image:        did_load = eng_asset_preview_load_image        (path, preview); break;
             case asset_type_e_sprite_atlas: did_load = eng_asset_preview_load_sprite_atlas (path, preview); break;
             case asset_type_e_sound:        did_load = eng_asset_preview_load_sound        (path, preview); break;
@@ -391,6 +397,9 @@ namespace ifb {
                 }
                 is_valid = false;
             }
+            else {
+                eng_asset_database_set_path(path_database);
+            }
         }
 
         arena_free(h_arena_dict);
@@ -422,6 +431,7 @@ namespace ifb {
             return(false);
         }
 
+        eng_asset_database_set_path(path);
         return(true);
     }
 
@@ -434,12 +444,43 @@ namespace ifb {
 
         asset_database_close (state.db);
         arena_free           (state.h_arena);
-        state.db = NULL;
+        state.db      = NULL;
+        state.path[0] = 0;
     }
 
     // copies the open database over the runtime database in the working directory, then reloads the runtime database
     // the runtime database is closed while its file is written, so nothing can be pinned
     // textures already made from the old assets stay the way they were
+    // true if the database being viewed is the file the runtime database was loaded from
+    IFB_ENGINE_API bool
+    eng_asset_database_is_runtime(
+        void) {
+
+        const auto& state = _eng_asset_database;
+        if (!state.db || state.path[0] == 0) return(false);
+
+        cchar path_runtime[ENG_ASSET_PATH_SIZE];
+        if (!eng_asset_runtime_get_path(path_runtime, ENG_ASSET_PATH_SIZE)) return(false);
+
+        return(eng_asset_path_equals_nocase(state.path, path_runtime));
+    }
+
+    // the runtime database's absolute path, the engine loads it from the working directory
+    // open it by this path to view it, so it doesn't share the runtime's file entry, which is found by the path it was opened with
+    IFB_ENGINE_API bool
+    eng_asset_runtime_get_path(
+        cchar*    path,
+        const u32 path_size) {
+
+        assert(path);
+        assert(path_size != 0);
+
+        path[0] = 0;
+        const bool did_get = pfm_file_get_full_path(config_instance().asset_database_path, path, path_size);
+        if (!did_get) path[0] = 0;
+        return(did_get);
+    }
+
     IFB_ENGINE_API bool
     eng_asset_database_copy_to_runtime(
         void) {
@@ -449,6 +490,12 @@ namespace ifb {
 
         if (!state.db) {
             eng_asset_database_set_error("There is no database open to copy");
+            return(false);
+        }
+
+        // copying the runtime database onto itself would empty it, the copy opens the destination for writing first
+        if (eng_asset_database_is_runtime()) {
+            eng_asset_database_set_error("The open database is the runtime database");
             return(false);
         }
 
@@ -594,6 +641,16 @@ namespace ifb {
             return(true);
         }
 
+        // a map is previewed as its json
+        if (preview.type == asset_type_e_map) {
+
+            const asset_map* map = asset_database_load_map_by_handle_to_arena(db, h_asset, h_arena);
+            if (!map) return(false);
+
+            preview.text = map->json;
+            return(true);
+        }
+
         // a sound is previewed as it was converted, so it sounds the way the game will play it
         if (preview.type == asset_type_e_sound) {
 
@@ -696,7 +753,8 @@ namespace ifb {
             &dict->text_files,
             &dict->image_files,
             &dict->sprite_atlas_files,
-            &dict->sound_files
+            &dict->sound_files,
+            &dict->map_files
         };
 
         // the build needs the header in its arena with each file
@@ -842,6 +900,25 @@ namespace ifb {
         else if (size > size_max) {
             eng_asset_database_set_error("%s is %u bytes, files can be up to %u bytes: %s", node->name, size, size_max, path);
             return(false);
+        }
+
+        // a map has to be json, it's only parsed into a map when it's loaded, since that needs its atlases
+        if (type == asset_type_e_map) {
+
+            const u32      save       = arena_save(h_arena);
+            const hnd_file h_file_map = file_ro_open_existing(path);
+            bool           is_json    = (h_file_map != FILE_HANDLE_INVALID);
+            if (is_json) {
+                const cchar* data = file_read(h_file_map, size);
+                is_json = (data != NULL) && (json_doc_create(h_arena, size, data) != NULL);
+                file_close(h_file_map);
+            }
+            arena_revert(h_arena, save);
+
+            if (!is_json) {
+                eng_asset_database_set_error("%s isn't valid json: %s", node->name, path);
+                return(false);
+            }
         }
 
         if (type == asset_type_e_image) {
@@ -1115,7 +1192,8 @@ namespace ifb {
             &state.dict->text_files,
             &state.dict->image_files,
             &state.dict->sprite_atlas_files,
-            &state.dict->sound_files
+            &state.dict->sound_files,
+            &state.dict->map_files
         };
 
         for (
@@ -1211,6 +1289,37 @@ namespace ifb {
         }
 
         return(path_a[index] == path_b[index]);
+    }
+
+    // windows paths don't care about case or which slash is used
+    IFB_INLINE bool
+    eng_asset_path_equals_nocase(
+        const cchar* path_a,
+        const cchar* path_b) {
+
+        u32 index = 0;
+        for (;;) {
+            cchar a = path_a[index];
+            cchar b = path_b[index];
+            if (a >= 'A' && a <= 'Z') a = (cchar)(a - 'A' + 'a');
+            if (b >= 'A' && b <= 'Z') b = (cchar)(b - 'A' + 'a');
+            if (a == '/') a = '\\';
+            if (b == '/') b = '\\';
+            if (a != b)  return(false);
+            if (a == 0)  return(true);
+            ++index;
+        }
+    }
+
+    // keeps the open database's absolute path, so it can be compared with the runtime database's
+    IFB_INLINE void
+    eng_asset_database_set_path(
+        const cchar* path) {
+
+        auto& state = _eng_asset_database;
+        if (!pfm_file_get_full_path(path, state.path, ENG_ASSET_PATH_SIZE)) {
+            state.path[0] = 0;
+        }
     }
 
     // forward slashes, with no empty, current (.) or parent (..) directories
