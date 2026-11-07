@@ -166,6 +166,8 @@ namespace ifb {
     IFB_ENGINE_API bool             eng_sprite_atlas_get_sprite_info      (const hnd_sprite_atlas h_atlas, const u32 i_sprite, sprite_info& info);
     IFB_ENGINE_API image*           eng_sprite_atlas_get_sprite_image     (const hnd_sprite_atlas h_atlas, const u32 i_sprite, const hnd_arena h_arena);
     IFB_ENGINE_API bool             eng_sprite_atlas_set_active           (const hnd_sprite_atlas h_atlas);
+    IFB_ENGINE_API hnd_sprite_atlas eng_sprite_atlas_get_active           (void);
+    IFB_ENGINE_API u32              eng_sprite_atlas_get_texture          (const hnd_sprite_atlas h_atlas);
 
     //--------------------------------------------------------------------
     // CAMERA
@@ -253,7 +255,11 @@ namespace ifb {
     //--------------------------------------------------------------------
    
     IFB_ENGINE_API hnd_map eng_map_create               (const cchar*  name,  const u32 count_rows, const u32 count_cols);
+    IFB_ENGINE_API bool    eng_map_is_size_valid        (const u32 count_rows, const u32 count_cols);
     IFB_ENGINE_API hnd_map eng_map_load                 (const cchar*  asset_name);
+    IFB_ENGINE_API hnd_map eng_map_load_as              (const cchar*  asset_name, const cchar* map_name);
+    IFB_ENGINE_API bool    eng_map_save                 (const hnd_map h_map, const cchar* map_name, const cchar* path);
+    IFB_ENGINE_API bool    eng_map_asset_get_name       (const cchar*  asset_name, cchar* name, const u32 name_size);
     IFB_ENGINE_API u32     eng_map_chunk_create         (const hnd_map h_map, const u32 count_rows, const u32 count_cols, const u32 origin_row, const u32 origin_col, const map_color_u32 base_color);
     IFB_ENGINE_API bool    eng_map_get_entity_coords    (const hnd_map h_map, const entity_id id, cmpnt_map_coords& coords);
     IFB_ENGINE_API void    eng_map_destroy              (const hnd_map h_map);
@@ -264,13 +270,28 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_get_dimensions       (const hnd_map h_map, u32& count_rows, u32& count_cols);
     IFB_ENGINE_API bool    eng_map_is_in_bounds         (const cmpnt_map_coords& coords);
     IFB_ENGINE_API bool    eng_map_chunk_get_dimensions (const hnd_map h_map, const u32 chunk_index, u32& count_rows, u32& count_cols, u32& origin_row, u32& origin_col);
+    IFB_ENGINE_API u32     eng_map_get_chunk_count      (const hnd_map h_map);
+    IFB_ENGINE_API bool    eng_map_chunk_get_info       (const hnd_map h_map, const u32 chunk_index, map_chunk_info& info);
+    IFB_ENGINE_API bool    eng_map_chunk_set_color      (const hnd_map h_map, const u32 chunk_index, const map_color_u32 color);
+    IFB_ENGINE_API bool    eng_map_chunk_destroy        (const hnd_map h_map, const u32 chunk_index);
     IFB_ENGINE_API bool    eng_map_get_navigable_bounds (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
     IFB_ENGINE_API bool    eng_map_set_tile_sprite      (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API bool    eng_map_clear_tile_sprite    (const hnd_map h_map, const u32 row, const u32 col);
+    IFB_ENGINE_API bool    eng_map_get_tile_info        (const hnd_map h_map, const u32 row, const u32 col, map_tile_info& info);
     IFB_ENGINE_API bool    eng_map_chunk_set_sprite     (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_ENGINE_API bool    eng_map_wall_set             (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const map_color_u32 color);
     IFB_ENGINE_API bool    eng_map_wall_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_ENGINE_API bool    eng_map_wall_clear           (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
     IFB_ENGINE_API bool    eng_map_wall_is_placed       (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
+    IFB_ENGINE_API bool    eng_map_wall_get_info        (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, map_wall_info& info);
+
+    // map view, an offscreen render of one map with its own camera, for tools
+    IFB_ENGINE_API void    eng_map_view_request         (const hnd_map h_map, const u32 width, const u32 height);
+    IFB_ENGINE_API u32     eng_map_view_get_texture     (void);
+    IFB_ENGINE_API void    eng_map_view_get_camera      (vec3& origin, vec3& target);
+    IFB_ENGINE_API void    eng_map_view_set_camera      (const vec3& origin, const vec3& target);
+    IFB_ENGINE_API void    eng_map_view_get_xform       (mat4& xform);
+    IFB_ENGINE_API void    eng_map_view_set_grid_visible(const bool is_visible);
 
     //--------------------------------------------------------------------
     // PARTICLES 

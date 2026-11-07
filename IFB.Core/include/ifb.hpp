@@ -325,6 +325,34 @@ namespace ifb {
         u32          atlas_height;
     };
 
+    // one chunk of a map
+    struct map_chunk_info {
+        u32              origin_row;
+        u32              origin_col;
+        u32              count_rows;
+        u32              count_cols;
+        u32              color;   // map_color_e
+        hnd_sprite_atlas h_atlas; // INVALID_HANDLE until a tile or wall in it has a sprite
+    };
+
+    // what's on one tile edge of a map, see eng_map_wall_get_info
+    struct map_wall_info {
+        u32              chunk_index; // the chunk that owns the edge
+        hnd_sprite_atlas h_atlas;     // the owning chunk's atlas, the wall's sprite comes from it
+        u32              i_sprite;    // INVALID_INDEX for a solid color wall
+        u32              color;       // map_color_e
+        bool             is_placed;
+    };
+
+    // what's on one floor tile of a map
+    struct map_tile_info {
+        u32              chunk_index; // the chunk the tile is on
+        hnd_sprite_atlas h_atlas;     // the chunk's atlas, INVALID_HANDLE until it has a sprite
+        u32              i_sprite;    // the sprite's index in the atlas, INVALID_INDEX for a solid color tile
+        u32              color;       // map_color_e
+        bool             is_textured;
+    };
+
     struct sprite_atlas_info {
         u32 width;
         u32 height;

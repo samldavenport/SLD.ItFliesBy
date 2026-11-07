@@ -52,16 +52,34 @@ eng_map_render(h_map);
 
 Maps can also be described in a JSON file and loaded from the asset database with `eng_map_load("DEV-MAP")`, which is how the game gets its map (`IFB.Game/src/game-map.cpp`). See [Map Format](map-format.md).
 
+### Map Size
+
+The renderer packs a tile's index into 16 bits, and walls are indexed on a grid one bigger than the tiles, so **(rows + 1) × (cols + 1) has to be 65535 or less**. 254 × 254 is the biggest square map. `eng_map_create` returns `INVALID_HANDLE` for a bigger map, and `eng_map_is_size_valid(rows, cols)` checks a size without making a map.
+
+That's the size of the grid. How much of it can have floor is limited by `IFB_CONFIG_MAP_TILE_CAPACITY` (4096 tiles across all of a map's chunks).
+
+### Loading a Map Twice
+
+A map's handle is the hash of its name, so two maps can't have the same name. `eng_map_load_as(asset_name, map_name)` loads a map asset under a different name, which is how the map builder gets its own copy of a map the game has loaded. `eng_map_destroy` frees a map's slot so it can be used again.
+
 ## Chunks
 
 `eng_map_chunk_create(h_map, count_rows, count_cols, origin_row, origin_col, base_color)` adds a chunk and returns its index, or `INVALID_INDEX` if it doesn't fit.
 
 - The chunk has to fit inside the map, and its tiles and walls have to fit in the map's tile and wall arrays.
 - Every tile in a new chunk is **navigable**. Tiles that aren't covered by a chunk aren't navigable.
-- Overlapping chunks aren't checked yet, so don't create chunks that overlap.
+- Chunks can't overlap. A chunk that would overlap another one isn't created.
 - Each chunk can only use sprites from **one sprite atlas**. Setting a tile or wall sprite from a different atlas than the chunk already uses fails. `eng_map_chunk_set_sprite` sets every tile in the chunk and replaces the chunk's atlas.
 
 `eng_map_get_navigable_bounds` returns the smallest tile area that contains every chunk.
+
+| Function | Description |
+| --- | --- |
+| `eng_map_get_chunk_count` / `eng_map_chunk_get_info` | List the chunks: each one's rectangle, color, and atlas |
+| `eng_map_chunk_set_color` | Change a chunk's color. Its tiles without a sprite show the color, and its tiles with one are tinted by it. |
+| `eng_map_chunk_destroy` | Remove a chunk with its tiles and walls. The chunks after it move down one index. A wall on an edge it shares with another chunk moves to that chunk instead of going with it. |
+
+Chunks are packed one after another in the map's floor and wall arrays, so removing one slides the tiles and walls of the chunks after it down to fill the gap.
 
 ## Floor Tiles
 
@@ -111,6 +129,91 @@ Non-navigable tiles are solid squares. Walls are slabs `MAP_WALL_HALF_THICKNESS`
 ## Rendering
 
 `eng_map_render` sets the map the renderer draws. The map is packed into a buffer of `map_tile` values (`map_render_buffer`), floor tiles first and walls after. The tile shaders (`assets/shaders/tile-vert.glsl`, `tile-frag.glsl`) build a quad for each tile and stand walls up on their edges. Textured tiles sample the chunk's sprite atlas, and the rest use the color table.
+
+## Map Builder
+
+**Engine > Tools > Map Builder** (`IFB.GUI/src/gui-engine-map-builder.cpp`) previews and edits a map the way the game draws it, and saves it as a [map file](map-format.md). It can make new maps, add and remove chunks, paint floor tiles, and place walls.
+
+- **New...** makes a new map, see [New Maps](#new-maps).
+- Pick a map asset (any text asset in the runtime database) and press **Load**. The builder loads its own copy as `MAP-BUILDER` with `eng_map_load_as`, so the game's map isn't touched. Once you've painted, the button says **Reload**, and pressing it throws away anything that isn't saved.
+- The view is the [map view](renderer.md#map-view), with the same tile shader, atlas, and projection as the game.
+- **Frame Map** looks down at the middle of the map's chunks. **Game View** puts the camera at the game camera's angle and distance.
+
+### New Maps
+
+**New...** opens a dialog for the new map's name, rows, and columns, and a choice of starting with **one chunk over the whole map** in a color you pick. The map has to fit the [map size](#map-size) limit, and the starting chunk is only offered when the whole map fits in a chunk (4096 tiles), so a bigger map starts empty. If the current map has unsaved changes, the dialog says they'll be thrown away.
+
+The new map replaces the builder's map. It counts as modified until it's saved, and since it isn't in a file yet, the first **Save** asks where to put it. A map with no chunks starts on the Chunk tool.
+
+To use a new map in the game:
+
+1. Save it in `assets/maps/`.
+2. Add it to the `text` list in `assets/asset-dictionary.json`, see [Loading](map-format.md#loading).
+3. Rebuild the asset database, and load it with `eng_map_load`.
+
+### Tools
+
+| Tool | Left mouse |
+| --- | --- |
+| **Move** | Drag to pan |
+| **Brush** | Click or drag to paint tiles |
+| **Chunk** | Drag to add a chunk, click to select one |
+| **Wall** | Drag along tile edges to place a straight run of walls, **Ctrl** + drag to erase them |
+
+With either tool, **middle drag** pans, **right drag** orbits around the point the camera looks at, and the **mouse wheel** zooms. Panning keeps the spot you grabbed under the mouse.
+
+### Painting Tiles
+
+The palette on the left shows the sprites in an atlas, picked from the atlases in the runtime database. It starts on the active atlas, which is the only one the map draws with. Click a sprite to paint with it, or **No sprite** to clear tiles back to their chunk's color, like `-1` in a [map file](map-format.md). Picking from the palette switches to the Brush tool.
+
+The brush paints with the same calls as the map loader, so the view shows exactly what the game would:
+
+- Only tiles on a chunk can be painted. The tile under the mouse is outlined in yellow on a chunk and red off one, and the line above the view shows its row, column, chunk, and sprite.
+- A chunk's sprites all come from one atlas, so painting a sprite from a different atlas onto a chunk fails, and the builder says why.
+- A cleared tile on a chunk whose color is `none` draws black.
+
+| Function | Description |
+| --- | --- |
+| `eng_map_get_tile_info` | A floor tile's chunk, atlas, sprite, and color, or `false` if no chunk covers it |
+| `eng_map_clear_tile_sprite` | Take a tile's sprite off, so it shows its chunk's color |
+
+### Editing Chunks
+
+With the **Chunk** tool, every chunk is outlined, and the selected one is outlined in cyan.
+
+- **Drag** across the floor to add a chunk over those tiles. The outline is green where it fits and red where it would overlap another chunk, and a chunk can't be added over one. It's added in the **New chunk color** from the panel, and selected.
+- **Click** a chunk to select it, or click off every chunk to clear the selection.
+- The panel shows the selected chunk's size and position. **Color** changes its color, **Fill** paints every tile in it with the brush (a sprite, or **No sprite** to clear them), and **Delete chunk** or the **Delete** key removes it with its tiles and walls.
+- Picking a sprite in the palette keeps the Chunk tool, so you can pick what to fill with.
+
+A chunk's color tints its sprites, so a sprite on a `gray_light` chunk is lighter than on a chunk whose color is `none`.
+
+### Editing Walls
+
+With the **Wall** tool, the tile edge closest to the mouse is drawn as a wall standing on it: yellow where a wall can go, red where it can't because no chunk has that edge. The line above the view shows the edge, its chunk, and the wall on it.
+
+- **Drag** from an edge to place a straight run of walls. The run stays on the first edge's line, so it's always straight: a row edge runs along columns, and a column edge runs along rows. While you drag, the run is green, and edges that aren't on a chunk are gray. The walls go on when you let go.
+- **Ctrl** + drag, or **Erase** in the panel, erases walls instead, and the run is red.
+- Walls are the panel's **Wall color**. When the brush has a sprite, they get that sprite too, and **No sprite** gives solid color walls. A wall's sprite comes from its chunk's atlas, so a sprite from another atlas doesn't go on, and the builder says how many didn't.
+
+| Function | Description |
+| --- | --- |
+| `eng_map_wall_get_info` | What's on a tile edge: the chunk that owns it, and whether a wall is placed with its color and sprite. `false` if no chunk has the edge. |
+
+### Saving
+
+The name box next to **Load** is the map's name, the `name` in the file, which is what `eng_map_load` names the map. It starts as the name in the loaded file, and it can be up to 15 characters.
+
+- **Save** asks where to save the first time, then saves there until another map is loaded. Hover it to see where it saves.
+- **Save As...** always asks. `.json` is added if the path doesn't end in it.
+- To change a map the game uses, save over its file in `assets/maps/`, like `assets/maps/dev-map.json`. The game reads maps from the [asset database](assets.md#asset-database), so **rebuild the database** to see the change in the game.
+
+Saving writes the map with `eng_map_save(h_map, map_name, path)`, see [Writing Map Files](map-format.md#writing-map-files).
+
+| Function | Description |
+| --- | --- |
+| `eng_map_save` | Write a map as a map file, replacing the file if it's there |
+| `eng_map_asset_get_name` | The name inside a map asset, without loading the map |
 
 ## Configuration
 

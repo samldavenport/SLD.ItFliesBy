@@ -16,6 +16,7 @@
 #include "gui-engine-audio-test.cpp"
 #include "gui-engine-wav-player.cpp"
 #include "gui-engine-hash-calculator.cpp"
+#include "gui-engine-map-builder.cpp"
 #include "gui-game-audio.cpp"
 
 static bool _gui_is_open;
@@ -67,6 +68,7 @@ namespace ifb {
         static bool eng_audio_test         = false;
         static bool eng_wav_player         = false;
         static bool eng_hash_calculator    = false;
+        static bool eng_map_builder        = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -86,6 +88,7 @@ namespace ifb {
 
                 if (ImGui::BeginMenu(_gui_str->menu_engine_menu_tools)) {
                     ImGui::MenuItem (_gui_str->menu_engine_menu_tools_item_hash_calculator, NULL, &eng_hash_calculator);
+                    ImGui::MenuItem (_gui_str->menu_engine_menu_tools_item_map_builder,     NULL, &eng_map_builder);
                     ImGui::EndMenu();
                 }
 
@@ -136,6 +139,7 @@ namespace ifb {
         gui_engine_audio_test             (eng_audio_test);
         gui_engine_wav_player             (eng_wav_player);
         gui_engine_hash_calculator        (eng_hash_calculator);
+        gui_engine_map_builder            (eng_map_builder);
         gui_renderer_camera               (rndr_camera);
         gui_entity_manager                (entity_manager);
         gui_quad_manager                  (quad_manager);

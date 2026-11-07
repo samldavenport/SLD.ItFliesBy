@@ -24,7 +24,8 @@ These go into the renderer's **draw lists** (`renderer-draw-lists.cpp`). Entitie
 | 3 | Grid | Draw the debug grid, if it's visible. |
 | 4 | Quads | Draw entity quads, then particles, with the quad shader. |
 | 5 | Particle view | Draw the offscreen [particle view](particles.md#particle-view), if it was requested this frame. |
-| 6 | Reset | Clear the draw lists for the next frame. |
+| 6 | Map view | Draw the offscreen [map view](#map-view), if it was requested this frame. |
+| 7 | Reset | Clear the draw lists for the next frame. |
 
 After that, the engine calls the GUI render callback, so ImGui draws on top of everything, and presents the frame.
 
@@ -56,7 +57,7 @@ The map is drawn with `assets/shaders/tile-vert.glsl` and `tile-frag.glsl`. Each
 
 Sprite atlases are uploaded to the GPU as textures when they're loaded (`eng_sprite_atlas_load`) and released when they're unloaded. The renderer has `IFB_CONFIG_SPRITE_TABLE_CAPACITY` (4) atlas texture slots, the same as the number of atlases the sprite manager can have loaded.
 
-Only **one atlas is active** at a time, and the tile and quad shaders both draw from it:
+Only **one atlas is active** at a time, and the tile and quad shaders both draw from it. `eng_sprite_atlas_get_active` returns it, and `eng_sprite_atlas_get_texture` returns an atlas's OpenGL texture, for showing its sprites in the GUI:
 
 ```cpp
 hnd_sprite_atlas h_atlas = eng_sprite_atlas_load("CORE-SPRITES");
@@ -76,7 +77,11 @@ The camera is a look-at camera defined by an origin and a target:
 | `eng_camera_get_fov` / `_set_fov` | Vertical field of view |
 | `eng_camera_get_xform` | The view matrix |
 
-The projection is a perspective projection with a 30° vertical field of view, a near plane of `0.01`, and a far plane of `100`, using the window's aspect ratio. The game moves the camera to follow the player (`game_player_rig_update_camera`), and **Renderer > Camera** in the GUI lets you edit it directly.
+The projection is a perspective projection with a 30° vertical field of view, a near plane of `0.01`, and a far plane of `100`, using the window's aspect ratio (see [Projection](#projection) for a quirk in it). The game moves the camera to follow the player (`game_player_rig_update_camera`), and **Renderer > Camera** in the GUI lets you edit it directly.
+
+### Projection
+
+`renderer_viewport_get_xform` starts from `mat4_identity()` and doesn't zero `r3c3`, so a point's `w` is its depth in front of the camera **plus one**. Everything is drawn as if it were one unit farther away than it is, which makes nearby things noticeably smaller than a 30° field of view would. The game's camera distances are tuned with this in place, so fixing it would change how the game looks. Anything that maps between the screen and the world has to use the actual matrix, not the field of view.
 
 ## Shaders
 
@@ -89,12 +94,29 @@ Shaders are loaded from the working directory at startup. CMake copies `assets/s
 | Grid | `grid-vert.glsl`, `grid-frag.glsl` | The debug grid |
 | Direction gizmo | `direction-gizmo-shader-vert.glsl`, `direction-gizmo-shader-frag.glsl` | An axis gizmo. It's set up at startup, but its draw call is currently commented out. |
 
+## Map View
+
+The map view (`renderer-map-view.cpp`) is an offscreen render of one map, with its own camera, for tools like the [map builder](maps.md#map-builder). It works like the particle view: a framebuffer with a color texture and a depth buffer, drawn only on frames it's requested, and shown in the GUI with `ImGui::Image`.
+
+It draws with the same tile shader, active atlas, and projection as the game, so a map looks the way it does in the game. It packs its map into the same tile buffer the game's map uses, so it draws after the game's map, which is packed again next frame.
+
+| Function | Description |
+| --- | --- |
+| `eng_map_view_request(h_map, width, height)` | Draw the map into the view at the end of this frame, resizing the texture if needed |
+| `eng_map_view_get_texture` | The view's OpenGL texture. It's drawn upside down, so show it with the UVs flipped, `(0, 1)` to `(1, 0)`. |
+| `eng_map_view_get_camera` / `_set_camera` | The view camera's origin and target |
+| `eng_map_view_get_xform` | The view projection for the size the view was last drawn at, for projecting world points into the view |
+| `eng_map_view_set_grid_visible` | Draw the debug grid in the view |
+
+To find what's under a point in the view, invert the view projection itself rather than building a ray from the camera's field of view, because the projection isn't a textbook one (see [Projection](#projection)). For a point on a horizontal plane, "it lands on this point of the view" is two linear equations in x and z, so it can be solved directly. The map builder does this in `map_builder_screen_to_floor`. (`mat4_invert` in SLD.Math isn't implemented yet.)
+
 ## Other Features
 
 | Function | Description |
 | --- | --- |
 | `eng_renderer_is_grid_visible` / `_set_grid_visible` | Toggle the debug grid |
 | `eng_particle_view_request` | Draw the offscreen particle view this frame (see [Particles](particles.md#particle-view)) |
+| `eng_map_view_request` | Draw the offscreen map view this frame (see [Map View](#map-view)) |
 
 The renderer also has `RENDERER_ASSET_PREVIEW_COUNT` (4) textures, one for each GUI window that previews assets.
 

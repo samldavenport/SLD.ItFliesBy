@@ -36,6 +36,8 @@ u32 i_sprite = eng_sprite_atlas_lookup_sprite_index(h_atlas, "GRASS");
 | `eng_sprite_atlas_load` | Load an atlas from the asset database and upload it to the GPU. Loading an atlas that's already loaded returns its handle. Returns `INVALID_HANDLE` if the atlas isn't in the database or there's no room. |
 | `eng_sprite_atlas_unload` | Release the atlas's memory and GPU texture |
 | `eng_sprite_atlas_set_active` | Set the atlas the renderer draws from. See [Renderer](renderer.md#sprite-atlases). |
+| `eng_sprite_atlas_get_active` | The atlas the renderer draws from, or `INVALID_HANDLE` |
+| `eng_sprite_atlas_get_texture` | An atlas's OpenGL texture, for `ImGui::Image`. The top row is `v = 0`, so a sprite's UVs are its pixel rect divided by the atlas size. |
 | `eng_sprite_atlas_get_info` | Atlas width, height, and sprite count |
 | `eng_sprite_atlas_lookup_sprite_index` | Find a sprite's index by name |
 | `eng_sprite_atlas_get_sprite_info` | A sprite's name, handle, and pixel rectangle in the atlas |

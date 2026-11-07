@@ -384,6 +384,23 @@ namespace ifb {
         return(did_set);
     }
 
+    // the atlas the map and entity sprites are drawn from, INVALID_HANDLE if none is active
+    IFB_ENGINE_API hnd_sprite_atlas
+    eng_sprite_atlas_get_active(
+        void) {
+
+        return(renderer_get_active_sprite_atlas());
+    }
+
+    // the atlas's opengl texture, for showing its sprites with ImGui::Image, 0 if it isn't loaded
+    // the top row is v = 0, so a sprite's uvs are (x, y) / size to (x + width, y + height) / size
+    IFB_ENGINE_API u32
+    eng_sprite_atlas_get_texture(
+        const hnd_sprite_atlas h_atlas) {
+
+        return(renderer_get_sprite_atlas_texture(h_atlas));
+    }
+
     //--------------------------------------------------------------------
     // INLINE METHOD DEFINITIONS
     //--------------------------------------------------------------------

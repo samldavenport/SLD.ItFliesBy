@@ -95,9 +95,12 @@ namespace ifb {
     IFB_INTERNAL bool                     map_constrain_movement    (const hnd_map h_map, const f32 inset, cmpnt_position& pos, cmpnt_velocity& vel);
     IFB_INTERNAL entity_list*             map_get_entities          (const hnd_map h_map, const hnd_arena h_arena);
     IFB_INTERNAL entity_list*             map_get_entities_in_chunk (const hnd_map h_map, const u32 chunk_index, const hnd_arena h_arena);
-    IFB_INTERNAL bool                     map_tile_set_sprite       (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                      
+    IFB_INTERNAL bool                     map_tile_set_sprite       (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_INTERNAL bool                     map_tile_clear_sprite     (const hnd_map h_map, const u32 row, const u32 col);
+    IFB_INTERNAL bool                     map_tile_get_info         (const hnd_map h_map, const u32 row, const u32 col, map_tile_info& info);                      
     IFB_INTERNAL bool                     map_chunk_set_sprite      (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
-    IFB_INTERNAL hnd_map                  map_parse_from_json       (const cchar* json_data, const u32 json_length, const hnd_arena h_arena);
+    IFB_INTERNAL hnd_map                  map_parse_from_json       (const cchar* json_data, const u32 json_length, const hnd_arena h_arena, const cchar* name_override);
+    IFB_INTERNAL u32                      map_write_json            (const hnd_map h_map, const cchar* map_name, cchar* buffer, const u32 capacity);
 
     // map walls
     // row walls are on the min-z edge of tile (row, col), row can be count_rows for the far edge
@@ -106,6 +109,7 @@ namespace ifb {
     IFB_INTERNAL bool                     map_wall_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_INTERNAL bool                     map_wall_clear           (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
     IFB_INTERNAL bool                     map_wall_is_placed       (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
+    IFB_INTERNAL bool                     map_wall_get_info        (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, map_wall_info& info);
 
     // map entities
     IFB_INTERNAL void                     map_entity_lookup_coords (const entity& e, cmpnt_map_coords& coords);
@@ -134,6 +138,22 @@ namespace ifb {
     map_chunk_destroy(
         const hnd_map map_hnd,
         const u32        chunk_index
+    );
+    IFB_INTERNAL bool
+    map_chunk_set_color(
+        const hnd_map       map_hnd,
+        const u32           chunk_index,
+        const map_color_u32 color
+    );
+    IFB_INTERNAL bool
+    map_chunk_get_info(
+        const hnd_map   map_hnd,
+        const u32       chunk_index,
+        map_chunk_info& info
+    );
+    IFB_INTERNAL u32
+    map_get_chunk_count(
+        const hnd_map map_hnd
     );
 
     //--------------------------------------------------------------------
@@ -237,6 +257,18 @@ namespace ifb {
         map_wall_array*  row_wall_array;
         vec3*            origin;
     };
+
+    // a map can be any size whose tiles and walls fit the renderer's 16 bit tile index,
+    // walls are indexed on a grid one bigger than the tiles, so that's the grid that has to fit
+    inline bool
+    map_is_size_valid(
+        const u32 count_rows,
+        const u32 count_cols) {
+
+        if (count_rows == 0 || count_cols == 0) return(false);
+        const u64 wall_grid = ((u64)count_rows + 1) * ((u64)count_cols + 1);
+        return(wall_grid <= 0xFFFF);
+    }
 
     // these two are exact inverses and don't check the map bounds,
     // use map_calculate_is_in_bounds for that

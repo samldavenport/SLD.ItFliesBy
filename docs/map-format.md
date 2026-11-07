@@ -47,7 +47,7 @@ This is version **1** of the format. It only covers what the engine supports tod
 | `version` | integer | yes | The format version. Always `1` for now. |
 | `name` | string | yes | The map's name, passed to `eng_map_create`. It has to fit the engine's 16 character name buffer. |
 | `rows` | integer | yes | Number of tile rows (the z axis). |
-| `cols` | integer | yes | Number of tile columns (the x axis). |
+| `cols` | integer | yes | Number of tile columns (the x axis). (rows + 1) × (cols + 1) has to be 65535 or less, see [Map Size](maps.md#map-size). |
 | `origin` | `[x, y, z]` | no | Where the map sits in the world, passed to `eng_map_set_origin`. Defaults to `[0, 0, 0]`. |
 | `chunks` | array | yes | The map's chunks. See [Chunks](#chunks). |
 | `walls` | array | no | The map's walls. See [Walls](#walls). |
@@ -132,13 +132,25 @@ Loading fails if there's no text asset by that name, the file doesn't match this
 
 The rules the API enforces apply to the file too:
 
-- Chunks have to fit inside the map, and mustn't overlap. Overlaps aren't checked yet.
+- Chunks have to fit inside the map, and can't overlap. A file with overlapping chunks doesn't load.
 - The map's total tiles and walls have to fit the capacities in `ifb-config.hpp` (`IFB_CONFIG_MAP_TILE_CAPACITY`, `IFB_CONFIG_MAP_WALL_CAPACITY`, `IFB_CONFIG_MAP_CHUNK_CAPACITY`).
 - Every wall has to be on the edge of a chunk tile.
 - The atlases a map uses have to be loaded before it is.
 - The name has to be 1 to 15 characters, and `version` has to be `1`.
 - Optional fields that are there have to have the right type. A `length` of `"2"` or an `origin` with two values fails instead of being ignored.
 - An unknown color or orientation name fails.
+
+## Writing Map Files
+
+`eng_map_save` writes a map back out in this format (`map_write_json` in `IFB.Engine/src/map/map.cpp`). Loading a file it wrote gives the same map, and saving that map again gives the same file. The map builder uses it to save.
+
+- A chunk's `sprites` are listed most used first, with ties in atlas order. A chunk filled with one sprite has it at index 0, so its `tiles` are mostly `0`.
+- A chunk with no sprites on its tiles is written as a solid color, without `atlas`, `sprites`, or `tiles`, even if it had sprites before.
+- Walls are written as runs: row walls first, a line at a time from row 0, then column walls from column 0. A run goes on while the walls are next to each other and have the same color and sprite. `length` is always written.
+- `origin` is only written when it isn't `[0, 0, 0]`.
+- The map's name has to be 1 to 15 characters, without `"` or `\`.
+
+Hand-written files can be laid out however you like. They're written in this layout the next time they're saved.
 
 ## Not in Version 1
 
