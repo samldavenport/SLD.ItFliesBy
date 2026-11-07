@@ -258,6 +258,18 @@ namespace ifb {
         vec3*            origin;
     };
 
+    // a map can be any size whose tiles and walls fit the renderer's 16 bit tile index,
+    // walls are indexed on a grid one bigger than the tiles, so that's the grid that has to fit
+    inline bool
+    map_is_size_valid(
+        const u32 count_rows,
+        const u32 count_cols) {
+
+        if (count_rows == 0 || count_cols == 0) return(false);
+        const u64 wall_grid = ((u64)count_rows + 1) * ((u64)count_cols + 1);
+        return(wall_grid <= 0xFFFF);
+    }
+
     // these two are exact inverses and don't check the map bounds,
     // use map_calculate_is_in_bounds for that
     inline void

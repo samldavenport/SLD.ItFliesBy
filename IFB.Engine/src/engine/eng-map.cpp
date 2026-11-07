@@ -33,6 +33,15 @@ namespace ifb {
         return(hnd);
     }
 
+    // whether eng_map_create can make a map this size
+    IFB_ENGINE_API bool
+    eng_map_is_size_valid(
+        const u32 count_rows,
+        const u32 count_cols) {
+
+        return(map_is_size_valid(count_rows, count_cols));
+    }
+
     // builds a map from a text asset in the runtime database, see docs/map-format.md
     // the atlases the map uses have to be loaded first
     IFB_ENGINE_API hnd_map

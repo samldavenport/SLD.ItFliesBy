@@ -106,6 +106,11 @@ namespace ifb {
         s32                drag_col;
         s32                drag_end_row;      // the last tile it was dragged over
         s32                drag_end_col;
+        char               new_name [MAP_BUILDER_MAP_NAME_SIZE]; // the New Map dialog
+        s32                new_rows;
+        s32                new_cols;
+        bool               new_has_chunk;     // start with one chunk covering the map
+        u32                new_chunk_color_fill;
         u32                wall_color;        // map_color_e for walls the wall tool places
         bool               is_wall_erase;     // the wall tool erases instead of placing
         bool               is_dragging_wall;
@@ -149,6 +154,8 @@ namespace ifb {
     IFB_INLINE void map_builder_draw_edge        (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size, const map_builder_edge& edge, const ImU32 fill, const ImU32 outline);
     IFB_INLINE void map_builder_draw_walls       (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size);
     IFB_INLINE void map_builder_wall_text        (void);
+    IFB_INLINE void map_builder_new_map_popup    (void);
+    IFB_INLINE bool map_builder_new_map          (void);
     IFB_INLINE void map_builder_draw_hover       (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size);
     IFB_INLINE void map_builder_hover_text       (void);
     IFB_INLINE bool map_builder_get_map_origin   (vec3& origin);
@@ -181,6 +188,11 @@ namespace ifb {
             state.new_chunk_color  = (u32)map_color_e_gray_light;
             state.is_dragging_chunk = false;
             state.wall_color       = (u32)map_color_e_gray_dark;
+            strncpy_s(state.new_name, "new-map", MAP_BUILDER_MAP_NAME_SIZE - 1);
+            state.new_rows             = 25;
+            state.new_cols             = 25;
+            state.new_has_chunk        = true;
+            state.new_chunk_color_fill = (u32)map_color_e_gray_light;
             state.is_wall_erase    = false;
             state.is_dragging_wall = false;
             state.show_grid        = false;
@@ -222,6 +234,13 @@ namespace ifb {
 
         auto& state = _map_builder;
 
+        // a new map starts empty, or with one chunk covering it
+        if (ImGui::Button("New...")) {
+            ImGui::OpenPopup("New Map");
+        }
+        map_builder_new_map_popup();
+        ImGui::SameLine();
+
         // maps are text assets, so any text asset in the runtime database can be picked
         const char* preview = (state.asset_name[0] != 0) ? state.asset_name : "Select a map asset";
         ImGui::SetNextItemWidth(220.0f);
@@ -243,7 +262,7 @@ namespace ifb {
         // loading again throws away anything painted since the last load
         ImGui::SameLine();
         ImGui::BeginDisabled(state.asset_name[0] == 0);
-        if (ImGui::Button(state.is_modified ? "Reload" : "Load")) {
+        if (ImGui::Button((state.is_modified && state.asset_name[0] != 0) ? "Reload" : "Load")) {
             map_builder_load(state.asset_name);
         }
         if (state.is_modified && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
@@ -309,7 +328,8 @@ namespace ifb {
             ImGui::TextDisabled("No map loaded");
         }
         else {
-            ImGui::Text("%s  %u x %u", state.asset_name, state.rows, state.cols);
+            if (state.asset_name[0] != 0) ImGui::Text("%s  %u x %u", state.asset_name, state.rows, state.cols);
+            else                          ImGui::Text("New map  %u x %u", state.rows, state.cols);
             if (state.is_modified) {
                 ImGui::SameLine();
                 ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "Modified, not saved");
@@ -523,6 +543,127 @@ namespace ifb {
         }
         (void)eng_map_get_dimensions(state.h_map, state.rows, state.cols);
         map_builder_frame_map();
+    }
+
+    // the New Map dialog, opened by the New button
+    IFB_INLINE void
+    map_builder_new_map_popup(
+        void) {
+
+        auto& state = _map_builder;
+
+        ImGui::SetNextWindowSize(ImVec2(340.0f, 0.0f), ImGuiCond_Appearing);
+        if (!ImGui::BeginPopupModal("New Map", NULL, ImGuiWindowFlags_AlwaysAutoResize)) return;
+
+        ImGui::TextUnformatted("Name");
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        ImGui::InputText("##new-name", state.new_name, MAP_BUILDER_MAP_NAME_SIZE);
+
+        ImGui::TextUnformatted("Rows and columns");
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        s32 size[2] = { state.new_rows, state.new_cols };
+        if (ImGui::InputInt2("##new-size", size)) {
+            state.new_rows = (size[0] < 1) ? 1 : size[0];
+            state.new_cols = (size[1] < 1) ? 1 : size[1];
+        }
+
+        // one chunk can hold as many tiles as the map's floor
+        const u32  rows          = (u32)state.new_rows;
+        const u32  cols          = (u32)state.new_cols;
+        const bool is_size_valid = eng_map_is_size_valid(rows, cols);
+        const bool can_fit_chunk = is_size_valid && ((u64)rows * (u64)cols) <= (u64)config::map_tile_capacity;
+
+        ImGui::BeginDisabled(!can_fit_chunk);
+        bool has_chunk = state.new_has_chunk && can_fit_chunk;
+        if (ImGui::Checkbox("Start with one chunk over the whole map", &has_chunk)) {
+            state.new_has_chunk = has_chunk;
+        }
+        if (has_chunk) {
+            ImGui::TextUnformatted("Chunk color");
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            map_builder_color_combo("##new-chunk-fill", state.new_chunk_color_fill);
+        }
+        ImGui::EndDisabled();
+
+        // why it can't be made yet
+        const bool has_name = (state.new_name[0] != 0);
+        if (!has_name) {
+            ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "The map needs a name");
+        }
+        if (!is_size_valid) {
+            ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), "Too big: (rows + 1) x (cols + 1) has to be 65535 or less");
+        }
+        else if (!can_fit_chunk) {
+            ImGui::TextDisabled("A chunk can have up to %u tiles, so this map starts empty", config::map_tile_capacity);
+        }
+        if (state.is_modified) {
+            ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.3f, 1.0f), "This throws away the changes to the current map");
+        }
+
+        ImGui::Separator();
+        ImGui::BeginDisabled(!has_name || !is_size_valid);
+        if (ImGui::Button("Create", ImVec2(120.0f, 0.0f))) {
+            if (map_builder_new_map()) ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120.0f, 0.0f))) {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
+    // replaces the builder's map with a new one, from the New Map dialog's settings
+    // it isn't in a file yet, so the first save asks where to put it
+    IFB_INLINE bool
+    map_builder_new_map(
+        void) {
+
+        auto& state = _map_builder;
+
+        const u32 rows = (u32)state.new_rows;
+        const u32 cols = (u32)state.new_cols;
+        if (state.new_name[0] == 0 || !eng_map_is_size_valid(rows, cols)) return(false);
+
+        map_builder_unload();
+        state.status[0] = 0;
+
+        state.h_map = eng_map_create(MAP_BUILDER_MAP_NAME, rows, cols);
+        if (state.h_map == INVALID_HANDLE) {
+            snprintf(state.status, sizeof(state.status), "Couldn't make a %u x %u map, there may be no room for another map", rows, cols);
+            return(false);
+        }
+
+        state.rows          = rows;
+        state.cols          = cols;
+        state.asset_name[0] = 0;
+        state.save_path[0]  = 0;
+        strncpy_s(state.map_name, state.new_name, MAP_BUILDER_MAP_NAME_SIZE - 1);
+
+        // the chunk only fits if the whole map fits in the floor
+        const bool can_fit_chunk = ((u64)rows * (u64)cols) <= (u64)config::map_tile_capacity;
+        if (state.new_has_chunk && can_fit_chunk) {
+            const u32 i_chunk = eng_map_chunk_create(state.h_map, rows, cols, 0, 0, map_color_u32(state.new_chunk_color_fill));
+            if (i_chunk == INVALID_INDEX) {
+                snprintf(state.status, sizeof(state.status), "Made the map, but couldn't add a chunk over it");
+            }
+        }
+
+        // a new map isn't saved anywhere, so it counts as changed until it is
+        state.is_modified = true;
+        if (state.status[0] == 0) {
+            snprintf(state.status, sizeof(state.status),
+                "New %u x %u map. Save it to assets/maps, then add it to the asset dictionary as a text asset to load it in the game", rows, cols);
+        }
+
+        // with no chunk yet, the chunk tool is how to start
+        if (eng_map_get_chunk_count(state.h_map) == 0) {
+            state.tool = map_builder_tool_e_chunk;
+        }
+
+        map_builder_frame_map();
+        return(true);
     }
 
     // writes the map to its file, a map file like the one it was loaded from, see docs/map-format.md

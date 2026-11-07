@@ -255,6 +255,7 @@ namespace ifb {
     //--------------------------------------------------------------------
    
     IFB_ENGINE_API hnd_map eng_map_create               (const cchar*  name,  const u32 count_rows, const u32 count_cols);
+    IFB_ENGINE_API bool    eng_map_is_size_valid        (const u32 count_rows, const u32 count_cols);
     IFB_ENGINE_API hnd_map eng_map_load                 (const cchar*  asset_name);
     IFB_ENGINE_API hnd_map eng_map_load_as              (const cchar*  asset_name, const cchar* map_name);
     IFB_ENGINE_API bool    eng_map_save                 (const hnd_map h_map, const cchar* map_name, const cchar* path);

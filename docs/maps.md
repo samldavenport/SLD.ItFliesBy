@@ -52,6 +52,12 @@ eng_map_render(h_map);
 
 Maps can also be described in a JSON file and loaded from the asset database with `eng_map_load("DEV-MAP")`, which is how the game gets its map (`IFB.Game/src/game-map.cpp`). See [Map Format](map-format.md).
 
+### Map Size
+
+The renderer packs a tile's index into 16 bits, and walls are indexed on a grid one bigger than the tiles, so **(rows + 1) × (cols + 1) has to be 65535 or less**. 254 × 254 is the biggest square map. `eng_map_create` returns `INVALID_HANDLE` for a bigger map, and `eng_map_is_size_valid(rows, cols)` checks a size without making a map.
+
+That's the size of the grid. How much of it can have floor is limited by `IFB_CONFIG_MAP_TILE_CAPACITY` (4096 tiles across all of a map's chunks).
+
 ### Loading a Map Twice
 
 A map's handle is the hash of its name, so two maps can't have the same name. `eng_map_load_as(asset_name, map_name)` loads a map asset under a different name, which is how the map builder gets its own copy of a map the game has loaded. `eng_map_destroy` frees a map's slot so it can be used again.
@@ -126,11 +132,24 @@ Non-navigable tiles are solid squares. Walls are slabs `MAP_WALL_HALF_THICKNESS`
 
 ## Map Builder
 
-**Engine > Tools > Map Builder** (`IFB.GUI/src/gui-engine-map-builder.cpp`) previews and edits a map the way the game draws it, and saves it as a [map file](map-format.md). So far it can paint floor tiles.
+**Engine > Tools > Map Builder** (`IFB.GUI/src/gui-engine-map-builder.cpp`) previews and edits a map the way the game draws it, and saves it as a [map file](map-format.md). It can make new maps, add and remove chunks, paint floor tiles, and place walls.
 
+- **New...** makes a new map, see [New Maps](#new-maps).
 - Pick a map asset (any text asset in the runtime database) and press **Load**. The builder loads its own copy as `MAP-BUILDER` with `eng_map_load_as`, so the game's map isn't touched. Once you've painted, the button says **Reload**, and pressing it throws away anything that isn't saved.
 - The view is the [map view](renderer.md#map-view), with the same tile shader, atlas, and projection as the game.
 - **Frame Map** looks down at the middle of the map's chunks. **Game View** puts the camera at the game camera's angle and distance.
+
+### New Maps
+
+**New...** opens a dialog for the new map's name, rows, and columns, and a choice of starting with **one chunk over the whole map** in a color you pick. The map has to fit the [map size](#map-size) limit, and the starting chunk is only offered when the whole map fits in a chunk (4096 tiles), so a bigger map starts empty. If the current map has unsaved changes, the dialog says they'll be thrown away.
+
+The new map replaces the builder's map. It counts as modified until it's saved, and since it isn't in a file yet, the first **Save** asks where to put it. A map with no chunks starts on the Chunk tool.
+
+To use a new map in the game:
+
+1. Save it in `assets/maps/`.
+2. Add it to the `text` list in `assets/asset-dictionary.json`, see [Loading](map-format.md#loading).
+3. Rebuild the asset database, and load it with `eng_map_load`.
 
 ### Tools
 

@@ -47,7 +47,7 @@ This is version **1** of the format. It only covers what the engine supports tod
 | `version` | integer | yes | The format version. Always `1` for now. |
 | `name` | string | yes | The map's name, passed to `eng_map_create`. It has to fit the engine's 16 character name buffer. |
 | `rows` | integer | yes | Number of tile rows (the z axis). |
-| `cols` | integer | yes | Number of tile columns (the x axis). |
+| `cols` | integer | yes | Number of tile columns (the x axis). (rows + 1) × (cols + 1) has to be 65535 or less, see [Map Size](maps.md#map-size). |
 | `origin` | `[x, y, z]` | no | Where the map sits in the world, passed to `eng_map_set_origin`. Defaults to `[0, 0, 0]`. |
 | `chunks` | array | yes | The map's chunks. See [Chunks](#chunks). |
 | `walls` | array | no | The map's walls. See [Walls](#walls). |

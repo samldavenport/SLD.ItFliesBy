@@ -41,6 +41,11 @@ namespace ifb {
         assert(count_rows != 0);
         assert(count_cols != 0);
 
+        // the renderer indexes tiles and walls in 16 bits, on a grid one bigger than the tiles
+        if (!map_is_size_valid(count_rows, count_cols)) {
+            return(INVALID_HANDLE);
+        }
+
         // find an open index
         u32 index = INVALID_INDEX;
         for (
