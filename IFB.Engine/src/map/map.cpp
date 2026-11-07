@@ -956,6 +956,36 @@ namespace ifb {
         const bool is_placed = map_has_wall(map_index, (s32)row, (s32)col, orientation);
         return(is_placed);
     }
+
+    // the wall on an edge, read from the chunk that owns the edge, which is the one map_wall_set writes to
+    // false if no chunk has the edge
+    IFB_INTERNAL bool
+    map_wall_get_info(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation,
+        map_wall_info&               info) {
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        map_chunk*           chunk = NULL;
+        const map_wall_tile* wall  = map_find_wall(map_index, (s32)row, (s32)col, orientation, &chunk);
+        if (wall == NULL || chunk == NULL) {
+            return(false);
+        }
+
+        const map_chunk& chunk_first = map_get_chunk(map_index, 0);
+        info.chunk_index = (u32)(chunk - &chunk_first);
+        info.h_atlas     = chunk->h_atlas;
+        info.i_sprite    = wall->i_sprite;
+        info.color       = wall->base_color.val;
+        info.is_placed   = (wall->flags & (u8)map_wall_flag_e_placed) != 0;
+        return(true);
+    }
    
     // false if the string isn't one of the color names
     inline bool

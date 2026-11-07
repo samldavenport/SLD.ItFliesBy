@@ -139,6 +139,7 @@ Non-navigable tiles are solid squares. Walls are slabs `MAP_WALL_HALF_THICKNESS`
 | **Move** | Drag to pan |
 | **Brush** | Click or drag to paint tiles |
 | **Chunk** | Drag to add a chunk, click to select one |
+| **Wall** | Drag along tile edges to place a straight run of walls, **Ctrl** + drag to erase them |
 
 With either tool, **middle drag** pans, **right drag** orbits around the point the camera looks at, and the **mouse wheel** zooms. Panning keeps the spot you grabbed under the mouse.
 
@@ -167,6 +168,18 @@ With the **Chunk** tool, every chunk is outlined, and the selected one is outlin
 - Picking a sprite in the palette keeps the Chunk tool, so you can pick what to fill with.
 
 A chunk's color tints its sprites, so a sprite on a `gray_light` chunk is lighter than on a chunk whose color is `none`.
+
+### Editing Walls
+
+With the **Wall** tool, the tile edge closest to the mouse is drawn as a wall standing on it: yellow where a wall can go, red where it can't because no chunk has that edge. The line above the view shows the edge, its chunk, and the wall on it.
+
+- **Drag** from an edge to place a straight run of walls. The run stays on the first edge's line, so it's always straight: a row edge runs along columns, and a column edge runs along rows. While you drag, the run is green, and edges that aren't on a chunk are gray. The walls go on when you let go.
+- **Ctrl** + drag, or **Erase** in the panel, erases walls instead, and the run is red.
+- Walls are the panel's **Wall color**. When the brush has a sprite, they get that sprite too, and **No sprite** gives solid color walls. A wall's sprite comes from its chunk's atlas, so a sprite from another atlas doesn't go on, and the builder says how many didn't.
+
+| Function | Description |
+| --- | --- |
+| `eng_map_wall_get_info` | What's on a tile edge: the chunk that owns it, and whether a wall is placed with its color and sprite. `false` if no chunk has the edge. |
 
 ### Saving
 

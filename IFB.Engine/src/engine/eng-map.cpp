@@ -526,4 +526,19 @@ namespace ifb {
         const bool is_placed = map_wall_is_placed(h_map, row, col, orientation);
         return(is_placed);
     }
+
+    // what's on a tile edge, false if no chunk has the edge, so no wall can go there
+    IFB_ENGINE_API bool
+    eng_map_wall_get_info(
+        const hnd_map                h_map,
+        const u32                    row,
+        const u32                    col,
+        const map_wall_orientation_e orientation,
+        map_wall_info&               info) {
+
+        assert(h_map != INVALID_HANDLE);
+
+        const bool did_get = map_wall_get_info(h_map, row, col, orientation, info);
+        return(did_get);
+    }
 };

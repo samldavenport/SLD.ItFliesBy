@@ -49,6 +49,7 @@ namespace ifb {
         map_builder_tool_e_move  = 0, // left drag pans
         map_builder_tool_e_brush = 1, // left click and drag paints tiles
         map_builder_tool_e_chunk = 2, // left drag adds a chunk, left click selects one
+        map_builder_tool_e_wall  = 3, // left drag places a straight run of walls, ctrl erases them
     };
 
     // an orbit camera around a target, turned into an origin and target for the map view
@@ -64,7 +65,16 @@ namespace ifb {
         bool          is_on_chunk; // and over a chunk tile, which can be painted
         s32           row;
         s32           col;
+        f32           floor_row;   // where the mouse is on the floor, in tiles, for finding the nearest edge
+        f32           floor_col;
         map_tile_info tile;
+    };
+
+    // a tile edge, which is where walls go
+    struct map_builder_edge {
+        map_wall_orientation_e orientation;
+        s32                    row;
+        s32                    col;
     };
 
     // the brush paints one sprite from the palette's atlas, or clears the sprite
@@ -96,6 +106,12 @@ namespace ifb {
         s32                drag_col;
         s32                drag_end_row;      // the last tile it was dragged over
         s32                drag_end_col;
+        u32                wall_color;        // map_color_e for walls the wall tool places
+        bool               is_wall_erase;     // the wall tool erases instead of placing
+        bool               is_dragging_wall;
+        bool               is_drag_erasing;   // this drag erases, from the erase mode or ctrl
+        map_builder_edge   wall_start;        // the edge the wall drag started on, it sets the line
+        s32                wall_end_step;     // how far along the line the drag is, a column for row walls, a row for column walls
     } static _map_builder;
 
 
@@ -125,6 +141,14 @@ namespace ifb {
     IFB_INLINE void map_builder_chunk_tool       (const bool is_active);
     IFB_INLINE void map_builder_draw_floor_rect  (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size, const u32 row_min, const u32 col_min, const u32 row_max, const u32 col_max, const ImU32 fill, const ImU32 outline, const f32 thickness);
     IFB_INLINE void map_builder_draw_chunks      (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size);
+    IFB_INLINE void map_builder_wall_panel       (void);
+    IFB_INLINE bool map_builder_hovered_edge     (map_builder_edge& edge);
+    IFB_INLINE void map_builder_wall_drag_range  (s32& step_min, s32& step_max);
+    IFB_INLINE map_builder_edge map_builder_wall_drag_edge (const s32 step);
+    IFB_INLINE void map_builder_wall_tool        (const bool is_active);
+    IFB_INLINE void map_builder_draw_edge        (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size, const map_builder_edge& edge, const ImU32 fill, const ImU32 outline);
+    IFB_INLINE void map_builder_draw_walls       (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size);
+    IFB_INLINE void map_builder_wall_text        (void);
     IFB_INLINE void map_builder_draw_hover       (ImDrawList* draw_list, const ImVec2& image_min, const ImVec2& size);
     IFB_INLINE void map_builder_hover_text       (void);
     IFB_INLINE bool map_builder_get_map_origin   (vec3& origin);
@@ -156,6 +180,9 @@ namespace ifb {
             state.selected_chunk   = INVALID_INDEX;
             state.new_chunk_color  = (u32)map_color_e_gray_light;
             state.is_dragging_chunk = false;
+            state.wall_color       = (u32)map_color_e_gray_dark;
+            state.is_wall_erase    = false;
+            state.is_dragging_wall = false;
             state.show_grid        = false;
             state.is_modified      = false;
             state.status[0]        = 0;
@@ -270,6 +297,8 @@ namespace ifb {
         ImGui::RadioButton("Brush", &tool, (int)map_builder_tool_e_brush);
         ImGui::SameLine();
         ImGui::RadioButton("Chunk", &tool, (int)map_builder_tool_e_chunk);
+        ImGui::SameLine();
+        ImGui::RadioButton("Wall",  &tool, (int)map_builder_tool_e_wall);
         state.tool = (map_builder_tool_e)tool;
 
         // what's loaded, what's under the mouse, and how to move around
@@ -288,7 +317,8 @@ namespace ifb {
         }
 
         ImGui::SameLine();
-        map_builder_hover_text();
+        if (state.tool == map_builder_tool_e_wall) map_builder_wall_text();
+        else                                       map_builder_hover_text();
 
         ImGui::SameLine();
         if (state.tool == map_builder_tool_e_brush) {
@@ -296,6 +326,9 @@ namespace ifb {
         }
         else if (state.tool == map_builder_tool_e_chunk) {
             ImGui::TextDisabled("   left drag: add chunk   left click: select   delete: remove   middle drag: pan   right drag: orbit");
+        }
+        else if (state.tool == map_builder_tool_e_wall) {
+            ImGui::TextDisabled("   left drag: place walls   ctrl + left drag: erase   middle drag: pan   right drag: orbit");
         }
         else {
             ImGui::TextDisabled("   left or middle drag: pan   right drag: orbit   wheel: zoom");
@@ -314,6 +347,10 @@ namespace ifb {
             map_builder_chunk_panel();
             ImGui::SeparatorText("Brush");
         }
+        else if (state.tool == map_builder_tool_e_wall) {
+            map_builder_wall_panel();
+            ImGui::SeparatorText("Brush");
+        }
 
         map_builder_palette_atlas();
 
@@ -330,7 +367,7 @@ namespace ifb {
         if (ImGui::Selectable("No sprite", brush.i_sprite == INVALID_INDEX)) {
             brush.i_sprite       = INVALID_INDEX;
             brush.sprite_name[0] = 0;
-            if (state.tool != map_builder_tool_e_chunk) state.tool = map_builder_tool_e_brush;
+            if (state.tool == map_builder_tool_e_move) state.tool = map_builder_tool_e_brush;
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Paints the chunk's color, like -1 in a map file");
@@ -382,7 +419,7 @@ namespace ifb {
             if (ImGui::ImageButton("##sprite", (ImTextureID)(intptr_t)texture, ImVec2(MAP_BUILDER_THUMB_SIZE, MAP_BUILDER_THUMB_SIZE), uv0, uv1)) {
                 brush.i_sprite = i_sprite;
                 strncpy_s(brush.sprite_name, name, MAP_BUILDER_NAME_SIZE - 1);
-                if (state.tool != map_builder_tool_e_chunk) state.tool = map_builder_tool_e_brush;
+                if (state.tool == map_builder_tool_e_move) state.tool = map_builder_tool_e_brush;
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("%s", name);
@@ -544,6 +581,7 @@ namespace ifb {
         state.hover.is_valid = false;
         state.selected_chunk    = INVALID_INDEX;
         state.is_dragging_chunk = false;
+        state.is_dragging_wall  = false;
     }
 
     // look down at the middle of the chunks, far enough back to see all of them
@@ -654,6 +692,13 @@ namespace ifb {
             state.is_dragging_chunk = false;
         }
 
+        if (state.tool == map_builder_tool_e_wall) {
+            map_builder_wall_tool(is_active);
+        }
+        else {
+            state.is_dragging_wall = false;
+        }
+
         // the view draws at the end of this frame, so the image shows last frame's render
         eng_map_view_request(state.h_map, (u32)size.x, (u32)size.y);
 
@@ -669,6 +714,12 @@ namespace ifb {
                 ImVec2(image_min.x + (size.x - text_size.x) * 0.5f, image_min.y + (size.y - text_size.y) * 0.5f),
                 ImGui::GetColorU32(ImGuiCol_TextDisabled),
                 text);
+            return;
+        }
+
+        // the wall tool outlines edges instead of tiles
+        if (state.tool == map_builder_tool_e_wall) {
+            map_builder_draw_walls(draw_list, image_min, size);
             return;
         }
 
@@ -771,6 +822,8 @@ namespace ifb {
         state.hover.is_valid    = true;
         state.hover.row         = row;
         state.hover.col         = col;
+        state.hover.floor_row   = (hit_z - map_origin.z) / tile;
+        state.hover.floor_col   = (hit_x - map_origin.x) / tile;
         state.hover.is_on_chunk = eng_map_get_tile_info(state.h_map, (u32)row, (u32)col, state.hover.tile);
     }
 
@@ -1131,6 +1184,316 @@ namespace ifb {
         const ImU32 fill    = is_free ? IM_COL32(64, 255, 120, 56)  : IM_COL32(255, 64, 64, 56);
         const ImU32 outline = is_free ? IM_COL32(64, 255, 120, 255) : IM_COL32(255, 64, 64, 255);
         map_builder_draw_floor_rect(draw_list, image_min, size, row_min, col_min, row_max, col_max, fill, outline, 2.0f);
+    }
+
+    //--------------------------------------------------------------------
+    // WALL TOOL
+    //--------------------------------------------------------------------
+
+    // the wall tool's part of the palette panel
+    IFB_INLINE void
+    map_builder_wall_panel(
+        void) {
+
+        auto& state = _map_builder;
+
+        ImGui::SeparatorText("Walls");
+        if (state.h_map == INVALID_HANDLE) {
+            ImGui::TextDisabled("No map loaded");
+            return;
+        }
+
+        ImGui::TextWrapped("Drag along tile edges to place a straight run of walls. Hold Ctrl to erase.");
+
+        int mode = state.is_wall_erase ? 1 : 0;
+        ImGui::RadioButton("Place", &mode, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("Erase", &mode, 1);
+        state.is_wall_erase = (mode == 1);
+
+        ImGui::TextUnformatted("Wall color");
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        map_builder_color_combo("##wall-color", state.wall_color);
+
+        // walls take the brush's sprite, like filling a chunk
+        if (state.brush.i_sprite == INVALID_INDEX) ImGui::TextDisabled("Sprite: none");
+        else                                       ImGui::Text("Sprite: %s", state.brush.sprite_name);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Walls take the brush's sprite. Pick No sprite below for solid color walls.");
+        }
+    }
+
+    // the edge of the hovered tile closest to the mouse
+    IFB_INLINE bool
+    map_builder_hovered_edge(
+        map_builder_edge& edge) {
+
+        const auto& hover = _map_builder.hover;
+        if (!hover.is_valid) return(false);
+
+        // how far across the tile the mouse is, 0 at the min edge and 1 at the max edge
+        const f32 across_col = hover.floor_col - (f32)hover.col;
+        const f32 across_row = hover.floor_row - (f32)hover.row;
+
+        // row walls are on the lines z = row, column walls on the lines x = col
+        f32 nearest = across_row;
+        edge.orientation = map_wall_orientation_e_row;
+        edge.row         = hover.row;
+        edge.col         = hover.col;
+
+        if ((1.0f - across_row) < nearest) {
+            nearest          = 1.0f - across_row;
+            edge.orientation = map_wall_orientation_e_row;
+            edge.row         = hover.row + 1;
+            edge.col         = hover.col;
+        }
+        if (across_col < nearest) {
+            nearest          = across_col;
+            edge.orientation = map_wall_orientation_e_column;
+            edge.row         = hover.row;
+            edge.col         = hover.col;
+        }
+        if ((1.0f - across_col) < nearest) {
+            edge.orientation = map_wall_orientation_e_column;
+            edge.row         = hover.row;
+            edge.col         = hover.col + 1;
+        }
+        return(true);
+    }
+
+    // the edge at a step along the drag's line, row walls step along columns and column walls along rows
+    IFB_INLINE map_builder_edge
+    map_builder_wall_drag_edge(
+        const s32 step) {
+
+        map_builder_edge edge = _map_builder.wall_start;
+        if (edge.orientation == map_wall_orientation_e_row) edge.col = step;
+        else                                                 edge.row = step;
+        return(edge);
+    }
+
+    IFB_INLINE void
+    map_builder_wall_drag_range(
+        s32& step_min,
+        s32& step_max) {
+
+        const auto& state      = _map_builder;
+        const s32   start_step = (state.wall_start.orientation == map_wall_orientation_e_row)
+            ? state.wall_start.col
+            : state.wall_start.row;
+
+        step_min = (start_step < state.wall_end_step) ? start_step : state.wall_end_step;
+        step_max = (start_step < state.wall_end_step) ? state.wall_end_step : start_step;
+    }
+
+    // a drag starts on the nearest edge, and stays on that edge's line, so it makes a straight run
+    // the walls are placed or erased when the button is let go
+    IFB_INLINE void
+    map_builder_wall_tool(
+        const bool is_active) {
+
+        auto&       state = _map_builder;
+        const auto& brush = state.brush;
+        if (state.h_map == INVALID_HANDLE) return;
+
+        if (is_active && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            map_builder_edge edge;
+            if (map_builder_hovered_edge(edge)) {
+                state.is_dragging_wall = true;
+                state.is_drag_erasing  = state.is_wall_erase || ImGui::GetIO().KeyCtrl;
+                state.wall_start       = edge;
+                state.wall_end_step    = (edge.orientation == map_wall_orientation_e_row) ? edge.col : edge.row;
+            }
+        }
+
+        if (!state.is_dragging_wall) return;
+
+        // follow the mouse along the line, the end stays put while the mouse is off the map
+        if (state.hover.is_valid) {
+            const bool is_row = (state.wall_start.orientation == map_wall_orientation_e_row);
+            const s32  last   = is_row ? ((s32)state.cols - 1) : ((s32)state.rows - 1);
+            s32        step   = (s32)floorf(is_row ? state.hover.floor_col : state.hover.floor_row);
+            if (step < 0)    step = 0;
+            if (step > last) step = last;
+            state.wall_end_step = step;
+        }
+
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) return;
+        state.is_dragging_wall = false;
+
+        s32 step_min, step_max;
+        map_builder_wall_drag_range(step_min, step_max);
+
+        const bool has_sprite = (brush.i_sprite != INVALID_INDEX);
+        u32 changed       = 0;
+        u32 off_chunk     = 0;
+        u32 sprite_failed = 0;
+        for (s32 step = step_min; step <= step_max; ++step) {
+
+            const map_builder_edge edge = map_builder_wall_drag_edge(step);
+            const u32 row = (u32)edge.row;
+            const u32 col = (u32)edge.col;
+
+            // walls only go on chunk edges
+            map_wall_info info;
+            if (!eng_map_wall_get_info(state.h_map, row, col, edge.orientation, info)) {
+                ++off_chunk;
+                continue;
+            }
+
+            if (state.is_drag_erasing) {
+                if (info.is_placed && eng_map_wall_clear(state.h_map, row, col, edge.orientation)) ++changed;
+                continue;
+            }
+
+            if (!eng_map_wall_set(state.h_map, row, col, edge.orientation, map_color_u32(state.wall_color))) {
+                ++off_chunk;
+                continue;
+            }
+            ++changed;
+
+            // a chunk's sprites all come from one atlas, so a sprite from another one doesn't go on
+            if (has_sprite && !eng_map_wall_set_sprite(state.h_map, row, col, edge.orientation, brush.atlas_name, brush.sprite_name)) {
+                ++sprite_failed;
+            }
+        }
+
+        if (changed != 0) state.is_modified = true;
+
+        u32 length = (u32)snprintf(state.status, sizeof(state.status), "%s %u wall%s",
+            state.is_drag_erasing ? "Erased" : "Placed", changed, (changed == 1) ? "" : "s");
+        if (off_chunk != 0 && length < sizeof(state.status)) {
+            length += (u32)snprintf(state.status + length, sizeof(state.status) - length,
+                ", %u edge%s not on a chunk", off_chunk, (off_chunk == 1) ? " is" : "s are");
+        }
+        if (sprite_failed != 0 && length < sizeof(state.status)) {
+            snprintf(state.status + length, sizeof(state.status) - length,
+                ", %u couldn't take %s because their chunk uses another atlas", sprite_failed, brush.sprite_name);
+        }
+    }
+
+    // a wall's face standing on an edge, a tile tall like the walls the game draws
+    IFB_INLINE void
+    map_builder_draw_edge(
+        ImDrawList*             draw_list,
+        const ImVec2&           image_min,
+        const ImVec2&           size,
+        const map_builder_edge& edge,
+        const ImU32             fill,
+        const ImU32             outline) {
+
+        vec3 map_origin;
+        if (!map_builder_get_map_origin(map_origin)) return;
+
+        mat4 xform;
+        eng_map_view_get_xform(xform);
+
+        const f32  tile   = IFB_CONFIG_MAP_TILE_UNIT_SIZE;
+        const bool is_row = (edge.orientation == map_wall_orientation_e_row);
+        const f32  x0     = map_origin.x + ((f32)edge.col * tile);
+        const f32  z0     = map_origin.z + ((f32)edge.row * tile);
+        const f32  x1     = is_row ? (x0 + tile) : x0;
+        const f32  z1     = is_row ? z0 : (z0 + tile);
+        const f32  y0     = map_origin.y;
+        const f32  y1     = map_origin.y + tile;
+        const vec3 corners[4] = {
+            { x0, y0, z0 },
+            { x1, y0, z1 },
+            { x1, y1, z1 },
+            { x0, y1, z0 },
+        };
+
+        ImVec2 points[4];
+        for (u32 i = 0; i < 4; ++i) {
+            if (!map_builder_world_to_screen(xform, corners[i], image_min, size, points[i])) return;
+        }
+
+        draw_list->PushClipRect(image_min, ImVec2(image_min.x + size.x, image_min.y + size.y), true);
+        if (fill != 0) draw_list->AddQuadFilled(points[0], points[1], points[2], points[3], fill);
+        draw_list->AddQuad(points[0], points[1], points[2], points[3], outline, 2.0f);
+        draw_list->PopClipRect();
+    }
+
+    // the run being dragged, or the edge under the mouse
+    // green places, red erases or can't go there, gray edges aren't on a chunk
+    IFB_INLINE void
+    map_builder_draw_walls(
+        ImDrawList*   draw_list,
+        const ImVec2& image_min,
+        const ImVec2& size) {
+
+        const auto& state = _map_builder;
+
+        const ImU32 place_fill    = IM_COL32(64, 255, 120, 70);
+        const ImU32 place_outline = IM_COL32(64, 255, 120, 255);
+        const ImU32 erase_fill    = IM_COL32(255, 64, 64, 70);
+        const ImU32 erase_outline = IM_COL32(255, 64, 64, 255);
+        const ImU32 off_outline   = IM_COL32(160, 160, 160, 200);
+
+        if (state.is_dragging_wall) {
+            s32 step_min, step_max;
+            map_builder_wall_drag_range(step_min, step_max);
+            for (s32 step = step_min; step <= step_max; ++step) {
+                const map_builder_edge edge = map_builder_wall_drag_edge(step);
+                map_wall_info info;
+                if (!eng_map_wall_get_info(state.h_map, (u32)edge.row, (u32)edge.col, edge.orientation, info)) {
+                    map_builder_draw_edge(draw_list, image_min, size, edge, 0, off_outline);
+                }
+                else if (state.is_drag_erasing) {
+                    map_builder_draw_edge(draw_list, image_min, size, edge, erase_fill, erase_outline);
+                }
+                else {
+                    map_builder_draw_edge(draw_list, image_min, size, edge, place_fill, place_outline);
+                }
+            }
+            return;
+        }
+
+        map_builder_edge edge;
+        if (!map_builder_hovered_edge(edge)) return;
+
+        map_wall_info info;
+        const bool is_on_chunk = eng_map_wall_get_info(state.h_map, (u32)edge.row, (u32)edge.col, edge.orientation, info);
+        const bool is_erasing  = state.is_wall_erase || ImGui::GetIO().KeyCtrl;
+        if (!is_on_chunk)    map_builder_draw_edge(draw_list, image_min, size, edge, erase_fill, erase_outline);
+        else if (is_erasing) map_builder_draw_edge(draw_list, image_min, size, edge, erase_fill, erase_outline);
+        else                 map_builder_draw_edge(draw_list, image_min, size, edge, IM_COL32(255, 220, 64, 60), IM_COL32(255, 220, 64, 255));
+    }
+
+    // the hovered edge and what's on it
+    IFB_INLINE void
+    map_builder_wall_text(
+        void) {
+
+        const auto& state = _map_builder;
+
+        map_builder_edge edge;
+        if (state.h_map == INVALID_HANDLE || !map_builder_hovered_edge(edge)) {
+            ImGui::TextUnformatted("");
+            return;
+        }
+
+        const char* orientation_name = (edge.orientation == map_wall_orientation_e_row) ? "row" : "column";
+
+        map_wall_info info;
+        if (!eng_map_wall_get_info(state.h_map, (u32)edge.row, (u32)edge.col, edge.orientation, info)) {
+            ImGui::Text("   %s edge at row %d, col %d   no chunk", orientation_name, edge.row, edge.col);
+            return;
+        }
+
+        if (!info.is_placed) {
+            ImGui::Text("   %s edge at row %d, col %d   chunk %u   no wall", orientation_name, edge.row, edge.col, info.chunk_index);
+            return;
+        }
+
+        const u32   color_count = sizeof(MAP_BUILDER_COLOR_NAMES) / sizeof(MAP_BUILDER_COLOR_NAMES[0]);
+        const char* color_name  = (info.color < color_count) ? MAP_BUILDER_COLOR_NAMES[info.color] : "?";
+        char sprite_name[MAP_BUILDER_NAME_SIZE] = "no sprite";
+        if (info.i_sprite != INVALID_INDEX) {
+            map_builder_get_sprite_name(info.h_atlas, info.i_sprite, sprite_name);
+        }
+        ImGui::Text("   %s wall at row %d, col %d   chunk %u   %s   %s",
+            orientation_name, edge.row, edge.col, info.chunk_index, color_name, sprite_name);
     }
 
     // the hovered tile, its chunk, and what's on it

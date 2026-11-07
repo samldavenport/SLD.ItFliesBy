@@ -282,6 +282,7 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_wall_set_sprite      (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_ENGINE_API bool    eng_map_wall_clear           (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
     IFB_ENGINE_API bool    eng_map_wall_is_placed       (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation);
+    IFB_ENGINE_API bool    eng_map_wall_get_info        (const hnd_map h_map, const u32 row, const u32 col, const map_wall_orientation_e orientation, map_wall_info& info);
 
     // map view, an offscreen render of one map with its own camera, for tools
     IFB_ENGINE_API void    eng_map_view_request         (const hnd_map h_map, const u32 width, const u32 height);
