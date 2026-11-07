@@ -57,7 +57,7 @@ The map is drawn with `assets/shaders/tile-vert.glsl` and `tile-frag.glsl`. Each
 
 Sprite atlases are uploaded to the GPU as textures when they're loaded (`eng_sprite_atlas_load`) and released when they're unloaded. The renderer has `IFB_CONFIG_SPRITE_TABLE_CAPACITY` (4) atlas texture slots, the same as the number of atlases the sprite manager can have loaded.
 
-Only **one atlas is active** at a time, and the tile and quad shaders both draw from it:
+Only **one atlas is active** at a time, and the tile and quad shaders both draw from it. `eng_sprite_atlas_get_active` returns it, and `eng_sprite_atlas_get_texture` returns an atlas's OpenGL texture, for showing its sprites in the GUI:
 
 ```cpp
 hnd_sprite_atlas h_atlas = eng_sprite_atlas_load("CORE-SPRITES");
@@ -77,7 +77,11 @@ The camera is a look-at camera defined by an origin and a target:
 | `eng_camera_get_fov` / `_set_fov` | Vertical field of view |
 | `eng_camera_get_xform` | The view matrix |
 
-The projection is a perspective projection with a 30° vertical field of view, a near plane of `0.01`, and a far plane of `100`, using the window's aspect ratio. The game moves the camera to follow the player (`game_player_rig_update_camera`), and **Renderer > Camera** in the GUI lets you edit it directly.
+The projection is a perspective projection with a 30° vertical field of view, a near plane of `0.01`, and a far plane of `100`, using the window's aspect ratio (see [Projection](#projection) for a quirk in it). The game moves the camera to follow the player (`game_player_rig_update_camera`), and **Renderer > Camera** in the GUI lets you edit it directly.
+
+### Projection
+
+`renderer_viewport_get_xform` starts from `mat4_identity()` and doesn't zero `r3c3`, so a point's `w` is its depth in front of the camera **plus one**. Everything is drawn as if it were one unit farther away than it is, which makes nearby things noticeably smaller than a 30° field of view would. The game's camera distances are tuned with this in place, so fixing it would change how the game looks. Anything that maps between the screen and the world has to use the actual matrix, not the field of view.
 
 ## Shaders
 
@@ -104,7 +108,7 @@ It draws with the same tile shader, active atlas, and projection as the game, so
 | `eng_map_view_get_xform` | The view projection for the size the view was last drawn at, for projecting world points into the view |
 | `eng_map_view_set_grid_visible` | Draw the debug grid in the view |
 
-`mat4_invert` in SLD.Math isn't implemented yet, so to turn a point in the view into a ray, build it from the camera: `1 / r1c1` and `1 / r0c0` of the projection are the tangents of half the vertical and horizontal fields of view. The map builder does this in `map_builder_update_hover`.
+To find what's under a point in the view, invert the view projection itself rather than building a ray from the camera's field of view, because the projection isn't a textbook one (see [Projection](#projection)). For a point on a horizontal plane, "it lands on this point of the view" is two linear equations in x and z, so it can be solved directly. The map builder does this in `map_builder_screen_to_floor`. (`mat4_invert` in SLD.Math isn't implemented yet.)
 
 ## Other Features
 

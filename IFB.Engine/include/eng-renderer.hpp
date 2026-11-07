@@ -57,6 +57,8 @@ namespace ifb {
     IFB_INTERNAL bool        renderer_upload_sprite_atlas              (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool        renderer_release_sprite_atlas             (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool        renderer_set_active_sprite_atlas          (const hnd_sprite_atlas h_atlas);
+    IFB_INTERNAL hnd_sprite_atlas renderer_get_active_sprite_atlas     (void);
+    IFB_INTERNAL u32         renderer_get_sprite_atlas_texture         (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool        renderer_set_map                          (const hnd_map h_map);
     IFB_INTERNAL bool        renderer_is_grid_visible                  (void);
     IFB_INTERNAL void        renderer_set_grid_visible                 (const bool is_visible);

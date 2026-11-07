@@ -743,6 +743,58 @@ namespace ifb {
         return(true);
     }
 
+    // the tile goes back to its chunk's color, like -1 in a map file
+    IFB_INTERNAL bool
+    map_tile_clear_sprite(
+        const hnd_map h_map,
+        const u32     row,
+        const u32     col) {
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        map_floor_tile* floor_tile = map_find_floor_tile(map_index, (s32)row, (s32)col, NULL);
+        if (floor_tile == NULL) {
+            return(false);
+        }
+
+        // the chunk keeps its atlas, so its other tiles don't change
+        floor_tile->i_sprite = INVALID_INDEX;
+        floor_tile->flags   &= (u8)~((u8)map_tile_flag_e_textured);
+        return(true);
+    }
+
+    // false if no chunk covers the tile
+    IFB_INTERNAL bool
+    map_tile_get_info(
+        const hnd_map  h_map,
+        const u32      row,
+        const u32      col,
+        map_tile_info& info) {
+
+        const u32 map_index = map_lookup_index(h_map);
+        if (map_index == INVALID_INDEX) {
+            return(false);
+        }
+
+        map_chunk*            chunk      = NULL;
+        const map_floor_tile* floor_tile = map_find_floor_tile(map_index, (s32)row, (s32)col, &chunk);
+        if (floor_tile == NULL || chunk == NULL) {
+            return(false);
+        }
+
+        // the chunks are in an array, so the chunk's index is how far it is from the first
+        const map_chunk& chunk_first = map_get_chunk(map_index, 0);
+        info.chunk_index = (u32)(chunk - &chunk_first);
+        info.h_atlas     = chunk->h_atlas;
+        info.i_sprite    = floor_tile->i_sprite;
+        info.color       = floor_tile->color;
+        info.is_textured = (floor_tile->flags & (u8)map_tile_flag_e_textured) != 0;
+        return(true);
+    }
+
     IFB_INTERNAL bool
     map_chunk_set_sprite(
         const hnd_map h_map,

@@ -95,7 +95,9 @@ namespace ifb {
     IFB_INTERNAL bool                     map_constrain_movement    (const hnd_map h_map, const f32 inset, cmpnt_position& pos, cmpnt_velocity& vel);
     IFB_INTERNAL entity_list*             map_get_entities          (const hnd_map h_map, const hnd_arena h_arena);
     IFB_INTERNAL entity_list*             map_get_entities_in_chunk (const hnd_map h_map, const u32 chunk_index, const hnd_arena h_arena);
-    IFB_INTERNAL bool                     map_tile_set_sprite       (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);                      
+    IFB_INTERNAL bool                     map_tile_set_sprite       (const hnd_map h_map, const u32 row, const u32 col, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_INTERNAL bool                     map_tile_clear_sprite     (const hnd_map h_map, const u32 row, const u32 col);
+    IFB_INTERNAL bool                     map_tile_get_info         (const hnd_map h_map, const u32 row, const u32 col, map_tile_info& info);                      
     IFB_INTERNAL bool                     map_chunk_set_sprite      (const hnd_map h_map, const u32 chunk_index, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
     IFB_INTERNAL hnd_map                  map_parse_from_json       (const cchar* json_data, const u32 json_length, const hnd_arena h_arena, const cchar* name_override);
 

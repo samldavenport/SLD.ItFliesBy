@@ -315,6 +315,31 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
+    eng_map_clear_tile_sprite(
+        const hnd_map h_map,
+        const u32     row,
+        const u32     col) {
+
+        assert(h_map != INVALID_HANDLE);
+
+        const bool did_clear = map_tile_clear_sprite(h_map, row, col);
+        return(did_clear);
+    }
+
+    IFB_ENGINE_API bool
+    eng_map_get_tile_info(
+        const hnd_map  h_map,
+        const u32      row,
+        const u32      col,
+        map_tile_info& info) {
+
+        assert(h_map != INVALID_HANDLE);
+
+        const bool did_get = map_tile_get_info(h_map, row, col, info);
+        return(did_get);
+    }
+
+    IFB_ENGINE_API bool
     eng_map_chunk_set_sprite(
         const hnd_map h_map,
         const u32     chunk_index,

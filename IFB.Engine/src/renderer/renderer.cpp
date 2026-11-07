@@ -40,6 +40,7 @@ namespace ifb {
     struct render_textures {
         render_sprite_atlas_texture sprite_atlas[config::sprite_atlas_table_capacity];
         gl_texture                  sprite_atlas_active;
+        hnd_sprite_atlas            sprite_atlas_active_hnd;
     };
 
     struct renderer_memory {
@@ -104,7 +105,8 @@ namespace ifb {
             textures->sprite_atlas[i_atlas].h_atlas    = INVALID_HANDLE;
             textures->sprite_atlas[i_atlas].texture_id = GL_ID_INVALID;
         }
-        textures->sprite_atlas_active = GL_ID_INVALID;
+        textures->sprite_atlas_active     = GL_ID_INVALID;
+        textures->sprite_atlas_active_hnd = INVALID_HANDLE;
 
         _renderer           = rndr;
         _renderer->gl       = gl;
@@ -389,7 +391,8 @@ namespace ifb {
         if (atlas == NULL) return(false);
 
         if (textures->sprite_atlas_active == atlas->texture_id) {
-            textures->sprite_atlas_active = GL_ID_INVALID;
+            textures->sprite_atlas_active     = GL_ID_INVALID;
+            textures->sprite_atlas_active_hnd = INVALID_HANDLE;
         }
 
         gl_texture_destroy(_renderer->gl, atlas->texture_id);
@@ -412,8 +415,31 @@ namespace ifb {
         const render_sprite_atlas_texture* atlas = renderer_find_sprite_atlas_texture(h_atlas);
         if (atlas == NULL) return(false);
 
-        textures->sprite_atlas_active = atlas->texture_id;
+        textures->sprite_atlas_active     = atlas->texture_id;
+        textures->sprite_atlas_active_hnd = h_atlas;
         return(true);
+    }
+
+    // the atlas the tile and quad shaders draw from, INVALID_HANDLE if none is active
+    IFB_INTERNAL hnd_sprite_atlas
+    renderer_get_active_sprite_atlas(
+        void) {
+
+        assert(_renderer);
+        return(_renderer->textures->sprite_atlas_active_hnd);
+    }
+
+    // the atlas's opengl texture, for showing sprites in the gui, 0 if it isn't uploaded
+    // the top row of the atlas is v = 0
+    IFB_INTERNAL u32
+    renderer_get_sprite_atlas_texture(
+        const hnd_sprite_atlas h_atlas) {
+
+        assert(_renderer);
+        if (h_atlas == INVALID_HANDLE) return(GL_ID_INVALID);
+
+        const render_sprite_atlas_texture* atlas = renderer_find_sprite_atlas_texture(h_atlas);
+        return((atlas != NULL) ? atlas->texture_id : GL_ID_INVALID);
     }
 
     IFB_INTERNAL bool

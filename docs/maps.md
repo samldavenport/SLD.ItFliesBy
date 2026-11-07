@@ -118,13 +118,35 @@ Non-navigable tiles are solid squares. Walls are slabs `MAP_WALL_HALF_THICKNESS`
 
 ## Map Builder
 
-**Engine > Tools > Map Builder** (`IFB.GUI/src/gui-engine-map-builder.cpp`) previews a map the way the game draws it. It's the start of a tool for building maps, and it can't edit them yet.
+**Engine > Tools > Map Builder** (`IFB.GUI/src/gui-engine-map-builder.cpp`) previews and edits a map the way the game draws it. So far it can paint floor tiles. It can't save yet, so changes are lost when the map is loaded again.
 
-- Pick a map asset (any text asset in the runtime database) and press **Load**. The builder loads its own copy as `MAP-BUILDER` with `eng_map_load_as`, so the game's map isn't touched.
+- Pick a map asset (any text asset in the runtime database) and press **Load**. The builder loads its own copy as `MAP-BUILDER` with `eng_map_load_as`, so the game's map isn't touched. Once you've painted, the button says **Reload**, and pressing it throws the changes away.
 - The view is the [map view](renderer.md#map-view), with the same tile shader, atlas, and projection as the game.
-- **Left drag** pans along the ground, **right drag** orbits around the point the camera looks at, and the **mouse wheel** zooms.
 - **Frame Map** looks down at the middle of the map's chunks. **Game View** puts the camera at the game camera's angle and distance.
-- The tile under the mouse is outlined, and its row and column are shown above the view.
+
+### Tools
+
+| Tool | Left mouse |
+| --- | --- |
+| **Move** | Drag to pan |
+| **Brush** | Click or drag to paint tiles |
+
+With either tool, **middle drag** pans, **right drag** orbits around the point the camera looks at, and the **mouse wheel** zooms. Panning keeps the spot you grabbed under the mouse.
+
+### Painting Tiles
+
+The palette on the left shows the sprites in an atlas, picked from the atlases in the runtime database. It starts on the active atlas, which is the only one the map draws with. Click a sprite to paint with it, or **No sprite** to clear tiles back to their chunk's color, like `-1` in a [map file](map-format.md). Picking from the palette switches to the Brush tool.
+
+The brush paints with the same calls as the map loader, so the view shows exactly what the game would:
+
+- Only tiles on a chunk can be painted. The tile under the mouse is outlined in yellow on a chunk and red off one, and the line above the view shows its row, column, chunk, and sprite.
+- A chunk's sprites all come from one atlas, so painting a sprite from a different atlas onto a chunk fails, and the builder says why.
+- A cleared tile on a chunk whose color is `none` draws black.
+
+| Function | Description |
+| --- | --- |
+| `eng_map_get_tile_info` | A floor tile's chunk, atlas, sprite, and color, or `false` if no chunk covers it |
+| `eng_map_clear_tile_sprite` | Take a tile's sprite off, so it shows its chunk's color |
 
 ## Configuration
 
