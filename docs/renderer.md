@@ -108,7 +108,7 @@ It draws with the same tile shader, active atlas, and projection as the game, so
 | `eng_map_view_get_xform` | The view projection for the size the view was last drawn at, for projecting world points into the view |
 | `eng_map_view_set_grid_visible` | Draw the debug grid in the view |
 
-To find what's under a point in the view, invert the view projection itself rather than building a ray from the camera's field of view, because the projection isn't a textbook one (see [Projection](#projection)). For a point on a horizontal plane, "it lands on this point of the view" is two linear equations in x and z, so it can be solved directly. The map builder does this in `map_builder_screen_to_floor`. (`mat4_invert` in SLD.Math isn't implemented yet.)
+To find what's under a point in the view, solve with the view projection itself rather than building a ray from the camera's field of view, because the projection isn't a textbook one (see [Projection](#projection)). A point lands on a spot in the view when it's on two planes that come straight from the matrix's rows, so intersecting those with the plane you're picking on gives the point. `xform_viewport_to_plane` in SLD.Math does this, without inverting the matrix, and `xform_world_to_viewport` goes the other way. The map builder picks floor tiles with them in `map_builder_screen_to_floor`. See the [SLD.Math README](../SLD.Math/README.md#screen-space) for how it works.
 
 ## Other Features
 

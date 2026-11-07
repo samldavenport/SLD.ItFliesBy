@@ -178,29 +178,29 @@ namespace ifb {
         // start where the game's camera starts, until a map is framed
         static bool is_initialized = false;
         if (!is_initialized) {
-            is_initialized         = true;
-            state.camera.target    = { 0.0f, 0.2f, 0.1f };
-            state.camera.yaw       = 0.0f;
-            state.camera.pitch     = MAP_BUILDER_GAME_PITCH;
-            state.camera.distance  = MAP_BUILDER_GAME_DISTANCE;
-            state.tool             = map_builder_tool_e_move;
-            state.selected_chunk   = INVALID_INDEX;
-            state.new_chunk_color  = (u32)map_color_e_gray_light;
+            is_initialized          = true;
+            state.camera.target     = { 0.0f, 0.2f, 0.1f };
+            state.camera.yaw        = 0.0f;
+            state.camera.pitch      = MAP_BUILDER_GAME_PITCH;
+            state.camera.distance   = MAP_BUILDER_GAME_DISTANCE;
+            state.tool              = map_builder_tool_e_move;
+            state.selected_chunk    = INVALID_INDEX;
+            state.new_chunk_color   = (u32)map_color_e_gray_light;
             state.is_dragging_chunk = false;
-            state.wall_color       = (u32)map_color_e_gray_dark;
+            state.wall_color        = (u32)map_color_e_gray_dark;
             strncpy_s(state.new_name, "new-map", MAP_BUILDER_MAP_NAME_SIZE - 1);
             state.new_rows             = 25;
             state.new_cols             = 25;
             state.new_has_chunk        = true;
             state.new_chunk_color_fill = (u32)map_color_e_gray_light;
-            state.is_wall_erase    = false;
-            state.is_dragging_wall = false;
-            state.show_grid        = false;
-            state.is_modified      = false;
-            state.status[0]        = 0;
-            state.asset_name[0]    = 0;
-            state.brush.h_atlas    = INVALID_HANDLE;
-            state.brush.i_sprite   = INVALID_INDEX;
+            state.is_wall_erase        = false;
+            state.is_dragging_wall     = false;
+            state.show_grid            = false;
+            state.is_modified          = false;
+            state.status[0]            = 0;
+            state.asset_name[0]        = 0;
+            state.brush.h_atlas        = INVALID_HANDLE;
+            state.brush.i_sprite       = INVALID_INDEX;
             state.brush.atlas_name[0]  = 0;
             state.brush.sprite_name[0] = 0;
         }
@@ -758,9 +758,7 @@ namespace ifb {
         state.camera.target   = { center_x, origin.y, center_z };
         state.camera.yaw      = 0.0f;
         state.camera.pitch    = 0.6f; // high enough to see the whole floor at once
-        state.camera.distance = extent * 1.6f;
-        if (state.camera.distance < MAP_BUILDER_DISTANCE_MIN) state.camera.distance = MAP_BUILDER_DISTANCE_MIN;
-        if (state.camera.distance > MAP_BUILDER_DISTANCE_MAX) state.camera.distance = MAP_BUILDER_DISTANCE_MAX;
+        state.camera.distance = math_clamp(extent * 1.6f, MAP_BUILDER_DISTANCE_MIN, MAP_BUILDER_DISTANCE_MAX);
     }
 
     // the game's angle and distance, around what the camera is looking at now
@@ -781,13 +779,8 @@ namespace ifb {
 
         const auto& cam = _map_builder.camera;
 
-        const f32 cos_pitch = cosf(cam.pitch);
-        const vec3 offset = {
-            sinf(cam.yaw) * cos_pitch * cam.distance,
-            sinf(cam.pitch)           * cam.distance,
-            cosf(cam.yaw) * cos_pitch * cam.distance
-        };
-        const vec3 origin = { cam.target.x + offset.x, cam.target.y + offset.y, cam.target.z + offset.z };
+        const vec3 offset = vec3_from_yaw_pitch(cam.yaw, cam.pitch, cam.distance);
+        const vec3 origin = vec3_add(cam.target, offset);
 
         eng_map_view_set_camera(origin, cam.target);
     }
@@ -883,9 +876,7 @@ namespace ifb {
 
         // zoom towards the target
         if (is_hovered && io.MouseWheel != 0.0f) {
-            cam.distance *= powf(MAP_BUILDER_ZOOM_STEP, io.MouseWheel);
-            if (cam.distance < MAP_BUILDER_DISTANCE_MIN) cam.distance = MAP_BUILDER_DISTANCE_MIN;
-            if (cam.distance > MAP_BUILDER_DISTANCE_MAX) cam.distance = MAP_BUILDER_DISTANCE_MAX;
+            cam.distance = math_clamp(cam.distance * powf(MAP_BUILDER_ZOOM_STEP, io.MouseWheel), MAP_BUILDER_DISTANCE_MIN, MAP_BUILDER_DISTANCE_MAX);
         }
 
         if (!is_active) return;
@@ -926,9 +917,7 @@ namespace ifb {
         // orbit around the target
         else if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
             cam.yaw   -= dx * MAP_BUILDER_ORBIT_SPEED;
-            cam.pitch += dy * MAP_BUILDER_ORBIT_SPEED;
-            if (cam.pitch < MAP_BUILDER_PITCH_MIN) cam.pitch = MAP_BUILDER_PITCH_MIN;
-            if (cam.pitch > MAP_BUILDER_PITCH_MAX) cam.pitch = MAP_BUILDER_PITCH_MAX;
+            cam.pitch  = math_clamp(cam.pitch + (dy * MAP_BUILDER_ORBIT_SPEED), MAP_BUILDER_PITCH_MIN, MAP_BUILDER_PITCH_MAX);
         }
     }
 
@@ -1737,8 +1726,7 @@ namespace ifb {
     }
 
     // the point on the plane y = plane_y that's drawn at a point in the view, the inverse of map_builder_world_to_screen
-    // a point (x, plane_y, z) lands on ndc (nx, ny) when clip_x = nx * clip_w and clip_y = ny * clip_w,
-    // which is two linear equations in x and z, so this inverts whatever projection the view uses
+    // this solves with the view's actual matrix, so it works with the renderer's projection (see renderer.md)
     // false if the point is on or past the horizon, or behind the camera
     IFB_INLINE bool
     map_builder_screen_to_floor(
@@ -1752,28 +1740,17 @@ namespace ifb {
         mat4 m;
         eng_map_view_get_xform(m);
 
-        const f32 nx = (((screen.x - image_min.x) / size.x) * 2.0f) - 1.0f;
-        const f32 ny = 1.0f - (((screen.y - image_min.y) / size.y) * 2.0f);
+        const plane floor_plane = { { 0.0f, 1.0f, 0.0f }, plane_y };
 
-        // (row 0 - nx * row 3) . (x, y, z, 1) = 0, and the same for row 1 and ny
-        const f32 a0 = m.r0c0 - (nx * m.r3c0);
-        const f32 c0 = m.r0c2 - (nx * m.r3c2);
-        const f32 d0 = ((m.r0c1 - (nx * m.r3c1)) * plane_y) + (m.r0c3 - (nx * m.r3c3));
-        const f32 a1 = m.r1c0 - (ny * m.r3c0);
-        const f32 c1 = m.r1c2 - (ny * m.r3c2);
-        const f32 d1 = ((m.r1c1 - (ny * m.r3c1)) * plane_y) + (m.r1c3 - (ny * m.r3c3));
+        vec3 hit;
+        if (!xform_viewport_to_plane(m, { screen.x, screen.y }, { image_min.x, image_min.y }, { size.x, size.y }, floor_plane, hit)) return(false);
 
-        const f32 det = (a0 * c1) - (c0 * a1);
-        if (fabsf(det) < 0.000001f) return(false);
-
-        x = ((c0 * d1) - (d0 * c1)) / det;
-        z = ((d0 * a1) - (a0 * d1)) / det;
-
-        // the point has to be in front of the camera
-        const f32 clip_w = (m.r3c0 * x) + (m.r3c1 * plane_y) + (m.r3c2 * z) + m.r3c3;
-        return(clip_w > 0.0001f);
+        x = hit.x;
+        z = hit.z;
+        return(true);
     }
 
+    // false if the point is behind the camera
     IFB_INLINE bool
     map_builder_world_to_screen(
         const mat4&   xform,
@@ -1782,17 +1759,10 @@ namespace ifb {
         const ImVec2& size,
         ImVec2&       screen) {
 
-        const f32 clip_x = (xform.r0c0 * world.x) + (xform.r0c1 * world.y) + (xform.r0c2 * world.z) + xform.r0c3;
-        const f32 clip_y = (xform.r1c0 * world.x) + (xform.r1c1 * world.y) + (xform.r1c2 * world.z) + xform.r1c3;
-        const f32 clip_w = (xform.r3c0 * world.x) + (xform.r3c1 * world.y) + (xform.r3c2 * world.z) + xform.r3c3;
+        vec2 point;
+        if (!xform_world_to_viewport(xform, world, { image_min.x, image_min.y }, { size.x, size.y }, point)) return(false);
 
-        // behind the camera
-        if (clip_w <= 0.0001f) return(false);
-
-        const f32 ndc_x = clip_x / clip_w;
-        const f32 ndc_y = clip_y / clip_w;
-        screen.x = image_min.x + (((ndc_x + 1.0f) * 0.5f) * size.x);
-        screen.y = image_min.y + (((1.0f - ndc_y) * 0.5f) * size.y);
+        screen = ImVec2(point.x, point.y);
         return(true);
     }
 };
