@@ -107,8 +107,8 @@ namespace ifb {
         assert(gl_ok);
 
         // get the uniform locations
-        shdr->gl.u_layers    = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_LAYERS);
-        shdr->gl.u_uv_offset = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_OFFSET);
+        shdr->gl.u_layers     = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_LAYERS);
+        shdr->gl.u_uv_offset  = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_OFFSET);
         shdr->gl.u_view_proj  = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_VIEW_PROJ);
         shdr->gl.u_backdrop   = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_BACKDROP);
         shdr->gl.u_image_size = gl_uniform_get_location(gl, shdr->gl.program, PARALLAX_UNIFORM_NAME_IMAGE_SIZE);
