@@ -18,4 +18,18 @@ namespace ifb {
 
         renderer_set_grid_visible(is_visible);
     }
+
+    // the names are image assets, they all have to be the same size
+    IFB_ENGINE_API bool
+    eng_parallax_set(
+        const cchar* front,
+        const cchar* mid,
+        const cchar* back) {
+
+        assert(front && mid && back);
+
+        // the renderer stores the layers back to front
+        const bool did_set = renderer_set_parallax(back, mid, front);
+        return(did_set);
+    }
 };

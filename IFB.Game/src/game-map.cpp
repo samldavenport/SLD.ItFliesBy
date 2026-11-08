@@ -15,6 +15,14 @@ namespace ifb {
         // it uses CORE-SPRITES, so the atlas has to be loaded first
         map->eng_hnd = eng_map_load("DEV-MAP");
         assert(map->eng_hnd != INVALID_HANDLE);
+    
+        const bool did_set_plx = eng_parallax_set(
+            "PARALLAX-FRONT",
+            "PARALLAX-MID",
+            "PARALLAX-BACK"
+        );
+        assert(did_set_plx);
+
     }
 
     IFB_INTERNAL void

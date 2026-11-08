@@ -14,6 +14,7 @@
 #include "renderer-tile.cpp"
 #include "renderer-particle.cpp"
 #include "renderer-map-view.cpp"
+#include "renderer-parallax.cpp"
 #include "eng-context.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
@@ -64,6 +65,7 @@ namespace ifb {
             renderer_direction_gizmo_shader* direction_gizmo;
             renderer_grid_shader*            grid; 
             renderer_tile_shader*            tile;
+            renderer_parallax_shader*        parallax;
         } shader;
     };
     
@@ -154,6 +156,7 @@ namespace ifb {
         _renderer->shader.grid            = renderer_grid_shader_create();
         _renderer->shader.tile            = renderer_tile_shader_create();
         _renderer->shader.direction_gizmo = renderer_direciton_gizmo_shader_create();
+        _renderer->shader.parallax        = renderer_parallax_shader_create();
 
         // intialize camera
         renderer_viewport_init (_renderer->viewport); 
@@ -169,6 +172,8 @@ namespace ifb {
         const hnd_file file_hnd_grid_frag    = file_ro_open_existing ("grid-frag.glsl");
         const hnd_file file_hnd_tile_vert    = file_ro_open_existing ("tile-vert.glsl");
         const hnd_file file_hnd_tile_frag    = file_ro_open_existing ("tile-frag.glsl");
+        const hnd_file file_hnd_plx_vert     = file_ro_open_existing ("parallax-vert.glsl");
+        const hnd_file file_hnd_plx_frag     = file_ro_open_existing ("parallax-frag.glsl");
 
         // read quad shaders        
         renderer_shader_source file_src_quad_vert;
@@ -200,13 +205,22 @@ namespace ifb {
         file_src_tile_vert.size = file_get_size (file_hnd_tile_vert); 
         file_src_tile_vert.data = file_read     (file_hnd_tile_vert, file_src_tile_vert.size);
         file_src_tile_frag.size = file_get_size (file_hnd_tile_frag);
-        file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size); 
-        
+        file_src_tile_frag.data = file_read     (file_hnd_tile_frag, file_src_tile_frag.size);
+
+        // read parallax shaders
+        renderer_shader_source file_src_plx_vert;
+        renderer_shader_source file_src_plx_frag;
+        file_src_plx_vert.size = file_get_size (file_hnd_plx_vert);
+        file_src_plx_vert.data = file_read     (file_hnd_plx_vert, file_src_plx_vert.size);
+        file_src_plx_frag.size = file_get_size (file_hnd_plx_frag);
+        file_src_plx_frag.data = file_read     (file_hnd_plx_frag, file_src_plx_frag.size);
+
         // initialize shaders
         renderer_quad_shader_init            (_renderer->shader.quad,            _renderer->gl, _renderer->buffers, file_src_quad_vert,    file_src_quad_frag);
         renderer_direciton_gizmo_shader_init (_renderer->shader.direction_gizmo, _renderer->gl,                     file_src_dir_giz_vert, file_src_dir_giz_frag);
         renderer_grid_shader_init            (_renderer->shader.grid,            _renderer->gl, _renderer->buffers, file_src_grid_vert,    file_src_grid_frag);
         renderer_tile_shader_init            (_renderer->shader.tile,            _renderer->gl, _renderer->buffers, file_src_tile_vert,    file_src_tile_frag);
+        renderer_parallax_shader_init        (_renderer->shader.parallax,        _renderer->gl,                     file_src_plx_vert,     file_src_plx_frag);
 
         // the particle view draws with the quad shader, so it goes after the shaders
         _renderer->particle_view = renderer_particle_view_create();
@@ -225,6 +239,8 @@ namespace ifb {
         file_close(file_hnd_grid_frag);
         file_close(file_hnd_tile_vert);
         file_close(file_hnd_tile_frag);
+        file_close(file_hnd_plx_vert);
+        file_close(file_hnd_plx_frag);
     }
 
     IFB_INTERNAL void
@@ -275,8 +291,23 @@ namespace ifb {
         render_buffers_render_quads   (buffers, lists, _renderer->cam);
 
         // buffers -> shaders
+        // the parallax backdrop stands on the far edge of the map
+        // it goes first so everything draws over it
+        const hnd_map h_map = render_lists_get_map(lists);
+        f32  backdrop_z     = 0.0f;
+        if (renderer_get_parallax_backdrop_z(h_map, backdrop_z)) {
+            renderer_parallax_shader_draw(
+                _renderer->shader.parallax,
+                gl,
+                view_proj_xform,
+                renderer_camera_get_origin(_renderer->cam),
+                _renderer->viewport->fov_y,
+                renderer_viewport_get_aspect_ratio(_renderer->viewport),
+                backdrop_z
+            );
+        }
         //renderer_direction_gizmo_draw (view_proj_xform);
-        renderer_tile_draw            (_renderer->shader.tile, gl, buffers, render_lists_get_map(lists), view_proj_xform);
+        renderer_tile_draw           (_renderer->shader.tile, gl, buffers, render_lists_get_map(lists), view_proj_xform);
         if (_renderer->is_grid_visible) {
             renderer_grid_draw        (_renderer->shader.grid, gl, buffers, view_proj_xform);
         }
@@ -463,6 +494,48 @@ namespace ifb {
         assert(_renderer->lists       != NULL);
 
         const bool did_set = render_lists_set_map(_renderer->lists, h_map);
+        return(did_set);
+    }
+
+    // the far edge of the map, where the parallax backdrop stands
+    // the camera looks down -z, so the far edge is the first row
+    IFB_INTERNAL bool
+    renderer_get_parallax_backdrop_z(
+        const hnd_map h_map,
+        f32&          backdrop_z) {
+
+        if (h_map == INVALID_HANDLE) return(false);
+
+        vec3 map_origin;
+        u32  row_min = 0;
+        u32  col_min = 0;
+        u32  row_max = 0;
+        u32  col_max = 0;
+        if (!map_get_origin           (h_map, map_origin))                         return(false);
+        if (!map_get_navigable_bounds (h_map, row_min, col_min, row_max, col_max)) return(false);
+
+        // it sits a little behind the edge so it doesn't fight the back wall for depth
+        const auto& cfg = config_instance();
+        backdrop_z = map_origin.z + ((f32)row_min * cfg.map_tile_unit_size) - PARALLAX_BACKDROP_INSET;
+        return(true);
+    }
+
+    // the names are image assets, they all have to be the same size
+    IFB_INTERNAL bool
+    renderer_set_parallax(
+        const cchar* back,
+        const cchar* mid,
+        const cchar* front) {
+
+        assert(_renderer);
+        assert(_renderer->shader.parallax);
+
+        const cchar* names[PARALLAX_LAYER_COUNT] = { back, mid, front };
+        const bool   did_set = renderer_parallax_shader_set_layers(
+            _renderer->shader.parallax,
+            _renderer->gl,
+            names
+        );
         return(did_set);
     }
 

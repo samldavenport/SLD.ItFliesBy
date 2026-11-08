@@ -524,6 +524,12 @@ namespace ifb {
     IFB_ENGINE_API f32        eng_wav_get_sample      (const wav* w, const u32 frame, const u32 channel);
 
     //--------------------------------------------------------------------
+    // PARALLAX 
+    //--------------------------------------------------------------------
+    
+    IFB_ENGINE_API bool eng_parallax_set(const cchar* front, const cchar* mid, const cchar* back);
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 

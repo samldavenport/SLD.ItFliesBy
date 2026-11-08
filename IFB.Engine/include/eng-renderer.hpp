@@ -26,6 +26,7 @@ namespace ifb {
     struct renderer_tile_vertex;
     struct renderer_tile_shader;
     struct renderer_particle_shader;
+    struct renderer_parallax_shader;
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -86,6 +87,8 @@ namespace ifb {
     IFB_INTERNAL void        renderer_set_map_view_camera              (const vec3& origin, const vec3& target);
     IFB_INTERNAL void        renderer_get_map_view_xform               (mat4& xform);
     IFB_INTERNAL void        renderer_set_map_view_grid_visible        (const bool is_visible);
+    IFB_INTERNAL bool        renderer_set_parallax                     (const cchar* back, const cchar* mid, const cchar* front);
+    IFB_INTERNAL bool        renderer_get_parallax_backdrop_z          (const hnd_map h_map, f32& backdrop_z);
 
     struct render_buffers;
     struct render_vertex_buffer;
@@ -172,6 +175,12 @@ namespace ifb {
     IFB_INTERNAL renderer_tile_shader* renderer_tile_shader_create (void);
     IFB_INTERNAL void                  renderer_tile_shader_init   (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL void                  renderer_tile_draw          (renderer_tile_shader* shdr, gl_context* gl, render_buffers* buffers, const hnd_map map_hnd, const mat4& view_proj_xform);
+
+    // parallax
+    IFB_INTERNAL renderer_parallax_shader* renderer_parallax_shader_create     (void);
+    IFB_INTERNAL void                      renderer_parallax_shader_init       (renderer_parallax_shader* shdr, gl_context* gl, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
+    IFB_INTERNAL bool                      renderer_parallax_shader_set_layers (renderer_parallax_shader* shdr, gl_context* gl, const cchar* names[3]);
+    IFB_INTERNAL void                      renderer_parallax_shader_draw       (renderer_parallax_shader* shdr, gl_context* gl, const mat4& view_proj_xform, const vec3& camera_origin, const f32 fov_y, const f32 aspect_ratio, const f32 backdrop_z);
 };
 
 #endif //ENG_RENDERER_HPP
