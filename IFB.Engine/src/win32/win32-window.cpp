@@ -60,6 +60,9 @@ namespace ifb {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
+
+        // full-window dockspace, central node passes through to the game view
+        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
     }
      
     IFB_WIN32_API_FUNC void

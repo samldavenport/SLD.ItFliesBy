@@ -43,8 +43,11 @@ namespace ifb {
         did_init_impl &= ImGui_ImplOpenGL3_Init        ("#version 330");
         assert(did_init_impl);
 
-        // load custom font
+        // enable docking
         ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        // load custom font
         ImFontConfig config;
         config.FontDataOwnedByAtlas = false;
 
