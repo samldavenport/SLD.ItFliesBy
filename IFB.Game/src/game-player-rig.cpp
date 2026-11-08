@@ -133,8 +133,8 @@ namespace ifb {
 
         atype_sprite quad_jig  = {0};
         quad_jig.color.hex   =  0xFFFFFFFF;
-        quad_jig.quad.width  =  0.1;
-        quad_jig.quad.height =  0.1;
+        quad_jig.quad.width  =  0.2;
+        quad_jig.quad.height =  0.2;
         quad_jig.position.x  = spawn_pos.x + jig_offset_x;
         quad_jig.position.y  = spawn_pos.y + 0.2f;
         quad_jig.position.z  = spawn_pos.z;
