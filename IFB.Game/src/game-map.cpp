@@ -22,7 +22,6 @@ namespace ifb {
             "PARALLAX-BACK"
         );
         assert(did_set_plx);
-        (void)did_set_plx;
 
     }
 

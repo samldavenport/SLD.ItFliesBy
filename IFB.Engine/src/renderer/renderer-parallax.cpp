@@ -30,6 +30,10 @@ namespace ifb {
     // how far behind the map's far edge the backdrop stands, in world units
     static constexpr f32   PARALLAX_BACKDROP_INSET    = 0.05f;
 
+    // how much further away the backdrop looks than where it's drawn, in world units
+    // 0 shrinks and grows like the map, bigger values change size less, very big values never change size
+    static constexpr f32   PARALLAX_BACKDROP_VIRTUAL_DEPTH = 3.0f;
+
     // how fast each layer scrolls compared to the map, back to front
     // 0 stays put like it's infinitely far away, 1 moves with the backdrop
     static constexpr f32   PARALLAX_DEFAULT_FACTORS[PARALLAX_LAYER_COUNT] = { 0.1f, 0.3f, 0.6f };
@@ -50,6 +54,7 @@ namespace ifb {
         f32  factors[PARALLAX_LAYER_COUNT];
         u32  texture_width;
         u32  texture_height;
+        f32  reference_distance; // the camera's distance to the backdrop on the first frame, 0 until then
         bool is_set;
     };
 
@@ -126,8 +131,9 @@ namespace ifb {
             shdr->factors[i_layer] = PARALLAX_DEFAULT_FACTORS[i_layer];
         }
         shdr->texture_width  = 0;
-        shdr->texture_height = 0;
-        shdr->is_set         = false;
+        shdr->texture_height     = 0;
+        shdr->reference_distance = 0.0f;
+        shdr->is_set             = false;
     }
 
     // the names are image assets, back to front, and every image has to be the same size
@@ -214,6 +220,9 @@ namespace ifb {
         shdr->texture_width  = did_upload ? width  : 0;
         shdr->texture_height = did_upload ? height : 0;
         shdr->is_set         = did_upload;
+
+        // new layers are framed from the next frame's camera
+        shdr->reference_distance = 0.0f;
         return(did_upload);
     }
 
@@ -239,9 +248,23 @@ namespace ifb {
         const f32 distance = camera_origin.z - backdrop_z;
         if (distance <= 0.0f) return;
 
+        // the backdrop should look like it's VIRTUAL_DEPTH further away than where it's drawn
+        // something that far away changes size on screen by (reference + depth) / (distance + depth)
+        // the plane it's drawn on already changes by reference / distance, so the image is scaled by the difference
+        // it stands on the ground behind the map, so it grows up from the ground
+        // the first frame's distance is the reference, so it looks like it did at spawn
+        if (shdr->reference_distance <= 0.0f) shdr->reference_distance = distance;
+        const f32 reference_distance = shdr->reference_distance;
+        const f32 scale              =
+            (distance / reference_distance) *
+            ((reference_distance + PARALLAX_BACKDROP_VIRTUAL_DEPTH) / (distance + PARALLAX_BACKDROP_VIRTUAL_DEPTH));
+
         // the size of one image in the world, its bottom is on the ground
         const f32 aspect_texture = (f32)shdr->texture_width / (f32)shdr->texture_height;
-        const f32 image_size[2]  = { PARALLAX_IMAGE_WORLD_WIDTH, PARALLAX_IMAGE_WORLD_WIDTH / aspect_texture };
+        const f32 image_size[2]  = {
+            (PARALLAX_IMAGE_WORLD_WIDTH                   ) * scale,
+            (PARALLAX_IMAGE_WORLD_WIDTH / aspect_texture) * scale
+        };
 
         // cover everything the camera can see at that distance
         // the top goes past the view, the layers clamp to their top row up there
@@ -263,7 +286,8 @@ namespace ifb {
                 i_layer < PARALLAX_LAYER_COUNT;
               ++i_layer) {
 
-            const f32 u = (camera_origin.x * shdr->factors[i_layer]) / image_size[0];
+            // measured against the unscaled width, so the scroll speed on screen doesn't change with the distance
+            const f32 u = (camera_origin.x * shdr->factors[i_layer]) / PARALLAX_IMAGE_WORLD_WIDTH;
             offsets[(i_layer * 4) + 0] = u - floorf(u);
             offsets[(i_layer * 4) + 1] = 0.0f;
             offsets[(i_layer * 4) + 2] = 0.0f;
