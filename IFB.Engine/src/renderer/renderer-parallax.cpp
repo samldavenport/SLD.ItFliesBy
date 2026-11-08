@@ -148,7 +148,7 @@ namespace ifb {
         assert(names);
 
         const asset_database* db = asset_mngr_get_database();
-        if (db == NULL || db->asset_count == 0) return(false);
+        if (db == NULL) return(false);
 
         const hnd_arena h_arena = arena_large_alloc();
         if (h_arena == INVALID_HANDLE) return(false);
@@ -211,10 +211,7 @@ namespace ifb {
 
         // the layers repeat horizontally so they can scroll forever
         if (did_upload) {
-            glBindTexture   (GL_TEXTURE_2D_ARRAY, shdr->gl.texture);
-            glTexParameteri (GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glBindTexture   (GL_TEXTURE_2D_ARRAY, GL_ID_INVALID);
-            did_upload = (glGetError() == GL_NO_ERROR);
+            did_upload = gl_texture_set_repeat_horizontally(gl, shdr->gl.texture);
         }
 
         shdr->texture_width  = did_upload ? width  : 0;
