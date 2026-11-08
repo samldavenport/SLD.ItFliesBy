@@ -295,8 +295,9 @@ namespace ifb {
         gl_context_set_vertex_object  (gl, shdr->gl.vertex);
         gl_context_set_buffer_vertex  (gl, shdr->gl.buf_vertex);
 
-        glActiveTexture (GL_TEXTURE0 + PARALLAX_TEXTURE_SLOT);
-        glBindTexture   (GL_TEXTURE_2D_ARRAY, shdr->gl.texture);
+        const bool did_bind = gl_context_set_layered_texture_active(gl, shdr->gl.texture, PARALLAX_TEXTURE_SLOT);
+        assert(did_bind);
+        (void)did_bind;
 
         gl_uniform_set_s32x1     (gl, shdr->gl.u_layers,     (s32)PARALLAX_TEXTURE_SLOT);
         gl_uniform_set_f32_array (gl, shdr->gl.u_uv_offset,  offsets, PARALLAX_LAYER_COUNT);
@@ -307,10 +308,7 @@ namespace ifb {
 
         // the backdrop writes depth like any other surface, so the grid past the map stays hidden behind it
         // the map is in front of it, so the map's depth test still passes
+        // nothing to put back, the tile and quad draws bind the sprite atlas themselves
         gl_context_draw_vertices (gl, PARALLAX_VERTEX_COUNT);
-
-        // put the texture state back for the sprite atlas
-        glBindTexture   (GL_TEXTURE_2D_ARRAY, GL_ID_INVALID);
-        glActiveTexture (GL_TEXTURE0);
     }
 };
