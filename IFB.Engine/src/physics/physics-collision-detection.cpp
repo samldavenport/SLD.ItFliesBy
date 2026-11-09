@@ -55,6 +55,7 @@ namespace ifb {
             entity e;
             if (!entity_lookup_by_id(e, id))        continue;
             if (!e.archetype.has_all(bounds_types)) continue;
+            if (!entity_is_updating(e))             continue;
 
             cmpnt_position pos;
             cmpnt_quad     quad;

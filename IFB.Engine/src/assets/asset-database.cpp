@@ -453,10 +453,11 @@ namespace ifb {
         assert(db);
         assert(name_cstr);
 
-        asset_name name;
-        name.init(name_cstr);
+        // same handle the dictionary uses (upper case, zero padded)
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) return(false);
 
-        const bool did_find = asset_database_index_of(db, name.to_handle(), index);
+        const bool did_find = asset_database_index_of(db, h_asset, index);
         return(did_find);
     }
     

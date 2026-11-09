@@ -226,6 +226,9 @@ namespace ifb {
 
             assert(cstr);
 
+            // the whole name is hashed, so the unused bytes need to be zero
+            memset((void*)this->cstr, 0, config::asset_name_size);
+
             (void)cstr_nvar_copy(
                 cstr,
                 config::asset_name_size,
@@ -759,6 +762,15 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     IFB_HANDLE(hnd_scene);
+
+    // set on a scene when it is pushed, they decide what happens to the scenes under it
+    IFB_U32(scene_flags_u32);
+
+    enum scene_flag_e {
+        scene_flag_e_none         = 0,
+        scene_flag_e_update_below = bit_value(0), // the scenes under this one keep updating
+        scene_flag_e_render_below = bit_value(1)  // the scenes under this one keep rendering
+    };
 };
 
 #endif //IFB_HPP

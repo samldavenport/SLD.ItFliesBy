@@ -3,6 +3,7 @@
 #include "ifb.hpp"
 #include "sld.hpp"
 #include "eng-entity.hpp"
+#include "eng-scene.hpp"
 
 namespace ifb {
 
@@ -17,6 +18,10 @@ namespace ifb {
         if (_entity_mngr->count == _entity_mngr->capacity.dense) {
             return(ENTITY_ID_INVALID);
         }
+
+        // the bound scene owns every entity created while it is bound
+        const hnd_scene h_scene = scene_get_bound();
+        assert(h_scene != INVALID_HANDLE);
 
         // create the id and tag
         const tag tag = tag_cstr;
@@ -63,6 +68,7 @@ namespace ifb {
             _entity_mngr->data.dense.id           [dense_index]  = id;
             _entity_mngr->data.dense.tag          [dense_index]  = tag;
             _entity_mngr->data.dense.archetype    [dense_index].reset();
+            _entity_mngr->data.dense.scene        [dense_index]  = h_scene;
             _entity_mngr->data.dense.sparse_index [dense_index]  = sparse_index;
             _entity_mngr->data.sparse.dense_index [sparse_index] = dense_index;
 
@@ -145,6 +151,7 @@ namespace ifb {
 
             _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
             _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
+            _entity_mngr->data.dense.scene        [e_current.index_dense] = _entity_mngr->data.dense.scene[e_last.index_dense];
             _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
             _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
         }
@@ -153,6 +160,7 @@ namespace ifb {
         // reduce the count
         // and return
         _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
+        _entity_mngr->data.dense.scene        [last_index]             = INVALID_HANDLE;
         --_entity_mngr->count;
         return(true);
     }
@@ -195,6 +203,7 @@ namespace ifb {
             _entity_mngr->data.dense.tag[e_current.index_dense].init(_entity_mngr->data.dense.tag [e_last.index_dense].cstr);
             _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
             _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
+            _entity_mngr->data.dense.scene        [e_current.index_dense] = _entity_mngr->data.dense.scene[e_last.index_dense];
             _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
             _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
         }
@@ -203,10 +212,89 @@ namespace ifb {
         // reduce the count
         // and return
         _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
+        _entity_mngr->data.dense.scene        [last_index]             = INVALID_HANDLE;
         --_entity_mngr->count;
         return(true);
     }
     
+
+    // destroys every entity the scene owns, returns how many were destroyed
+    IFB_INTERNAL u32
+    entity_destroy_by_scene(
+        const hnd_scene h_scene) {
+
+        entity_mngr_validate();
+        assert(h_scene != INVALID_HANDLE);
+
+        // walk backwards, destroying swaps the last entity into the hole
+        // and everything after the current index has already been checked
+        u32 destroyed = 0;
+        for (
+            u32 index = _entity_mngr->count;
+                index > 0;
+              --index) {
+
+            const u32 dense_index = (index - 1);
+            if (_entity_mngr->data.dense.scene[dense_index] != h_scene) {
+                continue;
+            }
+
+            const bool did_destroy = entity_destroy(_entity_mngr->data.dense.id[dense_index]);
+            assert(did_destroy);
+            ++destroyed;
+        }
+
+        return(destroyed);
+    }
+
+    IFB_INTERNAL hnd_scene
+    entity_lookup_scene(
+        const entity_id id) {
+
+        entity e;
+        const bool did_find = entity_lookup_by_id(e, id);
+        const hnd_scene h_scene = did_find
+            ? _entity_mngr->data.dense.scene[e.index_dense]
+            : hnd_scene(INVALID_HANDLE);
+        return(h_scene);
+    }
+
+    IFB_INTERNAL u32
+    entity_count_by_scene(
+        const hnd_scene h_scene) {
+
+        entity_mngr_validate();
+
+        u32 count = 0;
+        for (
+            u32 index = 0;
+                index < _entity_mngr->count;
+              ++index) {
+
+            count += (_entity_mngr->data.dense.scene[index] == h_scene) ? 1 : 0;
+        }
+        return(count);
+    }
+
+    IFB_INTERNAL bool
+    entity_is_updating(
+        const entity& e) {
+
+        entity_mngr_validate();
+        assert(e.index_dense < _entity_mngr->count);
+
+        return(scene_is_updating(_entity_mngr->data.dense.scene[e.index_dense]));
+    }
+
+    IFB_INTERNAL bool
+    entity_is_rendering(
+        const entity& e) {
+
+        entity_mngr_validate();
+        assert(e.index_dense < _entity_mngr->count);
+
+        return(scene_is_rendering(_entity_mngr->data.dense.scene[e.index_dense]));
+    }
 
     IFB_INTERNAL bool
     entity_lookup_by_id(

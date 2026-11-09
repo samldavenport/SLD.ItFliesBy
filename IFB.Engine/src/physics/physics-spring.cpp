@@ -137,7 +137,14 @@ namespace ifb {
         ) {
             // get the spring id and sparse index
             const entity_id spring_id           = eng_entity_list_index(calc->entt_list, entity_index);
-            const u32       spring_sparse_index = entity_lookup_sparse_index(spring_id);
+
+            // a paused scene keeps its springs where they are
+            entity spring_entity;
+            if (!entity_lookup_by_id(spring_entity, spring_id) || !entity_is_updating(spring_entity)) {
+                continue;
+            }
+
+            const u32       spring_sparse_index = spring_entity.index_sparse;
            
             // look up the spring info
             cmpnt_lookup_position (spring_sparse_index, pos_spr);

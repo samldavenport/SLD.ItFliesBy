@@ -2,6 +2,7 @@
 
 #include "ifb.hpp"
 #include "eng-particle.hpp"
+#include "eng-scene.hpp"
 #include "particle-mngr.cpp"
 #include "sld-strings.hpp"
 #include "sld-math-vec3.hpp"
@@ -56,6 +57,8 @@ namespace ifb {
         particle_emitter& emitter = particle_mngr_set_handle(emitter_index_new, h_emitter_new);
 
         // set the emitter properties
+        // the bound scene owns every emitter created while it is bound
+        emitter.scene           = scene_get_bound();
         emitter.type            = type;
         emitter.count           = count;
         emitter.lifespan_ms     = lifespan_ms;
@@ -172,6 +175,31 @@ namespace ifb {
         particle_mngr_deactivate_emitter(index);
         particle_mngr_set_handle(index, INVALID_HANDLE);
         return(true);
+    }
+
+    // destroys every emitter the scene owns, returns how many were destroyed
+    IFB_INTERNAL u32
+    particle_mngr_destroy_by_scene(
+        const hnd_scene h_scene) {
+
+        assert(h_scene != INVALID_HANDLE);
+
+        u32 destroyed = 0;
+        const u32 capacity = particle_mngr_get_emitter_capacity();
+        for (
+            u32 index = 0;
+                index < capacity;
+              ++index) {
+
+            const particle_emitter& emitter = particle_mngr_get_emitter(index);
+            if (emitter.hnd   == INVALID_HANDLE) continue;
+            if (emitter.scene != h_scene)        continue;
+
+            particle_mngr_deactivate_emitter(index);
+            particle_mngr_set_handle(index, INVALID_HANDLE);
+            ++destroyed;
+        }
+        return(destroyed);
     }
 
     IFB_INTERNAL bool

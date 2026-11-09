@@ -144,6 +144,11 @@ namespace ifb {
                 cmpnt_type_e_position
         ); 
 
+        // a scene that is off the stack, or covered, doesn't draw
+        if (does_exist && !entity_is_rendering(e)) {
+            return(false);
+        }
+
         const bool can_render = (does_exist && has_component); 
         const bool did_push   = can_render && renderer_push_quad(id);
 

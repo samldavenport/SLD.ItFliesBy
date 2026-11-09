@@ -7,6 +7,7 @@
 #include "ifb.hpp"
 #include "particle-emitter.cpp"
 #include "eng-particle.hpp"
+#include "eng-scene.hpp"
 #include "particle-mngr.cpp"
 #include "random-table.cpp"
 #include "sld-math-globals.hpp"
@@ -163,6 +164,12 @@ namespace ifb {
             particle_emitter&               emitter       = particle_mngr_get_emitter(emitter_index);
             const particle_parabolic_props& props         = particle_mngr_get_props_parabolic(emitter_index);
 
+            // a paused scene's particles hold still
+            if (!scene_is_updating(emitter.scene)) {
+                ++list_index;
+                continue;
+            }
+
             u32 count_live = particle_emitter_age(emitter, dt_ms);
 
             // gravity bends the path of every live particle
@@ -228,6 +235,12 @@ namespace ifb {
             const u32                    emitter_index = list.array_index[list_index];
             particle_emitter&            emitter       = particle_mngr_get_emitter(emitter_index);
             const particle_radial_props& props         = particle_mngr_get_props_radial(emitter_index);
+
+            // a paused scene's particles hold still
+            if (!scene_is_updating(emitter.scene)) {
+                ++list_index;
+                continue;
+            }
 
             u32 count_live = particle_emitter_age(emitter, dt_ms);
 

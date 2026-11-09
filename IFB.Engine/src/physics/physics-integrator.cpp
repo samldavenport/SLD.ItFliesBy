@@ -128,6 +128,9 @@ namespace ifb {
             const bool should_integrate = e.archetype.has_all(physics_types);
             if (!should_integrate) continue;
 
+            // a paused scene keeps its entities where they are
+            if (!entity_is_updating(e)) continue;
+
 
             // look up the components  
             // add the components to the intregrator    

@@ -64,6 +64,7 @@ using namespace sld;
 #define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
+#define IFB_CONFIG_SCENE_CAPACITY                 16
 #define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100       0.75f
 #define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      4
 #define IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE          size_megabytes(64)
@@ -147,6 +148,7 @@ namespace ifb {
         static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
         static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
         static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
+        static constexpr u32   scene_capacity                 = IFB_CONFIG_SCENE_CAPACITY;
         static constexpr f32   sparse_set_max_load_p100       = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
         static constexpr u32   sprite_atlas_table_capacity    = IFB_CONFIG_SPRITE_TABLE_CAPACITY;
         static constexpr u32   sprite_mem_block_capacity      = IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY;

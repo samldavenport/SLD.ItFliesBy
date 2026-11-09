@@ -61,6 +61,17 @@ namespace ifb {
         );
     }
     
+    // drops the queued events without running their listeners
+    IFB_INTERNAL void
+    event_mngr_flush(
+        void) {
+
+        assert(_event_mngr);
+        assert(_event_mngr->queue);
+
+        event_queue_reset(_event_mngr->queue);
+    }
+
     IFB_INTERNAL void*
     event_mngr_alloc(
         const u32 size) {

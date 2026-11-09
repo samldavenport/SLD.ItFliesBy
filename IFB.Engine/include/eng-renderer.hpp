@@ -88,6 +88,7 @@ namespace ifb {
     IFB_INTERNAL void        renderer_get_map_view_xform               (mat4& xform);
     IFB_INTERNAL void        renderer_set_map_view_grid_visible        (const bool is_visible);
     IFB_INTERNAL bool        renderer_set_parallax                     (const cchar* back, const cchar* mid, const cchar* front);
+    IFB_INTERNAL void        renderer_sync_parallax                    (void);
     IFB_INTERNAL bool        renderer_get_parallax_backdrop_z          (const hnd_map h_map, f32& backdrop_z);
 
     struct render_buffers;

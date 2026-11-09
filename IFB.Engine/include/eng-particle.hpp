@@ -39,6 +39,7 @@ namespace ifb {
     IFB_INTERNAL particle_mngr*       particle_mngr_create               (void);
     IFB_INTERNAL void                 particle_mngr_startup              (reservation* res); 
     IFB_INTERNAL void                 particle_mngr_update_emitters      (const f32 dt_ms);
+    IFB_INTERNAL u32                  particle_mngr_destroy_by_scene     (const hnd_scene h_scene);
     IFB_INTERNAL u32                  particle_mngr_get_emitter_capacity (void);
     IFB_INTERNAL hnd_particle_emitter particle_mngr_get_emitter_hnd      (const u32 index);
     IFB_INTERNAL u32                  particle_mngr_render_buffer        (byte* buffer_data, const u32 buffer_size, const orientation& camera_orientation);
@@ -89,6 +90,7 @@ namespace ifb {
 
     struct particle_emitter {
         hnd_particle_emitter hnd;
+        hnd_scene            scene;           // the scene that owns the emitter
         u32                  type;
         u32                  list_index;      // INVALID_INDEX when idle
         bool                 is_spawning;

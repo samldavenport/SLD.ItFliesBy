@@ -66,6 +66,7 @@ set(IFB_ENGINE_SOURCE_DIRS
     IFB.Engine/src/physics
     IFB.Engine/src/quads
     IFB.Engine/src/random
+    IFB.Engine/src/scenes
     IFB.Engine/src/renderer
     IFB.Engine/src/sprites
     IFB.Engine/src/tiled

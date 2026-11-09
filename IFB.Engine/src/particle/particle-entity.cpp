@@ -33,6 +33,7 @@ namespace ifb {
             entity e;
             if (!entity_lookup_by_index_dense(e, entity_index)) continue;
             if (!e.archetype.has_all(cmpnt_types))              continue;
+            if (!entity_is_updating(e))                         continue;
 
             // the component has no emitter until one is set
             cmpnt_particle_emitter emitter;

@@ -38,6 +38,7 @@
 #include "eng-particle.cpp"
 #include "eng-random.cpp"
 #include "eng-renderer.cpp"
+#include "eng-scene.cpp"
 #include "eng-sprite.cpp"
 #include "eng-events.cpp"
 #include "eng-jobs.cpp"
@@ -92,6 +93,8 @@
 
 #include "random-table.cpp"
 #include "renderer.cpp"
+
+#include "scene-mngr.cpp"
 
 #include "sprite.cpp"
 
