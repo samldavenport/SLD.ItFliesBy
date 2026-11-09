@@ -15,6 +15,7 @@ namespace ifb {
     IFB_INTERNAL void                  event_mngr_startup            (reservation* res);
     IFB_INTERNAL void                  event_mngr_shutdown           (void);
     IFB_INTERNAL void                  event_mngr_update             (void);
+    IFB_INTERNAL void                  event_mngr_flush              (void);
     IFB_INTERNAL void*                 event_mngr_alloc              (const u32 size);
     IFB_INTERNAL bool                  event_mngr_publish            (const event_type_u32 type, const event_payload& payload);
     IFB_INTERNAL bool                  event_mngr_subscribe          (const event_type_u32 type, const fptr_event_listener listener);

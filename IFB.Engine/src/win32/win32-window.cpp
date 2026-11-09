@@ -5,6 +5,7 @@
 #include "ifb-input.hpp"
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_win32.h>
+#include <imgui_internal.h>
 #include "ifb-engine.hpp"
 
 namespace ifb {
@@ -62,8 +63,23 @@ namespace ifb {
         ImGui::NewFrame();
 
         // full-window dockspace, central node passes through to the game view
-        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
-    }
+        const ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
+        // the dockspace's host window takes the focus when it first appears,
+        // and while any gui window has the focus the game doesn't get the keyboard
+        // it's only there to hold the docked windows, so it never keeps the focus
+        const ImGuiWindow*   focused   = ImGui::GetCurrentContext()->NavWindow;
+        const ImGuiDockNode* dockspace = ImGui::DockBuilderGetNode(dockspace_id);
+        // the node's host is a child window, the one that takes the focus is its root
+        const bool is_host_focused = (
+            focused                 != NULL &&
+            dockspace               != NULL &&
+            dockspace->HostWindow   != NULL &&
+            dockspace->HostWindow->RootWindow == focused
+        );
+        if (is_host_focused) {
+            ImGui::FocusWindow(NULL);
+        }    }
      
     IFB_WIN32_API_FUNC void
     pfm_window_frame_render(

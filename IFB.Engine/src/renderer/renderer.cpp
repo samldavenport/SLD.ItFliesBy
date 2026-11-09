@@ -15,6 +15,7 @@
 #include "renderer-particle.cpp"
 #include "renderer-map-view.cpp"
 #include "renderer-parallax.cpp"
+#include "eng-scene.hpp"
 #include "eng-context.hpp"
 #include "sld-math-mat4.hpp"
 #include "sld-math.hpp"
@@ -67,6 +68,7 @@ namespace ifb {
             renderer_tile_shader*            tile;
             renderer_parallax_shader*        parallax;
         } shader;
+        u32 parallax_revision; // the scene parallax the shader has loaded, 0 for none
     };
     
     //--------------------------------------------------------------------
@@ -157,6 +159,7 @@ namespace ifb {
         _renderer->shader.tile            = renderer_tile_shader_create();
         _renderer->shader.direction_gizmo = renderer_direciton_gizmo_shader_create();
         _renderer->shader.parallax        = renderer_parallax_shader_create();
+        _renderer->parallax_revision      = 0;
 
         // intialize camera
         renderer_viewport_init (_renderer->viewport); 
@@ -285,6 +288,9 @@ namespace ifb {
 
         mat4 view_proj_xform;
         renderer_view_projection_xform(view_proj_xform);
+
+        // the backdrop belongs to the highest rendering scene that has one
+        renderer_sync_parallax();
 
         // lists -> buffers
         render_buffers_render_tiles   (buffers, lists);
@@ -518,6 +524,31 @@ namespace ifb {
         const auto& cfg = config_instance();
         backdrop_z = map_origin.z + ((f32)row_min * cfg.map_tile_unit_size) - PARALLAX_BACKDROP_INSET;
         return(true);
+    }
+
+    // loads the layers when the scene parallax that should be drawn changes
+    // a revision that fails to load isn't tried again, nothing is drawn until the next one
+    IFB_INTERNAL void
+    renderer_sync_parallax(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->shader.parallax);
+
+        const scene_parallax* plx      = scene_get_parallax_drawn();
+        const u32             revision = (plx != NULL) ? plx->revision : 0;
+        if (revision == _renderer->parallax_revision) return;
+
+        _renderer->parallax_revision = revision;
+        if (plx == NULL) {
+            _renderer->shader.parallax->is_set = false;
+            return;
+        }
+
+        const bool did_set = renderer_set_parallax(plx->back, plx->mid, plx->front);
+        if (!did_set) {
+            _renderer->shader.parallax->is_set = false;
+        }
     }
 
     // the names are image assets, they all have to be the same size

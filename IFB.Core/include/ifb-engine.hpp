@@ -209,15 +209,45 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_destroy_by_tag        (const cchar*    tag);
     IFB_ENGINE_API u32          eng_entity_get_count             (void);
     IFB_ENGINE_API const cchar* eng_entity_get_tag               (const entity_id id);
-    IFB_ENGINE_API bool         eng_entity_add_components        (const entity_id id, const component_type    type);
-    IFB_ENGINE_API bool         eng_entity_remove_components     (const entity_id id, const component_type    type);
+    IFB_ENGINE_API bool         eng_entity_add_components        (const entity_id id, const cmpnt_type_u32    type);
+    IFB_ENGINE_API bool         eng_entity_remove_components     (const entity_id id, const cmpnt_type_u32    type);
     IFB_ENGINE_API bool         eng_entity_lookup_by_dense_index (const u32 dense_index, entity& e);
     IFB_ENGINE_API bool         eng_entity_lookup_by_id          (const entity_id, entity& e);
     IFB_ENGINE_API bool         eng_entity_query                 (entity_list* list, const entity_query query);
     IFB_ENGINE_API bool         eng_entity_quad_lookup           (quad_entity& q, const entity_id id);
     IFB_ENGINE_API bool         eng_entity_render                (const entity_id id);
     IFB_ENGINE_API bool         eng_entity_add_force             (const entity_id id, const vec3& force);
+    IFB_ENGINE_API hnd_scene    eng_entity_get_scene             (const entity_id id);
     IFB_ENGINE_API bool         eng_entity_set_sprite            (const entity_id id, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+
+    //--------------------------------------------------------------------
+    // SCENES
+    //--------------------------------------------------------------------
+
+    // entities, particle emitters and parallax created while a scene is bound belong to it
+    // the default scene is the bottom of the stack, and can't be popped or destroyed
+    // pushing a scene binds it, popping binds the new top
+    // the top scene updates and renders, the ones under it only if the scenes above them allow it
+    // push, pop, transition, destroy and reset bind right away,
+    // but what runs and what gets released only changes at the start of the next frame
+    IFB_ENGINE_API hnd_scene    eng_scene_create                 (const cchar* name);
+    IFB_ENGINE_API bool         eng_scene_destroy                (const hnd_scene h_scene);
+    IFB_ENGINE_API bool         eng_scene_reset                  (const hnd_scene h_scene);
+    IFB_ENGINE_API bool         eng_scene_bind                   (const hnd_scene h_scene);
+    IFB_ENGINE_API hnd_scene    eng_scene_get_bound              (void);
+    IFB_ENGINE_API hnd_scene    eng_scene_get_default            (void);
+    IFB_ENGINE_API const cchar* eng_scene_get_name               (const hnd_scene h_scene);
+    IFB_ENGINE_API u32          eng_scene_get_entity_count       (const hnd_scene h_scene);
+    IFB_ENGINE_API void*        eng_scene_alloc                  (const hnd_scene h_scene, const u32 size);
+    IFB_ENGINE_API bool         eng_scene_push                   (const hnd_scene h_scene, const scene_flags_u32 flags);
+    IFB_ENGINE_API bool         eng_scene_pop                    (void);
+    IFB_ENGINE_API bool         eng_scene_transition             (const hnd_scene h_scene, const scene_flags_u32 flags);
+    IFB_ENGINE_API bool         eng_scene_set_parallax           (const hnd_scene h_scene, const cchar* front, const cchar* mid, const cchar* back);
+    IFB_ENGINE_API bool         eng_scene_clear_parallax         (const hnd_scene h_scene);
+    IFB_ENGINE_API hnd_scene    eng_scene_get_top                (void);
+    IFB_ENGINE_API u32          eng_scene_get_stack_count        (void);
+    IFB_ENGINE_API bool         eng_scene_is_updating            (const hnd_scene h_scene);
+    IFB_ENGINE_API bool         eng_scene_is_rendering           (const hnd_scene h_scene);
 
     //--------------------------------------------------------------------
     // COMPONENTS 

@@ -33,7 +33,7 @@ namespace ifb {
         const entity_id  id,
         phys_cllsn_body& body) {
 
-        static const component_type cllsn_types = (
+        static const cmpnt_type_u32 cllsn_types = (
             cmpnt_type_e_position |
             cmpnt_type_e_quad
         );

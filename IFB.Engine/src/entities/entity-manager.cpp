@@ -18,6 +18,7 @@ namespace ifb {
         _entity_mngr->data.dense.id           = NULL;
         _entity_mngr->data.dense.tag          = NULL;
         _entity_mngr->data.dense.archetype    = NULL;
+        _entity_mngr->data.dense.scene        = NULL;
         _entity_mngr->data.dense.sparse_index = NULL;
         _entity_mngr->data.sparse.dense_index = NULL;
         _entity_mngr->capacity.dense          = 0;
@@ -37,6 +38,7 @@ namespace ifb {
             _entity_mngr->data.dense.id           != NULL &&
             _entity_mngr->data.dense.tag          != NULL &&
             _entity_mngr->data.dense.archetype    != NULL &&
+            _entity_mngr->data.dense.scene        != NULL &&
             _entity_mngr->data.dense.sparse_index != NULL &&
             _entity_mngr->data.sparse.dense_index != NULL &&
             _entity_mngr->capacity.dense          != 0    &&
@@ -61,6 +63,7 @@ namespace ifb {
         const u32  size_entity_ids   = (sizeof(entity_id) * _entity_mngr->capacity.dense);
         const u32  size_entity_tags  = (sizeof(tag)       * _entity_mngr->capacity.dense);
         const u32  size_entity_arch  = (sizeof(archetype) * _entity_mngr->capacity.dense); 
+        const u32  size_entity_scene = (sizeof(hnd_scene) * _entity_mngr->capacity.dense); 
         const u32  size_index_sparse = (sizeof(u32)       * _entity_mngr->capacity.dense); 
         const u32  size_index_dense  = (sizeof(u32)       * _entity_mngr->capacity.sparse); 
 
@@ -68,12 +71,14 @@ namespace ifb {
         _entity_mngr->data.dense.id           = (entity_id*)reservation_push_bytes(res, size_entity_ids);
         _entity_mngr->data.dense.tag          =       (tag*)reservation_push_bytes(res, size_entity_tags);
         _entity_mngr->data.dense.archetype    = (archetype*)reservation_push_bytes(res, size_entity_arch);
+        _entity_mngr->data.dense.scene        = (hnd_scene*)reservation_push_bytes(res, size_entity_scene);
         _entity_mngr->data.dense.sparse_index =       (u32*)reservation_push_bytes(res, size_index_sparse);
         _entity_mngr->data.sparse.dense_index =       (u32*)reservation_push_bytes(res, size_index_dense);
 
         assert(_entity_mngr->data.dense.id);
         assert(_entity_mngr->data.dense.tag);
         assert(_entity_mngr->data.dense.archetype);
+        assert(_entity_mngr->data.dense.scene);
         assert(_entity_mngr->data.dense.sparse_index);
         assert(_entity_mngr->data.sparse.dense_index);
 
@@ -84,6 +89,7 @@ namespace ifb {
               ++dense_index) {
 
             _entity_mngr->data.dense.id           [dense_index] = ENTITY_ID_INVALID;
+            _entity_mngr->data.dense.scene        [dense_index] = INVALID_HANDLE;
             _entity_mngr->data.dense.sparse_index [dense_index] = INVALID_INDEX;
         }
 
@@ -112,6 +118,7 @@ namespace ifb {
         _entity_mngr->data.dense.id           = NULL;
         _entity_mngr->data.dense.tag          = NULL;
         _entity_mngr->data.dense.archetype    = NULL;
+        _entity_mngr->data.dense.scene        = NULL;
         _entity_mngr->data.dense.sparse_index = NULL;
         _entity_mngr->data.sparse.dense_index = NULL;
         _entity_mngr->res                     = NULL;

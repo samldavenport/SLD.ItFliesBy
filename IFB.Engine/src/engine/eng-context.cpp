@@ -16,6 +16,7 @@
 #include "physics-manager.cpp"
 #include "random-table.cpp"
 #include "renderer.cpp"
+#include "scene-mngr.cpp"
 #include "eng-tiled.hpp"
 #include "eng-system.cpp"
 #include "eng-asset.hpp"
@@ -77,6 +78,7 @@ namespace ifb {
         _eng_context->event_mngr      = event_mngr_create();
         _eng_context->job_dspchr      = job_dspchr_create();
         _eng_context->audio_mngr      = audio_mngr_create();
+        _eng_context->scene_mngr      = scene_mngr_create();
         _eng_context->mem_map         = mem_map;
 
 
@@ -98,7 +100,8 @@ namespace ifb {
             _eng_context->asset_mngr    != NULL &&
             _eng_context->sprite_mngr   != NULL &&
             _eng_context->event_mngr    != NULL &&
-            _eng_context->audio_mngr    != NULL
+            _eng_context->audio_mngr    != NULL &&
+            _eng_context->scene_mngr    != NULL
         );
 
         return(_eng_context);
@@ -191,6 +194,9 @@ namespace ifb {
         job_dspchr_startup    (res_jobs);
         renderer_startup      (res_renderer);
         audio_mngr_startup    (res_audio);
+
+        // needs the arenas, and has to be bound before any entity is created
+        scene_mngr_startup    ();
     }
 
     IFB_ENGINE_API bool 
@@ -220,6 +226,9 @@ namespace ifb {
         }
 
         // game callback    
+        // scene requests from the last frame take effect here, before anything runs
+        scene_mngr_frame_start();
+
         _eng_context->game_callback(
             _eng_context->game_ctx
         );

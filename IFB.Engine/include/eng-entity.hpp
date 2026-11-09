@@ -16,6 +16,7 @@ namespace ifb {
                 entity_id* id;
                 tag*       tag;
                 archetype* archetype;
+                hnd_scene* scene;        // the scene that owns the entity
                 u32*       sparse_index;
             } dense;
             struct {
@@ -48,7 +49,8 @@ namespace ifb {
     IFB_INTERNAL bool         entity_add_archetype             (const entity_id id, const archetype atype);
     IFB_INTERNAL bool         entity_remove_archetype          (const entity_id id, const archetype atype);
     IFB_INTERNAL bool         entity_destroy                   (const entity_id id);
-    IFB_INTERNAL bool         entity_has_component             (const entity& e, const component_type type);
+    IFB_INTERNAL u32          entity_destroy_by_scene          (const hnd_scene h_scene);
+    IFB_INTERNAL bool         entity_has_component             (const entity& e, const cmpnt_type_u32 type);
 
     // lookup
     IFB_INTERNAL bool         entity_lookup_list               (entity_list* list, const entity_query& query);
@@ -58,10 +60,16 @@ namespace ifb {
     IFB_INTERNAL u32          entity_lookup_sparse_index       (const entity_id id);
     IFB_INTERNAL archetype    entity_lookup_archetype          (const entity_id id);
     IFB_INTERNAL const cchar* entity_lookup_tag                (const entity_id id);
+    IFB_INTERNAL hnd_scene    entity_lookup_scene              (const entity_id id);
+    IFB_INTERNAL u32          entity_count_by_scene            (const hnd_scene h_scene);
+
+    // scenes off the stack, or covered by a scene that doesn't let them run, are skipped
+    IFB_INTERNAL bool         entity_is_updating               (const entity& e);
+    IFB_INTERNAL bool         entity_is_rendering              (const entity& e);
 
     // components
-    IFB_INTERNAL bool         entity_component_add             (const entity_id id, const component_type types);
-    IFB_INTERNAL bool         entity_component_remove          (const entity_id id, const component_type types);
+    IFB_INTERNAL bool         entity_component_add             (const entity_id id, const cmpnt_type_u32 types);
+    IFB_INTERNAL bool         entity_component_remove          (const entity_id id, const cmpnt_type_u32 types);
 };
 
 #endif //ENG_ENTITY_HPP

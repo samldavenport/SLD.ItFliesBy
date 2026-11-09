@@ -1,6 +1,7 @@
 #pragma once
 
 #include "eng-renderer.hpp"
+#include "eng-scene.hpp"
 
 namespace ifb {
 
@@ -19,6 +20,7 @@ namespace ifb {
         renderer_set_grid_visible(is_visible);
     }
 
+    // sets the parallax of the bound scene
     // the names are image assets, they all have to be the same size
     IFB_ENGINE_API bool
     eng_parallax_set(
@@ -28,8 +30,7 @@ namespace ifb {
 
         assert(front && mid && back);
 
-        // the renderer stores the layers back to front
-        const bool did_set = renderer_set_parallax(back, mid, front);
+        const bool did_set = eng_scene_set_parallax(scene_get_bound(), front, mid, back);
         return(did_set);
     }
 };

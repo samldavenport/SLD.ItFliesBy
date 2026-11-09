@@ -16,6 +16,7 @@
 #include "eng-map.hpp"
 #include "eng-memory.hpp"
 #include "eng-particle.hpp"
+#include "eng-scene.hpp"
 
 #define IFB_ENG_API_FUNC
 #define IFB_ENG_INTERNAL static
@@ -53,6 +54,7 @@ namespace ifb {
         event_mngr*        event_mngr;
         job_dspchr*        job_dspchr;
         audio_mngr*        audio_mngr;
+        scene_mngr*        scene_mngr;
         f32                seconds_per_frame;
     } static * _eng_context;
 

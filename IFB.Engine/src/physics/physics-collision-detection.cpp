@@ -38,7 +38,7 @@ namespace ifb {
         phys_aabb*         aabbs,
         const f32          dt) {
 
-        const component_type bounds_types = (
+        const cmpnt_type_u32 bounds_types = (
             cmpnt_type_e_position |
             cmpnt_type_e_quad
         );
@@ -55,6 +55,7 @@ namespace ifb {
             entity e;
             if (!entity_lookup_by_id(e, id))        continue;
             if (!e.archetype.has_all(bounds_types)) continue;
+            if (!entity_is_updating(e))             continue;
 
             cmpnt_position pos;
             cmpnt_quad     quad;
