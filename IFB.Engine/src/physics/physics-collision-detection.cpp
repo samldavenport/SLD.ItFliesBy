@@ -38,7 +38,7 @@ namespace ifb {
         phys_aabb*         aabbs,
         const f32          dt) {
 
-        const component_type bounds_types = (
+        const cmpnt_type_u32 bounds_types = (
             cmpnt_type_e_position |
             cmpnt_type_e_quad
         );

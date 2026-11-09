@@ -19,7 +19,7 @@ namespace ifb {
 
         assert(_particle_mngr);
 
-        static const component_type cmpnt_types = (
+        static const cmpnt_type_u32 cmpnt_types = (
             cmpnt_type_e_position |
             cmpnt_type_e_particle_emitter
         );

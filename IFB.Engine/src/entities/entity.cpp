@@ -267,7 +267,7 @@ namespace ifb {
     IFB_INTERNAL bool
     entity_has_component(
         const entity&        e,
-        const component_type type) {
+        const cmpnt_type_u32 type) {
 
         const bool has_cmpnt = e.archetype.has_any(type);
         return(has_cmpnt);

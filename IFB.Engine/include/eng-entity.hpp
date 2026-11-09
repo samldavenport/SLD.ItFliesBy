@@ -48,7 +48,7 @@ namespace ifb {
     IFB_INTERNAL bool         entity_add_archetype             (const entity_id id, const archetype atype);
     IFB_INTERNAL bool         entity_remove_archetype          (const entity_id id, const archetype atype);
     IFB_INTERNAL bool         entity_destroy                   (const entity_id id);
-    IFB_INTERNAL bool         entity_has_component             (const entity& e, const component_type type);
+    IFB_INTERNAL bool         entity_has_component             (const entity& e, const cmpnt_type_u32 type);
 
     // lookup
     IFB_INTERNAL bool         entity_lookup_list               (entity_list* list, const entity_query& query);
@@ -60,8 +60,8 @@ namespace ifb {
     IFB_INTERNAL const cchar* entity_lookup_tag                (const entity_id id);
 
     // components
-    IFB_INTERNAL bool         entity_component_add             (const entity_id id, const component_type types);
-    IFB_INTERNAL bool         entity_component_remove          (const entity_id id, const component_type types);
+    IFB_INTERNAL bool         entity_component_add             (const entity_id id, const cmpnt_type_u32 types);
+    IFB_INTERNAL bool         entity_component_remove          (const entity_id id, const cmpnt_type_u32 types);
 };
 
 #endif //ENG_ENTITY_HPP

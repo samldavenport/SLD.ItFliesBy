@@ -484,7 +484,7 @@ namespace ifb {
     // COMPONENTS
     //--------------------------------------------------------------------
 
-    IFB_U32(component_type);
+    IFB_U32(cmpnt_type_u32);
 
     enum cmpnt_type_e {
         cmpnt_type_e_none             = 0,
@@ -582,7 +582,7 @@ namespace ifb {
         cmpnt_sprite        sprite;
     };
 
-    static const component_type ARCHETYPE_SPRITE = (
+    static const cmpnt_type_u32 ARCHETYPE_SPRITE = (
         cmpnt_type_e_position   |
         cmpnt_type_e_color      |
         cmpnt_type_e_quad       |
@@ -590,7 +590,7 @@ namespace ifb {
         cmpnt_type_e_sprite
     );
 
-    static const component_type ARCHETYPE_PHYSICS_PARTICLE = (
+    static const cmpnt_type_u32 ARCHETYPE_PHYSICS_PARTICLE = (
         cmpnt_type_e_position      |
         cmpnt_type_e_velocity      |
         cmpnt_type_e_acceleration  |
@@ -599,34 +599,34 @@ namespace ifb {
         cmpnt_type_e_term_velocity
     );
 
-    static const component_type ARCHETYPE_PHYSICS_SPRITE = (
+    static const cmpnt_type_u32 ARCHETYPE_PHYSICS_SPRITE = (
         ARCHETYPE_SPRITE |
         ARCHETYPE_PHYSICS_PARTICLE
     );
 
     struct archetype {
 
-        component_type cmpnt_mask;
+        cmpnt_type_u32 cmpnt_mask;
 
         archetype(void) = default;
-        archetype(const component_type val) : cmpnt_mask(val) {}
+        archetype(const cmpnt_type_u32 val) : cmpnt_mask(val) {}
 
         inline void reset(void) {
             cmpnt_mask = 0;
         }
 
-        inline bool has_any  (const component_type types) const { return((cmpnt_mask & types) !=  0);    }
-        inline bool has_all  (const component_type types) const { return((cmpnt_mask & types) == types); }
-        inline bool has_none (const component_type types) const { return((cmpnt_mask & types) == 0);     }
+        inline bool has_any  (const cmpnt_type_u32 types) const { return((cmpnt_mask & types) !=  0);    }
+        inline bool has_all  (const cmpnt_type_u32 types) const { return((cmpnt_mask & types) == types); }
+        inline bool has_none (const cmpnt_type_u32 types) const { return((cmpnt_mask & types) == 0);     }
 
         inline void
-        add(const component_type types) {
+        add(const cmpnt_type_u32 types) {
 
             cmpnt_mask |= types;
         }
 
         inline void
-        remove(const component_type types) {
+        remove(const cmpnt_type_u32 types) {
             cmpnt_mask &= ~types.val;
         }
     };
@@ -653,9 +653,9 @@ namespace ifb {
     };
 
     struct entity_query {
-        component_type has_all;
-        component_type has_any;
-        component_type has_none;
+        cmpnt_type_u32 has_all;
+        cmpnt_type_u32 has_any;
+        cmpnt_type_u32 has_none;
     };
 
     
@@ -754,6 +754,11 @@ namespace ifb {
         cchar            name[config::asset_name_size + 1]; // the sound asset, empty for a wav that isn't one
     };
 
+    //--------------------------------------------------------------------
+    // SCENES 
+    //--------------------------------------------------------------------
+
+    IFB_HANDLE(hnd_scene);
 };
 
 #endif //IFB_HPP

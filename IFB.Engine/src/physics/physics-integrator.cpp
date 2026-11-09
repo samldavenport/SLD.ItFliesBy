@@ -104,7 +104,7 @@ namespace ifb {
         phys_frc_intgrtr*       i,
         const phys_frc_accmltr* a) {
         
-        const component_type physics_types = (
+        const cmpnt_type_u32 physics_types = (
             cmpnt_type_e_position       |
             cmpnt_type_e_velocity       |
             cmpnt_type_e_acceleration   |

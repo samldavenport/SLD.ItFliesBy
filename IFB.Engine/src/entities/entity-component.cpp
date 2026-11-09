@@ -9,7 +9,7 @@ namespace ifb {
     IFB_INTERNAL bool
     entity_component_add(
         const entity_id      id,
-        const component_type types) {
+        const cmpnt_type_u32 types) {
 
         bool did_update = false;
         for (
@@ -29,7 +29,7 @@ namespace ifb {
     IFB_INTERNAL bool
     entity_component_add(
         const cchar*         tag_cstr,
-        const component_type types) {
+        const cmpnt_type_u32 types) {
         
         assert(tag_cstr != NULL);
 
@@ -41,7 +41,7 @@ namespace ifb {
     IFB_INTERNAL bool
     entity_component_remove(
         const entity_id      id,
-        const component_type types) {
+        const cmpnt_type_u32 types) {
 
         bool did_update = false;
         for (
@@ -61,7 +61,7 @@ namespace ifb {
     IFB_INTERNAL bool
     entity_component_remove(
         const cchar*         tag_cstr,
-        const component_type types) {
+        const cmpnt_type_u32 types) {
         
         assert(tag_cstr != NULL);
 

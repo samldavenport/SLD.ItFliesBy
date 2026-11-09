@@ -74,7 +74,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_add_components(
         const entity_id      id,
-        const component_type type) {
+        const cmpnt_type_u32 type) {
    
         assert(id != ENTITY_ID_INVALID);
         
@@ -85,7 +85,7 @@ namespace ifb {
     IFB_ENGINE_API bool
     eng_entity_remove_components(
         const entity_id      id,
-        const component_type type) {
+        const cmpnt_type_u32 type) {
     
         assert(id != ENTITY_ID_INVALID); 
 
