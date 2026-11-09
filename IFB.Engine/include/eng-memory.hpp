@@ -57,6 +57,9 @@ namespace ifb {
     IFB_INTERNAL void         memory_mngr_startup  (reservation* res, reservation* res_large);
     IFB_INTERNAL void         memory_mngr_shutdown (void);
 
+    // the memory tool lists every registered reservation
+    IFB_INTERNAL void         memory_stats_register_reservation (const char* name, const reservation* res, const bool is_arena_pool = false);
+
     IFB_INTERNAL reservation* reservation_create              (const memory& mem);
     IFB_INTERNAL void*        reservation_push_bytes          (reservation* res, const u32 size_min); 
     IFB_INTERNAL void*        reservation_push_pages          (reservation* res, const u32 page_count); 

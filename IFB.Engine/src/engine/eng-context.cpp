@@ -160,7 +160,23 @@ namespace ifb {
         assert(res_events);
         assert(res_jobs);
         assert(res_audio);
-       
+
+        // the memory tool shows these
+        memory_stats_register_reservation("Files",        res_files);
+        memory_stats_register_reservation("Entities",     res_entities);
+        memory_stats_register_reservation("Arenas",       res_arenas,    true);
+        memory_stats_register_reservation("Arenas Large", res_arenas_lg, true);
+        memory_stats_register_reservation("Renderer",     res_renderer);
+        memory_stats_register_reservation("Components",   res_components);
+        memory_stats_register_reservation("Physics",      res_physics);
+        memory_stats_register_reservation("Tiles",        res_tiles);
+        memory_stats_register_reservation("Particles",    res_particles);
+        memory_stats_register_reservation("Assets",       res_assets);
+        memory_stats_register_reservation("Sprites",      res_sprites);
+        memory_stats_register_reservation("Events",       res_events);
+        memory_stats_register_reservation("Jobs",         res_jobs);
+        memory_stats_register_reservation("Audio",        res_audio);
+
         // start systems
         file_mngr_startup     (res_files);
         entity_mngr_startup   (res_entities);

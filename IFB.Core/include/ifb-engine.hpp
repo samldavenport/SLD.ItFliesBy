@@ -63,6 +63,15 @@ namespace ifb {
     IFB_ENGINE_API f32 eng_system_get_delta_time_s (void);
 
     //--------------------------------------------------------------------
+    // MEMORY
+    //--------------------------------------------------------------------
+
+    struct eng_mem_stats;
+
+    // a snapshot of the engine's memory, for tools
+    IFB_ENGINE_API void eng_memory_get_stats (eng_mem_stats& stats);
+
+    //--------------------------------------------------------------------
     // WINDOW
     //--------------------------------------------------------------------
 
@@ -570,6 +579,39 @@ namespace ifb {
 
     struct eng_game_context {
         int x;
+    };
+
+    static constexpr u32 ENG_MEM_STATS_RESERVATION_MAX = 32;
+
+    // used is the committed pages pushed by the system that owns the reservation
+    // arena pools push or claim the whole reservation at startup, so they always look full,
+    // their arena stats are the real usage
+    struct eng_mem_stats_reservation {
+        const char* name;
+        u32         size_capacity;
+        u32         size_used;
+        bool        is_arena_pool;
+    };
+
+    // used is the bytes pushed onto arenas in use, committed is every committed byte in the pool
+    struct eng_mem_stats_arena_pool {
+        u32 arena_size;
+        u32 arena_count_total;
+        u32 arena_count_used;
+        u64 size_capacity;
+        u64 size_used;
+        u64 size_committed;
+    };
+
+    struct eng_mem_stats {
+        u32                       reservation_count;
+        eng_mem_stats_reservation reservations[ENG_MEM_STATS_RESERVATION_MAX];
+        eng_mem_stats_arena_pool  arenas;
+        eng_mem_stats_arena_pool  arenas_large;
+        struct {
+            u32 size_capacity;
+            u32 size_used;
+        } global_stack;
     };
 }
 #endif  //IFB_ENGINE_HPP
