@@ -69,6 +69,7 @@
 #include "memory-arena.cpp"
 #include "memory-block.cpp"
 #include "memory-reservation.cpp"
+#include "memory-stats.cpp"
 
 #include "particle-mngr.cpp"
 #include "particle-emitter.cpp"
