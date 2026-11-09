@@ -48,8 +48,13 @@ namespace ifb {
         f64             box_contact_time_s; // the last collision event between connor and a box
     };
 
+    static constexpr const cchar* GAME_SCENE_GAMEPLAY_NAME = "GAMEPLAY";
+
+    // the global arena holds what lasts the whole game
+    // the player rig, map, and entities belong to the gameplay scene, and live in its arena
     struct game_context {
         hnd_arena        global_arena;
+        hnd_scene        h_scene_gameplay;
         game_player_rig* player_rig;
         game_map*        map;
         game_entities*   entities;
@@ -59,6 +64,9 @@ namespace ifb {
 
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
     IFB_INTERNAL void          game_context_update_and_render    (game_context* ctx);
+
+    IFB_INTERNAL void          game_scene_gameplay_init              (game_context* ctx);
+    IFB_INTERNAL void          game_scene_gameplay_update_and_render (game_context* ctx);
 
     IFB_INTERNAL void          game_player_rig_validate          (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_init              (game_player_rig* player_rig);

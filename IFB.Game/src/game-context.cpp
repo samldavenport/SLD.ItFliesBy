@@ -4,8 +4,7 @@
 #include "ifb-game.hpp"
 #include "ifb.hpp"
 
-#include "game-player-rig.cpp"
-#include "game-map.cpp"
+#include "game-scene-gameplay.cpp"
 
 namespace ifb {
 
@@ -57,25 +56,21 @@ namespace ifb {
         assert(arena_h != INVALID_INDEX);
 
         auto ctx      =    (game_context*)eng_arena_push(arena_h, sizeof(game_context));
-        auto rig      = (game_player_rig*)eng_arena_push(arena_h, sizeof(game_player_rig));
-        auto map      =        (game_map*)eng_arena_push(arena_h, sizeof(game_map));
-        auto entities =   (game_entities*)eng_arena_push(arena_h, sizeof(game_entities));
         auto sprites  =    (game_sprites*)eng_arena_push(arena_h, sizeof(game_sprites));
         auto audio    =      (game_audio*)eng_arena_push(arena_h, sizeof(game_audio));
 
         assert(ctx      != NULL);
-        assert(rig      != NULL);
-        assert(map      != NULL);
-        assert(entities != NULL);
         assert(sprites  != NULL);
         assert(audio    != NULL);
 
-        ctx->global_arena = arena_h;
-        ctx->player_rig   = rig;
-        ctx->map          = map;
-        ctx->entities     = entities;
-        ctx->sprites      = sprites;
-        ctx->audio        = audio;
+        // the gameplay scene fills in the rest
+        ctx->global_arena     = arena_h;
+        ctx->h_scene_gameplay = INVALID_HANDLE;
+        ctx->player_rig       = NULL;
+        ctx->map              = NULL;
+        ctx->entities         = NULL;
+        ctx->sprites          = sprites;
+        ctx->audio            = audio;
 
         // nothing is playing, and the first contact counts as a bump
         audio->h_boop             = {INVALID_HANDLE};
@@ -101,23 +96,8 @@ namespace ifb {
         (void)did_set_texture;
 
 
-        // the map goes first, the player rig spawns on it
-        game_map_init        (ctx->map);
-
-        rig->starting_map_hnd = map->eng_hnd;
-        rig->current_map_hnd  = map->eng_hnd;
-        game_player_rig_init (ctx->player_rig);
-
-        entities->static_entity_0 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-0","WOOD",map->eng_hnd,0,3,3);
-        entities->static_entity_1 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-1","WOOD",map->eng_hnd,0,3,7);
-        entities->static_entity_2 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-2","WOOD",map->eng_hnd,0,7,3);
-        entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
-
-        assert(entities->static_entity_0 != ENTITY_ID_INVALID);
-        assert(entities->static_entity_1 != ENTITY_ID_INVALID);
-        assert(entities->static_entity_2 != ENTITY_ID_INVALID);
-        assert(entities->static_entity_3 != ENTITY_ID_INVALID);
-
+        // the level
+        game_scene_gameplay_init(ctx);
 
         const bool did_subscribe = eng_event_listener_subscribe(event_type_e_physics_collision, game_phys_cllsn_handler);
         assert(did_subscribe);
@@ -143,23 +123,13 @@ namespace ifb {
 
         game_context_validate(ctx);
 
-        auto player_rig = ctx->player_rig;
-        auto map        = ctx->map;
-        auto entities   = ctx->entities;
-        auto audio      = ctx->audio;
+        auto audio = ctx->audio;
 
         eng_audio_voice_stop(audio->h_music);
 
         audio->time_s += eng_system_get_delta_time_s();
 
-        game_player_rig_update_and_render (ctx->player_rig);
-        game_player_rig_update_camera     (ctx->player_rig);
-        game_map_update_and_render        (ctx->map);
-
-        eng_entity_render(entities->static_entity_0);
-        eng_entity_render(entities->static_entity_1);
-        eng_entity_render(entities->static_entity_2);
-        eng_entity_render(entities->static_entity_3);
+        game_scene_gameplay_update_and_render(ctx);
     }
 
 
