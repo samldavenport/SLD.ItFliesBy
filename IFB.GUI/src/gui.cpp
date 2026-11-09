@@ -54,6 +54,7 @@ namespace ifb {
 
         static bool is_selected            = false;
         static bool eng_imgui_demo         = false;
+        static bool eng_implot_demo        = false;
         static bool eng_system             = false;
         static bool eng_particle_system    = false; 
         static bool rndr_camera            = false; 
@@ -75,6 +76,7 @@ namespace ifb {
             if (ImGui::BeginMenu(_gui_str->menu_engine)) {
 
                 ImGui::MenuItem (_gui_str->menu_engine_item_imgui_demo,           NULL, &eng_imgui_demo);
+                ImGui::MenuItem (_gui_str->menu_engine_item_implot_demo,          NULL, &eng_implot_demo);
                 ImGui::MenuItem (_gui_str->menu_engine_item_system,               NULL, &eng_system);
                 ImGui::MenuItem (_gui_str->menu_engine_item_particle_system,      NULL, &eng_particle_system);
                 ImGui::MenuItem (_gui_str->menu_engine_item_audio_test,           NULL, &eng_audio_test);
@@ -133,6 +135,7 @@ namespace ifb {
         }
 
         gui_engine_imgui_demo             (eng_imgui_demo);
+        gui_engine_implot_demo            (eng_implot_demo);
         gui_engine_particle_system        (eng_particle_system);
         gui_engine_sprite_atlas_builder   (sprite_atlas_builder);
         gui_engine_sprite_atlas_inspector (sprite_atlas_inspector);

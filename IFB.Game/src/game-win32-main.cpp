@@ -57,6 +57,9 @@ wWinMain(
     // open the gui
     ImGuiContext* imgui = eng_context_get_imgui();
     ImGui::SetCurrentContext(imgui);
+    // imgui and implot are static libs, so the exe has its own globals and needs the engine's contexts
+    ImPlotContext* implot = eng_context_get_implot();
+    ImPlot::SetCurrentContext(implot);
     gui_open();
 
     // run the engine

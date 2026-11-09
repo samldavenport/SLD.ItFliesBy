@@ -2,6 +2,7 @@
 #define IFB_HPP
 
 #include <imgui.h>
+#include <implot.h>
 
 #include <sld.hpp>
 #include <sld-opengl.hpp>

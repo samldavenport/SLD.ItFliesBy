@@ -278,4 +278,13 @@ namespace ifb {
         assert(ctx);
         return(ctx);
     }
+
+    IFB_ENGINE_API ImPlotContext*
+    eng_context_get_implot(
+        void) {
+
+        ImPlotContext* ctx = ImPlot::GetCurrentContext();
+        assert(ctx);
+        return(ctx);
+    }
 };

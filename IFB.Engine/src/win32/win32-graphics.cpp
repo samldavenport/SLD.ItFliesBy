@@ -36,6 +36,10 @@ namespace ifb {
         ImGuiContext* imgui_context = IMGUI_CHECKVERSION() ? ImGui::CreateContext() : NULL;  
         assert(imgui_context);
 
+        // initialize implot (needs the imgui context first)
+        ImPlotContext* implot_context = ImPlot::CreateContext();
+        assert(implot_context);
+
         // initialize win32/opengl methods
         win32_window&  window = _pfm_ctx.window;
         bool did_init_impl = true;

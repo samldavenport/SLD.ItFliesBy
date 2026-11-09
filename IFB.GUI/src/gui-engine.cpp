@@ -14,6 +14,15 @@ namespace ifb {
     }
 
     IFB_INTERNAL void
+    gui_engine_implot_demo(
+        bool& is_open) {
+
+        if (!is_open) return;
+
+        ImPlot::ShowDemoWindow(&is_open);
+    }
+
+    IFB_INTERNAL void
     gui_engine_system(
         void) {
 

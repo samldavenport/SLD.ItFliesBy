@@ -20,6 +20,7 @@ add_subdirectory(SLD.Math)
 
 # everything else comes from vcpkg (see vcpkg.json)
 find_package(imgui     CONFIG REQUIRED)
+find_package(implot    CONFIG REQUIRED)
 find_package(RapidJSON CONFIG REQUIRED)
 find_package(Stb       REQUIRED)
 
@@ -35,13 +36,13 @@ add_library(IFB::Core ALIAS ifb_core)
 
 target_sources(ifb_core INTERFACE ${IFB_CORE_HEADERS})
 
-# ifb.hpp includes the sld, imgui, and stb headers, so consumers need them too
+# ifb.hpp includes the sld, imgui, implot, and stb headers, so consumers need them too
 target_include_directories(ifb_core INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/IFB.Core/include
     ${Stb_INCLUDE_DIR}
 )
 target_link_libraries(ifb_core INTERFACE
-    SLD::Core SLD::OpenGL SLD::Math SLD::Strings imgui::imgui
+    SLD::Core SLD::OpenGL SLD::Math SLD::Strings imgui::imgui implot::implot
 )
 
 #--------------------------------------------------------------------

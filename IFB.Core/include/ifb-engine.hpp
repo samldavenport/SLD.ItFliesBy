@@ -53,7 +53,8 @@ namespace ifb {
     IFB_ENGINE_API bool          eng_context_run       (void);
     IFB_ENGINE_API void          eng_context_shutdown  (void);
     IFB_ENGINE_API void          eng_context_destroy   (eng_context* ctx);
-    IFB_ENGINE_API ImGuiContext* eng_context_get_imgui (void);
+    IFB_ENGINE_API ImGuiContext*  eng_context_get_imgui  (void);
+    IFB_ENGINE_API ImPlotContext* eng_context_get_implot (void);
 
     //--------------------------------------------------------------------
     // SYSTEM
