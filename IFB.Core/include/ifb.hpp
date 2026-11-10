@@ -771,6 +771,14 @@ namespace ifb {
         scene_flag_e_update_below = bit_value(0), // the scenes under this one keep updating
         scene_flag_e_render_below = bit_value(1)  // the scenes under this one keep rendering
     };
+    
+    //--------------------------------------------------------------------
+    // FONT 
+    //--------------------------------------------------------------------
+
+    struct font {
+        u32 x;
+    };
 };
 
 #endif //IFB_HPP

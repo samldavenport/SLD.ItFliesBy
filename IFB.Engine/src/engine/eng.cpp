@@ -30,6 +30,7 @@
 #include "eng-window.cpp"
 #include "eng-stack.cpp"
 #include "eng-file.cpp"
+#include "eng-font.cpp"
 #include "eng-image.cpp"
 #include "eng-system.cpp"
 #include "eng-text.cpp"
@@ -57,6 +58,8 @@
 // #include "file-ro.cpp"
 #include "file-wo.cpp"
 #include "file-rw.cpp"
+
+#include "font.cpp"
 
 #include "job.cpp"
 

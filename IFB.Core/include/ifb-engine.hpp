@@ -572,6 +572,12 @@ namespace ifb {
     IFB_ENGINE_API bool eng_parallax_set(const cchar* front, const cchar* mid, const cchar* back);
 
     //--------------------------------------------------------------------
+    // FONT 
+    //--------------------------------------------------------------------
+   
+    IFB_ENGINE_API font* eng_font_load_to_arena(const hnd_file h_font_file, const hnd_arena h_arena);
+
+    //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------
 
