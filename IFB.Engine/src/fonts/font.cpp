@@ -9,10 +9,10 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
-    // INTERNAL
+    // INLINE  
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL bool
+    inline bool
     font_config_is_valid(
         const font_config& cfg) {
 
@@ -29,7 +29,7 @@ namespace ifb {
     }
 
     // the number of glyph pairs in the range that the font kerns
-    IFB_INTERNAL u32
+    inline u32
     font_count_kern_pairs(
         const stbtt_fontinfo& info,
         const font_config&    cfg) {
@@ -54,7 +54,7 @@ namespace ifb {
 
     // the smallest power of two atlas that could hold every glyph, growing the width
     // and height in turns, the packer grows it from there if they don't fit
-    IFB_INTERNAL void
+    inline void
     font_atlas_start_size(
         const font_config& cfg,
         u32&               width,
