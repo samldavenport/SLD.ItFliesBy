@@ -120,7 +120,9 @@ namespace ifb {
     IFB_ENGINE_API u32          eng_file_get_size         (const hnd_file hnd);
     IFB_ENGINE_API void         eng_file_set_cursor       (const hnd_file hnd, const u32 cursor);
     IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd);
-    IFB_ENGINE_API u32          eng_file_write            (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
+    IFB_ENGINE_API u32          eng_file_read_to_buffer   (const hnd_file hnd, const u32 buffer_size, byte* buffer_ptr);
+    IFB_ENGINE_API memory       eng_file_read_to_arena    (const hnd_file hnd, const hnd_arena arena);
+    IFB_ENGINE_API u32          eng_file_write           (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // FILE DIALOG 

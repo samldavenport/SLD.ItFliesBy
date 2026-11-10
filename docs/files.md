@@ -46,6 +46,8 @@ Opening a file returns `FILE_HANDLE_INVALID` (`0`) if the file can't be opened o
 | `eng_file_get_size` | The file's size in bytes |
 | `eng_file_set_cursor` | Set the byte offset the next read or write starts from |
 | `eng_file_read` | Read from the cursor into the file's buffer, and return a pointer to it |
+| `eng_file_read_to_buffer` | Read up to `buffer_size` bytes from the cursor into your buffer, and return the number of bytes read |
+| `eng_file_read_to_arena` | Read the whole file into a new block on an arena, and return it as a `memory` (empty on failure) |
 | `eng_file_write` | Write `buffer_size` bytes from `buffer_ptr` at the cursor, and return the number of bytes written |
 | `eng_file_close` | Close the file and free its table slot |
 
@@ -54,7 +56,19 @@ Things to know:
 - **The cursor doesn't move on its own.** Reads and writes always start at the cursor, so set it before each one when reading or writing a file in pieces.
 - **`eng_file_read` reads at most `IFB_CONFIG_FILE_GRANULARITY` (64 KB).** Each table slot has its own 64 KB buffer, and that's where the data goes. The result is null-terminated, so a file of 64 KB or more loses its last byte to the terminator. The pointer is only valid until the next read of the same file.
 - `eng_image_load_to_arena` and `eng_image_load_to_memory` read through `eng_file_read`, so they have the same limit.
-- Inside the engine, `file_read_to_buffer` reads directly into a buffer you provide, with no size limit. The asset database uses it for asset files.
+- **For files of 64 KB or more, or binary files, use `eng_file_read_to_buffer` or `eng_file_read_to_arena`.** They read straight into your memory, with no size limit and no null terminator. The asset database uses the same internal read for asset files.
+- `eng_file_read_to_arena` always reads from the start of the file and leaves the cursor at 0. It returns an empty `memory` (size 0, null pointer) if the file is empty, the arena doesn't have room, or the read comes up short, and gives back the arena space in that last case.
+
+```cpp
+hnd_file h_font = eng_file_ro_open_existing("PressStart2P-Regular.ttf");
+if (h_font != 0) {
+    const memory font = eng_file_read_to_arena(h_font, h_arena);
+    eng_file_close(h_font);
+    if (font.size != 0) {
+        // font.bytes holds the whole file
+    }
+}
+```
 
 ## Threads
 
