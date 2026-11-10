@@ -63,20 +63,6 @@ wWinMain(
     ImPlot::SetCurrentContext(implot);
     gui_open();
 
-    //TODO(SLD): TEST CODE!!!!!
-    //------------------------
-   
-    const cchar*    path    = "../../../assets/fonts/PressStart2P/PressStart2P-Regular.ttf";
-    const hnd_arena h_arena = eng_arena_alloc();
-    const hnd_file  h_file  = eng_file_ro_open_always(path);    
-
-    font* f = eng_font_load_to_arena(h_file, h_arena);
-
-    eng_arena_free(h_arena);
-
-    //------------------------
-    //TODO(SLD): TEST CODE!!!!!
-
     // run the engine
     bool running = true;
     while (running) {

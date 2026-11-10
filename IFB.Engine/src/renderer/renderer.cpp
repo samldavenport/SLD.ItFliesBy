@@ -763,14 +763,16 @@ namespace ifb {
 
     // a texture for the gui to preview an image in each slot, the pixels are rgba8 from the top row down
     // the texture is an opengl texture id, or 0 if the pixels couldn't be copied
+    // nearest filtering keeps pixel art and pixel fonts sharp when the gui scales them up
     IFB_INTERNAL u32
     renderer_set_asset_preview_texture(
         const u32   slot,
         const u32   width,
         const u32   height,
-        const byte* pixels) {
+        const byte* pixels,
+        const bool  is_nearest) {
 
-        static gl_texture textures[RENDERER_ASSET_PREVIEW_COUNT] = { GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID };
+        static gl_texture textures[RENDERER_ASSET_PREVIEW_COUNT] = { GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID, GL_ID_INVALID };
 
         assert(_renderer);
         assert(pixels);
@@ -786,10 +788,15 @@ namespace ifb {
         if (texture == GL_ID_INVALID) return(GL_ID_INVALID);
 
         // the storage is the size of the image, then the pixels are copied in
+        // setting the storage also sets linear filtering
         if (!gl_texture_set_storage_rgba8(gl, texture, width, height)) return(GL_ID_INVALID);
 
         glBindTexture   (GL_TEXTURE_2D, texture);
         glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        if (is_nearest) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        }
         glBindTexture   (GL_TEXTURE_2D, GL_ID_INVALID);
 
         const bool did_copy = (glGetError() == GL_NO_ERROR);

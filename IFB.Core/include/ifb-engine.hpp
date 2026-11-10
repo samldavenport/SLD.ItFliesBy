@@ -577,7 +577,9 @@ namespace ifb {
    
     // bakes a ttf into a font blob on the arena, NULL if the file isn't a font, the atlas
     // would be bigger than 4096 x 4096, or the arena doesn't have room for the ttf and the blob
-    IFB_ENGINE_API font* eng_font_load_to_arena(const hnd_file h_font_file, const hnd_arena h_arena, const font_config& cfg = font_config());
+    IFB_ENGINE_API font*  eng_font_load_to_arena        (const hnd_file h_font_file, const hnd_arena h_arena, const font_config& cfg = font_config());
+    IFB_ENGINE_API image* eng_font_glyph_table_to_image (const font* fnt, const hnd_arena h_arena);
+    IFB_ENGINE_API bool   eng_font_load_preview         (const font* fnt, asset_preview& preview);
 
     //--------------------------------------------------------------------
     // DEFINITIONS
