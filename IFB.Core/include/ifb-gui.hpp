@@ -42,6 +42,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_wav_player             (bool& is_open);
     IFB_INTERNAL void  gui_engine_memory                 (bool& is_open);
     IFB_INTERNAL void  gui_engine_hash_calculator        (bool& is_open);
+    IFB_INTERNAL void  gui_engine_font_viewer            (bool& is_open);
 
     // game
     IFB_INTERNAL void  gui_game_player_rig       (bool& is_open, const game_context* game_ctx);
@@ -55,7 +56,6 @@ namespace ifb {
 
     // renderer
     IFB_INTERNAL void  gui_renderer_camera    (bool& is_open);
-
 
     // controls
     IFB_INTERNAL void  gui_control_vec3       (const char* name, vec3& v);
@@ -85,6 +85,7 @@ namespace ifb {
         inline static const char* window_engine_memory                               = "Memory";
         inline static const char* menu_engine_menu_tools                             = "Tools";
         inline static const char* menu_engine_menu_tools_item_hash_calculator        = "Hash Calculator";
+        inline static const char* menu_engine_menu_tools_font_viewer                 = "Font Viewer";
         inline static const char* window_engine_hash_calculator                      = "Hash Calculator";
         inline static const char* menu_entities                                      = "Entities";
         inline static const char* menu_entity_item_manager                           = "Entity Manager";

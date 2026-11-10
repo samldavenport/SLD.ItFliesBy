@@ -5,7 +5,7 @@
 #include "eng-asset.hpp"
 #include "ifb.hpp"
 
-#define STB_RECT_PACK_IMPLEMENTATION
+// the implementation is compiled in eng.cpp, before stb_truetype
 #include <stb_rect_pack.h>
 
 namespace ifb {

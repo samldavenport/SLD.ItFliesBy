@@ -120,7 +120,9 @@ namespace ifb {
     IFB_ENGINE_API u32          eng_file_get_size         (const hnd_file hnd);
     IFB_ENGINE_API void         eng_file_set_cursor       (const hnd_file hnd, const u32 cursor);
     IFB_ENGINE_API const cchar* eng_file_read             (const hnd_file hnd);
-    IFB_ENGINE_API u32          eng_file_write            (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
+    IFB_ENGINE_API u32          eng_file_read_to_buffer   (const hnd_file hnd, const u32 buffer_size, byte* buffer_ptr);
+    IFB_ENGINE_API memory       eng_file_read_to_arena    (const hnd_file hnd, const hnd_arena arena);
+    IFB_ENGINE_API u32          eng_file_write           (const hnd_file hnd, const u32 buffer_size, const byte* buffer_ptr);
 
     //--------------------------------------------------------------------
     // FILE DIALOG 
@@ -568,6 +570,16 @@ namespace ifb {
     //--------------------------------------------------------------------
     
     IFB_ENGINE_API bool eng_parallax_set(const cchar* front, const cchar* mid, const cchar* back);
+
+    //--------------------------------------------------------------------
+    // FONT 
+    //--------------------------------------------------------------------
+   
+    // bakes a ttf into a font blob on the arena, NULL if the file isn't a font, the atlas
+    // would be bigger than 4096 x 4096, or the arena doesn't have room for the ttf and the blob
+    IFB_ENGINE_API font*  eng_font_load_to_arena        (const hnd_file h_font_file, const hnd_arena h_arena, const font_config& cfg = font_config());
+    IFB_ENGINE_API image* eng_font_glyph_table_to_image (const font* fnt, const hnd_arena h_arena);
+    IFB_ENGINE_API bool   eng_font_load_preview         (const font* fnt, asset_preview& preview);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

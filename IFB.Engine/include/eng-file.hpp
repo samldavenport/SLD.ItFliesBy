@@ -33,9 +33,9 @@ namespace ifb {
         struct {
             hnd_file*     handle_internal; 
             pfm_hnd_file* handle_platform;
-            u32*             io_length;
-            u32*             cursor;
-            file_path*       paths;
+            u32*          io_length;
+            u32*          cursor;
+            file_path*    paths;
         } array;
         reservation* res;
         byte*        file_data;

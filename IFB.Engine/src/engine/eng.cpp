@@ -6,8 +6,18 @@
 // only the engine uses stb_image, so its implementation lives here; undefined
 // afterwards so the files that include stb_image.h only get the declarations
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#undef STB_IMAGE_IMPLEMENTATION
+#   include <stb_image.h>
+#undef  STB_IMAGE_IMPLEMENTATION
+
+// stb_rect_pack has to come before stb_truetype, otherwise stb_truetype defines
+// its own stand-in stbrp_* types and they collide with the real header later
+#define STB_RECT_PACK_IMPLEMENTATION
+#   include <stb_rect_pack.h>
+#undef  STB_RECT_PACK_IMPLEMENTATION
+
+#define STB_TRUETYPE_IMPLEMENTATION
+#   include <stb_truetype.h>
+#undef STB_TRUETYPE_IMPLEMENTATION
 
 #include "asset.cpp"
 
@@ -30,6 +40,7 @@
 #include "eng-window.cpp"
 #include "eng-stack.cpp"
 #include "eng-file.cpp"
+#include "eng-font.cpp"
 #include "eng-image.cpp"
 #include "eng-system.cpp"
 #include "eng-text.cpp"
@@ -57,6 +68,8 @@
 // #include "file-ro.cpp"
 #include "file-wo.cpp"
 #include "file-rw.cpp"
+
+#include "font.cpp"
 
 #include "job.cpp"
 

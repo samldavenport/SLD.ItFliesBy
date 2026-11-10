@@ -19,6 +19,7 @@
 #include "gui-engine-hash-calculator.cpp"
 #include "gui-engine-map-builder.cpp"
 #include "gui-game-audio.cpp"
+#include "gui-engine-font-viewer.cpp"
 
 static bool _gui_is_open;
 
@@ -72,6 +73,7 @@ namespace ifb {
         static bool eng_memory             = false;
         static bool eng_hash_calculator    = false;
         static bool eng_map_builder        = false;
+        static bool eng_font_viewer        = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -94,6 +96,7 @@ namespace ifb {
                 if (ImGui::BeginMenu(_gui_str->menu_engine_menu_tools)) {
                     ImGui::MenuItem (_gui_str->menu_engine_menu_tools_item_hash_calculator, NULL, &eng_hash_calculator);
                     ImGui::MenuItem (_gui_str->menu_engine_menu_tools_item_map_builder,     NULL, &eng_map_builder);
+                    ImGui::MenuItem (_gui_str->menu_engine_menu_tools_font_viewer,          NULL, &eng_font_viewer);
                     ImGui::EndMenu();
                 }
 
@@ -154,5 +157,6 @@ namespace ifb {
         gui_game_audio                    (game_audio, game_ctx);
         gui_game_asset_dictionary         (asset_dictionary);
         gui_game_asset_database           (asset_database);
+        gui_engine_font_viewer            (eng_font_viewer);
     }
 };

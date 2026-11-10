@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include "ifb.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
 #include "ifb-gui.hpp"
