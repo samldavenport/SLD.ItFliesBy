@@ -776,8 +776,115 @@ namespace ifb {
     // FONT 
     //--------------------------------------------------------------------
 
+    // how to bake a font from a ttf
+    struct font_config {
+        f32 pixel_height    = 16.0f; // for pixel fonts, a multiple of the size they were designed at (8 for Press Start 2P)
+        u32 first_codepoint = 32;    // ' '
+        u32 glyph_count     = 95;    // ' ' to '~', the printable ascii characters
+        u32 oversample_x    = 1;     // 1 to 8, 1 for pixel fonts, 2 or more makes small smooth fonts look better
+        u32 oversample_y    = 1;
+    };
+
+    // one glyph's spot in the font's atlas and how to place it, matching stbtt_packedchar
+    //
+    // with oversampling the glyph is drawn into the atlas bigger than it appears on
+    // screen, so the atlas rect and the quad are different sizes. always size the
+    // quad with quad_x0 to quad_x1 and quad_y0 to quad_y1, not with the atlas rect
+    struct font_glyph {
+        u16 atlas_x0;  // the glyph's rect in the atlas, in atlas pixels, x1 and y1 are exclusive
+        u16 atlas_y0;
+        u16 atlas_x1;
+        u16 atlas_y1;
+        f32 quad_x0;   // the quad to draw, in screen pixels from the pen position (on the baseline)
+        f32 quad_y0;   // negative is above the baseline
+        f32 quad_x1;
+        f32 quad_y1;
+        f32 advance;   // how far the pen moves right after this glyph, before kerning
+    };
+
+    // the space to add between two glyphs, on top of the first one's advance
+    struct font_kern_pair {
+        u32 key;     // font::kern_key(first, second)
+        f32 amount;  // in screen pixels, usually negative (the pair moves closer)
+    };
+
+    // a font baked at one pixel height when the asset database is built, so
+    // loading it is a copy and nothing is parsed at runtime
+    //
+    // the blob is this struct, then the glyphs, then the kerning pairs, then the
+    // atlas pixels. the offsets are from the start of the struct rather than
+    // pointers, so the blob works wherever it's loaded without being fixed up
+    //
+    // to draw a string, start the pen at (x, baseline), and for each codepoint:
+    //   draw glyph(c)'s quad at the pen, textured with its atlas rect
+    //   pen x += glyph(c)->advance + kerning(c, next c)
     struct font {
-        u32 x;
+        u32 size;              // the whole blob in bytes, this struct included
+        f32 pixel_height;      // the height it was baked at
+        f32 ascent;            // baseline to the top of the tallest glyph
+        f32 descent;           // baseline to the bottom of the lowest glyph, negative
+        f32 line_gap;          // extra space between lines
+        f32 line_height;       // ascent - descent + line_gap, how far to move down for a new line
+        u32 oversample_x;      // atlas pixels per screen pixel, 1 for none (pixel fonts)
+        u32 oversample_y;      // above 1, draw the atlas with linear filtering, at 1 nearest is fine
+        u32 first_codepoint;   // the glyphs cover first_codepoint to first_codepoint + glyph_count - 1
+        u32 glyph_count;
+        u32 glyph_offset;      // glyph_count font_glyphs
+        u32 kern_pair_count;   // 0 for fonts without kerning, like monospaced ones
+        u32 kern_pair_offset;  // kern_pair_count font_kern_pairs, sorted by key
+        u32 atlas_width;
+        u32 atlas_height;
+        u32 atlas_offset;      // atlas_width * atlas_height bytes, one coverage value (0 to 255) per pixel
+
+        // the codepoints as glyph indexes (codepoint - first_codepoint), first in the high 16 bits
+        static inline u32
+        kern_key(const u32 index_first, const u32 index_second) {
+            return((index_first << 16) | (index_second & 0xFFFF));
+        }
+
+        inline const font_glyph*
+        glyphs(void) const {
+            return((const font_glyph*)(((const byte*)this) + glyph_offset));
+        }
+
+        inline const font_kern_pair*
+        kern_pairs(void) const {
+            return((const font_kern_pair*)(((const byte*)this) + kern_pair_offset));
+        }
+
+        inline const byte*
+        atlas_pixels(void) const {
+            return(((const byte*)this) + atlas_offset);
+        }
+
+        // NULL if the font doesn't have the codepoint
+        inline const font_glyph*
+        glyph(const u32 codepoint) const {
+            const u32 index = codepoint - first_codepoint; // wraps below first_codepoint
+            return((index < glyph_count) ? &glyphs()[index] : NULL);
+        }
+
+        // 0 if the pair isn't kerned or either codepoint isn't in the font
+        inline f32
+        kerning(const u32 codepoint_first, const u32 codepoint_second) const {
+
+            const u32 index_first  = codepoint_first  - first_codepoint;
+            const u32 index_second = codepoint_second - first_codepoint;
+            if (index_first >= glyph_count || index_second >= glyph_count) return(0.0f);
+
+            // binary search the sorted pairs
+            const u32             key   = kern_key(index_first, index_second);
+            const font_kern_pair* pairs = kern_pairs();
+            u32 lo = 0;
+            u32 hi = kern_pair_count;
+            while (lo < hi) {
+                const u32 mid = lo + ((hi - lo) / 2);
+                if      (pairs[mid].key < key) lo = mid + 1;
+                else if (pairs[mid].key > key) hi = mid;
+                else return(pairs[mid].amount);
+            }
+            return(0.0f);
+        }
     };
 };
 
