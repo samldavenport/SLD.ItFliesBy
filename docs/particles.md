@@ -93,6 +93,10 @@ An emitter is either **idle** or **active**. The particle manager keeps a list o
 
 Particles are stored in a ring. Every particle in an emitter has the same lifespan, so they die in the order they spawned. If the next slot in the ring is still alive, every particle is alive, and the emitter waits for a slot to open instead of replacing a live particle.
 
+## Scenes
+
+An emitter belongs to the [scene](scenes.md) that was bound when it was created, and is destroyed when that scene is reset or destroyed. While its scene isn't updating, the emitter doesn't follow its entity, age, move, or spawn, so its particles hold still.
+
 ## Emitters on Entities
 
 An entity with a position and a `cmpnt_particle_emitter` component carries an emitter with it. Each frame, before particles update, `particle_mngr_follow_entities` moves each of these emitters to its entity's position. Only new particles spawn at the new position, so the live particles trail behind a moving entity.

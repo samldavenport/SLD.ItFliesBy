@@ -44,6 +44,8 @@ Subscribe after `eng_context_startup`, since that's what creates the listener ta
 3. `event_queue_execute_and_reset` goes through the queue in the order events were published. For each one, `event_listener_table_execute` calls every listener for that type, one after another.
 4. Once it reaches the end of the queue, the count is set back to `0`. An event published during dispatch is added to the end, so it runs in the same pass.
 
+When the [scene](scenes.md#when-changes-happen) stack changes or a scene is reset or destroyed, `event_mngr_flush` drops whatever is still queued at the start of the pass, before the game callback. Those events could name entities that were just destroyed.
+
 Dispatch happens on the same thread as the rest of the frame loop, so a slow listener slows down the whole pass. [Jobs](jobs.md) can publish from a worker, and their events still reach listeners on the main thread.
 
 ### Timing
@@ -52,6 +54,7 @@ Dispatch happens on the same thread as the rest of the frame loop, so a slow lis
 
 | Order | Step |
 | --- | --- |
+| 0 | `scene_mngr_frame_start`, which can flush the queue |
 | 1 | Game callback |
 | 2 | `phys_mngr_simulate`, which publishes collision events during detection |
 | 3 | `event_mngr_update`, which calls the listeners |

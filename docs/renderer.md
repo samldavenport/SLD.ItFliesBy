@@ -19,13 +19,15 @@ These go into the renderer's **draw lists** (`renderer-draw-lists.cpp`). Entitie
 
 | Order | Step | Description |
 | --- | --- | --- |
-| 1 | Lists → buffers | Pack the map's tiles into the tile buffer, and the entity quads and particles into the quad vertex buffer. |
-| 2 | Tiles | Draw the map with the tile shader. |
-| 3 | Grid | Draw the debug grid, if it's visible. |
-| 4 | Quads | Draw entity quads, then particles, with the quad shader. |
-| 5 | Particle view | Draw the offscreen [particle view](particles.md#particle-view), if it was requested this frame. |
-| 6 | Map view | Draw the offscreen [map view](#map-view), if it was requested this frame. |
-| 7 | Reset | Clear the draw lists for the next frame. |
+| 1 | Sync parallax | Load the parallax layers if the [scene parallax](scenes.md#parallax) to draw has changed. |
+| 2 | Lists → buffers | Pack the map's tiles into the tile buffer, and the entity quads and particles into the quad vertex buffer. |
+| 3 | Parallax | Draw the parallax backdrop behind the map, if there's a map and a parallax. |
+| 4 | Tiles | Draw the map with the tile shader. |
+| 5 | Grid | Draw the debug grid, if it's visible. |
+| 6 | Quads | Draw entity quads, then particles, with the quad shader. |
+| 7 | Particle view | Draw the offscreen [particle view](particles.md#particle-view), if it was requested this frame. |
+| 8 | Map view | Draw the offscreen [map view](#map-view), if it was requested this frame. |
+| 9 | Reset | Clear the draw lists for the next frame. |
 
 After that, the engine calls the GUI render callback, so ImGui draws on top of everything, and presents the frame.
 
@@ -48,6 +50,12 @@ Entity quads (`src/quads/quad.cpp`, `eng-quad.hpp`) are built on the CPU every f
 - If the entity's sprite is found, the quad samples that sprite's rectangle in the active atlas, tinted by the entity's color. Otherwise it's drawn in the entity's color.
 
 The number of quads is limited by `IFB_CONFIG_QUAD_MAX`, and particles share that same buffer. See [Quads](quads.md) for details.
+
+## Parallax
+
+The parallax backdrop is three image layers (back, mid, front) drawn on one quad that stands just behind the far edge of the map, with the parallax shader. Each layer scrolls at its own speed as the camera moves sideways, so the back layer looks farthest away. It's drawn first, so the map and everything else draws over it. Layer speeds, sizes, and the backdrop's depth are constants at the top of `renderer-parallax.cpp`.
+
+The parallax belongs to a scene. `eng_parallax_set` sets it on the bound scene, and the renderer draws the one from the highest rendering scene that has one. See [Scenes](scenes.md#parallax).
 
 ## Map Tiles
 
@@ -91,6 +99,7 @@ Shaders are loaded from the working directory at startup. CMake copies `assets/s
 | --- | --- | --- |
 | Tile | `tile-vert.glsl`, `tile-frag.glsl` | Map floor tiles and walls |
 | Quad | `quad-shader-vertex.glsl`, `quad-shader-fragment.glsl` | Entity quads and particles |
+| Parallax | `parallax-vert.glsl`, `parallax-frag.glsl` | The parallax backdrop |
 | Grid | `grid-vert.glsl`, `grid-frag.glsl` | The debug grid |
 | Direction gizmo | `direction-gizmo-shader-vert.glsl`, `direction-gizmo-shader-frag.glsl` | An axis gizmo. It's set up at startup, but its draw call is currently commented out. |
 

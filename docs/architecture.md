@@ -29,8 +29,8 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 
 1. Builds an `eng_mem_map`: a fixed stack buffer plus one `VirtualAlloc` reservation per system (core, files, rendering, entities, components, physics, tiles, particles, assets, sprites, events, jobs, arenas, ...).
 2. Calls `eng_context_create` with the memory map and two callbacks: `game_proc` (game update) and `render_proc` (GUI render).
-3. Calls `eng_context_startup`, which starts every manager.
-4. Creates the game context (`game_context_create_and_init`) and opens the GUI.
+3. Calls `eng_context_startup`, which starts every manager. The scene manager starts last, and creates and binds the [default scene](scenes.md#the-default-scene).
+4. Creates the game context (`game_context_create_and_init`), which creates and pushes the gameplay scene, and opens the GUI.
 5. Calls `eng_context_run` until it returns `false`.
 6. Calls `eng_context_shutdown`, which stops the worker threads first, then shuts down the assets and the platform.
 
@@ -42,11 +42,12 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 | --- | --- |
 | Update system info and delta time | every iteration |
 | `asset_mngr_update`, window frame start, process window events, `random_table_update`, `audio_mngr_frame_start` | new frame |
+| `scene_mngr_frame_start`, which applies the [scene](scenes.md#when-changes-happen) pushes, pops, resets, and destroys requested since the last pass | every iteration |
 | Game callback (`game_context_update_and_render`) | every iteration |
 | `phys_mngr_simulate(dt)` | every iteration |
 | `event_mngr_update`, which calls the [event](events.md) listeners | every iteration |
 | Particles follow their entities, then update | every iteration |
-| `renderer_draw_buffers`, GUI callback, `audio_mngr_frame_end`, present the frame | new frame |
+| `renderer_draw_buffers` (which loads the top scene's parallax if it changed), GUI callback, `audio_mngr_frame_end`, present the frame | new frame |
 
 ### Physics Step
 
@@ -72,7 +73,7 @@ The engine doesn't use the C++ heap. All memory comes from reservations in the m
 | --- | --- |
 | **Reservation** | A range of reserved virtual memory owned by one system. Pages are committed as they're taken. |
 | **Global stack** | The fixed stack buffer from the memory map. Used for allocations that live for the whole run (`global_alloc`). |
-| **Arena** | A fixed size bump allocator returned as an `hnd_arena`. Supports `save`/`revert` and `reset`. |
+| **Arena** | A fixed size bump allocator returned as an `hnd_arena`. Supports `save`/`revert` and `reset`. Every [scene](scenes.md#ownership) has one, for `eng_scene_alloc`. |
 | **Large arena** | Same API as an arena, for bigger allocations (`eng_arena_large_alloc`). Commits memory as it grows. |
 
 See [Memory](memory.md) for details.
@@ -86,7 +87,7 @@ Sizes and capacities for every system are set in `IFB.Core/include/ifb-config.hp
 | `eng_*` | Public engine API (`ifb-engine.hpp`) |
 | `*_mngr` | The singleton manager for a system, e.g. `entity_mngr`, `phys_mngr` |
 | `_name` (leading underscore) | A global pointer to a manager, e.g. `_eng_context` |
-| `hnd_*` | An opaque handle |
+| `hnd_*` | An opaque handle, e.g. `hnd_scene`, `hnd_map` |
 | `cmpnt_*` | A component |
 | `atype_*` | An archetype struct |
 | `*_e` | An enum |

@@ -12,7 +12,7 @@ entity_id id = eng_entity_create("CONNOR");
 
 The entity manager (`entity_mngr`, `eng-entity.hpp`) stores entities in a **sparse set**:
 
-- The **dense** arrays hold every live entity packed together: its ID, tag, archetype, and index into the sparse array.
+- The **dense** arrays hold every live entity packed together: its ID, tag, archetype, owning scene, and index into the sparse array.
 - The **sparse** array is a hash table keyed by entity ID (linear probing), holding each entity's dense index.
 
 Iterating over entities walks the dense arrays. Capacity is set by `IFB_CONFIG_ENTITY_CAPACITY`, and the sparse array is sized to stay under `IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100` load.
@@ -26,7 +26,14 @@ Iterating over entities walks the dense arrays. Capacity is set by `IFB_CONFIG_E
 | `eng_entity_query` | Fill an `entity_list` with entities matching an `entity_query` |
 | `eng_entity_add_force` | Add a force for the next physics step |
 | `eng_entity_set_sprite` | Set the sprite component from atlas and sprite names |
-| `eng_entity_render` | Draw an entity |
+| `eng_entity_render` | Draw an entity. Does nothing if its scene isn't rendering. |
+| `eng_entity_get_scene` | The scene that owns the entity |
+
+### Scenes
+
+Every entity belongs to the [scene](scenes.md) that was bound when it was created, and is destroyed when that scene is reset or destroyed. Physics skips entities whose scene isn't updating, and `eng_entity_render` skips entities whose scene isn't rendering. Entities created before the game binds a scene of its own belong to the [default scene](scenes.md#the-default-scene).
+
+Tags are unique across every scene, so two scenes can't both have a `CONNOR`.
 
 ### Queries
 
@@ -43,7 +50,7 @@ eng_entity_query(list, query);
 
 ## Components
 
-Component types are bit flags (`cmpnt_type_e`), so an entity's set of components is a single `component_type` mask, stored as its `entity_archetype`.
+Component types are bit flags (`cmpnt_type_e`), so an entity's set of components is a single `cmpnt_type_u32` mask, stored as its `entity_archetype`.
 
 | Component | Flag | Type | Description |
 | --- | --- | --- | --- |
