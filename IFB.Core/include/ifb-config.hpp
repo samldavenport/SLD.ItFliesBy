@@ -17,7 +17,7 @@ using namespace sld;
 #define IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY    256
 #define IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE         size_megabytes(1)
 #define IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT   48
-#define IFB_CONFIG_ASSET_NAME_SIZE                16
+#define IFB_CONFIG_ASSET_NAME_SIZE                32
 #define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(64)
 #define IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY     64
 #define IFB_CONFIG_ASSET_SMALL_DATA_SIZE          size_kilobytes(64)
@@ -39,6 +39,7 @@ using namespace sld;
 #define IFB_CONFIG_BUILD_MODE                     0
 #define IFB_CONFIG_DEFAULT_FPS                    240
 #define IFB_CONFIG_ENTITY_CAPACITY                1024
+#define IFB_CONFIG_ENTITY_MOVEMENT_THRESHOLD      0.1f;
 #define IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT  16
 #define IFB_CONFIG_EVENT_QUEUE_CAPACITY           128
 #define IFB_CONFIG_EVENT_TYPE_MAX                 64
@@ -125,6 +126,7 @@ namespace ifb {
         static constexpr u32   build_mode                     = IFB_CONFIG_BUILD_MODE;
         static constexpr u32   default_fps                    = IFB_CONFIG_DEFAULT_FPS;
         static constexpr u32   entity_capacity                = IFB_CONFIG_ENTITY_CAPACITY;
+        static constexpr f32   entity_movement_threshold      = IFB_CONFIG_ENTITY_MOVEMENT_THRESHOLD;
         static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;
         static constexpr u32   event_queue_capacity           = IFB_CONFIG_EVENT_QUEUE_CAPACITY;
         static constexpr u32   event_type_max                 = IFB_CONFIG_EVENT_TYPE_MAX;

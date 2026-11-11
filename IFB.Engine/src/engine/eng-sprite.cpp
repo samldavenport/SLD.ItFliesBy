@@ -221,6 +221,53 @@ namespace ifb {
         return(did_save);
     }
 
+    // replaces the list with the sprites in an atlas file, so the atlas can be edited and saved again
+    // the sprites are added from the runtime database by name, so an image that's no longer there is left out and counted
+    // returns false if the file isn't an atlas or there's no memory for it, and the list is left as it was
+    IFB_ENGINE_API bool
+    eng_sprite_atlas_builder_open(
+        const cchar* path,
+        u32&         missing_count) {
+
+        assert(path);
+
+        missing_count = 0;
+        if (path[0] == 0) return(false);
+
+        // only the names are needed, the atlas goes back once they've been added
+        sprite_atlas* atlas = sprite_atlas_create();
+        if (!atlas) return(false);
+
+        if (!sprite_atlas_load_from_file(atlas, path)) {
+            sprite_atlas_destroy(atlas);
+            return(false);
+        }
+
+        eng_sprite_atlas_builder_clear();
+        if (!eng_sprite_atlas_builder_get_list()) {
+            sprite_atlas_destroy(atlas);
+            return(false);
+        }
+
+        // the names in the file aren't terminated when they fill the whole name
+        const u32 count = sprite_atlas_get_sprite_count(atlas);
+        for (
+            u32 index = 0;
+                index < count;
+              ++index) {
+
+            sprite_atlas_sprite_info info;
+            const bool did_add = (
+                sprite_atlas_get_sprite_info  (atlas, index, info) &&
+                eng_sprite_atlas_builder_add  (info.name)
+            );
+            if (!did_add) ++missing_count;
+        }
+
+        sprite_atlas_destroy(atlas);
+        return(true);
+    }
+
     IFB_ENGINE_API bool
     eng_sprite_atlas_inspector_open(
         const cchar*   path,

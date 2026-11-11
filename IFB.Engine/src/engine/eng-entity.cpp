@@ -11,6 +11,7 @@
 #include "quad.cpp"
 #include "eng-sprite.hpp"
 #include <cassert>
+#include <math.h>
 #include "eng-entity.hpp"
 #include "eng-physics.hpp"
 #include "eng-quad.hpp"
@@ -215,5 +216,37 @@ namespace ifb {
         }
 
         return(is_valid);
+    }
+    
+    IFB_ENGINE_API bool
+    eng_entity_is_moving(
+        const entity_id id) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        // get the entity
+        entity e;
+        const bool is_valid = (
+            entity_lookup_by_id(e, id) &&
+            e.archetype.has_any(cmpnt_type_e_velocity)
+        );
+        if (!is_valid) return(false);
+
+        // get the velocity
+        cmpnt_velocity vel;
+        cmpnt_lookup_velocity(e.index_sparse, vel);
+
+        // calculate absolute values
+        const f32 vel_x = fabsf(vel.x);
+        const f32 vel_y = fabsf(vel.y);
+        const f32 vel_z = fabsf(vel.z);
+
+        // compare against threshold 
+        const bool is_moving = (
+           vel_x >= config::entity_movement_threshold ||
+           vel_y >= config::entity_movement_threshold ||
+           vel_z >= config::entity_movement_threshold
+        );
+        return(is_moving);
     }
 };

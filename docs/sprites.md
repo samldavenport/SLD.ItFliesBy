@@ -68,6 +68,19 @@ Then add the `.ifbatlas` file to the asset dictionary and rebuild the asset data
 
 Packing fails if the list is empty or the sprites don't fit in `4096 × 4096`.
 
+### Editing an Atlas
+
+`eng_sprite_atlas_builder_open(path, missing_count)` replaces the builder's list with the sprites in an `.ifbatlas` file, so you can add or remove sprites and save it again. The file only keeps the packed pixels, so each sprite is added again from its image asset by name. A sprite whose image isn't in the runtime database anymore is left out and counted in `missing_count`. If the file can't be loaded, the list isn't touched.
+
+In the GUI, the **Atlas** row at the top of the builder has:
+
+- **New** clears the list and forgets the file.
+- **Open...** loads an atlas and packs it right away so the preview shows it.
+- **Save** writes back to the file that was opened or last saved. A new atlas asks where to save it.
+- **Save As...** always asks.
+
+The atlas is packed again from scratch when it's saved, so sprites may move. Anything that refers to a sprite by name or handle is unaffected.
+
 ## Inspecting an Atlas
 
 **Engine > Sprite Tools > Sprite Atlas Inspector** opens an `.ifbatlas` file and lists its sprites:
@@ -90,7 +103,7 @@ An `.ifbatlas` file is a header followed by the atlas pixels (`sprite-atlas.cpp`
 | Atlas width (w) | 4 bytes | In pixels |
 | Atlas height (h) | 4 bytes | In pixels |
 | Handles | n × 4 bytes | Each sprite's `hnd_sprite` |
-| Names | n × 16 bytes | Each sprite's name, `IFB_CONFIG_ASSET_NAME_SIZE` bytes each |
+| Names | n × 32 bytes | Each sprite's name, `IFB_CONFIG_ASSET_NAME_SIZE` bytes each |
 | Indexes | n × 12 bytes | Width, height, and offset of each sprite. The offset is the pixel index of the sprite's top left corner: `y * w + x`. |
 | Pixels | w × h × 4 bytes | RGBA, starting from the top row |
 

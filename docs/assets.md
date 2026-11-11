@@ -27,7 +27,7 @@ Each kind of JSON the game loads gets its own type, rather than all of it being 
 
 ## Names and Handles
 
-Assets are referred to by name. Names are up to `IFB_CONFIG_ASSET_NAME_SIZE` (16) characters and stored uppercase in the dictionary (e.g. `CONNOR-LEFT`, `CORE-SPRITES`). An asset's `hnd_asset` is the hash of its name, so the same name always gives the same handle.
+Assets are referred to by name. Names are up to `IFB_CONFIG_ASSET_NAME_SIZE` (32) characters and stored uppercase in the dictionary (e.g. `CONNOR-LEFT`, `CORE-SPRITES`). An asset's `hnd_asset` is the hash of its name, so the same name always gives the same handle.
 
 ## Asset Dictionary
 
@@ -96,6 +96,8 @@ A sprite atlas (`.ifbatlas`) packs several image assets into one texture. Build 
 1. Add image assets by name (`eng_sprite_atlas_builder_add`).
 2. Pack them (`eng_sprite_atlas_builder_pack`) and check the preview.
 3. Save the atlas (`eng_sprite_atlas_builder_save`), add it to the asset dictionary, and rebuild the database.
+
+To change an existing atlas, **Open...** it in the builder (`eng_sprite_atlas_builder_open`), edit the sprites, **Save** it, and rebuild the database.
 
 **Engine > Sprite Tools > Sprite Atlas Inspector** opens an existing atlas and lists its sprites.
 

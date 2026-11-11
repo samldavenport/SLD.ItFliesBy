@@ -169,6 +169,7 @@ namespace ifb {
     IFB_ENGINE_API bool             eng_sprite_atlas_builder_get_info     (const u32 index, sprite_atlas_builder_info& info);
     IFB_ENGINE_API bool             eng_sprite_atlas_builder_pack         (asset_preview& preview);
     IFB_ENGINE_API bool             eng_sprite_atlas_builder_save         (const cchar* path);
+    IFB_ENGINE_API bool             eng_sprite_atlas_builder_open         (const cchar* path, u32& missing_count);
     IFB_ENGINE_API bool             eng_sprite_atlas_inspector_open       (const cchar* path, asset_preview& preview);
     IFB_ENGINE_API void             eng_sprite_atlas_inspector_close      (void);
     IFB_ENGINE_API bool             eng_sprite_atlas_inspector_get_info   (sprite_atlas_info& info);
@@ -221,6 +222,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_add_force             (const entity_id id, const vec3& force);
     IFB_ENGINE_API hnd_scene    eng_entity_get_scene             (const entity_id id);
     IFB_ENGINE_API bool         eng_entity_set_sprite            (const entity_id id, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API bool         eng_entity_is_moving             (const entity_id id);
 
     //--------------------------------------------------------------------
     // SCENES

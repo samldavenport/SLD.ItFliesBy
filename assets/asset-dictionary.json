@@ -29,7 +29,23 @@
         { "name": "TILE-YELLOW-2", "path": "images/tile-yellow-2.png" },
         { "name": "PARALLAX-FRONT", "path": "images/parallax-front.png" },
         { "name": "PARALLAX-MID", "path": "images/parallax-mid.png" },
-        { "name": "PARALLAX-BACK", "path": "images/parallax-back.png" }
+        { "name": "PARALLAX-BACK", "path": "images/parallax-back.png" },
+        { "name": "CNNR-WLK-0", "path": "images/cnnr-wlk-0.png" },
+        { "name": "CNNR-WLK-1", "path": "images/cnnr-wlk-1.png" },
+        { "name": "CNNR-WLK-2", "path": "images/cnnr-wlk-2.png" },
+        { "name": "CNNR-WLK-3", "path": "images/cnnr-wlk-3.png" },
+        { "name": "CNNR-WLK-4", "path": "images/cnnr-wlk-4.png" },
+        { "name": "CNNR-WLK-5", "path": "images/cnnr-wlk-5.png" },
+        { "name": "CNNR-WLK-6", "path": "images/cnnr-wlk-6.png" },
+        { "name": "CNNR-WLK-7", "path": "images/cnnr-wlk-7.png" },
+        { "name": "JIG-FLY-LEFT-0", "path": "images/jig-fly-left-0.png" },
+        { "name": "JIG-FLY-LEFT-1", "path": "images/jig-fly-left-1.png" },
+        { "name": "JIG-FLY-LEFT-2", "path": "images/jig-fly-left-2.png" },
+        { "name": "JIG-FLY-LEFT-3", "path": "images/jig-fly-left-3.png" },
+        { "name": "JIG-FLY-RIGHT-0", "path": "images/jig-fly-right-0.png" },
+        { "name": "JIG-FLY-RIGHT-1", "path": "images/jig-fly-right-1.png" },
+        { "name": "JIG-FLY-RIGHT-2", "path": "images/jig-fly-right-2.png" },
+        { "name": "JIG-FLY-RIGHT-3", "path": "images/jig-fly-right-3.png" }
     ],
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }

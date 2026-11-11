@@ -28,10 +28,13 @@ namespace ifb {
 
     // the engine owns the sprite list, the window owns the filter and what's being previewed
     // the preview is either the selected image or the last packed atlas
+    // the path is the file the atlas was opened from or last saved to, so it can be saved again in place
     struct sprite_atlas_builder_state {
         const char*   status;
+        char          status_buffer [128];
         char          filter   [SPRITE_ATLAS_BUILDER_FILTER_SIZE];
         char          selected [SPRITE_ATLAS_BUILDER_NAME_SIZE]; // empty unless an image is selected
+        char          path     [SPRITE_ATLAS_BUILDER_PATH_SIZE]; // empty for a new atlas
         bool          is_atlas_selected;
         bool          is_preview_loaded;
         u32           atlas_sprite_count;
@@ -47,7 +50,9 @@ namespace ifb {
     IFB_INLINE bool sprite_atlas_builder_is_filtered (const char* name);
     IFB_INLINE void sprite_atlas_builder_select      (const char* name);
     IFB_INLINE void sprite_atlas_builder_pack        (const u32 count);
-    IFB_INLINE void sprite_atlas_builder_save        (const u32 count);
+    IFB_INLINE void sprite_atlas_builder_controls    (void);
+    IFB_INLINE void sprite_atlas_builder_open        (void);
+    IFB_INLINE void sprite_atlas_builder_save        (const u32 count, const bool is_save_as);
     IFB_INLINE void sprite_atlas_builder_preview     (void);
 
     //--------------------------------------------------------------------
@@ -66,6 +71,8 @@ namespace ifb {
         );
 
         if (render_window) {
+
+            sprite_atlas_builder_controls();
 
             // the lists get whatever the preview below them doesn't need
             const f32 height_preview = ASSET_DICTIONARY_PREVIEW_HEIGHT + (ImGui::GetFrameHeightWithSpacing() * 4.0f);
@@ -183,10 +190,6 @@ namespace ifb {
         if (ImGui::Button("Pack")) {
             sprite_atlas_builder_pack(count);
         }
-        ImGui::SameLine();
-        if (ImGui::Button("Save...")) {
-            sprite_atlas_builder_save(count);
-        }
         ImGui::EndDisabled();
 
         // removing a sprite changes the list, so it waits until the table is done
@@ -288,26 +291,125 @@ namespace ifb {
             : "Failed to pack the sprites, they may not fit in the atlas or there's no memory for it";
     }
 
-    // packed first, so the preview shows what was saved
+    // new, open, and save, and the file being edited
     IFB_INLINE void
-    sprite_atlas_builder_save(
-        const u32 count) {
+    sprite_atlas_builder_controls(
+        void) {
 
         auto& state = _sprite_atlas_builder;
 
-        const char* dlg_path = eng_file_dialog_save(_sprite_atlas_filter_type, _sprite_atlas_filter_desc);
+        ImGui::SeparatorText("Atlas");
+
+        // a new atlas has nowhere to save to until it's saved as something
+        if (ImGui::Button("New")) {
+            eng_sprite_atlas_builder_clear();
+            state.path[0]           = 0;
+            state.selected[0]       = 0;
+            state.is_atlas_selected = false;
+            state.is_preview_loaded = false;
+            state.status            = "Started a new atlas";
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Open...")) {
+            sprite_atlas_builder_open();
+        }
+
+        const u32 count = eng_sprite_atlas_builder_get_count();
+
+        ImGui::SameLine();
+        ImGui::BeginDisabled(count == 0);
+        if (ImGui::Button("Save")) {
+            sprite_atlas_builder_save(count, false);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save As...")) {
+            sprite_atlas_builder_save(count, true);
+        }
+        ImGui::EndDisabled();
+
+        ImGui::SameLine();
+        ImGui::TextUnformatted(state.path[0] != 0 ? state.path : "(new atlas)");
+    }
+
+    // the sprites in the file replace the ones in the list, a failed open leaves the list as it was
+    // the atlas is packed again right away, so the preview shows it as it'll be saved
+    IFB_INLINE void
+    sprite_atlas_builder_open(
+        void) {
+
+        auto& state = _sprite_atlas_builder;
+
+        const char* dlg_path = eng_file_dialog_open(_sprite_atlas_filter_type, _sprite_atlas_filter_desc);
         if (!dlg_path) return;
 
         char path[SPRITE_ATLAS_BUILDER_PATH_SIZE];
         strncpy_s(path, dlg_path, SPRITE_ATLAS_BUILDER_PATH_SIZE - 1);
-        asset_database_add_extension(path, _sprite_atlas_ext);
+
+        u32 missing_count = 0;
+        if (!eng_sprite_atlas_builder_open(path, missing_count)) {
+            state.status = "Failed to open the atlas, it may not be an atlas file or there's no memory for it";
+            return;
+        }
+
+        strncpy_s(state.path, path, SPRITE_ATLAS_BUILDER_PATH_SIZE - 1);
+
+        const u32 count = eng_sprite_atlas_builder_get_count();
+        if (count != 0) {
+            sprite_atlas_builder_pack(count);
+        }
+        else {
+            state.selected[0]       = 0;
+            state.is_atlas_selected = false;
+            state.is_preview_loaded = false;
+        }
+
+        if (missing_count == 0) {
+            state.status = "Opened the atlas";
+            return;
+        }
+
+        snprintf(
+            state.status_buffer,
+            sizeof(state.status_buffer),
+            "Opened the atlas, %u sprites weren't added because their images aren't in the runtime database",
+            missing_count
+        );
+        state.status = state.status_buffer;
+    }
+
+    // packed first, so the preview shows what was saved
+    // saving goes to the file being edited, a new atlas or save as asks where
+    IFB_INLINE void
+    sprite_atlas_builder_save(
+        const u32  count,
+        const bool is_save_as) {
+
+        auto& state = _sprite_atlas_builder;
+
+        char path[SPRITE_ATLAS_BUILDER_PATH_SIZE];
+        if (is_save_as || state.path[0] == 0) {
+
+            const char* dlg_path = eng_file_dialog_save(_sprite_atlas_filter_type, _sprite_atlas_filter_desc);
+            if (!dlg_path) return;
+
+            strncpy_s(path, dlg_path, SPRITE_ATLAS_BUILDER_PATH_SIZE - 1);
+            asset_database_add_extension(path, _sprite_atlas_ext);
+        }
+        else {
+            strncpy_s(path, state.path, SPRITE_ATLAS_BUILDER_PATH_SIZE - 1);
+        }
 
         sprite_atlas_builder_pack(count);
         if (!state.is_preview_loaded) return;
 
-        state.status = eng_sprite_atlas_builder_save(path)
-            ? "Saved the atlas"
-            : "Failed to save the atlas, the file may not be writable or there's no memory for it";
+        if (!eng_sprite_atlas_builder_save(path)) {
+            state.status = "Failed to save the atlas, the file may not be writable or there's no memory for it";
+            return;
+        }
+
+        strncpy_s(state.path, path, SPRITE_ATLAS_BUILDER_PATH_SIZE - 1);
+        state.status = "Saved the atlas";
     }
 
     // the selected image read back from the runtime database, or the packed atlas
