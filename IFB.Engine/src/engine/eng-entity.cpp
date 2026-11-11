@@ -216,4 +216,36 @@ namespace ifb {
 
         return(is_valid);
     }
+    
+    IFB_ENGINE_API bool
+    eng_entity_is_moving(
+        const entity_id id) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        // get the entity
+        entity e;
+        const bool is_valid = (
+            entity_lookup_by_id(e, id) &&
+            e.archetype.has_any(cmpnt_type_e_velocity)
+        );
+        if (!is_valid) return(false);
+
+        // get the velocity
+        cmpnt_velocity vel;
+        cmpnt_lookup_velocity(e.index_sparse, vel);
+
+        // calculate absolute values
+        const f32 vel_x = abs(vel.x); 
+        const f32 vel_y = abs(vel.y); 
+        const f32 vel_z = abs(vel.z); 
+
+        // compare against threshold 
+        const bool is_moving = (
+           vel.x >= config::entity_movement_threshold ||
+           vel.y >= config::entity_movement_threshold ||
+           vel.z >= config::entity_movement_threshold
+        );
+        return(is_moving);
+    }
 };

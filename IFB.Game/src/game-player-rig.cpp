@@ -46,6 +46,8 @@ namespace ifb {
     static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SIZE           = 0.008f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_TRAIL_SPEED          = 0.12f;
 
+    static constexpr f32 GAME_PLAYER_RIG_WALK_TIME = 0.1f;
+
     inline f32
     game_player_rig_clamp_camera_focus(
         const f32 coord,
@@ -211,6 +213,10 @@ namespace ifb {
 
         eng_entity_add_components      (player_rig->jig_anchor_id, cmpnt_type_e_position);
         eng_cmpnt_update_position      (player_rig->jig_anchor_id, anchor_pos);
+    
+        player_rig->walk_timer       = 0.0f;
+        player_rig->connor_state     = game_connor_state_e_idle_right;
+        player_rig->connor_direction = game_connor_direction_e_right;
     }
     
     IFB_INTERNAL void
@@ -218,6 +224,19 @@ namespace ifb {
         game_player_rig* player_rig) {
 
         game_player_rig_validate(player_rig);     
+
+        static bool walk_cycle_change = false;
+
+        // the first frame doesn't have a usable delta time
+        f32 dt_s = eng_system_get_delta_time_s();
+        if (!(dt_s >= 0.0f && dt_s < 1.0f)) dt_s = 0.0f;
+       
+        player_rig->walk_timer += dt_s;
+
+        if (player_rig->walk_timer >= GAME_PLAYER_RIG_WALK_TIME) {
+            player_rig->walk_timer = 0.0f;
+            walk_cycle_change      = true;
+        }
 
         // get plaer input
         const bool move_left  = eng_input_is_key_down (input_keycode_e_a);
@@ -229,11 +248,11 @@ namespace ifb {
         vec3 connor_force = {0};
         if (move_left) {
             connor_force.x -= 10.0f;
-            eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", "CONNOR-LEFT");
+            player_rig->connor_direction = game_connor_direction_e_left;
         } 
         if (move_right) {
             connor_force.x += 10.0f;
-            eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", "CONNOR-RIGHT");
+            player_rig->connor_direction = game_connor_direction_e_right;
         }
         if (move_up){
             connor_force.z -= 10.0f;
@@ -242,6 +261,50 @@ namespace ifb {
             connor_force.z += 10.0f;
         }  
         eng_entity_add_force (player_rig->connor_id, connor_force);
+
+        const bool is_connor_moving = eng_entity_is_moving(player_rig->connor_id);
+        const bool is_facing_left   = player_rig->connor_direction == game_connor_direction_e_left;
+        const bool is_facing_right  = player_rig->connor_direction == game_connor_direction_e_right;
+        const bool is_moving_left   = is_connor_moving  && is_facing_left;
+        const bool is_moving_right  = is_connor_moving  && is_facing_right;
+        const bool is_idle_left     = !is_connor_moving && is_facing_left; 
+        const bool is_idle_right    = !is_connor_moving && is_facing_right; 
+
+
+        if      (is_idle_left)  player_rig->connor_state = game_connor_state_e_idle_left;
+        else if (is_idle_right) player_rig->connor_state = game_connor_state_e_idle_right;
+
+        if (is_moving_left && walk_cycle_change) {
+            player_rig->connor_state = (player_rig->connor_state == game_connor_state_e_walk_left_1)
+                ? game_connor_state_e_walk_left_2
+                : game_connor_state_e_walk_left_1;
+            
+            walk_cycle_change = false;
+        }
+        else if (is_moving_right && walk_cycle_change) {
+        
+            switch (player_rig->connor_state.val) {
+                case (game_connor_state_e_walk_right_1): player_rig->connor_state = game_connor_state_e_walk_right_2; break;
+                case (game_connor_state_e_walk_right_2): player_rig->connor_state = game_connor_state_e_walk_right_3; break;
+                case (game_connor_state_e_walk_right_3): player_rig->connor_state = game_connor_state_e_walk_right_4; break;
+                default:                                 player_rig->connor_state = game_connor_state_e_walk_right_1; break; 
+            }
+
+            walk_cycle_change = false;
+        }
+
+        cchar* connor_sprite = "CONNOR-RIGHT";
+        switch (player_rig->connor_state.val) {
+            case (game_connor_state_e_idle_left):    connor_sprite = "CONNOR-LEFT";  break;
+            case (game_connor_state_e_idle_right):   connor_sprite = "CONNOR-RIGHT"; break;
+            case (game_connor_state_e_walk_left_1):  connor_sprite = "CNNR-WLK-1";   break;
+            case (game_connor_state_e_walk_left_2):  connor_sprite = "CNNR-WLK-2";   break;
+            case (game_connor_state_e_walk_right_1): connor_sprite = "CNNR-WLK-4";   break;
+            case (game_connor_state_e_walk_right_2): connor_sprite = "CNNR-WLK-5";   break;
+            case (game_connor_state_e_walk_right_3): connor_sprite = "CNNR-WLK-6";   break;
+            case (game_connor_state_e_walk_right_4): connor_sprite = "CNNR-WLK-7";   break;
+        }
+        eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", connor_sprite);
 
         // move jig's anchor point to follow connor
         cmpnt_position pos_anchor;
@@ -257,9 +320,6 @@ namespace ifb {
         player_rig->connor_prev_x  = pos_connor.x;
         player_rig->jig_offset_x  -= connor_delta_x;
 
-        // the first frame doesn't have a usable delta time
-        f32 dt_s = eng_system_get_delta_time_s();
-        if (!(dt_s >= 0.0f && dt_s < 1.0f)) dt_s = 0.0f;
 
         // settle on the nearest side
         const f32 settle_step = GAME_PLAYER_RIG_JIG_SETTLE_SPEED * dt_s;

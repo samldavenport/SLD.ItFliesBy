@@ -222,6 +222,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_entity_add_force             (const entity_id id, const vec3& force);
     IFB_ENGINE_API hnd_scene    eng_entity_get_scene             (const entity_id id);
     IFB_ENGINE_API bool         eng_entity_set_sprite            (const entity_id id, const cchar* atlas_name_cstr, const cchar* sprite_name_cstr);
+    IFB_ENGINE_API bool         eng_entity_is_moving             (const entity_id id);
 
     //--------------------------------------------------------------------
     // SCENES
