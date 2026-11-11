@@ -90,6 +90,7 @@ namespace ifb {
     IFB_HANDLE(hnd_particle_emitter);
     IFB_HANDLE(hnd_sprite_atlas);
     IFB_HANDLE(hnd_sprite);
+    IFB_HANDLE(hnd_font_atlas);
 
     //--------------------------------------------------------------------
     // COMMON TYPES
@@ -212,10 +213,12 @@ namespace ifb {
         asset_type_e_sprite_atlas  = 2,
         asset_type_e_sound         = 3,
         asset_type_e_map           = 4,
-        asset_type_e_count         = 5
+        esset_type_e_font_atlas    = 5,
+        asset_type_e_count         = 6
     };
 
     struct sprite_index;
+    struct font_glyph;
 
     struct asset_name {
         cchar cstr [config::asset_name_size];
@@ -282,6 +285,16 @@ namespace ifb {
         u32              width;
         u32              height;
         u32              sprite_count;
+    };
+
+    struct asset_font_atlas {
+        char*       array_chars;
+        font_glyph* array_glyphs;
+        pixel*      array_pixels;
+        hnd_asset   hnd;
+        u32         width;
+        u32         height;
+        u32         glyph_count;
     };
 
     // always 16 bit pcm, the database converts sounds when it's built
