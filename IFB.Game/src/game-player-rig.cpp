@@ -50,7 +50,7 @@ namespace ifb {
 
     // how long each frame of jig's flying cycle is shown, in seconds
     // he flaps faster while he follows connor and slows down when he's idle
-    static constexpr f32 GAME_PLAYER_RIG_JIG_FLY_TIME_MOVING = 0.02f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_FLY_TIME_MOVING = 0.01f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_FLY_TIME_IDLE   = 0.05f;
 
     // how fast jig has to be going to flap at the moving pace
@@ -63,59 +63,17 @@ namespace ifb {
     // jig's states are laid out as 4 frames facing left, then 4 frames facing right
     static constexpr u32 GAME_PLAYER_RIG_JIG_FLY_FRAME_COUNT = 4;
 
-    inline f32
-    game_player_rig_clamp_camera_focus(
-        const f32 coord,
-        const f32 bounds_min,
-        const f32 bounds_max,
-        const f32 margin) {
-
-        const f32 coord_min = bounds_min + margin;
-        const f32 coord_max = bounds_max - margin;
-
-        // the map is too small to follow anything, stay on the center
-        if (coord_min > coord_max) return((bounds_min + bounds_max) * 0.5f);
-
-        if (coord < coord_min) return(coord_min);
-        if (coord > coord_max) return(coord_max);
-        return(coord);
-    }
-
-    inline const cchar*
-    game_player_rig_get_connor_sprite(
-        const game_player_rig* player_rig) {
-
-        switch (player_rig->connor_state.val) {
-            case (game_connor_state_e_idle_left):    return("CONNOR-LEFT"); 
-            case (game_connor_state_e_idle_right):   return("CONNOR-RIGHT");
-            case (game_connor_state_e_walk_left_1):  return("CNNR-WLK-0");  
-            case (game_connor_state_e_walk_left_2):  return("CNNR-WLK-1");  
-            case (game_connor_state_e_walk_left_3):  return("CNNR-WLK-2");  
-            case (game_connor_state_e_walk_left_4):  return("CNNR-WLK-3");  
-            case (game_connor_state_e_walk_right_1): return("CNNR-WLK-4");  
-            case (game_connor_state_e_walk_right_2): return("CNNR-WLK-5");  
-            case (game_connor_state_e_walk_right_3): return("CNNR-WLK-6");  
-            case (game_connor_state_e_walk_right_4): return("CNNR-WLK-7");  
-            default:                                 return("CONNOR-RIGHT");
-        }
-    }
-
-    inline const cchar*
-    game_player_rig_get_jig_sprite(
-        const game_player_rig* player_rig) {
-
-        switch (player_rig->jig_state.val) {
-            case (game_jig_state_e_left_0):  return("JIG-FLY-LEFT-0");
-            case (game_jig_state_e_left_1):  return("JIG-FLY-LEFT-1");
-            case (game_jig_state_e_left_2):  return("JIG-FLY-LEFT-2");
-            case (game_jig_state_e_left_3):  return("JIG-FLY-LEFT-3");
-            case (game_jig_state_e_right_0): return("JIG-FLY-RIGHT-0");
-            case (game_jig_state_e_right_1): return("JIG-FLY-RIGHT-1");
-            case (game_jig_state_e_right_2): return("JIG-FLY-RIGHT-2");
-            case (game_jig_state_e_right_3): return("JIG-FLY-RIGHT-3");
-            default:                         return("JIG-FLY-RIGHT-0");
-        }
-    }
+    inline f32          game_player_rig_clamp_camera_focus  (const f32 coord,const f32 bounds_min,const f32 bounds_max,const f32 margin);
+    inline const cchar* game_player_rig_get_connor_sprite   (const game_player_rig* player_rig);
+    inline const cchar* game_player_rig_get_jig_sprite      (const game_player_rig* player_rig);
+    inline void         game_player_rig_update_timers       (game_player_rig* player_rig, const f32 dt_s);
+    inline void         game_player_rig_accumulate_forces   (game_player_rig* player_rig);
+    inline void         game_player_rig_update_connor_state (game_player_rig* player_rig);
+    inline void         game_player_rig_update_jig_anchor   (game_player_rig* player_rig, cmpnt_position& pos_anchor, cmpnt_position& pos_connor, const f32 dt_s);
+    inline void         game_player_rig_update_jig_state    (game_player_rig* player_rig, cmpnt_position& pos_jig, const cmpnt_position& pos_connor, const cmpnt_velocity& jig_fly_velocity, const f32 dt_s);
+    inline void         game_player_rig_update_jig_trail    (game_player_rig* player_rig, const cmpnt_velocity& vel_jig);
+    inline void         game_player_rig_update_sprites      (game_player_rig* player_rig);
+    inline void         game_player_rig_render              (game_player_rig* player_rig);
 
     IFB_INTERNAL void
     game_player_rig_validate(
@@ -125,7 +83,7 @@ namespace ifb {
         assert(player_rig->connor_id != ENTITY_ID_INVALID);
         assert(player_rig->jig_id    != ENTITY_ID_INVALID);
     }
-    
+
     IFB_INTERNAL void 
     game_player_rig_init(
         game_player_rig* player_rig) {
@@ -270,213 +228,45 @@ namespace ifb {
 
         player_rig->jig_fly_progress = 0.0f;
         player_rig->jig_fly_blend    = 0.0f;
-        player_rig->jig_state     = game_jig_state_e_right_0;
-        player_rig->jig_direction = game_jig_direction_e_right;
+        player_rig->jig_state        = game_jig_state_e_right_0;
+        player_rig->jig_direction    = game_jig_direction_e_right;
+        player_rig->walk_cycle_change = false;
     }
-    
+
     IFB_INTERNAL void
     game_player_rig_update_and_render(
         game_player_rig* player_rig) {
 
         game_player_rig_validate(player_rig);     
 
-        static bool walk_cycle_change = false;
-
         // the first frame doesn't have a usable delta time
         f32 dt_s = eng_system_get_delta_time_s();
         if (!(dt_s >= 0.0f && dt_s < 1.0f)) dt_s = 0.0f;
-       
-        player_rig->walk_timer += dt_s;
 
-        if (player_rig->walk_timer >= GAME_PLAYER_RIG_WALK_TIME) {
-            player_rig->walk_timer = 0.0f;
-            walk_cycle_change      = true;
-        }
-
-        // get plaer input
-        const bool move_left  = eng_input_is_key_down (input_keycode_e_a);
-        const bool move_right = eng_input_is_key_down (input_keycode_e_d);
-        const bool move_up    = eng_input_is_key_down (input_keycode_e_w);
-        const bool move_down  = eng_input_is_key_down (input_keycode_e_s);
-
-        // add movement forces to connor
-        vec3 connor_force = {0};
-        if (move_left) {
-            connor_force.x -= 10.0f;
-            player_rig->connor_direction = game_connor_direction_e_left;
-        } 
-        if (move_right) {
-            connor_force.x += 10.0f;
-            player_rig->connor_direction = game_connor_direction_e_right;
-        }
-        if (move_up){
-            connor_force.z -= 10.0f;
-        }    
-        if (move_down){
-            connor_force.z += 10.0f;
-        }  
-        eng_entity_add_force (player_rig->connor_id, connor_force);
-
-        const bool is_connor_moving = eng_entity_is_moving(player_rig->connor_id);
-        const bool is_facing_left   = player_rig->connor_direction == game_connor_direction_e_left;
-        const bool is_facing_right  = player_rig->connor_direction == game_connor_direction_e_right;
-        const bool is_moving_left   = is_connor_moving  && is_facing_left;
-        const bool is_moving_right  = is_connor_moving  && is_facing_right;
-        const bool is_idle_left     = !is_connor_moving && is_facing_left; 
-        const bool is_idle_right    = !is_connor_moving && is_facing_right; 
-
-        if      (is_idle_left)  player_rig->connor_state = game_connor_state_e_idle_left;
-        else if (is_idle_right) player_rig->connor_state = game_connor_state_e_idle_right;
-
-        if (is_moving_left && walk_cycle_change) {
-            switch (player_rig->connor_state.val) {
-                case (game_connor_state_e_walk_left_1):  player_rig->connor_state = game_connor_state_e_walk_left_2; break;
-                case (game_connor_state_e_walk_left_2):  player_rig->connor_state = game_connor_state_e_walk_left_3; break;
-                case (game_connor_state_e_walk_left_3):  player_rig->connor_state = game_connor_state_e_walk_left_4; break;
-                default:                                 player_rig->connor_state = game_connor_state_e_walk_left_1; break; 
-            }
-            walk_cycle_change = false;
-        }
-        else if (is_moving_right && walk_cycle_change) {
-        
-            switch (player_rig->connor_state.val) {
-                case (game_connor_state_e_walk_right_1): player_rig->connor_state = game_connor_state_e_walk_right_2; break;
-                case (game_connor_state_e_walk_right_2): player_rig->connor_state = game_connor_state_e_walk_right_3; break;
-                case (game_connor_state_e_walk_right_3): player_rig->connor_state = game_connor_state_e_walk_right_4; break;
-                default:                                 player_rig->connor_state = game_connor_state_e_walk_right_1; break; 
-            }
-            walk_cycle_change = false;
-        }
-
-        const cchar* connor_sprite = game_player_rig_get_connor_sprite(player_rig); 
-        eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", connor_sprite);
-
-        // move jig's anchor point to follow connor
+        // lookup the components
         cmpnt_position pos_anchor;
         cmpnt_position pos_connor;
-        const bool did_lookup_anchor = eng_cmpnt_lookup_position(player_rig->jig_anchor_id, pos_anchor);
-        const bool did_lookup_connor = eng_cmpnt_lookup_position(player_rig->connor_id,     pos_connor);
+        cmpnt_position pos_jig;
+        cmpnt_velocity vel_jig;
+        const bool did_lookup_anchor  = eng_cmpnt_lookup_position(player_rig->jig_anchor_id, pos_anchor);
+        const bool did_lookup_connor  = eng_cmpnt_lookup_position(player_rig->connor_id,     pos_connor);
+        const bool did_lookup_jig_pos = eng_cmpnt_lookup_position(player_rig->jig_id,        pos_jig); 
+        const bool did_lookup_jig_vel = eng_cmpnt_lookup_velocity(player_rig->jig_id,        vel_jig);
         assert(did_lookup_anchor);
         assert(did_lookup_connor);
-
-        // the anchor holds its ground while connor moves,
-        // so it slides across to whichever side is behind him
-        const f32 connor_delta_x   = pos_connor.x - player_rig->connor_prev_x;
-        player_rig->connor_prev_x  = pos_connor.x;
-        player_rig->jig_offset_x  -= connor_delta_x;
-
-
-        // settle on the nearest side
-        const f32 settle_step = GAME_PLAYER_RIG_JIG_SETTLE_SPEED * dt_s;
-        if (player_rig->jig_offset_x < 0.0f) player_rig->jig_offset_x -= settle_step;
-        else                                 player_rig->jig_offset_x += settle_step;
-
-        // the anchor never gets further away than either side
-        if (player_rig->jig_offset_x < -GAME_PLAYER_RIG_JIG_OFFSET_X) player_rig->jig_offset_x = -GAME_PLAYER_RIG_JIG_OFFSET_X;
-        if (player_rig->jig_offset_x >  GAME_PLAYER_RIG_JIG_OFFSET_X) player_rig->jig_offset_x =  GAME_PLAYER_RIG_JIG_OFFSET_X;
-
-        // swing the anchor out along an arc on the way across
-        // it is furthest out when it is level with connor and back in line at either side
-        const f32 arc_x     = player_rig->jig_offset_x / GAME_PLAYER_RIG_JIG_OFFSET_X;
-        const f32 arc_depth = sqrtf(1.0f - (arc_x * arc_x)) * GAME_PLAYER_RIG_JIG_ARC_DEPTH;
-
-        // bob the anchor up and down, the spring carries jig along with it
-        // the time wraps every period so it stays small
-        player_rig->jig_bob_time_s = fmodf(player_rig->jig_bob_time_s + dt_s, GAME_PLAYER_RIG_JIG_BOB_PERIOD_S);
-        const f32 bob_angle        = (player_rig->jig_bob_time_s / GAME_PLAYER_RIG_JIG_BOB_PERIOD_S) * 6.28318531f;
-        const f32 bob_height       = sinf(bob_angle) * GAME_PLAYER_RIG_JIG_BOB_HEIGHT;
-
-        pos_anchor.x = pos_connor.x + player_rig->jig_offset_x;
-        pos_anchor.y = pos_connor.y + 0.100f + bob_height;
-        pos_anchor.z = pos_connor.z + arc_depth;
-        const bool did_update_anchor = eng_cmpnt_update_position(player_rig->jig_anchor_id, pos_anchor);
-        assert(did_update_anchor);
-
-        // jig faces connor, connor being to his right is a positive difference
-        // he only turns around once connor passes him
-        cmpnt_position pos_jig;
-        if (eng_cmpnt_lookup_position(player_rig->jig_id, pos_jig)) {
-
-            const f32  jig_to_connor_x = pos_connor.x - pos_jig.x;
-            const bool connor_is_right = (jig_to_connor_x >  GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
-            const bool connor_is_left  = (jig_to_connor_x < -GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
-
-            if      (connor_is_right) player_rig->jig_direction = game_jig_direction_e_right;
-            else if (connor_is_left)  player_rig->jig_direction = game_jig_direction_e_left;
-        }
-
-        // jig flaps faster the faster he goes, 0 is idle and 1 is following connor
-        f32 jig_fly_target = 0.0f;
-        cmpnt_velocity jig_fly_velocity;
-        if (eng_cmpnt_lookup_velocity(player_rig->jig_id, jig_fly_velocity)) {
-            const f32 jig_fly_speed = sqrtf(
-                (jig_fly_velocity.x * jig_fly_velocity.x) +
-                (jig_fly_velocity.y * jig_fly_velocity.y) +
-                (jig_fly_velocity.z * jig_fly_velocity.z)
-            );
-            jig_fly_target = jig_fly_speed / GAME_PLAYER_RIG_JIG_FLY_FULL_SPEED;
-            if (jig_fly_target > 1.0f) jig_fly_target = 1.0f;
-        }
-
-        // ease towards the target, so he winds up and settles down smoothly
-        // this is frame rate independent
-        const f32 jig_fly_ease = 1.0f - expf(-GAME_PLAYER_RIG_JIG_FLY_EASE_RATE * dt_s);
-        player_rig->jig_fly_blend += (jig_fly_target - player_rig->jig_fly_blend) * jig_fly_ease;
-
-        // blend the frame rate rather than the frame time, so the pace changes evenly
-        const f32 jig_fly_rate_idle   = 1.0f / GAME_PLAYER_RIG_JIG_FLY_TIME_IDLE;
-        const f32 jig_fly_rate_moving = 1.0f / GAME_PLAYER_RIG_JIG_FLY_TIME_MOVING;
-        const f32 jig_fly_rate        = jig_fly_rate_idle + ((jig_fly_rate_moving - jig_fly_rate_idle) * player_rig->jig_fly_blend);
-
-        // jig is always flying, so his cycle never stops
-        // progress is counted in frames, so a change of pace never skips or repeats one
-        u32 jig_frame = player_rig->jig_state.val % GAME_PLAYER_RIG_JIG_FLY_FRAME_COUNT;
-        player_rig->jig_fly_progress += dt_s * jig_fly_rate;
-        while (player_rig->jig_fly_progress >= 1.0f) {
-            player_rig->jig_fly_progress -= 1.0f;
-            jig_frame = (jig_frame + 1) % GAME_PLAYER_RIG_JIG_FLY_FRAME_COUNT;
-        }
-
-        // when he turns around he stays on the same frame, so his wings don't skip
-        const u32 jig_direction_first_state = (player_rig->jig_direction == game_jig_direction_e_left)
-            ? game_jig_state_e_left_0
-            : game_jig_state_e_right_0;
-        player_rig->jig_state = jig_direction_first_state + jig_frame;
-
-        const cchar* jig_sprite = game_player_rig_get_jig_sprite(player_rig);
-        eng_entity_set_sprite(player_rig->jig_id, "CORE-SPRITES", jig_sprite);
-
-        // spawn more of jig's trail the faster he moves
-        // the spawn rate is what ramps, so the trail thickens evenly as he speeds up
-        cmpnt_velocity         jig_velocity;
-        cmpnt_particle_emitter jig_trail;
-        particle_emitter_info  jig_trail_info;
-        const bool has_jig_trail = (
-            eng_cmpnt_lookup_velocity         (player_rig->jig_id, jig_velocity) &&
-            eng_cmpnt_lookup_particle_emitter (player_rig->jig_id, jig_trail)    &&
-            eng_particle_emitter_get_info     (jig_trail.hnd,      jig_trail_info)
-        );
-        if (has_jig_trail) {
-
-            const f32 jig_speed = sqrtf(
-                (jig_velocity.x * jig_velocity.x) +
-                (jig_velocity.y * jig_velocity.y) +
-                (jig_velocity.z * jig_velocity.z)
-            );
-            f32 jig_speed_normal = jig_speed / GAME_PLAYER_RIG_JIG_TRAIL_FULL_SPEED;
-            if (jig_speed_normal > 1.0f) jig_speed_normal = 1.0f;
-
-            const f32 spawn_rate_idle = 1.0f / GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_IDLE_MS;
-            const f32 spawn_rate_full = 1.0f / GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_MS;
-            const f32 spawn_rate      = spawn_rate_idle + ((spawn_rate_full - spawn_rate_idle) * jig_speed_normal);
-
-            jig_trail_info.spawn_delay_ms = 1.0f / spawn_rate;
-            eng_particle_emitter_update(jig_trail.hnd, jig_trail_info);
-        }
-
-        // render quads
-        eng_entity_render(player_rig->connor_id);
-        eng_entity_render(player_rig->jig_id);
+        assert(did_lookup_jig_pos);
+        assert(did_lookup_jig_vel);
+        
+        // update the rig 
+        game_player_rig_update_timers       (player_rig, dt_s);
+        game_player_rig_accumulate_forces   (player_rig);
+        game_player_rig_update_connor_state (player_rig);
+        game_player_rig_update_jig_anchor   (player_rig, pos_anchor, pos_connor, dt_s);
+        game_player_rig_update_jig_state    (player_rig, pos_jig,    pos_connor, vel_jig, dt_s);
+        game_player_rig_update_jig_trail    (player_rig, vel_jig);
+        game_player_rig_update_sprites      (player_rig);
+        game_player_rig_render              (player_rig);
+        
     }
 
     IFB_INTERNAL void
@@ -533,5 +323,284 @@ namespace ifb {
 
         player_rig->camera_focus.x = focus_pos.x;
         player_rig->camera_focus.z = focus_pos.z;
+    }
+    
+    inline void
+    game_player_rig_update_timers(
+        game_player_rig* player_rig,
+        const f32        dt_s) {
+
+        player_rig->walk_timer += dt_s;
+
+        if (player_rig->walk_timer >= GAME_PLAYER_RIG_WALK_TIME) {
+            player_rig->walk_timer         = 0.0f;
+            player_rig->walk_cycle_change  = true;
+        }
+    }
+    
+    inline void
+    game_player_rig_accumulate_forces(
+        game_player_rig* player_rig) {
+
+        // get player input
+        const bool move_left  = eng_input_is_key_down (input_keycode_e_a);
+        const bool move_right = eng_input_is_key_down (input_keycode_e_d);
+        const bool move_up    = eng_input_is_key_down (input_keycode_e_w);
+        const bool move_down  = eng_input_is_key_down (input_keycode_e_s);
+
+        // add movement forces to connor
+        vec3 connor_force = {0};
+        if (move_left) {
+            connor_force.x -= 10.0f;
+            player_rig->connor_direction = game_connor_direction_e_left;
+        } 
+        if (move_right) {
+            connor_force.x += 10.0f;
+            player_rig->connor_direction = game_connor_direction_e_right;
+        }
+        if (move_up){
+            connor_force.z -= 10.0f;
+        }    
+        if (move_down){
+            connor_force.z += 10.0f;
+        }  
+        eng_entity_add_force (player_rig->connor_id, connor_force);
+    }
+    
+    inline void
+    game_player_rig_update_connor_state(
+        game_player_rig* player_rig) {
+
+        const bool is_connor_moving = eng_entity_is_moving(player_rig->connor_id);
+        const bool is_facing_left   = player_rig->connor_direction == game_connor_direction_e_left;
+        const bool is_facing_right  = player_rig->connor_direction == game_connor_direction_e_right;
+        const bool is_moving_left   = is_connor_moving  && is_facing_left;
+        const bool is_moving_right  = is_connor_moving  && is_facing_right;
+        const bool is_idle_left     = !is_connor_moving && is_facing_left; 
+        const bool is_idle_right    = !is_connor_moving && is_facing_right; 
+
+        if      (is_idle_left)  player_rig->connor_state = game_connor_state_e_idle_left;
+        else if (is_idle_right) player_rig->connor_state = game_connor_state_e_idle_right;
+
+        if (is_moving_left && player_rig->walk_cycle_change) {
+            switch (player_rig->connor_state.val) {
+                case (game_connor_state_e_walk_left_1):  player_rig->connor_state = game_connor_state_e_walk_left_2; break;
+                case (game_connor_state_e_walk_left_2):  player_rig->connor_state = game_connor_state_e_walk_left_3; break;
+                case (game_connor_state_e_walk_left_3):  player_rig->connor_state = game_connor_state_e_walk_left_4; break;
+                default:                                 player_rig->connor_state = game_connor_state_e_walk_left_1; break; 
+            }
+            player_rig->walk_cycle_change = false;
+        }
+        else if (is_moving_right && player_rig->walk_cycle_change) {
+        
+            switch (player_rig->connor_state.val) {
+                case (game_connor_state_e_walk_right_1): player_rig->connor_state = game_connor_state_e_walk_right_2; break;
+                case (game_connor_state_e_walk_right_2): player_rig->connor_state = game_connor_state_e_walk_right_3; break;
+                case (game_connor_state_e_walk_right_3): player_rig->connor_state = game_connor_state_e_walk_right_4; break;
+                default:                                 player_rig->connor_state = game_connor_state_e_walk_right_1; break; 
+            }
+            player_rig->walk_cycle_change = false;
+        }
+    }
+    
+    inline void
+    game_player_rig_update_jig_anchor(
+        game_player_rig* player_rig,
+        cmpnt_position&  pos_anchor,
+        cmpnt_position&  pos_connor,
+        const f32        dt_s) {
+
+        // move jig's anchor point to follow connor
+
+        // the anchor holds its ground while connor moves,
+        // so it slides across to whichever side is behind him
+        const f32 connor_delta_x   = pos_connor.x - player_rig->connor_prev_x;
+        player_rig->connor_prev_x  = pos_connor.x;
+        player_rig->jig_offset_x  -= connor_delta_x;
+
+        // settle on the nearest side
+        const f32 settle_step = GAME_PLAYER_RIG_JIG_SETTLE_SPEED * dt_s;
+        if (player_rig->jig_offset_x < 0.0f) player_rig->jig_offset_x -= settle_step;
+        else                                 player_rig->jig_offset_x += settle_step;
+
+        // the anchor never gets further away than either side
+        if (player_rig->jig_offset_x < -GAME_PLAYER_RIG_JIG_OFFSET_X) player_rig->jig_offset_x = -GAME_PLAYER_RIG_JIG_OFFSET_X;
+        if (player_rig->jig_offset_x >  GAME_PLAYER_RIG_JIG_OFFSET_X) player_rig->jig_offset_x =  GAME_PLAYER_RIG_JIG_OFFSET_X;
+
+        // swing the anchor out along an arc on the way across
+        // it is furthest out when it is level with connor and back in line at either side
+        const f32 arc_x     = player_rig->jig_offset_x / GAME_PLAYER_RIG_JIG_OFFSET_X;
+        const f32 arc_depth = sqrtf(1.0f - (arc_x * arc_x)) * GAME_PLAYER_RIG_JIG_ARC_DEPTH;
+
+        // bob the anchor up and down, the spring carries jig along with it
+        // the time wraps every period so it stays small
+        player_rig->jig_bob_time_s = fmodf(player_rig->jig_bob_time_s + dt_s, GAME_PLAYER_RIG_JIG_BOB_PERIOD_S);
+        const f32 bob_angle        = (player_rig->jig_bob_time_s / GAME_PLAYER_RIG_JIG_BOB_PERIOD_S) * 6.28318531f;
+        const f32 bob_height       = sinf(bob_angle) * GAME_PLAYER_RIG_JIG_BOB_HEIGHT;
+
+        pos_anchor.x = pos_connor.x + player_rig->jig_offset_x;
+        pos_anchor.y = pos_connor.y + 0.100f + bob_height;
+        pos_anchor.z = pos_connor.z + arc_depth;
+        const bool did_update_anchor = eng_cmpnt_update_position(player_rig->jig_anchor_id, pos_anchor);
+        assert(did_update_anchor);
+    }
+
+    inline void
+    game_player_rig_update_jig_state(
+        game_player_rig*      player_rig,
+        cmpnt_position&       pos_jig, 
+        const cmpnt_position& pos_connor,
+        const cmpnt_velocity& jig_fly_velocity,
+        const f32             dt_s) {
+
+        // jig faces connor, connor being to his right is a positive difference
+        // he only turns around once connor passes him
+        const f32  jig_to_connor_x = pos_connor.x - pos_jig.x;
+        const bool connor_is_right = (jig_to_connor_x >  GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
+        const bool connor_is_left  = (jig_to_connor_x < -GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
+
+        if      (connor_is_right) player_rig->jig_direction = game_jig_direction_e_right;
+        else if (connor_is_left)  player_rig->jig_direction = game_jig_direction_e_left;
+
+        // jig flaps faster the faster he goes, 0 is idle and 1 is following connor
+        f32 jig_fly_target = 0.0f;
+        const f32 jig_fly_speed = sqrtf(
+            (jig_fly_velocity.x * jig_fly_velocity.x) +
+            (jig_fly_velocity.y * jig_fly_velocity.y) +
+            (jig_fly_velocity.z * jig_fly_velocity.z)
+        );
+        jig_fly_target = jig_fly_speed / GAME_PLAYER_RIG_JIG_FLY_FULL_SPEED;
+        if (jig_fly_target > 1.0f) jig_fly_target = 1.0f;
+
+        // ease towards the target, so he winds up and settles down smoothly
+        // this is frame rate independent
+        const f32 jig_fly_ease = 1.0f - expf(-GAME_PLAYER_RIG_JIG_FLY_EASE_RATE * dt_s);
+        player_rig->jig_fly_blend += (jig_fly_target - player_rig->jig_fly_blend) * jig_fly_ease;
+
+        // blend the frame rate rather than the frame time, so the pace changes evenly
+        const f32 jig_fly_rate_idle   = 1.0f / GAME_PLAYER_RIG_JIG_FLY_TIME_IDLE;
+        const f32 jig_fly_rate_moving = 1.0f / GAME_PLAYER_RIG_JIG_FLY_TIME_MOVING;
+        const f32 jig_fly_rate        = jig_fly_rate_idle + ((jig_fly_rate_moving - jig_fly_rate_idle) * player_rig->jig_fly_blend);
+
+        // jig is always flying, so his cycle never stops
+        // progress is counted in frames, so a change of pace never skips or repeats one
+        u32 jig_frame = player_rig->jig_state.val % GAME_PLAYER_RIG_JIG_FLY_FRAME_COUNT;
+        player_rig->jig_fly_progress += dt_s * jig_fly_rate;
+        while (player_rig->jig_fly_progress >= 1.0f) {
+            player_rig->jig_fly_progress -= 1.0f;
+            jig_frame = (jig_frame + 1) % GAME_PLAYER_RIG_JIG_FLY_FRAME_COUNT;
+        }
+
+        // when he turns around he stays on the same frame, so his wings don't skip
+        const u32 jig_direction_first_state = (player_rig->jig_direction == game_jig_direction_e_left)
+            ? game_jig_state_e_left_0
+            : game_jig_state_e_right_0;
+        player_rig->jig_state = jig_direction_first_state + jig_frame;
+
+    }
+
+    inline void
+    game_player_rig_update_jig_trail(
+        game_player_rig*      player_rig,
+        const cmpnt_velocity& vel_jig) {
+
+        // spawn more of jig's trail the faster he moves
+        // the spawn rate is what ramps, so the trail thickens evenly as he speeds up
+        cmpnt_particle_emitter jig_trail;
+        particle_emitter_info  jig_trail_info;
+        const bool has_jig_trail = (
+            eng_cmpnt_lookup_particle_emitter (player_rig->jig_id, jig_trail)    &&
+            eng_particle_emitter_get_info     (jig_trail.hnd,      jig_trail_info)
+        );
+        if (has_jig_trail) {
+
+            const f32 jig_speed = sqrtf(
+                (vel_jig.x * vel_jig.x) +
+                (vel_jig.y * vel_jig.y) +
+                (vel_jig.z * vel_jig.z)
+            );
+            f32 jig_speed_normal = jig_speed / GAME_PLAYER_RIG_JIG_TRAIL_FULL_SPEED;
+            if (jig_speed_normal > 1.0f) jig_speed_normal = 1.0f;
+
+            const f32 spawn_rate_idle = 1.0f / GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_IDLE_MS;
+            const f32 spawn_rate_full = 1.0f / GAME_PLAYER_RIG_JIG_TRAIL_SPAWN_DELAY_MS;
+            const f32 spawn_rate      = spawn_rate_idle + ((spawn_rate_full - spawn_rate_idle) * jig_speed_normal);
+
+            jig_trail_info.spawn_delay_ms = 1.0f / spawn_rate;
+            eng_particle_emitter_update(jig_trail.hnd, jig_trail_info);
+        }
+    }
+
+    inline void
+    game_player_rig_update_sprites(
+        game_player_rig* player_rig) {
+
+        const cchar* connor_sprite = game_player_rig_get_connor_sprite(player_rig); 
+        const cchar* jig_sprite    = game_player_rig_get_jig_sprite(player_rig);
+        eng_entity_set_sprite(player_rig->connor_id, "CORE-SPRITES", connor_sprite);
+        eng_entity_set_sprite(player_rig->jig_id,    "CORE-SPRITES", jig_sprite);
+    }
+    
+    inline void
+    game_player_rig_render(
+        game_player_rig* player_rig) {
+
+        // render quads
+        eng_entity_render(player_rig->connor_id);
+        eng_entity_render(player_rig->jig_id);
+    }
+    
+    inline f32
+    game_player_rig_clamp_camera_focus(
+        const f32 coord,
+        const f32 bounds_min,
+        const f32 bounds_max,
+        const f32 margin) {
+
+        const f32 coord_min = bounds_min + margin;
+        const f32 coord_max = bounds_max - margin;
+
+        // the map is too small to follow anything, stay on the center
+        if (coord_min > coord_max) return((bounds_min + bounds_max) * 0.5f);
+
+        if (coord < coord_min) return(coord_min);
+        if (coord > coord_max) return(coord_max);
+        return(coord);
+    }
+    
+    inline const cchar*
+    game_player_rig_get_connor_sprite(
+        const game_player_rig* player_rig) {
+
+        switch (player_rig->connor_state.val) {
+            case (game_connor_state_e_idle_left):    return("CONNOR-LEFT"); 
+            case (game_connor_state_e_idle_right):   return("CONNOR-RIGHT");
+            case (game_connor_state_e_walk_left_1):  return("CNNR-WLK-0");  
+            case (game_connor_state_e_walk_left_2):  return("CNNR-WLK-1");  
+            case (game_connor_state_e_walk_left_3):  return("CNNR-WLK-2");  
+            case (game_connor_state_e_walk_left_4):  return("CNNR-WLK-3");  
+            case (game_connor_state_e_walk_right_1): return("CNNR-WLK-4");  
+            case (game_connor_state_e_walk_right_2): return("CNNR-WLK-5");  
+            case (game_connor_state_e_walk_right_3): return("CNNR-WLK-6");  
+            case (game_connor_state_e_walk_right_4): return("CNNR-WLK-7");  
+            default:                                 return("CONNOR-RIGHT");
+        }
+    }
+    
+    inline const cchar*
+    game_player_rig_get_jig_sprite(
+        const game_player_rig* player_rig) {
+
+        switch (player_rig->jig_state.val) {
+            case (game_jig_state_e_left_0):  return("JIG-FLY-LEFT-0");
+            case (game_jig_state_e_left_1):  return("JIG-FLY-LEFT-1");
+            case (game_jig_state_e_left_2):  return("JIG-FLY-LEFT-2");
+            case (game_jig_state_e_left_3):  return("JIG-FLY-LEFT-3");
+            case (game_jig_state_e_right_0): return("JIG-FLY-RIGHT-0");
+            case (game_jig_state_e_right_1): return("JIG-FLY-RIGHT-1");
+            case (game_jig_state_e_right_2): return("JIG-FLY-RIGHT-2");
+            case (game_jig_state_e_right_3): return("JIG-FLY-RIGHT-3");
+            default:                         return("JIG-FLY-RIGHT-0");
+        }
     }
 };
