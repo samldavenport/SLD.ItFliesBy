@@ -50,7 +50,7 @@ namespace ifb {
 
     // how long each frame of jig's flying cycle is shown, in seconds
     // he flaps faster while he follows connor and slows down when he's idle
-    static constexpr f32 GAME_PLAYER_RIG_JIG_FLY_TIME_MOVING = 0.02f;
+    static constexpr f32 GAME_PLAYER_RIG_JIG_FLY_TIME_MOVING = 0.01f;
     static constexpr f32 GAME_PLAYER_RIG_JIG_FLY_TIME_IDLE   = 0.05f;
 
     // how fast jig has to be going to flap at the moving pace
@@ -74,6 +74,7 @@ namespace ifb {
     inline void         game_player_rig_update_jig_trail    (game_player_rig* player_rig, const cmpnt_velocity& vel_jig);
     inline void         game_player_rig_update_sprites      (game_player_rig* player_rig);
     inline void         game_player_rig_render              (game_player_rig* player_rig);
+
     IFB_INTERNAL void
     game_player_rig_validate(
         game_player_rig* player_rig) {
@@ -231,7 +232,6 @@ namespace ifb {
         player_rig->jig_direction    = game_jig_direction_e_right;
         player_rig->walk_cycle_change = false;
     }
-   
 
     IFB_INTERNAL void
     game_player_rig_update_and_render(
