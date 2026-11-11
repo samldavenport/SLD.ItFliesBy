@@ -60,6 +60,7 @@ namespace ifb {
         f32                       jig_fly_blend;
         game_jig_state_u32        jig_state;
         game_jig_direction_u32    jig_direction;
+        bool                      walk_cycle_change;
     };
 
     struct game_entities {
