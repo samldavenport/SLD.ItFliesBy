@@ -229,6 +229,9 @@ namespace ifb {
         // scene requests from the last frame take effect here, before anything runs
         scene_mngr_frame_start();
 
+        // the immediate quads are pushed again by every run of the game callback
+        renderer_immediate_reset();
+
         _eng_context->game_callback(
             _eng_context->game_ctx
         );

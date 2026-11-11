@@ -586,6 +586,53 @@ namespace ifb {
     IFB_ENGINE_API font*  eng_font_load_file_to_arena   (const cchar* path, const hnd_arena h_arena);
     IFB_ENGINE_API font*  eng_font_atlas_load_to_arena  (const cchar* name, const hnd_arena h_arena);
 
+    // a font has to be on the gpu, and active, before text is drawn with it
+    // the renderer finds fonts by their address, so release a font before its memory goes away
+    IFB_ENGINE_API bool        eng_font_upload     (const font* fnt);
+    IFB_ENGINE_API bool        eng_font_release    (const font* fnt);
+    IFB_ENGINE_API bool        eng_font_set_active (const font* fnt);
+    IFB_ENGINE_API const font* eng_font_get_active (void);
+
+    // text layout, these don't draw anything or need the font on the gpu
+    // len is the number of characters in str to use
+    // the width of the widest line, newlines start a new line
+    IFB_ENGINE_API f32 eng_font_measure_text (const font* fnt, const cchar* str, const u32 len);
+    // breaks the text into lines no wider than max_width, at spaces when it can, and always at newlines
+    // a word wider than max_width is broken where it runs out of room
+    // returns the number of lines the text needs, only the first line_capacity are written to lines
+    IFB_ENGINE_API u32 eng_font_wrap_text    (const font* fnt, const cchar* str, const u32 len, const f32 max_width, font_line* lines, const u32 line_capacity);
+
+    //--------------------------------------------------------------------
+    // IMMEDIATE DRAWING
+    //--------------------------------------------------------------------
+    // quads that aren't entities, pushed by the game every frame they should be seen
+    // they draw in the order they're pushed, so later ones are on top
+    // only what's pushed in the game callback is drawn
+    //
+    // the screen layer is in screen pixels, (0, 0) is the top left and y goes down,
+    // and draws over everything. the world layer draws with the camera, after the entities
+    //
+    // sprites draw from the active sprite atlas and text from the active font,
+    // anything else fails and draws nothing
+
+    // the pixels the screen is laid out in, it's stretched to fill the window
+    // 0 x 0 uses the window's size, so a screen pixel is a window pixel
+    IFB_ENGINE_API void eng_draw_set_screen_size (const u32 width, const u32 height);
+    IFB_ENGINE_API void eng_draw_get_screen_size (u32& width, u32& height);
+
+    // screen
+    IFB_ENGINE_API bool eng_draw_rect_screen          (const rect& dst, const color_rgba_f32& color);
+    IFB_ENGINE_API bool eng_draw_sprite_screen        (const rect& dst, const hnd_sprite_atlas h_atlas, const u32 i_sprite, const color_rgba_f32& tint);
+    // part of a sprite stretched to dst, region is in the sprite's pixels, for things like nine slice borders
+    IFB_ENGINE_API bool eng_draw_sprite_region_screen (const rect& dst, const hnd_sprite_atlas h_atlas, const u32 i_sprite, const rect& region, const color_rgba_f32& tint);
+    // pos is the top left of the first line, newlines move down a line
+    // returns false if the font isn't active or the layer ran out of room
+    IFB_ENGINE_API bool eng_draw_text_screen          (const font* fnt, const cchar* str, const u32 len, const vec2& pos, const color_rgba_f32& color);
+
+    // world, the quad is 1 x 1 on the xy plane and centered on the origin, xform places it
+    IFB_ENGINE_API bool eng_draw_rect_world           (const mat4& xform, const color_rgba_f32& color);
+    IFB_ENGINE_API bool eng_draw_sprite_world         (const mat4& xform, const hnd_sprite_atlas h_atlas, const u32 i_sprite, const color_rgba_f32& tint);
+
     //--------------------------------------------------------------------
     // DEFINITIONS
     //--------------------------------------------------------------------

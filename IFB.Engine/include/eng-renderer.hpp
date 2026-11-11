@@ -16,6 +16,11 @@ namespace ifb {
     static constexpr u32 QUAD_ELEMENT_COUNT           = 6;
     static constexpr u32 QUAD_ELEMENT_DATA_SIZE       = sizeof(u32) * QUAD_ELEMENT_COUNT;
     static constexpr u32 RENDERER_ASSET_PREVIEW_COUNT = 5; // one texture for each window that previews assets
+    static constexpr u32 RENDERER_FONT_CAPACITY       = 4; // fonts that can be on the gpu at once
+
+    // the quad shader's samplers
+    static constexpr u32 RENDER_GL_TEXTURE_SLOT_SPRITE_ATLAS = 0;
+    static constexpr u32 RENDER_GL_TEXTURE_SLOT_FONT_ATLAS   = 1;
 
     //--------------------------------------------------------------------
     // STRUCTURED TYPES
@@ -90,6 +95,15 @@ namespace ifb {
     IFB_INTERNAL bool        renderer_set_parallax                     (const cchar* back, const cchar* mid, const cchar* front);
     IFB_INTERNAL void        renderer_sync_parallax                    (void);
     IFB_INTERNAL bool        renderer_get_parallax_backdrop_z          (const hnd_map h_map, f32& backdrop_z);
+    IFB_INTERNAL bool        renderer_upload_font                      (const font* fnt);
+    IFB_INTERNAL bool        renderer_release_font                     (const font* fnt);
+    IFB_INTERNAL bool        renderer_set_active_font                  (const font* fnt);
+    IFB_INTERNAL const font* renderer_get_active_font                  (void);
+    IFB_INTERNAL void        renderer_immediate_reset                  (void);
+    IFB_INTERNAL bool        renderer_immediate_push_world             (const quad_vertices& vertices);
+    IFB_INTERNAL bool        renderer_immediate_push_screen            (const quad_vertices& vertices);
+    IFB_INTERNAL void        renderer_set_screen_size                  (const u32 width, const u32 height);
+    IFB_INTERNAL void        renderer_get_screen_size                  (u32& width, u32& height);
 
     struct render_buffers;
     struct render_vertex_buffer;
@@ -104,12 +118,16 @@ namespace ifb {
     struct renderer_particle_view;
     struct renderer_map_view;
     struct render_sprite_atlas_texture;
+    struct render_font_texture;
+    struct renderer_immediate;
 
     // context
     IFB_INTERNAL void*                        renderer_memory_alloc              (const u32 size);
     IFB_INTERNAL entity_list*                 renderer_create_entity_list        (void);
     IFB_INTERNAL render_sprite_atlas_texture* renderer_find_sprite_atlas_texture (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL void                         renderer_use_sprite_atlas_texture  (void);
+    IFB_INTERNAL render_font_texture*         renderer_find_font_texture         (const font* fnt);
+    IFB_INTERNAL void                         renderer_use_quad_textures         (void);
 
     // camera
     IFB_INTERNAL renderer_camera*      renderer_camera_create              (void);
@@ -149,6 +167,14 @@ namespace ifb {
     IFB_INTERNAL renderer_quad_shader* renderer_quad_shader_create         (void);
     IFB_INTERNAL void                  renderer_quad_shader_init           (renderer_quad_shader* shdr, gl_context* gl, render_buffers* buffers, const renderer_shader_source& src_vertex, const renderer_shader_source& src_fragment);
     IFB_INTERNAL void                  renderer_quad_draw                  (renderer_quad_shader* shdr, gl_context* gl, render_buffers* buffers, const mat4& view_proj_xform);
+
+    // immediate
+    IFB_INTERNAL renderer_immediate*   renderer_immediate_create           (void);
+    IFB_INTERNAL void                  renderer_immediate_init             (renderer_immediate* imm, gl_context* gl, renderer_quad_shader* shdr_quad);
+    IFB_INTERNAL void                  renderer_immediate_clear            (renderer_immediate* imm);
+    IFB_INTERNAL bool                  renderer_immediate_push             (render_vertex_buffer* layer, const quad_vertices& vertices);
+    IFB_INTERNAL void                  renderer_immediate_draw_world       (renderer_immediate* imm, gl_context* gl, renderer_quad_shader* shdr_quad, const mat4& view_proj_xform);
+    IFB_INTERNAL void                  renderer_immediate_draw_screen      (renderer_immediate* imm, gl_context* gl, renderer_quad_shader* shdr_quad, const f32 width, const f32 height);
 
     // grid
     IFB_INTERNAL renderer_grid_shader* renderer_grid_shader_create         (void);

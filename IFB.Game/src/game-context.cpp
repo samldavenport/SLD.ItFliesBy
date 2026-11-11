@@ -71,6 +71,7 @@ namespace ifb {
         ctx->entities         = NULL;
         ctx->sprites          = sprites;
         ctx->audio            = audio;
+        ctx->fnt              = NULL;
 
         // nothing is playing, and the first contact counts as a bump
         audio->h_boop             = {INVALID_HANDLE};
@@ -99,6 +100,12 @@ namespace ifb {
             (void)did_set_texture;
         }
 
+        // the ui font, copied onto the global arena so it lives as long as the game
+        // without the asset database it fails to load, and the game runs without text
+        font* fnt = eng_font_atlas_load_to_arena("PRESS-START-16", arena_h);
+        if (fnt != NULL && eng_font_upload(fnt) && eng_font_set_active(fnt)) {
+            ctx->fnt = fnt;
+        }
 
         // the level
         game_scene_gameplay_init(ctx);
@@ -134,6 +141,12 @@ namespace ifb {
         audio->time_s += eng_system_get_delta_time_s();
 
         game_scene_gameplay_update_and_render(ctx);
+
+        // screen text has to be pushed again every frame, it sits under the editor menu bar
+        if (ctx->fnt != NULL) {
+            static constexpr cchar hello[] = "Hello, World!";
+            eng_draw_text_screen(ctx->fnt, hello, sizeof(hello) - 1, { 16.0f, 48.0f }, color_rgba_f32(0xFFFFFFFF));
+        }
     }
 
 

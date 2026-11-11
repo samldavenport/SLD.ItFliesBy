@@ -134,6 +134,15 @@ namespace ifb {
         u32    size;
     };
 
+    // x and y are the top left, y goes down
+    // on the screen it's in screen pixels, in a sprite it's in the sprite's pixels
+    struct rect {
+        f32 x;
+        f32 y;
+        f32 width;
+        f32 height;
+    };
+
     struct file_path {
         cchar cstr[config::file_path_size];
     };
@@ -780,6 +789,14 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // how to bake a font from a ttf
+    // one line of wrapped text, a range of the string that was wrapped
+    // length counts the characters drawn, the spaces or newline the line broke on aren't in it
+    struct font_line {
+        u32 start;
+        u32 length;
+        f32 width;
+    };
+
     struct font_config {
         f32 pixel_height    = 16.0f; // for pixel fonts, a multiple of the size they were designed at (8 for Press Start 2P)
         u32 first_codepoint = 32;    // ' '

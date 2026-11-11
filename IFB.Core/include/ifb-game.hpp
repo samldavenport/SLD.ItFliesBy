@@ -105,6 +105,7 @@ namespace ifb {
         game_entities*   entities;
         game_sprites*    sprites;
         game_audio*      audio;
+        const font*      fnt;   // the ui font, NULL if it didn't load
     } static * _game_ctx;
 
     IFB_INTERNAL game_context* game_context_create_and_init      (void);

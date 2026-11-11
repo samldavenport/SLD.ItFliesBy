@@ -43,7 +43,7 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 | Update system info and delta time | every iteration |
 | `asset_mngr_update`, window frame start, process window events, `random_table_update`, `audio_mngr_frame_start` | new frame |
 | `scene_mngr_frame_start`, which applies the [scene](scenes.md#when-changes-happen) pushes, pops, resets, and destroys requested since the last pass | every iteration |
-| Game callback (`game_context_update_and_render`) | every iteration |
+| Clear the [immediate drawing](renderer.md#immediate-drawing) layers, then the game callback (`game_context_update_and_render`) | every iteration |
 | `phys_mngr_simulate(dt)` | every iteration |
 | `event_mngr_update`, which calls the [event](events.md) listeners | every iteration |
 | Particles follow their entities, then update | every iteration |

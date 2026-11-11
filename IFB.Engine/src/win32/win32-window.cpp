@@ -156,6 +156,24 @@ namespace ifb {
         PostQuitMessage(0);
     }
 
+    // the size of the area inside the borders, title bar, and menu, which is what gets drawn to
+    // false if there's no window, or it's minimized to nothing
+    IFB_WIN32_API_FUNC bool
+    pfm_window_get_client_size(
+        u32& width,
+        u32& height) {
+
+        const win32_window& window = _pfm_ctx.window;
+        if (window.handle == NULL) return(false);
+
+        RECT client;
+        if (!GetClientRect(window.handle, &client)) return(false);
+
+        width  = (u32)(client.right  - client.left);
+        height = (u32)(client.bottom - client.top);
+        return(width != 0 && height != 0);
+    }
+
     //--------------------------------------------------------------------
     // INTERNAL METHODS
     //--------------------------------------------------------------------

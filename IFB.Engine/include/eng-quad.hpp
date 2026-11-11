@@ -23,11 +23,16 @@ namespace ifb {
         stack* stack_mem;
     };
 
+    // what a quad's fragments sample, the quad shader picks with the vertex's textured value
+    static constexpr f32 QUAD_SAMPLE_SOLID  = 0.0f; // the vertex color
+    static constexpr f32 QUAD_SAMPLE_SPRITE = 1.0f; // the active sprite atlas, tinted by the vertex color
+    static constexpr f32 QUAD_SAMPLE_FONT   = 2.0f; // the active font's coverage as the alpha of the vertex color
+
     struct quad_vertex {
         vec3           position;
         color_rgba_f32 color;
         vec2           text_coords;
-        f32            textured;     // 0 is a solid color, 1 samples the sprite atlas
+        f32            textured;     // one of QUAD_SAMPLE_*
     };
 
     struct quad_vertices {

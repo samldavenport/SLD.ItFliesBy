@@ -173,6 +173,7 @@ namespace ifb {
     IFB_PLATFORM_API void  pfm_window_process_events     (void);
     IFB_PLATFORM_API void  pfm_window_close              (void);
     IFB_PLATFORM_API bool  pfm_window_quit_received      (void);
+    IFB_PLATFORM_API bool  pfm_window_get_client_size    (u32& width, u32& height);
 
     //--------------------------------------------------------------------
     // MONITOR

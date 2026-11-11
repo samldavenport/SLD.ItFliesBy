@@ -7,6 +7,7 @@
 #include "render-buffers.cpp"
 #include "renderer-draw-lists.cpp"
 #include "renderer-quad.cpp"
+#include "renderer-immediate.cpp"
 #include "renderer-camera.cpp"
 #include "renderer-viewport.cpp"
 #include "renderer-direction-gizmo.cpp"
@@ -28,8 +29,6 @@
 
 namespace ifb {
 
-    static constexpr u32 RENDER_GL_TEXTURE_SLOT_SPRITE_ATLAS = 0;
-
     //--------------------------------------------------------------------
     // DEFINITIONS 
     //--------------------------------------------------------------------
@@ -39,10 +38,19 @@ namespace ifb {
         gl_texture       texture_id;
     };
 
+    // fonts are blobs the game owns, so they're found by their address
+    struct render_font_texture {
+        const font* fnt;
+        gl_texture  texture_id;
+    };
+
     struct render_textures {
         render_sprite_atlas_texture sprite_atlas[config::sprite_atlas_table_capacity];
         gl_texture                  sprite_atlas_active;
         hnd_sprite_atlas            sprite_atlas_active_hnd;
+        render_font_texture         fonts[RENDERER_FONT_CAPACITY];
+        gl_texture                  font_active;
+        const font*                 font_active_fnt;
     };
 
     struct renderer_memory {
@@ -61,6 +69,7 @@ namespace ifb {
         renderer_particle_view*      particle_view;
         renderer_map_view*           map_view;
         render_textures*             textures;
+        renderer_immediate*          immediate;
         struct {
             renderer_quad_shader*            quad;
             renderer_direction_gizmo_shader* direction_gizmo;
@@ -111,6 +120,17 @@ namespace ifb {
         }
         textures->sprite_atlas_active     = GL_ID_INVALID;
         textures->sprite_atlas_active_hnd = INVALID_HANDLE;
+
+        for (
+              u32 i_font = 0;
+                  i_font < RENDERER_FONT_CAPACITY;
+                ++i_font) {
+
+            textures->fonts[i_font].fnt        = NULL;
+            textures->fonts[i_font].texture_id = GL_ID_INVALID;
+        }
+        textures->font_active     = GL_ID_INVALID;
+        textures->font_active_fnt = NULL;
 
         _renderer           = rndr;
         _renderer->gl       = gl;
@@ -164,7 +184,18 @@ namespace ifb {
         // intialize camera
         renderer_viewport_init (_renderer->viewport); 
         renderer_camera_init   (_renderer->cam);
-        renderer_viewport_set_dimensions(_renderer->viewport, _renderer->gl, cfg.window_start_width, cfg.window_start_height);
+
+        // the window was already sized when it opened, before the renderer could take it
+        // the config size includes the borders and title bar, so it's only a fallback
+        u32 viewport_width  = cfg.window_start_width;
+        u32 viewport_height = cfg.window_start_height;
+        u32 client_width    = 0;
+        u32 client_height   = 0;
+        if (pfm_window_get_client_size(client_width, client_height)) {
+            viewport_width  = client_width;
+            viewport_height = client_height;
+        }
+        renderer_viewport_set_dimensions(_renderer->viewport, _renderer->gl, viewport_width, viewport_height);
 
         // open shader files
         const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
@@ -228,6 +259,10 @@ namespace ifb {
         // the particle view draws with the quad shader, so it goes after the shaders
         _renderer->particle_view = renderer_particle_view_create();
         renderer_particle_view_init(_renderer->particle_view, _renderer->gl, _renderer->buffers, _renderer->shader.quad);
+
+        // the immediate quads draw with the quad shader too
+        _renderer->immediate = renderer_immediate_create();
+        renderer_immediate_init(_renderer->immediate, _renderer->gl, _renderer->shader.quad);
 
         // the map view draws with the tile shader, so it goes after the shaders too
         _renderer->map_view = renderer_map_view_create();
@@ -318,6 +353,15 @@ namespace ifb {
             renderer_grid_draw        (_renderer->shader.grid, gl, buffers, view_proj_xform);
         }
         renderer_quad_draw            (_renderer->shader.quad, gl, buffers, view_proj_xform);
+        renderer_immediate_draw_world (_renderer->immediate, gl, _renderer->shader.quad, view_proj_xform);
+
+        // the screen layer goes over everything in the window
+        u32 screen_width  = 0;
+        u32 screen_height = 0;
+        renderer_get_screen_size(screen_width, screen_height);
+        if (screen_width != 0 && screen_height != 0) {
+            renderer_immediate_draw_screen(_renderer->immediate, gl, _renderer->shader.quad, (f32)screen_width, (f32)screen_height);
+        }
 
         // the particle view draws offscreen, then puts the window viewport back
         renderer_particle_view_draw(_renderer->particle_view, gl, buffers, _renderer->shader.quad, _renderer->shader.grid);
@@ -625,6 +669,215 @@ namespace ifb {
         );
         assert(did_set);
         (void)did_set;
+    }
+
+    // INVALID finds a free slot
+    IFB_INTERNAL render_font_texture*
+    renderer_find_font_texture(
+        const font* fnt) {
+
+        assert(_renderer);
+        assert(_renderer->textures);
+
+        auto textures = _renderer->textures;
+        for (
+              u32 i_font = 0;
+                  i_font < RENDERER_FONT_CAPACITY;
+                ++i_font) {
+
+            if (textures->fonts[i_font].fnt == fnt) {
+                return(&textures->fonts[i_font]);
+            }
+        }
+        return(NULL);
+    }
+
+    // binds the active font and sprite atlas for the quad shader
+    // the sprite atlas goes last, so texture slot 0 is the active one afterwards like everything else expects
+    IFB_INTERNAL void
+    renderer_use_quad_textures(
+        void) {
+
+        assert(_renderer);
+        assert(_renderer->textures);
+
+        const gl_texture font_texture = _renderer->textures->font_active;
+        if (font_texture != GL_ID_INVALID) {
+            const bool did_set = gl_context_set_texture_active(
+                _renderer->gl,
+                font_texture,
+                RENDER_GL_TEXTURE_SLOT_FONT_ATLAS
+            );
+            assert(did_set);
+            (void)did_set;
+        }
+
+        glActiveTexture(GL_TEXTURE0 + RENDER_GL_TEXTURE_SLOT_SPRITE_ATLAS);
+        renderer_use_sprite_atlas_texture();
+    }
+
+    //--------------------------------------------------------------------
+    // FONT METHODS
+    //--------------------------------------------------------------------
+
+    // true if the font's atlas is on the gpu, uploading it again does nothing
+    // the atlas is one coverage byte per pixel, so it goes up as a single red channel
+    // fonts without oversampling are pixel fonts, they're filtered nearest so they stay sharp
+    IFB_INTERNAL bool
+    renderer_upload_font(
+        const font* fnt) {
+
+        assert(fnt);
+        assert(_renderer);
+
+        if (renderer_find_font_texture(fnt) != NULL) return(true);
+
+        render_font_texture* slot = renderer_find_font_texture(NULL);
+        if (slot == NULL) return(false);
+
+        gl_context*      gl      = _renderer->gl;
+        const gl_texture texture = gl_texture_create(gl);
+        if (texture == GL_ID_INVALID) return(false);
+
+        const bool  is_nearest = (fnt->oversample_x == 1 && fnt->oversample_y == 1);
+        const GLint filter     = is_nearest ? GL_NEAREST : GL_LINEAR;
+
+        (void)glGetError();
+        glBindTexture   (GL_TEXTURE_2D, texture);
+        glPixelStorei   (GL_UNPACK_ALIGNMENT, 1); // the rows are tightly packed bytes
+        glTexImage2D    (GL_TEXTURE_2D, 0, GL_R8, (GLsizei)fnt->atlas_width, (GLsizei)fnt->atlas_height, 0, GL_RED, GL_UNSIGNED_BYTE, fnt->atlas_pixels());
+        glPixelStorei   (GL_UNPACK_ALIGNMENT, 4);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+        glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+        glBindTexture   (GL_TEXTURE_2D, GL_ID_INVALID);
+
+        if (glGetError() != GL_NO_ERROR) {
+            gl_texture_destroy(gl, texture);
+            return(false);
+        }
+
+        slot->fnt        = fnt;
+        slot->texture_id = texture;
+        return(true);
+    }
+
+    // false if the font was never uploaded
+    IFB_INTERNAL bool
+    renderer_release_font(
+        const font* fnt) {
+
+        assert(fnt);
+        assert(_renderer);
+
+        auto textures = _renderer->textures;
+        assert(textures);
+
+        render_font_texture* slot = renderer_find_font_texture(fnt);
+        if (slot == NULL) return(false);
+
+        if (textures->font_active_fnt == fnt) {
+            textures->font_active     = GL_ID_INVALID;
+            textures->font_active_fnt = NULL;
+        }
+
+        gl_texture_destroy(_renderer->gl, slot->texture_id);
+        slot->fnt        = NULL;
+        slot->texture_id = GL_ID_INVALID;
+        return(true);
+    }
+
+    // false if the font was never uploaded
+    IFB_INTERNAL bool
+    renderer_set_active_font(
+        const font* fnt) {
+
+        assert(fnt);
+        assert(_renderer);
+
+        auto textures = _renderer->textures;
+        assert(textures);
+
+        const render_font_texture* slot = renderer_find_font_texture(fnt);
+        if (slot == NULL) return(false);
+
+        textures->font_active     = slot->texture_id;
+        textures->font_active_fnt = fnt;
+        return(true);
+    }
+
+    // the font text draws with, NULL if none is active
+    IFB_INTERNAL const font*
+    renderer_get_active_font(
+        void) {
+
+        assert(_renderer);
+        return(_renderer->textures->font_active_fnt);
+    }
+
+    //--------------------------------------------------------------------
+    // IMMEDIATE METHODS
+    //--------------------------------------------------------------------
+
+    // the game callback can run more than once a frame, so the quads are cleared before
+    // each run, and the frame draws whatever the last run pushed
+    IFB_INTERNAL void
+    renderer_immediate_reset(
+        void) {
+
+        assert(_renderer);
+        renderer_immediate_clear(_renderer->immediate);
+    }
+
+    IFB_INTERNAL bool
+    renderer_immediate_push_world(
+        const quad_vertices& vertices) {
+
+        assert(_renderer);
+        const bool did_push = renderer_immediate_push(&_renderer->immediate->world, vertices);
+        return(did_push);
+    }
+
+    IFB_INTERNAL bool
+    renderer_immediate_push_screen(
+        const quad_vertices& vertices) {
+
+        assert(_renderer);
+        const bool did_push = renderer_immediate_push(&_renderer->immediate->screen, vertices);
+        return(did_push);
+    }
+
+    // the pixels the screen layer is laid out in, it's stretched to fill the window
+    // 0 x 0 uses the window's size, so one screen pixel is one window pixel
+    IFB_INTERNAL void
+    renderer_set_screen_size(
+        const u32 width,
+        const u32 height) {
+
+        assert(_renderer);
+        assert((width == 0) == (height == 0));
+
+        _renderer->immediate->screen_width  = width;
+        _renderer->immediate->screen_height = height;
+    }
+
+    IFB_INTERNAL void
+    renderer_get_screen_size(
+        u32& width,
+        u32& height) {
+
+        assert(_renderer);
+
+        const renderer_immediate* imm = _renderer->immediate;
+        if (imm->screen_width != 0 && imm->screen_height != 0) {
+            width  = imm->screen_width;
+            height = imm->screen_height;
+        }
+        else {
+            width  = (u32)_renderer->viewport->width;
+            height = (u32)_renderer->viewport->height;
+        }
     }
     
     //--------------------------------------------------------------------

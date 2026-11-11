@@ -1,6 +1,6 @@
 # Renderer
 
-The renderer (`IFB.Engine/src/renderer`, `eng-renderer.hpp`) draws the map, entity quads, particles, and the debug grid with OpenGL. It also sets up the OpenGL context and ImGui.
+The renderer (`IFB.Engine/src/renderer`, `eng-renderer.hpp`) draws the map, entity quads, particles, immediate quads and text, and the debug grid with OpenGL. It also sets up the OpenGL context and ImGui.
 
 ## How Drawing Works
 
@@ -12,6 +12,8 @@ The game doesn't draw directly. Each frame it tells the renderer **what** to dra
 | `eng_entity_render(id)` | Adds the entity's quad, if it has every component in `ENTITY_ARCHETYPE_SPRITE` (see [Quads](quads.md#quad-entities)). Also adds its particle emitter, if it has one. |
 
 These go into the renderer's **draw lists** (`renderer-draw-lists.cpp`). Entities have to be pushed again every frame: the lists are cleared after each draw, but the map stays set.
+
+The game can also draw quads and text that aren't entities, like a dialog box or a HUD, with the `eng_draw_*` functions. See [Immediate Drawing](#immediate-drawing).
 
 ## Frame
 
@@ -25,9 +27,11 @@ These go into the renderer's **draw lists** (`renderer-draw-lists.cpp`). Entitie
 | 4 | Tiles | Draw the map with the tile shader. |
 | 5 | Grid | Draw the debug grid, if it's visible. |
 | 6 | Quads | Draw entity quads, then particles, with the quad shader. |
-| 7 | Particle view | Draw the offscreen [particle view](particles.md#particle-view), if it was requested this frame. |
-| 8 | Map view | Draw the offscreen [map view](#map-view), if it was requested this frame. |
-| 9 | Reset | Clear the draw lists for the next frame. |
+| 7 | World immediate quads | Draw the [world layer](#immediate-drawing) with the quad shader and the camera. |
+| 8 | Screen immediate quads | Draw the [screen layer](#immediate-drawing) over everything, with an orthographic projection. |
+| 9 | Particle view | Draw the offscreen [particle view](particles.md#particle-view), if it was requested this frame. |
+| 10 | Map view | Draw the offscreen [map view](#map-view), if it was requested this frame. |
+| 11 | Reset | Clear the draw lists for the next frame. |
 
 After that, the engine calls the GUI render callback, so ImGui draws on top of everything, and presents the frame.
 
@@ -39,6 +43,7 @@ The renderer mostly uses draw order instead of the depth buffer:
 - **The grid** is tested against the map's depth, so walls hide it.
 - **Quads** always pass the depth test. They're sorted back to front by distance from the camera before they're drawn, so nearer quads cover farther ones. The order barely changes between frames, so the sort is an insertion sort.
 - **Particles** are drawn after the quads, so they're always on top.
+- **Immediate quads** aren't sorted. Each layer draws in the order the quads were pushed, so later ones are on top. The world layer draws after the particles, and the screen layer draws last.
 
 ## Quads
 
@@ -50,6 +55,106 @@ Entity quads (`src/quads/quad.cpp`, `eng-quad.hpp`) are built on the CPU every f
 - If the entity's sprite is found, the quad samples that sprite's rectangle in the active atlas, tinted by the entity's color. Otherwise it's drawn in the entity's color.
 
 The number of quads is limited by `IFB_CONFIG_QUAD_MAX`, and particles share that same buffer. See [Quads](quads.md) for details.
+
+## Immediate Drawing
+
+Immediate drawing (`renderer-immediate.cpp`, `eng-draw.cpp`) is for things that aren't entities and only need to be drawn, like a dialog box, a HUD, or a marker in the world. The game pushes quads during its callback, and they're drawn that frame. Nothing is kept: to keep something on screen, push it every frame.
+
+There are two layers:
+
+| Layer | Coordinates | Drawn |
+| --- | --- | --- |
+| **Screen** | Screen pixels. `(0, 0)` is the top left and y goes down. | Last, over everything else in the window. ImGui still draws on top of it. |
+| **World** | World units, placed with a `mat4`. | With the camera, after the entity quads and particles. |
+
+Both layers draw with the [quad shader](quads.md#color-and-sprites), so a quad can be a solid color, a sprite from the **active atlas**, or a glyph from the **active font**, and they can be mixed in any order. Each layer holds `IFB_CONFIG_QUAD_MAX` (1024) quads. A push that doesn't fit returns `false` and draws nothing.
+
+The game callback can run more than once in a frame (see [Frame Loop](architecture.md#frame-loop)), so the layers are cleared before each run, and the frame draws what the last run pushed. Only quads pushed from the game callback are drawn. Anything pushed from the GUI render callback is cleared before the next draw.
+
+### Screen Size
+
+By default one screen pixel is one window pixel. `eng_draw_set_screen_size(width, height)` lays the screen layer out at a fixed size instead, and stretches it to fill the window, so a pixel art UI can be laid out at something like 320 × 180 no matter how big the window is. `eng_draw_set_screen_size(0, 0)` goes back to the window's size, and `eng_draw_get_screen_size` returns the size in use.
+
+The stretch isn't held to whole multiples or to the screen's aspect ratio, so pick a size with the window's aspect ratio to keep pixels square.
+
+### Functions
+
+| Function | Description |
+| --- | --- |
+| `eng_draw_rect_screen(dst, color)` | A solid rectangle |
+| `eng_draw_sprite_screen(dst, h_atlas, i_sprite, tint)` | A whole sprite, stretched to `dst` |
+| `eng_draw_sprite_region_screen(dst, h_atlas, i_sprite, region, tint)` | Part of a sprite. `region` is in the sprite's own pixels from its top left, for things like nine slice borders. |
+| `eng_draw_text_screen(fnt, str, len, pos, color)` | Text, see [Text](#text) |
+| `eng_draw_rect_world(xform, color)` | A solid 1 × 1 quad on the xy plane, centered on the origin and placed by `xform` |
+| `eng_draw_sprite_world(xform, h_atlas, i_sprite, tint)` | The same quad with a sprite |
+| `eng_draw_set_screen_size` / `_get_screen_size` | See [Screen Size](#screen-size) |
+
+Rectangles are `rect` (`ifb.hpp`): `x` and `y` are the top left, then the width and height. A sprite draw returns `false` and draws nothing if `h_atlas` isn't the active atlas, since the shader can only sample the active one.
+
+```cpp
+// a box along the bottom of a 320 x 180 screen
+eng_draw_set_screen_size(320, 180);
+
+const rect box = { 8.0f, 124.0f, 304.0f, 48.0f };
+eng_draw_rect_screen(box, color_rgba_f32(0x202030FF));
+eng_draw_text_screen(fnt, "Hello!", 6, { box.x + 8.0f, box.y + 6.0f }, color_rgba_f32(0xFFFFFFFF));
+```
+
+### Text
+
+Text is drawn one quad per glyph, from the font's atlas. The font has to be on the GPU and active first (see [Fonts](#fonts)), or `eng_draw_text_screen` returns `false`.
+
+- `pos` is the **top left of the first line**. The first baseline is the font's `ascent` below it.
+- `len` is how many characters of `str` to draw, so a typewriter effect is drawing the same string with a growing `len`.
+- A newline moves down by the font's `line_height` and back to `pos.x`.
+- Characters the font doesn't have are skipped. Spaces only move the pen.
+- Kerning is applied between neighboring characters.
+- Pixel fonts (baked without oversampling) are snapped to whole screen pixels so they stay sharp.
+
+Layout is done separately, and doesn't need the font on the GPU:
+
+| Function | Description |
+| --- | --- |
+| `eng_font_measure_text(fnt, str, len)` | The width of the widest line |
+| `eng_font_wrap_text(fnt, str, len, max_width, lines, line_capacity)` | Breaks the text into lines no wider than `max_width`. Returns how many lines it needs, and writes the first `line_capacity` of them. |
+
+Each wrapped line is a `font_line` (`ifb.hpp`): a range of the original string (`start`, `length`) and its width. Lines break at spaces when they can and always at newlines. A word wider than `max_width` is broken where it runs out of room. The spaces a line breaks on aren't part of either line.
+
+Wrap the whole text before revealing any of it. If text is wrapped as it's revealed, a long word starts at the end of one line and then jumps to the next when it no longer fits.
+
+```cpp
+font_line lines[8];
+const u32 line_count = eng_font_wrap_text(fnt, msg, msg_len, box.width - 16.0f, lines, 8);
+
+vec2 pen = { box.x + 8.0f, box.y + 6.0f };
+for (u32 i = 0; i < line_count && i < 8; ++i) {
+    eng_draw_text_screen(fnt, &msg[lines[i].start], lines[i].length, pen, color_rgba_f32(0xFFFFFFFF));
+    pen.y += fnt->line_height;
+}
+```
+
+## Fonts
+
+Fonts are uploaded to the GPU separately from loading them, since a font is a blob on the game's own arena (see [Font Atlases](assets.md#font-atlases)):
+
+```cpp
+font* fnt = eng_font_atlas_load_to_arena("UI-FONT", h_arena);
+eng_font_upload(fnt);
+eng_font_set_active(fnt);
+```
+
+| Function | Description |
+| --- | --- |
+| `eng_font_upload` | Put the font's atlas on the GPU. Uploading it again does nothing. `false` if every slot is taken. |
+| `eng_font_release` | Take it off the GPU. If it was active, no font is active afterwards. |
+| `eng_font_set_active` | The font text draws with. `false` if it isn't uploaded. |
+| `eng_font_get_active` | The active font, `NULL` for none |
+
+The renderer has `RENDERER_FONT_CAPACITY` (4) font slots, and finds fonts by their address. Release a font before the arena it's on is freed or reset, or a later font at the same address will be mistaken for it.
+
+The atlas is uploaded as a single red channel texture, one coverage byte per pixel, so nothing is converted or copied first. Fonts baked without oversampling (pixel fonts) are filtered nearest, so they stay sharp when the screen layer is stretched. Oversampled fonts are filtered linearly.
+
+Only one font is active at a time, the same as sprite atlases, so all the text in a frame uses one font.
 
 ## Parallax
 
@@ -98,7 +203,7 @@ Shaders are loaded from the working directory at startup. CMake copies `assets/s
 | Shader | Files | Draws |
 | --- | --- | --- |
 | Tile | `tile-vert.glsl`, `tile-frag.glsl` | Map floor tiles and walls |
-| Quad | `quad-shader-vertex.glsl`, `quad-shader-fragment.glsl` | Entity quads and particles |
+| Quad | `quad-shader-vertex.glsl`, `quad-shader-fragment.glsl` | Entity quads, particles, and immediate quads and text. The active atlas is in texture slot 0 and the active font in slot 1. |
 | Parallax | `parallax-vert.glsl`, `parallax-frag.glsl` | The parallax backdrop |
 | Grid | `grid-vert.glsl`, `grid-frag.glsl` | The debug grid |
 | Direction gizmo | `direction-gizmo-shader-vert.glsl`, `direction-gizmo-shader-frag.glsl` | An axis gizmo. It's set up at startup, but its draw call is currently commented out. |
@@ -127,8 +232,8 @@ To find what's under a point in the view, solve with the view projection itself 
 | `eng_particle_view_request` | Draw the offscreen particle view this frame (see [Particles](particles.md#particle-view)) |
 | `eng_map_view_request` | Draw the offscreen map view this frame (see [Map View](#map-view)) |
 
-The renderer also has `RENDERER_ASSET_PREVIEW_COUNT` (4) textures, one for each GUI window that previews assets.
+The renderer also has `RENDERER_ASSET_PREVIEW_COUNT` (5) textures, one for each GUI window that previews assets.
 
 ## Memory
 
-The renderer allocates its draw lists and CPU-side buffers from the `rendering` reservation in the memory map. The OpenGL buffers are created at startup at the same size as the CPU buffers, so nothing is resized while running.
+The renderer allocates its draw lists and CPU-side buffers, including the two immediate layers, from the `rendering` reservation in the memory map. The OpenGL buffers are created at startup at the same size as the CPU buffers, so nothing is resized while running.

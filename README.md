@@ -46,7 +46,7 @@ The game and GUI only talk to the engine through `ifb-engine.hpp`. Objects insid
 | **Physics** | `src/physics`, `eng-physics.hpp` | Force accumulation, springs, integration, BVH collision detection, and collision resolution against other entities and map walls. | [Physics](docs/physics.md) |
 | **Maps** | `src/map`, `eng-map.hpp` | Tile maps made of chunks, with floor tiles, row/column walls, colors, and sprites. Converts between world positions and map coordinates. | [Maps](docs/maps.md), [Map Format](docs/map-format.md) |
 | **Particles** | `src/particle`, `eng-particle.hpp` | Parabolic (fountain) and radial (explosion) particle emitters, which can follow an entity. | [Particles](docs/particles.md) |
-| **Renderer** | `src/renderer`, `eng-renderer.hpp` | OpenGL rendering for quads, tiles, particles, the parallax backdrop, the debug grid, and the direction gizmo. Owns the camera and viewport. | [Renderer](docs/renderer.md) |
+| **Renderer** | `src/renderer`, `eng-renderer.hpp` | OpenGL rendering for quads, tiles, particles, the parallax backdrop, the debug grid, and the direction gizmo. Immediate drawing of quads, sprites, and text in screen or world space, for UI like dialog boxes. Owns the camera and viewport. | [Renderer](docs/renderer.md) |
 | **Quads** | `src/quads`, `eng-quad.hpp` | Quad vertex buffers used to draw sprites and colored entities. | [Quads](docs/quads.md) |
 | **Files** | `src/files`, `eng-file.hpp` | File handles for reading and writing, plus the native file dialog. | [Files](docs/files.md) |
 | **Input** | `src/engine/eng-input.cpp`, `eng-input.hpp` | Keyboard state. | [Input](docs/input.md) |
