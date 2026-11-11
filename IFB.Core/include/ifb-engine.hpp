@@ -621,10 +621,10 @@ namespace ifb {
     IFB_ENGINE_API void eng_draw_get_screen_size (u32& width, u32& height);
 
     // screen
-    IFB_ENGINE_API bool eng_draw_rect_screen          (const draw_rect& rect, const color_rgba_f32& color);
-    IFB_ENGINE_API bool eng_draw_sprite_screen        (const draw_rect& rect, const hnd_sprite_atlas h_atlas, const u32 i_sprite, const color_rgba_f32& tint);
-    // part of a sprite, region is in the sprite's pixels, for things like nine slice borders
-    IFB_ENGINE_API bool eng_draw_sprite_region_screen (const draw_rect& rect, const hnd_sprite_atlas h_atlas, const u32 i_sprite, const draw_rect& region, const color_rgba_f32& tint);
+    IFB_ENGINE_API bool eng_draw_rect_screen          (const rect& dst, const color_rgba_f32& color);
+    IFB_ENGINE_API bool eng_draw_sprite_screen        (const rect& dst, const hnd_sprite_atlas h_atlas, const u32 i_sprite, const color_rgba_f32& tint);
+    // part of a sprite stretched to dst, region is in the sprite's pixels, for things like nine slice borders
+    IFB_ENGINE_API bool eng_draw_sprite_region_screen (const rect& dst, const hnd_sprite_atlas h_atlas, const u32 i_sprite, const rect& region, const color_rgba_f32& tint);
     // pos is the top left of the first line, newlines move down a line
     // returns false if the font isn't active or the layer ran out of room
     IFB_ENGINE_API bool eng_draw_text_screen          (const font* fnt, const cchar* str, const u32 len, const vec2& pos, const color_rgba_f32& color);

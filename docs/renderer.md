@@ -81,21 +81,21 @@ The stretch isn't held to whole multiples or to the screen's aspect ratio, so pi
 
 | Function | Description |
 | --- | --- |
-| `eng_draw_rect_screen(rect, color)` | A solid rectangle |
-| `eng_draw_sprite_screen(rect, h_atlas, i_sprite, tint)` | A whole sprite, stretched to the rectangle |
-| `eng_draw_sprite_region_screen(rect, h_atlas, i_sprite, region, tint)` | Part of a sprite. `region` is in the sprite's own pixels from its top left, for things like nine slice borders. |
+| `eng_draw_rect_screen(dst, color)` | A solid rectangle |
+| `eng_draw_sprite_screen(dst, h_atlas, i_sprite, tint)` | A whole sprite, stretched to `dst` |
+| `eng_draw_sprite_region_screen(dst, h_atlas, i_sprite, region, tint)` | Part of a sprite. `region` is in the sprite's own pixels from its top left, for things like nine slice borders. |
 | `eng_draw_text_screen(fnt, str, len, pos, color)` | Text, see [Text](#text) |
 | `eng_draw_rect_world(xform, color)` | A solid 1 × 1 quad on the xy plane, centered on the origin and placed by `xform` |
 | `eng_draw_sprite_world(xform, h_atlas, i_sprite, tint)` | The same quad with a sprite |
 | `eng_draw_set_screen_size` / `_get_screen_size` | See [Screen Size](#screen-size) |
 
-Rectangles are `draw_rect` (`ifb.hpp`): `x` and `y` are the top left, then the width and height. A sprite draw returns `false` and draws nothing if `h_atlas` isn't the active atlas, since the shader can only sample the active one.
+Rectangles are `rect` (`ifb.hpp`): `x` and `y` are the top left, then the width and height. A sprite draw returns `false` and draws nothing if `h_atlas` isn't the active atlas, since the shader can only sample the active one.
 
 ```cpp
 // a box along the bottom of a 320 x 180 screen
 eng_draw_set_screen_size(320, 180);
 
-const draw_rect box = { 8.0f, 124.0f, 304.0f, 48.0f };
+const rect box = { 8.0f, 124.0f, 304.0f, 48.0f };
 eng_draw_rect_screen(box, color_rgba_f32(0x202030FF));
 eng_draw_text_screen(fnt, "Hello!", 6, { box.x + 8.0f, box.y + 6.0f }, color_rgba_f32(0xFFFFFFFF));
 ```

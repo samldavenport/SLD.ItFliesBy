@@ -42,18 +42,18 @@ namespace ifb {
         v.textured      = sample;
     }
 
-    // a screen quad, y goes down so the top edge is rect.y
+    // a screen quad, y goes down so the top edge is dst.y
     inline bool
     draw_push_screen_quad(
-        const draw_rect&      rect,
+        const rect&           dst,
         const color_rgba_f32& color,
         const draw_uv&        uv,
         const f32             sample) {
 
-        const f32 x0 = rect.x;
-        const f32 y0 = rect.y;
-        const f32 x1 = rect.x + rect.width;
-        const f32 y1 = rect.y + rect.height;
+        const f32 x0 = dst.x;
+        const f32 y0 = dst.y;
+        const f32 x1 = dst.x + dst.width;
+        const f32 y1 = dst.y + dst.height;
 
         quad_vertices q;
         draw_set_vertex(q.top_right,    x1, y0, 0.0f, color, uv.u_right, uv.v_top,    sample);
@@ -110,7 +110,7 @@ namespace ifb {
     draw_get_sprite_uv(
         const hnd_sprite_atlas h_atlas,
         const u32              i_sprite,
-        const draw_rect*       region,
+        const rect*            region,
         draw_uv&               uv) {
 
         if (h_atlas == INVALID_HANDLE)                    return(false);
@@ -168,16 +168,16 @@ namespace ifb {
 
     IFB_ENGINE_API bool
     eng_draw_rect_screen(
-        const draw_rect&      rect,
+        const rect&           dst,
         const color_rgba_f32& color) {
 
-        const bool did_push = draw_push_screen_quad(rect, color, DRAW_UV_NONE, QUAD_SAMPLE_SOLID);
+        const bool did_push = draw_push_screen_quad(dst, color, DRAW_UV_NONE, QUAD_SAMPLE_SOLID);
         return(did_push);
     }
 
     IFB_ENGINE_API bool
     eng_draw_sprite_screen(
-        const draw_rect&       rect,
+        const rect&            dst,
         const hnd_sprite_atlas h_atlas,
         const u32              i_sprite,
         const color_rgba_f32&  tint) {
@@ -185,22 +185,22 @@ namespace ifb {
         draw_uv uv;
         if (!draw_get_sprite_uv(h_atlas, i_sprite, NULL, uv)) return(false);
 
-        const bool did_push = draw_push_screen_quad(rect, tint, uv, QUAD_SAMPLE_SPRITE);
+        const bool did_push = draw_push_screen_quad(dst, tint, uv, QUAD_SAMPLE_SPRITE);
         return(did_push);
     }
 
     IFB_ENGINE_API bool
     eng_draw_sprite_region_screen(
-        const draw_rect&       rect,
+        const rect&            dst,
         const hnd_sprite_atlas h_atlas,
         const u32              i_sprite,
-        const draw_rect&       region,
+        const rect&            region,
         const color_rgba_f32&  tint) {
 
         draw_uv uv;
         if (!draw_get_sprite_uv(h_atlas, i_sprite, &region, uv)) return(false);
 
-        const bool did_push = draw_push_screen_quad(rect, tint, uv, QUAD_SAMPLE_SPRITE);
+        const bool did_push = draw_push_screen_quad(dst, tint, uv, QUAD_SAMPLE_SPRITE);
         return(did_push);
     }
 
@@ -248,14 +248,14 @@ namespace ifb {
             const f32 quad_height = g->quad_y1 - g->quad_y0;
             if (quad_width > 0.0f && quad_height > 0.0f) {
 
-                draw_rect rect;
-                rect.x      = pen_x    + g->quad_x0;
-                rect.y      = baseline + g->quad_y0;
-                rect.width  = quad_width;
-                rect.height = quad_height;
+                rect dst;
+                dst.x      = pen_x    + g->quad_x0;
+                dst.y      = baseline + g->quad_y0;
+                dst.width  = quad_width;
+                dst.height = quad_height;
                 if (is_pixel_font) {
-                    rect.x = floorf(rect.x + 0.5f);
-                    rect.y = floorf(rect.y + 0.5f);
+                    dst.x = floorf(dst.x + 0.5f);
+                    dst.y = floorf(dst.y + 0.5f);
                 }
 
                 draw_uv uv;
@@ -264,7 +264,7 @@ namespace ifb {
                 uv.u_right  = (f32)g->atlas_x1 / atlas_width;
                 uv.v_bottom = (f32)g->atlas_y1 / atlas_height;
 
-                if (!draw_push_screen_quad(rect, color, uv, QUAD_SAMPLE_FONT)) return(false);
+                if (!draw_push_screen_quad(dst, color, uv, QUAD_SAMPLE_FONT)) return(false);
             }
 
             pen_x += g->advance;

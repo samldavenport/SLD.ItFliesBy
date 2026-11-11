@@ -184,7 +184,18 @@ namespace ifb {
         // intialize camera
         renderer_viewport_init (_renderer->viewport); 
         renderer_camera_init   (_renderer->cam);
-        renderer_viewport_set_dimensions(_renderer->viewport, _renderer->gl, cfg.window_start_width, cfg.window_start_height);
+
+        // the window was already sized when it opened, before the renderer could take it
+        // the config size includes the borders and title bar, so it's only a fallback
+        u32 viewport_width  = cfg.window_start_width;
+        u32 viewport_height = cfg.window_start_height;
+        u32 client_width    = 0;
+        u32 client_height   = 0;
+        if (pfm_window_get_client_size(client_width, client_height)) {
+            viewport_width  = client_width;
+            viewport_height = client_height;
+        }
+        renderer_viewport_set_dimensions(_renderer->viewport, _renderer->gl, viewport_width, viewport_height);
 
         // open shader files
         const hnd_file file_hnd_quad_vert    = file_ro_open_existing ("quad-shader-vertex.glsl");
