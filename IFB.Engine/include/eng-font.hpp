@@ -14,7 +14,21 @@ namespace ifb {
     // stb_truetype's STBTT_MAX_OVERSAMPLE, which is only defined in its implementation
     static constexpr u32 FONT_OVERSAMPLE_MAX = 8;
 
-    IFB_INTERNAL font* font_load_to_arena (const hnd_file h_font_file, const hnd_arena h_arena, const font_config& cfg);
+    //--------------------------------------------------------------------
+    // FONT FILE FORMAT (.ifbfont)
+    //--------------------------------------------------------------------
+    // - verification string | 12 bytes, FONT_FILE_VERIFICATION_CSTR without its terminator
+    // - font blob           | the rest of the file, see struct font
+    //--------------------------------------------------------------------
+
+    static constexpr cchar FONT_FILE_VERIFICATION_CSTR[] = "IFBFONTATLAS";
+    static constexpr u32   FONT_FILE_VERIFICATION_SIZE   = sizeof(FONT_FILE_VERIFICATION_CSTR) - 1;
+    static constexpr cchar FONT_FILE_EXTENSION[]         = ".ifbfont";
+
+    IFB_INTERNAL font* font_load_to_arena      (const hnd_file h_font_file, const hnd_arena h_arena, const font_config& cfg);
+    IFB_INTERNAL bool  font_blob_is_valid      (const font* fnt, const u32 size);
+    IFB_INTERNAL bool  font_file_save          (const font* fnt, const cchar* path);
+    IFB_INTERNAL font* font_file_load_to_arena (const cchar* path, const hnd_arena h_arena);
 
 };
 

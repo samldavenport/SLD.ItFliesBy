@@ -11,6 +11,7 @@
 #include "eng-renderer.hpp"
 #include "eng-audio.hpp"
 #include "eng-wav.hpp"
+#include "eng-font.hpp"
 #include <stb_image.h>
 
 namespace ifb {
@@ -76,6 +77,8 @@ namespace ifb {
     IFB_INLINE bool                              eng_asset_preview_load_image   (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_preview_load_sprite_atlas (const cchar* path, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_preview_load_sound   (const cchar* path, asset_preview& preview);
+    IFB_INLINE bool                              eng_asset_preview_load_font_atlas  (const cchar* path, asset_preview& preview);
+    IFB_INLINE bool                              eng_asset_preview_set_font_texture (const u32 slot, const font* fnt, const hnd_arena h_arena, asset_preview& preview);
     IFB_INLINE bool                              eng_asset_copy_file            (const hnd_file h_src, const hnd_file h_dst, byte* chunk, const u32 size_chunk);
     IFB_INLINE void                              eng_asset_database_set_path    (const cchar* path);
     IFB_INLINE bool                              eng_asset_path_equals_nocase   (const cchar* path_a, const cchar* path_b);
@@ -206,7 +209,8 @@ namespace ifb {
             eng_asset_dictionary_has_id(dict->image_files,        id) ||
             eng_asset_dictionary_has_id(dict->sprite_atlas_files, id) ||
             eng_asset_dictionary_has_id(dict->sound_files,        id) ||
-            eng_asset_dictionary_has_id(dict->map_files,          id)
+            eng_asset_dictionary_has_id(dict->map_files,          id) ||
+            eng_asset_dictionary_has_id(dict->font_atlas_files,   id)
         );
         if (is_in_use) return(INVALID_HANDLE);
 
@@ -222,6 +226,7 @@ namespace ifb {
                 case asset_type_e_sprite_atlas: hnd = asset_dictionary_add_sprite_atlas_file (dict, name_upper, path_copy, state.h_arena); break;
                 case asset_type_e_sound:        hnd = asset_dictionary_add_sound_file        (dict, name_upper, path_copy, state.h_arena); break;
                 case asset_type_e_map:          hnd = asset_dictionary_add_map_file          (dict, name_upper, path_copy, state.h_arena); break;
+                case asset_type_e_font_atlas:   hnd = asset_dictionary_add_font_atlas_file   (dict, name_upper, path_copy, state.h_arena); break;
                 default: break;
             }
         }
@@ -337,6 +342,7 @@ namespace ifb {
             case asset_type_e_image:        did_load = eng_asset_preview_load_image        (path, preview); break;
             case asset_type_e_sprite_atlas: did_load = eng_asset_preview_load_sprite_atlas (path, preview); break;
             case asset_type_e_sound:        did_load = eng_asset_preview_load_sound        (path, preview); break;
+            case asset_type_e_font_atlas:   did_load = eng_asset_preview_load_font_atlas   (path, preview); break;
             default: break;
         }
 
@@ -663,6 +669,15 @@ namespace ifb {
             return(true);
         }
 
+        // a font atlas is previewed as its glyph atlas
+        if (preview.type == asset_type_e_font_atlas) {
+
+            const asset_font_atlas* atlas = asset_database_load_font_atlas_by_handle_to_arena(db, h_asset, h_arena);
+            if (!atlas) return(false);
+
+            return(eng_asset_preview_set_font_texture(eng_asset_preview_e_database, &atlas->fnt, h_arena, preview));
+        }
+
         // an atlas is previewed as its whole image
         if (preview.type == asset_type_e_sprite_atlas) {
 
@@ -755,7 +770,8 @@ namespace ifb {
             &dict->image_files,
             &dict->sprite_atlas_files,
             &dict->sound_files,
-            &dict->map_files
+            &dict->map_files,
+            &dict->font_atlas_files
         };
 
         // the build needs the header in its arena with each file
@@ -857,6 +873,24 @@ namespace ifb {
             arena_revert(h_arena, save);
             if (!atlas) {
                 eng_asset_database_set_error("%s isn't a sprite atlas that can be read: %s", node->name, path);
+                return(false);
+            }
+        }
+        // font atlases are read straight into the arena too, and the blob is checked
+        else if (type == asset_type_e_font_atlas) {
+
+            const u64 size_build = (u64)size + size_header;
+            const u64 size_asset = (u64)size + ASSET_FONT_ATLAS_HEADER_SIZE;
+            if (size_build > IFB_CONFIG_ARENA_LARGE_MEM_GRANULARITY || size_asset > IFB_CONFIG_ASSET_SIZE_MAX) {
+                eng_asset_database_set_error("%s is %u bytes, which is too big to load: %s", node->name, size, path);
+                return(false);
+            }
+
+            const u32   save = arena_save(h_arena);
+            const font* fnt  = font_file_load_to_arena(path, h_arena);
+            arena_revert(h_arena, save);
+            if (!fnt) {
+                eng_asset_database_set_error("%s isn't a font atlas that can be read: %s", node->name, path);
                 return(false);
             }
         }
@@ -1087,6 +1121,40 @@ namespace ifb {
         return(true);
     }
 
+    // the font file is read and checked, and its glyph atlas goes to a texture
+    IFB_INLINE bool
+    eng_asset_preview_load_font_atlas(
+        const cchar*   path,
+        asset_preview& preview) {
+
+        const hnd_arena h_arena = eng_asset_preview_get_arena(eng_asset_preview_e_dictionary);
+        if (h_arena == INVALID_HANDLE) return(false);
+
+        const font* fnt = font_file_load_to_arena(path, h_arena);
+        if (!fnt) return(false);
+
+        return(eng_asset_preview_set_font_texture(eng_asset_preview_e_dictionary, fnt, h_arena, preview));
+    }
+
+    // the glyph atlas as white pixels with the coverage as alpha, a font without oversampling
+    // is filtered nearest so pixel fonts stay sharp when the preview scales them up
+    IFB_INLINE bool
+    eng_asset_preview_set_font_texture(
+        const u32       slot,
+        const font*     fnt,
+        const hnd_arena h_arena,
+        asset_preview&  preview) {
+
+        const image* img = eng_font_glyph_table_to_image(fnt, h_arena);
+        if (!img) return(false);
+
+        const bool is_nearest = (fnt->oversample_x == 1 && fnt->oversample_y == 1);
+        preview.texture = renderer_set_asset_preview_texture(slot, img->pixel_width, img->pixel_height, img->data.bytes, is_nearest);
+        preview.width   = img->pixel_width;
+        preview.height  = img->pixel_height;
+        return(preview.texture != 0);
+    }
+
     // the sound is played as it is in the file, the build converts it
     // the file stays in the arena, the samples are read where they are in it
     IFB_INLINE bool
@@ -1194,7 +1262,8 @@ namespace ifb {
             &state.dict->image_files,
             &state.dict->sprite_atlas_files,
             &state.dict->sound_files,
-            &state.dict->map_files
+            &state.dict->map_files,
+            &state.dict->font_atlas_files
         };
 
         for (

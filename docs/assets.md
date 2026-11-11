@@ -19,6 +19,7 @@ assets/sounds/*.wav ─┘
 | Image | `asset_type_e_image` | `asset_image` | RGBA pixels, decoded with stb_image. |
 | Sprite atlas | `asset_type_e_sprite_atlas` | `asset_sprite_atlas` | A packed image plus the name, position, and size of each sprite in it. |
 | Sound | `asset_type_e_sound` | `asset_sound` | 16 bit PCM at 48 kHz, mono or stereo, converted from a `.wav` when the database is built. |
+| Font atlas | `asset_type_e_font_atlas` | `asset_font_atlas` | A font baked from a TTF: line metrics, glyphs, kerning, and a coverage atlas. Stored exactly as it is in memory. |
 
 Each kind of JSON the game loads gets its own type, rather than all of it being text. That way a type can be listed, checked when the database is built, and loaded on its own. Maps are stored the same way as text (a size, then the bytes), but in their own group. Other JSON assets, such as levels, should get their own type the same way.
 
@@ -44,6 +45,9 @@ Assets are referred to by name. Names are up to `IFB_CONFIG_ASSET_NAME_SIZE` (16
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }
     ],
+    "font_atlas": [
+        { "name": "UI-FONT", "path": "fonts/ui-font.ifbfont" }
+    ],
     "sound": [
         { "name": "PIANO", "path": "sounds/piano.wav" }
     ]
@@ -63,7 +67,7 @@ Edit it in the GUI under **Game > Assets > Asset Dictionary**, or through the AP
 
 `eng_asset_database_build(path_dictionary, path_database)` reads every file in the dictionary and writes them to a single `.ifbdb` file, with an index (`asset_index`: type, offset, size) for each asset. Sounds go in a [sound bank](#sound-bank) next to it instead.
 
-The assets are grouped by type: text, maps, images, then sprite atlases, each in dictionary order. All of one type sit together in the file, so they can be read in one pass.
+The assets are grouped by type: text, maps, images, sprite atlases, then font atlases, each in dictionary order. All of one type sit together in the file, so they can be read in one pass.
 
 At startup the engine opens `IFB_CONFIG_ASSET_DATABASE_PATH` (`asset-database.ifbdb`) and its bank (`asset-database.ifbsnd`) from the working directory. CMake copies `assets/*.ifbdb` and `assets/*.ifbsnd` into `build/<preset>/bin`, so **rebuild the database and commit it** after changing the dictionary or any source asset.
 
@@ -108,6 +112,47 @@ eng_entity_set_sprite(id, "CORE-SPRITES", "CONNOR-LEFT");
 Map tiles and walls take atlas and sprite names the same way (`eng_map_set_tile_sprite`, `eng_map_wall_set_sprite`).
 
 See [Sprites](sprites.md) for packing, the `.ifbatlas` file format, and sprite memory.
+
+## Font Atlases
+
+A font atlas (`.ifbfont`) is a font baked from a TTF at one size: its line metrics, a glyph for each codepoint in a range, kerning pairs, and an atlas with one coverage byte per pixel. Make them with **Engine > Tools > Font Viewer**:
+
+1. **Open** a `.ttf`. It's baked with the settings under **Bake**: pixel height, the first codepoint and how many glyphs, and oversampling.
+2. Change the settings and **Bake** again until the sample text and the atlas look right.
+3. **Save** the font atlas, add it to the asset dictionary as a Font Atlas, and rebuild the database.
+
+The baked font is one block of memory (`struct font` in `ifb.hpp`) that only uses offsets, never pointers. The file, the database, and memory all hold exactly the same bytes, so loading one is a single read with nothing to parse or fix up, and a font atlas in asset memory can be moved without any fix-ups.
+
+At runtime, copy a font atlas onto your own arena by name. The copy is yours, so unlike asset memory it doesn't move or get evicted:
+
+```cpp
+font* fnt = eng_font_atlas_load_to_arena("UI-FONT", h_arena);
+
+const font_glyph* g    = fnt->glyph('A');       // NULL if the font doesn't have it
+const f32         kern = fnt->kerning('A', 'V'); // 0 if the pair isn't kerned
+```
+
+| Function | Description |
+| --- | --- |
+| `eng_font_load_to_arena` | Bake a TTF into a font with a `font_config` |
+| `eng_font_save` | Write a font to an `.ifbfont` file |
+| `eng_font_load_file_to_arena` | Read an `.ifbfont` file |
+| `eng_font_atlas_load_to_arena` | Copy a font atlas from the runtime database |
+| `eng_font_glyph_table_to_image` | The atlas as an RGBA image, white with the coverage as alpha |
+
+Every font that's read, from a file or the database, is checked before it's used: the size matches, the parts are laid out where the header says, every glyph's rectangle is inside the atlas, and the kerning pairs are sorted. A font that fails any of these isn't loaded.
+
+### Font File Format
+
+| Field | Size | Description |
+| --- | --- | --- |
+| Verification string | 12 bytes | `IFBFONTATLAS` |
+| Header | 64 bytes | `struct font`. Its first field is the size of everything from here to the end of the file. |
+| Glyphs | n × 28 bytes | `font_glyph`: the rectangle in the atlas, the rectangle to draw relative to the pen, and the advance |
+| Kerning pairs | k × 8 bytes | `font_kern_pair`, sorted by key (the two glyph indexes, first in the high 16 bits) |
+| Atlas | w × h bytes | One coverage byte per pixel, starting from the top row |
+
+The database stores everything after the verification string.
 
 ## Sounds
 

@@ -35,6 +35,8 @@ namespace ifb {
             dict->sound_files.last         = NULL;
             dict->map_files.first          = NULL;
             dict->map_files.last           = NULL;
+            dict->font_atlas_files.first   = NULL;
+            dict->font_atlas_files.last    = NULL;
         }
         return(dict);
     }
@@ -75,12 +77,14 @@ namespace ifb {
             const json_arr* arr_atlas = json_doc_get_arr(doc, "sprite_atlas");
             const json_arr* arr_sound = json_doc_get_arr(doc, "sound");
             const json_arr* arr_map   = json_doc_get_arr(doc, "map");
+            const json_arr* arr_font  = json_doc_get_arr(doc, "font_atlas"); // older dictionaries don't have it
 
             did_load &= asset_dictionary_file_list_load_from_json(dict->text_files,         arr_text,  h_arena);
             did_load &= asset_dictionary_file_list_load_from_json(dict->image_files,        arr_image, h_arena);
             did_load &= asset_dictionary_file_list_load_from_json(dict->sprite_atlas_files, arr_atlas, h_arena);
             did_load &= asset_dictionary_file_list_load_from_json(dict->sound_files,        arr_sound, h_arena);
             did_load &= asset_dictionary_file_list_load_from_json(dict->map_files,          arr_map,   h_arena);
+            did_load &= asset_dictionary_file_list_load_from_json(dict->font_atlas_files,   arr_font,  h_arena);
         }
 
         if (!did_load) {
@@ -111,6 +115,7 @@ namespace ifb {
         size += asset_dictionary_file_list_json_size(dict->sprite_atlas_files);
         size += asset_dictionary_file_list_json_size(dict->sound_files);
         size += asset_dictionary_file_list_json_size(dict->map_files);
+        size += asset_dictionary_file_list_json_size(dict->font_atlas_files);
 
         auto buffer = (cchar*)arena_push(h_arena, size);
         if (!buffer) return(false);
@@ -121,6 +126,7 @@ namespace ifb {
         length = asset_dictionary_file_list_json_write (dict->map_files,          "map",          false, buffer, length);
         length = asset_dictionary_file_list_json_write (dict->image_files,        "image",        false, buffer, length);
         length = asset_dictionary_file_list_json_write (dict->sprite_atlas_files, "sprite_atlas", false, buffer, length);
+        length = asset_dictionary_file_list_json_write (dict->font_atlas_files,   "font_atlas",   false, buffer, length);
         length = asset_dictionary_file_list_json_write (dict->sound_files,        "sound",        true,  buffer, length);
         length = asset_dictionary_json_write_cstr      (buffer, length, "}\n");
         assert(length < size);
@@ -194,6 +200,17 @@ namespace ifb {
         return(hnd);
     }
 
+    IFB_INTERNAL hnd_asset
+    asset_dictionary_add_font_atlas_file(
+        asset_dictionary* dict,
+        const cchar*      name,
+        const cchar*      path,
+        const hnd_arena   h_arena) {
+
+        const hnd_asset hnd = asset_dictionary_file_list_add_node(dict->font_atlas_files, name, path, h_arena);
+        return(hnd);
+    }
+
     IFB_INTERNAL bool
     asset_dictionary_remove_file(
         asset_dictionary* dict,
@@ -222,6 +239,9 @@ namespace ifb {
         if (!did_remove) {
             did_remove = asset_dictionary_file_list_remove_node(dict->map_files, id);
         }
+        if (!did_remove) {
+            did_remove = asset_dictionary_file_list_remove_node(dict->font_atlas_files, id);
+        }
 
         return(did_remove);
     }
@@ -237,7 +257,8 @@ namespace ifb {
             asset_dictionary_file_list_count(dict->image_files) +
             asset_dictionary_file_list_count(dict->sprite_atlas_files) +
             asset_dictionary_file_list_count(dict->sound_files) +
-            asset_dictionary_file_list_count(dict->map_files)
+            asset_dictionary_file_list_count(dict->map_files)   +
+            asset_dictionary_file_list_count(dict->font_atlas_files)
         );
 
         return(count);
@@ -261,6 +282,7 @@ namespace ifb {
             case asset_type_e_sprite_atlas: return(&dict->sprite_atlas_files);
             case asset_type_e_sound:        return(&dict->sound_files);
             case asset_type_e_map:          return(&dict->map_files);
+            case asset_type_e_font_atlas:   return(&dict->font_atlas_files);
             default:                        return(NULL);
         }
     }

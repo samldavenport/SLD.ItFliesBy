@@ -10,6 +10,7 @@
 #include "eng-asset.hpp"
 #include "eng-sprite.hpp"
 #include "eng-wav.hpp"
+#include "eng-font.hpp"
 
 namespace ifb {
     
@@ -48,6 +49,12 @@ namespace ifb {
     // - indexes             | n * 12 bytes
     // - pixels (rgba)       | w * h * 4 bytes
     //--------------------------------------------------------------------
+    // FONT ATLAS FORMAT
+    //--------------------------------------------------------------------
+    // the font blob from the .ifbfont file, exactly as it is in memory (see struct font)
+    // its first 4 bytes are its size, which matches the index
+    // - font blob           | n bytes
+    //--------------------------------------------------------------------
     // SOUND FORMAT
     //--------------------------------------------------------------------
     // - sample rate         | 4 bytes
@@ -57,7 +64,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     // ORDER
     //--------------------------------------------------------------------
-    // the assets are grouped by type: text, maps, images, sprite atlases, then sounds in the bank
+    // the assets are grouped by type: text, maps, images, sprite atlases, font atlases, then sounds in the bank
     // each group is in dictionary order
     //--------------------------------------------------------------------
     // SOUND BANK FORMAT
@@ -117,6 +124,8 @@ namespace ifb {
     inline void      asset_sprite_atlas_set_arrays    (asset_sprite_atlas* atlas);
     inline u64       asset_database_sound_size        (const asset_database* db, const asset_index& index, u32* header);
     inline bool      asset_database_sound_read        (const asset_database* db, const asset_index& index, const hnd_asset h_asset, const u32* header, asset_sound* snd);
+    inline u64       asset_database_font_atlas_size   (const asset_index& index);
+    inline bool      asset_database_font_atlas_read   (const asset_database* db, const asset_index& index, const hnd_asset h_asset, asset_font_atlas* atlas);
     inline bool      asset_database_has_sounds        (const asset_database* db);
     inline u32       asset_database_signature         (const asset_database* db);
     inline void      asset_database_open_bank         (asset_database* db, const cchar* path);
@@ -374,6 +383,27 @@ namespace ifb {
 
             // update the index
             asset_database_set_index(db, index_cur, node, asset_type_e_sprite_atlas, offset_asset, offset_cur - offset_asset);
+            ++index_cur;
+
+            // revert the arena
+            arena_revert(h_arena, write_asset_save);
+        }
+
+        // write the font atlas files to the database, the blob goes in as it is
+        for (
+            auto node = dict->font_atlas_files.first;
+                 node != NULL;
+                 node = node->next) {
+
+            // load the font, it was checked before the build so it should always be valid
+            const font* fnt = font_file_load_to_arena(node->path, h_arena);
+            assert(fnt != NULL);
+
+            const u32 offset_asset = offset_cur;
+            offset_cur += asset_database_write_at(db->file_handle, offset_cur, fnt->size, fnt);
+
+            // update the index
+            asset_database_set_index(db, index_cur, node, asset_type_e_font_atlas, offset_asset, offset_cur - offset_asset);
             ++index_cur;
 
             // revert the arena
@@ -953,6 +983,93 @@ namespace ifb {
         return(atlas);
     }
 
+    // the blob goes right after the asset's handle, see asset_font_atlas
+    IFB_INTERNAL const asset_font_atlas*
+    asset_database_load_font_atlas_by_handle_to_arena(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        const hnd_arena       h_arena) {
+
+        assert(db);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->asset_count   != 0);
+        assert(h_arena           != INVALID_HANDLE);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_font_atlas, index)) {
+            return(NULL);
+        }
+
+        const u64 size_push = asset_database_font_atlas_size(index);
+        if (size_push == 0 || size_push > arena_size_free(h_arena)) {
+            return(NULL);
+        }
+
+        const u32 save  = arena_save(h_arena);
+        auto      atlas = (asset_font_atlas*)arena_push(h_arena, (u32)size_push);
+        if (!atlas) {
+            return(NULL);
+        }
+
+        if (!asset_database_font_atlas_read(db, index, h_asset, atlas)) {
+            arena_revert(h_arena, save);
+            return(NULL);
+        }
+
+        return(atlas);
+    }
+
+    IFB_INTERNAL const asset_font_atlas*
+    asset_database_load_font_atlas_by_name_to_arena(
+        const asset_database* db,
+        const cchar*          name_cstr,
+        const hnd_arena       h_arena) {
+
+        assert(name_cstr);
+
+        const hnd_asset h_asset = asset_database_handle_of(name_cstr);
+        if (h_asset == INVALID_HANDLE) {
+            return(NULL);
+        }
+
+        const asset_font_atlas* atlas = asset_database_load_font_atlas_by_handle_to_arena(db, h_asset, h_arena);
+        return(atlas);
+    }
+
+    IFB_INTERNAL const asset_font_atlas*
+    asset_database_load_font_atlas_by_handle_to_memory(
+        const asset_database* db,
+        const hnd_asset       h_asset,
+        memory&               mem) {
+
+        assert(db);
+        assert(db->file_handle   != FILE_HANDLE_INVALID);
+        assert(db->array_handles != NULL);
+        assert(db->array_indexes != NULL);
+        assert(db->asset_count   != 0);
+        assert(mem.size          != 0);
+        assert(mem.address       != 0);
+
+        asset_index index;
+        if (!asset_database_find(db, h_asset, asset_type_e_font_atlas, index)) {
+            return(NULL);
+        }
+
+        const u64 size_needed = asset_database_font_atlas_size(index);
+        if (size_needed == 0 || mem.size < size_needed) {
+            return(NULL);
+        }
+
+        auto atlas = (asset_font_atlas*)mem.ptr;
+        if (!asset_database_font_atlas_read(db, index, h_asset, atlas)) {
+            return(NULL);
+        }
+
+        return(atlas);
+    }
+
     // reads an atlas file from the sprite atlas builder, without the sprite names
     // the handles, indexes, and pixels go right after the struct, the same as an atlas loaded from the database
     // NULL if the file can't be opened, isn't an atlas, doesn't match its header, or there's no room in the arena
@@ -1269,6 +1386,31 @@ namespace ifb {
             atlas->array_handles
         );
         return(did_read);
+    }
+
+    // the size of the font atlas once it's loaded, the handle followed by the blob
+    // 0 if the index is too small to be a blob
+    inline u64
+    asset_database_font_atlas_size(
+        const asset_index& index) {
+
+        if (index.size < sizeof(font)) return(0);
+
+        return((u64)ASSET_FONT_ATLAS_HEADER_SIZE + index.size);
+    }
+
+    // the blob is read as it is, then checked, since the database could be damaged
+    inline bool
+    asset_database_font_atlas_read(
+        const asset_database* db,
+        const asset_index&    index,
+        const hnd_asset       h_asset,
+        asset_font_atlas*     atlas) {
+
+        atlas->hnd = h_asset;
+
+        const bool did_read = asset_database_read_at(db->file_handle, index.offset, index.size, &atlas->fnt);
+        return(did_read && font_blob_is_valid(&atlas->fnt, index.size));
     }
 
     // the size of the sound once it's loaded, the struct followed by its samples

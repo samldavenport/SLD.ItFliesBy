@@ -303,6 +303,37 @@ namespace ifb {
         return(atlas);
     }
 
+    // loads the font atlas into asset memory if it isn't already there
+    // returns INVALID_HANDLE if there's no font atlas by that name, or no room for it
+    IFB_INTERNAL hnd_asset
+    asset_mngr_load_font_atlas(
+        const cchar* name) {
+
+        assert(_asset_mngr);
+        assert(name);
+
+        const hnd_asset hnd = asset_database_handle_of(name);
+        if (hnd == INVALID_HANDLE) return(INVALID_HANDLE);
+
+        const addr data = asset_mngr_get_or_load(hnd, asset_type_e_font_atlas);
+        if (!data) return(INVALID_HANDLE);
+
+        return(hnd);
+    }
+
+    // if the font atlas was evicted, it's loaded again
+    // the pointer is only valid until the next asset load or asset_mngr_update, either can move the data
+    // the blob only has offsets, so nothing needs fixing after it moves
+    IFB_INTERNAL const asset_font_atlas*
+    asset_mngr_get_font_atlas(
+        const hnd_asset hnd) {
+
+        assert(_asset_mngr);
+
+        const addr data = asset_mngr_get_or_load(hnd, asset_type_e_font_atlas);
+        return((const asset_font_atlas*)data);
+    }
+
     // loads the sound into asset memory if it isn't already there
     // returns INVALID_HANDLE if there's no sound by that name, or no room for it
     IFB_INTERNAL hnd_asset
@@ -486,6 +517,9 @@ namespace ifb {
             case (asset_type_e_map): {
                 did_load = asset_database_load_map_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
             } break;
+            case (asset_type_e_font_atlas): {
+                did_load = asset_database_load_font_atlas_by_handle_to_memory(_asset_mngr->db, hnd, mem_block) != NULL;
+            } break;
             default: break;
         }
 
@@ -536,6 +570,12 @@ namespace ifb {
             case asset_type_e_sound: {
                 if (index.size < (sizeof(u32) * 3)) return(0);
                 size = (u64)sizeof(asset_sound) + (index.size - (sizeof(u32) * 3));
+            } break;
+
+            // font atlases are the handle followed by the blob, which is stored as it is
+            case asset_type_e_font_atlas: {
+                if (index.size < sizeof(font)) return(0);
+                size = (u64)ASSET_FONT_ATLAS_HEADER_SIZE + index.size;
             } break;
 
             default: return(0);
