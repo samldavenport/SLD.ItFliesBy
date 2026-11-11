@@ -97,6 +97,8 @@ A sprite atlas (`.ifbatlas`) packs several image assets into one texture. Build 
 2. Pack them (`eng_sprite_atlas_builder_pack`) and check the preview.
 3. Save the atlas (`eng_sprite_atlas_builder_save`), add it to the asset dictionary, and rebuild the database.
 
+To change an existing atlas, **Open...** it in the builder (`eng_sprite_atlas_builder_open`), edit the sprites, **Save** it, and rebuild the database.
+
 **Engine > Sprite Tools > Sprite Atlas Inspector** opens an existing atlas and lists its sprites.
 
 At runtime, load an atlas by name and look up sprites in it:
