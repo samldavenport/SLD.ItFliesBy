@@ -43,7 +43,7 @@ namespace ifb {
         game_jig_direction_e_right = 1
     }; 
 
-        struct game_player_rig {
+    struct game_player_rig {
         entity_id                 connor_id;
         entity_id                 jig_id;
         entity_id                 jig_anchor_id;
