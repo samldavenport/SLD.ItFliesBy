@@ -21,11 +21,29 @@ namespace ifb {
       
     IFB_U32(game_connor_direction_u32);
     enum game_connor_direction_e {
-        game_connor_direction_e_left = 0,
+        game_connor_direction_e_left  = 0,
         game_connor_direction_e_right = 1,
     };
 
-    struct game_player_rig {
+    IFB_U32(game_jig_state_u32);
+    enum game_jig_state_e {
+        game_jig_state_e_left_0  = 0,
+        game_jig_state_e_left_1  = 1,
+        game_jig_state_e_left_2  = 2,
+        game_jig_state_e_left_3  = 3,
+        game_jig_state_e_right_0 = 4,
+        game_jig_state_e_right_1 = 5,
+        game_jig_state_e_right_2 = 6,
+        game_jig_state_e_right_3 = 7
+    };
+
+    IFB_U32(game_jig_direction_u32);
+    enum game_jig_direction_e {
+        game_jig_direction_e_left  = 0,
+        game_jig_direction_e_right = 1
+    }; 
+
+        struct game_player_rig {
         entity_id                 connor_id;
         entity_id                 jig_id;
         entity_id                 jig_anchor_id;
@@ -38,7 +56,10 @@ namespace ifb {
         f32                       walk_timer;
         game_connor_state_u32     connor_state;
         game_connor_direction_u32 connor_direction;
-        bool                      jig_faces_right;
+        f32                       jig_fly_progress;
+        f32                       jig_fly_blend;
+        game_jig_state_u32        jig_state;
+        game_jig_direction_u32    jig_direction;
     };
 
     struct game_entities {
