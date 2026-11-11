@@ -37,7 +37,7 @@ namespace ifb {
     IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_handle       (const hnd_sprite_atlas h_atlas, const hnd_sprite h_sprite, const hnd_arena h_arena);
     IFB_INTERNAL image*                  sprite_mngr_get_sprite_image_by_index        (const hnd_sprite_atlas h_atlas, const u32        i_sprite, const hnd_arena h_arena);
     IFB_INTERNAL image*                  sprite_mngr_get_sprite_atlas_image_by_handle (const hnd_sprite_atlas h_atlas, const hnd_arena h_arena);
-    IFB_INTERNAL sprite_memory*          sprite_mngr_get_memory    (void);
+    IFB_INTERNAL sprite_memory*          sprite_mngr_get_memory                       (void);
     
     // sprite memory
     IFB_INTERNAL sprite_memory*          sprite_memory_create               (void);
