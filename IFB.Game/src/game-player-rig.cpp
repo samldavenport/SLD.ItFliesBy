@@ -231,6 +231,7 @@ namespace ifb {
         player_rig->jig_state        = game_jig_state_e_right_0;
         player_rig->jig_direction    = game_jig_direction_e_right;
         player_rig->walk_cycle_change = false;
+        player_rig->is_input_locked   = false;
     }
 
     IFB_INTERNAL void
@@ -342,11 +343,12 @@ namespace ifb {
     game_player_rig_accumulate_forces(
         game_player_rig* player_rig) {
 
-        // get player input
-        const bool move_left  = eng_input_is_key_down (input_keycode_e_a);
-        const bool move_right = eng_input_is_key_down (input_keycode_e_d);
-        const bool move_up    = eng_input_is_key_down (input_keycode_e_w);
-        const bool move_down  = eng_input_is_key_down (input_keycode_e_s);
+        // get player input, while it's locked connor gets no new forces and slows to a stop
+        const bool is_unlocked = !player_rig->is_input_locked;
+        const bool move_left   = is_unlocked && eng_input_is_key_down (input_keycode_e_a);
+        const bool move_right  = is_unlocked && eng_input_is_key_down (input_keycode_e_d);
+        const bool move_up     = is_unlocked && eng_input_is_key_down (input_keycode_e_w);
+        const bool move_down   = is_unlocked && eng_input_is_key_down (input_keycode_e_s);
 
         // add movement forces to connor
         vec3 connor_force = {0};

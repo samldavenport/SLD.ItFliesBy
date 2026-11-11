@@ -61,6 +61,7 @@ namespace ifb {
         game_jig_state_u32        jig_state;
         game_jig_direction_u32    jig_direction;
         bool                      walk_cycle_change;
+        bool                      is_input_locked;   // the movement keys are ignored, like while a dialog is open
     };
 
     struct game_entities {
@@ -95,6 +96,43 @@ namespace ifb {
 
     static constexpr const cchar* GAME_SCENE_GAMEPLAY_NAME = "GAMEPLAY";
 
+    //--------------------------------------------------------------------
+    // DIALOG
+    //--------------------------------------------------------------------
+    // a box along the bottom of the screen that types its text out a character at a time
+    // the text is wrapped when it opens, then shown a page of lines at a time
+
+    static constexpr u32 GAME_DIALOG_LINE_CAPACITY    = 32;     // lines past this are cut off
+    static constexpr u32 GAME_DIALOG_LINES_PER_PAGE   = 2;
+    static constexpr f32 GAME_DIALOG_CHARS_PER_SECOND = 40.0f;
+    static constexpr f32 GAME_DIALOG_MARGIN           = 16.0f;  // screen pixels around the box
+    static constexpr f32 GAME_DIALOG_BORDER           = 4.0f;
+    static constexpr f32 GAME_DIALOG_PADDING          = 16.0f;  // inside the border, around the text
+    static constexpr f32 GAME_DIALOG_LINE_SPACING     = 8.0f;   // on top of the font's line height
+    static constexpr f32 GAME_DIALOG_ARROW_SIZE       = 8.0f;   // the "more" marker in the bottom right corner
+    static constexpr f32 GAME_DIALOG_ARROW_BLINK_S    = 0.4f;   // how long the marker is shown, then hidden
+    static constexpr u32 GAME_DIALOG_COLOR_BORDER     = 0x303040FF;
+    static constexpr u32 GAME_DIALOG_COLOR_FILL       = 0xF8F8F8FF;
+    static constexpr u32 GAME_DIALOG_COLOR_TEXT       = 0x303040FF;
+
+    IFB_U32(game_dialog_state_u32);
+    enum game_dialog_state_e {
+        game_dialog_state_e_closed = 0,
+        game_dialog_state_e_typing = 1, // the page is still being revealed
+        game_dialog_state_e_paused = 2  // the page is all shown, waiting for the player
+    };
+
+    struct game_dialog {
+        const cchar*          text;        // not copied, it has to outlive the dialog
+        u32                   text_len;
+        font_line             lines[GAME_DIALOG_LINE_CAPACITY];
+        u32                   line_count;
+        u32                   page_line;   // the first line on the page
+        f32                   reveal;      // characters shown on the page, the fraction is the next one coming in
+        f32                   blink_s;
+        game_dialog_state_u32 state;
+    };
+
     // the global arena holds what lasts the whole game
     // the player rig, map, and entities belong to the gameplay scene, and live in its arena
     struct game_context {
@@ -106,10 +144,20 @@ namespace ifb {
         game_sprites*    sprites;
         game_audio*      audio;
         const font*      fnt;   // the ui font, NULL if it didn't load
+        game_dialog*     dialog;
+        bool             talk_was_down;
     } static * _game_ctx;
 
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
     IFB_INTERNAL void          game_context_update_and_render    (game_context* ctx);
+
+    IFB_INTERNAL void          game_dialog_init       (game_dialog* dialog);
+    IFB_INTERNAL bool          game_dialog_open       (game_dialog* dialog, const font* fnt, const cchar* text, const u32 text_len);
+    IFB_INTERNAL bool          game_dialog_is_open    (const game_dialog* dialog);
+    IFB_INTERNAL void          game_dialog_advance    (game_dialog* dialog);
+    IFB_INTERNAL void          game_dialog_update     (game_dialog* dialog, const f32 dt);
+    IFB_INTERNAL void          game_dialog_render     (const game_dialog* dialog, const font* fnt);
+    IFB_INTERNAL void          game_dialog_get_layout (const font* fnt, rect& box, rect& text_area);
 
     IFB_INTERNAL void          game_scene_gameplay_init              (game_context* ctx);
     IFB_INTERNAL void          game_scene_gameplay_update_and_render (game_context* ctx);
