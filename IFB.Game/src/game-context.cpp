@@ -5,6 +5,7 @@
 #include "ifb.hpp"
 
 #include "game-scene-gameplay.cpp"
+#include "game-dialog.cpp"
 
 namespace ifb {
 
@@ -40,6 +41,14 @@ namespace ifb {
         audio->box_contact_time_s = audio->time_s;
         if (!is_new_contact) return;
 
+        // the bump opens a dialog, unless one is already up
+        // connor is still touching the box when it closes, but that isn't a new bump, so it doesn't open again
+        // the events are sent after the game callback, so the dialog shows from the next frame
+        if (_game_ctx->fnt != NULL && !game_dialog_is_open(_game_ctx->dialog)) {
+            static constexpr cchar collision_text[] = "A collision happened...";
+            game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, collision_text, sizeof(collision_text) - 1);
+        }
+
         // and never on top of the last boop, the handle goes stale when it finishes
         audio_voice_info info;
         const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
@@ -58,10 +67,12 @@ namespace ifb {
         auto ctx      =    (game_context*)eng_arena_push(arena_h, sizeof(game_context));
         auto sprites  =    (game_sprites*)eng_arena_push(arena_h, sizeof(game_sprites));
         auto audio    =      (game_audio*)eng_arena_push(arena_h, sizeof(game_audio));
+        auto dialog   =     (game_dialog*)eng_arena_push(arena_h, sizeof(game_dialog));
 
         assert(ctx      != NULL);
         assert(sprites  != NULL);
         assert(audio    != NULL);
+        assert(dialog   != NULL);
 
         // the gameplay scene fills in the rest
         ctx->global_arena     = arena_h;
@@ -72,6 +83,9 @@ namespace ifb {
         ctx->sprites          = sprites;
         ctx->audio            = audio;
         ctx->fnt              = NULL;
+        ctx->dialog           = dialog;
+        ctx->talk_was_down    = false;
+        game_dialog_init(dialog);
 
         // nothing is playing, and the first contact counts as a bump
         audio->h_boop             = {INVALID_HANDLE};
@@ -140,13 +154,28 @@ namespace ifb {
 
         audio->time_s += eng_system_get_delta_time_s();
 
+        // connor stands still while he's being talked to
+        ctx->player_rig->is_input_locked = game_dialog_is_open(ctx->dialog);
+
         game_scene_gameplay_update_and_render(ctx);
 
-        // screen text has to be pushed again every frame, it sits under the editor menu bar
-        if (ctx->fnt != NULL) {
-            static constexpr cchar hello[] = "Hello, World!";
-            eng_draw_text_screen(ctx->fnt, hello, sizeof(hello) - 1, { 16.0f, 48.0f }, color_rgba_f32(0xFFFFFFFF));
+        // the dialog needs the font, without it there's nothing to show
+        if (ctx->fnt == NULL) return;
+
+
+        const bool is_talk_down   = eng_input_is_key_down(input_keycode_e_e);
+        const bool is_talk_press  = is_talk_down && !ctx->talk_was_down;
+        ctx->talk_was_down        = is_talk_down;
+
+        auto dialog = ctx->dialog;
+        if (is_talk_press) {
+            if (game_dialog_is_open(dialog)) {
+                game_dialog_advance(dialog);
+            }
         }
+
+        game_dialog_update (dialog, eng_system_get_delta_time_s());
+        game_dialog_render (dialog, ctx->fnt);
     }
 
 
