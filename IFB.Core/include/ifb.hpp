@@ -90,6 +90,7 @@ namespace ifb {
     IFB_HANDLE(hnd_particle_emitter);
     IFB_HANDLE(hnd_sprite_atlas);
     IFB_HANDLE(hnd_sprite);
+    IFB_HANDLE(hnd_font_atlas);
 
     //--------------------------------------------------------------------
     // COMMON TYPES
@@ -212,10 +213,12 @@ namespace ifb {
         asset_type_e_sprite_atlas  = 2,
         asset_type_e_sound         = 3,
         asset_type_e_map           = 4,
-        asset_type_e_count         = 5
+        asset_type_e_font_atlas    = 5,
+        asset_type_e_count         = 6
     };
 
     struct sprite_index;
+    struct font_glyph;
 
     struct asset_name {
         cchar cstr [config::asset_name_size];
@@ -886,6 +889,17 @@ namespace ifb {
             return(0.0f);
         }
     };
+
+    // a font blob as an asset, fnt is the start of the blob and the rest of it follows the struct
+    // the blob only has offsets, so the asset can move in memory without fixing any pointers,
+    // and it's stored in the database exactly as it's laid out in memory
+    struct asset_font_atlas {
+        hnd_asset hnd;
+        font      fnt; // has to be last, fnt.size bytes start here
+    };
+
+    // the bytes in front of the blob, so the asset in memory is this plus fnt.size
+    static constexpr u32 ASSET_FONT_ATLAS_HEADER_SIZE = offsetof(asset_font_atlas, fnt);
 };
 
 #endif //IFB_HPP

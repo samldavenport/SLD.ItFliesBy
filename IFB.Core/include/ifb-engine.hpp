@@ -580,6 +580,9 @@ namespace ifb {
     IFB_ENGINE_API font*  eng_font_load_to_arena        (const hnd_file h_font_file, const hnd_arena h_arena, const font_config& cfg = font_config());
     IFB_ENGINE_API image* eng_font_glyph_table_to_image (const font* fnt, const hnd_arena h_arena);
     IFB_ENGINE_API bool   eng_font_load_preview         (const font* fnt, asset_preview& preview);
+    IFB_ENGINE_API bool   eng_font_save                 (const font* fnt, const cchar* path);
+    IFB_ENGINE_API font*  eng_font_load_file_to_arena   (const cchar* path, const hnd_arena h_arena);
+    IFB_ENGINE_API font*  eng_font_atlas_load_to_arena  (const cchar* name, const hnd_arena h_arena);
 
     //--------------------------------------------------------------------
     // DEFINITIONS

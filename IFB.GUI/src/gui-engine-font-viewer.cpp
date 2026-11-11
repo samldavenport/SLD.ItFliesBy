@@ -21,6 +21,9 @@ namespace ifb {
     static const char* _font_file_filter_type = "*.ttf";
     static const char* _font_file_filter_desc = "Font File";
     static const char* _font_file_ext         = ".ttf";
+    static const char* _font_atlas_filter_type = "*.ifbfont";
+    static const char* _font_atlas_filter_desc = "Font Atlas";
+    static const char* _font_atlas_ext         = ".ifbfont";
     static const char* _font_sample_default   = "The quick brown fox jumps over the lazy dog.\nTHE QUICK BROWN FOX JUMPS OVER THE LAZY DOG!\n0123456789 #$%&*()[]{}<>?@ AV To Wa";
 
     // the font is baked into the window's own large arena, so opening another or baking again resets it
@@ -55,6 +58,7 @@ namespace ifb {
     IFB_INLINE void font_file_open       (void);
     IFB_INLINE bool font_file_bake       (void);
     IFB_INLINE void font_file_close      (void);
+    IFB_INLINE void font_file_save       (void);
     IFB_INLINE void font_viewer_glyph_tooltip (const u32 codepoint);
 
     //--------------------------------------------------------------------
@@ -134,6 +138,10 @@ namespace ifb {
 
         ImGui::SameLine();
         ImGui::BeginDisabled(state.fnt == NULL);
+        if (ImGui::Button("Save...")) {
+            font_file_save();
+        }
+        ImGui::SameLine();
         if (ImGui::Button("Close")) {
             font_file_close();
         }
@@ -415,6 +423,27 @@ namespace ifb {
 
         state.is_preview_loaded = eng_font_load_preview(state.fnt, state.preview);
         return(state.is_preview_loaded);
+    }
+
+    // saves the font as it was baked, so what's saved is what the preview shows
+    // the file goes in the asset dictionary as a font atlas
+    IFB_INLINE void
+    font_file_save(
+        void) {
+
+        auto& state = _font_viewer_state;
+        if (!state.fnt) return;
+
+        const char* dlg_path = eng_file_dialog_save(_font_atlas_filter_type, _font_atlas_filter_desc);
+        if (!dlg_path) return;
+
+        char path[FONT_PATH_SIZE];
+        strncpy_s(path, dlg_path, FONT_PATH_SIZE - 1);
+        asset_database_add_extension(path, _font_atlas_ext);
+
+        state.status = eng_font_save(state.fnt, path)
+            ? "Saved the font atlas, add it to the asset dictionary as a Font Atlas"
+            : "Failed to save the font atlas, the file may not be writable";
     }
 
     IFB_INLINE void

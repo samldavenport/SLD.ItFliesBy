@@ -18,12 +18,14 @@ namespace ifb {
     static const char* _asset_dictionary_filter_type = "*.json";
     static const char* _asset_dictionary_filter_desc = "JSON";
 
+    // every table has one entry per asset type, in asset_type_e order
     static const char* _asset_dictionary_type_names[asset_type_e_count] = {
         "Text",
         "Image",
         "Sprite Atlas",
         "Sound",
-        "Map"
+        "Map",
+        "Font Atlas"
     };
 
     static const char* _asset_dictionary_list_names[asset_type_e_count] = {
@@ -31,7 +33,8 @@ namespace ifb {
         "Image Files",
         "Sprite Atlases",
         "Sounds",
-        "Maps"
+        "Maps",
+        "Font Atlases"
     };
 
     // the platform only reads the first 16 characters of a filter
@@ -40,7 +43,8 @@ namespace ifb {
         "*.png;*.jpg",
         "*.ifbatlas",
         "*.wav",
-        "*.json"
+        "*.json",
+        "*.ifbfont"
     };
 
     static const char* _asset_dictionary_type_filter_descs[asset_type_e_count] = {
@@ -48,8 +52,12 @@ namespace ifb {
         "Images",
         "Sprite Atlas",
         "WAV Audio",
-        "Map JSON"
+        "Map JSON",
+        "Font Atlas"
     };
+
+    // a missing entry would be NULL, which the type combo and lists can't show
+    static_assert(asset_type_e_font_atlas == asset_type_e_count - 1, "add the new asset type to the tables above");
 
     //--------------------------------------------------------------------
     // DEFINITIONS

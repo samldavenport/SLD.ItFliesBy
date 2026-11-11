@@ -34,6 +34,9 @@
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }
     ],
+    "font_atlas": [
+        { "name": "PRESS-START-16", "path": "fonts/PressStart2P/press-start-16.ifbfont" }
+    ],
     "sound": [
         { "name": "PIANO", "path": "sounds/piano.wav" },
         { "name": "BOOP", "path": "sounds/boop.wav" }

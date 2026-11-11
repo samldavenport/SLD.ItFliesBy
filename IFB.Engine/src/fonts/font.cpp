@@ -2,6 +2,7 @@
 
 #include "eng-font.hpp"
 #include "eng-memory.hpp"
+#include "eng-file.hpp"
 #include "ifb-engine.hpp"
 #include <stb_truetype.h>
 #include "ifb.hpp"
@@ -241,5 +242,143 @@ namespace ifb {
         assert(result == (font*)ttf.ptr);
 
         return(result);
+    }
+
+    // a blob read from a file or the database is checked before anything uses it
+    // the layout has to be exactly what font_load_to_arena makes: the header, the glyphs,
+    // the kerning pairs, then the atlas, with nothing between them, so every offset is known
+    IFB_INTERNAL bool
+    font_blob_is_valid(
+        const font* fnt,
+        const u32   size) {
+
+        if (fnt == NULL || size < sizeof(font) || fnt->size != size) return(false);
+
+        // the settings it was baked with
+        const bool is_header_valid = (
+            fnt->pixel_height    >  0.0f                &&
+            fnt->line_height     >= 0.0f                &&
+            fnt->glyph_count     != 0                   &&
+            fnt->glyph_count     <= 0x10000             &&
+            fnt->oversample_x    >= 1                   &&
+            fnt->oversample_x    <= FONT_OVERSAMPLE_MAX &&
+            fnt->oversample_y    >= 1                   &&
+            fnt->oversample_y    <= FONT_OVERSAMPLE_MAX &&
+            fnt->atlas_width     != 0                   &&
+            fnt->atlas_width     <= FONT_ATLAS_SIZE_MAX &&
+            fnt->atlas_height    != 0                   &&
+            fnt->atlas_height    <= FONT_ATLAS_SIZE_MAX &&
+            ((u64)fnt->first_codepoint + fnt->glyph_count) <= 0x110000 // past the last unicode codepoint
+        );
+        if (!is_header_valid) return(false);
+
+        // the layout, 64 bits so garbage counts can't overflow
+        const u64 offset_glyphs = sizeof(font);
+        const u64 offset_kerns  = offset_glyphs + ((u64)fnt->glyph_count     * sizeof(font_glyph));
+        const u64 offset_atlas  = offset_kerns  + ((u64)fnt->kern_pair_count * sizeof(font_kern_pair));
+        const u64 size_atlas    = (u64)fnt->atlas_width * fnt->atlas_height;
+        const bool is_layout_valid = (
+            fnt->glyph_offset     == offset_glyphs &&
+            fnt->kern_pair_offset == offset_kerns  &&
+            fnt->atlas_offset     == offset_atlas  &&
+            offset_atlas + size_atlas == size
+        );
+        if (!is_layout_valid) return(false);
+
+        // every glyph's rect has to be inside the atlas
+        const font_glyph* glyphs = fnt->glyphs();
+        for (u32 i = 0; i < fnt->glyph_count; ++i) {
+
+            const font_glyph& g = glyphs[i];
+            const bool is_inside = (
+                g.atlas_x0 <= g.atlas_x1 && g.atlas_x1 <= fnt->atlas_width &&
+                g.atlas_y0 <= g.atlas_y1 && g.atlas_y1 <= fnt->atlas_height
+            );
+            if (!is_inside) return(false);
+        }
+
+        // the pairs have to be sorted for the binary search, and only name glyphs that are in the font
+        const font_kern_pair* pairs = fnt->kern_pairs();
+        for (u32 i = 0; i < fnt->kern_pair_count; ++i) {
+
+            const u32  key       = pairs[i].key;
+            const bool is_sorted = (i == 0) || (pairs[i - 1].key < key);
+            const bool is_known  = ((key >> 16) < fnt->glyph_count) && ((key & 0xFFFF) < fnt->glyph_count);
+            if (!is_sorted || !is_known) return(false);
+        }
+
+        return(true);
+    }
+
+    // writes the verification string and the blob, replacing the file if it's there
+    IFB_INTERNAL bool
+    font_file_save(
+        const font*  fnt,
+        const cchar* path) {
+
+        assert(fnt);
+        assert(path);
+
+        if (!font_blob_is_valid(fnt, fnt->size)) return(false);
+
+        const hnd_file h_file = file_wo_overwrite(path);
+        if (h_file == FILE_HANDLE_INVALID) return(false);
+
+        file_set_cursor(h_file, 0);
+        bool did_write = (file_write(h_file, FONT_FILE_VERIFICATION_SIZE, (const byte*)FONT_FILE_VERIFICATION_CSTR) == FONT_FILE_VERIFICATION_SIZE);
+        if (did_write) {
+            file_set_cursor(h_file, FONT_FILE_VERIFICATION_SIZE);
+            did_write = (file_write(h_file, fnt->size, (const byte*)fnt) == fnt->size);
+        }
+        file_close(h_file);
+
+        return(did_write);
+    }
+
+    // reads the blob out of a font file onto the arena, and checks it
+    // NULL if the file can't be opened, isn't a font file, the blob isn't valid, or there's no room
+    IFB_INTERNAL font*
+    font_file_load_to_arena(
+        const cchar*    path,
+        const hnd_arena h_arena) {
+
+        assert(path);
+        assert(h_arena != INVALID_HANDLE);
+
+        const hnd_file h_file = file_ro_open_existing(path);
+        if (h_file == FILE_HANDLE_INVALID) return(NULL);
+
+        const u32 size_file = file_get_size(h_file);
+        const u32 size_blob = (size_file > FONT_FILE_VERIFICATION_SIZE) ? (size_file - FONT_FILE_VERIFICATION_SIZE) : 0;
+        if (size_blob < sizeof(font) || size_blob > arena_size_free(h_arena)) {
+            file_close(h_file);
+            return(NULL);
+        }
+
+        // the verification string
+        cchar verification[FONT_FILE_VERIFICATION_SIZE];
+        file_set_cursor(h_file, 0);
+        bool is_valid = (file_read_to_buffer(h_file, FONT_FILE_VERIFICATION_SIZE, (byte*)verification) == FONT_FILE_VERIFICATION_SIZE);
+        is_valid     &= (memcmp(verification, FONT_FILE_VERIFICATION_CSTR, FONT_FILE_VERIFICATION_SIZE) == 0);
+        if (!is_valid) {
+            file_close(h_file);
+            return(NULL);
+        }
+
+        // the blob
+        const u32 save = arena_save(h_arena);
+        auto      fnt  = (font*)arena_push(h_arena, size_blob);
+        if (fnt) {
+            file_set_cursor(h_file, FONT_FILE_VERIFICATION_SIZE);
+            is_valid = (file_read_to_buffer(h_file, size_blob, (byte*)fnt) == size_blob);
+        }
+        file_close(h_file);
+
+        if (!fnt || !is_valid || !font_blob_is_valid(fnt, size_blob)) {
+            arena_revert(h_arena, save);
+            return(NULL);
+        }
+
+        return(fnt);
     }
 };

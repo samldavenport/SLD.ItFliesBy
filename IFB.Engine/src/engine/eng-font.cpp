@@ -5,6 +5,7 @@
 #include "eng-font.hpp"
 #include "eng-memory.hpp"
 #include "eng-renderer.hpp"
+#include "eng-asset.hpp"
 
 namespace ifb {
 
@@ -91,5 +92,51 @@ namespace ifb {
         arena_reset(h_arena);
 
         return(preview.texture != 0);
+    }
+
+    // writes the font to an .ifbfont file, which can go in the asset dictionary as a font atlas
+    // false if the font isn't valid or the file can't be written
+    IFB_ENGINE_API bool
+    eng_font_save(
+        const font*  fnt,
+        const cchar* path) {
+
+        assert(fnt);
+        assert(path);
+
+        return(font_file_save(fnt, path));
+    }
+
+    // reads an .ifbfont file onto the arena
+    // NULL if it can't be opened, isn't a font file, the font in it isn't valid, or there's no room
+    IFB_ENGINE_API font*
+    eng_font_load_file_to_arena(
+        const cchar*    path,
+        const hnd_arena h_arena) {
+
+        assert(path);
+        assert(h_arena != INVALID_HANDLE);
+
+        return(font_file_load_to_arena(path, h_arena));
+    }
+
+    // copies a font atlas from the runtime database onto the arena
+    // the copy is the caller's, so unlike asset memory it doesn't move or get evicted
+    // NULL if there's no font atlas by that name, or no room
+    IFB_ENGINE_API font*
+    eng_font_atlas_load_to_arena(
+        const cchar*    name,
+        const hnd_arena h_arena) {
+
+        assert(name);
+        assert(h_arena != INVALID_HANDLE);
+
+        const asset_database* db = asset_mngr_get_database();
+        if (!db || name[0] == 0) return(NULL);
+
+        const asset_font_atlas* atlas = asset_database_load_font_atlas_by_name_to_arena(db, name, h_arena);
+        if (!atlas) return(NULL);
+
+        return((font*)&atlas->fnt);
     }
 };
