@@ -142,6 +142,8 @@ const f32         kern = fnt->kerning('A', 'V'); // 0 if the pair isn't kerned
 | `eng_font_atlas_load_to_arena` | Copy a font atlas from the runtime database |
 | `eng_font_glyph_table_to_image` | The atlas as an RGBA image, white with the coverage as alpha |
 
+To draw text with a font, upload it to the GPU and make it active. See [Fonts](renderer.md#fonts) and [Text](renderer.md#text) in the renderer docs.
+
 Every font that's read, from a file or the database, is checked before it's used: the size matches, the parts are laid out where the header says, every glyph's rectangle is inside the atlas, and the kerning pairs are sorted. A font that fails any of these isn't loaded.
 
 ### Font File Format

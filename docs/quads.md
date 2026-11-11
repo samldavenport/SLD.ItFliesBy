@@ -50,19 +50,15 @@ A quad's **position is the center** of the quad. Inside the engine, though, the 
 
 ## Color and Sprites
 
-Each vertex carries a color, texture coordinates, and a `textured` flag. The fragment shader (`quad-shader-fragment.glsl`) uses them like this:
+Each vertex carries a color, texture coordinates, and a `textured` value that picks what the fragment shader (`quad-shader-fragment.glsl`) samples. The values are the `QUAD_SAMPLE_*` constants in `eng-quad.hpp`:
 
-```glsl
-vec4 text_color = texture(u_texture_0_sprite_atlas, vert_text_coords);
-out_color       = vert_color * mix(vec4(1.0), text_color, vert_textured);
-```
-
-| Case | `textured` | Result |
+| `textured` | Constant | Result |
 | --- | --- | --- |
-| The sprite is found in its atlas | `1` | The sprite, multiplied by the color. Use white (`0xFFFFFFFF`) to show the sprite as is. |
-| The sprite can't be found | `0` | The solid color |
+| `0` | `QUAD_SAMPLE_SOLID` | The vertex color |
+| `1` | `QUAD_SAMPLE_SPRITE` | The active sprite atlas (texture slot 0), multiplied by the color. Use white (`0xFFFFFFFF`) to show the sprite as is. |
+| `2` | `QUAD_SAMPLE_FONT` | The active font's coverage (texture slot 1) as the alpha of the color. Only [immediate text](renderer.md#text) uses this. |
 
-A sprite "can't be found" when the atlas isn't loaded or the sprite index is invalid, for example a sprite component that was never set.
+Entity quads use the sprite when it's found in its atlas, and the solid color when it can't be found. A sprite "can't be found" when the atlas isn't loaded or the sprite index is invalid, for example a sprite component that was never set.
 
 The texture coordinates are the sprite's rectangle in the atlas, divided by the atlas size. The atlas isn't flipped when it's uploaded, so the top row is `v = 0`. Quads always sample the **active** atlas, so a quad whose sprite comes from a different atlas shows the wrong part of the active atlas's texture (see [Renderer](renderer.md#sprite-atlases)).
 
@@ -82,7 +78,7 @@ Each frame, `quad_render_buffer` (`quad.cpp`) turns the renderer's quad list int
 | `position` | `vec3` | `in_pos` (location 0) |
 | `color` | `color_rgba_f32` | `in_color` (location 1) |
 | `text_coords` | `vec2` | `in_text_coords` (location 2) |
-| `textured` | `f32` | `in_textured` (location 3) |
+| `textured` | `f32` | `in_textured` (location 3), one of `QUAD_SAMPLE_*` |
 
 The element buffer never changes, so it's filled once at startup with two triangles per quad: vertices `0, 1, 3` and `1, 2, 3`.
 
@@ -91,6 +87,8 @@ The vertex shader (`quad-shader-vertex.glsl`) multiplies each position by `u_mat
 ## Capacity
 
 The quad vertex buffer holds `IFB_CONFIG_QUAD_MAX` (1024) quads, shared with particles. That matches `IFB_CONFIG_ENTITY_CAPACITY`, so every entity can be drawn, but particles only get whatever room the entity quads leave.
+
+The [immediate drawing](renderer.md#immediate-drawing) layers use the same vertex layout and element buffer, but have their own buffers of `IFB_CONFIG_QUAD_MAX` quads each, so they don't take room from entities or particles.
 
 ## Internal Functions
 

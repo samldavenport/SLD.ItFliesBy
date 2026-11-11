@@ -33,6 +33,7 @@
 #include "eng-atype.cpp"
 #include "eng-audio.cpp"
 #include "eng-cmpnt.cpp"
+#include "eng-draw.cpp"
 #include "eng-camera.cpp"
 #include "eng-context.cpp"
 #include "eng-entity.cpp"

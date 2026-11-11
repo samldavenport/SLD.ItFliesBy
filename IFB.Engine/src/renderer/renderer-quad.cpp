@@ -16,6 +16,8 @@ namespace ifb {
 
     static constexpr char QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ [] = "u_mat4_view_proj";
     static constexpr char QUAD_UNIFORM_NAME_MAT4_MODEL     [] = "u_mat4_model";
+    static constexpr char QUAD_UNIFORM_NAME_SPRITE_ATLAS   [] = "u_texture_0_sprite_atlas";
+    static constexpr char QUAD_UNIFORM_NAME_FONT_ATLAS     [] = "u_texture_1_font_atlas";
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -29,6 +31,8 @@ namespace ifb {
             gl_buffer  buf_element;
             gl_uniform unif_mat4_view_proj;
             gl_uniform unif_mat4_model;
+            gl_uniform unif_sprite_atlas;
+            gl_uniform unif_font_atlas;
         } gl;
     };
 
@@ -96,10 +100,20 @@ namespace ifb {
         // get uniform locations
         shdr->gl.unif_mat4_view_proj   = gl_uniform_get_location(gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_VIEW_PROJ);
         shdr->gl.unif_mat4_model       = gl_uniform_get_location(gl, shdr->gl.program, QUAD_UNIFORM_NAME_MAT4_MODEL);
+        shdr->gl.unif_sprite_atlas     = gl_uniform_get_location(gl, shdr->gl.program, QUAD_UNIFORM_NAME_SPRITE_ATLAS);
+        shdr->gl.unif_font_atlas       = gl_uniform_get_location(gl, shdr->gl.program, QUAD_UNIFORM_NAME_FONT_ATLAS);
         gl_ok &= (
             shdr->gl.unif_mat4_view_proj   != GL_UNIFORM_INVALID &&
-            shdr->gl.unif_mat4_model       != GL_UNIFORM_INVALID
+            shdr->gl.unif_mat4_model       != GL_UNIFORM_INVALID &&
+            shdr->gl.unif_sprite_atlas     != GL_UNIFORM_INVALID &&
+            shdr->gl.unif_font_atlas       != GL_UNIFORM_INVALID
         );
+        assert(gl_ok);
+
+        // the samplers never change texture slots, so they only need to be set once
+        gl_ok &= gl_context_set_shader_program (gl, shdr->gl.program);
+        gl_ok &= gl_uniform_set_s32x1          (gl, shdr->gl.unif_sprite_atlas, (s32)RENDER_GL_TEXTURE_SLOT_SPRITE_ATLAS);
+        gl_ok &= gl_uniform_set_s32x1          (gl, shdr->gl.unif_font_atlas,   (s32)RENDER_GL_TEXTURE_SLOT_FONT_ATLAS);
         assert(gl_ok);
 
         // define vertex
@@ -139,8 +153,8 @@ namespace ifb {
             return;
         }
 
-        // set the texture
-        renderer_use_sprite_atlas_texture();
+        // set the textures
+        renderer_use_quad_textures();
 
         // draw elements
         gl_context_set_shader_program (gl, shdr->gl.program);
