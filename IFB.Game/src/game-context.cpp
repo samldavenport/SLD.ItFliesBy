@@ -91,9 +91,13 @@ namespace ifb {
         sprites->i_sprite_jig    = eng_sprite_atlas_lookup_sprite_index (sprites->h_atlas, "JIG");
 
         // set the sprite atlas to active
-        const bool did_set_texture = eng_sprite_atlas_set_active(sprites->h_atlas);
-        assert(did_set_texture);
-        (void)did_set_texture;
+        // without the asset database the atlas fails to load, and the game runs without sprites
+        // so the database can still be rebuilt from the tools
+        if (sprites->h_atlas != INVALID_HANDLE) {
+            const bool did_set_texture = eng_sprite_atlas_set_active(sprites->h_atlas);
+            assert(did_set_texture);
+            (void)did_set_texture;
+        }
 
 
         // the level

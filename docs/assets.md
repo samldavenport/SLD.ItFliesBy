@@ -27,7 +27,7 @@ Each kind of JSON the game loads gets its own type, rather than all of it being 
 
 ## Names and Handles
 
-Assets are referred to by name. Names are up to `IFB_CONFIG_ASSET_NAME_SIZE` (16) characters and stored uppercase in the dictionary (e.g. `CONNOR-LEFT`, `CORE-SPRITES`). An asset's `hnd_asset` is the hash of its name, so the same name always gives the same handle.
+Assets are referred to by name. Names are up to `IFB_CONFIG_ASSET_NAME_SIZE` (32) characters and stored uppercase in the dictionary (e.g. `CONNOR-LEFT`, `CORE-SPRITES`). An asset's `hnd_asset` is the hash of its name, so the same name always gives the same handle.
 
 ## Asset Dictionary
 

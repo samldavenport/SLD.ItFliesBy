@@ -17,7 +17,7 @@ using namespace sld;
 #define IFB_CONFIG_ASSET_MEDIUM_BLOCK_CAPACITY    256
 #define IFB_CONFIG_ASSET_MEDIUM_DATA_SIZE         size_megabytes(1)
 #define IFB_CONFIG_ASSET_MEDIUM_PARTITION_COUNT   48
-#define IFB_CONFIG_ASSET_NAME_SIZE                16
+#define IFB_CONFIG_ASSET_NAME_SIZE                32
 #define IFB_CONFIG_ASSET_SIZE_MAX                 size_megabytes(64)
 #define IFB_CONFIG_ASSET_SMALL_BLOCK_CAPACITY     64
 #define IFB_CONFIG_ASSET_SMALL_DATA_SIZE          size_kilobytes(64)

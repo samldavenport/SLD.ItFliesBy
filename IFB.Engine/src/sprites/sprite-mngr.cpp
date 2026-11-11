@@ -106,6 +106,12 @@ namespace ifb {
             return(INVALID_HANDLE);
         }
 
+        // the database is NULL if it failed to load at startup
+        asset_database* db = asset_mngr_get_database();
+        if (db == NULL) {
+            return(INVALID_HANDLE);
+        }
+
         // allocate a block of memory for the atlas
         sprite_memory_block* block = sprite_memory_alloc(_sprite_mngr->mem);  
         if (block == NULL) {
@@ -124,8 +130,6 @@ namespace ifb {
         // load the atlas to the memory block
         // the sprite manager will own the atlas,
         // not the asset manager
-        asset_database* db = asset_mngr_get_database();
-        assert(db);
         const asset_sprite_atlas* atlas = asset_database_load_sprite_atlas_by_name_to_memory(
             db,
             atlas_name_cstr,

@@ -103,7 +103,7 @@ An `.ifbatlas` file is a header followed by the atlas pixels (`sprite-atlas.cpp`
 | Atlas width (w) | 4 bytes | In pixels |
 | Atlas height (h) | 4 bytes | In pixels |
 | Handles | n × 4 bytes | Each sprite's `hnd_sprite` |
-| Names | n × 16 bytes | Each sprite's name, `IFB_CONFIG_ASSET_NAME_SIZE` bytes each |
+| Names | n × 32 bytes | Each sprite's name, `IFB_CONFIG_ASSET_NAME_SIZE` bytes each |
 | Indexes | n × 12 bytes | Width, height, and offset of each sprite. The offset is the pixel index of the sprite's top left corner: `y * w + x`. |
 | Pixels | w × h × 4 bytes | RGBA, starting from the top row |
 
