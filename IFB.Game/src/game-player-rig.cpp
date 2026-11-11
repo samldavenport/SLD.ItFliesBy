@@ -270,15 +270,16 @@ namespace ifb {
         const bool is_idle_left     = !is_connor_moving && is_facing_left; 
         const bool is_idle_right    = !is_connor_moving && is_facing_right; 
 
-
         if      (is_idle_left)  player_rig->connor_state = game_connor_state_e_idle_left;
         else if (is_idle_right) player_rig->connor_state = game_connor_state_e_idle_right;
 
         if (is_moving_left && walk_cycle_change) {
-            player_rig->connor_state = (player_rig->connor_state == game_connor_state_e_walk_left_1)
-                ? game_connor_state_e_walk_left_2
-                : game_connor_state_e_walk_left_1;
-            
+            switch (player_rig->connor_state.val) {
+                case (game_connor_state_e_walk_left_1):  player_rig->connor_state = game_connor_state_e_walk_left_2; break;
+                case (game_connor_state_e_walk_left_2):  player_rig->connor_state = game_connor_state_e_walk_left_3; break;
+                case (game_connor_state_e_walk_left_3):  player_rig->connor_state = game_connor_state_e_walk_left_4; break;
+                default:                                 player_rig->connor_state = game_connor_state_e_walk_left_1; break; 
+            }
             walk_cycle_change = false;
         }
         else if (is_moving_right && walk_cycle_change) {
@@ -289,7 +290,6 @@ namespace ifb {
                 case (game_connor_state_e_walk_right_3): player_rig->connor_state = game_connor_state_e_walk_right_4; break;
                 default:                                 player_rig->connor_state = game_connor_state_e_walk_right_1; break; 
             }
-
             walk_cycle_change = false;
         }
 
@@ -297,8 +297,10 @@ namespace ifb {
         switch (player_rig->connor_state.val) {
             case (game_connor_state_e_idle_left):    connor_sprite = "CONNOR-LEFT";  break;
             case (game_connor_state_e_idle_right):   connor_sprite = "CONNOR-RIGHT"; break;
-            case (game_connor_state_e_walk_left_1):  connor_sprite = "CNNR-WLK-1";   break;
-            case (game_connor_state_e_walk_left_2):  connor_sprite = "CNNR-WLK-2";   break;
+            case (game_connor_state_e_walk_left_1):  connor_sprite = "CNNR-WLK-0";   break;
+            case (game_connor_state_e_walk_left_2):  connor_sprite = "CNNR-WLK-1";   break;
+            case (game_connor_state_e_walk_left_3):  connor_sprite = "CNNR-WLK-2";   break;
+            case (game_connor_state_e_walk_left_4):  connor_sprite = "CNNR-WLK-3";   break;
             case (game_connor_state_e_walk_right_1): connor_sprite = "CNNR-WLK-4";   break;
             case (game_connor_state_e_walk_right_2): connor_sprite = "CNNR-WLK-5";   break;
             case (game_connor_state_e_walk_right_3): connor_sprite = "CNNR-WLK-6";   break;

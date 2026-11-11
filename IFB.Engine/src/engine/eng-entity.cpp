@@ -11,6 +11,7 @@
 #include "quad.cpp"
 #include "eng-sprite.hpp"
 #include <cassert>
+#include <math.h>
 #include "eng-entity.hpp"
 #include "eng-physics.hpp"
 #include "eng-quad.hpp"
@@ -236,15 +237,15 @@ namespace ifb {
         cmpnt_lookup_velocity(e.index_sparse, vel);
 
         // calculate absolute values
-        const f32 vel_x = abs(vel.x); 
-        const f32 vel_y = abs(vel.y); 
-        const f32 vel_z = abs(vel.z); 
+        const f32 vel_x = fabsf(vel.x);
+        const f32 vel_y = fabsf(vel.y);
+        const f32 vel_z = fabsf(vel.z);
 
         // compare against threshold 
         const bool is_moving = (
-           vel.x >= config::entity_movement_threshold ||
-           vel.y >= config::entity_movement_threshold ||
-           vel.z >= config::entity_movement_threshold
+           vel_x >= config::entity_movement_threshold ||
+           vel_y >= config::entity_movement_threshold ||
+           vel_z >= config::entity_movement_threshold
         );
         return(is_moving);
     }
