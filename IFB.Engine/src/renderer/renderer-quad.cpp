@@ -164,6 +164,11 @@ namespace ifb {
         gl_buffer_update_vertex_data  (gl, shdr->gl.buf_vertex, quad_buf_vtx->data, quad_buf_vtx->size);
         gl_uniform_set_mat4           (gl, shdr->gl.unif_mat4_model,     m.m);
         gl_uniform_set_mat4           (gl, shdr->gl.unif_mat4_view_proj, view_proj_xform.m);
+
+        // the quads are tested against the map's depth so walls in front of them hide them
+        // they're still sorted back to front, so they blend over each other in the right order
+        glDepthFunc(GL_LEQUAL);
         gl_context_draw_elements      (gl, element_count);
+        glDepthFunc(GL_ALWAYS);
     }
 };

@@ -144,7 +144,7 @@ namespace ifb {
             }
         }
 
-        // the depth test always passes, so the quads are sorted back to front
+        // the quads are sorted back to front so their transparent edges blend over the quads behind them
         // the order barely changes between frames, so an insertion sort is cheap
         for (
             u32 sort_index = 1;
