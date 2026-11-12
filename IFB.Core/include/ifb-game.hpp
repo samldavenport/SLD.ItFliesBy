@@ -133,6 +133,19 @@ namespace ifb {
         game_dialog_state_u32 state;
     };
 
+    struct game_npc_config {
+        const cchar*  name;
+        const cchar*  sprite_idle;
+        const cchar*  sprite_walk_0;
+        const cchar*  sprite_walk_1;
+        const cchar*  sprite_walk_2;
+        const cchar*  sprite_walk_3;
+        const hnd_map h_map;
+        const u32     chunk_index;
+        const u32     chunk_x;
+        const u32     chunk_y;
+    };
+    
     // the global arena holds what lasts the whole game
     // the player rig, map, and entities belong to the gameplay scene, and live in its arena
     struct game_context {
@@ -188,8 +201,21 @@ namespace ifb {
         const u32     chunk_y
     );
 
+    IFB_INTERNAL entity_id
+    game_entity_spawn_core_npc_sprite(
+        const cchar*  entity_name_cstr,
+        const cchar*  sprite_name_cstr,
+        const hnd_map h_map,
+        const u32     chunk_index,
+        const u32     chunk_x,
+        const u32     chunk_y
+    );
+
+
     IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
+
+    IFB_INTERNAL entity_id     game_npc_spawn(const game_npc_config& cfg);
 
 };
 

@@ -8,6 +8,7 @@
 #include "game-context.cpp"
 #include "game-player-rig.cpp"
 #include "game-entity.cpp"
+#include "game-npc.cpp"
 #include "imgui.h"
 #include "sld.hpp"
 
