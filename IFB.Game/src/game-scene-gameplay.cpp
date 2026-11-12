@@ -39,6 +39,7 @@ namespace ifb {
         ctx->player_rig       = rig;
         ctx->map              = map;
         ctx->entities         = entities;
+        ctx->npc_mngr         = game_npc_mngr_create(h_scene);
 
         // the map goes first, the player rig spawns on it
         game_map_init(map);
@@ -77,6 +78,7 @@ namespace ifb {
         game_player_rig_update_and_render (ctx->player_rig);
         game_player_rig_update_camera     (ctx->player_rig);
         game_map_update_and_render        (ctx->map);
+        game_npc_mngr_update_and_render   ();
 
         eng_entity_render(entities->static_entity_0);
         eng_entity_render(entities->static_entity_1);

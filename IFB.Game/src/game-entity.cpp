@@ -134,6 +134,11 @@ namespace ifb {
         physics_sprite.inv_mass.normal_val = 0.50f;
         physics_sprite.drag.normal_val     = 0.01f;
 
+        // the same top speed as connor, without it they can't move
+        physics_sprite.term_velocity.x = 1.00f;
+        physics_sprite.term_velocity.y = 1.00f;
+        physics_sprite.term_velocity.z = 1.00f;
+
         const bool did_get_pos = eng_map_get_pos_from_coords(physics_sprite.map_coords, physics_sprite.position);
         if (!did_get_pos) return(ENTITY_ID_INVALID);
 

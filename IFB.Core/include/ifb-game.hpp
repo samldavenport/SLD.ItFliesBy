@@ -96,6 +96,8 @@ namespace ifb {
 
     static constexpr const cchar* GAME_SCENE_GAMEPLAY_NAME = "GAMEPLAY";
 
+    struct game_npc_mngr;
+
     //--------------------------------------------------------------------
     // DIALOG
     //--------------------------------------------------------------------
@@ -133,17 +135,33 @@ namespace ifb {
         game_dialog_state_u32 state;
     };
 
+    //--------------------------------------------------------------------
+    // NPCS
+    //--------------------------------------------------------------------
+    // npcs are built like connor, without the input, and with their own sprites
+    // the manager updates and renders every one it spawned, and runs its proc, if it has one
+
+    // called once a frame for the npc, NULL if it doesn't have one
+    // it can despawn its own npc, or any other
+    using game_npc_proc = void (*) (const entity_id id);
+
+    // the names aren't copied, they have to outlive the npc
+    struct game_npc_sprites {
+        const cchar* cstr_idle;
+        const cchar* cstr_walk_0;
+        const cchar* cstr_walk_1;
+        const cchar* cstr_walk_2;
+        const cchar* cstr_walk_3;
+    };
+
     struct game_npc_config {
-        const cchar*  name;
-        const cchar*  sprite_idle;
-        const cchar*  sprite_walk_0;
-        const cchar*  sprite_walk_1;
-        const cchar*  sprite_walk_2;
-        const cchar*  sprite_walk_3;
-        const hnd_map h_map;
-        const u32     chunk_index;
-        const u32     chunk_x;
-        const u32     chunk_y;
+        const cchar*     cstr_name;
+        game_npc_sprites sprites;
+        game_npc_proc    proc;
+        hnd_map          h_map;
+        u32              chunk_index;
+        u32              chunk_x;
+        u32              chunk_y;
     };
     
     // the global arena holds what lasts the whole game
@@ -154,6 +172,7 @@ namespace ifb {
         game_player_rig* player_rig;
         game_map*        map;
         game_entities*   entities;
+        game_npc_mngr*   npc_mngr;
         game_sprites*    sprites;
         game_audio*      audio;
         const font*      fnt;   // the ui font, NULL if it didn't load
@@ -215,8 +234,12 @@ namespace ifb {
     IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
 
-    IFB_INTERNAL entity_id     game_npc_spawn(const game_npc_config& cfg);
 
+    // the manager belongs to the scene, and is gone with it
+    IFB_INTERNAL game_npc_mngr* game_npc_mngr_create            (const hnd_scene h_scene);
+    IFB_INTERNAL void           game_npc_mngr_update_and_render (void);
+    IFB_INTERNAL entity_id      game_npc_spawn                  (const game_npc_config& cfg);
+    IFB_INTERNAL bool           game_npc_despawn                (const entity_id id);
 };
 
 #endif //IFB_GAME_HPP

@@ -80,6 +80,7 @@ namespace ifb {
         ctx->player_rig       = NULL;
         ctx->map              = NULL;
         ctx->entities         = NULL;
+        ctx->npc_mngr         = NULL;
         ctx->sprites          = sprites;
         ctx->audio            = audio;
         ctx->fnt              = NULL;
