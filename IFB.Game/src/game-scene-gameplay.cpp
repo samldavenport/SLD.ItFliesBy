@@ -53,6 +53,22 @@ namespace ifb {
         entities->static_entity_2 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-2","WOOD",map->eng_hnd,0,7,3);
         entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
 
+
+        game_npc_config rose_config;
+        rose_config.cstr_name           = "ROSE";
+        rose_config.sprites.cstr_idle   = "ROSE-WLK-0";
+        rose_config.sprites.cstr_walk_0 = "ROSE-WALK-0";
+        rose_config.sprites.cstr_walk_1 = "ROSE-WALK-1";
+        rose_config.sprites.cstr_walk_2 = "ROSE-WALK-2";
+        rose_config.sprites.cstr_walk_3 = "ROSE-WALK-3";
+        rose_config.h_map               = map->eng_hnd;
+        rose_config.chunk_index         = 0;
+        rose_config.chunk_x             = 0;
+        rose_config.chunk_y             = 0;
+        rose_config.proc                = NULL;
+
+        game_npc_spawn(rose_config);
+
         assert(entities->static_entity_0 != ENTITY_ID_INVALID);
         assert(entities->static_entity_1 != ENTITY_ID_INVALID);
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);
