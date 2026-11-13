@@ -161,6 +161,8 @@ namespace ifb {
         u32              chunk_index;
         u32              chunk_x;
         u32              chunk_y;
+        u32              tile_roam_x; // the distance the character can roam from their spawn tile 
+        u32              tile_roam_y;
     };
 
     // the global arena holds what lasts the whole game

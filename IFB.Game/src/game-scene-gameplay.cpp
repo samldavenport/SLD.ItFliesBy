@@ -58,19 +58,21 @@ namespace ifb {
         rose_config.cstr_name           = "ROSE";
         rose_config.sprites.cstr_left   = "ROSE-LEFT";
         rose_config.sprites.cstr_right  = "ROSE-RIGHT";
-        rose_config.sprites.cstr_walk_0 = "ROSE-WALK-0";
-        rose_config.sprites.cstr_walk_1 = "ROSE-WALK-1";
-        rose_config.sprites.cstr_walk_2 = "ROSE-WALK-2";
-        rose_config.sprites.cstr_walk_3 = "ROSE-WALK-3";
-        rose_config.sprites.cstr_walk_4 = "ROSE-WALK-4";
-        rose_config.sprites.cstr_walk_5 = "ROSE-WALK-5";
-        rose_config.sprites.cstr_walk_6 = "ROSE-WALK-6";
-        rose_config.sprites.cstr_walk_7 = "ROSE-WALK-7";
+        rose_config.sprites.cstr_walk_0 = "ROSE-WLK-0";
+        rose_config.sprites.cstr_walk_1 = "ROSE-WLK-1";
+        rose_config.sprites.cstr_walk_2 = "ROSE-WLK-2";
+        rose_config.sprites.cstr_walk_3 = "ROSE-WLK-3";
+        rose_config.sprites.cstr_walk_4 = "ROSE-WLK-4";
+        rose_config.sprites.cstr_walk_5 = "ROSE-WLK-5";
+        rose_config.sprites.cstr_walk_6 = "ROSE-WLK-6";
+        rose_config.sprites.cstr_walk_7 = "ROSE-WLK-7";
         rose_config.h_map               = map->eng_hnd;
         rose_config.chunk_index         = 1;
         rose_config.chunk_x             = 2;
         rose_config.chunk_y             = 2;
         rose_config.proc                = NULL;
+        rose_config.tile_roam_x         = 2;
+        rose_config.tile_roam_y         = 2;
 
         game_npc_spawn(rose_config);
 
