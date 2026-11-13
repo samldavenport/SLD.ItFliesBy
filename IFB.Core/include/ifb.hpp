@@ -498,7 +498,9 @@ namespace ifb {
     //--------------------------------------------------------------------
     // PHYSICS 
     //--------------------------------------------------------------------
-  
+
+    static constexpr u32 PHYS_CLLSN_MASK_ALL = 0xFFFFFFFF;
+
     IFB_U32(phys_cllsn_phase_u32);
     enum phys_cllsn_phase_e {
        phys_cllsn_phase_e_begin = 0,

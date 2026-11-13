@@ -19,6 +19,7 @@ namespace ifb {
     struct phys_cllsn_rslvr; // collision resolver
     struct phys_cllsn_list;  // collision list
     struct phys_cllsn_pair;  // collision pair 
+    struct phys_cllsn_mask;  // collision mask
     struct phys_bvh;         // bounding volume hierarchy
     struct phys_bvh_node;    // bounding volume hierarchy node
     struct phys_aabb;        // aabb bounding box
@@ -77,7 +78,7 @@ namespace ifb {
     IFB_INTERNAL phys_impls_list*  phys_impls_list_create      (void);
 
     IFB_INTERNAL phys_bvh*         phys_bvh_create             (const u32 entity_count, const hnd_arena h_arena);
-    IFB_INTERNAL void              phys_bvh_build              (phys_bvh* bvh, const entity_id* ids, const phys_aabb* aabbs, const u32 count);
+    IFB_INTERNAL void              phys_bvh_build              (phys_bvh* bvh, const entity_id* ids, const phys_aabb* aabbs, const phys_cllsn_mask* masks, const u32 count);
     IFB_INTERNAL u32               phys_bvh_query_pairs        (const phys_bvh* bvh, phys_cllsn_list* list);
 
     IFB_INTERNAL void              phys_aabb_reset             (phys_aabb& aabb); 
@@ -108,13 +109,14 @@ namespace ifb {
     };
 
     struct phys_bvh {
-        phys_bvh_node* array_nodes;
-        entity_id*     array_entity_ids;
-        phys_aabb*     array_entity_aabbs;
-        u32            count_nodes;
-        u32            count_entities;
-        u32            capacity_nodes;
-        u32            capacity_entities;
+        phys_bvh_node*   array_nodes;
+        entity_id*       array_entity_ids;
+        phys_aabb*       array_entity_aabbs;
+        phys_cllsn_mask* array_cllsn_masks;
+        u32              count_nodes;
+        u32              count_entities;
+        u32              capacity_nodes;
+        u32              capacity_entities;
     };
 
     struct phys_cllsn_pair {
@@ -126,6 +128,11 @@ namespace ifb {
         entity_id* array_id;
         vec3*      array_velocity;
         u32        count;
+    };
+
+    struct phys_cllsn_mask {
+        u32 category;
+        u32 collides_with;
     };
 };
 

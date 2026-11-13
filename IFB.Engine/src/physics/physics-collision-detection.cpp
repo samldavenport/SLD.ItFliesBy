@@ -1,5 +1,6 @@
 #pragma once
 
+#include "eng-component.hpp"
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "eng-physics.hpp"
@@ -36,32 +37,50 @@ namespace ifb {
         const entity_list* list,
         entity_id*         ids,
         phys_aabb*         aabbs,
+        phys_cllsn_mask*   masks,
         const f32          dt) {
 
         u32 count = 0;
         const u32 entity_count = eng_entity_list_count(list);
         for (
-            u32 index = 0;
-                index < entity_count;
-              ++index) {
+            u32 i_entity = 0;
+                i_entity < entity_count;
+              ++i_entity) {
 
-            const entity_id id = eng_entity_list_index(list, index);
+            // get the current entity id
+            const entity_id id = eng_entity_list_index(list, i_entity);
 
+            // look up the stuff we need
             entity e;
-            if (!entity_lookup_by_id(e, id))        continue;
-            if (!e.archetype.has_all(cmpnt_type_e_position)) continue;
-            if (!entity_is_updating(e))                     continue;
-
             vec3 offset;
             vec3 half_extent;
+            if (!entity_lookup_by_id(e, id))                     continue;
+            if (!e.archetype.has_all(cmpnt_type_e_position))     continue;
+            if (!entity_is_updating(e))                          continue;
             if (!phys_aabb_get_body_box(e, offset, half_extent)) continue;
 
+            // get the position
             cmpnt_position pos;
             cmpnt_lookup_position(e.index_sparse, pos);
 
+            // get the mask, if we have one
+            phys_cllsn_mask& mask = masks[count];
+            if (e.archetype.has_all(cmpnt_type_e_collider)) {
+                cmpnt_collider clldr;
+                cmpnt_lookup_collider(e.index_sparse, clldr);
+                mask.category      = clldr.mask_category;
+                mask.collides_with = clldr.mask_collides_with;
+            }
+            else {
+                mask.category      = PHYS_CLLSN_MASK_ALL;
+                mask.collides_with = PHYS_CLLSN_MASK_ALL;
+            }
+
+            // grab the aabb
             phys_aabb& aabb = aabbs[count];
             phys_aabb_from_center(aabb, vec3_add(pos, offset), half_extent);
 
+            // if we have a velocity, add that to the aabb
             if (e.archetype.has_all(cmpnt_type_e_velocity)) {
                 cmpnt_velocity vel;
                 cmpnt_lookup_velocity(e.index_sparse, vel);
@@ -76,6 +95,7 @@ namespace ifb {
                 phys_aabb_grow(aabb, aabb_swept);
             }
 
+            // add the id and update the count
             ids[count] = id;
             ++count;
         }
@@ -143,17 +163,18 @@ namespace ifb {
                     }
 
                     // build bounding box hierarchy / broad phase from list
-                    phys_bvh*  bvh   = phys_bvh_create(entity_count, h_arena);
-                    entity_id* ids   = (entity_id*)arena_push(h_arena, entity_count * sizeof(entity_id));
-                    phys_aabb* aabbs = (phys_aabb*)arena_push(h_arena, entity_count * sizeof(phys_aabb));
-                    if (bvh == NULL || ids == NULL || aabbs == NULL) {
+                    auto* bvh   = phys_bvh_create(entity_count, h_arena);
+                    auto* ids   =       (entity_id*)arena_push(h_arena, entity_count * sizeof(entity_id));
+                    auto* aabbs =       (phys_aabb*)arena_push(h_arena, entity_count * sizeof(phys_aabb));
+                    auto* masks = (phys_cllsn_mask*)arena_push(h_arena, entity_count * sizeof(phys_cllsn_mask));
+                    if (bvh == NULL || ids == NULL || aabbs == NULL || masks == NULL) {
                         arena_revert(h_arena, save);
                         continue;
                     }
 
                     // build the bvh and query for collision pairs
-                    const u32 count_bounded = phys_cllsn_dtctr_get_bounds(list, ids, aabbs, dt);
-                    phys_bvh_build       (bvh, ids, aabbs, count_bounded);
+                    const u32 count_bounded = phys_cllsn_dtctr_get_bounds(list, ids, aabbs, masks, dt);
+                    phys_bvh_build       (bvh, ids, aabbs, masks, count_bounded);
                     phys_bvh_query_pairs (bvh, dtctr->cllsn_list);
 
                     // revert the arena
