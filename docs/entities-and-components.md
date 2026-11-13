@@ -66,6 +66,9 @@ Component types are bit flags (`cmpnt_type_e`), so an entity's set of components
 | Map coordinates | `cmpnt_type_e_map_coords` | `cmpnt_map_coords` | The map the entity is on, and its position in tiles (column, level, row). |
 | Particle emitter | `cmpnt_type_e_particle_emitter` | `cmpnt_particle_emitter` | An emitter that follows the entity. |
 | Sprite | `cmpnt_type_e_sprite` | `cmpnt_sprite` | Atlas handle and sprite index. |
+| Immovable | `cmpnt_type_e_immovable` | None | A tag. Collision resolution never pushes the entity. See [Physics](physics.md#collision-resolution). |
+| Bounds | `cmpnt_type_e_bounds` | `cmpnt_bounds` | The collision box, as an offset from the position and a width and height. Used instead of the quad. See [Physics](physics.md#bounding-boxes). |
+| Collider | `cmpnt_type_e_collider` | `cmpnt_collider` | Collision masks, a trigger flag, and a proc called with the entity's contacts. See [Physics](physics.md#colliders). |
 
 The component manager (`cmpnt_mngr`, `eng-component.hpp`) keeps a `cmpnt_table` with one array per component, indexed by the entity's sparse index.
 
