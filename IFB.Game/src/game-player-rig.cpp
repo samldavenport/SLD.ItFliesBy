@@ -170,14 +170,7 @@ namespace ifb {
         const f32 drag     = 0.01f;
 
         // connor's sprite doesn't fill its quad, so he collides with just the part that's drawn
-        // the sprite is 62 x 62, the drawn pixels span x 11..49 and y 2..61 in both directions,
-        // so the rect is 39 x 60 pixels, centered across, and 1 pixel below the middle
-        const f32    connor_px = quad_connor.quad.width / 62.0f;
-        cmpnt_bounds bounds_connor;
-        bounds_connor.width  = 39.0f * connor_px;
-        bounds_connor.height = 60.0f * connor_px;
-        bounds_connor.x      =  0.0f;
-        bounds_connor.y      = -1.0f * connor_px;
+        const cmpnt_bounds bounds_connor = game_entity_character_bounds(quad_connor.quad.width);
 
         // connor belongs to the map, so he can't walk off of it
         eng_entity_add_components      (player_rig->connor_id, ARCHETYPE_PHYSICS_SPRITE);

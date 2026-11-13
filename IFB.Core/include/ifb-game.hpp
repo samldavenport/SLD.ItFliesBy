@@ -230,6 +230,12 @@ namespace ifb {
         const u32     chunk_y
     );
 
+    // the collision rect connor and the npcs share, sized to their quad
+    IFB_INTERNAL cmpnt_bounds
+    game_entity_character_bounds(
+        const f32 quad_width
+    );
+
 
     IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
