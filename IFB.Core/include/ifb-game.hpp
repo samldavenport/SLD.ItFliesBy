@@ -244,6 +244,7 @@ namespace ifb {
     IFB_INTERNAL void           game_npc_mngr_update_and_render (void);
     IFB_INTERNAL entity_id      game_npc_spawn                  (const game_npc_config& cfg);
     IFB_INTERNAL bool           game_npc_despawn                (const entity_id id);
+    IFB_INTERNAL bool           game_npc_talk_to                (const entity_id id, const entity_id other_id);
 };
 
 #endif //IFB_GAME_HPP

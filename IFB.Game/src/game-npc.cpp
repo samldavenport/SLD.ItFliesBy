@@ -42,6 +42,7 @@ namespace ifb {
         cmpnt_map_coords             array_roam_target  [GAME_NPC_MNGR_CAPACITY];  // the center of the target tile
         bool                         array_is_roaming   [GAME_NPC_MNGR_CAPACITY];
         bool                         array_is_despawned [GAME_NPC_MNGR_CAPACITY];
+        bool                         array_is_talking   [GAME_NPC_MNGR_CAPACITY];  // stands still facing who it's talking to, until the dialog closes
     } static * _npc_mngr;
 
     inline bool         game_npc_mngr_insert     (const entity_id id, const game_npc_config& cfg);
@@ -94,9 +95,16 @@ namespace ifb {
 
             if (_npc_mngr->array_is_despawned[i_npc]) continue;
 
+            // talking lasts until the dialog closes, it doesn't roam until then
+            bool& is_talking = _npc_mngr->array_is_talking[i_npc];
+            if (is_talking && !game_dialog_is_open(_game_ctx->dialog)) {
+                is_talking = false;
+            }
+            const vec3 force = is_talking ? vec3{0} : game_npc_roam(i_npc, dt_s);
+
             // the same order as connor, the forces, then the state, then the sprite
             game_npc_update_timers (i_npc, dt_s);
-            eng_entity_add_force   (_npc_mngr->array_id[i_npc], game_npc_roam(i_npc, dt_s));
+            eng_entity_add_force   (_npc_mngr->array_id[i_npc], force);
             game_npc_update_state  (i_npc);
             game_npc_update_sprite (i_npc);
 
@@ -184,6 +192,41 @@ namespace ifb {
         return(true);
     }
 
+    // turns the npc toward the other entity, and keeps it standing there until the dialog closes
+    // call it when opening the npc's dialog
+    // false if the id isn't an npc, or either position can't be found
+    IFB_INTERNAL bool
+    game_npc_talk_to(
+        const entity_id id,
+        const entity_id other_id) {
+
+        assert(_npc_mngr);
+        assert(id       != ENTITY_ID_INVALID);
+        assert(other_id != ENTITY_ID_INVALID);
+
+        const u32 i_npc = game_npc_mngr_index_of(id);
+        if (i_npc == INVALID_INDEX)               return(false);
+        if (_npc_mngr->array_is_despawned[i_npc]) return(false);
+
+        cmpnt_position pos_npc;
+        cmpnt_position pos_other;
+        if (!eng_cmpnt_lookup_position(id,       pos_npc))   return(false);
+        if (!eng_cmpnt_lookup_position(other_id, pos_other)) return(false);
+
+        // straight above or below keeps the way it was facing
+        const f32 dx = pos_other.x - pos_npc.x;
+        if      (dx < 0.0f) _npc_mngr->array_direction[i_npc] = game_character_direction_e_left;
+        else if (dx > 0.0f) _npc_mngr->array_direction[i_npc] = game_character_direction_e_right;
+
+        game_npc_roam_stop(i_npc);
+        _npc_mngr->array_is_talking[i_npc] = true;
+
+        // the sprite now, instead of on the next update
+        game_npc_update_state  (i_npc);
+        game_npc_update_sprite (i_npc);
+        return(true);
+    }
+
     inline bool
     game_npc_mngr_insert(
         const entity_id        id,
@@ -217,6 +260,7 @@ namespace ifb {
         _npc_mngr->array_roam_target  [index] = spawn;
         _npc_mngr->array_is_roaming   [index] = false;
         _npc_mngr->array_is_despawned [index] = false;
+        _npc_mngr->array_is_talking   [index] = false;
 
         return(true);
     }
@@ -253,6 +297,7 @@ namespace ifb {
             _npc_mngr->array_roam_target  [i_npc] = _npc_mngr->array_roam_target  [i_npc_last];
             _npc_mngr->array_is_roaming   [i_npc] = _npc_mngr->array_is_roaming   [i_npc_last];
             _npc_mngr->array_is_despawned [i_npc] = _npc_mngr->array_is_despawned [i_npc_last];
+            _npc_mngr->array_is_talking   [i_npc] = _npc_mngr->array_is_talking   [i_npc_last];
         }
 
         _npc_mngr->count--;

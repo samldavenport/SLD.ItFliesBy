@@ -31,11 +31,31 @@ namespace ifb {
         if (!_game_ctx->is_action_pressed) return;
         if (_game_ctx->fnt == NULL)        return;
 
+        // he has to be facing her, he only faces left or right, so it's which side of him she's on
+        // the positions, not the normal, the normal is along z when he touches her from above or below
+        cmpnt_position pos_rose;
+        cmpnt_position pos_connor;
+        if (!eng_cmpnt_lookup_position(contact.self,  pos_rose))   return;
+        if (!eng_cmpnt_lookup_position(contact.other, pos_connor)) return;
+
+        const f32  rose_dx         = pos_rose.x - pos_connor.x;
+        const bool is_facing_left  = player_rig->connor_direction == game_character_direction_e_left;
+        const bool is_facing_right = player_rig->connor_direction == game_character_direction_e_right;
+        const bool is_facing_rose  = (is_facing_left && rose_dx <= 0.0f) || (is_facing_right && rose_dx >= 0.0f);
+
+        // the press isn't used, so something else he's touching and facing can still take it
+        if (!is_facing_rose) return;
+
         // used up, so nothing else connor is touching reacts to the same press
         _game_ctx->is_action_pressed = false;
 
         static constexpr cchar rose_text[] = "Hi Connor!";
-        game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, rose_text, sizeof(rose_text) - 1);
+        const bool did_open = game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, rose_text, sizeof(rose_text) - 1);
+
+        // she turns to connor, and stays put until the dialog closes
+        if (did_open) {
+            (void)game_npc_talk_to(contact.self, contact.other);
+        }
     }
 
     // the level: the map and its parallax, the player rig, and the boxes
