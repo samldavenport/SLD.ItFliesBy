@@ -8,36 +8,40 @@
 
 namespace ifb {
 
+    // the forces are kept by sparse index, so a caller that has the entity already doesn't look it up again
     IFB_INTERNAL void
     phys_entity_add_force(
-        const entity_id id,
-        const vec3&     force) {
+        const u32   sparse_index,
+        const vec3& force) {
 
-        assert(id != ENTITY_ID_INVALID);
+        assert(sparse_index != INVALID_INDEX);
 
         phys_frc_accmltr* accum = phys_mngr_get_frc_accmltr();
-        
-        phys_frc_accmltr_add(
-            accum,
-            id,
-            force
-        );
+        phys_frc_accmltr_add(accum, sparse_index, force);
     }
 
-    IFB_INTERNAL bool 
+    IFB_INTERNAL void
+    phys_entity_clear_force(
+        const u32 sparse_index) {
+
+        assert(sparse_index != INVALID_INDEX);
+
+        phys_frc_accmltr* accum = phys_mngr_get_frc_accmltr();
+        phys_frc_accmltr_clear(accum, sparse_index);
+    }
+
+    // returns false if there's no entity with the id
+    IFB_INTERNAL bool
     phys_entity_remove_all_force(
         const entity_id id) {
 
         assert(id != ENTITY_ID_INVALID);
-    
-        phys_frc_accmltr* accum = phys_mngr_get_frc_accmltr();
-        
-        const bool did_remove = phys_frc_accmltr_remove(
-            accum,
-            id
-        );
 
-        return(did_remove);
+        const u32 sparse_index = entity_lookup_sparse_index(id);
+        if (sparse_index == INVALID_INDEX) return(false);
+
+        phys_entity_clear_force(sparse_index);
+        return(true);
     }
     
     IFB_INTERNAL void 

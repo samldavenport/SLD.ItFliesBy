@@ -102,26 +102,6 @@ namespace ifb {
         return(integrator);
     }
 
-    // the force the entity was given this step, zero if it wasn't given one
-    inline vec3
-    phys_frc_intgrtr_get_force(
-        const phys_frc_accmltr* a,
-        const entity_id         id) {
-
-        for (
-            u32 force_index = 0;
-                force_index < a->count;
-              ++force_index) {
-
-            if (a->data.ids[force_index] == id) {
-                return(a->data.forces[force_index]);
-            }
-        }
-
-        const vec3 none = { 0.0f, 0.0f, 0.0f };
-        return(none);
-    }
-
     // every body is integrated, not just the ones with a force this step,
     // so a body that stops being pushed still has drag slow it down,
     // instead of keeping its velocity and freezing in place
@@ -186,7 +166,7 @@ namespace ifb {
                 i->map_offset_x [integrator_index] = box_offset.x;
             }
 
-            i->force        [integrator_index] = phys_frc_intgrtr_get_force(a, e.id);
+            i->force        [integrator_index] = phys_frc_accmltr_get(a, e.index_sparse);
             i->sparse_index [integrator_index] = e.index_sparse;
 
             ++i->count;

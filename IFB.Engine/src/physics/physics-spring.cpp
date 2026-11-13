@@ -17,7 +17,7 @@ namespace ifb {
         entity_list* entt_list;
         u32          capacity;
         u32          count;
-        entity_id*   spring_id;
+        u32*         spring_sparse_index; // the forces are added by sparse index
         f32*         pos_spring_x;
         f32*         pos_spring_y;
         f32*         pos_spring_z;
@@ -59,7 +59,7 @@ namespace ifb {
         const auto& cfg = config_instance();
    
         const u32 size_struct      = sizeof(phys_frc_sprcalc);
-        const u32 size_array_ids   = cfg.entity_capacity * sizeof(entity_id);
+        const u32 size_array_ids   = cfg.entity_capacity * sizeof(u32);
         const u32 size_array_props = cfg.entity_capacity * sizeof(u32);
         const u32 size_total       = size_struct + size_array_ids + (size_array_props * 12); 
 
@@ -69,7 +69,7 @@ namespace ifb {
         auto calc = (phys_frc_sprcalc*)mem_addr;
         calc->capacity     = cfg.entity_capacity;
         calc->count        = 0;
-        calc->spring_id    = (entity_id*)(mem_addr += size_struct);
+        calc->spring_sparse_index = (u32*)(mem_addr += size_struct);
         calc->pos_spring_x =       (f32*)(mem_addr += size_array_ids);
         calc->pos_spring_y =       (f32*)(mem_addr += size_array_props);
         calc->pos_spring_z =       (f32*)(mem_addr += size_array_props);
@@ -82,7 +82,7 @@ namespace ifb {
         calc->stiffness    =       (f32*)(mem_addr += size_array_props);
         calc->damping      =       (f32*)(mem_addr += size_array_props);
         calc->rest_length  =       (f32*)(mem_addr += size_array_props);
-        assert(calc->spring_id    != NULL);
+        assert(calc->spring_sparse_index != NULL);
         assert(calc->pos_spring_x != NULL);
         assert(calc->pos_spring_y != NULL);
         assert(calc->pos_spring_z != NULL);
@@ -158,7 +158,7 @@ namespace ifb {
 
             // save the info in the calculator
             const u32 spring_index = calc->count++;
-            calc->spring_id    [spring_index] = spring_id;
+            calc->spring_sparse_index [spring_index] = spring_sparse_index;
             calc->pos_spring_x [spring_index] = pos_spr.x;
             calc->pos_spring_y [spring_index] = pos_spr.y;    
             calc->pos_spring_z [spring_index] = pos_spr.z;
@@ -219,7 +219,7 @@ namespace ifb {
 
             // calculate the spring force and add it to the entity
             spring_force = vec3_scalar_multiply(direction, force_scalar); 
-            phys_entity_add_force(calc->spring_id[index], spring_force);
+            phys_entity_add_force(calc->spring_sparse_index[index], spring_force);
         }
     }
 };

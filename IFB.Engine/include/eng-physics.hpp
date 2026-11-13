@@ -48,8 +48,9 @@ namespace ifb {
     IFB_INTERNAL void              phys_mngr_shutdown           (void);
     IFB_INTERNAL void              phys_mngr_simulate           (const hnd_map map, const f32 dt);
 
-    IFB_INTERNAL void              phys_entity_add_force        (const entity_id id, const vec3& force);
+    IFB_INTERNAL void              phys_entity_add_force        (const u32 sparse_index, const vec3& force);
     IFB_INTERNAL bool              phys_entity_remove_all_force (const entity_id id);
+    IFB_INTERNAL void              phys_entity_clear_force      (const u32 sparse_index);
     IFB_INTERNAL void              phys_entity_set_mass         (const entity_id id, const f32 mass);
     IFB_INTERNAL void              phys_entity_set_inv_mass     (const entity_id id, const f32 inv_mass);
     
@@ -57,10 +58,10 @@ namespace ifb {
     IFB_INTERNAL phys_frc_accmltr* phys_mngr_get_frc_accmltr   (void);
 
     IFB_INTERNAL phys_frc_accmltr* phys_frc_accmltr_create     (void);
-    IFB_INTERNAL void              phys_frc_accmltr_validate   (phys_frc_accmltr* const accum);
-    IFB_INTERNAL void              phys_frc_accmltr_add        (phys_frc_accmltr* const accum, const entity_id id, const vec3& v);
-    IFB_INTERNAL bool              phys_frc_accmltr_lookup     (phys_frc_accmltr* const accum, const entity_id id, vec3& v);
-    IFB_INTERNAL bool              phys_frc_accmltr_remove     (phys_frc_accmltr* const accum, const entity_id id);
+    IFB_INTERNAL void              phys_frc_accmltr_validate   (const phys_frc_accmltr* const accum);
+    IFB_INTERNAL void              phys_frc_accmltr_add        (phys_frc_accmltr* const accum, const u32 sparse_index, const vec3& v);
+    IFB_INTERNAL const vec3&       phys_frc_accmltr_get        (const phys_frc_accmltr* const accum, const u32 sparse_index);
+    IFB_INTERNAL void              phys_frc_accmltr_clear      (phys_frc_accmltr* const accum, const u32 sparse_index);
     IFB_INTERNAL void              phys_frc_accmltr_reset      (phys_frc_accmltr* const accum);
    
     IFB_INTERNAL phys_frc_intgrtr* phys_frc_intgrtr_create     (void); 
