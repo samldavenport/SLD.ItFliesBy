@@ -11,19 +11,20 @@ namespace ifb {
     // TYPE DECLARATIONS
     //--------------------------------------------------------------------
 
-    struct phys_mngr;        // manager
-    struct phys_frc_accmltr; // force accumulator
-    struct phys_frc_intgrtr; // force integrator
-    struct phys_frc_sprcalc; // spring force calculator
-    struct phys_cllsn_dtctr; // collision detector
-    struct phys_cllsn_rslvr; // collision resolver
-    struct phys_cllsn_list;  // collision list
-    struct phys_cllsn_pair;  // collision pair 
-    struct phys_cllsn_mask;  // collision mask
-    struct phys_bvh;         // bounding volume hierarchy
-    struct phys_bvh_node;    // bounding volume hierarchy node
-    struct phys_aabb;        // aabb bounding box
-    struct phys_impls_list;  // impulse list
+    struct phys_mngr;         // manager
+    struct phys_frc_accmltr;  // force accumulator
+    struct phys_frc_intgrtr;  // force integrator
+    struct phys_frc_sprcalc;  // spring force calculator
+    struct phys_cllsn_dtctr;  // collision detector
+    struct phys_cllsn_rslvr;  // collision resolver
+    struct phys_cllsn_list;   // collision list
+    struct phys_cllsn_pair;   // collision pair 
+    struct phys_cllsn_mask;   // collision mask
+    struct phys_bvh;          // bounding volume hierarchy
+    struct phys_bvh_node;     // bounding volume hierarchy node
+    struct phys_aabb;         // aabb bounding box
+    struct phys_cntct_list;   // contact list
+    struct phys_cntct;        // contact
 
     //--------------------------------------------------------------------
     // GLOBALS 
@@ -66,7 +67,7 @@ namespace ifb {
     IFB_INTERNAL phys_cllsn_list*  phys_cllsn_dtctr_get_list   (const phys_cllsn_dtctr* dtctr);
 
     IFB_INTERNAL phys_cllsn_rslvr* phys_cllsn_rslvr_create     (void);
-    IFB_INTERNAL void              phys_cllsn_rslvr_run        (phys_cllsn_rslvr* rslvr, const phys_cllsn_list* cllsn_list, const f32 dt);
+    IFB_INTERNAL void              phys_cllsn_rslvr_run        (phys_cllsn_rslvr* rslvr, const phys_cllsn_list* cllsn_list, phys_cntct_list* cntct_list, const f32 dt);
 
     IFB_INTERNAL phys_cllsn_list*  phys_cllsn_list_create      (void); 
     IFB_INTERNAL u32               phys_cllsn_list_get_count   (const phys_cllsn_list* list);
@@ -75,7 +76,12 @@ namespace ifb {
     IFB_INTERNAL void              phys_cllsn_list_remove_pair (phys_cllsn_list*       list, const u32 index);
     IFB_INTERNAL void              phys_cllsn_list_reset       (phys_cllsn_list*       list);
 
-    IFB_INTERNAL phys_impls_list*  phys_impls_list_create      (void);
+    IFB_INTERNAL phys_cntct_list*  phys_cntct_list_create      (void);
+    IFB_INTERNAL u32               phys_cntct_list_get_count   (const phys_cntct_list* list);
+    IFB_INTERNAL phys_cntct        phys_cntct_list_get         (const phys_cntct_list* list, const u32 index);
+    IFB_INTERNAL u32               phys_cntct_list_find        (const phys_cntct_list* list, const entity_id a, const entity_id b);
+    IFB_INTERNAL bool              phys_cntct_list_insert      (phys_cntct_list*       list, const phys_cntct& cntct);
+    IFB_INTERNAL void              phys_cntct_list_reset       (phys_cntct_list*       list);
 
     IFB_INTERNAL phys_bvh*         phys_bvh_create             (const u32 entity_count, const hnd_arena h_arena);
     IFB_INTERNAL void              phys_bvh_build              (phys_bvh* bvh, const entity_id* ids, const phys_aabb* aabbs, const phys_cllsn_mask* masks, const u32 count);
@@ -124,15 +130,28 @@ namespace ifb {
         entity_id b;
     };
 
-    struct phys_impls_list {
-        entity_id* array_id;
-        vec3*      array_velocity;
-        u32        count;
-    };
 
     struct phys_cllsn_mask {
         u32 category;
         u32 collides_with;
+    };
+
+    // the pairs that actually overlap after integration
+    // a is always the lower id, and the normal points from a to b
+    struct phys_cntct_list {
+        entity_id* array_a;
+        entity_id* array_b;
+        vec3*      array_normal;
+        f32*       array_depth;
+        u32        count;
+    };
+
+    // one entry of the contact list
+    struct phys_cntct {
+        entity_id a;
+        entity_id b;
+        vec3      normal;
+        f32       depth;
     };
 };
 

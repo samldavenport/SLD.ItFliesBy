@@ -20,6 +20,7 @@ namespace ifb {
     // one side of a collision pair
     // bodies without an inverse mass, or tagged immovable, are treated as immovable
     // the tag only affects collisions, the integrator still moves the body by its inverse mass
+    // triggers report their contacts, but never push or get pushed
     struct phys_cllsn_body {
         entity         entt;
         cmpnt_position pos;
@@ -28,6 +29,7 @@ namespace ifb {
         vec3           half_extent;
         f32            inv_mass;
         bool           has_velocity;
+        bool           is_trigger;
     };
 
     inline bool
@@ -53,6 +55,14 @@ namespace ifb {
             cmpnt_inv_mass inv_mass;
             cmpnt_lookup_inv_mass(body.entt.index_sparse, inv_mass);
             body.inv_mass = inv_mass.normal_val;
+        }
+
+        // entities without a collider are solid
+        body.is_trigger = false;
+        if (body.entt.archetype.has_all(cmpnt_type_e_collider)) {
+            cmpnt_collider clldr;
+            cmpnt_lookup_collider(body.entt.index_sparse, clldr);
+            body.is_trigger = (clldr.is_trigger != 0);
         }
 
         return(true);
@@ -106,15 +116,19 @@ namespace ifb {
     phys_cllsn_rslvr_run(
         phys_cllsn_rslvr*      rslvr,
         const phys_cllsn_list* cllsn_list,
+        phys_cntct_list*       cntct_list,
         const f32              dt) {
 
         assert(rslvr);
         assert(cllsn_list);
+        assert(cntct_list);
 
         // resolution is positional, it doesn't depend on the step size
         (void)dt;
 
+        // contacts are rebuilt every run, even when there's nothing to resolve
         rslvr->count_resolved = 0;
+        phys_cntct_list_reset(cntct_list);
 
         // check if we have anything to resolve
         const u32 cllsn_count = phys_cllsn_list_get_count(cllsn_list);
@@ -136,10 +150,6 @@ namespace ifb {
             // look up both entities
             if (!phys_cllsn_rslvr_get_body(cllsn_pair.a, body_a)) continue;
             if (!phys_cllsn_rslvr_get_body(cllsn_pair.b, body_b)) continue;
-
-            // if nothing has mass, nothing can move
-            const f32 inv_mass_total = body_a.inv_mass + body_b.inv_mass;
-            if (inv_mass_total <= 0.0f) continue;
 
             // the pair came from the swept broad phase,
             // check that they actually overlap after integration
@@ -171,6 +181,23 @@ namespace ifb {
             const f32 normal = (
                 (body_b.pos.v[axis] + body_b.offset.v[axis]) >=
                 (body_a.pos.v[axis] + body_a.offset.v[axis])) ? 1.0f : -1.0f;
+
+            // record the contact before anything decides not to push
+            // so triggers and immovable pairs are still reported
+            phys_cntct cntct;
+            cntct.a              = cllsn_pair.a;
+            cntct.b              = cllsn_pair.b;
+            cntct.normal         = {};
+            cntct.normal.v[axis] = normal;
+            cntct.depth          = overlap_min;
+            (void)phys_cntct_list_insert(cntct_list, cntct);
+
+            // triggers don't push, and don't get pushed
+            if (body_a.is_trigger || body_b.is_trigger) continue;
+
+            // if nothing has mass, nothing can move
+            const f32 inv_mass_total = body_a.inv_mass + body_b.inv_mass;
+            if (inv_mass_total <= 0.0f) continue;
 
             // push them apart, the lighter one moves more
             const f32 push_a = overlap_min * (body_a.inv_mass / inv_mass_total);
