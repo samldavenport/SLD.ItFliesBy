@@ -51,13 +51,16 @@ namespace ifb {
 
         assert(id != ENTITY_ID_INVALID);
 
+        // an immovable entity has an inverse mass of 0, see phys_entity_set_inv_mass
+        assert(mass > 0.0f);
+
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
 
         cmpnt_inv_mass im;
         im.normal_val = 1.0f / mass;
 
-        cmpnt_lookup_inv_mass(sparse_index, im);
+        cmpnt_update_inv_mass(sparse_index, im);
     }
     
     IFB_INTERNAL void 
@@ -66,12 +69,14 @@ namespace ifb {
         const f32       i_mass) {
 
         assert(id != ENTITY_ID_INVALID);
+        assert(i_mass >= 0.0f);
 
         const u32 sparse_index = entity_lookup_sparse_index(id);
         assert(sparse_index != INVALID_INDEX);
 
+        // the value is already inverted, 0 is an immovable entity
         cmpnt_inv_mass im;
-        im.normal_val = 1.0f / i_mass;
+        im.normal_val = i_mass;
 
         cmpnt_update_inv_mass(sparse_index, im);
     }
