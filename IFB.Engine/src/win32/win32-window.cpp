@@ -238,11 +238,17 @@ namespace ifb {
             } break;
      
             case WM_MOVE: {
-                const u32 x = LOWORD(l_param);   
-                const u32 y = HIWORD(l_param);   
+                const u32 x = LOWORD(l_param);
+                const u32 y = HIWORD(l_param);
                 eng_window_set_pos(x,y);
             } break;
-            
+
+            // the key ups go to whatever takes the focus, like the debugger on a breakpoint
+            // so nothing is left held down when the focus comes back
+            case WM_KILLFOCUS: {
+                eng_input_release_all_keys();
+            } break;
+
 
             default: break;
         }
