@@ -86,18 +86,23 @@ namespace ifb {
 
         assert(_npc_mngr);
         assert(cfg.cstr_name);
-        assert(cfg.sprites.cstr_idle);
+        assert(cfg.sprites.cstr_left);
+        assert(cfg.sprites.cstr_right);
         assert(cfg.sprites.cstr_walk_0);
         assert(cfg.sprites.cstr_walk_1);
         assert(cfg.sprites.cstr_walk_2);
         assert(cfg.sprites.cstr_walk_3);
+        assert(cfg.sprites.cstr_walk_4);
+        assert(cfg.sprites.cstr_walk_5);
+        assert(cfg.sprites.cstr_walk_6);
+        assert(cfg.sprites.cstr_walk_7);
         assert(cfg.h_map != INVALID_HANDLE);
 
         if (_npc_mngr->count >= GAME_NPC_MNGR_CAPACITY) return(ENTITY_ID_INVALID);
 
         const entity_id id = game_entity_spawn_core_npc_sprite(
             cfg.cstr_name,
-            cfg.sprites.cstr_idle,
+            cfg.sprites.cstr_right,
             cfg.h_map,
             cfg.chunk_index,
             cfg.chunk_x,

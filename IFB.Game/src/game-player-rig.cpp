@@ -228,13 +228,13 @@ namespace ifb {
         eng_cmpnt_update_position      (player_rig->jig_anchor_id, anchor_pos);
     
         player_rig->walk_timer       = 0.0f;
-        player_rig->connor_state     = game_connor_state_e_idle_right;
-        player_rig->connor_direction = game_connor_direction_e_right;
+        player_rig->connor_state     = game_character_state_e_idle_right;
+        player_rig->connor_direction = game_character_direction_e_right;
 
         player_rig->jig_fly_progress = 0.0f;
         player_rig->jig_fly_blend    = 0.0f;
         player_rig->jig_state        = game_jig_state_e_right_0;
-        player_rig->jig_direction    = game_jig_direction_e_right;
+        player_rig->jig_direction    = game_character_direction_e_right;
         player_rig->walk_cycle_change = false;
         player_rig->is_input_locked   = false;
     }
@@ -359,11 +359,11 @@ namespace ifb {
         vec3 connor_force = {0};
         if (move_left) {
             connor_force.x -= 10.0f;
-            player_rig->connor_direction = game_connor_direction_e_left;
+            player_rig->connor_direction = game_character_direction_e_left;
         } 
         if (move_right) {
             connor_force.x += 10.0f;
-            player_rig->connor_direction = game_connor_direction_e_right;
+            player_rig->connor_direction = game_character_direction_e_right;
         }
         if (move_up){
             connor_force.z -= 10.0f;
@@ -379,32 +379,32 @@ namespace ifb {
         game_player_rig* player_rig) {
 
         const bool is_connor_moving = eng_entity_is_moving(player_rig->connor_id);
-        const bool is_facing_left   = player_rig->connor_direction == game_connor_direction_e_left;
-        const bool is_facing_right  = player_rig->connor_direction == game_connor_direction_e_right;
+        const bool is_facing_left   = player_rig->connor_direction == game_character_direction_e_left;
+        const bool is_facing_right  = player_rig->connor_direction == game_character_direction_e_right;
         const bool is_moving_left   = is_connor_moving  && is_facing_left;
         const bool is_moving_right  = is_connor_moving  && is_facing_right;
         const bool is_idle_left     = !is_connor_moving && is_facing_left; 
         const bool is_idle_right    = !is_connor_moving && is_facing_right; 
 
-        if      (is_idle_left)  player_rig->connor_state = game_connor_state_e_idle_left;
-        else if (is_idle_right) player_rig->connor_state = game_connor_state_e_idle_right;
+        if      (is_idle_left)  player_rig->connor_state = game_character_state_e_idle_left;
+        else if (is_idle_right) player_rig->connor_state = game_character_state_e_idle_right;
 
         if (is_moving_left && player_rig->walk_cycle_change) {
             switch (player_rig->connor_state.val) {
-                case (game_connor_state_e_walk_left_1):  player_rig->connor_state = game_connor_state_e_walk_left_2; break;
-                case (game_connor_state_e_walk_left_2):  player_rig->connor_state = game_connor_state_e_walk_left_3; break;
-                case (game_connor_state_e_walk_left_3):  player_rig->connor_state = game_connor_state_e_walk_left_4; break;
-                default:                                 player_rig->connor_state = game_connor_state_e_walk_left_1; break; 
+                case (game_character_state_e_walk_left_1):  player_rig->connor_state = game_character_state_e_walk_left_2; break;
+                case (game_character_state_e_walk_left_2):  player_rig->connor_state = game_character_state_e_walk_left_3; break;
+                case (game_character_state_e_walk_left_3):  player_rig->connor_state = game_character_state_e_walk_left_4; break;
+                default:                                 player_rig->connor_state = game_character_state_e_walk_left_1; break; 
             }
             player_rig->walk_cycle_change = false;
         }
         else if (is_moving_right && player_rig->walk_cycle_change) {
         
             switch (player_rig->connor_state.val) {
-                case (game_connor_state_e_walk_right_1): player_rig->connor_state = game_connor_state_e_walk_right_2; break;
-                case (game_connor_state_e_walk_right_2): player_rig->connor_state = game_connor_state_e_walk_right_3; break;
-                case (game_connor_state_e_walk_right_3): player_rig->connor_state = game_connor_state_e_walk_right_4; break;
-                default:                                 player_rig->connor_state = game_connor_state_e_walk_right_1; break; 
+                case (game_character_state_e_walk_right_1): player_rig->connor_state = game_character_state_e_walk_right_2; break;
+                case (game_character_state_e_walk_right_2): player_rig->connor_state = game_character_state_e_walk_right_3; break;
+                case (game_character_state_e_walk_right_3): player_rig->connor_state = game_character_state_e_walk_right_4; break;
+                default:                                 player_rig->connor_state = game_character_state_e_walk_right_1; break; 
             }
             player_rig->walk_cycle_change = false;
         }
@@ -466,8 +466,8 @@ namespace ifb {
         const bool connor_is_right = (jig_to_connor_x >  GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
         const bool connor_is_left  = (jig_to_connor_x < -GAME_PLAYER_RIG_JIG_TURN_DEADZONE);
 
-        if      (connor_is_right) player_rig->jig_direction = game_jig_direction_e_right;
-        else if (connor_is_left)  player_rig->jig_direction = game_jig_direction_e_left;
+        if      (connor_is_right) player_rig->jig_direction = game_character_direction_e_right;
+        else if (connor_is_left)  player_rig->jig_direction = game_character_direction_e_left;
 
         // jig flaps faster the faster he goes, 0 is idle and 1 is following connor
         f32 jig_fly_target = 0.0f;
@@ -499,7 +499,7 @@ namespace ifb {
         }
 
         // when he turns around he stays on the same frame, so his wings don't skip
-        const u32 jig_direction_first_state = (player_rig->jig_direction == game_jig_direction_e_left)
+        const u32 jig_direction_first_state = (player_rig->jig_direction == game_character_direction_e_left)
             ? game_jig_state_e_left_0
             : game_jig_state_e_right_0;
         player_rig->jig_state = jig_direction_first_state + jig_frame;
@@ -580,16 +580,16 @@ namespace ifb {
         const game_player_rig* player_rig) {
 
         switch (player_rig->connor_state.val) {
-            case (game_connor_state_e_idle_left):    return("CONNOR-LEFT"); 
-            case (game_connor_state_e_idle_right):   return("CONNOR-RIGHT");
-            case (game_connor_state_e_walk_left_1):  return("CNNR-WLK-0");  
-            case (game_connor_state_e_walk_left_2):  return("CNNR-WLK-1");  
-            case (game_connor_state_e_walk_left_3):  return("CNNR-WLK-2");  
-            case (game_connor_state_e_walk_left_4):  return("CNNR-WLK-3");  
-            case (game_connor_state_e_walk_right_1): return("CNNR-WLK-4");  
-            case (game_connor_state_e_walk_right_2): return("CNNR-WLK-5");  
-            case (game_connor_state_e_walk_right_3): return("CNNR-WLK-6");  
-            case (game_connor_state_e_walk_right_4): return("CNNR-WLK-7");  
+            case (game_character_state_e_idle_left):    return("CONNOR-LEFT"); 
+            case (game_character_state_e_idle_right):   return("CONNOR-RIGHT");
+            case (game_character_state_e_walk_left_1):  return("CNNR-WLK-0");  
+            case (game_character_state_e_walk_left_2):  return("CNNR-WLK-1");  
+            case (game_character_state_e_walk_left_3):  return("CNNR-WLK-2");  
+            case (game_character_state_e_walk_left_4):  return("CNNR-WLK-3");  
+            case (game_character_state_e_walk_right_1): return("CNNR-WLK-4");  
+            case (game_character_state_e_walk_right_2): return("CNNR-WLK-5");  
+            case (game_character_state_e_walk_right_3): return("CNNR-WLK-6");  
+            case (game_character_state_e_walk_right_4): return("CNNR-WLK-7");  
             default:                                 return("CONNOR-RIGHT");
         }
     }

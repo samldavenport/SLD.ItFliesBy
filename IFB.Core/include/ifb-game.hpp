@@ -5,24 +5,24 @@
 
 namespace ifb {
 
-    IFB_U32(game_connor_state_u32);
-    enum game_connor_state_e {
-        game_connor_state_e_idle_left    = 0,
-        game_connor_state_e_idle_right   = 1,
-        game_connor_state_e_walk_left_1  = 2,
-        game_connor_state_e_walk_left_2  = 3,
-        game_connor_state_e_walk_left_3  = 4,
-        game_connor_state_e_walk_left_4  = 5,
-        game_connor_state_e_walk_right_1 = 6,
-        game_connor_state_e_walk_right_2 = 7,
-        game_connor_state_e_walk_right_3 = 8,
-        game_connor_state_e_walk_right_4 = 9
+    IFB_U32(game_character_state_u32);
+    enum game_character_state_e {
+        game_character_state_e_idle_left    = 0,
+        game_character_state_e_idle_right   = 1,
+        game_character_state_e_walk_left_1  = 2,
+        game_character_state_e_walk_left_2  = 3,
+        game_character_state_e_walk_left_3  = 4,
+        game_character_state_e_walk_left_4  = 5,
+        game_character_state_e_walk_right_1 = 6,
+        game_character_state_e_walk_right_2 = 7,
+        game_character_state_e_walk_right_3 = 8,
+        game_character_state_e_walk_right_4 = 9
     };
       
-    IFB_U32(game_connor_direction_u32);
-    enum game_connor_direction_e {
-        game_connor_direction_e_left  = 0,
-        game_connor_direction_e_right = 1,
+    IFB_U32(game_character_direction_u32);
+    enum game_character_direction_e {
+        game_character_direction_e_left  = 0,
+        game_character_direction_e_right = 1,
     };
 
     IFB_U32(game_jig_state_u32);
@@ -37,31 +37,25 @@ namespace ifb {
         game_jig_state_e_right_3 = 7
     };
 
-    IFB_U32(game_jig_direction_u32);
-    enum game_jig_direction_e {
-        game_jig_direction_e_left  = 0,
-        game_jig_direction_e_right = 1
-    }; 
-
     struct game_player_rig {
-        entity_id                 connor_id;
-        entity_id                 jig_id;
-        entity_id                 jig_anchor_id;
-        hnd_map                   starting_map_hnd;
-        hnd_map                   current_map_hnd;
-        vec3                      camera_focus;
-        f32                       jig_offset_x;
-        f32                       jig_bob_time_s;
-        f32                       connor_prev_x;
-        f32                       walk_timer;
-        game_connor_state_u32     connor_state;
-        game_connor_direction_u32 connor_direction;
-        f32                       jig_fly_progress;
-        f32                       jig_fly_blend;
-        game_jig_state_u32        jig_state;
-        game_jig_direction_u32    jig_direction;
-        bool                      walk_cycle_change;
-        bool                      is_input_locked;   // the movement keys are ignored, like while a dialog is open
+        entity_id                    connor_id;
+        entity_id                    jig_id;
+        entity_id                    jig_anchor_id;
+        hnd_map                      starting_map_hnd;
+        hnd_map                      current_map_hnd;
+        vec3                         camera_focus;
+        f32                          jig_offset_x;
+        f32                          jig_bob_time_s;
+        f32                          connor_prev_x;
+        f32                          walk_timer;
+        f32                          jig_fly_progress;
+        f32                          jig_fly_blend;
+        game_character_state_u32     connor_state;
+        game_character_direction_u32 connor_direction;
+        game_jig_state_u32           jig_state;
+        game_character_direction_u32 jig_direction;
+        bool                         walk_cycle_change;
+        bool                         is_input_locked;   // the movement keys are ignored, like while a dialog is open
     };
 
     struct game_entities {
@@ -147,11 +141,16 @@ namespace ifb {
 
     // the names aren't copied, they have to outlive the npc
     struct game_npc_sprites {
-        const cchar* cstr_idle;
+        const cchar* cstr_left;
+        const cchar* cstr_right;
         const cchar* cstr_walk_0;
         const cchar* cstr_walk_1;
         const cchar* cstr_walk_2;
         const cchar* cstr_walk_3;
+        const cchar* cstr_walk_4;
+        const cchar* cstr_walk_5;
+        const cchar* cstr_walk_6;
+        const cchar* cstr_walk_7;
     };
 
     struct game_npc_config {
