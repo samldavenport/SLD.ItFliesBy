@@ -163,8 +163,32 @@ namespace ifb {
         }
     }
 
-    IFB_INTERNAL void
-    game_dialog_update(
+    // e is the action button, an open dialog uses it first to advance
+    // otherwise it's left in is_action_pressed for the collision procs, which run in the physics step after this
+    // so whatever connor is touching can react to it, like rose opening her dialog
+    inline void
+    game_dialog_read_action(
+        game_context* ctx) {
+
+        // a press nothing used last pass doesn't carry over
+        ctx->is_action_pressed = false;
+
+        const bool is_action_down  = eng_input_is_key_down(input_keycode_e_e);
+        const bool is_action_press = is_action_down && !ctx->talk_was_down;
+        ctx->talk_was_down         = is_action_down;
+        if (!is_action_press) return;
+
+        if (game_dialog_is_open(ctx->dialog)) {
+            game_dialog_advance(ctx->dialog);
+        }
+        else {
+            ctx->is_action_pressed = true;
+        }
+    }
+
+    // reveals the page, or blinks the marker once it's all shown
+    inline void
+    game_dialog_tick(
         game_dialog* dialog,
         const f32    dt) {
 
@@ -191,6 +215,25 @@ namespace ifb {
 
             default: break;
         }
+    }
+
+    // the whole dialog for this pass: the action button, the reveal, and drawing it
+    // the dialog needs the font, without it there's nothing to show, and nothing uses the button
+    IFB_INTERNAL void
+    game_dialog_update(
+        game_context* ctx) {
+
+        assert(ctx);
+        assert(ctx->dialog);
+
+        if (ctx->fnt == NULL) {
+            ctx->is_action_pressed = false;
+            return;
+        }
+
+        game_dialog_read_action (ctx);
+        game_dialog_tick        (ctx->dialog, eng_system_get_delta_time_s());
+        game_dialog_render      (ctx->dialog, ctx->fnt);
     }
 
     // has to be called every frame the dialog should be seen, like any immediate drawing

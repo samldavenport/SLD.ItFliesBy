@@ -155,32 +155,7 @@ namespace ifb {
         ctx->player_rig->is_input_locked = game_dialog_is_open(ctx->dialog);
 
         game_scene_gameplay_update_and_render(ctx);
-
-        // a press nothing used last pass doesn't carry over
-        ctx->is_action_pressed = false;
-
-        // the dialog needs the font, without it there's nothing to show
-        if (ctx->fnt == NULL) return;
-
-        const bool is_talk_down   = eng_input_is_key_down(input_keycode_e_e);
-        const bool is_talk_press  = is_talk_down && !ctx->talk_was_down;
-        ctx->talk_was_down        = is_talk_down;
-
-        // e is the action button, an open dialog uses it first to advance
-        // otherwise it's left for the collision procs, which run in the physics step after this
-        // so whatever connor is touching can react to it, like rose opening her dialog
-        auto dialog = ctx->dialog;
-        if (is_talk_press) {
-            if (game_dialog_is_open(dialog)) {
-                game_dialog_advance(dialog);
-            }
-            else {
-                ctx->is_action_pressed = true;
-            }
-        }
-
-        game_dialog_update (dialog, eng_system_get_delta_time_s());
-        game_dialog_render (dialog, ctx->fnt);
+        game_dialog_update(ctx);
     }
 
 

@@ -185,7 +185,7 @@ namespace ifb {
     IFB_INTERNAL bool          game_dialog_open       (game_dialog* dialog, const font* fnt, const cchar* text, const u32 text_len);
     IFB_INTERNAL bool          game_dialog_is_open    (const game_dialog* dialog);
     IFB_INTERNAL void          game_dialog_advance    (game_dialog* dialog);
-    IFB_INTERNAL void          game_dialog_update     (game_dialog* dialog, const f32 dt);
+    IFB_INTERNAL void          game_dialog_update     (game_context* ctx);
     IFB_INTERNAL void          game_dialog_render     (const game_dialog* dialog, const font* fnt);
     IFB_INTERNAL void          game_dialog_get_layout (const font* fnt, rect& box, rect& text_area);
 
