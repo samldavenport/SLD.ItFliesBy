@@ -76,8 +76,15 @@ namespace ifb {
             }
 
             // grab the aabb
+            // grown by half the skin on each side, so boxes within the skin of each other still pair up
             phys_aabb& aabb = aabbs[count];
-            phys_aabb_from_center(aabb, vec3_add(pos, offset), half_extent);
+            const f32  skin_half = PHYS_CNTCT_SKIN * 0.5f;
+            const vec3 half_extent_skin = {
+                half_extent.x + skin_half,
+                half_extent.y + skin_half,
+                half_extent.z + skin_half
+            };
+            phys_aabb_from_center(aabb, vec3_add(pos, offset), half_extent_skin);
 
             // if we have a velocity, add that to the aabb
             if (e.archetype.has_all(cmpnt_type_e_velocity)) {

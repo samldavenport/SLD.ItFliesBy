@@ -152,11 +152,12 @@ namespace ifb {
             if (!phys_cllsn_rslvr_get_body(cllsn_pair.b, body_b)) continue;
 
             // the pair came from the swept broad phase,
-            // check that they actually overlap after integration
+            // check that they're actually touching after integration
             // and find the axis with the least penetration
+            // within the skin counts as touching, the overlap is negative by up to the skin then
             u32  axis        = 0;
             f32  overlap_min = 0.0f;
-            bool is_overlap  = true;
+            bool is_touching = true;
             for (
                 u32 axis_index = 0;
                     axis_index < 3;
@@ -166,8 +167,8 @@ namespace ifb {
                 const f32 center_b = body_b.pos.v[axis_index] + body_b.offset.v[axis_index];
                 const f32 delta    = center_b - center_a;
                 const f32 overlap = (body_a.half_extent.v[axis_index] + body_b.half_extent.v[axis_index]) - fabsf(delta);
-                if (overlap <= 0.0f) {
-                    is_overlap = false;
+                if (overlap <= -PHYS_CNTCT_SKIN) {
+                    is_touching = false;
                     break;
                 }
                 if (axis_index == 0 || overlap < overlap_min) {
@@ -175,7 +176,7 @@ namespace ifb {
                     overlap_min = overlap;
                 }
             }
-            if (!is_overlap) continue;
+            if (!is_touching) continue;
 
             // the normal points from a to b
             const f32 normal = (
@@ -189,7 +190,7 @@ namespace ifb {
             cntct.b              = cllsn_pair.b;
             cntct.normal         = {};
             cntct.normal.v[axis] = normal;
-            cntct.depth          = overlap_min;
+            cntct.depth          = (overlap_min > 0.0f) ? overlap_min : 0.0f; // touching in the skin isn't overlapping
             // the pairs are unique, so this only fails when the list is full
             // a dropped contact would show up as a false end, then a begin
             const bool did_insert = phys_cntct_list_insert(cntct_list, cntct);
@@ -198,6 +199,9 @@ namespace ifb {
 
             // triggers don't push, and don't get pushed
             if (body_a.is_trigger || body_b.is_trigger) continue;
+
+            // only touching, there's nothing to push out of
+            if (overlap_min <= 0.0f) continue;
 
             // if nothing has mass, nothing can move
             const f32 inv_mass_total = body_a.inv_mass + body_b.inv_mass;
