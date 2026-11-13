@@ -38,6 +38,7 @@ using namespace sld;
 #define IFB_CONFIG_AUDIO_VOICE_CAPACITY           32
 #define IFB_CONFIG_BUILD_MODE                     0
 #define IFB_CONFIG_DEFAULT_FPS                    240
+#define IFB_CONFIG_DELTA_TIME_MAX_S               0.1f
 #define IFB_CONFIG_ENTITY_CAPACITY                1024
 #define IFB_CONFIG_ENTITY_MOVEMENT_THRESHOLD      0.1f;
 #define IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT  16
@@ -125,6 +126,7 @@ namespace ifb {
         static constexpr u32   audio_voice_capacity           = IFB_CONFIG_AUDIO_VOICE_CAPACITY;
         static constexpr u32   build_mode                     = IFB_CONFIG_BUILD_MODE;
         static constexpr u32   default_fps                    = IFB_CONFIG_DEFAULT_FPS;
+        static constexpr f32   delta_time_max_s               = IFB_CONFIG_DELTA_TIME_MAX_S;
         static constexpr u32   entity_capacity                = IFB_CONFIG_ENTITY_CAPACITY;
         static constexpr f32   entity_movement_threshold      = IFB_CONFIG_ENTITY_MOVEMENT_THRESHOLD;
         static constexpr u32   event_max_listeners_per_event  = IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT;

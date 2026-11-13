@@ -10,6 +10,12 @@
 
 namespace ifb {
 
+    IFB_INTERNAL void
+    game_scene_gameplay_rose_collision_proc(
+        const phys_cllsn_contact& contact) {
+
+    }
+
     // the level: the map and its parallax, the player rig, and the boxes
     // all of it belongs to the gameplay scene, so destroying the scene cleans it up
     IFB_INTERNAL void
@@ -74,7 +80,23 @@ namespace ifb {
         rose_config.tile_roam_x         = 1;
         rose_config.tile_roam_y         = 1;
 
-        game_npc_spawn(rose_config);
+        const entity_id rose_id = game_npc_spawn(rose_config);
+        assert(rose_id != ENTITY_ID_INVALID);
+
+        // rose handles her own collisions
+        // she's solid and collides with everything, the collider is only here for the proc
+        // the whole collider is written, adding the component doesn't clear its slot
+        cmpnt_collider rose_collider;
+        rose_collider.proc               = game_scene_gameplay_rose_collision_proc;
+        rose_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
+        rose_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
+        rose_collider.is_trigger         = false;
+
+        bool did_add_collider = true;
+        did_add_collider &= eng_entity_add_components (rose_id, cmpnt_type_e_collider);
+        did_add_collider &= eng_cmpnt_update_collider (rose_id, rose_collider);
+        assert(did_add_collider);
+        (void)did_add_collider;
 
         assert(entities->static_entity_0 != ENTITY_ID_INVALID);
         assert(entities->static_entity_1 != ENTITY_ID_INVALID);

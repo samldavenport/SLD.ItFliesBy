@@ -4,6 +4,7 @@
 #include "ifb-engine.hpp"
 #include "sld.hpp"
 #include "ifb-platform.hpp"
+#include "ifb-config.hpp"
 
 namespace ifb {
 
@@ -53,8 +54,14 @@ namespace ifb {
         auto sys = system_info_get_and_validate();
         
         const f64 elapsed = (f64)sys->time.timestamp_curr - (f64)sys->time.timestamp_prev;
-        const f64 dt_s    = elapsed / (f64)sys->time.frequency;
-   
+        f64       dt_s    = elapsed / (f64)sys->time.frequency;
+
+        // a long pause, like a breakpoint, a window drag, or the first frame with no previous timestamp,
+        // would otherwise go into one step, and physics would move everything by its velocity for all of it
+        // capped here so the game, physics, and particles all see the same step
+        if (dt_s < 0.0)                       dt_s = 0.0;
+        if (dt_s > config::delta_time_max_s)  dt_s = config::delta_time_max_s;
+
         return((f32)dt_s);
     }
     
