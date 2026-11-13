@@ -8,13 +8,15 @@ The physics system (`IFB.Engine/src/physics`, `eng-physics.hpp`) moves entities 
 
 | Order | Step | Source | Description |
 | --- | --- | --- | --- |
-| 1 | Collision detection | `physics-collision-detection.cpp` | Builds a BVH for each map chunk and collects the pairs of entities whose bounds overlap. |
+| 0 | Swap contact lists | `physics-manager.cpp` | The last step's contacts become the previous list, so phases can be found by comparing the two. |
+| 1 | Collision detection | `physics-collision-detection.cpp` | Builds a BVH for each map chunk and collects the pairs of entities whose bounds overlap and whose [masks](#colliders) allow it. |
 | 2 | Springs | `physics-spring.cpp` | Adds a spring force for every entity with a spring component. |
 | 3 | Integration | `physics-integrator.cpp` | Turns the accumulated forces into new velocities and positions, then keeps map entities inside their map. |
-| 4 | Collision resolution | `physics-collision-resolver.cpp` | Pushes apart the pairs from step 1 that still overlap after integration. |
+| 4 | Collision resolution | `physics-collision-resolver.cpp` | Records a contact for each pair from step 1 that still overlaps after integration, and pushes the solid ones apart. |
 | 5 | Reset | `physics-force-accumulator.cpp` | Clears the forces for the next step. |
+| 6 | Contact dispatch | `physics-contact-list.cpp`, `physics-contact-dispatch.cpp` | Gives each contact a phase, calls the collider procs, and publishes a collision event. See [Contacts](#contacts). |
 
-Detection runs before integration, so it sweeps each moving entity's bounds by `velocity * dt` to catch pairs that will touch during the step.
+Detection runs before integration, so it sweeps each moving entity's bounds by `velocity * dt` to catch pairs that will touch during the step. Those pairs are only candidates. Only the contacts from resolution are reported.
 
 ## Forces
 
@@ -67,17 +69,19 @@ The game attaches Jig to a `JIG-ANCHOR` entity with a spring, and moves the anch
 Collision is only checked between entities on the same **map chunk**. For each chunk of each map, detection:
 
 1. Gets the entities in the chunk (`map_get_entities_in_chunk`).
-2. Builds an AABB for each one that has a position and a quad, swept by its velocity if it has one.
-3. Builds a BVH from those boxes and queries it for overlapping pairs.
+2. Builds an AABB for each one that is updating and has a position and a [body box](#bounding-boxes), swept by its velocity if it has one. It also reads each entity's [collider](#colliders) masks.
+3. Builds a BVH from those boxes, grown by half of [`PHYS_CNTCT_SKIN`](#contact-skin) on each side, and queries it for pairs whose masks accept each other and whose boxes overlap. The mask check runs first, since it's cheaper.
 4. Adds the pairs to the collision list. Pairs are stored as `(lower id, higher id)`, so each pair is only listed once.
 
-All of this memory comes from a temporary arena that's freed at the end of detection.
-
-Detection then publishes an `event_type_e_physics_collision` event for each pair in the list. See [Events](events.md#physics-collisions).
+All of this memory comes from a temporary arena that's freed at the end of detection. Detection doesn't publish anything. The collision list only feeds resolution.
 
 ### Bounding Boxes
 
-An entity's position is the center of its quad. The quad is `width × height`, and it's given a depth of `width` along z so it has volume to overlap with (`phys_aabb_half_extent_quad`).
+An entity's body box comes from `phys_aabb_get_body_box`:
+
+- With a **bounds** component (`cmpnt_bounds`), the box is `width × height`, centered at the position plus `(x, y)`. It's given a depth of `width` along z.
+- Otherwise, with a **quad**, the box is centered on the position. The quad is `width × height`, and it's given a depth of `width` along z so it has volume to overlap with (`phys_aabb_half_extent_quad`).
+- An entity with neither isn't part of collision.
 
 ### BVH
 
@@ -91,18 +95,98 @@ An entity's position is the center of its quad. The quad is `width × height`, a
 
 Resolution moves positions directly and doesn't depend on `dt`. For each pair from detection:
 
-1. Look up both entities. An entity without an inverse mass is treated as immovable. If neither can move, skip the pair.
-2. Check that the boxes still overlap after integration, and find the axis with the smallest overlap.
-3. Push both entities apart along that axis, split by inverse mass, so the lighter entity moves more.
-4. If they're moving toward each other on that axis, cancel the closing velocity so they stop at the contact.
-5. Push map entities back inside their map, then write the position and velocity back to the components.
+1. Look up both entities. An entity without an inverse mass, or tagged with `cmpnt_type_e_immovable`, is treated as immovable. The tag only affects collisions, the integrator still moves the entity by its inverse mass.
+2. Check that the boxes still touch after integration, overlapping or within the [skin](#contact-skin) of each other, and find the axis with the smallest overlap.
+3. Record a [contact](#contacts) for the pair. This happens before anything below decides not to push, so triggers and pairs that can't move are still reported.
+4. If either entity is a trigger, the boxes are only touching in the skin, or neither can move, stop here.
+5. Push both entities apart along that axis, split by inverse mass, so the lighter entity moves more.
+6. If they're moving toward each other on that axis, cancel the closing velocity so they stop at the contact.
+7. Push map entities back inside their map, then write the position and velocity back to the components.
 
 There's no bounce. Entities stop at the contact point.
+
+### Contact Skin
+
+Pushing a pair apart leaves the boxes exactly touching, with an overlap of `0`. Without some tolerance, an entity standing still against another would report `end` on the next step, and `begin` again whenever it leaned back in.
+
+`PHYS_CNTCT_SKIN` (`eng-physics.hpp`, `0.005`, about a pixel and a half on a character) is that tolerance. Boxes within the skin of each other on every axis count as touching, and get a contact with a depth of `0`. Only a real overlap is pushed apart, so the skin never adds a gap between entities.
+
+## Colliders
+
+A `cmpnt_collider` component (`cmpnt_type_e_collider`) controls what an entity collides with and lets it react to its own collisions.
+
+| Field | Description |
+| --- | --- |
+| `proc` | Called with the entity's own contacts after the step. `NULL` for none. |
+| `mask_category` | The bits that say what this entity is. |
+| `mask_collides_with` | The bits for the categories this entity collides with. |
+| `is_trigger` | A trigger reports its contacts, but never pushes or gets pushed. |
+
+A pair is only considered when both sides accept each other:
+
+```
+(a.mask_collides_with & b.mask_category) != 0 &&
+(b.mask_collides_with & a.mask_category) != 0
+```
+
+An entity without a collider uses `PHYS_CLLSN_MASK_ALL` (`0xFFFFFFFF`) for both masks and is solid, so it collides with everything that accepts it. Its category has every bit set, so it's only filtered out by a collider whose `mask_collides_with` is `0`. Masks start to matter once both sides of a pair have colliders.
+
+```cpp
+cmpnt_collider clldr;
+clldr.proc               = box_on_collision;
+clldr.mask_category      = bit_value(1); // a prop
+clldr.mask_collides_with = bit_value(0); // only the player
+clldr.is_trigger         = false;
+
+eng_entity_add_components(id, cmpnt_type_e_collider);
+eng_cmpnt_update_collider(id, clldr);
+```
+
+> **Note:** adding a component doesn't clear its slot, so always write the whole collider after adding it. Otherwise it can keep a `proc` from an entity that used the slot before.
+
+## Contacts
+
+A contact is a pair whose boxes actually overlap after integration. Resolution records them in the current **contact list** (`phys_cntct_list`), with `a` as the lower ID:
+
+| Field | Description |
+| --- | --- |
+| `normal` | A unit vector along the axis of least overlap, pointing from `a` to `b`. |
+| `depth` | How far they overlap on that axis, `(half_a + half_b) - abs(center_b - center_a)`. `0` when they're only touching in the skin. |
+
+The physics manager keeps two lists, this step's and the last step's, and swaps them at the start of each step. After the step, `phys_cntct_list_walk_phases` compares them and gives each contact a phase (`phys_cllsn_phase_e`):
+
+| Phase | When | Data |
+| --- | --- | --- |
+| `begin` | Touching this step, not the last | This step's normal and depth |
+| `stay` | Touching this step and the last | This step's normal and depth |
+| `end` | Touching the last step, not this one | The last step's normal, with a depth of `0` |
+
+So a pair that stays in contact gets one `begin`, a `stay` every step after that, and one `end` when it separates. If two entities separate for even one step, touching again is a new `begin`.
+
+### Dispatch
+
+For each contact and its phase, `phys_cntct_dispatch`:
+
+1. Publishes an `event_type_e_physics_collision` [event](events.md#physics-collisions) with `a`, `b`, the normal, depth, and phase.
+2. Calls `a`'s collider proc, with `self = a`, `other = b`, and the normal as is.
+3. Calls `b`'s collider proc, with `self = b`, `other = a`, and the normal flipped, so it always points away from `self`.
+
+```cpp
+IFB_INTERNAL void
+box_on_collision(
+    const phys_cllsn_contact& contact) {
+
+    if (contact.phase != phys_cllsn_phase_e_begin) return;
+    // contact.self is the box, contact.other is what hit it
+}
+```
+
+The procs run right away, after the step, while the events wait for `event_mngr_update`. Each entity is looked up again before its proc is called, so a proc can destroy entities. Forces a proc adds land in the next step.
 
 ## Configuration
 
 | Setting | Description |
 | --- | --- |
-| `IFB_CONFIG_ENTITY_CAPACITY` | The maximum number of entities the integrator, spring calculator, and collision list can hold |
+| `IFB_CONFIG_ENTITY_CAPACITY` | The maximum number of entities the integrator, spring calculator, collision list, and each contact list can hold. Resolution asserts if a contact list fills up. |
 
 The physics system allocates its memory from the `physics` reservation in the memory map.

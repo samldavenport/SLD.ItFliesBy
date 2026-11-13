@@ -84,7 +84,8 @@ namespace ifb {
         ctx->audio            = audio;
         ctx->fnt              = NULL;
         ctx->dialog           = dialog;
-        ctx->talk_was_down    = false;
+        ctx->talk_was_down     = false;
+        ctx->is_action_pressed = false;
         game_dialog_init(dialog);
 
         // nothing is playing yet
@@ -154,24 +155,7 @@ namespace ifb {
         ctx->player_rig->is_input_locked = game_dialog_is_open(ctx->dialog);
 
         game_scene_gameplay_update_and_render(ctx);
-
-        // the dialog needs the font, without it there's nothing to show
-        if (ctx->fnt == NULL) return;
-
-
-        const bool is_talk_down   = eng_input_is_key_down(input_keycode_e_e);
-        const bool is_talk_press  = is_talk_down && !ctx->talk_was_down;
-        ctx->talk_was_down        = is_talk_down;
-
-        auto dialog = ctx->dialog;
-        if (is_talk_press) {
-            if (game_dialog_is_open(dialog)) {
-                game_dialog_advance(dialog);
-            }
-        }
-
-        game_dialog_update (dialog, eng_system_get_delta_time_s());
-        game_dialog_render (dialog, ctx->fnt);
+        game_dialog_update(ctx);
     }
 
 

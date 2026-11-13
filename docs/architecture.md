@@ -53,11 +53,15 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 
 `phys_mngr_simulate` runs in this order:
 
-1. Collision detection (BVH broad phase), which publishes a collision [event](events.md) for each pair
-2. Spring forces
-3. Force integration, which writes new velocities and positions into the components
-4. Collision resolution, using the pairs found in step 1
-5. Reset the force accumulator
+1. Swap this step's and the last step's contact lists
+2. Collision detection (BVH broad phase, filtered by collider masks)
+3. Spring forces
+4. Force integration, which writes new velocities and positions into the components
+5. Collision resolution, which records the pairs from step 2 that actually overlap as contacts
+6. Reset the force accumulator
+7. Contact dispatch, which gives each contact a begin, stay, or end phase, calls the collider procs, and publishes a collision [event](events.md) for each
+
+See [Physics](physics.md#simulation-step) for details.
 
 ## Threads
 

@@ -13,8 +13,11 @@ IFB_INTERNAL void
 game_phys_cllsn_handler(
     const event_payload& payload) {
 
-    const entity_id a = payload.data.physics_collision.a;
-    const entity_id b = payload.data.physics_collision.b;
+    const auto& cllsn = payload.data.physics_collision;
+    if (cllsn.phase != phys_cllsn_phase_e_begin) return;
+
+    const entity_id a = cllsn.a;
+    const entity_id b = cllsn.b;
 }
 
 const bool did_subscribe = eng_event_listener_subscribe(event_type_e_physics_collision, game_phys_cllsn_handler);
@@ -56,7 +59,7 @@ Dispatch happens on the same thread as the rest of the frame loop, so a slow lis
 | --- | --- |
 | 0 | `scene_mngr_frame_start`, which can flush the queue |
 | 1 | Game callback |
-| 2 | `phys_mngr_simulate`, which publishes collision events during detection |
+| 2 | `phys_mngr_simulate`, which publishes collision events at the end of the step |
 | 3 | `event_mngr_update`, which calls the listeners |
 | 4 | Particles, then rendering on a new frame |
 
@@ -74,19 +77,24 @@ Types are defined by `event_type_e` in `IFB.Core/include/ifb.hpp`.
 
 | Type | Payload | Published by |
 | --- | --- | --- |
-| `event_type_e_physics_collision` | `event_data_physics_collision` (`a`, `b`) | `phys_cllsn_dtctr_run` |
+| `event_type_e_physics_collision` | `event_data_physics_collision` (`a`, `b`, `normal`, `depth`, `phase`) | `phys_cntct_dispatch` |
 | `event_type_e_key_down`, `_key_up` | None yet | Nothing yet |
 | `event_type_e_mouse`, `_gamepad` | None yet | Nothing yet |
 
 ### Physics Collisions
 
-After [collision detection](physics.md#collision-detection) finishes, it publishes one event for each pair in the collision list. Pairs are stored as `(lower id, higher id)`, so `a` is always the lower ID.
+At the end of the physics step, one event is published for each [contact](physics.md#contacts) and its phase. Contacts are pairs whose boxes actually overlapped after integration, including triggers and pairs where neither entity can move. Pairs filtered out by their [collider masks](physics.md#colliders) never get one.
 
-A collision event doesn't guarantee that the two entities touched:
+| Field | Description |
+| --- | --- |
+| `a`, `b` | The two entities. `a` is always the lower ID. |
+| `normal` | Points from `a` to `b`, along the axis they overlap least on. |
+| `depth` | How far they overlap on that axis. `0` for `end`. |
+| `phase` | `phys_cllsn_phase_e_begin` the first step they touch, `_stay` every step after that, and `_end` the first step they don't. |
 
-- Detection uses bounds swept by velocity, and runs before integration, so a pair can be reported and then never overlap.
-- Events are published for every pair, including pairs that resolution skips because neither entity can move.
-- The list is rebuilt on every run, so a pair that stays in contact publishes an event on every pass. There are no separate "enter" and "exit" events. To react once per contact, keep the previous state yourself and compare.
+A pair that stays in contact publishes a `stay` event every pass, so check the phase to react once per contact.
+
+The event is for code that cares about collisions in general. To react to one entity's own collisions, give it a collider proc instead, see [Dispatch](physics.md#dispatch). The procs are called during the physics step, before the events reach their listeners.
 
 ## Adding an Event Type
 
@@ -104,7 +112,7 @@ Everything is a fixed size, set in `IFB.Core/include/ifb-config.hpp` and allocat
 | `IFB_CONFIG_EVENT_TYPE_MAX` | 64 | Asserts on publish, subscribe, and unsubscribe |
 | `IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT` | 16 | `eng_event_listener_subscribe` returns `false` |
 
-> **Note:** collision detection asserts that every publish succeeds, so more than 128 collision pairs in one pass trips that assert. If asserts are compiled out, the extra events are dropped.
+> **Note:** contact dispatch asserts that every publish succeeds, so more than 128 contacts in one pass, counting `begin`, `stay`, and `end`, trips that assert. If asserts are compiled out, the extra events are dropped. The collider procs are still called.
 
 ## Public API
 

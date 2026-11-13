@@ -63,6 +63,7 @@ namespace ifb {
         entity_id static_entity_1;
         entity_id static_entity_2;
         entity_id static_entity_3;
+        entity_id rose;
     };
 
     struct game_map {
@@ -174,6 +175,7 @@ namespace ifb {
         const font*      fnt;   // the ui font, NULL if it didn't load
         game_dialog*     dialog;
         bool             talk_was_down;
+        bool             is_action_pressed; // e was pressed this pass, and nothing has used it yet
     } static * _game_ctx;
 
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
@@ -183,7 +185,7 @@ namespace ifb {
     IFB_INTERNAL bool          game_dialog_open       (game_dialog* dialog, const font* fnt, const cchar* text, const u32 text_len);
     IFB_INTERNAL bool          game_dialog_is_open    (const game_dialog* dialog);
     IFB_INTERNAL void          game_dialog_advance    (game_dialog* dialog);
-    IFB_INTERNAL void          game_dialog_update     (game_dialog* dialog, const f32 dt);
+    IFB_INTERNAL void          game_dialog_update     (game_context* ctx);
     IFB_INTERNAL void          game_dialog_render     (const game_dialog* dialog, const font* fnt);
     IFB_INTERNAL void          game_dialog_get_layout (const font* fnt, rect& box, rect& text_area);
 
@@ -242,6 +244,7 @@ namespace ifb {
     IFB_INTERNAL void           game_npc_mngr_update_and_render (void);
     IFB_INTERNAL entity_id      game_npc_spawn                  (const game_npc_config& cfg);
     IFB_INTERNAL bool           game_npc_despawn                (const entity_id id);
+    IFB_INTERNAL bool           game_npc_talk_to                (const entity_id id, const entity_id other_id);
 };
 
 #endif //IFB_GAME_HPP

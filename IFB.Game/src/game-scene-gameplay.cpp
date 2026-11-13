@@ -10,6 +10,54 @@
 
 namespace ifb {
 
+    IFB_INTERNAL void
+    game_scene_gameplay_rose_collision_proc(
+        const phys_cllsn_contact& contact) {
+
+        assert(_game_ctx);
+        assert(_game_ctx->player_rig);
+        assert(_game_ctx->entities);
+
+        auto player_rig = _game_ctx->player_rig;
+        
+
+        // only connor matters, she can bump into the boxes too
+        if (contact.other != player_rig->connor_id) return;
+
+        // he has to be touching her, end means he just walked away
+        if (contact.phase == phys_cllsn_phase_e_end) return;
+
+        // the game callback reads e before the physics step, and leaves the press here if nothing used it
+        if (!_game_ctx->is_action_pressed) return;
+        if (_game_ctx->fnt == NULL)        return;
+
+        // he has to be facing her, he only faces left or right, so it's which side of him she's on
+        // the positions, not the normal, the normal is along z when he touches her from above or below
+        cmpnt_position pos_rose;
+        cmpnt_position pos_connor;
+        if (!eng_cmpnt_lookup_position(contact.self,  pos_rose))   return;
+        if (!eng_cmpnt_lookup_position(contact.other, pos_connor)) return;
+
+        const f32  rose_dx         = pos_rose.x - pos_connor.x;
+        const bool is_facing_left  = player_rig->connor_direction == game_character_direction_e_left;
+        const bool is_facing_right = player_rig->connor_direction == game_character_direction_e_right;
+        const bool is_facing_rose  = (is_facing_left && rose_dx <= 0.0f) || (is_facing_right && rose_dx >= 0.0f);
+
+        // the press isn't used, so something else he's touching and facing can still take it
+        if (!is_facing_rose) return;
+
+        // used up, so nothing else connor is touching reacts to the same press
+        _game_ctx->is_action_pressed = false;
+
+        static constexpr cchar rose_text[] = "Hi Connor!";
+        const bool did_open = game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, rose_text, sizeof(rose_text) - 1);
+
+        // she turns to connor, and stays put until the dialog closes
+        if (did_open) {
+            (void)game_npc_talk_to(contact.self, contact.other);
+        }
+    }
+
     // the level: the map and its parallax, the player rig, and the boxes
     // all of it belongs to the gameplay scene, so destroying the scene cleans it up
     IFB_INTERNAL void
@@ -74,7 +122,25 @@ namespace ifb {
         rose_config.tile_roam_x         = 1;
         rose_config.tile_roam_y         = 1;
 
-        game_npc_spawn(rose_config);
+        const entity_id rose_id = game_npc_spawn(rose_config);
+        assert(rose_id != ENTITY_ID_INVALID);
+
+        entities->rose = rose_id;
+
+        // rose handles her own collisions
+        // she's solid and collides with everything, the collider is only here for the proc
+        // the whole collider is written, adding the component doesn't clear its slot
+        cmpnt_collider rose_collider;
+        rose_collider.proc               = game_scene_gameplay_rose_collision_proc;
+        rose_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
+        rose_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
+        rose_collider.is_trigger         = false;
+
+        bool did_add_collider = true;
+        did_add_collider &= eng_entity_add_components (rose_id, cmpnt_type_e_collider);
+        did_add_collider &= eng_cmpnt_update_collider (rose_id, rose_collider);
+        assert(did_add_collider);
+        (void)did_add_collider;
 
         assert(entities->static_entity_0 != ENTITY_ID_INVALID);
         assert(entities->static_entity_1 != ENTITY_ID_INVALID);

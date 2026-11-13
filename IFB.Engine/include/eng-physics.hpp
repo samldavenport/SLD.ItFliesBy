@@ -32,6 +32,12 @@ namespace ifb {
 
     static phys_mngr* _phys_mngr;
 
+    // boxes this close count as touching, even though they don't overlap
+    // resolution pushes a pair back out to exactly touching, so without it a resting contact would end
+    // it's only for the contacts, nothing is pushed until the boxes actually overlap
+    // about a pixel and a half on a 0.2 wide character quad
+    static constexpr f32 PHYS_CNTCT_SKIN = 0.005f;
+
     //--------------------------------------------------------------------
     // METHOD DECLARATIONS
     //--------------------------------------------------------------------

@@ -20,6 +20,15 @@ namespace ifb {
         keyboard_set_key_up(key);
     }
 
+    // for when the window loses the focus, like to a debugger on a breakpoint
+    // the key ups go to whatever has the focus, so without this a held key stays down
+    IFB_ENGINE_API void
+    eng_input_release_all_keys(
+        void) {
+
+        keyboard_input_reset();
+    }
+
     IFB_ENGINE_API bool
     eng_input_is_key_down(
         const input_keycode keycode) {

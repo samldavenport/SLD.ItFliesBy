@@ -207,7 +207,7 @@ The **Audio Test** window has a slider for it above the groups.
 | --- | --- |
 | Volume | The master volume and each group's |
 | Music | The game's music voice: pause, restart, stop, loop, seek, and its volume. A stopped one can be started again. |
-| Sound Effects | A button that plays BOOP the way the game does, without the bump's debounce |
+| Sound Effects | A button that plays BOOP at the game's volume. Unlike a bump, it doesn't wait for the last boop to finish. |
 | Output | A peak meter for each channel, in decibels with a marker that holds the peak, and a scope of the last 2048 frames. **Fit to the peak** scales the scope so quiet sound can be seen. A meter turns red when it clips. |
 | Voices | Every voice playing, including the engine's tools: the sound, whether it's streamed or in memory, its group, state, position, volume, and the gain it's playing at now |
 | Stats | Voices, streams, preloads, the device queue and underruns, chunk reads, stream waits, and clipped samples |
