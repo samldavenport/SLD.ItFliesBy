@@ -55,6 +55,7 @@ namespace ifb {
         tbl->array_particle_emitter = (cmpnt_particle_emitter*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_particle_emitter));
         tbl->array_sprite           =           (cmpnt_sprite*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_sprite));
         tbl->array_bounds           =           (cmpnt_bounds*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_bounds));
+        tbl->array_collider         =         (cmpnt_collider*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_collider));
 
         assert(tbl->array_position);
         assert(tbl->array_color);
@@ -69,5 +70,6 @@ namespace ifb {
         assert(tbl->array_particle_emitter);
         assert(tbl->array_sprite);
         assert(tbl->array_bounds);
+        assert(tbl->array_collider);
     }
 };

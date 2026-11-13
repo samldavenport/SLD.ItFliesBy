@@ -496,6 +496,27 @@ namespace ifb {
     };
 
     //--------------------------------------------------------------------
+    // PHYSICS 
+    //--------------------------------------------------------------------
+  
+    IFB_U32(phys_cllsn_phase_u32);
+    enum phys_cllsn_phase_e {
+       phys_cllsn_phase_e_begin = 0,
+       phys_cllsn_phase_e_stay  = 1,
+       phys_cllsn_phase_e_end   = 2
+    };
+
+    struct phys_cllsn_contact {
+        entity_id            self;
+        entity_id            other;
+        vec3                 normal;
+        f32                  depth;
+        phys_cllsn_phase_u32 phase;
+    };
+
+    using fptr_phys_cllsn_proc = void (*) (const phys_cllsn_contact& contact);
+
+    //--------------------------------------------------------------------
     // COMPONENTS
     //--------------------------------------------------------------------
 
@@ -515,9 +536,9 @@ namespace ifb {
         cmpnt_type_e_map_coords       = bit_value(9),
         cmpnt_type_e_particle_emitter = bit_value(10),
         cmpnt_type_e_sprite           = bit_value(11),
-        // a tag with no data, collisions can't push the entity, but its own forces still move it
         cmpnt_type_e_immovable        = bit_value(12),
-        cmpnt_type_e_bounds           = bit_value(13)
+        cmpnt_type_e_bounds           = bit_value(13),
+        cmpnt_type_e_collider         = bit_value(14)
     };
 
     using  cmpnt_position      = vec3;
@@ -576,6 +597,13 @@ namespace ifb {
     struct cmpnt_sprite {
         hnd_sprite_atlas h_atlas;
         u32              i_sprite;
+    };
+
+    struct cmpnt_collider {
+        fptr_phys_cllsn_proc proc;
+        u32                  mask_category;
+        u32                  mask_collides_with;
+        b32                  is_trigger;
     };
 
     //--------------------------------------------------------------------
