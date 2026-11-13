@@ -38,13 +38,16 @@ namespace ifb {
         const u32 index_a,
         const u32 index_b) {
 
-        const entity_id tmp_id   = bvh->array_entity_ids   [index_a];
-        const phys_aabb tmp_aabb = bvh->array_entity_aabbs [index_a];
+        const entity_id       tmp_id   = bvh->array_entity_ids   [index_a];
+        const phys_aabb       tmp_aabb = bvh->array_entity_aabbs [index_a];
+        const phys_cllsn_mask tmp_mask = bvh->array_cllsn_masks  [index_a];
 
         bvh->array_entity_ids   [index_a] = bvh->array_entity_ids   [index_b];
         bvh->array_entity_aabbs [index_a] = bvh->array_entity_aabbs [index_b];
+        bvh->array_cllsn_masks  [index_a] = bvh->array_cllsn_masks  [index_b];
         bvh->array_entity_ids   [index_b] = tmp_id;
         bvh->array_entity_aabbs [index_b] = tmp_aabb;
+        bvh->array_cllsn_masks  [index_b] = tmp_mask;
     }
 
     // quickselect on the entity centroids along the axis
@@ -193,16 +196,18 @@ namespace ifb {
 
         const u32 save = arena_save(h_arena);
 
-        auto bvh   =      (phys_bvh*)arena_push(h_arena, sizeof(phys_bvh));
-        auto nodes = (phys_bvh_node*)arena_push(h_arena, node_capacity * sizeof(phys_bvh_node));
-        auto ids   =     (entity_id*)arena_push(h_arena, entity_count  * sizeof(entity_id));
-        auto aabbs =     (phys_aabb*)arena_push(h_arena, entity_count  * sizeof(phys_aabb));
+        auto bvh   =        (phys_bvh*)arena_push(h_arena, sizeof(phys_bvh));
+        auto nodes =   (phys_bvh_node*)arena_push(h_arena, node_capacity * sizeof(phys_bvh_node));
+        auto ids   =       (entity_id*)arena_push(h_arena, entity_count  * sizeof(entity_id));
+        auto aabbs =       (phys_aabb*)arena_push(h_arena, entity_count  * sizeof(phys_aabb));
+        auto masks = (phys_cllsn_mask*)arena_push(h_arena, entity_count  * sizeof(phys_cllsn_mask));
 
         const bool is_valid = (
             bvh   != NULL &&
             nodes != NULL &&
             ids   != NULL &&
-            aabbs != NULL
+            aabbs != NULL &&
+            masks != NULL
         );
 
         if (!is_valid) {
@@ -213,6 +218,7 @@ namespace ifb {
         bvh->array_nodes        = nodes;
         bvh->array_entity_ids   = ids;
         bvh->array_entity_aabbs = aabbs;
+        bvh->array_cllsn_masks  = masks;
         bvh->count_nodes        = 0;
         bvh->count_entities     = 0;
         bvh->capacity_nodes     = node_capacity;
@@ -222,15 +228,17 @@ namespace ifb {
 
     IFB_INTERNAL void
     phys_bvh_build(
-        phys_bvh*        bvh,
-        const entity_id* ids,
-        const phys_aabb* aabbs,
-        const u32        count) {
+        phys_bvh*              bvh,
+        const entity_id*       ids,
+        const phys_aabb*       aabbs,
+        const phys_cllsn_mask* masks,
+        const u32              count) {
 
         assert(bvh                     != NULL);
         assert(bvh->array_nodes        != NULL);
         assert(bvh->array_entity_ids   != NULL);
         assert(bvh->array_entity_aabbs != NULL);
+        assert(bvh->array_cllsn_masks  != NULL);
         assert(count                   <= bvh->capacity_entities);
 
         bvh->count_nodes    = 0;
@@ -239,6 +247,7 @@ namespace ifb {
 
         assert(ids   != NULL);
         assert(aabbs != NULL);
+        assert(masks != NULL);
 
         // copy the entities, the build reorders them
         for (
@@ -248,6 +257,7 @@ namespace ifb {
 
             bvh->array_entity_ids   [index] = ids   [index];
             bvh->array_entity_aabbs [index] = aabbs [index];
+            bvh->array_cllsn_masks  [index] = masks [index];
         }
 
         // the root holds every entity, then gets split down
@@ -324,6 +334,14 @@ namespace ifb {
 
                     // every pair gets visited from both sides, only take it from the lower index
                     if (index_b <= index_a) continue;
+
+                    // check that we care about what we are colliding with
+                    // before the box test, it's the cheaper of the two
+                    const phys_cllsn_mask& mask_a = bvh->array_cllsn_masks[index_a];
+                    const phys_cllsn_mask& mask_b = bvh->array_cllsn_masks[index_b];
+                    if ((mask_a.collides_with & mask_b.category) == 0) continue;
+                    if ((mask_b.collides_with & mask_a.category) == 0) continue;
+
                     if (!phys_aabb_check(aabb_a, bvh->array_entity_aabbs[index_b])) continue;
 
                     phys_cllsn_pair pair;

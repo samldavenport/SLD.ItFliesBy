@@ -472,6 +472,46 @@ namespace ifb {
         return(has_component);
     }
 
+    //--------------------------------------------------------------------
+    // COLLIDER
+    //--------------------------------------------------------------------
+
+    IFB_ENGINE_API bool
+    eng_cmpnt_lookup_collider(
+        const entity_id id,
+        cmpnt_collider& collider) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = does_exist && entity_has_component(e, cmpnt_type_e_collider);
+
+        if (has_component) {
+            cmpnt_lookup_collider(e.index_sparse, collider);
+        }
+
+        return(has_component);
+    }
+
+    IFB_ENGINE_API bool
+    eng_cmpnt_update_collider(
+        const entity_id       id,
+        const cmpnt_collider& collider) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = does_exist && entity_has_component(e, cmpnt_type_e_collider);
+
+        if (has_component) {
+            cmpnt_update_collider(e.index_sparse, collider);
+        }
+
+        return(has_component);
+    }
+
     IFB_ENGINE_API bool
     eng_cmpnt_update_spring(
         const entity_id     id,

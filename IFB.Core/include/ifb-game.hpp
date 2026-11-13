@@ -75,17 +75,12 @@ namespace ifb {
         u32              i_sprite_jig;
     };
 
-    // collision events keep coming every physics step while connor touches a box,
-    // so a bump is a contact after GAME_BOOP_CONTACT_GAP_S without one
-    static constexpr f64 GAME_BOOP_CONTACT_GAP_S = 0.1;
-    static constexpr f32 GAME_BOOP_VOLUME        = 0.25f;
-    static constexpr f32 GAME_MUSIC_VOLUME       = 0.3f;
+    static constexpr f32 GAME_BOOP_VOLUME  = 0.25f;
+    static constexpr f32 GAME_MUSIC_VOLUME = 0.3f;
 
     struct game_audio {
-        hnd_audio_voice h_music;            // INVALID_HANDLE if it couldn't start, like without the sound bank
-        hnd_audio_voice h_boop;             // stale once the boop finishes
-        f64             time_s;             // since the game started
-        f64             box_contact_time_s; // the last collision event between connor and a box
+        hnd_audio_voice h_music; // INVALID_HANDLE if it couldn't start, like without the sound bank
+        hnd_audio_voice h_boop;  // stale once the boop finishes
     };
 
     static constexpr const cchar* GAME_SCENE_GAMEPLAY_NAME = "GAMEPLAY";
