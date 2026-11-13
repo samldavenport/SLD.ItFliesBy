@@ -734,17 +734,24 @@ namespace ifb {
         event_type_e_count             = 5,
     };
 
+    // sent once per contact per phase, after the physics step
+    // a is the lower id, and the normal points from a to b
     struct event_data_physics_collision {
-        entity_id a;
-        entity_id b;
+        entity_id            a;
+        entity_id            b;
+        vec3                 normal;
+        f32                  depth;
+        phys_cllsn_phase_u32 phase;
     };
-    
+
     struct event_payload {
         union {
             byte                         data[64];
             event_data_physics_collision physics_collision;
         } data;
     };
+
+    static_assert(sizeof(event_data_physics_collision) <= sizeof(event_payload::data), "the collision event doesn't fit in the payload");
     
     using fptr_event_listener = void (*) (const event_payload&);
 

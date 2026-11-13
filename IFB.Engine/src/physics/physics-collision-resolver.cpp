@@ -190,7 +190,11 @@ namespace ifb {
             cntct.normal         = {};
             cntct.normal.v[axis] = normal;
             cntct.depth          = overlap_min;
-            (void)phys_cntct_list_insert(cntct_list, cntct);
+            // the pairs are unique, so this only fails when the list is full
+            // a dropped contact would show up as a false end, then a begin
+            const bool did_insert = phys_cntct_list_insert(cntct_list, cntct);
+            assert(did_insert);
+            (void)did_insert;
 
             // triggers don't push, and don't get pushed
             if (body_a.is_trigger || body_b.is_trigger) continue;

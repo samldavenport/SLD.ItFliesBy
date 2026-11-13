@@ -139,4 +139,57 @@ namespace ifb {
         phys_cntct_list_validate(list);
         list->count = 0;
     }
+
+    // compares this step's contacts with the last step's, and calls the proc with each one's phase
+    // begin: touching now, not last step
+    // stay:  touching now and last step
+    // end:   touching last step, not now, it keeps its last normal with no depth
+    // returns how many times the proc was called
+    IFB_INTERNAL u32
+    phys_cntct_list_walk_phases(
+        const phys_cntct_list*           curr,
+        const phys_cntct_list*           prev,
+        const fptr_phys_cntct_phase_proc proc) {
+
+        phys_cntct_list_validate(curr);
+        phys_cntct_list_validate(prev);
+        assert(curr != prev);
+        assert(proc != NULL);
+
+        u32 count_called = 0;
+
+        // begin and stay come from this step's contacts
+        for (
+            u32 i_curr = 0;
+                i_curr < curr->count;
+              ++i_curr) {
+
+            const phys_cntct cntct    = phys_cntct_list_get(curr, i_curr);
+            const bool       was_in   = (phys_cntct_list_find(prev, cntct.a, cntct.b) != INVALID_INDEX);
+            const phys_cllsn_phase_u32 phase = was_in
+                ? phys_cllsn_phase_u32(phys_cllsn_phase_e_stay)
+                : phys_cllsn_phase_u32(phys_cllsn_phase_e_begin);
+
+            proc(cntct, phase);
+            ++count_called;
+        }
+
+        // end comes from the last step's contacts that are gone
+        for (
+            u32 i_prev = 0;
+                i_prev < prev->count;
+              ++i_prev) {
+
+            phys_cntct cntct = phys_cntct_list_get(prev, i_prev);
+            if (phys_cntct_list_find(curr, cntct.a, cntct.b) != INVALID_INDEX) continue;
+
+            // they aren't overlapping anymore
+            cntct.depth = 0.0f;
+
+            proc(cntct, phys_cllsn_phase_u32(phys_cllsn_phase_e_end));
+            ++count_called;
+        }
+
+        return(count_called);
+    }
 };

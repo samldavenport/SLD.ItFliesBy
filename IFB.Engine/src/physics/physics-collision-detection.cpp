@@ -8,7 +8,6 @@
 #include "eng-entity.hpp"
 #include "eng-map.hpp"
 #include "eng-memory.hpp"
-#include "eng-events.hpp"
 
 namespace ifb {
 
@@ -180,24 +179,9 @@ namespace ifb {
                     // revert the arena
                     arena_revert(h_arena, save);
               }
-        }          
-
-        // publish events
-        const u32 cllsn_count = phys_cllsn_list_get_count(dtctr->cllsn_list);
-        event_payload payload;
-        for (
-            u32 i_cllsn = 0;
-                i_cllsn < cllsn_count; 
-              ++i_cllsn) {
-
-            const auto cllsn_pair = phys_cllsn_list_get_pair(dtctr->cllsn_list, i_cllsn);
-            
-            payload.data.physics_collision.a = cllsn_pair.a;
-            payload.data.physics_collision.b = cllsn_pair.b;
-        
-            const bool did_publish = event_mngr_publish(event_type_e_physics_collision, payload);
-            assert(did_publish);
         }
+
+        // these are only candidates, the events are published from the contacts after the step
 
         // free the arena
         arena_free(h_arena);

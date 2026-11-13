@@ -35,11 +35,10 @@ namespace ifb {
 
         if (!has_connor || !has_box) return;
 
-        // only a new bump, not every step connor stays against the box
-        auto       audio          = _game_ctx->audio;
-        const bool is_new_contact = (audio->time_s - audio->box_contact_time_s) >= GAME_BOOP_CONTACT_GAP_S;
-        audio->box_contact_time_s = audio->time_s;
-        if (!is_new_contact) return;
+        // only a new bump, not every step connor stays against the box, or when he walks away
+        if (cllsn_data.phase != phys_cllsn_phase_e_begin) return;
+
+        auto audio = _game_ctx->audio;
 
         // the bump opens a dialog, unless one is already up
         // connor is still touching the box when it closes, but that isn't a new bump, so it doesn't open again
@@ -88,10 +87,8 @@ namespace ifb {
         ctx->talk_was_down    = false;
         game_dialog_init(dialog);
 
-        // nothing is playing, and the first contact counts as a bump
-        audio->h_boop             = {INVALID_HANDLE};
-        audio->time_s             = 0.0;
-        audio->box_contact_time_s = -GAME_BOOP_CONTACT_GAP_S;
+        // nothing is playing yet
+        audio->h_boop = {INVALID_HANDLE};
 
         // loaded now so the first bump doesn't wait on the disk, it stays loaded for the whole game
         // without the sound bank it fails, and the boop just doesn't play
@@ -152,8 +149,6 @@ namespace ifb {
         auto audio = ctx->audio;
 
         eng_audio_voice_stop(audio->h_music);
-
-        audio->time_s += eng_system_get_delta_time_s();
 
         // connor stands still while he's being talked to
         ctx->player_rig->is_input_locked = game_dialog_is_open(ctx->dialog);

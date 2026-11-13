@@ -102,6 +102,7 @@
 #include "physics-collision-detection.cpp"
 #include "physics-collision-list.cpp"
 #include "physics-contact-list.cpp"
+#include "physics-contact-dispatch.cpp"
 #include "physics-collision-resolver.cpp"
 
 #include "quad.cpp"

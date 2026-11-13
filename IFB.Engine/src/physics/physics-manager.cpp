@@ -22,7 +22,8 @@ namespace ifb {
         phys_frc_sprcalc* spring_calculator;
         phys_cllsn_dtctr* collision_detector;
         phys_cllsn_rslvr* collision_resolver;
-        phys_cntct_list*  contact_list;
+        phys_cntct_list*  contact_list_curr; // the contacts from this step
+        phys_cntct_list*  contact_list_prev; // the contacts from the last step, for the phases
     };
 
     //--------------------------------------------------------------------
@@ -50,7 +51,9 @@ namespace ifb {
         assert(_phys_mngr->spring_calculator  != NULL);
         assert(_phys_mngr->collision_detector != NULL);
         assert(_phys_mngr->collision_resolver != NULL);
-        assert(_phys_mngr->contact_list       != NULL);
+        assert(_phys_mngr->contact_list_curr  != NULL);
+        assert(_phys_mngr->contact_list_prev  != NULL);
+        assert(_phys_mngr->contact_list_curr  != _phys_mngr->contact_list_prev);
     }
 
     IFB_INTERNAL void
@@ -66,7 +69,8 @@ namespace ifb {
         _phys_mngr->force_integrator   = phys_frc_intgrtr_create (); 
         _phys_mngr->collision_detector = phys_cllsn_dtctr_create ();
         _phys_mngr->collision_resolver = phys_cllsn_rslvr_create ();
-        _phys_mngr->contact_list       = phys_cntct_list_create  ();
+        _phys_mngr->contact_list_curr  = phys_cntct_list_create  ();
+        _phys_mngr->contact_list_prev  = phys_cntct_list_create  ();
 
         phys_mngr_validate();
     }
@@ -84,13 +88,27 @@ namespace ifb {
 
         const phys_cllsn_list* cllsn_list = phys_cllsn_dtctr_get_list(_phys_mngr->collision_detector);
 
+        // this step's contacts become the last step's
+        // the resolver resets the other list and fills it with this step's
+        phys_cntct_list* cntct_list_tmp = _phys_mngr->contact_list_prev;
+        _phys_mngr->contact_list_prev   = _phys_mngr->contact_list_curr;
+        _phys_mngr->contact_list_curr   = cntct_list_tmp;
+
         // collisions are resolved after integration, once the components hold the new positions
         // the resolver fills the contact list with the pairs that actually overlap
         phys_cllsn_dtctr_run   (_phys_mngr->collision_detector, dt);
         phys_frc_sprcalc_run   (_phys_mngr->spring_calculator);
         phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
-        phys_cllsn_rslvr_run   (_phys_mngr->collision_resolver, cllsn_list, _phys_mngr->contact_list, dt);
+        phys_cllsn_rslvr_run   (_phys_mngr->collision_resolver, cllsn_list, _phys_mngr->contact_list_curr, dt);
         phys_frc_accmltr_reset (_phys_mngr->force_accumulator);
+
+        // the step is done, so the procs can't change anything out from under it
+        // forces they add land in the next step
+        (void)phys_cntct_list_walk_phases(
+            _phys_mngr->contact_list_curr,
+            _phys_mngr->contact_list_prev,
+            phys_cntct_dispatch
+        );
     }
 
     //--------------------------------------------------------------------

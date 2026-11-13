@@ -83,6 +83,12 @@ namespace ifb {
     IFB_INTERNAL bool              phys_cntct_list_insert      (phys_cntct_list*       list, const phys_cntct& cntct);
     IFB_INTERNAL void              phys_cntct_list_reset       (phys_cntct_list*       list);
 
+    // called once for every contact that has a phase this step
+    using fptr_phys_cntct_phase_proc = void (*) (const phys_cntct& cntct, const phys_cllsn_phase_u32 phase);
+    IFB_INTERNAL u32               phys_cntct_list_walk_phases (const phys_cntct_list* curr, const phys_cntct_list* prev, const fptr_phys_cntct_phase_proc proc);
+
+    IFB_INTERNAL void              phys_cntct_dispatch         (const phys_cntct& cntct, const phys_cllsn_phase_u32 phase);
+
     IFB_INTERNAL phys_bvh*         phys_bvh_create             (const u32 entity_count, const hnd_arena h_arena);
     IFB_INTERNAL void              phys_bvh_build              (phys_bvh* bvh, const entity_id* ids, const phys_aabb* aabbs, const phys_cllsn_mask* masks, const u32 count);
     IFB_INTERNAL u32               phys_bvh_query_pairs        (const phys_bvh* bvh, phys_cllsn_list* list);
