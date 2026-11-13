@@ -71,8 +71,8 @@ namespace ifb {
         rose_config.chunk_x             = 2;
         rose_config.chunk_y             = 2;
         rose_config.proc                = NULL;
-        rose_config.tile_roam_x         = 2;
-        rose_config.tile_roam_y         = 2;
+        rose_config.tile_roam_x         = 1;
+        rose_config.tile_roam_y         = 1;
 
         game_npc_spawn(rose_config);
 
