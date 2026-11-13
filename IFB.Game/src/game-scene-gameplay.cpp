@@ -14,6 +14,28 @@ namespace ifb {
     game_scene_gameplay_rose_collision_proc(
         const phys_cllsn_contact& contact) {
 
+        assert(_game_ctx);
+        assert(_game_ctx->player_rig);
+        assert(_game_ctx->entities);
+
+        auto player_rig = _game_ctx->player_rig;
+        
+
+        // only connor matters, she can bump into the boxes too
+        if (contact.other != player_rig->connor_id) return;
+
+        // he has to be touching her, end means he just walked away
+        if (contact.phase == phys_cllsn_phase_e_end) return;
+
+        // the game callback reads e before the physics step, and leaves the press here if nothing used it
+        if (!_game_ctx->is_action_pressed) return;
+        if (_game_ctx->fnt == NULL)        return;
+
+        // used up, so nothing else connor is touching reacts to the same press
+        _game_ctx->is_action_pressed = false;
+
+        static constexpr cchar rose_text[] = "Hi Connor!";
+        game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, rose_text, sizeof(rose_text) - 1);
     }
 
     // the level: the map and its parallax, the player rig, and the boxes
@@ -82,6 +104,8 @@ namespace ifb {
 
         const entity_id rose_id = game_npc_spawn(rose_config);
         assert(rose_id != ENTITY_ID_INVALID);
+
+        entities->rose = rose_id;
 
         // rose handles her own collisions
         // she's solid and collides with everything, the collider is only here for the proc

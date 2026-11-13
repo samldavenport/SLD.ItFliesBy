@@ -63,6 +63,7 @@ namespace ifb {
         entity_id static_entity_1;
         entity_id static_entity_2;
         entity_id static_entity_3;
+        entity_id rose;
     };
 
     struct game_map {
@@ -174,6 +175,7 @@ namespace ifb {
         const font*      fnt;   // the ui font, NULL if it didn't load
         game_dialog*     dialog;
         bool             talk_was_down;
+        bool             is_action_pressed; // e was pressed this pass, and nothing has used it yet
     } static * _game_ctx;
 
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
