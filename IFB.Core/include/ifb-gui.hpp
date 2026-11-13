@@ -49,6 +49,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_game_audio            (bool& is_open, const game_context* game_ctx);
     IFB_INTERNAL void  gui_game_asset_dictionary (bool& is_open);
     IFB_INTERNAL void  gui_game_asset_database   (bool& is_open);
+    IFB_INTERNAL void  gui_game_tile_coords      (const bool is_enabled, const game_context* game_ctx);
 
     // entities
     IFB_INTERNAL void  gui_entity_manager     (bool& is_open);
@@ -100,6 +101,7 @@ namespace ifb {
         inline static const char* menu_game_item_player_rig                          = "Player Rig";
         inline static const char* menu_game_item_audio                               = "Audio";
         inline static const char* window_game_audio                                  = "Game Audio";
+        inline static const char* menu_game_item_tile_coords                         = "Tile Coordinates";
         inline static const char* menu_game_menu_assets                              = "Assets";
         inline static const char* menu_game_menu_assets_item_dictionary              = "Asset Dictionary";
         inline static const char* menu_game_menu_assets_item_database                = "Asset Database";

@@ -39,6 +39,7 @@ namespace ifb {
         ctx->player_rig       = rig;
         ctx->map              = map;
         ctx->entities         = entities;
+        ctx->npc_mngr         = game_npc_mngr_create(h_scene);
 
         // the map goes first, the player rig spawns on it
         game_map_init(map);
@@ -51,6 +52,29 @@ namespace ifb {
         entities->static_entity_1 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-1","WOOD",map->eng_hnd,0,3,7);
         entities->static_entity_2 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-2","WOOD",map->eng_hnd,0,7,3);
         entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
+
+
+        game_npc_config rose_config;
+        rose_config.cstr_name           = "ROSE";
+        rose_config.sprites.cstr_left   = "ROSE-LEFT";
+        rose_config.sprites.cstr_right  = "ROSE-RIGHT";
+        rose_config.sprites.cstr_walk_0 = "ROSE-WLK-0";
+        rose_config.sprites.cstr_walk_1 = "ROSE-WLK-1";
+        rose_config.sprites.cstr_walk_2 = "ROSE-WLK-2";
+        rose_config.sprites.cstr_walk_3 = "ROSE-WLK-3";
+        rose_config.sprites.cstr_walk_4 = "ROSE-WLK-4";
+        rose_config.sprites.cstr_walk_5 = "ROSE-WLK-5";
+        rose_config.sprites.cstr_walk_6 = "ROSE-WLK-6";
+        rose_config.sprites.cstr_walk_7 = "ROSE-WLK-7";
+        rose_config.h_map               = map->eng_hnd;
+        rose_config.chunk_index         = 1;
+        rose_config.chunk_x             = 2;
+        rose_config.chunk_y             = 2;
+        rose_config.proc                = NULL;
+        rose_config.tile_roam_x         = 1;
+        rose_config.tile_roam_y         = 1;
+
+        game_npc_spawn(rose_config);
 
         assert(entities->static_entity_0 != ENTITY_ID_INVALID);
         assert(entities->static_entity_1 != ENTITY_ID_INVALID);
@@ -77,6 +101,7 @@ namespace ifb {
         game_player_rig_update_and_render (ctx->player_rig);
         game_player_rig_update_camera     (ctx->player_rig);
         game_map_update_and_render        (ctx->map);
+        game_npc_mngr_update_and_render   ();
 
         eng_entity_render(entities->static_entity_0);
         eng_entity_render(entities->static_entity_1);

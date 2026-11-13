@@ -25,6 +25,7 @@ namespace ifb {
         cmpnt_drag*          drag;
         hnd_map*             map;
         f32*                 map_inset;
+        f32*                 map_offset_x; // the collision box's center is this far along x from the position
     };
 
     inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
@@ -39,8 +40,8 @@ namespace ifb {
         const phys_frc_accmltr* accum,
         const f32               dt) {
 
-        // load all components into the integrator
-        // with forces and matching archetype
+        // load every entity with the physics archetype into the integrator,
+        // with the force it was given this step, or none
         // map entities integrate in world space like everything else,
         // their map coordinates are derived from the position
         if (!phys_frc_intgrtr_lookup_global_components(integrator, accum)) {
@@ -85,6 +86,7 @@ namespace ifb {
         integrator->drag          =         (cmpnt_drag*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(cmpnt_drag));
         integrator->map           =            (hnd_map*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(hnd_map));
         integrator->map_inset     =                (f32*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(f32));
+        integrator->map_offset_x  =                (f32*)phys_mngr_res_alloc(cfg.entity_capacity * sizeof(f32));
 
         assert(integrator->force         != NULL);
         assert(integrator->position      != NULL);
@@ -95,33 +97,58 @@ namespace ifb {
         assert(integrator->drag          != NULL);
         assert(integrator->map           != NULL);
         assert(integrator->map_inset     != NULL);
+        assert(integrator->map_offset_x  != NULL);
 
         return(integrator);
     }
 
-    inline bool 
+    // the force the entity was given this step, zero if it wasn't given one
+    inline vec3
+    phys_frc_intgrtr_get_force(
+        const phys_frc_accmltr* a,
+        const entity_id         id) {
+
+        for (
+            u32 force_index = 0;
+                force_index < a->count;
+              ++force_index) {
+
+            if (a->data.ids[force_index] == id) {
+                return(a->data.forces[force_index]);
+            }
+        }
+
+        const vec3 none = { 0.0f, 0.0f, 0.0f };
+        return(none);
+    }
+
+    // every body is integrated, not just the ones with a force this step,
+    // so a body that stops being pushed still has drag slow it down,
+    // instead of keeping its velocity and freezing in place
+    inline bool
     phys_frc_intgrtr_lookup_global_components(
         phys_frc_intgrtr*       i,
         const phys_frc_accmltr* a) {
-        
+
         const cmpnt_type_u32 physics_types = (
             cmpnt_type_e_position       |
             cmpnt_type_e_velocity       |
             cmpnt_type_e_acceleration   |
             cmpnt_type_e_inv_mass       |
             cmpnt_type_e_drag           |
-            cmpnt_type_e_term_velocity 
+            cmpnt_type_e_term_velocity
         );
 
+        const u32 entity_count = entity_mngr_get_count();
         for (
-            u32 force_index = 0;
-                force_index < a->count;
-              ++force_index
+            u32 entity_index = 0;
+                entity_index < entity_count;
+              ++entity_index
         ) {
-        
+
             // look up the entity
             entity e;
-            const bool did_lookup = entity_lookup_by_id(e, a->data.ids[force_index]);
+            const bool did_lookup = entity_lookup_by_index_dense(e, entity_index);
             assert(did_lookup);
 
             // make sure it matches the archetype for integration
@@ -144,21 +171,22 @@ namespace ifb {
 
             // entities that belong to a map stay inside of it
             i->map       [integrator_index] = INVALID_HANDLE;
-            i->map_inset [integrator_index] = 0.0f;
+            i->map_inset    [integrator_index] = 0.0f;
+            i->map_offset_x [integrator_index] = 0.0f;
             if (e.archetype.has_all(cmpnt_type_e_map_coords)) {
                 cmpnt_map_coords map_coords;
                 cmpnt_lookup_map_coords(e.index_sparse, map_coords);
                 i->map[integrator_index] = map_coords.h_map;
             }
-            // the position is the center of the quad,
-            // so keep half of it away from the edge
-            if (e.archetype.has_all(cmpnt_type_e_quad)) {
-                cmpnt_quad quad;
-                cmpnt_lookup_quad(e.index_sparse, quad);
-                i->map_inset[integrator_index] = quad.width * 0.5f;
+            // keep the collision box's footprint inside the map
+            vec3 box_offset;
+            vec3 box_half_extent;
+            if (phys_aabb_get_body_box(e, box_offset, box_half_extent)) {
+                i->map_inset    [integrator_index] = box_half_extent.x;
+                i->map_offset_x [integrator_index] = box_offset.x;
             }
 
-            i->force        [integrator_index] = a->data.forces[force_index];
+            i->force        [integrator_index] = phys_frc_intgrtr_get_force(a, e.id);
             i->sparse_index [integrator_index] = e.index_sparse;
 
             ++i->count;
@@ -227,12 +255,16 @@ namespace ifb {
 
             if (i->map[index] == INVALID_HANDLE) continue;
 
+            // constrain the box's center, then move back to the position
+            cmpnt_position& pos = i->position[index];
+            pos.x += i->map_offset_x[index];
             (void)map_constrain_movement(
                 i->map       [index],
                 i->map_inset [index],
-                i->position  [index],
+                pos,
                 i->velocity  [index]
             );
+            pos.x -= i->map_offset_x[index];
         }
     }
 

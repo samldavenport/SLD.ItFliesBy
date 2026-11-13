@@ -27,7 +27,8 @@ namespace ifb {
         assert(tbl->array_map_coords);
         assert(tbl->array_particle_emitter);
         assert(tbl->array_sprite);
-    
+        assert(tbl->array_bounds);
+
         return(tbl);
     }
 
@@ -143,6 +144,15 @@ namespace ifb {
         sprite = tbl->array_sprite[sparse_index];
     }
 
+    IFB_INTERNAL void
+    cmpnt_lookup_bounds(
+        const u32     sparse_index,
+        cmpnt_bounds& bounds) {
+
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        bounds = tbl->array_bounds[sparse_index];
+    }
+
     //--------------------------------------------------------------------
     // UPDATE METHODS 
     //--------------------------------------------------------------------
@@ -253,5 +263,14 @@ namespace ifb {
 
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tbl->array_sprite[sparse_index] = sprite;
+    }
+
+    IFB_INTERNAL void
+    cmpnt_update_bounds(
+        const u32           sparse_index,
+        const cmpnt_bounds& bounds) {
+
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_bounds[sparse_index] = bounds;
     }
 };

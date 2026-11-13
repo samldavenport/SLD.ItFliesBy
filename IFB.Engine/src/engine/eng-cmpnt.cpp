@@ -437,6 +437,42 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
+    eng_cmpnt_lookup_bounds(
+        const entity_id id,
+        cmpnt_bounds&   bounds) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = does_exist && entity_has_component(e, cmpnt_type_e_bounds);
+
+        if (has_component) {
+            cmpnt_lookup_bounds(e.index_sparse, bounds);
+        }
+
+        return(has_component);
+    }
+
+    IFB_ENGINE_API bool
+    eng_cmpnt_update_bounds(
+        const entity_id     id,
+        const cmpnt_bounds& bounds) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool does_exist    = entity_lookup_by_id  (e, id);
+        const bool has_component = does_exist && entity_has_component(e, cmpnt_type_e_bounds);
+
+        if (has_component) {
+            cmpnt_update_bounds(e.index_sparse, bounds);
+        }
+
+        return(has_component);
+    }
+
+    IFB_ENGINE_API bool
     eng_cmpnt_update_spring(
         const entity_id     id,
         const cmpnt_spring& spr) {

@@ -6,7 +6,26 @@
 
 namespace ifb {
 
-    IFB_INTERNAL entity_id 
+    // the collision rect for connor and the npcs, their sprites don't fill their quads
+    // it was measured from connor's sprite, which is 62 x 62,
+    // the drawn pixels span x 11..49 and y 2..61 in both directions,
+    // so the rect is 39 x 60 pixels, centered across, and 1 pixel below the middle
+    // the quads are square, so the width sets the scale
+    IFB_INTERNAL cmpnt_bounds
+    game_entity_character_bounds(
+        const f32 quad_width) {
+
+        const f32 px = quad_width / 62.0f;
+
+        cmpnt_bounds bounds;
+        bounds.width  = 39.0f * px;
+        bounds.height = 60.0f * px;
+        bounds.x      =  0.0f;
+        bounds.y      = -1.0f * px;
+        return(bounds);
+    }
+
+    IFB_INTERNAL entity_id
     game_entity_spawn_static_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  atlas_name_cstr, 
@@ -134,6 +153,11 @@ namespace ifb {
         physics_sprite.inv_mass.normal_val = 0.50f;
         physics_sprite.drag.normal_val     = 0.01f;
 
+        // the same top speed as connor, without it they can't move
+        physics_sprite.term_velocity.x = 1.00f;
+        physics_sprite.term_velocity.y = 1.00f;
+        physics_sprite.term_velocity.z = 1.00f;
+
         const bool did_get_pos = eng_map_get_pos_from_coords(physics_sprite.map_coords, physics_sprite.position);
         if (!did_get_pos) return(ENTITY_ID_INVALID);
 
@@ -151,6 +175,8 @@ namespace ifb {
         did_spawn &= eng_entity_add_components       (id, ARCHETYPE_PHYSICS_SPRITE);
         did_spawn &= eng_atype_update_physics_sprite (id, physics_sprite);
         did_spawn &= eng_entity_set_sprite           (id, "CORE-SPRITES", sprite_name_cstr);
+        did_spawn &= eng_entity_add_components       (id, cmpnt_type_e_bounds);
+        did_spawn &= eng_cmpnt_update_bounds         (id, game_entity_character_bounds(physics_sprite.quad.width));
 
         if (!did_spawn) {
             eng_entity_destroy_by_id(id);

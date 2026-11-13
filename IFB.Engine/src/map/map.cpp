@@ -696,7 +696,8 @@ namespace ifb {
                 continue;
             }
 
-            cmpnt_lookup_map_coords(e.index_sparse, mc);
+            // the stored coordinates are only set at spawn, the position is where the entity is now
+            map_entity_lookup_coords(e, mc);
             if (mc.h_map != h_map) {
                 continue;
             }

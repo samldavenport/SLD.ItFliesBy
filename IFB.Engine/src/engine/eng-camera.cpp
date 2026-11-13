@@ -56,4 +56,12 @@ namespace ifb {
 
         renderer_get_camera_xform(xform);
     }
+
+    // the projection times the view, what the game is drawn with over the whole window
+    IFB_ENGINE_API void
+    eng_camera_get_view_proj(
+        mat4& xform) {
+
+        renderer_view_projection_xform(xform);
+    }
 };
