@@ -271,6 +271,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_lookup_map_coords       (const entity_id id, cmpnt_map_coords&        coords);
     IFB_ENGINE_API bool         eng_cmpnt_lookup_particle_emitter (const entity_id id, cmpnt_particle_emitter&  emitter);
     IFB_ENGINE_API bool         eng_cmpnt_lookup_sprite           (const entity_id id, cmpnt_sprite&            sprite);
+    IFB_ENGINE_API bool         eng_cmpnt_lookup_bounds           (const entity_id id, cmpnt_bounds&            bounds);
 
     IFB_ENGINE_API bool         eng_cmpnt_update_position         (const entity_id id, const cmpnt_position&         pos);
     IFB_ENGINE_API bool         eng_cmpnt_update_velocity         (const entity_id id, const cmpnt_velocity&         vel);
@@ -285,6 +286,7 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_update_map_coords       (const entity_id id, const cmpnt_map_coords&       coords);
     IFB_ENGINE_API bool         eng_cmpnt_update_particle_emitter (const entity_id id, const cmpnt_particle_emitter& emitter);
     IFB_ENGINE_API bool         eng_cmpnt_update_sprite           (const entity_id id, const cmpnt_sprite&           sprite);
+    IFB_ENGINE_API bool         eng_cmpnt_update_bounds           (const entity_id id, const cmpnt_bounds&           bounds);
   
     //--------------------------------------------------------------------
     // ARCHETYPES 

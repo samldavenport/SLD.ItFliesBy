@@ -1,6 +1,7 @@
 #pragma once
 
 #include "eng-physics.hpp"
+#include "eng-component.hpp"
 #include <cfloat>
 
 namespace ifb {
@@ -115,5 +116,38 @@ namespace ifb {
         half_extent.y = quad.height * 0.5f;
         half_extent.z = quad.width  * 0.5f;
         return(half_extent);
+    }
+
+    // the box an entity collides with, the box's center is the position plus the offset
+    // the bounds rect if it has one, otherwise the whole quad
+    // false if it has neither, and can't collide
+    IFB_INTERNAL bool
+    phys_aabb_get_body_box(
+        const entity& e,
+        vec3&         offset,
+        vec3&         half_extent) {
+
+        offset = { 0.0f, 0.0f, 0.0f };
+
+        if (e.archetype.has_all(cmpnt_type_e_bounds)) {
+            cmpnt_bounds bounds;
+            cmpnt_lookup_bounds(e.index_sparse, bounds);
+
+            offset.x      = bounds.x;
+            offset.y      = bounds.y;
+            half_extent.x = bounds.width  * 0.5f;
+            half_extent.y = bounds.height * 0.5f;
+            half_extent.z = bounds.width  * 0.5f;
+            return(true);
+        }
+
+        if (e.archetype.has_all(cmpnt_type_e_quad)) {
+            cmpnt_quad quad;
+            cmpnt_lookup_quad(e.index_sparse, quad);
+            half_extent = phys_aabb_half_extent_quad(quad);
+            return(true);
+        }
+
+        return(false);
     }
 };

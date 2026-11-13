@@ -28,7 +28,7 @@ namespace ifb {
         return(cllsn_dtctr);
     }
 
-    // builds an aabb for each entity in the list that has a position and quad
+    // builds an aabb for each entity in the list that has a position, and a bounds rect or quad
     // detection runs before integration, so moving entities are swept by
     // their velocity to catch the pairs that will touch during this step
     inline u32
@@ -37,11 +37,6 @@ namespace ifb {
         entity_id*         ids,
         phys_aabb*         aabbs,
         const f32          dt) {
-
-        const cmpnt_type_u32 bounds_types = (
-            cmpnt_type_e_position |
-            cmpnt_type_e_quad
-        );
 
         u32 count = 0;
         const u32 entity_count = eng_entity_list_count(list);
@@ -54,16 +49,18 @@ namespace ifb {
 
             entity e;
             if (!entity_lookup_by_id(e, id))        continue;
-            if (!e.archetype.has_all(bounds_types)) continue;
-            if (!entity_is_updating(e))             continue;
+            if (!e.archetype.has_all(cmpnt_type_e_position)) continue;
+            if (!entity_is_updating(e))                     continue;
+
+            vec3 offset;
+            vec3 half_extent;
+            if (!phys_aabb_get_body_box(e, offset, half_extent)) continue;
 
             cmpnt_position pos;
-            cmpnt_quad     quad;
-            cmpnt_lookup_position (e.index_sparse, pos);
-            cmpnt_lookup_quad     (e.index_sparse, quad);
+            cmpnt_lookup_position(e.index_sparse, pos);
 
             phys_aabb& aabb = aabbs[count];
-            phys_aabb_from_center(aabb, pos, phys_aabb_half_extent_quad(quad));
+            phys_aabb_from_center(aabb, vec3_add(pos, offset), half_extent);
 
             if (e.archetype.has_all(cmpnt_type_e_velocity)) {
                 cmpnt_velocity vel;

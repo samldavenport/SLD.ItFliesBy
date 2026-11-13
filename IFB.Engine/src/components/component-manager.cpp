@@ -54,6 +54,7 @@ namespace ifb {
         tbl->array_map_coords       =       (cmpnt_map_coords*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_map_coords));    
         tbl->array_particle_emitter = (cmpnt_particle_emitter*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_particle_emitter));
         tbl->array_sprite           =           (cmpnt_sprite*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_sprite));
+        tbl->array_bounds           =           (cmpnt_bounds*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_bounds));
 
         assert(tbl->array_position);
         assert(tbl->array_color);
@@ -67,5 +68,6 @@ namespace ifb {
         assert(tbl->array_map_coords);
         assert(tbl->array_particle_emitter);
         assert(tbl->array_sprite);
+        assert(tbl->array_bounds);
     }
 };

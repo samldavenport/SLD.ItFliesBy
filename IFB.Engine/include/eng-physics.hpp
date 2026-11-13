@@ -88,6 +88,7 @@ namespace ifb {
     IFB_INTERNAL vec3              phys_aabb_centroid          (const phys_aabb& aabb);
     IFB_INTERNAL void              phys_aabb_from_center       (phys_aabb& aabb, const vec3& center, const vec3& half_extent);
     IFB_INTERNAL vec3              phys_aabb_half_extent_quad  (const cmpnt_quad& quad);
+    IFB_INTERNAL bool              phys_aabb_get_body_box      (const entity& e, vec3& offset, vec3& half_extent);
 
     //--------------------------------------------------------------------
     // TYPE DEFINITIONS

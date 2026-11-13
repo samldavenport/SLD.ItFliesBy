@@ -33,6 +33,7 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_lookup_map_coords       (const u32 sparse_index, cmpnt_map_coords&       map_coords);    
     IFB_INTERNAL void        cmpnt_lookup_particle_emitter (const u32 sparse_index, cmpnt_particle_emitter& particle_emitter);    
     IFB_INTERNAL void        cmpnt_lookup_sprite           (const u32 sparse_index, cmpnt_sprite&           sprite);
+    IFB_INTERNAL void        cmpnt_lookup_bounds           (const u32 sparse_index, cmpnt_bounds&           bounds);
 
     IFB_INTERNAL void        cmpnt_update_position         (const u32 sparse_index, const cmpnt_position&         position);
     IFB_INTERNAL void        cmpnt_update_color            (const u32 sparse_index, const cmpnt_color&            color);
@@ -46,6 +47,7 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_update_map_coords       (const u32 sparse_index, const cmpnt_map_coords&       map_coords);
     IFB_INTERNAL void        cmpnt_update_particle_emitter (const u32 sparse_index, const cmpnt_particle_emitter& particle_emitter);
     IFB_INTERNAL void        cmpnt_update_sprite           (const u32 sparse_index, const cmpnt_sprite&           sprite);
+    IFB_INTERNAL void        cmpnt_update_bounds           (const u32 sparse_index, const cmpnt_bounds&           bounds);
     
     //--------------------------------------------------------------------
     // GLOBALS
@@ -76,6 +78,7 @@ namespace ifb {
         cmpnt_map_coords*       array_map_coords;
         cmpnt_particle_emitter* array_particle_emitter;
         cmpnt_sprite*           array_sprite;
+        cmpnt_bounds*           array_bounds;
     };
 };
 #endif //ENG_COMPONENT_HPP

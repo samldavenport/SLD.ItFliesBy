@@ -516,7 +516,8 @@ namespace ifb {
         cmpnt_type_e_particle_emitter = bit_value(10),
         cmpnt_type_e_sprite           = bit_value(11),
         // a tag with no data, collisions can't push the entity, but its own forces still move it
-        cmpnt_type_e_immovable        = bit_value(12)
+        cmpnt_type_e_immovable        = bit_value(12),
+        cmpnt_type_e_bounds           = bit_value(13)
     };
 
     using  cmpnt_position      = vec3;
@@ -554,6 +555,18 @@ namespace ifb {
         f32     col_x;
         f32     lvl_y;
         f32     row_z;
+    };
+
+    // the collision rect, for when the sprite doesn't fill its quad
+    // it's in the quad's plane, measured from the position, which is the quad's center
+    // x and y are the rect's center, so { 0, 0, quad width, quad height } covers the whole quad
+    // the box is as deep along z as the rect is wide
+    // entities without one collide with their quad
+    struct cmpnt_bounds {
+        f32 x;
+        f32 y;
+        f32 width;
+        f32 height;
     };
 
     struct cmpnt_particle_emitter {

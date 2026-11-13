@@ -24,6 +24,7 @@ namespace ifb {
         entity         entt;
         cmpnt_position pos;
         cmpnt_velocity vel;
+        vec3           offset;      // the box's center is the position plus this
         vec3           half_extent;
         f32            inv_mass;
         bool           has_velocity;
@@ -34,18 +35,11 @@ namespace ifb {
         const entity_id  id,
         phys_cllsn_body& body) {
 
-        static const cmpnt_type_u32 cllsn_types = (
-            cmpnt_type_e_position |
-            cmpnt_type_e_quad
-        );
+        if (!entity_lookup_by_id(body.entt, id))                                     return(false);
+        if (!body.entt.archetype.has_all(cmpnt_type_e_position))                     return(false);
+        if (!phys_aabb_get_body_box(body.entt, body.offset, body.half_extent))       return(false);
 
-        if (!entity_lookup_by_id(body.entt, id))         return(false);
-        if (!body.entt.archetype.has_all(cllsn_types))   return(false);
-
-        cmpnt_quad quad;
-        cmpnt_lookup_position (body.entt.index_sparse, body.pos);
-        cmpnt_lookup_quad     (body.entt.index_sparse, quad);
-        body.half_extent = phys_aabb_half_extent_quad(quad);
+        cmpnt_lookup_position(body.entt.index_sparse, body.pos);
 
         body.vel          = {};
         body.has_velocity = body.entt.archetype.has_all(cmpnt_type_e_velocity);
@@ -75,18 +69,20 @@ namespace ifb {
 
         if (body.entt.archetype.has_all(cmpnt_type_e_map_coords)) {
             cmpnt_map_coords map_coords;
-            cmpnt_quad       quad;
-            cmpnt_lookup_map_coords (body.entt.index_sparse, map_coords);
-            cmpnt_lookup_quad       (body.entt.index_sparse, quad);
+            cmpnt_lookup_map_coords(body.entt.index_sparse, map_coords);
 
-            // the position is the center of the quad,
-            // so keep half of it away from the edge
+            // the map keeps the box's footprint inside of it,
+            // so constrain the box's center, then move back to the position
+            cmpnt_position box_center = body.pos;
+            box_center.x += body.offset.x;
             (void)map_constrain_movement(
                 map_coords.h_map,
-                quad.width * 0.5f,
-                body.pos,
+                body.half_extent.x,
+                box_center,
                 body.vel
             );
+            body.pos.x = box_center.x - body.offset.x;
+            body.pos.z = box_center.z;
         }
 
         cmpnt_update_position(body.entt.index_sparse, body.pos);
@@ -156,7 +152,9 @@ namespace ifb {
                     axis_index < 3;
                   ++axis_index) {
 
-                const f32 delta   = body_b.pos.v[axis_index] - body_a.pos.v[axis_index];
+                const f32 center_a = body_a.pos.v[axis_index] + body_a.offset.v[axis_index];
+                const f32 center_b = body_b.pos.v[axis_index] + body_b.offset.v[axis_index];
+                const f32 delta    = center_b - center_a;
                 const f32 overlap = (body_a.half_extent.v[axis_index] + body_b.half_extent.v[axis_index]) - fabsf(delta);
                 if (overlap <= 0.0f) {
                     is_overlap = false;
@@ -170,7 +168,9 @@ namespace ifb {
             if (!is_overlap) continue;
 
             // the normal points from a to b
-            const f32 normal = (body_b.pos.v[axis] >= body_a.pos.v[axis]) ? 1.0f : -1.0f;
+            const f32 normal = (
+                (body_b.pos.v[axis] + body_b.offset.v[axis]) >=
+                (body_a.pos.v[axis] + body_a.offset.v[axis])) ? 1.0f : -1.0f;
 
             // push them apart, the lighter one moves more
             const f32 push_a = overlap_min * (body_a.inv_mass / inv_mass_total);
