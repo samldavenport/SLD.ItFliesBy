@@ -20,6 +20,7 @@
 #include "gui-engine-map-builder.cpp"
 #include "gui-game-audio.cpp"
 #include "gui-engine-font-viewer.cpp"
+#include "gui-game-tile-coords.cpp"
 
 static bool _gui_is_open;
 
@@ -74,6 +75,7 @@ namespace ifb {
         static bool eng_hash_calculator    = false;
         static bool eng_map_builder        = false;
         static bool eng_font_viewer        = false;
+        static bool game_tile_coords       = false;
 
         if (ImGui::BeginMainMenuBar()) {
 
@@ -107,6 +109,7 @@ namespace ifb {
 
                 ImGui::MenuItem (_gui_str->menu_game_item_player_rig, NULL, &player_rig);
                 ImGui::MenuItem (_gui_str->menu_game_item_audio,      NULL, &game_audio);
+                ImGui::MenuItem (_gui_str->menu_game_item_tile_coords, NULL, &game_tile_coords);
                
                 if (ImGui::BeginMenu(_gui_str->menu_game_menu_assets)) {
                     
@@ -158,5 +161,6 @@ namespace ifb {
         gui_game_asset_dictionary         (asset_dictionary);
         gui_game_asset_database           (asset_database);
         gui_engine_font_viewer            (eng_font_viewer);
+        gui_game_tile_coords              (game_tile_coords, game_ctx);
     }
 };

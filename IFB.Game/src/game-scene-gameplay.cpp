@@ -62,9 +62,9 @@ namespace ifb {
         rose_config.sprites.cstr_walk_2 = "ROSE-WALK-2";
         rose_config.sprites.cstr_walk_3 = "ROSE-WALK-3";
         rose_config.h_map               = map->eng_hnd;
-        rose_config.chunk_index         = 0;
-        rose_config.chunk_x             = 0;
-        rose_config.chunk_y             = 0;
+        rose_config.chunk_index         = 1;
+        rose_config.chunk_x             = 2;
+        rose_config.chunk_y             = 2;
         rose_config.proc                = NULL;
 
         game_npc_spawn(rose_config);
