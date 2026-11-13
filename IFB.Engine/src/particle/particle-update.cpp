@@ -35,37 +35,147 @@ namespace ifb {
         return(color);
     }
 
-    // ages the live particles and blends their colors
-    // returns the count of particles that are still alive
-    inline u32
-    particle_emitter_age(
+    // ages one particle and blends its color
+    // returns true if it's still alive
+    inline bool
+    particle_emitter_age_one(
         particle_emitter& emitter,
+        const u32         index,
         const f32         dt_ms) {
 
+        // a particle with no life left is dead
+        f32& life_ms = emitter.array_life_ms[index];
+        if (life_ms <= 0.0f) return(false);
+
+        life_ms -= dt_ms;
+        if (life_ms <= 0.0f) {
+            life_ms = 0.0f;
+            return(false);
+        }
+
+        const f32 t = 1.0f - (life_ms / emitter.lifespan_ms);
+        emitter.array_colors[index] = particle_color_blend(
+            emitter.color_primary,
+            emitter.color_secondary,
+            t
+        );
+        return(true);
+    }
+
+    // moves one live particle, gravity bends its path if there is any
+    inline void
+    particle_emitter_move_one(
+        particle_emitter& emitter,
+        const u32         index,
+        const f32         dt_s,
+        const vec3*       velocity_delta) {
+
+        vec3& velocity = emitter.array_velocity [index];
+        vec3& position = emitter.array_position [index];
+        if (velocity_delta) velocity = vec3_add(velocity, *velocity_delta);
+        position = vec3_add(position, vec3_scalar_multiply(velocity, dt_s));
+    }
+
+    // ages, colors, and moves the live particles, 4 at a time
+    // the velocity delta is gravity for the step, or NULL for particles that move in a straight line
+    // returns the count of particles that are still alive
+    inline u32
+    particle_emitter_step(
+        particle_emitter& emitter,
+        const f32         dt_ms,
+        const f32         dt_s,
+        const vec3*       velocity_delta) {
+
+        static_assert(sizeof(vec3) == (sizeof(f32) * 3), "4 particles' vectors are 3 registers");
+
+        // the colors blend in the byte order of color_rgba_u32, a, b, g, r
+        const color_rgba_u32& c_0 = emitter.color_primary;
+        const color_rgba_u32& c_1 = emitter.color_secondary;
+        const f128 color_primary  = simd_f128_set((f32)c_0.a, (f32)c_0.b, (f32)c_0.g, (f32)c_0.r);
+        const f128 color_delta    = simd_f128_set(
+            (f32)c_1.a - (f32)c_0.a,
+            (f32)c_1.b - (f32)c_0.b,
+            (f32)c_1.g - (f32)c_0.g,
+            (f32)c_1.r - (f32)c_0.r
+        );
+
+        const f128 zero_all     = simd_f128_set_all(0.0f);
+        const f128 one_all      = simd_f128_set_all(1.0f);
+        const f128 dt_ms_all    = simd_f128_set_all(dt_ms);
+        const f128 dt_s_all     = simd_f128_set_all(dt_s);
+        const f128 lifespan_all = simd_f128_set_all(emitter.lifespan_ms);
+
+        // 4 particles' vectors are x y z x | y z x y | z x y z
+        const vec3 d = velocity_delta ? *velocity_delta : vec3{ 0.0f, 0.0f, 0.0f };
+        const f128 velocity_delta_all[3] = {
+            simd_f128_set(d.x, d.y, d.z, d.x),
+            simd_f128_set(d.y, d.z, d.x, d.y),
+            simd_f128_set(d.z, d.x, d.y, d.z)
+        };
+
         u32 count_live = 0;
-        for (
-            u32 index = 0;
-                index < emitter.count;
-              ++index) {
+        u32 index      = 0;
+        for (; index + 4 <= emitter.count; index += 4) {
 
-            // a particle with no life left is dead
-            f32& life_ms = emitter.array_life_ms[index];
-            if (life_ms <= 0.0f) continue;
+            // a dead particle's life is 0 and stays 0, a live one runs down to 0
+            f32*       life      = &emitter.array_life_ms[index];
+            const f128 life_next = simd_f128_a_max_b(simd_f128_a_sub_b(simd_f128_load(life), dt_ms_all), zero_all);
+            simd_f128_store(life, life_next);
 
-            life_ms -= dt_ms;
-            if (life_ms <= 0.0f) {
-                life_ms = 0.0f;
+            // a bit for each particle that's still alive
+            const u32 live = simd_f128_a_gt_b_mask(life_next, zero_all);
+            if (live == 0) continue;
+            count_live += (live & 1) + ((live >> 1) & 1) + ((live >> 2) & 1) + ((live >> 3) & 1);
+
+            // t is 0.0 at the primary color and 1.0 at the secondary
+            const f128 t = simd_f128_a_sub_b(one_all, simd_f128_a_div_b(life_next, lifespan_all));
+            for (
+                u32 lane = 0;
+                    lane < 4;
+                  ++lane) {
+
+                if ((live & (1 << lane)) == 0) continue;
+
+                const f128 color = simd_f128_a_add_b(color_primary, simd_f128_a_mul_b(color_delta, simd_f128_set_all(t.val32[lane])));
+                emitter.array_colors[index + lane].hex = simd_u128_pack_u8(simd_f128_trunc_to_u128(color));
+            }
+
+            // the particles spawn and die in ring order, so they're usually all alive or all dead
+            if (live != 0xF) {
+                for (
+                    u32 lane = 0;
+                        lane < 4;
+                      ++lane) {
+
+                    if (live & (1 << lane)) particle_emitter_move_one(emitter, index + lane, dt_s, velocity_delta);
+                }
                 continue;
             }
 
-            const f32 t = 1.0f - (life_ms / emitter.lifespan_ms);
-            emitter.array_colors[index] = particle_color_blend(
-                emitter.color_primary,
-                emitter.color_secondary,
-                t
-            );
+            f32* velocity = (f32*)&emitter.array_velocity [index];
+            f32* position = (f32*)&emitter.array_position [index];
+            for (
+                u32 reg = 0;
+                    reg < 3;
+                  ++reg) {
+
+                f128 v = simd_f128_load(&velocity[reg * 4]);
+                if (velocity_delta) {
+                    v = simd_f128_a_add_b(v, velocity_delta_all[reg]);
+                    simd_f128_store(&velocity[reg * 4], v);
+                }
+                const f128 p = simd_f128_a_add_b(simd_f128_load(&position[reg * 4]), simd_f128_a_mul_b(v, dt_s_all));
+                simd_f128_store(&position[reg * 4], p);
+            }
+        }
+
+        // the particles that don't make a group of 4
+        for (; index < emitter.count; ++index) {
+            if (!particle_emitter_age_one(emitter, index, dt_ms)) continue;
+            particle_emitter_move_one(emitter, index, dt_s, velocity_delta);
             ++count_live;
         }
+
         return(count_live);
     }
 
@@ -170,22 +280,9 @@ namespace ifb {
                 continue;
             }
 
-            u32 count_live = particle_emitter_age(emitter, dt_ms);
-
             // gravity bends the path of every live particle
             const vec3 velocity_delta = vec3_scalar_multiply(props.gravity, dt_s);
-            for (
-                u32 index = 0;
-                    index < emitter.count;
-                  ++index) {
-
-                if (emitter.array_life_ms[index] <= 0.0f) continue;
-
-                vec3& velocity = emitter.array_velocity [index];
-                vec3& position = emitter.array_position [index];
-                velocity = vec3_add(velocity, velocity_delta);
-                position = vec3_add(position, vec3_scalar_multiply(velocity, dt_s));
-            }
+            u32        count_live     = particle_emitter_step(emitter, dt_ms, dt_s, &velocity_delta);
 
             // new particles launch within a cone around the launch velocity
             const f32  speed     = vec3_magnitude(props.velocity);
@@ -242,19 +339,8 @@ namespace ifb {
                 continue;
             }
 
-            u32 count_live = particle_emitter_age(emitter, dt_ms);
-
             // every live particle moves in a straight line
-            for (
-                u32 index = 0;
-                    index < emitter.count;
-                  ++index) {
-
-                if (emitter.array_life_ms[index] <= 0.0f) continue;
-
-                vec3& position = emitter.array_position[index];
-                position = vec3_add(position, vec3_scalar_multiply(emitter.array_velocity[index], dt_s));
-            }
+            u32 count_live = particle_emitter_step(emitter, dt_ms, dt_s, NULL);
 
             emitter.spawn_timer_ms += dt_ms;
             for (

@@ -102,6 +102,7 @@ namespace ifb {
     inline void            audio_mngr_voice_free        (audio_voice* voice);
     inline hnd_audio_voice audio_mngr_voice_start       (const audio_source& src, const audio_group_u32 group, const f32 volume, const bool is_looping);
     inline void            audio_mngr_voice_fetch       (const audio_voice* voice, const u32 frame_first, const u32 count, f32* out);
+    inline void            audio_mngr_voice_mix_pair    (const f32* scratch, const u32 channels, const u32 frame_first, const f64 position_0, const f64 position_1, const f32 gain, f32* out);
     inline void            audio_mngr_voice_mix         (audio_voice* voice, const audio_buffer& buffer);
     inline void            audio_mngr_mix_voices        (void);
 
@@ -931,6 +932,50 @@ namespace ifb {
         }
     }
 
+    // mixes 2 device frames of a voice at a steady gain, the 4 lanes are left and right of each frame
+    // the math is the same as the scalar mix, a frame at a time, so it sounds the same
+    inline void
+    audio_mngr_voice_mix_pair(
+        const f32* scratch,
+        const u32  channels,
+        const u32  frame_first,
+        const f64  position_0,
+        const f64  position_1,
+        const f32  gain,
+        f32*       out) {
+
+        static_assert(config::audio_channel_count == 2, "the pair mix is 2 frames of stereo");
+
+        const u32 frame_a_0 = (u32)position_0;
+        const u32 frame_a_1 = (u32)position_1;
+        const f32 blend_0   = (f32)(position_0 - (f64)frame_a_0);
+        const f32 blend_1   = (f32)(position_1 - (f64)frame_a_1);
+        const u32 index_a_0 = (frame_a_0 - frame_first) * channels;
+        const u32 index_a_1 = (frame_a_1 - frame_first) * channels;
+
+        // a stereo source's frames are next to each other when the source and device rates match,
+        // otherwise they're gathered, and mono goes to both channels
+        f128 sample_a;
+        f128 sample_b;
+        if (channels == 2 && index_a_1 == index_a_0 + 2) {
+            sample_a = simd_f128_load(&scratch[index_a_0]);
+            sample_b = simd_f128_load(&scratch[index_a_0 + 2]);
+        }
+        else {
+            const u32 right     = (channels > 1) ? 1 : 0;
+            const u32 index_b_0 = index_a_0 + channels;
+            const u32 index_b_1 = index_a_1 + channels;
+            sample_a = simd_f128_set(scratch[index_a_0], scratch[index_a_0 + right], scratch[index_a_1], scratch[index_a_1 + right]);
+            sample_b = simd_f128_set(scratch[index_b_0], scratch[index_b_0 + right], scratch[index_b_1], scratch[index_b_1 + right]);
+        }
+
+        const f128 blend   = simd_f128_set(blend_0, blend_0, blend_1, blend_1);
+        const f128 delta   = simd_f128_a_mul_b(simd_f128_a_sub_b(sample_b, sample_a), blend);
+        const f128 sample  = simd_f128_a_mul_b(simd_f128_a_add_b(sample_a, delta), simd_f128_set_all(gain));
+        const f128 mixed   = simd_f128_a_add_b(simd_f128_load(out), sample);
+        simd_f128_store(out, mixed);
+    }
+
     inline void
     audio_mngr_voice_mix(
         audio_voice*        voice,
@@ -993,10 +1038,29 @@ namespace ifb {
             audio_mngr_voice_fetch(voice, frame_first, fetch_count, scratch);
 
             f64 position = voice->position;
-            for (
-                u32 i_block = 0;
-                    i_block < block_count;
-                  ++i_block, ++i_frame) {
+            u32 i_block  = 0;
+            while (i_block < block_count) {
+
+                // at a steady gain the frames mix 2 at a time,
+                // as long as neither one is past the end of a voice that isn't looping
+                const f64  position_next = position + voice->step;
+                const bool is_steady     = is_audible && voice->gain == gain_target;
+                const bool is_pair       = (i_block + 1 < block_count) && (voice->is_looping || position_next < frame_count);
+                if (is_steady && is_pair) {
+                    audio_mngr_voice_mix_pair(
+                        scratch,
+                        channels,
+                        frame_first,
+                        position,
+                        position_next,
+                        voice->gain,
+                        &buffer.samples[i_frame * config::audio_channel_count]
+                    );
+                    position = position_next + voice->step;
+                    i_block += 2;
+                    i_frame += 2;
+                    continue;
+                }
 
                 if      (voice->gain < gain_target) { voice->gain += gain_step; if (voice->gain > gain_target) voice->gain = gain_target; }
                 else if (voice->gain > gain_target) { voice->gain -= gain_step; if (voice->gain < gain_target) voice->gain = gain_target; }
@@ -1033,6 +1097,8 @@ namespace ifb {
                 }
 
                 position += voice->step;
+                ++i_block;
+                ++i_frame;
             }
             voice->position = position;
         }
@@ -1044,6 +1110,25 @@ namespace ifb {
 
         if (voice->is_stopping && voice->gain <= 0.0f) {
             audio_mngr_voice_free(voice);
+        }
+    }
+
+    // scales the samples of one frame and clamps them to the device's range, counting the ones that clip
+    inline void
+    audio_mngr_scale_and_clamp(
+        f32*      samples,
+        const u32 count,
+        const f32 gain) {
+
+        for (
+            u32 index = 0;
+                index < count;
+              ++index) {
+
+            f32& sample = samples[index];
+            sample *= gain;
+            if      (sample >  1.0f) { sample =  1.0f; ++_audio_mngr->output_clip_count; }
+            else if (sample < -1.0f) { sample = -1.0f; ++_audio_mngr->output_clip_count; }
         }
     }
 
@@ -1070,30 +1155,51 @@ namespace ifb {
         const f32 gain_target = _audio_mngr->master_volume;
         const f32 gain_step   = 1.0f / (f32)config::audio_fade_frames;
         f32&      gain        = _audio_mngr->master_gain;
+        u32       i_frame     = 0;
 
-        for (
-            u32 i_frame = 0;
-                i_frame < buffer.frame_count;
-              ++i_frame) {
+        // the fade goes a frame at a time, since the gain changes every frame
+        for (; i_frame < buffer.frame_count && gain != gain_target; ++i_frame) {
 
             if      (gain < gain_target) { gain += gain_step; if (gain > gain_target) gain = gain_target; }
             else if (gain > gain_target) { gain -= gain_step; if (gain < gain_target) gain = gain_target; }
 
-            for (
-                u32 i_channel = 0;
-                    i_channel < config::audio_channel_count;
-                  ++i_channel) {
-
-                f32& sample = buffer.samples[(i_frame * config::audio_channel_count) + i_channel];
-                sample *= gain;
-                if      (sample >  1.0f) { sample =  1.0f; ++_audio_mngr->output_clip_count; }
-                else if (sample < -1.0f) { sample = -1.0f; ++_audio_mngr->output_clip_count; }
-            }
-
-            // a copy for the gui, what the device gets
-            f32* output = &_audio_mngr->output[_audio_mngr->output_write * config::audio_channel_count];
-            memcpy(output, &buffer.samples[i_frame * config::audio_channel_count], config::audio_channel_count * sizeof(f32));
-            _audio_mngr->output_write = (_audio_mngr->output_write + 1) % config::audio_output_frames;
+            audio_mngr_scale_and_clamp(&buffer.samples[i_frame * config::audio_channel_count], config::audio_channel_count, gain);
         }
+
+        // the rest are at the same gain, 2 frames of stereo at a time
+        static_assert(config::audio_channel_count == 2, "the master pass is 2 frames of stereo at a time");
+        const f128 gain_all = simd_f128_set_all(gain);
+        const f128 max_all  = simd_f128_set_all( 1.0f);
+        const f128 min_all  = simd_f128_set_all(-1.0f);
+        for (; i_frame + 2 <= buffer.frame_count; i_frame += 2) {
+
+            f32*       samples = &buffer.samples[i_frame * config::audio_channel_count];
+            const f128 scaled  = simd_f128_a_mul_b(simd_f128_load(samples), gain_all);
+
+            // a bit for each sample that's clamped
+            const u32 clipped = simd_f128_a_gt_b_mask(scaled, max_all) | simd_f128_a_lt_b_mask(scaled, min_all);
+            _audio_mngr->output_clip_count += (clipped & 1) + ((clipped >> 1) & 1) + ((clipped >> 2) & 1) + ((clipped >> 3) & 1);
+
+            simd_f128_store(samples, simd_f128_a_max_b(simd_f128_a_min_b(scaled, max_all), min_all));
+        }
+
+        // an odd frame left over
+        if (i_frame < buffer.frame_count) {
+            audio_mngr_scale_and_clamp(&buffer.samples[i_frame * config::audio_channel_count], config::audio_channel_count, gain);
+        }
+
+        // a copy for the gui, what the device gets
+        // only the newest frames fit in the ring, it's copied in 2 pieces when it wraps
+        const u32 ring_frames = config::audio_output_frames;
+        const u32 copy_frames = (buffer.frame_count < ring_frames) ? buffer.frame_count : ring_frames;
+        const u32 skip_frames = buffer.frame_count - copy_frames;
+        const u32 write_first = (_audio_mngr->output_write + skip_frames) % ring_frames;
+        const u32 copy_first  = ((ring_frames - write_first) < copy_frames) ? (ring_frames - write_first) : copy_frames;
+        const u32 frame_size  = config::audio_channel_count * sizeof(f32);
+        const f32* src        = &buffer.samples[skip_frames * config::audio_channel_count];
+
+        memcpy(&_audio_mngr->output[write_first * config::audio_channel_count], src, copy_first * frame_size);
+        memcpy(_audio_mngr->output, &src[copy_first * config::audio_channel_count], (copy_frames - copy_first) * frame_size);
+        _audio_mngr->output_write = (_audio_mngr->output_write + buffer.frame_count) % ring_frames;
     }
 };

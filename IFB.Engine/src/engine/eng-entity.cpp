@@ -27,6 +27,14 @@ namespace ifb {
 
         const entity_id id = entity_create(tag);
 
+        // the sparse slot may have been a destroyed entity's,
+        // and a force it was given this step isn't the new one's
+        if (id != ENTITY_ID_INVALID) {
+            const u32 sparse_index = entity_lookup_sparse_index(id);
+            assert(sparse_index != INVALID_INDEX);
+            phys_entity_clear_force(sparse_index);
+        }
+
         return(id);
     }
     
@@ -179,7 +187,7 @@ namespace ifb {
         const bool can_add_force = (does_exist && has_component); 
 
         if (can_add_force) {
-            phys_entity_add_force(id, force);
+            phys_entity_add_force(e.index_sparse, force);
         }
 
         return(can_add_force);

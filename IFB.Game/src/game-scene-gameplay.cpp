@@ -49,7 +49,7 @@ namespace ifb {
         // used up, so nothing else connor is touching reacts to the same press
         _game_ctx->is_action_pressed = false;
 
-        static constexpr cchar rose_text[] = "Hi Connor!";
+        static constexpr cchar rose_text[] = "Rose: \"Hi Connor!\"";
         const bool did_open = game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, rose_text, sizeof(rose_text) - 1);
 
         // she turns to connor, and stays put until the dialog closes

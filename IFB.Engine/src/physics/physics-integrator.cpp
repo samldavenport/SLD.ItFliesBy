@@ -28,8 +28,20 @@ namespace ifb {
         f32*                 map_offset_x; // the collision box's center is this far along x from the position
     };
 
+    // the last few drag values seen in one integration, and drag to the power of dt for each
+    // the drags are compared by their bits, so -0 and +0 aren't mixed up, and a NaN is a miss
+    static constexpr u32 PHYS_DRAG_CACHE_SIZE = 4;
+    struct phys_frc_intgrtr_drag_cache {
+        u32 drag_bits   [PHYS_DRAG_CACHE_SIZE];
+        f32 drag_pow_dt [PHYS_DRAG_CACHE_SIZE];
+        u32 count;
+        u32 next;     // the entry replaced on a miss once it's full
+    };
+
+    inline f32  phys_frc_intgrtr_drag_pow_dt              (phys_frc_intgrtr_drag_cache& cache, const f32 drag, const f32 dt);
     inline bool phys_frc_intgrtr_lookup_global_components (phys_frc_intgrtr* i, const phys_frc_accmltr* a);
     inline void phys_frc_intgrtr_exec                     (phys_frc_intgrtr* i, const f32 dt);
+    inline f32  phys_frc_intgrtr_clamp_term_velocity      (const f32 vel, const f32 tv);
     inline void phys_frc_intgrtr_constrain_to_maps        (phys_frc_intgrtr* i);
     inline void phys_frc_intgrtr_update_global_components (phys_frc_intgrtr* i);
     inline void phys_frc_intgrtr_reset                    (phys_frc_intgrtr* i);
@@ -102,26 +114,6 @@ namespace ifb {
         return(integrator);
     }
 
-    // the force the entity was given this step, zero if it wasn't given one
-    inline vec3
-    phys_frc_intgrtr_get_force(
-        const phys_frc_accmltr* a,
-        const entity_id         id) {
-
-        for (
-            u32 force_index = 0;
-                force_index < a->count;
-              ++force_index) {
-
-            if (a->data.ids[force_index] == id) {
-                return(a->data.forces[force_index]);
-            }
-        }
-
-        const vec3 none = { 0.0f, 0.0f, 0.0f };
-        return(none);
-    }
-
     // every body is integrated, not just the ones with a force this step,
     // so a body that stops being pushed still has drag slow it down,
     // instead of keeping its velocity and freezing in place
@@ -186,7 +178,7 @@ namespace ifb {
                 i->map_offset_x [integrator_index] = box_offset.x;
             }
 
-            i->force        [integrator_index] = phys_frc_intgrtr_get_force(a, e.id);
+            i->force        [integrator_index] = phys_frc_accmltr_get(a, e.index_sparse);
             i->sparse_index [integrator_index] = e.index_sparse;
 
             ++i->count;
@@ -200,8 +192,14 @@ namespace ifb {
         phys_frc_intgrtr* i, const f32 dt) {
      
         // calculate dt constants
-        const f32 dt_pow_2        = dt * dt; 
-        const f32 dt_pow_2_over_2 = dt_pow_2 * 0.5f;    
+        const f32 dt_pow_2        = dt * dt;
+        const f32 dt_pow_2_over_2 = dt_pow_2 * 0.5f;
+
+        // the entities share a few drag values, and dt is the same for all of them,
+        // so drag to the power of dt is the same for most of them
+        phys_frc_intgrtr_drag_cache drag_cache;
+        drag_cache.count = 0;
+        drag_cache.next  = 0;
 
         for (
             u32 integrator_index = 0;
@@ -209,8 +207,8 @@ namespace ifb {
               ++integrator_index
         ) {
 
-            // calculate component constants 
-            const f32 drag_pow_dt = powf(i->drag[integrator_index].normal_val, dt); 
+            // calculate component constants
+            const f32 drag_pow_dt = phys_frc_intgrtr_drag_pow_dt(drag_cache, i->drag[integrator_index].normal_val, dt);
 
             // calculate acceleration
             i->acceleration[integrator_index].x = i->force[integrator_index].x * i->inv_mass[integrator_index].normal_val;
@@ -227,21 +225,61 @@ namespace ifb {
             i->velocity[integrator_index].y = (i->velocity[integrator_index].y + i->acceleration[integrator_index].y * dt) * drag_pow_dt;  
             i->velocity[integrator_index].z = (i->velocity[integrator_index].z + i->acceleration[integrator_index].z * dt) * drag_pow_dt;  
 
-            const f32 tv_x = i->term_velocity[integrator_index].x;
-            const f32 tv_y = i->term_velocity[integrator_index].y;
-            const f32 tv_z = i->term_velocity[integrator_index].z;
-          
-            // update terminal velocity
-            const f32 vel_x_curr = i->velocity[integrator_index].x;
-            const f32 vel_y_curr = i->velocity[integrator_index].y;
-            const f32 vel_z_curr = i->velocity[integrator_index].z;
-            if(vel_x_curr > tv_x  && tv_x > 0.0f) i->velocity[integrator_index].x =  tv_x;
-            if(vel_y_curr > tv_y  && tv_y > 0.0f) i->velocity[integrator_index].y =  tv_y;
-            if(vel_z_curr > tv_z  && tv_z > 0.0f) i->velocity[integrator_index].z =  tv_z;
-            if(vel_x_curr < -tv_x && tv_x > 0.0f) i->velocity[integrator_index].x = -tv_x;
-            if(vel_y_curr < -tv_y && tv_y > 0.0f) i->velocity[integrator_index].y = -tv_y;
-            if(vel_z_curr < -tv_z && tv_z > 0.0f) i->velocity[integrator_index].z = -tv_z;
+            // hold the velocity to the terminal velocity
+            cmpnt_velocity&            vel = i->velocity      [integrator_index];
+            const cmpnt_term_velocity& tv  = i->term_velocity [integrator_index];
+            vel.x = phys_frc_intgrtr_clamp_term_velocity(vel.x, tv.x);
+            vel.y = phys_frc_intgrtr_clamp_term_velocity(vel.y, tv.y);
+            vel.z = phys_frc_intgrtr_clamp_term_velocity(vel.z, tv.z);
         }
+    }
+
+    // drag to the power of dt, from the cache if the drag was seen already this integration
+    // the cache is only good for one dt
+    inline f32
+    phys_frc_intgrtr_drag_pow_dt(
+        phys_frc_intgrtr_drag_cache& cache,
+        const f32                    drag,
+        const f32                    dt) {
+
+        u32 drag_bits;
+        memcpy(&drag_bits, &drag, sizeof(drag_bits));
+
+        for (
+            u32 index = 0;
+                index < cache.count;
+              ++index) {
+
+            if (cache.drag_bits[index] == drag_bits) return(cache.drag_pow_dt[index]);
+        }
+
+        // a miss fills an empty entry, or replaces the oldest one
+        const f32 drag_pow_dt = powf(drag, dt);
+        u32       index       = cache.count;
+        if (cache.count < PHYS_DRAG_CACHE_SIZE) {
+            ++cache.count;
+        }
+        else {
+            index      = cache.next;
+            cache.next = (cache.next + 1) % PHYS_DRAG_CACHE_SIZE;
+        }
+        cache.drag_bits   [index] = drag_bits;
+        cache.drag_pow_dt [index] = drag_pow_dt;
+        return(drag_pow_dt);
+    }
+
+    // the velocity along one axis, held between -tv and tv
+    // a terminal velocity of 0 or less is no limit, so the limit is infinite
+    // the compares are in the order of minss and maxss, so they compile without branches,
+    // and a NaN velocity passes through the same as it did with branches
+    inline f32
+    phys_frc_intgrtr_clamp_term_velocity(
+        const f32 vel,
+        const f32 tv) {
+
+        const f32 limit       = (tv > 0.0f) ? tv : INFINITY;
+        const f32 vel_clamped = (limit < vel) ? limit : vel;
+        return((vel_clamped < -limit) ? -limit : vel_clamped);
     }
 
     inline void
