@@ -514,7 +514,9 @@ namespace ifb {
         cmpnt_type_e_spring           = bit_value(8),
         cmpnt_type_e_map_coords       = bit_value(9),
         cmpnt_type_e_particle_emitter = bit_value(10),
-        cmpnt_type_e_sprite           = bit_value(11)
+        cmpnt_type_e_sprite           = bit_value(11),
+        // a tag with no data, collisions can't push the entity, but its own forces still move it
+        cmpnt_type_e_immovable        = bit_value(12)
     };
 
     using  cmpnt_position      = vec3;

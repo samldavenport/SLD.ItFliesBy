@@ -18,7 +18,8 @@ namespace ifb {
     };
 
     // one side of a collision pair
-    // bodies without an inverse mass are treated as immovable
+    // bodies without an inverse mass, or tagged immovable, are treated as immovable
+    // the tag only affects collisions, the integrator still moves the body by its inverse mass
     struct phys_cllsn_body {
         entity         entt;
         cmpnt_position pos;
@@ -53,7 +54,8 @@ namespace ifb {
         }
 
         body.inv_mass = 0.0f;
-        if (body.entt.archetype.has_all(cmpnt_type_e_inv_mass)) {
+        const bool is_immovable = body.entt.archetype.has_all(cmpnt_type_e_immovable);
+        if (!is_immovable && body.entt.archetype.has_all(cmpnt_type_e_inv_mass)) {
             cmpnt_inv_mass inv_mass;
             cmpnt_lookup_inv_mass(body.entt.index_sparse, inv_mass);
             body.inv_mass = inv_mass.normal_val;

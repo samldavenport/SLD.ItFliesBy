@@ -105,6 +105,13 @@ namespace ifb {
         );
         if (id == ENTITY_ID_INVALID) return(ENTITY_ID_INVALID);
 
+        // npcs can't be pushed, they still walk on their own forces, the tag only stops collisions from moving them
+        const bool did_tag = eng_entity_add_components(id, cmpnt_type_e_immovable);
+        if (!did_tag) {
+            eng_entity_destroy_by_id(id);
+            return(ENTITY_ID_INVALID);
+        }
+
         const bool did_insert = game_npc_mngr_insert(id, cfg);
         if (!did_insert) {
             eng_entity_destroy_by_id(id);

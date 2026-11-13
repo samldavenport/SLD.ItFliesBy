@@ -163,7 +163,7 @@ namespace ifb {
         u32              chunk_x;
         u32              chunk_y;
     };
-    
+
     // the global arena holds what lasts the whole game
     // the player rig, map, and entities belong to the gameplay scene, and live in its arena
     struct game_context {
