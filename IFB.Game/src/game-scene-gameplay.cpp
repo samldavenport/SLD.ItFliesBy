@@ -12,7 +12,7 @@
 namespace ifb {
 
     IFB_INTERNAL void
-    game_scene_gameplay_box_1_proc(
+    game_scene_gameplay_box_proc(
         const phys_cllsn_contact& contact) {
 
         assert(_game_ctx);
@@ -28,7 +28,17 @@ namespace ifb {
     
         _game_ctx->is_action_pressed = false;
 
-        static constexpr cchar text[] = "This is box 1";
+        static constexpr cchar text_box_1[] = "This is box 1";
+        static constexpr cchar text_box_2[] = "This is box 2";
+        static constexpr cchar text_box_3[] = "This is box 3";
+        static constexpr cchar text_box_4[] = "This is box 4";
+       
+        const cchar* text = "";
+        if      (contact.self == _game_ctx->entities->static_entity_0) text = text_box_1;
+        else if (contact.self == _game_ctx->entities->static_entity_1) text = text_box_2;
+        else if (contact.self == _game_ctx->entities->static_entity_2) text = text_box_3;
+        else if (contact.self == _game_ctx->entities->static_entity_3) text = text_box_4;
+        const u32 size = sizeof(text_box_1);
         
         auto audio = _game_ctx->audio;
         audio_voice_info info;
@@ -41,7 +51,7 @@ namespace ifb {
             _game_ctx->dialog,
             _game_ctx->fnt,
             text,
-            sizeof(text) - 1
+            sizeof(text_box_1) - 1
         );
         assert(did_open);
     }
@@ -137,16 +147,23 @@ namespace ifb {
         entities->static_entity_2 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-2","WOOD",map->eng_hnd,0,7,3);
         entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
 
-        cmpnt_collider box_1_collider;
-        box_1_collider.proc               = game_scene_gameplay_box_1_proc;
-        box_1_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
-        box_1_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
-        box_1_collider.is_trigger         = false;
+        cmpnt_collider box_collider;
+        box_collider.proc               = game_scene_gameplay_box_proc;
+        box_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
+        box_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
+        box_collider.is_trigger         = false;
 
-        bool did_add_collider = true;
-        did_add_collider &= eng_entity_add_components (entities->static_entity_0, cmpnt_type_e_collider);
-        did_add_collider &= eng_cmpnt_update_collider (entities->static_entity_0, box_1_collider);
-        assert(did_add_collider);
+
+        bool did_add_colliders = true;
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_0, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_0, box_collider);
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_1, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_1, box_collider);
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_2, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_2, box_collider);
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_3, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_3, box_collider);
+        assert(did_add_colliders);
         
         game_npc_config rose_config;
         rose_config.cstr_name           = "ROSE";

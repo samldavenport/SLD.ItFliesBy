@@ -9,51 +9,6 @@
 
 namespace ifb {
 
-    IFB_INTERNAL void
-    game_phys_cllsn_handler(
-        const event_payload& payload) {
-
-        assert(_game_ctx);
-        assert(_game_ctx->entities);
-        assert(_game_ctx->player_rig);
-
-        const auto  entities   = _game_ctx->entities;
-        const auto  player_rig = _game_ctx->player_rig;
-        const auto& cllsn_data = payload.data.physics_collision; 
-
-        const bool has_connor = (cllsn_data.a == player_rig->connor_id || cllsn_data.b == player_rig->connor_id); 
-        const bool has_box    = (
-            cllsn_data.a == entities->static_entity_1 ||
-            cllsn_data.b == entities->static_entity_1 ||
-            cllsn_data.a == entities->static_entity_2 ||
-            cllsn_data.b == entities->static_entity_2 ||
-            cllsn_data.a == entities->static_entity_3 ||
-            cllsn_data.b == entities->static_entity_3
-        ); 
-
-        if (!has_connor || !has_box) return;
-
-        // only a new bump, not every step connor stays against the box, or when he walks away
-        if (cllsn_data.phase != phys_cllsn_phase_e_begin) return;
-
-        auto audio = _game_ctx->audio;
-
-        // the bump opens a dialog, unless one is already up
-        // connor is still touching the box when it closes, but that isn't a new bump, so it doesn't open again
-        // the events are sent after the game callback, so the dialog shows from the next frame
-        if (_game_ctx->fnt != NULL && !game_dialog_is_open(_game_ctx->dialog)) {
-            static constexpr cchar collision_text[] = "A collision happened...";
-            game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, collision_text, sizeof(collision_text) - 1);
-        }
-
-        // and never on top of the last boop, the handle goes stale when it finishes
-        audio_voice_info info;
-        const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
-        if (is_boop_playing) return;
-
-        audio->h_boop = eng_audio_sound_play("BOOP", audio_group_e_sfx, GAME_BOOP_VOLUME, false);
-    }
-
     IFB_INTERNAL game_context*
     game_context_create_and_init(
         void) {
@@ -120,9 +75,6 @@ namespace ifb {
 
         // the level
         game_scene_gameplay_init(ctx);
-
-        const bool did_subscribe = eng_event_listener_subscribe(event_type_e_physics_collision, game_phys_cllsn_handler);
-        assert(did_subscribe);
 
         _game_ctx = ctx;
 
