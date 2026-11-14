@@ -84,7 +84,7 @@ namespace ifb {
         hnd_audio_voice h_boop;  // stale once the boop finishes
     };
 
-    static constexpr const cchar* GAME_SCENE_GAMEPLAY_NAME = "GAMEPLAY";
+    static constexpr const cchar* GAME_SCENE_DEV_NAME = "DEV";
 
     struct game_npc_mngr;
 
@@ -93,6 +93,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     // a box along the bottom of the screen that types its text out a character at a time
     // the text is wrapped when it opens, then shown a page of lines at a time
+    struct game_dialog;
 
     static constexpr u32 GAME_DIALOG_LINE_CAPACITY    = 32;     // lines past this are cut off
     static constexpr u32 GAME_DIALOG_LINES_PER_PAGE   = 2;
@@ -114,22 +115,19 @@ namespace ifb {
         game_dialog_state_e_paused = 2  // the page is all shown, waiting for the player
     };
 
-    struct game_dialog {
-        const cchar*          text;        // not copied, it has to outlive the dialog
-        u32                   text_len;
-        font_line             lines[GAME_DIALOG_LINE_CAPACITY];
-        u32                   line_count;
-        u32                   page_line;   // the first line on the page
-        f32                   reveal;      // characters shown on the page, the fraction is the next one coming in
-        f32                   blink_s;
-        game_dialog_state_u32 state;
-    };
 
     //--------------------------------------------------------------------
     // NPCS
     //--------------------------------------------------------------------
     // npcs are built like connor, without the input, and with their own sprites
-    // the manager updates and renders every one it spawned, and runs its proc, if it has one
+    // the manager updates and renders every one placed in the current scene, and runs its proc, if it has one
+    //
+    // the manager belongs to the game context, and outlives the scenes
+    // an npc's entity belongs to the scene it was placed in, and is gone with it
+    // so the manager keeps who the npc is (game_npc_def) across scenes,
+    // and each scene places it again with where it stands and how it behaves there (game_npc_placement)
+    // its entity id is the hash of its name, so it's the same in every scene
+    static constexpr u32 GAME_NPC_MNGR_CAPACITY = 64;
 
     // called once a frame for the npc, NULL if it doesn't have one
     // it can despawn its own npc, or any other
@@ -149,29 +147,81 @@ namespace ifb {
         const cchar* cstr_walk_7;
     };
 
-    struct game_npc_config {
+    // who the npc is, kept across scenes
+    // the name isn't copied, it has to outlive the npc
+    struct game_npc_def {
         const cchar*         cstr_name;
         game_npc_sprites     sprites;
+    };
+
+    // where the npc stands in the scene it's placed in, and how it behaves there
+    struct game_npc_placement {
         game_npc_proc        proc;
         hnd_map              h_map;
         u32                  chunk_index;
         u32                  chunk_x;
         u32                  chunk_y;
-        u32                  tile_roam_x; // the distance the character can roam from their spawn tile 
+        u32                  tile_roam_x; // the distance the character can roam from their spawn tile
         u32                  tile_roam_y;
         u32                  mask_category;
         u32                  mask_collides_with;
-        fptr_phys_cllsn_proc cllsn_proc;
+        fptr_phys_cllsn_proc cllsn_proc;  // what it does when connor talks to it depends on where it is
+    };
+
+    //--------------------------------------------------------------------
+    // SCENES
+    //--------------------------------------------------------------------
+    // the game runs one scene at a time, each one is an engine scene that owns its entities and memory
+    // a switch is requested, and applied over two frames:
+    //
+    //   the frame it's applied: the old scene updates one last time, then the engine transition is requested
+    //   the next frame:         the engine has released the old scene, so the old scene exits,
+    //                           the npcs that aren't kept are forgotten, and the new scene enters and updates
+    //
+    // the new scene enters a frame later so it can create entities with the same names as the old scene's,
+    // like connor, which the engine only destroys at the start of the frame
+
+    IFB_U32(game_scene_id_u32);
+    enum game_scene_id_e {
+        game_scene_id_e_none  = 0,
+        game_scene_id_e_dev   = 1,
+        game_scene_id_e_count = 2
+    };
+
+    IFB_U32(game_scene_phase_u32);
+    enum game_scene_phase_e {
+        game_scene_phase_e_running   = 0, // the active scene updates, and a switch can be requested
+        game_scene_phase_e_switching = 1  // the old scene is being released, the next one enters at the start of the next update
+    };
+
+    struct game_context;
+
+    struct game_scene_procs {
+        // the scene is bound, allocate its state with eng_scene_alloc, and spawn or place its entities and npcs
+        void (*enter)             (game_context* ctx, const hnd_scene h_scene);
+        void (*update_and_render) (game_context* ctx);
+        // runs after the engine released the scene, so its entities and its eng_scene_alloc memory are already gone
+        // it releases what the scene doesn't own, like its map, so keep those handles outside the scene's memory
+        void (*exit)              (game_context* ctx);
+    };
+
+    struct game_scene_state {
+        game_scene_id_u32    active;
+        game_scene_id_u32    next;            // none when no switch is requested
+        game_scene_phase_u32 phase;
+        hnd_scene            h_active;
+        hnd_scene            h_next;          // created and transitioned to while switching
+        u32                  npc_keep_count;  // the npcs that are remembered through the switch
+        entity_id            npc_keep[GAME_NPC_MNGR_CAPACITY];
     };
 
     // the global arena holds what lasts the whole game
-    // the player rig, map, and entities belong to the gameplay scene, and live in its arena
+    // the player rig and map are the active scene's, NULL when it doesn't have one
     struct game_context {
         hnd_arena        global_arena;
-        hnd_scene        h_scene_gameplay;
+        game_scene_state scene;
         game_player_rig* player_rig;
         game_map*        map;
-        game_entities*   entities;
         game_npc_mngr*   npc_mngr;
         game_sprites*    sprites;
         game_audio*      audio;
@@ -184,16 +234,25 @@ namespace ifb {
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
     IFB_INTERNAL void          game_context_update_and_render    (game_context* ctx);
 
-    IFB_INTERNAL void          game_dialog_init       (game_dialog* dialog);
-    IFB_INTERNAL bool          game_dialog_open       (game_dialog* dialog, const font* fnt, const cchar* text, const u32 text_len);
-    IFB_INTERNAL bool          game_dialog_is_open    (const game_dialog* dialog);
-    IFB_INTERNAL void          game_dialog_advance    (game_dialog* dialog);
+    IFB_INTERNAL game_dialog*  game_dialog_create     (const hnd_arena h_arena, const font* fnt);
+    IFB_INTERNAL void          game_dialog_reset      (void);
+    IFB_INTERNAL bool          game_dialog_open       (const cchar* text, const u32 text_len);
+    IFB_INTERNAL bool          game_dialog_is_open    (void);
+    IFB_INTERNAL void          game_dialog_advance    (void);
     IFB_INTERNAL void          game_dialog_update     (game_context* ctx);
-    IFB_INTERNAL void          game_dialog_render     (const game_dialog* dialog, const font* fnt);
-    IFB_INTERNAL void          game_dialog_get_layout (const font* fnt, rect& box, rect& text_area);
+    IFB_INTERNAL void          game_dialog_render     (void);
+    IFB_INTERNAL void          game_dialog_get_layout (rect& box, rect& text_area);
 
-    IFB_INTERNAL void          game_scene_gameplay_init              (game_context* ctx);
-    IFB_INTERNAL void          game_scene_gameplay_update_and_render (game_context* ctx);
+    // scenes
+    IFB_INTERNAL void          game_scene_init              (game_context* ctx, const game_scene_id_e first);
+    IFB_INTERNAL void          game_scene_update_and_render (game_context* ctx);
+    IFB_INTERNAL bool          game_scene_request           (const game_scene_id_e id, const entity_id* npc_keep = NULL, const u32 npc_keep_count = 0);
+    IFB_INTERNAL bool          game_scene_is_switching      (void);
+
+    // the dev scene: the dev map, the player rig, the boxes, and rose
+    IFB_INTERNAL void          game_scene_dev_enter              (game_context* ctx, const hnd_scene h_scene);
+    IFB_INTERNAL void          game_scene_dev_update_and_render  (game_context* ctx);
+    IFB_INTERNAL void          game_scene_dev_exit               (game_context* ctx);
 
     IFB_INTERNAL void          game_player_rig_validate          (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_init              (game_player_rig* player_rig);
@@ -242,12 +301,14 @@ namespace ifb {
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
 
 
-    // the manager belongs to the scene, and is gone with it
-    IFB_INTERNAL game_npc_mngr* game_npc_mngr_create            (const hnd_scene h_scene);
-    IFB_INTERNAL void           game_npc_mngr_update_and_render (void);
-    IFB_INTERNAL entity_id      game_npc_spawn                  (const game_npc_config& cfg);
-    IFB_INTERNAL bool           game_npc_despawn                (const entity_id id);
-    IFB_INTERNAL bool           game_npc_talk_to                (const entity_id id, const entity_id other_id);
+    // the manager lives on the game context's arena
+    IFB_INTERNAL game_npc_mngr* game_npc_mngr_create              (const hnd_arena h_arena);
+    IFB_INTERNAL void           game_npc_mngr_update_and_render   (void);
+    IFB_INTERNAL void           game_npc_mngr_reset_all_except    (const entity_id* keep, const u32 keep_count);
+    IFB_INTERNAL entity_id      game_npc_spawn                    (const game_npc_def& def, const game_npc_placement& at);
+    IFB_INTERNAL bool           game_npc_despawn                  (const entity_id id);
+    IFB_INTERNAL bool           game_npc_is_placed                (const entity_id id);
+    IFB_INTERNAL bool           game_npc_talk_to                  (const entity_id id, const entity_id other_id);
 };
 
 #endif //IFB_GAME_HPP

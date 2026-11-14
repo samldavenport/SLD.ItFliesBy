@@ -15,8 +15,17 @@ namespace ifb {
 
         if (!is_open) return;
 
+        // the active scene doesn't have one, or the game is between scenes
+        if (player_rig == NULL || map == NULL) {
+            if (ImGui::Begin(_gui_str->menu_game_item_player_rig, &is_open)) {
+                ImGui::TextUnformatted("The active scene has no player rig");
+            }
+            ImGui::End();
+            return;
+        }
+
         if (ImGui::Begin(_gui_str->menu_game_item_player_rig, &is_open)) {
-            
+
             ImGui::SeparatorText("Connor");
           
             const u32 col_property = 0;

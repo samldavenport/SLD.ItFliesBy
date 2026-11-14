@@ -11,35 +11,46 @@
 
 namespace ifb {
 
+    // the dev scene's state, in its scene memory, NULL while it isn't the active scene
+    struct game_scene_dev {
+        hnd_scene       h_scene;
+        game_player_rig rig;
+        game_map        map;
+        game_entities   entities;
+    } static * _scene_dev;
+
+    // the scene doesn't own its map, so exit destroys it
+    // it's kept out of the scene memory, which is gone by the time exit runs
+    static hnd_map _scene_dev_h_map;
+
     IFB_INTERNAL void
-    game_scene_gameplay_box_proc(
+    game_scene_dev_box_proc(
         const phys_cllsn_contact& contact) {
 
         assert(_game_ctx);
-        assert(_game_ctx->player_rig);
-        assert(_game_ctx->entities);
-        
-        auto player_rig = _game_ctx->player_rig;
-        
+        assert(_scene_dev);
+
+        auto player_rig = &_scene_dev->rig;
+        auto entities   = &_scene_dev->entities;
+
         if (contact.other != player_rig->connor_id)  return;
         if (contact.phase == phys_cllsn_phase_e_end) return;
         if (!_game_ctx->is_action_pressed)           return;
-        if (_game_ctx->fnt == NULL)                  return;
-    
+
         _game_ctx->is_action_pressed = false;
 
         static constexpr cchar text_box_1[] = "This is box 1";
         static constexpr cchar text_box_2[] = "This is box 2";
         static constexpr cchar text_box_3[] = "This is box 3";
         static constexpr cchar text_box_4[] = "This is box 4";
-       
+
         const cchar* text = "";
-        if      (contact.self == _game_ctx->entities->static_entity_0) text = text_box_1;
-        else if (contact.self == _game_ctx->entities->static_entity_1) text = text_box_2;
-        else if (contact.self == _game_ctx->entities->static_entity_2) text = text_box_3;
-        else if (contact.self == _game_ctx->entities->static_entity_3) text = text_box_4;
-        const u32 size = sizeof(text_box_1);
-        
+        if      (contact.self == entities->static_entity_0) text = text_box_1;
+        else if (contact.self == entities->static_entity_1) text = text_box_2;
+        else if (contact.self == entities->static_entity_2) text = text_box_3;
+        else if (contact.self == entities->static_entity_3) text = text_box_4;
+        const u32 text_size = sizeof(text_box_1)-1;
+
         auto audio = _game_ctx->audio;
         audio_voice_info info;
         const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
@@ -47,25 +58,18 @@ namespace ifb {
             audio->h_boop = eng_audio_sound_play("BOOP", audio_group_e_sfx, GAME_BOOP_VOLUME, false);
         };
 
-        const bool did_open = game_dialog_open(
-            _game_ctx->dialog,
-            _game_ctx->fnt,
-            text,
-            sizeof(text_box_1) - 1
-        );
+        const bool did_open = game_dialog_open(text,text_size);
         assert(did_open);
     }
 
     IFB_INTERNAL void
-    game_scene_gameplay_rose_collision_proc(
+    game_scene_dev_rose_collision_proc(
         const phys_cllsn_contact& contact) {
 
         assert(_game_ctx);
-        assert(_game_ctx->player_rig);
-        assert(_game_ctx->entities);
+        assert(_scene_dev);
 
-        auto player_rig = _game_ctx->player_rig;
-        
+        auto player_rig = &_scene_dev->rig;
 
         // only connor matters, she can bump into the boxes too
         if (contact.other != player_rig->connor_id) return;
@@ -75,7 +79,6 @@ namespace ifb {
 
         // the game callback reads e before the physics step, and leaves the press here if nothing used it
         if (!_game_ctx->is_action_pressed) return;
-        if (_game_ctx->fnt == NULL)        return;
 
         // he has to be facing her, he only faces left or right, so it's which side of him she's on
         // the positions, not the normal, the normal is along z when he touches her from above or below
@@ -95,8 +98,9 @@ namespace ifb {
         // used up, so nothing else connor is touching reacts to the same press
         _game_ctx->is_action_pressed = false;
 
-        static constexpr cchar rose_text[] = "Rose: \"Hi Connor!\"";
-        const bool did_open = game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, rose_text, sizeof(rose_text) - 1);
+        static constexpr cchar rose_text_cstr[] = "Rose: \"Hi Connor!\"";
+        static constexpr u32   rose_text_size   = sizeof(rose_text_cstr)-1;
+        const bool did_open = game_dialog_open(rose_text_cstr, rose_text_size);
 
         // she turns to connor, and stays put until the dialog closes
         if (did_open) {
@@ -104,39 +108,32 @@ namespace ifb {
         }
     }
 
-    // the level: the map and its parallax, the player rig, and the boxes
-    // all of it belongs to the gameplay scene, so destroying the scene cleans it up
+    // the map and its parallax, the player rig, the boxes, and rose
+    // the scene is bound, so everything created here belongs to it
     IFB_INTERNAL void
-    game_scene_gameplay_init(
-        game_context* ctx) {
+    game_scene_dev_enter(
+        game_context*   ctx,
+        const hnd_scene h_scene) {
 
         assert(ctx);
-
-        // pushing binds the scene, so everything created after this belongs to it
-        // it starts running on the first frame
-        const hnd_scene h_scene = eng_scene_create(GAME_SCENE_GAMEPLAY_NAME);
         assert(h_scene != INVALID_HANDLE);
+        assert(_scene_dev == NULL);
 
-        const bool did_push = eng_scene_push(h_scene, scene_flag_e_none);
-        assert(did_push);
-        (void)did_push;
+        auto dev = (game_scene_dev*)eng_scene_alloc(h_scene, sizeof(game_scene_dev));
+        assert(dev != NULL);
 
-        // the level's state lives as long as the scene does
-        auto rig      = (game_player_rig*)eng_scene_alloc(h_scene, sizeof(game_player_rig));
-        auto map      =        (game_map*)eng_scene_alloc(h_scene, sizeof(game_map));
-        auto entities =   (game_entities*)eng_scene_alloc(h_scene, sizeof(game_entities));
-        assert(rig      != NULL);
-        assert(map      != NULL);
-        assert(entities != NULL);
+        _scene_dev      = dev;
+        dev->h_scene    = h_scene;
+        ctx->player_rig = &dev->rig;
+        ctx->map        = &dev->map;
 
-        ctx->h_scene_gameplay = h_scene;
-        ctx->player_rig       = rig;
-        ctx->map              = map;
-        ctx->entities         = entities;
-        ctx->npc_mngr         = game_npc_mngr_create(h_scene);
+        auto rig      = &dev->rig;
+        auto map      = &dev->map;
+        auto entities = &dev->entities;
 
         // the map goes first, the player rig spawns on it
         game_map_init(map);
+        _scene_dev_h_map = map->eng_hnd;
 
         rig->starting_map_hnd = map->eng_hnd;
         rig->current_map_hnd  = map->eng_hnd;
@@ -148,7 +145,7 @@ namespace ifb {
         entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
 
         cmpnt_collider box_collider;
-        box_collider.proc               = game_scene_gameplay_box_proc;
+        box_collider.proc               = game_scene_dev_box_proc;
         box_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
         box_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
         box_collider.is_trigger         = false;
@@ -164,31 +161,34 @@ namespace ifb {
         did_add_colliders &= eng_entity_add_components (entities->static_entity_3, cmpnt_type_e_collider);
         did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_3, box_collider);
         assert(did_add_colliders);
-        
-        game_npc_config rose_config;
-        rose_config.cstr_name           = "ROSE";
-        rose_config.sprites.cstr_left   = "ROSE-LEFT";
-        rose_config.sprites.cstr_right  = "ROSE-RIGHT";
-        rose_config.sprites.cstr_walk_0 = "ROSE-WLK-0";
-        rose_config.sprites.cstr_walk_1 = "ROSE-WLK-1";
-        rose_config.sprites.cstr_walk_2 = "ROSE-WLK-2";
-        rose_config.sprites.cstr_walk_3 = "ROSE-WLK-3";
-        rose_config.sprites.cstr_walk_4 = "ROSE-WLK-4";
-        rose_config.sprites.cstr_walk_5 = "ROSE-WLK-5";
-        rose_config.sprites.cstr_walk_6 = "ROSE-WLK-6";
-        rose_config.sprites.cstr_walk_7 = "ROSE-WLK-7";
-        rose_config.h_map               = map->eng_hnd;
-        rose_config.chunk_index         = 1;
-        rose_config.chunk_x             = 2;
-        rose_config.chunk_y             = 2;
-        rose_config.proc                = NULL;
-        rose_config.tile_roam_x         = 1;
-        rose_config.tile_roam_y         = 1;
-        rose_config.mask_category       = PHYS_CLLSN_MASK_ALL;
-        rose_config.mask_collides_with  = PHYS_CLLSN_MASK_ALL;
-        rose_config.cllsn_proc          = game_scene_gameplay_rose_collision_proc;
 
-        entities->rose = game_npc_spawn(rose_config);
+        game_npc_def rose_def;
+        rose_def.cstr_name           = "ROSE";
+        rose_def.sprites.cstr_left   = "ROSE-LEFT";
+        rose_def.sprites.cstr_right  = "ROSE-RIGHT";
+        rose_def.sprites.cstr_walk_0 = "ROSE-WLK-0";
+        rose_def.sprites.cstr_walk_1 = "ROSE-WLK-1";
+        rose_def.sprites.cstr_walk_2 = "ROSE-WLK-2";
+        rose_def.sprites.cstr_walk_3 = "ROSE-WLK-3";
+        rose_def.sprites.cstr_walk_4 = "ROSE-WLK-4";
+        rose_def.sprites.cstr_walk_5 = "ROSE-WLK-5";
+        rose_def.sprites.cstr_walk_6 = "ROSE-WLK-6";
+        rose_def.sprites.cstr_walk_7 = "ROSE-WLK-7";
+
+        game_npc_placement rose_at;
+        rose_at.h_map              = map->eng_hnd;
+        rose_at.chunk_index        = 1;
+        rose_at.chunk_x            = 2;
+        rose_at.chunk_y            = 2;
+        rose_at.proc               = NULL;
+        rose_at.tile_roam_x        = 1;
+        rose_at.tile_roam_y        = 1;
+        rose_at.mask_category      = PHYS_CLLSN_MASK_ALL;
+        rose_at.mask_collides_with = PHYS_CLLSN_MASK_ALL;
+        rose_at.cllsn_proc         = game_scene_dev_rose_collision_proc;
+
+        // the same whether the npc manager kept her from the last scene or not
+        entities->rose = game_npc_spawn(rose_def, rose_at);
 
         assert(entities->rose            != ENTITY_ID_INVALID);
         assert(entities->static_entity_0 != ENTITY_ID_INVALID);
@@ -200,27 +200,47 @@ namespace ifb {
     // the engine skips the scene's entities while it isn't updating or rendering,
     // so this only has to keep the game's own logic in step
     IFB_INTERNAL void
-    game_scene_gameplay_update_and_render(
+    game_scene_dev_update_and_render(
         game_context* ctx) {
 
         assert(ctx);
-        assert(ctx->h_scene_gameplay != INVALID_HANDLE);
+        assert(_scene_dev);
 
-        if (!eng_scene_is_updating(ctx->h_scene_gameplay) &&
-            !eng_scene_is_rendering(ctx->h_scene_gameplay)) {
+        const hnd_scene h_scene = _scene_dev->h_scene;
+        if (!eng_scene_is_updating(h_scene) &&
+            !eng_scene_is_rendering(h_scene)) {
             return;
         }
 
-        auto entities = ctx->entities;
+        auto dev = _scene_dev;
 
-        game_player_rig_update_and_render (ctx->player_rig);
-        game_player_rig_update_camera     (ctx->player_rig);
-        game_map_update_and_render        (ctx->map);
+        // connor stands still while he's being talked to
+        dev->rig.is_input_locked = game_dialog_is_open();
+
+        game_player_rig_update_and_render (&dev->rig);
+        game_player_rig_update_camera     (&dev->rig);
+        game_map_update_and_render        (&dev->map);
         game_npc_mngr_update_and_render   ();
 
-        eng_entity_render(entities->static_entity_0);
-        eng_entity_render(entities->static_entity_1);
-        eng_entity_render(entities->static_entity_2);
-        eng_entity_render(entities->static_entity_3);
+        eng_entity_render(dev->entities.static_entity_0);
+        eng_entity_render(dev->entities.static_entity_1);
+        eng_entity_render(dev->entities.static_entity_2);
+        eng_entity_render(dev->entities.static_entity_3);
+    }
+
+    // the scene's entities and memory are already gone
+    IFB_INTERNAL void
+    game_scene_dev_exit(
+        game_context* ctx) {
+
+        assert(ctx);
+
+        // entering again loads the map again, and a map's handle is the hash of its name
+        if (_scene_dev_h_map != INVALID_HANDLE) {
+            eng_map_destroy(_scene_dev_h_map);
+        }
+
+        _scene_dev_h_map = INVALID_HANDLE;
+        _scene_dev       = NULL;
     }
 };

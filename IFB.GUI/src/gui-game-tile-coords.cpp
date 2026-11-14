@@ -10,7 +10,7 @@
 namespace ifb {
 
     // shows the tile under the mouse in a tooltip, for placing npc spawns
-    // the chunk and chunk x / y are what game_npc_config takes
+    // the chunk and chunk x / y are what game_npc_placement takes
     IFB_INTERNAL void
     gui_game_tile_coords(
         const bool          is_enabled,

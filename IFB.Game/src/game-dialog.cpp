@@ -7,31 +7,47 @@
 namespace ifb {
 
     //--------------------------------------------------------------------
+    // DEFINITION 
+    //--------------------------------------------------------------------
+    
+    struct game_dialog {
+        const cchar*          text;        // not copied, it has to outlive the dialog
+        const font*           fnt;
+        u32                   text_len;
+        font_line             lines[GAME_DIALOG_LINE_CAPACITY];
+        u32                   line_count;
+        u32                   page_line;   // the first line on the page
+        f32                   reveal;      // characters shown on the page, the fraction is the next one coming in
+        f32                   blink_s;
+        game_dialog_state_u32 state;
+    } static * _dlg;
+    
+    //--------------------------------------------------------------------
     // INTERNAL
     //--------------------------------------------------------------------
 
     // the lines on the current page, the last page can be short
     inline u32
     game_dialog_page_line_count(
-        const game_dialog* dialog) {
+        void) {
 
-        const u32 lines_left = dialog->line_count - dialog->page_line;
+        const u32 lines_left = _dlg->line_count - _dlg->page_line;
         return((lines_left < GAME_DIALOG_LINES_PER_PAGE) ? lines_left : GAME_DIALOG_LINES_PER_PAGE);
     }
 
     // the characters on the current page, the spaces and newlines the lines broke on aren't counted
     inline u32
     game_dialog_page_char_count(
-        const game_dialog* dialog) {
+        void) {
 
         u32 char_count = 0;
-        const u32 page_line_count = game_dialog_page_line_count(dialog);
+        const u32 page_line_count = game_dialog_page_line_count();
         for (
               u32 i_line = 0;
                   i_line < page_line_count;
                 ++i_line) {
 
-            char_count += dialog->lines[dialog->page_line + i_line].length;
+            char_count += _dlg->lines[_dlg->page_line + i_line].length;
         }
         return(char_count);
     }
@@ -40,30 +56,50 @@ namespace ifb {
     // METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL void
-    game_dialog_init(
-        game_dialog* dialog) {
+    IFB_INTERNAL game_dialog*
+    game_dialog_create(
+        const hnd_arena h_arena,
+        const font*     fnt) {
 
-        assert(dialog);
-
-        dialog->text       = NULL;
-        dialog->text_len   = 0;
-        dialog->line_count = 0;
-        dialog->page_line  = 0;
-        dialog->reveal     = 0.0f;
-        dialog->blink_s    = 0.0f;
-        dialog->state      = game_dialog_state_e_closed;
+        _dlg = (game_dialog*)eng_arena_push(h_arena, sizeof(game_dialog));
+        assert(_dlg);
+        
+        _dlg->text       = NULL;
+        _dlg->fnt        = fnt;
+        _dlg->text_len   = 0;
+        _dlg->line_count = 0;
+        _dlg->page_line  = 0;
+        _dlg->reveal     = 0.0f;
+        _dlg->blink_s    = 0.0f;
+        _dlg->state      = game_dialog_state_e_closed;
+    
+        return(_dlg);
     }
 
+    IFB_INTERNAL void
+    game_dialog_reset(
+        void) {
+
+        _dlg->text       = NULL;
+        _dlg->text_len   = 0;
+        _dlg->line_count = 0;
+        _dlg->page_line  = 0;
+        _dlg->reveal     = 0.0f;
+        _dlg->blink_s    = 0.0f;
+        _dlg->state      = game_dialog_state_e_closed;
+    }
+    
     // the box along the bottom of the screen, and the area inside it the text goes in
     // the box is as tall as a page of lines, so it changes with the font
     IFB_INTERNAL void
     game_dialog_get_layout(
-        const font* fnt,
-        rect&       box,
-        rect&       text_area) {
+        rect&  box,
+        rect&  text_area) {
 
-        assert(fnt);
+        assert(_dlg);
+        assert(_dlg->fnt);
+
+        auto fnt = _dlg->fnt;
 
         u32 screen_width  = 0;
         u32 screen_height = 0;
@@ -89,46 +125,46 @@ namespace ifb {
     // false if there's nothing to show, the dialog stays closed
     IFB_INTERNAL bool
     game_dialog_open(
-        game_dialog* dialog,
-        const font*  fnt,
         const cchar* text,
         const u32    text_len) {
 
-        assert(dialog);
-        assert(fnt);
+        assert(_dlg);
+        assert(_dlg->fnt);
         assert(text != NULL || text_len == 0);
+
+        auto fnt = _dlg->fnt;
 
         rect box;
         rect text_area;
-        game_dialog_get_layout(fnt, box, text_area);
+        game_dialog_get_layout(box, text_area);
 
         u32 line_count = eng_font_wrap_text(
             fnt,
             text,
             text_len,
             text_area.width,
-            dialog->lines,
+            _dlg->lines,
             GAME_DIALOG_LINE_CAPACITY
         );
         if (line_count > GAME_DIALOG_LINE_CAPACITY) line_count = GAME_DIALOG_LINE_CAPACITY;
         if (line_count == 0) return(false);
 
-        dialog->text       = text;
-        dialog->text_len   = text_len;
-        dialog->line_count = line_count;
-        dialog->page_line  = 0;
-        dialog->reveal     = 0.0f;
-        dialog->blink_s    = 0.0f;
-        dialog->state      = game_dialog_state_e_typing;
+        _dlg->text       = text;
+        _dlg->text_len   = text_len;
+        _dlg->line_count = line_count;
+        _dlg->page_line  = 0;
+        _dlg->reveal     = 0.0f;
+        _dlg->blink_s    = 0.0f;
+        _dlg->state      = game_dialog_state_e_typing;
         return(true);
     }
 
     IFB_INTERNAL bool
     game_dialog_is_open(
-        const game_dialog* dialog) {
+        void) {
 
-        assert(dialog);
-        return(dialog->state != game_dialog_state_e_closed);
+        assert(_dlg);
+        return(_dlg->state != game_dialog_state_e_closed);
     }
 
     // the player pressed the button
@@ -136,27 +172,27 @@ namespace ifb {
     // once it's all shown, the next page starts, or the dialog closes after the last one
     IFB_INTERNAL void
     game_dialog_advance(
-        game_dialog* dialog) {
+        void) {
 
-        assert(dialog);
+        assert(_dlg);
 
-        switch (dialog->state.val) {
+        switch (_dlg->state.val) {
 
             case (game_dialog_state_e_typing): {
-                dialog->reveal  = (f32)game_dialog_page_char_count(dialog);
-                dialog->blink_s = 0.0f;
-                dialog->state   = game_dialog_state_e_paused;
+                _dlg->reveal  = (f32)game_dialog_page_char_count();
+                _dlg->blink_s = 0.0f;
+                _dlg->state   = game_dialog_state_e_paused;
             } break;
 
             case (game_dialog_state_e_paused): {
-                const u32 next_page_line = dialog->page_line + GAME_DIALOG_LINES_PER_PAGE;
-                if (next_page_line >= dialog->line_count) {
-                    game_dialog_init(dialog);
+                const u32 next_page_line = _dlg->page_line + GAME_DIALOG_LINES_PER_PAGE;
+                if (next_page_line >= _dlg->line_count) {
+                    game_dialog_reset();
                     break;
                 }
-                dialog->page_line = next_page_line;
-                dialog->reveal    = 0.0f;
-                dialog->state     = game_dialog_state_e_typing;
+                _dlg->page_line = next_page_line;
+                _dlg->reveal    = 0.0f;
+                _dlg->state     = game_dialog_state_e_typing;
             } break;
 
             default: break;
@@ -178,8 +214,8 @@ namespace ifb {
         ctx->talk_was_down         = is_action_down;
         if (!is_action_press) return;
 
-        if (game_dialog_is_open(ctx->dialog)) {
-            game_dialog_advance(ctx->dialog);
+        if (game_dialog_is_open()) {
+            game_dialog_advance();
         }
         else {
             ctx->is_action_pressed = true;
@@ -189,27 +225,26 @@ namespace ifb {
     // reveals the page, or blinks the marker once it's all shown
     inline void
     game_dialog_tick(
-        game_dialog* dialog,
-        const f32    dt) {
+        const f32 dt) {
 
-        assert(dialog);
+        assert(_dlg);
 
-        switch (dialog->state.val) {
+        switch (_dlg->state.val) {
 
             case (game_dialog_state_e_typing): {
-                const f32 page_char_count = (f32)game_dialog_page_char_count(dialog);
-                dialog->reveal += dt * GAME_DIALOG_CHARS_PER_SECOND;
-                if (dialog->reveal >= page_char_count) {
-                    dialog->reveal  = page_char_count;
-                    dialog->blink_s = 0.0f;
-                    dialog->state   = game_dialog_state_e_paused;
+                const f32 page_char_count = (f32)game_dialog_page_char_count();
+                _dlg->reveal += dt * GAME_DIALOG_CHARS_PER_SECOND;
+                if (_dlg->reveal >= page_char_count) {
+                    _dlg->reveal  = page_char_count;
+                    _dlg->blink_s = 0.0f;
+                    _dlg->state   = game_dialog_state_e_paused;
                 }
             } break;
 
             case (game_dialog_state_e_paused): {
-                dialog->blink_s += dt;
-                if (dialog->blink_s >= GAME_DIALOG_ARROW_BLINK_S * 2.0f) {
-                    dialog->blink_s -= GAME_DIALOG_ARROW_BLINK_S * 2.0f;
+                _dlg->blink_s += dt;
+                if (_dlg->blink_s >= GAME_DIALOG_ARROW_BLINK_S * 2.0f) {
+                    _dlg->blink_s -= GAME_DIALOG_ARROW_BLINK_S * 2.0f;
                 }
             } break;
 
@@ -218,38 +253,32 @@ namespace ifb {
     }
 
     // the whole dialog for this pass: the action button, the reveal, and drawing it
-    // the dialog needs the font, without it there's nothing to show, and nothing uses the button
     IFB_INTERNAL void
     game_dialog_update(
         game_context* ctx) {
 
         assert(ctx);
-        assert(ctx->dialog);
-
-        if (ctx->fnt == NULL) {
-            ctx->is_action_pressed = false;
-            return;
-        }
 
         game_dialog_read_action (ctx);
-        game_dialog_tick        (ctx->dialog, eng_system_get_delta_time_s());
-        game_dialog_render      (ctx->dialog, ctx->fnt);
+        game_dialog_tick        (eng_system_get_delta_time_s());
+        game_dialog_render      ();
     }
 
     // has to be called every frame the dialog should be seen, like any immediate drawing
     IFB_INTERNAL void
     game_dialog_render(
-        const game_dialog* dialog,
-        const font*        fnt) {
+        void) {
 
-        assert(dialog);
-        assert(fnt);
+        assert(_dlg);
+        assert(_dlg->fnt);
 
-        if (!game_dialog_is_open(dialog)) return;
+        auto fnt = _dlg->fnt;
+
+        if (!game_dialog_is_open()) return;
 
         rect box;
         rect text_area;
-        game_dialog_get_layout(fnt, box, text_area);
+        game_dialog_get_layout(box, text_area);
 
         // the border is the box, the fill is drawn over it inside the border
         rect fill;
@@ -262,17 +291,17 @@ namespace ifb {
 
         // the page's lines, up to the characters revealed so far
         const color_rgba_f32 text_color      = color_rgba_f32(GAME_DIALOG_COLOR_TEXT);
-        const u32            page_line_count = game_dialog_page_line_count(dialog);
-        u32                  chars_left      = (u32)dialog->reveal;
+        const u32            page_line_count = game_dialog_page_line_count();
+        u32                  chars_left      = (u32)_dlg->reveal;
         vec2                 pen             = { text_area.x, text_area.y };
         for (
               u32 i_line = 0;
                   i_line < page_line_count && chars_left > 0;
                 ++i_line) {
 
-            const font_line& line      = dialog->lines[dialog->page_line + i_line];
+            const font_line& line      = _dlg->lines[_dlg->page_line + i_line];
             const u32        draw_len  = (line.length < chars_left) ? line.length : chars_left;
-            eng_draw_text_screen(fnt, &dialog->text[line.start], draw_len, pen, text_color);
+            eng_draw_text_screen(_dlg->fnt, &_dlg->text[line.start], draw_len, pen, text_color);
 
             chars_left -= draw_len;
             pen.y      += fnt->line_height + GAME_DIALOG_LINE_SPACING;
@@ -280,8 +309,8 @@ namespace ifb {
 
         // once the page is all shown, a blinking marker in the corner says there's more to read
         const bool is_marker_shown = (
-            dialog->state   == game_dialog_state_e_paused &&
-            dialog->blink_s <  GAME_DIALOG_ARROW_BLINK_S
+            _dlg->state   == game_dialog_state_e_paused &&
+            _dlg->blink_s <  GAME_DIALOG_ARROW_BLINK_S
         );
         if (is_marker_shown) {
             rect marker;
