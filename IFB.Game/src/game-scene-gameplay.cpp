@@ -24,7 +24,6 @@ namespace ifb {
         if (contact.other != player_rig->connor_id)  return;
         if (contact.phase == phys_cllsn_phase_e_end) return;
         if (!_game_ctx->is_action_pressed)           return;
-        if (_game_ctx->fnt == NULL)                  return;
     
         _game_ctx->is_action_pressed = false;
 
@@ -38,7 +37,7 @@ namespace ifb {
         else if (contact.self == _game_ctx->entities->static_entity_1) text = text_box_2;
         else if (contact.self == _game_ctx->entities->static_entity_2) text = text_box_3;
         else if (contact.self == _game_ctx->entities->static_entity_3) text = text_box_4;
-        const u32 size = sizeof(text_box_1);
+        const u32 text_size = sizeof(text_box_1)-1;
         
         auto audio = _game_ctx->audio;
         audio_voice_info info;
@@ -47,12 +46,7 @@ namespace ifb {
             audio->h_boop = eng_audio_sound_play("BOOP", audio_group_e_sfx, GAME_BOOP_VOLUME, false);
         };
 
-        const bool did_open = game_dialog_open(
-            _game_ctx->dialog,
-            _game_ctx->fnt,
-            text,
-            sizeof(text_box_1) - 1
-        );
+        const bool did_open = game_dialog_open(text,text_size);
         assert(did_open);
     }
 
@@ -75,7 +69,6 @@ namespace ifb {
 
         // the game callback reads e before the physics step, and leaves the press here if nothing used it
         if (!_game_ctx->is_action_pressed) return;
-        if (_game_ctx->fnt == NULL)        return;
 
         // he has to be facing her, he only faces left or right, so it's which side of him she's on
         // the positions, not the normal, the normal is along z when he touches her from above or below
@@ -95,8 +88,9 @@ namespace ifb {
         // used up, so nothing else connor is touching reacts to the same press
         _game_ctx->is_action_pressed = false;
 
-        static constexpr cchar rose_text[] = "Rose: \"Hi Connor!\"";
-        const bool did_open = game_dialog_open(_game_ctx->dialog, _game_ctx->fnt, rose_text, sizeof(rose_text) - 1);
+        static constexpr cchar rose_text_cstr[] = "Rose: \"Hi Connor!\"";
+        static constexpr u32   rose_text_size   = sizeof(rose_text_cstr)-1;
+        const bool did_open = game_dialog_open(rose_text_cstr, rose_text_size);
 
         // she turns to connor, and stays put until the dialog closes
         if (did_open) {

@@ -97,7 +97,7 @@ namespace ifb {
 
             // talking lasts until the dialog closes, it doesn't roam until then
             bool& is_talking = _npc_mngr->array_is_talking[i_npc];
-            if (is_talking && !game_dialog_is_open(_game_ctx->dialog)) {
+            if (is_talking && !game_dialog_is_open()) {
                 is_talking = false;
             }
             const vec3 force = is_talking ? vec3{0} : game_npc_roam(i_npc, dt_s);

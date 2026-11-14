@@ -93,6 +93,7 @@ namespace ifb {
     //--------------------------------------------------------------------
     // a box along the bottom of the screen that types its text out a character at a time
     // the text is wrapped when it opens, then shown a page of lines at a time
+    struct game_dialog;
 
     static constexpr u32 GAME_DIALOG_LINE_CAPACITY    = 32;     // lines past this are cut off
     static constexpr u32 GAME_DIALOG_LINES_PER_PAGE   = 2;
@@ -114,16 +115,6 @@ namespace ifb {
         game_dialog_state_e_paused = 2  // the page is all shown, waiting for the player
     };
 
-    struct game_dialog {
-        const cchar*          text;        // not copied, it has to outlive the dialog
-        u32                   text_len;
-        font_line             lines[GAME_DIALOG_LINE_CAPACITY];
-        u32                   line_count;
-        u32                   page_line;   // the first line on the page
-        f32                   reveal;      // characters shown on the page, the fraction is the next one coming in
-        f32                   blink_s;
-        game_dialog_state_u32 state;
-    };
 
     //--------------------------------------------------------------------
     // NPCS
@@ -184,13 +175,14 @@ namespace ifb {
     IFB_INTERNAL game_context* game_context_create_and_init      (void);
     IFB_INTERNAL void          game_context_update_and_render    (game_context* ctx);
 
-    IFB_INTERNAL void          game_dialog_init       (game_dialog* dialog);
-    IFB_INTERNAL bool          game_dialog_open       (game_dialog* dialog, const font* fnt, const cchar* text, const u32 text_len);
-    IFB_INTERNAL bool          game_dialog_is_open    (const game_dialog* dialog);
-    IFB_INTERNAL void          game_dialog_advance    (game_dialog* dialog);
+    IFB_INTERNAL game_dialog*  game_dialog_create     (const hnd_arena h_arena, const font* fnt);
+    IFB_INTERNAL void          game_dialog_reset      (void);
+    IFB_INTERNAL bool          game_dialog_open       (const cchar* text, const u32 text_len);
+    IFB_INTERNAL bool          game_dialog_is_open    (void);
+    IFB_INTERNAL void          game_dialog_advance    (void);
     IFB_INTERNAL void          game_dialog_update     (game_context* ctx);
-    IFB_INTERNAL void          game_dialog_render     (const game_dialog* dialog, const font* fnt);
-    IFB_INTERNAL void          game_dialog_get_layout (const font* fnt, rect& box, rect& text_area);
+    IFB_INTERNAL void          game_dialog_render     (void);
+    IFB_INTERNAL void          game_dialog_get_layout (rect& box, rect& text_area);
 
     IFB_INTERNAL void          game_scene_gameplay_init              (game_context* ctx);
     IFB_INTERNAL void          game_scene_gameplay_update_and_render (game_context* ctx);

@@ -19,27 +19,35 @@ namespace ifb {
         auto ctx      =    (game_context*)eng_arena_push(arena_h, sizeof(game_context));
         auto sprites  =    (game_sprites*)eng_arena_push(arena_h, sizeof(game_sprites));
         auto audio    =      (game_audio*)eng_arena_push(arena_h, sizeof(game_audio));
-        auto dialog   =     (game_dialog*)eng_arena_push(arena_h, sizeof(game_dialog));
 
         assert(ctx      != NULL);
         assert(sprites  != NULL);
         assert(audio    != NULL);
-        assert(dialog   != NULL);
+
+        // the ui font, copied onto the global arena so it lives as long as the game
+        // the calls stay outside the assert so they still run when asserts are compiled out
+        font*      fnt           = eng_font_atlas_load_to_arena("PRESS-START-16", arena_h);
+        const bool is_font_ready = (
+            fnt != NULL             &&
+            eng_font_upload(fnt)    &&
+            eng_font_set_active(fnt)
+        );
+        assert(is_font_ready);
+        (void)is_font_ready;
 
         // the gameplay scene fills in the rest
-        ctx->global_arena     = arena_h;
-        ctx->h_scene_gameplay = INVALID_HANDLE;
-        ctx->player_rig       = NULL;
-        ctx->map              = NULL;
-        ctx->entities         = NULL;
-        ctx->npc_mngr         = NULL;
-        ctx->sprites          = sprites;
-        ctx->audio            = audio;
-        ctx->fnt              = NULL;
-        ctx->dialog           = dialog;
+        ctx->global_arena      = arena_h;
+        ctx->h_scene_gameplay  = INVALID_HANDLE;
+        ctx->player_rig        = NULL;
+        ctx->map               = NULL;
+        ctx->entities          = NULL;
+        ctx->npc_mngr          = NULL;
+        ctx->sprites           = sprites;
+        ctx->audio             = audio;
+        ctx->fnt               = fnt;
+        ctx->dialog            = game_dialog_create(arena_h, fnt);
         ctx->talk_was_down     = false;
         ctx->is_action_pressed = false;
-        game_dialog_init(dialog);
 
         // nothing is playing yet
         audio->h_boop = {INVALID_HANDLE};
@@ -66,12 +74,6 @@ namespace ifb {
             (void)did_set_texture;
         }
 
-        // the ui font, copied onto the global arena so it lives as long as the game
-        // without the asset database it fails to load, and the game runs without text
-        font* fnt = eng_font_atlas_load_to_arena("PRESS-START-16", arena_h);
-        if (fnt != NULL && eng_font_upload(fnt) && eng_font_set_active(fnt)) {
-            ctx->fnt = fnt;
-        }
 
         // the level
         game_scene_gameplay_init(ctx);
@@ -102,7 +104,7 @@ namespace ifb {
         eng_audio_voice_stop(audio->h_music);
 
         // connor stands still while he's being talked to
-        ctx->player_rig->is_input_locked = game_dialog_is_open(ctx->dialog);
+        ctx->player_rig->is_input_locked = game_dialog_is_open();
 
         game_scene_gameplay_update_and_render(ctx);
         game_dialog_update(ctx);
