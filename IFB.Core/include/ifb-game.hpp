@@ -150,15 +150,18 @@ namespace ifb {
     };
 
     struct game_npc_config {
-        const cchar*     cstr_name;
-        game_npc_sprites sprites;
-        game_npc_proc    proc;
-        hnd_map          h_map;
-        u32              chunk_index;
-        u32              chunk_x;
-        u32              chunk_y;
-        u32              tile_roam_x; // the distance the character can roam from their spawn tile 
-        u32              tile_roam_y;
+        const cchar*         cstr_name;
+        game_npc_sprites     sprites;
+        game_npc_proc        proc;
+        hnd_map              h_map;
+        u32                  chunk_index;
+        u32                  chunk_x;
+        u32                  chunk_y;
+        u32                  tile_roam_x; // the distance the character can roam from their spawn tile 
+        u32                  tile_roam_y;
+        u32                  mask_category;
+        u32                  mask_collides_with;
+        fptr_phys_cllsn_proc cllsn_proc;
     };
 
     // the global arena holds what lasts the whole game

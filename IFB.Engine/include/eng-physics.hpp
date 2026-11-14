@@ -143,7 +143,6 @@ namespace ifb {
         entity_id b;
     };
 
-
     struct phys_cllsn_mask {
         u32 category;
         u32 collides_with;

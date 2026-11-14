@@ -7,8 +7,54 @@
 #include "game-entity.cpp"
 #include "game-map.cpp"
 #include "game-player-rig.cpp"
+#include <cassert>
 
 namespace ifb {
+
+    IFB_INTERNAL void
+    game_scene_gameplay_box_proc(
+        const phys_cllsn_contact& contact) {
+
+        assert(_game_ctx);
+        assert(_game_ctx->player_rig);
+        assert(_game_ctx->entities);
+        
+        auto player_rig = _game_ctx->player_rig;
+        
+        if (contact.other != player_rig->connor_id)  return;
+        if (contact.phase == phys_cllsn_phase_e_end) return;
+        if (!_game_ctx->is_action_pressed)           return;
+        if (_game_ctx->fnt == NULL)                  return;
+    
+        _game_ctx->is_action_pressed = false;
+
+        static constexpr cchar text_box_1[] = "This is box 1";
+        static constexpr cchar text_box_2[] = "This is box 2";
+        static constexpr cchar text_box_3[] = "This is box 3";
+        static constexpr cchar text_box_4[] = "This is box 4";
+       
+        const cchar* text = "";
+        if      (contact.self == _game_ctx->entities->static_entity_0) text = text_box_1;
+        else if (contact.self == _game_ctx->entities->static_entity_1) text = text_box_2;
+        else if (contact.self == _game_ctx->entities->static_entity_2) text = text_box_3;
+        else if (contact.self == _game_ctx->entities->static_entity_3) text = text_box_4;
+        const u32 size = sizeof(text_box_1);
+        
+        auto audio = _game_ctx->audio;
+        audio_voice_info info;
+        const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
+        if (!is_boop_playing) {
+            audio->h_boop = eng_audio_sound_play("BOOP", audio_group_e_sfx, GAME_BOOP_VOLUME, false);
+        };
+
+        const bool did_open = game_dialog_open(
+            _game_ctx->dialog,
+            _game_ctx->fnt,
+            text,
+            sizeof(text_box_1) - 1
+        );
+        assert(did_open);
+    }
 
     IFB_INTERNAL void
     game_scene_gameplay_rose_collision_proc(
@@ -101,7 +147,24 @@ namespace ifb {
         entities->static_entity_2 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-2","WOOD",map->eng_hnd,0,7,3);
         entities->static_entity_3 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-3","WOOD",map->eng_hnd,0,7,7);
 
+        cmpnt_collider box_collider;
+        box_collider.proc               = game_scene_gameplay_box_proc;
+        box_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
+        box_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
+        box_collider.is_trigger         = false;
 
+
+        bool did_add_colliders = true;
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_0, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_0, box_collider);
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_1, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_1, box_collider);
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_2, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_2, box_collider);
+        did_add_colliders &= eng_entity_add_components (entities->static_entity_3, cmpnt_type_e_collider);
+        did_add_colliders &= eng_cmpnt_update_collider (entities->static_entity_3, box_collider);
+        assert(did_add_colliders);
+        
         game_npc_config rose_config;
         rose_config.cstr_name           = "ROSE";
         rose_config.sprites.cstr_left   = "ROSE-LEFT";
@@ -121,27 +184,13 @@ namespace ifb {
         rose_config.proc                = NULL;
         rose_config.tile_roam_x         = 1;
         rose_config.tile_roam_y         = 1;
+        rose_config.mask_category       = PHYS_CLLSN_MASK_ALL;
+        rose_config.mask_collides_with  = PHYS_CLLSN_MASK_ALL;
+        rose_config.cllsn_proc          = game_scene_gameplay_rose_collision_proc;
 
-        const entity_id rose_id = game_npc_spawn(rose_config);
-        assert(rose_id != ENTITY_ID_INVALID);
+        entities->rose = game_npc_spawn(rose_config);
 
-        entities->rose = rose_id;
-
-        // rose handles her own collisions
-        // she's solid and collides with everything, the collider is only here for the proc
-        // the whole collider is written, adding the component doesn't clear its slot
-        cmpnt_collider rose_collider;
-        rose_collider.proc               = game_scene_gameplay_rose_collision_proc;
-        rose_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
-        rose_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
-        rose_collider.is_trigger         = false;
-
-        bool did_add_collider = true;
-        did_add_collider &= eng_entity_add_components (rose_id, cmpnt_type_e_collider);
-        did_add_collider &= eng_cmpnt_update_collider (rose_id, rose_collider);
-        assert(did_add_collider);
-        (void)did_add_collider;
-
+        assert(entities->rose            != ENTITY_ID_INVALID);
         assert(entities->static_entity_0 != ENTITY_ID_INVALID);
         assert(entities->static_entity_1 != ENTITY_ID_INVALID);
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);

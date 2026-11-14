@@ -164,6 +164,17 @@ namespace ifb {
             return(ENTITY_ID_INVALID);
         }
 
+        cmpnt_collider collider;
+        collider.proc               = cfg.cllsn_proc;
+        collider.mask_category      = cfg.mask_category;
+        collider.mask_collides_with = cfg.mask_collides_with;
+        collider.is_trigger         = false;
+
+        bool did_add_collider = true;
+        did_add_collider &= eng_entity_add_components (id, cmpnt_type_e_collider);
+        did_add_collider &= eng_cmpnt_update_collider (id, collider);
+        assert(did_add_collider);
+       
         const bool did_insert = game_npc_mngr_insert(id, cfg);
         if (!did_insert) {
             eng_entity_destroy_by_id(id);
