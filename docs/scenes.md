@@ -102,7 +102,7 @@ The engine skips entities and emitters whose scene isn't running:
 | Physics doesn't integrate its entities, give them collision bounds, or apply their springs | `eng_entity_render` does nothing for its entities |
 | Its emitters don't follow their entities, age, move, or spawn | Its parallax isn't drawn |
 
-The engine doesn't know about the game's own logic, so the game has to check too. Wrap each scene's game code in a check like the gameplay scene does:
+The engine doesn't know about the game's own logic, so the game has to check too. Wrap each scene's game code in a check like the dev scene does:
 
 ```cpp
 if (!eng_scene_is_updating(h_scene) && !eng_scene_is_rendering(h_scene)) return;
@@ -164,12 +164,43 @@ The backdrop stands just behind the far edge of the map being drawn, so nothing 
 
 ## In the Game
 
-The game puts its level in a scene named `GAMEPLAY` (`IFB.Game/src/game-scene-gameplay.cpp`):
+The game runs one scene at a time (`IFB.Game/src/game-scene.cpp`). Each one has an ID in `game_scene_id_e` and three procs in the `GAME_SCENE_PROCS` table:
 
-- `game_scene_gameplay_init` creates and pushes the scene, allocates the player rig, map, and box entity structs with `eng_scene_alloc`, loads the map and its parallax, and spawns the rig and boxes.
-- `game_scene_gameplay_update_and_render` returns early when the scene isn't running.
+| Proc | When it runs | What it does |
+| --- | --- | --- |
+| `enter` | The scene is created and bound | Allocates the scene's state with `eng_scene_alloc`, and spawns its entities and NPCs |
+| `update_and_render` | Every game update while it's active | Returns early when the engine says the scene isn't running |
+| `exit` | After the engine released the scene | Releases what the scene doesn't own, like its map, and clears its pointers |
 
-The game context's global arena only holds what lasts the whole game: the context, sprites, and audio.
+`exit` runs after the scene's entities and `eng_scene_alloc` memory are gone, so it can't read them. Keep anything it has to release, like a map handle, outside the scene's memory.
+
+### Switching Scenes
+
+`game_scene_request(id, npc_keep, npc_keep_count)` asks for a switch. It's safe to call from anywhere, including collision procs, and returns false while another switch is requested or underway. The switch is applied over two frames:
+
+1. **The frame it's applied**: the old scene updates one last time, then `game_scene_update_and_render` creates the new engine scene and calls `eng_scene_transition`. The old scene's collision procs still run in this frame's physics step.
+2. **The next frame**: the engine released the old scene in `scene_mngr_frame_start`, so the old scene exits, the NPCs that aren't kept are forgotten, the dialog is closed, and the new scene enters and updates.
+
+The new scene enters a frame late because entity IDs are a hash of the entity's name, and creating an entity whose name is already taken asserts. The old scene's entities, like `CONNOR`, are only destroyed at the start of the next frame, so a scene can't create its own `CONNOR` until then.
+
+`game_scene_init` enters the first scene right away, since nothing is running yet.
+
+### NPCs Across Scenes
+
+The NPC manager is on the game context's global arena, so it outlives the scenes. An NPC's entity still belongs to the scene it was placed in, so the manager keeps the two parts apart:
+
+- `game_npc_def` is who the NPC is: its name and sprites. The manager keeps this, and the way it's facing, across scenes.
+- `game_npc_placement` is where it stands in a scene and how it behaves there: the map and tile, its roam range, its proc, and its collision proc.
+
+`game_npc_spawn(def, at)` places the NPC in the bound scene. An NPC the manager doesn't know is added. One it kept from the last scene keeps its state, and gets a new entity with the same ID.
+
+The NPCs passed to `game_scene_request` in `npc_keep` are kept through the switch. The rest are forgotten (`game_npc_mngr_reset_all_except`). A kept NPC that the next scene doesn't spawn stays in the manager without being placed, and isn't updated or drawn until a later scene spawns it again.
+
+### The Dev Scene
+
+The dev scene (`IFB.Game/src/game-scene-dev.cpp`, engine scene `DEV`) is the first scene. It loads `DEV-MAP` and its parallax, and spawns the player rig, the four boxes, and Rose. Its state is one `game_scene_dev` struct in its scene memory. Its exit destroys `DEV-MAP`, since maps are global and loading one twice under the same name fails.
+
+The game context's global arena only holds what lasts the whole game: the context, sprites, audio, the dialog, and the NPC manager. `game_context::player_rig` and `::map` point at the active scene's, and are NULL when it doesn't have one.
 
 ## How It Works
 

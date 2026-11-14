@@ -30,7 +30,7 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 1. Builds an `eng_mem_map`: a fixed stack buffer plus one `VirtualAlloc` reservation per system (core, files, rendering, entities, components, physics, tiles, particles, assets, sprites, events, jobs, arenas, ...).
 2. Calls `eng_context_create` with the memory map and two callbacks: `game_proc` (game update) and `render_proc` (GUI render).
 3. Calls `eng_context_startup`, which starts every manager. The scene manager starts last, and creates and binds the [default scene](scenes.md#the-default-scene).
-4. Creates the game context (`game_context_create_and_init`), which creates and pushes the gameplay scene, and opens the GUI.
+4. Creates the game context (`game_context_create_and_init`), which enters the first scene (the dev scene), and opens the GUI.
 5. Calls `eng_context_run` until it returns `false`.
 6. Calls `eng_context_shutdown`, which stops the worker threads first, then shuts down the assets and the platform.
 

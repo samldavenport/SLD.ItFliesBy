@@ -4,7 +4,7 @@
 #include "ifb-game.hpp"
 #include "ifb.hpp"
 
-#include "game-scene-gameplay.cpp"
+#include "game-scene.cpp"
 #include "game-dialog.cpp"
 
 namespace ifb {
@@ -35,13 +35,12 @@ namespace ifb {
         assert(is_font_ready);
         (void)is_font_ready;
 
-        // the gameplay scene fills in the rest
+        // the active scene fills in the player rig and map
+        // the npc manager outlives the scenes, so it can keep npcs from one scene to the next
         ctx->global_arena      = arena_h;
-        ctx->h_scene_gameplay  = INVALID_HANDLE;
         ctx->player_rig        = NULL;
         ctx->map               = NULL;
-        ctx->entities          = NULL;
-        ctx->npc_mngr          = NULL;
+        ctx->npc_mngr          = game_npc_mngr_create(arena_h);
         ctx->sprites           = sprites;
         ctx->audio             = audio;
         ctx->fnt               = fnt;
@@ -75,12 +74,12 @@ namespace ifb {
         }
 
 
-        // the level
-        game_scene_gameplay_init(ctx);
-
+        // set before the first scene enters, the collision procs read it
         _game_ctx = ctx;
 
-        return(ctx); 
+        game_scene_init(ctx, game_scene_id_e_dev);
+
+        return(ctx);
     }
     
     IFB_INTERNAL void
@@ -88,8 +87,8 @@ namespace ifb {
         game_context* ctx) {
 
         assert(ctx);
-        assert(ctx->player_rig   != NULL);
         assert(ctx->global_arena != INVALID_INDEX);
+        assert(ctx->npc_mngr     != NULL);
     }
 
     
@@ -103,10 +102,7 @@ namespace ifb {
 
         eng_audio_voice_stop(audio->h_music);
 
-        // connor stands still while he's being talked to
-        ctx->player_rig->is_input_locked = game_dialog_is_open();
-
-        game_scene_gameplay_update_and_render(ctx);
+        game_scene_update_and_render(ctx);
         game_dialog_update(ctx);
     }
 

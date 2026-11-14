@@ -8,8 +8,6 @@
 
 namespace ifb {
 
-    static constexpr u32 GAME_NPC_MNGR_CAPACITY = 64;
-
     // an idle npc rolls its roam chance every tick, if it doesn't roam the chance grows
     // when it does, it walks to a random tile within its roam range of its spawn tile, and the chance starts over
     static constexpr f32 GAME_NPC_ROAM_TICK_S        = 1.0f;
@@ -23,14 +21,25 @@ namespace ifb {
     // the npcs are packed at the front of the arrays, removing one moves the last one into its slot
     // while the npcs are updating, despawns are only marked, and removed once the loop is done,
     // so a proc can't move an npc out from under the loop
+    //
+    // an npc the manager knows isn't always in the current scene
+    // it's placed when a scene spawns it, and stops being placed when the scene is switched,
+    // until the next scene spawns it again
     struct game_npc_mngr {
         u32                          count;
         bool                         is_updating;
-        entity_id                    array_id           [GAME_NPC_MNGR_CAPACITY];
-        game_npc_proc                array_proc         [GAME_NPC_MNGR_CAPACITY];
+
+        // who the npc is, kept across scenes
+        entity_id                    array_id           [GAME_NPC_MNGR_CAPACITY];  // the hash of its name, the same in every scene
+        const cchar*                 array_name         [GAME_NPC_MNGR_CAPACITY];
         game_npc_sprites             array_sprites      [GAME_NPC_MNGR_CAPACITY];
-        cmpnt_map_coords             array_spawn        [GAME_NPC_MNGR_CAPACITY];  // the center of the wander radius
         game_character_direction_u32 array_direction    [GAME_NPC_MNGR_CAPACITY];
+        bool                         array_is_placed    [GAME_NPC_MNGR_CAPACITY];  // its entity is in the current scene
+        bool                         array_is_despawned [GAME_NPC_MNGR_CAPACITY];
+
+        // where it is in the scene it's placed in, set again every time it's placed
+        game_npc_proc                array_proc         [GAME_NPC_MNGR_CAPACITY];
+        cmpnt_map_coords             array_spawn        [GAME_NPC_MNGR_CAPACITY];  // the center of the wander radius
         game_character_state_u32     array_state        [GAME_NPC_MNGR_CAPACITY];
         f32                          array_walk_timer_s [GAME_NPC_MNGR_CAPACITY];  // time on the current walk frame
         bool                         array_walk_cycle_change [GAME_NPC_MNGR_CAPACITY];  // the next walk frame is due
@@ -41,11 +50,12 @@ namespace ifb {
         f32                          array_roam_time_s  [GAME_NPC_MNGR_CAPACITY];  // time spent walking to the target
         cmpnt_map_coords             array_roam_target  [GAME_NPC_MNGR_CAPACITY];  // the center of the target tile
         bool                         array_is_roaming   [GAME_NPC_MNGR_CAPACITY];
-        bool                         array_is_despawned [GAME_NPC_MNGR_CAPACITY];
         bool                         array_is_talking   [GAME_NPC_MNGR_CAPACITY];  // stands still facing who it's talking to, until the dialog closes
     } static * _npc_mngr;
 
-    inline bool         game_npc_mngr_insert     (const entity_id id, const game_npc_config& cfg);
+    inline u32          game_npc_mngr_insert     (const entity_id id, const game_npc_def& def);
+    inline bool         game_npc_mngr_place_at   (const u32 i_npc, const game_npc_placement& at);
+    inline void         game_npc_mngr_unplace_at (const u32 i_npc);
     inline void         game_npc_mngr_remove_at  (const u32 i_npc);
     inline void         game_npc_mngr_flush      (void);
     inline u32          game_npc_mngr_index_of   (const entity_id id);
@@ -60,11 +70,11 @@ namespace ifb {
 
     IFB_INTERNAL game_npc_mngr*
     game_npc_mngr_create(
-        const hnd_scene h_scene) {
+        const hnd_arena h_arena) {
 
-        assert(h_scene != INVALID_HANDLE);
+        assert(h_arena != INVALID_HANDLE);
 
-        auto* mngr = (game_npc_mngr*)eng_scene_alloc(h_scene, sizeof(game_npc_mngr));
+        auto* mngr = (game_npc_mngr*)eng_arena_push(h_arena, sizeof(game_npc_mngr));
         assert(mngr);
 
         mngr->count       = 0;
@@ -94,6 +104,7 @@ namespace ifb {
               ++i_npc) {
 
             if (_npc_mngr->array_is_despawned[i_npc]) continue;
+            if (!_npc_mngr->array_is_placed[i_npc])   continue;
 
             // talking lasts until the dialog closes, it doesn't roam until then
             bool& is_talking = _npc_mngr->array_is_talking[i_npc];
@@ -123,61 +134,96 @@ namespace ifb {
                 i_npc < _npc_mngr->count;
               ++i_npc) {
 
+            if (!_npc_mngr->array_is_placed[i_npc]) continue;
             eng_entity_render(_npc_mngr->array_id[i_npc]);
         }
     }
 
-    IFB_INTERNAL entity_id
-    game_npc_spawn(
-        const game_npc_config& cfg) {
+    // forgets every npc that isn't in keep, and takes the kept ones out of the scene,
+    // so the next scene can place them again without the manager starting over
+    // the entities are destroyed if they still exist, like when it's called in the middle of a scene
+    // during a scene switch the engine has already destroyed them with the old scene
+    IFB_INTERNAL void
+    game_npc_mngr_reset_all_except(
+        const entity_id* keep,
+        const u32        keep_count) {
 
         assert(_npc_mngr);
-        assert(cfg.cstr_name);
-        assert(cfg.sprites.cstr_left);
-        assert(cfg.sprites.cstr_right);
-        assert(cfg.sprites.cstr_walk_0);
-        assert(cfg.sprites.cstr_walk_1);
-        assert(cfg.sprites.cstr_walk_2);
-        assert(cfg.sprites.cstr_walk_3);
-        assert(cfg.sprites.cstr_walk_4);
-        assert(cfg.sprites.cstr_walk_5);
-        assert(cfg.sprites.cstr_walk_6);
-        assert(cfg.sprites.cstr_walk_7);
-        assert(cfg.h_map != INVALID_HANDLE);
+        assert(!_npc_mngr->is_updating);
+        assert(keep != NULL || keep_count == 0);
 
-        if (_npc_mngr->count >= GAME_NPC_MNGR_CAPACITY) return(ENTITY_ID_INVALID);
+        // backwards, removing one moves the last npc into its slot, and that one has already been checked
+        for (
+            u32 i_npc = _npc_mngr->count;
+                i_npc > 0;
+              --i_npc) {
 
-        const entity_id id = game_entity_spawn_core_npc_sprite(
-            cfg.cstr_name,
-            cfg.sprites.cstr_right,
-            cfg.h_map,
-            cfg.chunk_index,
-            cfg.chunk_x,
-            cfg.chunk_y
-        );
-        if (id == ENTITY_ID_INVALID) return(ENTITY_ID_INVALID);
+            const u32       index = i_npc - 1;
+            const entity_id id    = _npc_mngr->array_id[index];
 
-        // npcs can't be pushed, they still walk on their own forces, the tag only stops collisions from moving them
-        const bool did_tag = eng_entity_add_components(id, cmpnt_type_e_immovable);
-        if (!did_tag) {
-            eng_entity_destroy_by_id(id);
-            return(ENTITY_ID_INVALID);
+            bool is_kept = false;
+            for (
+                u32 i_keep = 0;
+                    i_keep < keep_count;
+                  ++i_keep) {
+
+                if (keep[i_keep] == id) {
+                    is_kept = true;
+                    break;
+                }
+            }
+
+            const bool is_despawned = _npc_mngr->array_is_despawned[index];
+            if (is_kept && !is_despawned) game_npc_mngr_unplace_at (index);
+            else                          game_npc_mngr_remove_at  (index);
+        }
+    }
+
+    // places the npc in the bound scene
+    // an npc the manager doesn't know yet is added, one it kept from the last scene keeps what it was,
+    // like the way it's facing, and takes the sprites in def
+    // ENTITY_ID_INVALID if it's already placed, or the manager is full, or its entity couldn't be made
+    IFB_INTERNAL entity_id
+    game_npc_spawn(
+        const game_npc_def&       def,
+        const game_npc_placement& at) {
+
+        assert(_npc_mngr);
+        assert(!_npc_mngr->is_updating);
+        assert(def.cstr_name);
+        assert(def.sprites.cstr_left);
+        assert(def.sprites.cstr_right);
+        assert(def.sprites.cstr_walk_0);
+        assert(def.sprites.cstr_walk_1);
+        assert(def.sprites.cstr_walk_2);
+        assert(def.sprites.cstr_walk_3);
+        assert(def.sprites.cstr_walk_4);
+        assert(def.sprites.cstr_walk_5);
+        assert(def.sprites.cstr_walk_6);
+        assert(def.sprites.cstr_walk_7);
+        assert(at.h_map != INVALID_HANDLE);
+
+        // the same id the engine gives the entity
+        const tag       name = def.cstr_name;
+        const entity_id id   = name.to_id();
+
+        u32        i_npc  = game_npc_mngr_index_of(id);
+        const bool is_new = (i_npc == INVALID_INDEX);
+        if (is_new) {
+            i_npc = game_npc_mngr_insert(id, def);
+            if (i_npc == INVALID_INDEX) return(ENTITY_ID_INVALID);
+        }
+        else {
+            if (_npc_mngr->array_is_placed    [i_npc]) return(ENTITY_ID_INVALID);
+            if (_npc_mngr->array_is_despawned [i_npc]) return(ENTITY_ID_INVALID);
+            _npc_mngr->array_name    [i_npc] = def.cstr_name;
+            _npc_mngr->array_sprites [i_npc] = def.sprites;
         }
 
-        cmpnt_collider collider;
-        collider.proc               = cfg.cllsn_proc;
-        collider.mask_category      = cfg.mask_category;
-        collider.mask_collides_with = cfg.mask_collides_with;
-        collider.is_trigger         = false;
-
-        bool did_add_collider = true;
-        did_add_collider &= eng_entity_add_components (id, cmpnt_type_e_collider);
-        did_add_collider &= eng_cmpnt_update_collider (id, collider);
-        assert(did_add_collider);
-       
-        const bool did_insert = game_npc_mngr_insert(id, cfg);
-        if (!did_insert) {
-            eng_entity_destroy_by_id(id);
+        const bool did_place = game_npc_mngr_place_at(i_npc, at);
+        if (!did_place) {
+            // a new one was inserted last, so nothing has moved into its slot
+            if (is_new) --_npc_mngr->count;
             return(ENTITY_ID_INVALID);
         }
 
@@ -218,6 +264,7 @@ namespace ifb {
         const u32 i_npc = game_npc_mngr_index_of(id);
         if (i_npc == INVALID_INDEX)               return(false);
         if (_npc_mngr->array_is_despawned[i_npc]) return(false);
+        if (!_npc_mngr->array_is_placed[i_npc])   return(false);
 
         cmpnt_position pos_npc;
         cmpnt_position pos_other;
@@ -238,45 +285,120 @@ namespace ifb {
         return(true);
     }
 
-    inline bool
+    // adds who the npc is, it isn't placed yet
+    // its index, INVALID_INDEX if the manager is full
+    inline u32
     game_npc_mngr_insert(
-        const entity_id        id,
-        const game_npc_config& cfg) {
+        const entity_id     id,
+        const game_npc_def& def) {
 
         assert(_npc_mngr);
         assert(id != ENTITY_ID_INVALID);
         assert(!game_npc_mngr_does_exist(id));
 
-        if (_npc_mngr->count >= GAME_NPC_MNGR_CAPACITY) return(false);
-
-        cmpnt_map_coords spawn;
-        const bool did_get_spawn = eng_map_get_entity_coords(cfg.h_map, id, spawn);
-        if (!did_get_spawn) return(false);
+        if (_npc_mngr->count >= GAME_NPC_MNGR_CAPACITY) return(INVALID_INDEX);
 
         const u32 index = _npc_mngr->count++;
 
         _npc_mngr->array_id           [index] = id;
-        _npc_mngr->array_proc         [index] = cfg.proc;
-        _npc_mngr->array_sprites      [index] = cfg.sprites;
-        _npc_mngr->array_spawn        [index] = spawn;
+        _npc_mngr->array_name         [index] = def.cstr_name;
+        _npc_mngr->array_sprites      [index] = def.sprites;
         _npc_mngr->array_direction    [index] = game_character_direction_e_right;
-        _npc_mngr->array_state        [index] = game_character_state_e_idle_right;
-        _npc_mngr->array_walk_timer_s [index] = 0.0f;
-        _npc_mngr->array_walk_cycle_change [index] = false;
-        _npc_mngr->array_tile_roam_x  [index] = cfg.tile_roam_x;
-        _npc_mngr->array_tile_roam_y  [index] = cfg.tile_roam_y;
-        _npc_mngr->array_roam_chance  [index] = 0.0f;
-        _npc_mngr->array_roam_tick_s  [index] = 0.0f;
-        _npc_mngr->array_roam_time_s  [index] = 0.0f;
-        _npc_mngr->array_roam_target  [index] = spawn;
-        _npc_mngr->array_is_roaming   [index] = false;
+        _npc_mngr->array_is_placed    [index] = false;
         _npc_mngr->array_is_despawned [index] = false;
-        _npc_mngr->array_is_talking   [index] = false;
+
+        return(index);
+    }
+
+    // makes the npc's entity in the bound scene, and starts it standing still on its spawn tile
+    // false if the entity couldn't be made, nothing is left behind
+    inline bool
+    game_npc_mngr_place_at(
+        const u32                 i_npc,
+        const game_npc_placement& at) {
+
+        assert(_npc_mngr);
+        assert(i_npc < _npc_mngr->count);
+        assert(!_npc_mngr->array_is_placed[i_npc]);
+
+        const bool is_facing_left = _npc_mngr->array_direction[i_npc] == game_character_direction_e_left;
+        const game_npc_sprites& sprites = _npc_mngr->array_sprites[i_npc];
+
+        const entity_id id = game_entity_spawn_core_npc_sprite(
+            _npc_mngr->array_name[i_npc],
+            is_facing_left ? sprites.cstr_left : sprites.cstr_right,
+            at.h_map,
+            at.chunk_index,
+            at.chunk_x,
+            at.chunk_y
+        );
+        if (id == ENTITY_ID_INVALID) return(false);
+        assert(id == _npc_mngr->array_id[i_npc]);
+
+        // npcs can't be pushed, they still walk on their own forces, the tag only stops collisions from moving them
+        const bool did_tag = eng_entity_add_components(id, cmpnt_type_e_immovable);
+        if (!did_tag) {
+            eng_entity_destroy_by_id(id);
+            return(false);
+        }
+
+        cmpnt_collider collider;
+        collider.proc               = at.cllsn_proc;
+        collider.mask_category      = at.mask_category;
+        collider.mask_collides_with = at.mask_collides_with;
+        collider.is_trigger         = false;
+
+        bool did_add_collider = true;
+        did_add_collider &= eng_entity_add_components (id, cmpnt_type_e_collider);
+        did_add_collider &= eng_cmpnt_update_collider (id, collider);
+        assert(did_add_collider);
+
+        cmpnt_map_coords spawn;
+        const bool did_get_spawn = eng_map_get_entity_coords(at.h_map, id, spawn);
+        if (!did_get_spawn) {
+            eng_entity_destroy_by_id(id);
+            return(false);
+        }
+
+        _npc_mngr->array_proc         [i_npc] = at.proc;
+        _npc_mngr->array_spawn        [i_npc] = spawn;
+        _npc_mngr->array_state        [i_npc] = is_facing_left ? game_character_state_e_idle_left : game_character_state_e_idle_right;
+        _npc_mngr->array_walk_timer_s [i_npc] = 0.0f;
+        _npc_mngr->array_walk_cycle_change [i_npc] = false;
+        _npc_mngr->array_tile_roam_x  [i_npc] = at.tile_roam_x;
+        _npc_mngr->array_tile_roam_y  [i_npc] = at.tile_roam_y;
+        _npc_mngr->array_roam_chance  [i_npc] = 0.0f;
+        _npc_mngr->array_roam_tick_s  [i_npc] = 0.0f;
+        _npc_mngr->array_roam_time_s  [i_npc] = 0.0f;
+        _npc_mngr->array_roam_target  [i_npc] = spawn;
+        _npc_mngr->array_is_roaming   [i_npc] = false;
+        _npc_mngr->array_is_talking   [i_npc] = false;
+        _npc_mngr->array_is_placed    [i_npc] = true;
 
         return(true);
     }
 
-    // destroys the entity, and moves the last npc into its slot
+    // takes the npc out of the scene, the manager still knows it
+    // its entity is destroyed if it still exists
+    inline void
+    game_npc_mngr_unplace_at(
+        const u32 i_npc) {
+
+        assert(_npc_mngr);
+        assert(!_npc_mngr->is_updating);
+        assert(i_npc < _npc_mngr->count);
+
+        if (!_npc_mngr->array_is_placed[i_npc]) return;
+
+        // false when the engine already destroyed it with its scene
+        (void)eng_entity_destroy_by_id(_npc_mngr->array_id[i_npc]);
+
+        _npc_mngr->array_is_placed  [i_npc] = false;
+        _npc_mngr->array_is_roaming [i_npc] = false;
+        _npc_mngr->array_is_talking [i_npc] = false;
+    }
+
+    // takes the npc out of the scene, and moves the last npc into its slot
     inline void
     game_npc_mngr_remove_at(
         const u32 i_npc) {
@@ -285,14 +407,14 @@ namespace ifb {
         assert(!_npc_mngr->is_updating);
         assert(i_npc < _npc_mngr->count);
 
-        const bool did_destroy = eng_entity_destroy_by_id(_npc_mngr->array_id[i_npc]);
-        assert(did_destroy);
-        (void)did_destroy;
+        game_npc_mngr_unplace_at(i_npc);
 
         const u32 i_npc_last = _npc_mngr->count - 1;
 
         if (i_npc != i_npc_last) {
             _npc_mngr->array_id           [i_npc] = _npc_mngr->array_id           [i_npc_last];
+            _npc_mngr->array_name         [i_npc] = _npc_mngr->array_name         [i_npc_last];
+            _npc_mngr->array_is_placed    [i_npc] = _npc_mngr->array_is_placed    [i_npc_last];
             _npc_mngr->array_proc         [i_npc] = _npc_mngr->array_proc         [i_npc_last];
             _npc_mngr->array_sprites      [i_npc] = _npc_mngr->array_sprites      [i_npc_last];
             _npc_mngr->array_spawn        [i_npc] = _npc_mngr->array_spawn        [i_npc_last];
@@ -359,6 +481,22 @@ namespace ifb {
 
         const u32 i_npc = game_npc_mngr_index_of(id);
         return(i_npc != INVALID_INDEX);
+    }
+
+    // the npc is in the current scene
+    IFB_INTERNAL bool
+    game_npc_is_placed(
+        const entity_id id) {
+
+        assert(_npc_mngr);
+
+        const u32 i_npc = game_npc_mngr_index_of(id);
+        if (i_npc == INVALID_INDEX) return(false);
+
+        return(
+            _npc_mngr->array_is_placed    [i_npc] &&
+           !_npc_mngr->array_is_despawned [i_npc]
+        );
     }
     
     inline const cchar*
