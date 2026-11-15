@@ -150,15 +150,19 @@ namespace ifb {
         assert(did_place_rig);
         (void)did_place_rig;
 
-        // the corner of the first chunk goes to cliff town, connor arrives on its road
+        // the wall along the top of the first chunk goes to cliff town, straight up from where connor starts
+        // he arrives on the west end of its road, just inside its door back here
+        const game_scene_arrival cliff_town_arrival = { 0, 1, 12 };
+
         game_scene_trigger_def to_cliff_town;
         to_cliff_town.cstr_name   = "TRG-CLIFF-TOWN";
         to_cliff_town.h_map       = map->eng_hnd;
         to_cliff_town.chunk_index = 0;
-        to_cliff_town.chunk_x     = 0;
+        to_cliff_town.chunk_x     = 5;
         to_cliff_town.chunk_y     = 0;
+        to_cliff_town.side        = game_scene_trigger_side_e_y_min;
         to_cliff_town.target      = game_scene_id_e_cliff_town;
-        to_cliff_town.arrival     = NULL;
+        to_cliff_town.arrival     = &cliff_town_arrival;
 
         entities->trigger_cliff_town = game_scene_trigger_spawn(to_cliff_town);
 

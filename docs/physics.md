@@ -79,7 +79,7 @@ All of this memory comes from a temporary arena that's freed at the end of detec
 
 An entity's body box comes from `phys_aabb_get_body_box`:
 
-- With a **bounds** component (`cmpnt_bounds`), the box is `width × height`, centered at the position plus `(x, y)`. It's given a depth of `width` along z.
+- With a **bounds** component (`cmpnt_bounds`), the box is `width × height × depth`, centered at the position plus `(x, y)`. Set `depth` to `width` for a box as deep as it's wide, like the characters. A thin `depth` or `width` makes a slab, like the game's scene triggers along walls.
 - Otherwise, with a **quad**, the box is centered on the position. The quad is `width × height`, and it's given a depth of `width` along z so it has volume to overlap with (`phys_aabb_half_extent_quad`).
 - An entity with neither isn't part of collision.
 

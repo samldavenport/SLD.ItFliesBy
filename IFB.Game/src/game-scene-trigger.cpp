@@ -12,6 +12,14 @@ namespace ifb {
     static constexpr f32 GAME_SCENE_TRIGGER_HEIGHT   = 0.2f;
     static constexpr f32 GAME_SCENE_TRIGGER_OFFSET_Y = 0.1f;
 
+    // an edge trigger's slab, in tiles
+    // thicker than a wall (MAP_WALL_HALF_THICKNESS is 0.05 a side), so connor reaches it while the wall stops him
+    static constexpr f32 GAME_SCENE_TRIGGER_EDGE_THICKNESS = 0.2f;
+
+    // the slab is nudged this far into its tile, in tiles,
+    // so its center is on the tile's chunk, where connor is, even on the chunk's far edge
+    static constexpr f32 GAME_SCENE_TRIGGER_EDGE_NUDGE = 0.01f;
+
     // the active scene's triggers, the shared collision proc finds where to go by the trigger's entity id
     // the entities belong to the scene, so the table is emptied whenever the scene switches
     struct game_scene_trigger_table {
@@ -59,7 +67,7 @@ namespace ifb {
         }
     }
 
-    // an invisible trigger covering one tile of a chunk, in the bound scene
+    // an invisible trigger covering one tile of a chunk, or one edge of it, in the bound scene
     // the same tile addressing as the npcs and the static sprites
     // ENTITY_ID_INVALID if the tile isn't on the map, or the table is full
     IFB_INTERNAL entity_id
@@ -111,13 +119,27 @@ namespace ifb {
 
         pos.y += GAME_SCENE_TRIGGER_OFFSET_Y;
 
-        // the box is as deep along z as it is wide, so a tile wide covers the whole tile
+        // the whole tile, or a slab along one of its edges, centered just inside the tile
         // no quad or sprite, so it's never drawn
+        const f32 half_tile = tile_size * 0.5f;
+        const f32 thickness = tile_size * GAME_SCENE_TRIGGER_EDGE_THICKNESS;
+        const f32 to_edge   = half_tile - (tile_size * GAME_SCENE_TRIGGER_EDGE_NUDGE);
+
         cmpnt_bounds bounds;
         bounds.x      = 0.0f;
         bounds.y      = 0.0f;
         bounds.width  = tile_size;
         bounds.height = GAME_SCENE_TRIGGER_HEIGHT;
+        bounds.depth  = tile_size;
+
+        switch (def.side) {
+            case game_scene_trigger_side_e_tile:                                            break;
+            case game_scene_trigger_side_e_x_min: pos.x -= to_edge; bounds.width = thickness; break;
+            case game_scene_trigger_side_e_x_max: pos.x += to_edge; bounds.width = thickness; break;
+            case game_scene_trigger_side_e_y_min: pos.z -= to_edge; bounds.depth = thickness; break;
+            case game_scene_trigger_side_e_y_max: pos.z += to_edge; bounds.depth = thickness; break;
+            default: assert(false); return(ENTITY_ID_INVALID);
+        }
 
         cmpnt_collider collider;
         collider.proc               = game_scene_trigger_proc;
@@ -135,8 +157,9 @@ namespace ifb {
             cmpnt_type_e_bounds     |
             cmpnt_type_e_collider
         );
-        did_spawn &= eng_cmpnt_update_position   (id, pos);
+        // the map coords first, setting them moves the entity to the tile's center on the floor
         did_spawn &= eng_cmpnt_update_map_coords (id, coords);
+        did_spawn &= eng_cmpnt_update_position   (id, pos);
         did_spawn &= eng_cmpnt_update_bounds     (id, bounds);
         did_spawn &= eng_cmpnt_update_collider   (id, collider);
 

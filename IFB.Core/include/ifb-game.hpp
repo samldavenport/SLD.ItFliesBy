@@ -228,12 +228,28 @@ namespace ifb {
     //--------------------------------------------------------------------
     // SCENE TRIGGERS
     //--------------------------------------------------------------------
-    // a tile that switches scenes when connor walks onto it, like a door
+    // a tile, or one edge of a tile, that switches scenes when connor touches it, like a door
     // each one is an invisible trigger entity in the scene that spawned it, and is gone with it
     // a map can have as many as the table holds, each going to its own scene and arrival
     //
-    // an arrival is never on a trigger tile, or connor walks straight back out
+    // an arrival is never on a trigger, or connor walks straight back out
     static constexpr u32 GAME_SCENE_TRIGGER_CAPACITY = 32;
+
+    // what part of the tile the trigger covers
+    // an edge is a thin slab along that side of the tile, so connor touches it walking into a wall there,
+    // into the edge of the map, or through a gap in a wall
+    // in the map file, a row wall at (row, col) is the y_min side of tile (col, row),
+    // and a column wall at (row, col) is the x_min side of tile (col, row)
+    // physics only pairs entities in the same chunk, so an edge between two chunks
+    // only triggers from the tile's side
+    IFB_U32(game_scene_trigger_side_u32);
+    enum game_scene_trigger_side_e {
+        game_scene_trigger_side_e_tile  = 0, // the whole tile, connor walks onto it
+        game_scene_trigger_side_e_x_min = 1,
+        game_scene_trigger_side_e_x_max = 2,
+        game_scene_trigger_side_e_y_min = 3,
+        game_scene_trigger_side_e_y_max = 4
+    };
 
     // the name is the entity's tag, so it has to be unique in the scene, and fit in TAG_SIZE - 1 characters
     struct game_scene_trigger_def {
@@ -242,6 +258,7 @@ namespace ifb {
         u32                       chunk_index;
         u32                       chunk_x;
         u32                       chunk_y;
+        game_scene_trigger_side_e side;
         game_scene_id_e           target;
         const game_scene_arrival* arrival;  // NULL for the target scene's own spawn
     };

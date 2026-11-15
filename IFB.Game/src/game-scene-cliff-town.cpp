@@ -14,14 +14,14 @@ namespace ifb {
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_SPAWN_X     = 12;
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_SPAWN_Y     = 12;
 
-    // the trigger back to the dev map, at the west end of the road
+    // the trigger back to the dev map, the map's edge at the west end of the road
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_TO_DEV_CHUNK = 0;
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_TO_DEV_X     = 0;
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_TO_DEV_Y     = 12;
 
-    // where connor arrives in the dev map, next to its cliff town trigger at 0,0
+    // where connor arrives in the dev map, just inside its wall trigger to cliff town on the top of tile 5,0
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_CHUNK = 0;
-    static constexpr u32 GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_X     = 1;
+    static constexpr u32 GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_X     = 5;
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_Y     = 1;
 
     // the cliff town scene's state, in its scene memory, NULL while it isn't the active scene
@@ -87,8 +87,8 @@ namespace ifb {
         assert(did_place_rig);
         (void)did_place_rig;
 
-        // the west end of the road goes back to the dev map,
-        // connor arrives beside its cliff town trigger, not on it
+        // walking off the west end of the road goes back to the dev map,
+        // connor arrives just inside its cliff town trigger, not on it
         const game_scene_arrival dev_arrival = {
             GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_CHUNK,
             GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_X,
@@ -101,6 +101,7 @@ namespace ifb {
         to_dev.chunk_index = GAME_SCENE_CLIFF_TOWN_TO_DEV_CHUNK;
         to_dev.chunk_x     = GAME_SCENE_CLIFF_TOWN_TO_DEV_X;
         to_dev.chunk_y     = GAME_SCENE_CLIFF_TOWN_TO_DEV_Y;
+        to_dev.side        = game_scene_trigger_side_e_x_min;
         to_dev.target      = game_scene_id_e_dev;
         to_dev.arrival     = &dev_arrival;
 
