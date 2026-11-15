@@ -68,7 +68,7 @@ namespace ifb {
     inline void         game_npc_update_state    (const u32 i_npc);
     inline void         game_npc_update_sprite   (const u32 i_npc);
 
-    IFB_INTERNAL game_npc_mngr*
+    IFB_GAME game_npc_mngr*
     game_npc_mngr_create(
         const hnd_arena h_arena) {
 
@@ -84,7 +84,7 @@ namespace ifb {
         return(mngr);
     }
 
-    IFB_INTERNAL void
+    IFB_GAME void
     game_npc_mngr_update_and_render(
         void) {
 
@@ -143,7 +143,7 @@ namespace ifb {
     // so the next scene can place them again without the manager starting over
     // the entities are destroyed if they still exist, like when it's called in the middle of a scene
     // during a scene switch the engine has already destroyed them with the old scene
-    IFB_INTERNAL void
+    IFB_GAME void
     game_npc_mngr_reset_all_except(
         const entity_id* keep,
         const u32        keep_count) {
@@ -183,7 +183,7 @@ namespace ifb {
     // an npc the manager doesn't know yet is added, one it kept from the last scene keeps what it was,
     // like the way it's facing, and takes the sprites in def
     // ENTITY_ID_INVALID if it's already placed, or the manager is full, or its entity couldn't be made
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_npc_spawn(
         const game_npc_def&       def,
         const game_npc_placement& at) {
@@ -230,7 +230,7 @@ namespace ifb {
         return(id);
     }
 
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_npc_despawn(
         const entity_id id) {
 
@@ -252,7 +252,7 @@ namespace ifb {
     // turns the npc toward the other entity, and keeps it standing there until the dialog closes
     // call it when opening the npc's dialog
     // false if the id isn't an npc, or either position can't be found
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_npc_talk_to(
         const entity_id id,
         const entity_id other_id) {
@@ -484,7 +484,7 @@ namespace ifb {
     }
 
     // the npc is in the current scene
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_npc_is_placed(
         const entity_id id) {
 

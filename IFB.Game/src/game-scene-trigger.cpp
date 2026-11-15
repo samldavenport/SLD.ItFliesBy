@@ -30,7 +30,7 @@ namespace ifb {
         u32                count;
     } static _scene_triggers;
 
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_trigger_reset(
         void) {
 
@@ -39,7 +39,7 @@ namespace ifb {
 
     // connor walking onto a trigger requests its scene
     // only begin, so standing on it doesn't keep asking, and a switch that's underway refuses anyway
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_trigger_proc(
         const phys_cllsn_contact& contact) {
 
@@ -70,7 +70,7 @@ namespace ifb {
     // an invisible trigger covering one tile of a chunk, or one edge of it, in the bound scene
     // the same tile addressing as the npcs and the static sprites
     // ENTITY_ID_INVALID if the tile isn't on the map, or the table is full
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_scene_trigger_spawn(
         const game_scene_trigger_def& def) {
 

@@ -3,7 +3,11 @@
 
 #include "ifb.hpp"
 
+#define IFB_GAME static
+
 namespace ifb {
+
+
 
     IFB_U32(game_character_state_u32);
     enum game_character_state_e {
@@ -296,47 +300,47 @@ namespace ifb {
         bool             is_action_pressed; // e was pressed this pass, and nothing has used it yet
     } static * _game_ctx;
 
-    IFB_INTERNAL game_context* game_context_create_and_init      (void);
-    IFB_INTERNAL void          game_context_update_and_render    (game_context* ctx);
+    IFB_GAME game_context* game_context_create_and_init      (void);
+    IFB_GAME void          game_context_update_and_render    (game_context* ctx);
 
-    IFB_INTERNAL game_dialog*  game_dialog_create     (const hnd_arena h_arena, const font* fnt);
-    IFB_INTERNAL void          game_dialog_reset      (void);
-    IFB_INTERNAL bool          game_dialog_open       (const cchar* text, const u32 text_len);
-    IFB_INTERNAL bool          game_dialog_is_open    (void);
-    IFB_INTERNAL void          game_dialog_advance    (void);
-    IFB_INTERNAL void          game_dialog_update     (game_context* ctx);
-    IFB_INTERNAL void          game_dialog_render     (void);
-    IFB_INTERNAL void          game_dialog_get_layout (rect& box, rect& text_area);
+    IFB_GAME game_dialog*  game_dialog_create     (const hnd_arena h_arena, const font* fnt);
+    IFB_GAME void          game_dialog_reset      (void);
+    IFB_GAME bool          game_dialog_open       (const cchar* text, const u32 text_len);
+    IFB_GAME bool          game_dialog_is_open    (void);
+    IFB_GAME void          game_dialog_advance    (void);
+    IFB_GAME void          game_dialog_update     (game_context* ctx);
+    IFB_GAME void          game_dialog_render     (void);
+    IFB_GAME void          game_dialog_get_layout (rect& box, rect& text_area);
 
     // scenes
-    IFB_INTERNAL void          game_scene_init              (game_context* ctx, const game_scene_id_e first);
-    IFB_INTERNAL void          game_scene_update_and_render (game_context* ctx);
-    IFB_INTERNAL bool          game_scene_request           (const game_scene_id_e id, const game_scene_arrival* arrival = NULL, const entity_id* npc_keep = NULL, const u32 npc_keep_count = 0);
-    IFB_INTERNAL bool          game_scene_is_switching      (void);
-    IFB_INTERNAL void          game_scene_render_fade       (void);
-    IFB_INTERNAL game_scene_arrival game_scene_get_arrival  (const game_scene_arrival& spawn);
+    IFB_GAME void          game_scene_init              (game_context* ctx, const game_scene_id_e first);
+    IFB_GAME void          game_scene_update_and_render (game_context* ctx);
+    IFB_GAME bool          game_scene_request           (const game_scene_id_e id, const game_scene_arrival* arrival = NULL, const entity_id* npc_keep = NULL, const u32 npc_keep_count = 0);
+    IFB_GAME bool          game_scene_is_switching      (void);
+    IFB_GAME void          game_scene_render_fade       (void);
+    IFB_GAME game_scene_arrival game_scene_get_arrival  (const game_scene_arrival& spawn);
 
     // scene triggers
-    IFB_INTERNAL void          game_scene_trigger_reset     (void);
-    IFB_INTERNAL entity_id     game_scene_trigger_spawn     (const game_scene_trigger_def& def);
+    IFB_GAME void          game_scene_trigger_reset     (void);
+    IFB_GAME entity_id     game_scene_trigger_spawn     (const game_scene_trigger_def& def);
 
     // the dev scene: the dev map, the player rig, the boxes, and rose
-    IFB_INTERNAL void          game_scene_dev_enter              (game_context* ctx, const hnd_scene h_scene);
-    IFB_INTERNAL void          game_scene_dev_update_and_render  (game_context* ctx);
-    IFB_INTERNAL void          game_scene_dev_exit               (game_context* ctx);
+    IFB_GAME void          game_scene_dev_enter              (game_context* ctx, const hnd_scene h_scene);
+    IFB_GAME void          game_scene_dev_update_and_render  (game_context* ctx);
+    IFB_GAME void          game_scene_dev_exit               (game_context* ctx);
 
     // cliff town: the cliff town map, the player rig, and the trigger back to the dev map
-    IFB_INTERNAL void          game_scene_cliff_town_enter           (game_context* ctx, const hnd_scene h_scene);
-    IFB_INTERNAL void          game_scene_cliff_town_update_and_render (game_context* ctx);
-    IFB_INTERNAL void          game_scene_cliff_town_exit              (game_context* ctx);
+    IFB_GAME void          game_scene_cliff_town_enter           (game_context* ctx, const hnd_scene h_scene);
+    IFB_GAME void          game_scene_cliff_town_update_and_render (game_context* ctx);
+    IFB_GAME void          game_scene_cliff_town_exit              (game_context* ctx);
 
-    IFB_INTERNAL void          game_player_rig_validate          (game_player_rig* player_rig);
-    IFB_INTERNAL void          game_player_rig_init              (game_player_rig* player_rig);
-    IFB_INTERNAL bool          game_player_rig_place             (game_player_rig* player_rig, const hnd_map h_map, const u32 chunk_index, const u32 chunk_x, const u32 chunk_y);
-    IFB_INTERNAL void          game_player_rig_update_and_render (game_player_rig* player_rig);
-    IFB_INTERNAL void          game_player_rig_update_camera     (game_player_rig* player_rig, vec3& camera_focus);
+    IFB_GAME void          game_player_rig_validate          (game_player_rig* player_rig);
+    IFB_GAME void          game_player_rig_init              (game_player_rig* player_rig);
+    IFB_GAME bool          game_player_rig_place             (game_player_rig* player_rig, const hnd_map h_map, const u32 chunk_index, const u32 chunk_x, const u32 chunk_y);
+    IFB_GAME void          game_player_rig_update_and_render (game_player_rig* player_rig);
+    IFB_GAME void          game_player_rig_update_camera     (game_player_rig* player_rig, vec3& camera_focus);
     
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_entity_spawn_static_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  atlas_name_cstr, 
@@ -347,7 +351,7 @@ namespace ifb {
         const u32     chunk_y
     );
 
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_entity_spawn_static_core_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  sprite_name_cstr,
@@ -357,7 +361,7 @@ namespace ifb {
         const u32     chunk_y
     );
 
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_entity_spawn_core_npc_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  sprite_name_cstr,
@@ -368,23 +372,23 @@ namespace ifb {
     );
 
     // the collision rect connor and the npcs share, sized to their quad
-    IFB_INTERNAL cmpnt_bounds
+    IFB_GAME cmpnt_bounds
     game_entity_character_bounds(
         const f32 quad_width
     );
 
 
-    IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
+    IFB_GAME void game_map_update_and_render        (game_map* map);
 
 
     // the manager lives on the game context's arena
-    IFB_INTERNAL game_npc_mngr* game_npc_mngr_create              (const hnd_arena h_arena);
-    IFB_INTERNAL void           game_npc_mngr_update_and_render   (void);
-    IFB_INTERNAL void           game_npc_mngr_reset_all_except    (const entity_id* keep, const u32 keep_count);
-    IFB_INTERNAL entity_id      game_npc_spawn                    (const game_npc_def& def, const game_npc_placement& at);
-    IFB_INTERNAL bool           game_npc_despawn                  (const entity_id id);
-    IFB_INTERNAL bool           game_npc_is_placed                (const entity_id id);
-    IFB_INTERNAL bool           game_npc_talk_to                  (const entity_id id, const entity_id other_id);
+    IFB_GAME game_npc_mngr* game_npc_mngr_create              (const hnd_arena h_arena);
+    IFB_GAME void           game_npc_mngr_update_and_render   (void);
+    IFB_GAME void           game_npc_mngr_reset_all_except    (const entity_id* keep, const u32 keep_count);
+    IFB_GAME entity_id      game_npc_spawn                    (const game_npc_def& def, const game_npc_placement& at);
+    IFB_GAME bool           game_npc_despawn                  (const entity_id id);
+    IFB_GAME bool           game_npc_is_placed                (const entity_id id);
+    IFB_GAME bool           game_npc_talk_to                  (const entity_id id, const entity_id other_id);
 };
 
 #endif //IFB_GAME_HPP

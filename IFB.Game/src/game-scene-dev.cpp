@@ -18,7 +18,7 @@ namespace ifb {
         game_entities   entities;
     } static * _scene_dev;
 
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_dev_box_proc(
         const phys_cllsn_contact& contact) {
 
@@ -57,7 +57,7 @@ namespace ifb {
         assert(did_open);
     }
 
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_dev_rose_collision_proc(
         const phys_cllsn_contact& contact) {
 
@@ -105,7 +105,7 @@ namespace ifb {
 
     // the map and its parallax, the player rig, the boxes, and rose
     // the scene is bound, so everything created here belongs to it, the map too
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_dev_enter(
         game_context*   ctx,
         const hnd_scene h_scene) {
@@ -227,7 +227,7 @@ namespace ifb {
 
     // the engine skips the scene's entities while it isn't updating or rendering,
     // so this only has to keep the game's own logic in step
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_dev_update_and_render(
         game_context* ctx) {
 
@@ -257,7 +257,7 @@ namespace ifb {
     }
 
     // the engine already released everything the scene owned: its entities, its map, and its memory
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_dev_exit(
         game_context* ctx) {
 

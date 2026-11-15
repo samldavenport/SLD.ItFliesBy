@@ -34,7 +34,7 @@ namespace ifb {
 
     // the map and its parallax, the player rig, and the trigger back to the dev map
     // the scene is bound, so everything created here belongs to it, the map too
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_cliff_town_enter(
         game_context*   ctx,
         const hnd_scene h_scene) {
@@ -111,7 +111,7 @@ namespace ifb {
 
     // the engine skips the scene's entities while it isn't updating or rendering,
     // so this only has to keep the game's own logic in step
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_cliff_town_update_and_render(
         game_context* ctx) {
 
@@ -138,7 +138,7 @@ namespace ifb {
     }
 
     // the engine already released everything the scene owned: its entities, its map, and its memory
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_cliff_town_exit(
         game_context* ctx) {
 
