@@ -189,11 +189,26 @@ namespace ifb {
         game_scene_id_e_count      = 3
     };
 
+    // a switch fades the screen to black, switches while it's black, then fades the new scene in
+    //
+    //   running   -> fade_out   a switch was requested, the old scene keeps running under the fade
+    //   fade_out  -> switching  the screen is black, the engine transition is requested
+    //   switching -> fade_in    the old scene is released and the new one enters
+    //   fade_in   -> running    the new scene runs under the fade, after a beat of black
+    //
+    // connor's movement keys are locked, and presses are dropped, from the request until the fade in is done
     IFB_U32(game_scene_phase_u32);
     enum game_scene_phase_e {
         game_scene_phase_e_running   = 0, // the active scene updates, and a switch can be requested
-        game_scene_phase_e_switching = 1  // the old scene is being released, the next one enters at the start of the next update
+        game_scene_phase_e_fade_out  = 1, // the old scene fades to black
+        game_scene_phase_e_switching = 2, // the old scene is being released, the next one enters at the start of the next update
+        game_scene_phase_e_fade_in   = 3  // the new scene fades in from black
     };
+
+    static constexpr f32 GAME_SCENE_FADE_OUT_S  = 0.3f;
+    static constexpr f32 GAME_SCENE_FADE_HOLD_S = 0.1f;        // black, before the fade in, it covers the new scene's first frames too
+    static constexpr f32 GAME_SCENE_FADE_IN_S   = 0.3f;
+    static constexpr f32 GAME_SCENE_FADE_MAX_DT = 1.0f / 30.0f; // a long frame, like the one that loads the map, doesn't skip the fade
 
     struct game_context;
 
@@ -217,6 +232,7 @@ namespace ifb {
         game_scene_id_u32    active;
         game_scene_id_u32    next;            // none when no switch is requested
         game_scene_phase_u32 phase;
+        f32                  fade_s;          // how long the fade out or fade in has run
         hnd_scene            h_active;
         hnd_scene            h_next;          // created and transitioned to while switching
         game_scene_arrival   arrival;         // where connor goes in the next scene, if has_arrival
@@ -297,6 +313,7 @@ namespace ifb {
     IFB_INTERNAL void          game_scene_update_and_render (game_context* ctx);
     IFB_INTERNAL bool          game_scene_request           (const game_scene_id_e id, const game_scene_arrival* arrival = NULL, const entity_id* npc_keep = NULL, const u32 npc_keep_count = 0);
     IFB_INTERNAL bool          game_scene_is_switching      (void);
+    IFB_INTERNAL void          game_scene_render_fade       (void);
     IFB_INTERNAL game_scene_arrival game_scene_get_arrival  (const game_scene_arrival& spawn);
 
     // scene triggers

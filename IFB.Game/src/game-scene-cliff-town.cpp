@@ -126,8 +126,8 @@ namespace ifb {
 
         auto town = _scene_cliff_town;
 
-        // connor stands still while a dialog is open
-        town->rig.is_input_locked = game_dialog_is_open();
+        // connor stands still while a dialog is open, and while the scene fades
+        town->rig.is_input_locked = game_dialog_is_open() || game_scene_is_switching();
 
         game_player_rig_update_and_render (&town->rig);
         game_player_rig_update_camera     (&town->rig, ctx->camera_focus);

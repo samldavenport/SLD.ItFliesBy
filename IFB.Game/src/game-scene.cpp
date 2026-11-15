@@ -31,7 +31,7 @@ namespace ifb {
     inline void game_scene_begin_switch  (void);
     inline void game_scene_finish_switch (game_context* ctx);
 
-    // nothing is running yet, so the first scene enters right away
+    // nothing is running yet, so the first scene enters right away, and fades in from black
     IFB_INTERNAL void
     game_scene_init(
         game_context*         ctx,
@@ -44,6 +44,7 @@ namespace ifb {
         _scene->active         = game_scene_id_e_none;
         _scene->next           = game_scene_id_e_none;
         _scene->phase          = game_scene_phase_e_running;
+        _scene->fade_s         = 0.0f;
         _scene->h_active       = INVALID_HANDLE;
         _scene->h_next         = INVALID_HANDLE;
         _scene->has_arrival    = false;
@@ -57,9 +58,9 @@ namespace ifb {
         game_scene_finish_switch (ctx);
     }
 
-    // finishes a switch from last frame, updates the active scene, then starts a switch if one was requested
-    // starting it after the update lets the old scene draw its last frame,
-    // and its collision procs still run in this frame's physics step
+    // finishes a switch from last frame, updates the active scene, then moves the fade along
+    // the switch starts after the update, once the screen is black,
+    // so the old scene draws its last frame, and its collision procs still run in this frame's physics step
     IFB_INTERNAL void
     game_scene_update_and_render(
         game_context* ctx) {
@@ -74,9 +75,76 @@ namespace ifb {
         assert(_scene->active.val > game_scene_id_e_none && _scene->active.val < game_scene_id_e_count);
         GAME_SCENE_PROCS[_scene->active.val].update_and_render(ctx);
 
-        if (_scene->next != game_scene_id_e_none) {
-            game_scene_begin_switch();
+        f32 dt_s = eng_system_get_delta_time_s();
+        if (dt_s < 0.0f)                   dt_s = 0.0f;
+        if (dt_s > GAME_SCENE_FADE_MAX_DT) dt_s = GAME_SCENE_FADE_MAX_DT;
+
+        switch (_scene->phase.val) {
+
+            case game_scene_phase_e_running: {
+                if (_scene->next != game_scene_id_e_none) {
+                    _scene->phase  = game_scene_phase_e_fade_out;
+                    _scene->fade_s = 0.0f;
+                }
+            } break;
+
+            case game_scene_phase_e_fade_out: {
+                _scene->fade_s += dt_s;
+                if (_scene->fade_s >= GAME_SCENE_FADE_OUT_S) {
+                    game_scene_begin_switch();
+                }
+            } break;
+
+            case game_scene_phase_e_fade_in: {
+                _scene->fade_s += dt_s;
+                if (_scene->fade_s >= GAME_SCENE_FADE_HOLD_S + GAME_SCENE_FADE_IN_S) {
+                    _scene->phase  = game_scene_phase_e_running;
+                    _scene->fade_s = 0.0f;
+                }
+            } break;
+
+            default: break;
         }
+    }
+
+    // black over the whole screen, as dark as the fade is
+    // it goes last, so it covers the scene and the dialog, only the gui is drawn over it
+    IFB_INTERNAL void
+    game_scene_render_fade(
+        void) {
+
+        assert(_scene);
+
+        f32 alpha = 0.0f;
+        switch (_scene->phase.val) {
+            case game_scene_phase_e_fade_out:  alpha = _scene->fade_s / GAME_SCENE_FADE_OUT_S;                             break;
+            case game_scene_phase_e_switching: alpha = 1.0f;                                                               break;
+            case game_scene_phase_e_fade_in:   alpha = 1.0f - ((_scene->fade_s - GAME_SCENE_FADE_HOLD_S) / GAME_SCENE_FADE_IN_S); break;
+            default:                                                                                                       break;
+        }
+        if (alpha <= 0.0f) return;
+        if (alpha >  1.0f) alpha = 1.0f;
+
+        // eased, so it starts and ends gently
+        alpha = alpha * alpha * (3.0f - (2.0f * alpha));
+
+        u32 screen_width  = 0;
+        u32 screen_height = 0;
+        eng_draw_get_screen_size(screen_width, screen_height);
+
+        rect screen;
+        screen.x      = 0.0f;
+        screen.y      = 0.0f;
+        screen.width  = (f32)screen_width;
+        screen.height = (f32)screen_height;
+
+        color_rgba_f32 black;
+        black.r = 0.0f;
+        black.g = 0.0f;
+        black.b = 0.0f;
+        black.a = alpha;
+
+        (void)eng_draw_rect_screen(screen, black);
     }
 
     // the scene to switch to at the end of the next game update
@@ -115,14 +183,14 @@ namespace ifb {
         return(true);
     }
 
-    // a switch is requested or underway
+    // a switch is requested or underway, from the request until the new scene has faded in
     IFB_INTERNAL bool
     game_scene_is_switching(
         void) {
 
         assert(_scene);
         return(
-            _scene->phase == game_scene_phase_e_switching ||
+            _scene->phase != game_scene_phase_e_running ||
             _scene->next  != game_scene_id_e_none
         );
     }
@@ -139,12 +207,13 @@ namespace ifb {
 
     // the engine destroys the old scene at the start of the next frame, and runs the new one from then
     // the new scene is bound from here on, nothing should be created until it enters
+    // the screen is black by now, or nothing was running yet
     inline void
     game_scene_begin_switch(
         void) {
 
         assert(_scene);
-        assert(_scene->phase == game_scene_phase_e_running);
+        assert(_scene->phase == game_scene_phase_e_fade_out || _scene->active == game_scene_id_e_none);
         assert(_scene->next.val > game_scene_id_e_none && _scene->next.val < game_scene_id_e_count);
 
         const hnd_scene h_next = eng_scene_create(GAME_SCENE_NAMES[_scene->next.val]);
@@ -187,7 +256,8 @@ namespace ifb {
         _scene->next           = game_scene_id_e_none;
         _scene->h_next         = INVALID_HANDLE;
         _scene->npc_keep_count = 0;
-        _scene->phase          = game_scene_phase_e_running;
+        _scene->phase          = game_scene_phase_e_fade_in;
+        _scene->fade_s         = 0.0f;
 
         // the transition bound it, but something else could have been bound since
         const bool did_bind = eng_scene_bind(_scene->h_active);

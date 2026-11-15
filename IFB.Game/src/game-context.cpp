@@ -105,6 +105,14 @@ namespace ifb {
 
         game_scene_update_and_render(ctx);
         game_dialog_update(ctx);
+
+        // the dialog leaves e for the collision procs, nothing gets it while a scene fades
+        if (game_scene_is_switching()) {
+            ctx->is_action_pressed = false;
+        }
+
+        // last, so it's over the scene and the dialog
+        game_scene_render_fade();
     }
 
 
