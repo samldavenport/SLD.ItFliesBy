@@ -41,11 +41,11 @@ namespace ifb {
         assert(type           <  particle_emitter_type_e_count);
 
         // initialize the name string
-        cstr_c16 name_cstr;
-        cstr_c16_init(&name_cstr, name);
+        cstr_c32 name_cstr;
+        cstr_c32_init(&name_cstr, name);
 
         // check for collisions and find the next available handle
-        const hnd_particle_emitter h_emitter_new     = cstr_c16_hash(&name_cstr);
+        const hnd_particle_emitter h_emitter_new     = cstr_c32_hash(&name_cstr);
         const u32                  emitter_index_new = particle_mngr_find_emitter_index_new(h_emitter_new);
 
         // if we didn't find a handle, we're done

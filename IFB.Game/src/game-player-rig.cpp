@@ -75,7 +75,7 @@ namespace ifb {
     inline void         game_player_rig_update_sprites      (game_player_rig* player_rig);
     inline void         game_player_rig_render              (game_player_rig* player_rig);
 
-    IFB_INTERNAL void
+    IFB_GAME void
     game_player_rig_validate(
         game_player_rig* player_rig) {
 
@@ -84,7 +84,7 @@ namespace ifb {
         assert(player_rig->jig_id    != ENTITY_ID_INVALID);
     }
 
-    IFB_INTERNAL void 
+    IFB_GAME void 
     game_player_rig_init(
         game_player_rig* player_rig) {
 
@@ -207,7 +207,7 @@ namespace ifb {
     // the same tile addressing as the npcs and the static sprites
     // it can be called again to move the rig, onto the same map or another one
     // false if the chunk or the tile isn't on the map, and the rig stays where it was
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_player_rig_place(
         game_player_rig* player_rig,
         const hnd_map    h_map,
@@ -274,7 +274,7 @@ namespace ifb {
         return(true);
     }
 
-    IFB_INTERNAL void
+    IFB_GAME void
     game_player_rig_update_and_render(
         game_player_rig* player_rig) {
 
@@ -314,7 +314,7 @@ namespace ifb {
     // camera_focus is where the camera is framed now, it's moved to where it's framed after
     // it's the game context's, not the rig's, since the engine camera outlives the scenes
     // a new rig in a new scene picks up from wherever the last one left the camera
-    IFB_INTERNAL void
+    IFB_GAME void
     game_player_rig_update_camera(
         game_player_rig* player_rig,
         vec3&            camera_focus) {

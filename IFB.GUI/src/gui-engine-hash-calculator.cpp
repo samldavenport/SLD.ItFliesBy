@@ -33,9 +33,9 @@ namespace ifb {
     static const hash_calculator_row _hash_calculator_rows[] = {
         { "Characters",             "cstr_nvar_hash",                                                         0,   false },
         { "Characters, upper case", "Asset dictionary IDs",                                                   0,   true  },
-        { "16 byte buffer",         "cstr_c16_hash, entity IDs (tags), asset handles, map and particle emitter handles, Tiled enum strings", 16, false },
+        { "16 byte buffer",         "cstr_c16_hash, Tiled enum strings",                                     16,  false },
         { "8 byte buffer",          "cstr_c8_hash",                                                           8,   false },
-        { "32 byte buffer",         "cstr_c32_hash",                                                          32,  false },
+        { "32 byte buffer",         "cstr_c32_hash, entity IDs (tags), asset handles, map and particle emitter handles", 32, false },
         { "64 byte buffer",         "cstr_c64_hash",                                                          64,  false },
         { "128 byte buffer",        "cstr_c128_hash",                                                         128, false },
         { "256 byte buffer",        "cstr_c256_hash",                                                         256, false },

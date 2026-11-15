@@ -11,7 +11,7 @@ namespace ifb {
     // the drawn pixels span x 11..49 and y 2..61 in both directions,
     // so the rect is 39 x 60 pixels, centered across, and 1 pixel below the middle
     // the quads are square, so the width sets the scale
-    IFB_INTERNAL cmpnt_bounds
+    IFB_GAME cmpnt_bounds
     game_entity_character_bounds(
         const f32 quad_width) {
 
@@ -26,7 +26,7 @@ namespace ifb {
         return(bounds);
     }
 
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_entity_spawn_static_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  atlas_name_cstr, 
@@ -86,7 +86,7 @@ namespace ifb {
         return(id);
     }
     
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_entity_spawn_static_core_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  sprite_name_cstr,
@@ -108,7 +108,7 @@ namespace ifb {
         return(id);
     }
     
-    IFB_INTERNAL entity_id
+    IFB_GAME entity_id
     game_entity_spawn_core_npc_sprite(
         const cchar*  entity_name_cstr,
         const cchar*  sprite_name_cstr,

@@ -12,7 +12,7 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
-    static constexpr u32 PARTICLE_SYSTEM_NAME_SIZE      = 16;
+    static constexpr u32 PARTICLE_SYSTEM_NAME_SIZE      = 32; // matches the emitter's cstr_c32 name
     static constexpr f32 PARTICLE_SYSTEM_CONTROLS_WIDTH = 380.0f;
 
     static const char* _particle_system_type_names[particle_emitter_type_e_count] = {

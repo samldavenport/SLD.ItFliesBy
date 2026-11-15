@@ -32,7 +32,7 @@ namespace ifb {
     inline void game_scene_finish_switch (game_context* ctx);
 
     // nothing is running yet, so the first scene enters right away, and fades in from black
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_init(
         game_context*         ctx,
         const game_scene_id_e first) {
@@ -61,7 +61,7 @@ namespace ifb {
     // finishes a switch from last frame, updates the active scene, then moves the fade along
     // the switch starts after the update, once the screen is black,
     // so the old scene draws its last frame, and its collision procs still run in this frame's physics step
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_update_and_render(
         game_context* ctx) {
 
@@ -109,7 +109,7 @@ namespace ifb {
 
     // black over the whole screen, as dark as the fade is
     // it goes last, so it covers the scene and the dialog, only the gui is drawn over it
-    IFB_INTERNAL void
+    IFB_GAME void
     game_scene_render_fade(
         void) {
 
@@ -151,7 +151,7 @@ namespace ifb {
     // connor arrives at arrival, or the scene's own spawn if it's NULL
     // the npcs in npc_keep are remembered, so the next scene can place them again, the rest are forgotten
     // false while another switch is requested or underway
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_scene_request(
         const game_scene_id_e     id,
         const game_scene_arrival* arrival,
@@ -184,7 +184,7 @@ namespace ifb {
     }
 
     // a switch is requested or underway, from the request until the new scene has faded in
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_scene_is_switching(
         void) {
 
@@ -197,7 +197,7 @@ namespace ifb {
 
     // where connor goes in the scene that's entering, the requested arrival, or the scene's own spawn
     // only meaningful in a scene's enter proc
-    IFB_INTERNAL game_scene_arrival
+    IFB_GAME game_scene_arrival
     game_scene_get_arrival(
         const game_scene_arrival& spawn) {
 

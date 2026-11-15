@@ -44,7 +44,7 @@ namespace ifb {
         const u32 size_hnds   = cfg.map_capacity * sizeof(hnd_map);
         const u32 size_scenes = cfg.map_capacity * sizeof(hnd_scene);
         const u32 size_dims   = cfg.map_capacity * sizeof(map_dimensions);
-        const u32 size_name   = cfg.map_capacity * sizeof(cstr_c16);
+        const u32 size_name   = cfg.map_capacity * sizeof(cstr_c32);
         const u32 size_chunks = cfg.map_capacity * sizeof(map_chunk_array);
         const u32 size_floor  = cfg.map_capacity * sizeof(map_floor_array);
         const u32 size_walls  = cfg.map_capacity * sizeof(map_wall_array);
@@ -57,7 +57,7 @@ namespace ifb {
         tbl_map->hnd         =      (hnd_map*)reservation_push_bytes(_map_mngr->res, size_hnds);
         tbl_map->scene       =    (hnd_scene*)reservation_push_bytes(_map_mngr->res, size_scenes);
         tbl_map->dims        =  (map_dimensions*)reservation_push_bytes(_map_mngr->res, size_dims);
-        tbl_map->name        =        (cstr_c16*)reservation_push_bytes(_map_mngr->res, size_name);
+        tbl_map->name        =        (cstr_c32*)reservation_push_bytes(_map_mngr->res, size_name);
         tbl_map->chunk_array = (map_chunk_array*)reservation_push_bytes(_map_mngr->res, size_chunks);
         tbl_map->floor_array = (map_floor_array*)reservation_push_bytes(_map_mngr->res, size_floor);
         tbl_map->row_wall_array    = (map_wall_array*)reservation_push_bytes(_map_mngr->res, size_walls);

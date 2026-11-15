@@ -35,7 +35,7 @@ namespace ifb {
     static constexpr f32 MAP_BUILDER_THUMB_SIZE    = 48.0f;
 
     static constexpr u32 MAP_BUILDER_NAME_SIZE     = config::asset_name_size + 1;
-    static constexpr u32 MAP_BUILDER_MAP_NAME_SIZE = 16; // a map's name is up to 15 characters
+    static constexpr u32 MAP_BUILDER_MAP_NAME_SIZE = 32; // a map's name is up to 31 characters, matches the engine's MAP_NAME_LENGTH
     static constexpr u32 MAP_BUILDER_PATH_SIZE     = IFB_CONFIG_FILE_PATH_SIZE;
 
     static const char* _map_builder_filter_type = "*.json";
@@ -1718,7 +1718,7 @@ namespace ifb {
         return(true);
     }
 
-    // sprite names fill all 16 characters of an asset name, so they're copied into a buffer with room for the terminator
+    // sprite names can fill the whole asset name, so they're copied into a buffer with room for the terminator
     IFB_INLINE bool
     map_builder_get_sprite_name(
         const hnd_sprite_atlas h_atlas,

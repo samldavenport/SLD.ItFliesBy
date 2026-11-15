@@ -56,7 +56,7 @@ namespace ifb {
     // METHODS
     //--------------------------------------------------------------------
 
-    IFB_INTERNAL game_dialog*
+    IFB_GAME game_dialog*
     game_dialog_create(
         const hnd_arena h_arena,
         const font*     fnt) {
@@ -76,7 +76,7 @@ namespace ifb {
         return(_dlg);
     }
 
-    IFB_INTERNAL void
+    IFB_GAME void
     game_dialog_reset(
         void) {
 
@@ -91,7 +91,7 @@ namespace ifb {
     
     // the box along the bottom of the screen, and the area inside it the text goes in
     // the box is as tall as a page of lines, so it changes with the font
-    IFB_INTERNAL void
+    IFB_GAME void
     game_dialog_get_layout(
         rect&  box,
         rect&  text_area) {
@@ -123,7 +123,7 @@ namespace ifb {
     // wraps the whole text now, so a word doesn't jump to the next line partway through typing it
     // the text isn't copied, it has to stay around until the dialog closes
     // false if there's nothing to show, the dialog stays closed
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_dialog_open(
         const cchar* text,
         const u32    text_len) {
@@ -159,7 +159,7 @@ namespace ifb {
         return(true);
     }
 
-    IFB_INTERNAL bool
+    IFB_GAME bool
     game_dialog_is_open(
         void) {
 
@@ -170,7 +170,7 @@ namespace ifb {
     // the player pressed the button
     // while typing, the rest of the page shows at once
     // once it's all shown, the next page starts, or the dialog closes after the last one
-    IFB_INTERNAL void
+    IFB_GAME void
     game_dialog_advance(
         void) {
 
@@ -253,7 +253,7 @@ namespace ifb {
     }
 
     // the whole dialog for this pass: the action button, the reveal, and drawing it
-    IFB_INTERNAL void
+    IFB_GAME void
     game_dialog_update(
         game_context* ctx) {
 
@@ -265,7 +265,7 @@ namespace ifb {
     }
 
     // has to be called every frame the dialog should be seen, like any immediate drawing
-    IFB_INTERNAL void
+    IFB_GAME void
     game_dialog_render(
         void) {
 

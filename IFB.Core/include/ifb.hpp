@@ -73,7 +73,7 @@ namespace ifb {
     constexpr u32 INVALID_ID      = INVALID_U32;
     constexpr f32 POS_MAX         =  1.0f;
     constexpr f32 POS_MIN         = -1.0f;
-    constexpr u32 TAG_SIZE        = 16;
+    constexpr u32 TAG_SIZE        = 32;
     
     //--------------------------------------------------------------------
     // HANDLES & IDS

@@ -9,7 +9,7 @@
 
 namespace ifb {
 
-    IFB_INTERNAL game_context*
+    IFB_GAME game_context*
     game_context_create_and_init(
         void) {
 
@@ -83,7 +83,7 @@ namespace ifb {
         return(ctx);
     }
     
-    IFB_INTERNAL void
+    IFB_GAME void
     game_context_validate(
         game_context* ctx) {
 
@@ -93,7 +93,7 @@ namespace ifb {
     }
 
     
-    IFB_INTERNAL void
+    IFB_GAME void
     game_context_update_and_render(
         game_context* ctx) {
 
