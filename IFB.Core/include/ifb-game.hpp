@@ -62,6 +62,7 @@ namespace ifb {
         entity_id static_entity_2;
         entity_id static_entity_3;
         entity_id rose;
+        entity_id trigger_cliff_town;
     };
 
     struct game_map {
@@ -205,14 +206,61 @@ namespace ifb {
         void (*exit)              (game_context* ctx);
     };
 
+    // the tile connor is placed on when a scene enters, like the door he came through
+    struct game_scene_arrival {
+        u32 chunk_index;
+        u32 chunk_x;
+        u32 chunk_y;
+    };
+
     struct game_scene_state {
         game_scene_id_u32    active;
         game_scene_id_u32    next;            // none when no switch is requested
         game_scene_phase_u32 phase;
         hnd_scene            h_active;
         hnd_scene            h_next;          // created and transitioned to while switching
+        game_scene_arrival   arrival;         // where connor goes in the next scene, if has_arrival
+        bool                 has_arrival;     // false, and the next scene uses its own spawn
         u32                  npc_keep_count;  // the npcs that are remembered through the switch
         entity_id            npc_keep[GAME_NPC_MNGR_CAPACITY];
+    };
+
+    //--------------------------------------------------------------------
+    // SCENE TRIGGERS
+    //--------------------------------------------------------------------
+    // a tile, or one edge of a tile, that switches scenes when connor touches it, like a door
+    // each one is an invisible trigger entity in the scene that spawned it, and is gone with it
+    // a map can have as many as the table holds, each going to its own scene and arrival
+    //
+    // an arrival is never on a trigger, or connor walks straight back out
+    static constexpr u32 GAME_SCENE_TRIGGER_CAPACITY = 32;
+
+    // what part of the tile the trigger covers
+    // an edge is a thin slab along that side of the tile, so connor touches it walking into a wall there,
+    // into the edge of the map, or through a gap in a wall
+    // in the map file, a row wall at (row, col) is the y_min side of tile (col, row),
+    // and a column wall at (row, col) is the x_min side of tile (col, row)
+    // physics only pairs entities in the same chunk, so an edge between two chunks
+    // only triggers from the tile's side
+    IFB_U32(game_scene_trigger_side_u32);
+    enum game_scene_trigger_side_e {
+        game_scene_trigger_side_e_tile  = 0, // the whole tile, connor walks onto it
+        game_scene_trigger_side_e_x_min = 1,
+        game_scene_trigger_side_e_x_max = 2,
+        game_scene_trigger_side_e_y_min = 3,
+        game_scene_trigger_side_e_y_max = 4
+    };
+
+    // the name is the entity's tag, so it has to be unique in the scene, and fit in TAG_SIZE - 1 characters
+    struct game_scene_trigger_def {
+        const cchar*              cstr_name;
+        hnd_map                   h_map;
+        u32                       chunk_index;
+        u32                       chunk_x;
+        u32                       chunk_y;
+        game_scene_trigger_side_e side;
+        game_scene_id_e           target;
+        const game_scene_arrival* arrival;  // NULL for the target scene's own spawn
     };
 
     // the global arena holds what lasts the whole game
@@ -247,15 +295,20 @@ namespace ifb {
     // scenes
     IFB_INTERNAL void          game_scene_init              (game_context* ctx, const game_scene_id_e first);
     IFB_INTERNAL void          game_scene_update_and_render (game_context* ctx);
-    IFB_INTERNAL bool          game_scene_request           (const game_scene_id_e id, const entity_id* npc_keep = NULL, const u32 npc_keep_count = 0);
+    IFB_INTERNAL bool          game_scene_request           (const game_scene_id_e id, const game_scene_arrival* arrival = NULL, const entity_id* npc_keep = NULL, const u32 npc_keep_count = 0);
     IFB_INTERNAL bool          game_scene_is_switching      (void);
+    IFB_INTERNAL game_scene_arrival game_scene_get_arrival  (const game_scene_arrival& spawn);
+
+    // scene triggers
+    IFB_INTERNAL void          game_scene_trigger_reset     (void);
+    IFB_INTERNAL entity_id     game_scene_trigger_spawn     (const game_scene_trigger_def& def);
 
     // the dev scene: the dev map, the player rig, the boxes, and rose
     IFB_INTERNAL void          game_scene_dev_enter              (game_context* ctx, const hnd_scene h_scene);
     IFB_INTERNAL void          game_scene_dev_update_and_render  (game_context* ctx);
     IFB_INTERNAL void          game_scene_dev_exit               (game_context* ctx);
 
-    // cliff town: the cliff town map and the player rig
+    // cliff town: the cliff town map, the player rig, and the trigger back to the dev map
     IFB_INTERNAL void          game_scene_cliff_town_enter           (game_context* ctx, const hnd_scene h_scene);
     IFB_INTERNAL void          game_scene_cliff_town_update_and_render (game_context* ctx);
     IFB_INTERNAL void          game_scene_cliff_town_exit              (game_context* ctx);

@@ -583,13 +583,14 @@ namespace ifb {
     // the collision rect, for when the sprite doesn't fill its quad
     // it's in the quad's plane, measured from the position, which is the quad's center
     // x and y are the rect's center, so { 0, 0, quad width, quad height } covers the whole quad
-    // the box is as deep along z as the rect is wide
+    // depth is the box along z, centered on the position, set it to the width for a box as deep as it's wide
     // entities without one collide with their quad
     struct cmpnt_bounds {
         f32 x;
         f32 y;
         f32 width;
         f32 height;
+        f32 depth;
     };
 
     struct cmpnt_particle_emitter {

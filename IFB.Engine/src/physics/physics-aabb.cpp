@@ -137,7 +137,7 @@ namespace ifb {
             offset.y      = bounds.y;
             half_extent.x = bounds.width  * 0.5f;
             half_extent.y = bounds.height * 0.5f;
-            half_extent.z = bounds.width  * 0.5f;
+            half_extent.z = bounds.depth  * 0.5f;
             return(true);
         }
 

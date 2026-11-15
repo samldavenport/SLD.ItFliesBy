@@ -20,6 +20,7 @@ namespace ifb {
         cmpnt_bounds bounds;
         bounds.width  = 39.0f * px;
         bounds.height = 60.0f * px;
+        bounds.depth  = bounds.width;
         bounds.x      =  0.0f;
         bounds.y      = -1.0f * px;
         return(bounds);
