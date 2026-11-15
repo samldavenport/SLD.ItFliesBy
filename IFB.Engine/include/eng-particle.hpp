@@ -111,7 +111,7 @@ namespace ifb {
         color_rgba_u32*      array_colors;
         vec3*                array_position;
         vec3*                array_velocity;
-        cstr_c16             name;
+        cstr_c32             name;
     };  
 
     // the active emitters of one type

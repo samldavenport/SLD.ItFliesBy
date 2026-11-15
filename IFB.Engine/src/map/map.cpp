@@ -73,17 +73,17 @@ namespace ifb {
         // get the map properties
         hnd_map&      hnd    = tbl_map->hnd         [index];
         map_dimensions&  dims   = tbl_map->dims        [index]; 
-        cstr_c16&        name   = tbl_map->name        [index];
+        cstr_c32&        name   = tbl_map->name        [index];
         map_chunk_array& chunks = tbl_map->chunk_array [index];
         map_floor_array& floor  = tbl_map->floor_array [index];
         vec3&            origin = tbl_map->origin      [index];
         map_wall_array&  row_walls    = tbl_map->row_wall_array    [index];
         map_wall_array&  column_walls = tbl_map->column_wall_array [index];
 
-        // the handle hashes all 16 bytes, so a reused slot can't keep the end of an old name
+        // the handle hashes the whole name buffer, so a reused slot can't keep the end of an old name
         zero_memory((void*)&name, sizeof(name));
-        cstr_c16_init(&name, map_name);
-        hnd = cstr_c16_hash(&name);
+        cstr_c32_init(&name, map_name);
+        hnd = cstr_c32_hash(&name);
         dims.count_chunks = 0;
         dims.count_rows   = count_rows;
         dims.count_cols   = count_cols;
@@ -1266,7 +1266,7 @@ namespace ifb {
         assert(h_arena     != INVALID_HANDLE);
 
         static constexpr u32 MAP_FORMAT_VERSION   = 1;
-        static constexpr u32 MAP_NAME_LENGTH_MAX  = 15; // the name buffer is 16 with the terminator
+        static constexpr u32 MAP_NAME_LENGTH_MAX  = MAP_NAME_LENGTH - 1; // room for the terminator
 
         // save our spot in the arena
         const u32 save = arena_save(h_arena);
@@ -1440,7 +1440,7 @@ namespace ifb {
         return((color < count) ? MAP_JSON_COLOR_NAMES[color] : NULL);
     }
 
-    // asset names fill all 16 characters, so they're copied somewhere with room for the terminator
+    // asset names can fill the whole name buffer, so they're copied somewhere with room for the terminator
     inline bool
     map_json_atlas_name(
         const hnd_sprite_atlas h_atlas,
@@ -1672,7 +1672,7 @@ namespace ifb {
         assert(buffer   != NULL);
         assert(capacity != 0);
 
-        static constexpr u32 MAP_NAME_LENGTH_MAX = 15; // the name buffer is 16 with the terminator
+        static constexpr u32 MAP_NAME_LENGTH_MAX = MAP_NAME_LENGTH - 1; // room for the terminator
 
         const u32 map_index = map_lookup_index(h_map);
         if (map_index == INVALID_INDEX) return(0);

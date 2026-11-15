@@ -22,7 +22,7 @@ namespace ifb {
     // CONSTANTS
     //--------------------------------------------------------------------
 
-    static constexpr u32 MAP_NAME_LENGTH = 16;
+    static constexpr u32 MAP_NAME_LENGTH = 32;
 
     //--------------------------------------------------------------------
     // ENUMS
@@ -201,7 +201,7 @@ namespace ifb {
     static constexpr f32 MAP_WALL_HALF_THICKNESS       = 0.05f;
 
     struct map {
-        cstr_c16*      name;
+        cstr_c32*      name;
         hnd_map        hnd;
         map_dimensions dims;
         vec3           origin;
@@ -249,7 +249,7 @@ namespace ifb {
         hnd_map*         hnd;
         hnd_scene*       scene;   // the scene that was bound when the map was made, destroying it destroys the map
         map_dimensions*  dims;
-        cstr_c16*        name;
+        cstr_c32*        name;
         map_chunk_array* chunk_array;
         map_floor_array* floor_array;
         map_wall_array*  column_wall_array;
