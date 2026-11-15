@@ -40,20 +40,30 @@ namespace ifb {
         _gui_is_open = false;
     }
 
-    void
+    game_scene_id_e
     gui_render(
         const game_context* game_ctx) {
 
         if (!_gui_is_open) {
-            return;
+            return(game_scene_id_e_none);
         }
 
-        gui_main_window       (game_ctx);
+        return(gui_main_window(game_ctx));
     }
 
-    IFB_INTERNAL void
+    IFB_INTERNAL game_scene_id_e
     gui_main_window(
         const game_context* game_ctx) {
+
+        // the game > scenes labels, indexed by game_scene_id_e, none doesn't have one
+        static const char* const scene_labels[game_scene_id_e_count] = {
+            NULL,
+            _gui_str->menu_game_menu_scenes_item_dev,
+            _gui_str->menu_game_menu_scenes_item_cliff_town,
+        };
+        static_assert(game_scene_id_e_count == 3, "add the new scene to scene_labels");
+
+        game_scene_id_e scene_picked = game_scene_id_e_none;
 
         static bool is_selected            = false;
         static bool eng_imgui_demo         = false;
@@ -110,7 +120,29 @@ namespace ifb {
                 ImGui::MenuItem (_gui_str->menu_game_item_player_rig, NULL, &player_rig);
                 ImGui::MenuItem (_gui_str->menu_game_item_audio,      NULL, &game_audio);
                 ImGui::MenuItem (_gui_str->menu_game_item_tile_coords, NULL, &game_tile_coords);
-               
+
+                // the active scene is checked, and they're all disabled while a switch is underway
+                if (ImGui::BeginMenu(_gui_str->menu_game_menu_scenes, game_ctx != NULL)) {
+
+                    const game_scene_state& scene        = game_ctx->scene;
+                    const bool              is_switching = (
+                        scene.phase == game_scene_phase_e_switching ||
+                        scene.next  != game_scene_id_e_none
+                    );
+
+                    for (
+                        u32 i_scene = game_scene_id_e_none + 1;
+                            i_scene < game_scene_id_e_count;
+                          ++i_scene) {
+
+                        const bool is_active = (scene.active.val == i_scene);
+                        if (ImGui::MenuItem(scene_labels[i_scene], NULL, is_active, !is_switching)) {
+                            scene_picked = (game_scene_id_e)i_scene;
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+
                 if (ImGui::BeginMenu(_gui_str->menu_game_menu_assets)) {
                     
                     ImGui::MenuItem(_gui_str->menu_game_menu_assets_item_dictionary, NULL, &asset_dictionary);
@@ -162,5 +194,7 @@ namespace ifb {
         gui_game_asset_database           (asset_database);
         gui_engine_font_viewer            (eng_font_viewer);
         gui_game_tile_coords              (game_tile_coords, game_ctx);
+
+        return(scene_picked);
     }
 };

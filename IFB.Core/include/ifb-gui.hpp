@@ -2,6 +2,7 @@
 #define GUI_HPP
 
 #include "ifb.hpp"
+#include "ifb-game.hpp" // gui_render returns a game_scene_id_e
 
 namespace ifb {
 
@@ -28,8 +29,10 @@ namespace ifb {
     // context (gui_open and gui_render are called by the game, so they're not internal)
                  void  gui_open               (void);
     IFB_INTERNAL void  gui_close              (void);
-                 void  gui_render             (const game_context* game_ctx);
-    IFB_INTERNAL void  gui_main_window        (const game_context* game_ctx);
+    // gui_render returns the scene picked from game > scenes this frame, none if nothing was picked
+    // the gui only gets a const game context, so the game requests the switch
+                 game_scene_id_e gui_render      (const game_context* game_ctx);
+    IFB_INTERNAL game_scene_id_e gui_main_window (const game_context* game_ctx);
 
     // engine
     IFB_INTERNAL void  gui_engine_imgui_demo             (bool& is_open);
@@ -102,6 +105,9 @@ namespace ifb {
         inline static const char* menu_game_item_audio                               = "Audio";
         inline static const char* window_game_audio                                  = "Game Audio";
         inline static const char* menu_game_item_tile_coords                         = "Tile Coordinates";
+        inline static const char* menu_game_menu_scenes                              = "Scenes";
+        inline static const char* menu_game_menu_scenes_item_dev                     = "Dev";
+        inline static const char* menu_game_menu_scenes_item_cliff_town              = "Cliff Town";
         inline static const char* menu_game_menu_assets                              = "Assets";
         inline static const char* menu_game_menu_assets_item_dictionary              = "Asset Dictionary";
         inline static const char* menu_game_menu_assets_item_database                = "Asset Database";

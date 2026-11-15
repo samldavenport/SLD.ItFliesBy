@@ -138,17 +138,14 @@ namespace ifb {
             "PARALLAX-BACK"
         );
 
-        // const bool did_set_plx = eng_parallax_set(
-        //     "PARALLAX-CLIFFS-FRONT",
-        //     "PARALLAX-CLIFFS-MID",
-        //     "PARALLAX-CLIFFS-BACK"
-        // );
         assert(did_set_plx);
         (void)did_set_plx;
 
-        rig->starting_map_hnd = map->eng_hnd;
-        rig->current_map_hnd  = map->eng_hnd;
+        // connor starts in the first chunk, between the four boxes
         game_player_rig_init(rig);
+        const bool did_place_rig = game_player_rig_place(rig, map->eng_hnd, 0, 5, 5);
+        assert(did_place_rig);
+        (void)did_place_rig;
 
         entities->static_entity_0 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-0","WOOD",map->eng_hnd,0,3,3);
         entities->static_entity_1 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-1","WOOD",map->eng_hnd,0,3,7);
@@ -229,7 +226,7 @@ namespace ifb {
         dev->rig.is_input_locked = game_dialog_is_open();
 
         game_player_rig_update_and_render (&dev->rig);
-        game_player_rig_update_camera     (&dev->rig);
+        game_player_rig_update_camera     (&dev->rig, ctx->camera_focus);
         const bool did_render = eng_map_render(dev->map.eng_hnd);
         game_npc_mngr_update_and_render       ();
 

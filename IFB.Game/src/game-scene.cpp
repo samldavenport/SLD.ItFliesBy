@@ -5,20 +5,23 @@
 #include "ifb.hpp"
 
 #include "game-scene-dev.cpp"
+#include "game-scene-cliff-town.cpp"
 #include <cassert>
 
 namespace ifb {
 
     // indexed by game_scene_id_e, none doesn't have any
     static const game_scene_procs GAME_SCENE_PROCS[game_scene_id_e_count] = {
-        { NULL,                 NULL,                             NULL                },
-        { game_scene_dev_enter, game_scene_dev_update_and_render, game_scene_dev_exit },
+        { NULL,                        NULL,                                    NULL                       },
+        { game_scene_dev_enter,        game_scene_dev_update_and_render,        game_scene_dev_exit        },
+        { game_scene_cliff_town_enter, game_scene_cliff_town_update_and_render, game_scene_cliff_town_exit },
     };
 
     // the engine scene's name
     static const cchar* const GAME_SCENE_NAMES[game_scene_id_e_count] = {
         "",
         GAME_SCENE_DEV_NAME,
+        GAME_SCENE_CLIFF_TOWN_NAME,
     };
 
     // the game context's, so the collision procs can request a switch without it

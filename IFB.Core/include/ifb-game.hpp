@@ -41,9 +41,7 @@ namespace ifb {
         entity_id                    connor_id;
         entity_id                    jig_id;
         entity_id                    jig_anchor_id;
-        hnd_map                      starting_map_hnd;
-        hnd_map                      current_map_hnd;
-        vec3                         camera_focus;
+        hnd_map                      current_map_hnd;   // INVALID_HANDLE until game_player_rig_place
         f32                          jig_offset_x;
         f32                          jig_bob_time_s;
         f32                          connor_prev_x;
@@ -84,7 +82,8 @@ namespace ifb {
         hnd_audio_voice h_boop;  // stale once the boop finishes
     };
 
-    static constexpr const cchar* GAME_SCENE_DEV_NAME = "DEV";
+    static constexpr const cchar* GAME_SCENE_DEV_NAME        = "DEV";
+    static constexpr const cchar* GAME_SCENE_CLIFF_TOWN_NAME = "CLIFF-TOWN";
 
     struct game_npc_mngr;
 
@@ -183,9 +182,10 @@ namespace ifb {
 
     IFB_U32(game_scene_id_u32);
     enum game_scene_id_e {
-        game_scene_id_e_none  = 0,
-        game_scene_id_e_dev   = 1,
-        game_scene_id_e_count = 2
+        game_scene_id_e_none       = 0,
+        game_scene_id_e_dev        = 1,
+        game_scene_id_e_cliff_town = 2,
+        game_scene_id_e_count      = 3
     };
 
     IFB_U32(game_scene_phase_u32);
@@ -227,6 +227,7 @@ namespace ifb {
         game_audio*      audio;
         const font*      fnt;   // the ui font, NULL if it didn't load
         game_dialog*     dialog;
+        vec3             camera_focus;  // where the engine camera is framed, it outlives the scenes like the camera does
         bool             talk_was_down;
         bool             is_action_pressed; // e was pressed this pass, and nothing has used it yet
     } static * _game_ctx;
@@ -254,10 +255,16 @@ namespace ifb {
     IFB_INTERNAL void          game_scene_dev_update_and_render  (game_context* ctx);
     IFB_INTERNAL void          game_scene_dev_exit               (game_context* ctx);
 
+    // cliff town: the cliff town map and the player rig
+    IFB_INTERNAL void          game_scene_cliff_town_enter           (game_context* ctx, const hnd_scene h_scene);
+    IFB_INTERNAL void          game_scene_cliff_town_update_and_render (game_context* ctx);
+    IFB_INTERNAL void          game_scene_cliff_town_exit              (game_context* ctx);
+
     IFB_INTERNAL void          game_player_rig_validate          (game_player_rig* player_rig);
     IFB_INTERNAL void          game_player_rig_init              (game_player_rig* player_rig);
+    IFB_INTERNAL bool          game_player_rig_place             (game_player_rig* player_rig, const hnd_map h_map, const u32 chunk_index, const u32 chunk_x, const u32 chunk_y);
     IFB_INTERNAL void          game_player_rig_update_and_render (game_player_rig* player_rig);
-    IFB_INTERNAL void          game_player_rig_update_camera     (game_player_rig* player_rig);
+    IFB_INTERNAL void          game_player_rig_update_camera     (game_player_rig* player_rig, vec3& camera_focus);
     
     IFB_INTERNAL entity_id
     game_entity_spawn_static_sprite(

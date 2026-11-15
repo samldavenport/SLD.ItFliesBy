@@ -45,6 +45,7 @@ namespace ifb {
         ctx->audio             = audio;
         ctx->fnt               = fnt;
         ctx->dialog            = game_dialog_create(arena_h, fnt);
+        ctx->camera_focus      = {0}; // the engine's default camera is framed around the world origin
         ctx->talk_was_down     = false;
         ctx->is_action_pressed = false;
 

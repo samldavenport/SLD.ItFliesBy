@@ -98,56 +98,24 @@ namespace ifb {
         assert(player_rig->jig_id        != ENTITY_ID_INVALID);
         assert(player_rig->jig_anchor_id != ENTITY_ID_INVALID);
 
-        // spawn in the center of the starting map's first chunk,
-        // the center of the map itself isn't always navigable
-        u32 chunk_count_rows = 0;
-        u32 chunk_count_cols = 0;
-        u32 chunk_origin_row = 0;
-        u32 chunk_origin_col = 0;
-        const bool did_get_chunk = eng_map_chunk_get_dimensions(
-            player_rig->starting_map_hnd,
-            0,
-            chunk_count_rows,
-            chunk_count_cols,
-            chunk_origin_row,
-            chunk_origin_col
-        );
-        assert(did_get_chunk);
-
-        cmpnt_map_coords spawn_coords;
-        spawn_coords.h_map = player_rig->starting_map_hnd;
-        spawn_coords.col_x = (f32)chunk_origin_col + ((f32)chunk_count_cols * 0.5f);
-        spawn_coords.lvl_y = 0.0f;
-        spawn_coords.row_z = (f32)chunk_origin_row + ((f32)chunk_count_rows * 0.5f);
-
-        cmpnt_position spawn_pos;
-        const bool did_get_spawn = eng_map_get_pos_from_coords(spawn_coords, spawn_pos);
-        assert(did_get_spawn);
-
-        // the default camera is framed around the world origin
-        player_rig->camera_focus = {0};
+        // the rig isn't on a map until it's placed, game_player_rig_place puts it on one
+        player_rig->current_map_hnd = {INVALID_HANDLE};
 
         // jig starts on connor's left
         player_rig->jig_offset_x   = -GAME_PLAYER_RIG_JIG_OFFSET_X;
         player_rig->jig_bob_time_s = 0.0f;
-        player_rig->connor_prev_x  = spawn_pos.x;
-        const f32 jig_offset_x    = player_rig->jig_offset_x;
+        player_rig->connor_prev_x  = 0.0f;
 
+        // the positions are set when the rig is placed
         atype_sprite quad_connor  = {0};
         quad_connor.color.hex   = 0xFFFFFFFF;
         quad_connor.quad.width  = 0.2;
         quad_connor.quad.height = 0.2;
-        quad_connor.position.x  = spawn_pos.x;
-        quad_connor.position.y  = spawn_pos.y + 0.1f;
-        quad_connor.position.z  = spawn_pos.z;
 
         atype_sprite quad_jig  = {0};
         quad_jig.color.hex   =  0xFFFFFFFF;
         quad_jig.quad.width  =  0.2;
         quad_jig.quad.height =  0.2;
-        quad_jig.position.x  = spawn_pos.x + jig_offset_x;
-        quad_jig.position.y  = spawn_pos.y + 0.2f;
-        quad_jig.position.z  = spawn_pos.z;
 
         cmpnt_term_velocity tv;
         tv.x = 1.00f;
@@ -161,11 +129,8 @@ namespace ifb {
         jig_spring.damping     = 5.0f; 
         jig_spring.rest_length = 0.001f;
 
-        cmpnt_position anchor_pos;
-        anchor_pos.x = spawn_pos.x + jig_offset_x;
-        anchor_pos.y = spawn_pos.y + 0.1f;
-        anchor_pos.z = spawn_pos.z;
-                    
+        cmpnt_position anchor_pos = {0};
+
         const f32 inv_mass = 0.50f;
         const f32 drag     = 0.01f;
 
@@ -177,8 +142,7 @@ namespace ifb {
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_map_coords);
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_sprite);
         eng_entity_add_components      (player_rig->connor_id, cmpnt_type_e_bounds);
-        eng_cmpnt_update_map_coords    (player_rig->connor_id, spawn_coords);
-        eng_cmpnt_update_quad          (player_rig->connor_id, quad_connor);
+        eng_cmpnt_update_quad         (player_rig->connor_id, quad_connor);
         eng_cmpnt_update_bounds        (player_rig->connor_id, bounds_connor);
         eng_cmpnt_update_inv_mass      (player_rig->connor_id, inv_mass);
         eng_cmpnt_update_drag          (player_rig->connor_id, drag); 
@@ -239,11 +203,89 @@ namespace ifb {
         player_rig->is_input_locked   = false;
     }
 
+    // puts connor in the center of a tile in one of the map's chunks, with jig beside him
+    // the same tile addressing as the npcs and the static sprites
+    // it can be called again to move the rig, onto the same map or another one
+    // false if the chunk or the tile isn't on the map, and the rig stays where it was
+    IFB_INTERNAL bool
+    game_player_rig_place(
+        game_player_rig* player_rig,
+        const hnd_map    h_map,
+        const u32        chunk_index,
+        const u32        chunk_x,
+        const u32        chunk_y) {
+
+        game_player_rig_validate(player_rig);
+
+        u32 chunk_count_rows = 0;
+        u32 chunk_count_cols = 0;
+        u32 chunk_origin_row = 0;
+        u32 chunk_origin_col = 0;
+        const bool did_get_chunk = eng_map_chunk_get_dimensions(
+            h_map,
+            chunk_index,
+            chunk_count_rows,
+            chunk_count_cols,
+            chunk_origin_row,
+            chunk_origin_col
+        );
+        if (!did_get_chunk) return(false);
+
+        const bool is_in_chunk = (chunk_x < chunk_count_cols && chunk_y < chunk_count_rows);
+        if (!is_in_chunk) return(false);
+
+        cmpnt_map_coords spawn_coords;
+        spawn_coords.h_map = h_map;
+        spawn_coords.col_x = (f32)(chunk_origin_col + chunk_x) + 0.5f;
+        spawn_coords.lvl_y = 0.0f;
+        spawn_coords.row_z = (f32)(chunk_origin_row + chunk_y) + 0.5f;
+
+        cmpnt_position spawn_pos;
+        const bool did_get_spawn = eng_map_get_pos_from_coords(spawn_coords, spawn_pos);
+        if (!did_get_spawn) return(false);
+
+        // jig goes back to connor's left, so he doesn't swing across from wherever he was
+        player_rig->jig_offset_x  = -GAME_PLAYER_RIG_JIG_OFFSET_X;
+        player_rig->connor_prev_x = spawn_pos.x;
+        const f32 jig_offset_x    = player_rig->jig_offset_x;
+
+        cmpnt_position pos_connor;
+        pos_connor.x = spawn_pos.x;
+        pos_connor.y = spawn_pos.y + 0.1f;
+        pos_connor.z = spawn_pos.z;
+
+        cmpnt_position pos_jig;
+        pos_jig.x = spawn_pos.x + jig_offset_x;
+        pos_jig.y = spawn_pos.y + 0.2f;
+        pos_jig.z = spawn_pos.z;
+
+        cmpnt_position pos_anchor;
+        pos_anchor.x = spawn_pos.x + jig_offset_x;
+        pos_anchor.y = spawn_pos.y + 0.1f;
+        pos_anchor.z = spawn_pos.z;
+
+        // they arrive standing still, not carrying their speed from before
+        const cmpnt_velocity vel_zero = {0};
+
+        bool did_place = true;
+        did_place &= eng_cmpnt_update_map_coords (player_rig->connor_id,     spawn_coords);
+        did_place &= eng_cmpnt_update_position   (player_rig->connor_id,     pos_connor);
+        did_place &= eng_cmpnt_update_velocity   (player_rig->connor_id,     vel_zero);
+        did_place &= eng_cmpnt_update_position   (player_rig->jig_id,        pos_jig);
+        did_place &= eng_cmpnt_update_velocity   (player_rig->jig_id,        vel_zero);
+        did_place &= eng_cmpnt_update_position   (player_rig->jig_anchor_id, pos_anchor);
+        assert(did_place);
+
+        player_rig->current_map_hnd = h_map;
+        return(true);
+    }
+
     IFB_INTERNAL void
     game_player_rig_update_and_render(
         game_player_rig* player_rig) {
 
-        game_player_rig_validate(player_rig);     
+        game_player_rig_validate(player_rig);
+        assert(player_rig->current_map_hnd != INVALID_HANDLE); // it has to be placed first
 
         // the first frame doesn't have a usable delta time
         f32 dt_s = eng_system_get_delta_time_s();
@@ -275,9 +317,13 @@ namespace ifb {
         
     }
 
+    // camera_focus is where the camera is framed now, it's moved to where it's framed after
+    // it's the game context's, not the rig's, since the engine camera outlives the scenes
+    // a new rig in a new scene picks up from wherever the last one left the camera
     IFB_INTERNAL void
     game_player_rig_update_camera(
-        game_player_rig* player_rig) {
+        game_player_rig* player_rig,
+        vec3&            camera_focus) {
 
         game_player_rig_validate(player_rig);
 
@@ -314,8 +360,8 @@ namespace ifb {
 
         // move the camera as far as the focus moved
         // the origin and target move together, so the view angle doesn't change
-        const f32   focus_delta_x     = focus_pos.x - player_rig->camera_focus.x;
-        const f32   focus_delta_z     = focus_pos.z - player_rig->camera_focus.z;
+        const f32   focus_delta_x     = focus_pos.x - camera_focus.x;
+        const f32   focus_delta_z     = focus_pos.z - camera_focus.z;
         const vec3& camera_origin     = eng_camera_get_origin();
         const vec3& camera_target     = eng_camera_get_target();
         vec3        camera_origin_new = camera_origin;
@@ -327,8 +373,8 @@ namespace ifb {
         eng_camera_set_origin(camera_origin_new);
         eng_camera_set_target(camera_target_new);
 
-        player_rig->camera_focus.x = focus_pos.x;
-        player_rig->camera_focus.z = focus_pos.z;
+        camera_focus.x = focus_pos.x;
+        camera_focus.z = focus_pos.z;
     }
     
     inline void

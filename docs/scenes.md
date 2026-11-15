@@ -198,7 +198,17 @@ The NPCs passed to `game_scene_request` in `npc_keep` are kept through the switc
 
 ### The Dev Scene
 
-The dev scene (`IFB.Game/src/game-scene-dev.cpp`, engine scene `DEV`) is the first scene. Its `enter` loads `DEV-MAP` and its parallax, and spawns the player rig, the four boxes, and Rose. Its state is one `game_scene_dev` struct in its scene memory. The scene owns `DEV-MAP`, so the engine destroys it with the scene, and entering again can load it under the same name.
+The dev scene (`IFB.Game/src/game-scene-dev.cpp`, engine scene `DEV`) is the first scene. Its `enter` loads `DEV-MAP` and its parallax, and spawns the player rig, the four boxes, and Rose. The rig is created with `game_player_rig_init` and put on the map with `game_player_rig_place` (a map, chunk, and tile in the chunk, the same addressing as the boxes and NPCs), so each scene picks where the player starts. `game_player_rig_place` can also be called again to move the rig. Its state is one `game_scene_dev` struct in its scene memory. The scene owns `DEV-MAP`, so the engine destroys it with the scene, and entering again can load it under the same name.
+
+### Cliff Town
+
+Cliff town (`IFB.Game/src/game-scene-cliff-town.cpp`, engine scene `CLIFF-TOWN`) loads the `CLIFF-TOWN` map (`assets/maps/cliff-town.json`) and the cliffs parallax, and places the player rig on the road across the middle of the map (chunk 0, tile 12, 12). Its state is one `game_scene_cliff_town` struct in its scene memory. Switch to it with `game_scene_request(game_scene_id_e_cliff_town)`, or from **Game > Scenes** in the GUI.
+
+### Switching from the GUI
+
+**Game > Scenes** lists every scene, with the active one checked. The items are disabled while a switch is underway. The GUI only gets a const `game_context`, so it doesn't switch itself: `gui_render` returns the scene that was picked (`game_scene_id_e_none` if none was), and the game's render proc passes it to `game_scene_request` (`game-win32-main.cpp`). It's a fresh switch that keeps no NPCs, and it happens at the end of the next game update. Picking the active scene enters it again from the start.
+
+A new scene needs a label in `gui_strings` and in `scene_labels` in `gui_main_window` (`gui.cpp`). A `static_assert` on `game_scene_id_e_count` there catches a missing one.
 
 The game context's global arena only holds what lasts the whole game: the context, sprites, audio, the dialog, and the NPC manager. `game_context::player_rig` and `::map` point at the active scene's, and are NULL when it doesn't have one.
 

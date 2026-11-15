@@ -89,7 +89,11 @@ static void
 render_proc(
     void) {
 
-    gui_render(game_ctx);
+    // a scene picked from game > scenes switches at the end of the next game update
+    const game_scene_id_e scene_picked = gui_render(game_ctx);
+    if (scene_picked != game_scene_id_e_none) {
+        (void)game_scene_request(scene_picked);
+    }
 }
 
 inline void
