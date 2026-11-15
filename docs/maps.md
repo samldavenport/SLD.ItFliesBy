@@ -50,7 +50,7 @@ for (u32 col = 0; col < 10; ++col) {
 eng_map_render(h_map);
 ```
 
-Maps can also be described in a JSON file and loaded from the asset database with `eng_map_load("DEV-MAP")`, which is how the game gets its map (`IFB.Game/src/game-map.cpp`). See [Map Format](map-format.md).
+Maps can also be described in a JSON file and loaded from the asset database with `eng_map_load("DEV-MAP")`, which is how the dev scene gets its map (`IFB.Game/src/game-scene-dev.cpp`). See [Map Format](map-format.md).
 
 ### Map Size
 
@@ -61,6 +61,8 @@ That's the size of the grid. How much of it can have floor is limited by `IFB_CO
 ### Loading a Map Twice
 
 A map's handle is the hash of its name, so two maps can't have the same name. `eng_map_load_as(asset_name, map_name)` loads a map asset under a different name, which is how the map builder gets its own copy of a map the game has loaded. `eng_map_destroy` frees a map's slot so it can be used again.
+
+A map belongs to the [scene](scenes.md) that's bound when it's created or loaded, and is destroyed with that scene. A map that should outlive the game's scenes, like the map builder's, is made with the default scene bound.
 
 ## Chunks
 

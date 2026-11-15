@@ -2,7 +2,8 @@
     "text": [
     ],
     "map": [
-        { "name": "DEV-MAP", "path": "maps/dev-map.json" }
+        { "name": "DEV-MAP", "path": "maps/dev-map.json" },
+        { "name": "CLIFF-TOWN", "path": "maps/cliff-town.json" }
     ],
     "image": [
         { "name": "CONNOR-LEFT", "path": "images/connor-left.png" },
@@ -55,7 +56,10 @@
         { "name": "JIG-FLY-RIGHT-0", "path": "images/jig-fly-right-0.png" },
         { "name": "JIG-FLY-RIGHT-1", "path": "images/jig-fly-right-1.png" },
         { "name": "JIG-FLY-RIGHT-2", "path": "images/jig-fly-right-2.png" },
-        { "name": "JIG-FLY-RIGHT-3", "path": "images/jig-fly-right-3.png" }
+        { "name": "JIG-FLY-RIGHT-3", "path": "images/jig-fly-right-3.png" },
+        { "name": "PARALLAX-CLIFFS-BACK", "path": "images/parallax-cliffs-back.png" },
+        { "name": "PARALLAX-CLIFFS-MID", "path": "images/parallax-cliffs-mid.png" },
+        { "name": "PARALLAX-CLIFFS-FRONT", "path": "images/parallax-cliffs-front.png" }
     ],
     "sprite_atlas": [
         { "name": "CORE-SPRITES", "path": "sprites/core-sprites.ifbatlas" }

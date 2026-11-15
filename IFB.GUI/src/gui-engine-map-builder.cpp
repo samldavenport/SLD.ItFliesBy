@@ -527,7 +527,12 @@ namespace ifb {
 
         map_builder_unload();
 
+        // the bound scene owns the maps made while it's bound, the game's scene would take the builder's map with it
+        const hnd_scene h_bound = eng_scene_get_bound();
+        (void)eng_scene_bind(eng_scene_get_default());
         state.h_map = eng_map_load_as(asset_name, MAP_BUILDER_MAP_NAME);
+        (void)eng_scene_bind(h_bound);
+
         if (state.h_map == INVALID_HANDLE) {
             snprintf(state.status, sizeof(state.status), "Couldn't load %s as a map", asset_name);
             return;
@@ -629,7 +634,12 @@ namespace ifb {
         map_builder_unload();
         state.status[0] = 0;
 
+        // in the default scene, like map_builder_load
+        const hnd_scene h_bound = eng_scene_get_bound();
+        (void)eng_scene_bind(eng_scene_get_default());
         state.h_map = eng_map_create(MAP_BUILDER_MAP_NAME, rows, cols);
+        (void)eng_scene_bind(h_bound);
+
         if (state.h_map == INVALID_HANDLE) {
             snprintf(state.status, sizeof(state.status), "Couldn't make a %u x %u map, there may be no room for another map", rows, cols);
             return(false);

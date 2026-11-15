@@ -42,6 +42,7 @@ namespace ifb {
         const auto& cfg = config_instance();
 
         const u32 size_hnds   = cfg.map_capacity * sizeof(hnd_map);
+        const u32 size_scenes = cfg.map_capacity * sizeof(hnd_scene);
         const u32 size_dims   = cfg.map_capacity * sizeof(map_dimensions);
         const u32 size_name   = cfg.map_capacity * sizeof(cstr_c16);
         const u32 size_chunks = cfg.map_capacity * sizeof(map_chunk_array);
@@ -54,6 +55,7 @@ namespace ifb {
         auto  tbl_map = _map_mngr->tbl_map;
         assert(tbl_map);
         tbl_map->hnd         =      (hnd_map*)reservation_push_bytes(_map_mngr->res, size_hnds);
+        tbl_map->scene       =    (hnd_scene*)reservation_push_bytes(_map_mngr->res, size_scenes);
         tbl_map->dims        =  (map_dimensions*)reservation_push_bytes(_map_mngr->res, size_dims);
         tbl_map->name        =        (cstr_c16*)reservation_push_bytes(_map_mngr->res, size_name);
         tbl_map->chunk_array = (map_chunk_array*)reservation_push_bytes(_map_mngr->res, size_chunks);
@@ -62,6 +64,7 @@ namespace ifb {
         tbl_map->column_wall_array = (map_wall_array*)reservation_push_bytes(_map_mngr->res, size_walls);
         tbl_map->origin      =            (vec3*)reservation_push_bytes(_map_mngr->res, size_origin);
         assert(tbl_map->hnd);
+        assert(tbl_map->scene);
         assert(tbl_map->dims);
         assert(tbl_map->name);
         assert(tbl_map->chunk_array);
@@ -74,7 +77,8 @@ namespace ifb {
                 map_index < cfg.map_capacity;
               ++map_index) {
 
-            tbl_map->hnd[map_index] = INVALID_HANDLE;
+            tbl_map->hnd   [map_index] = INVALID_HANDLE;
+            tbl_map->scene [map_index] = INVALID_HANDLE;
 
             // each map gets its own pool of wall tiles per orientation
             map_wall_array& row_walls    = tbl_map->row_wall_array    [map_index];
