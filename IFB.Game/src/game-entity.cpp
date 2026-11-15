@@ -42,29 +42,23 @@ namespace ifb {
         assert(h_map != INVALID_HANDLE); 
 
         // chunk coordinates are relative to the chunk origin
-        u32 chunk_count_rows = 0;
-        u32 chunk_count_cols = 0;
-        u32 chunk_origin_row = 0;
-        u32 chunk_origin_col = 0;
+        map_chunk_dims chunk_dims;
         const bool did_get_chunk = eng_map_chunk_get_dimensions(
             h_map,
             chunk_index,
-            chunk_count_rows,
-            chunk_count_cols,
-            chunk_origin_row,
-            chunk_origin_col
+            chunk_dims
         );
         if (!did_get_chunk) return(ENTITY_ID_INVALID);
 
-        const bool is_in_chunk = (chunk_x < chunk_count_cols && chunk_y < chunk_count_rows);
+        const bool is_in_chunk = (chunk_x < chunk_dims.count_cols && chunk_y < chunk_dims.count_rows);
         if (!is_in_chunk) return(ENTITY_ID_INVALID);
 
         // place the sprite in the center of the tile
         atype_sprite sprite = {0};
         sprite.map_coords.h_map = h_map;
-        sprite.map_coords.col_x = (f32)(chunk_origin_col + chunk_x) + 0.5f;
+        sprite.map_coords.col_x = (f32)(chunk_dims.origin_col + chunk_x) + 0.5f;
         sprite.map_coords.lvl_y = 0.0f;
-        sprite.map_coords.row_z = (f32)(chunk_origin_row + chunk_y) + 0.5f;
+        sprite.map_coords.row_z = (f32)(chunk_dims.origin_row + chunk_y) + 0.5f;
 
         const bool did_get_pos = eng_map_get_pos_from_coords(sprite.map_coords, sprite.position);
         if (!did_get_pos) return(ENTITY_ID_INVALID);
@@ -128,29 +122,23 @@ namespace ifb {
         assert(h_map != INVALID_HANDLE); 
 
         // chunk coordinates are relative to the chunk origin
-        u32 chunk_count_rows = 0;
-        u32 chunk_count_cols = 0;
-        u32 chunk_origin_row = 0;
-        u32 chunk_origin_col = 0;
+        map_chunk_dims chunk_dims;
         const bool did_get_chunk = eng_map_chunk_get_dimensions(
             h_map,
             chunk_index,
-            chunk_count_rows,
-            chunk_count_cols,
-            chunk_origin_row,
-            chunk_origin_col
+            chunk_dims
         );
         if (!did_get_chunk) return(ENTITY_ID_INVALID);
 
-        const bool is_in_chunk = (chunk_x < chunk_count_cols && chunk_y < chunk_count_rows);
+        const bool is_in_chunk = (chunk_x < chunk_dims.count_cols && chunk_y < chunk_dims.count_rows);
         if (!is_in_chunk) return(ENTITY_ID_INVALID);
 
         // place the sprite in the center of the tile
         atype_physics_sprite physics_sprite = {0};
         physics_sprite.map_coords.h_map    = h_map;
-        physics_sprite.map_coords.col_x    = (f32)(chunk_origin_col + chunk_x) + 0.5f;
+        physics_sprite.map_coords.col_x    = (f32)(chunk_dims.origin_col + chunk_x) + 0.5f;
         physics_sprite.map_coords.lvl_y    = 0.0f;
-        physics_sprite.map_coords.row_z    = (f32)(chunk_origin_row + chunk_y) + 0.5f;
+        physics_sprite.map_coords.row_z    = (f32)(chunk_dims.origin_row + chunk_y) + 0.5f;
         physics_sprite.inv_mass.normal_val = 0.50f;
         physics_sprite.drag.normal_val     = 0.01f;
 

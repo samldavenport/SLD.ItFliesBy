@@ -360,6 +360,13 @@ namespace ifb {
         hnd_sprite_atlas h_atlas; // INVALID_HANDLE until a tile or wall in it has a sprite
     };
 
+    struct map_chunk_dims {
+        u32 count_rows;
+        u32 count_cols;
+        u32 origin_row;
+        u32 origin_col;
+    };
+
     // what's on one tile edge of a map, see eng_map_wall_get_info
     struct map_wall_info {
         u32              chunk_index; // the chunk that owns the edge

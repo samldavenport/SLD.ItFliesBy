@@ -82,19 +82,16 @@ namespace ifb {
         const u32 chunk_count = eng_map_get_chunk_count(h_map);
         for (u32 i_chunk = 0; i_chunk < chunk_count; ++i_chunk) {
 
-            u32 chunk_rows = 0;
-            u32 chunk_cols = 0;
-            u32 origin_row = 0;
-            u32 origin_col = 0;
-            if (!eng_map_chunk_get_dimensions(h_map, i_chunk, chunk_rows, chunk_cols, origin_row, origin_col)) continue;
+            map_chunk_dims chunk_dims;
+            if (!eng_map_chunk_get_dimensions(h_map, i_chunk, chunk_dims)) continue;
 
             const bool is_in_chunk =
-                col >= origin_col && col < origin_col + chunk_cols &&
-                row >= origin_row && row < origin_row + chunk_rows;
+                col >= chunk_dims.origin_col && col < chunk_dims.origin_col + chunk_dims.count_cols &&
+                row >= chunk_dims.origin_row && row < chunk_dims.origin_row + chunk_dims.count_rows;
             if (!is_in_chunk) continue;
 
             ImGui::Text("Chunk %u", i_chunk);
-            ImGui::Text("      chunk_x %u, chunk_y %u", col - origin_col, row - origin_row);
+            ImGui::Text("      chunk_x %u, chunk_y %u", col - chunk_dims.origin_col, row - chunk_dims.origin_row);
             is_on_chunk = true;
             break;
         }

@@ -323,22 +323,17 @@ namespace ifb {
 
     IFB_ENGINE_API bool
     eng_map_chunk_get_dimensions(
-        const hnd_map map,
-        const u32     chunk_index,
-        u32&          count_rows,
-        u32&          count_cols,
-        u32&          origin_row,
-        u32&          origin_col) {
+        const hnd_map   map,
+        const u32       chunk_index,
+        map_chunk_dims& dims
+        ) {
 
         assert(map != INVALID_HANDLE);
 
         const bool did_get = map_chunk_get_dimensions(
             map,
             chunk_index,
-            count_rows,
-            count_cols,
-            origin_row,
-            origin_col
+            dims
         );
         return(did_get);
     }

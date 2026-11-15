@@ -128,12 +128,9 @@ namespace ifb {
     );
     IFB_INTERNAL bool
     map_chunk_get_dimensions(
-        const hnd_map map_hnd,
-        const u32     chunk_index,
-        u32&          count_rows,
-        u32&          count_cols,
-        u32&          origin_row,
-        u32&          origin_col
+        const hnd_map   map_hnd,
+        const u32       chunk_index,
+        map_chunk_dims& dims
     );
     IFB_INTERNAL bool
     map_chunk_destroy(

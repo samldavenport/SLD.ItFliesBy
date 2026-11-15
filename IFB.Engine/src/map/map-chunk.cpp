@@ -145,28 +145,26 @@ namespace ifb {
 
     IFB_INTERNAL bool
     map_chunk_get_dimensions(
-        const hnd_map map_hnd,
-        const u32     chunk_index,
-        u32&          count_rows,
-        u32&          count_cols,
-        u32&          origin_row,
-        u32&          origin_col) {
+        const hnd_map   map_hnd,
+        const u32       chunk_index,
+        map_chunk_dims& dims
+    ) {
 
         const u32 map_index = map_lookup_index(map_hnd);
         if (map_index == INVALID_INDEX) {
             return(false);
         }
 
-        const map_dimensions& dims = map_get_dimensions(map_index);
-        if (chunk_index >= dims.count_chunks) {
+        const map_dimensions& map_dims = map_get_dimensions(map_index);
+        if (chunk_index >= map_dims.count_chunks) {
             return(false);
         }
 
         const map_chunk& chunk = map_get_chunk(map_index, chunk_index);
-        count_rows = chunk.count_rows;
-        count_cols = chunk.count_cols;
-        origin_row = chunk.origin_row;
-        origin_col = chunk.origin_col;
+        dims.count_rows = chunk.count_rows;
+        dims.count_cols = chunk.count_cols;
+        dims.origin_row = chunk.origin_row;
+        dims.origin_col = chunk.origin_col;
         return(true);
     }
 

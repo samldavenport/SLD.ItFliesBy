@@ -321,7 +321,7 @@ namespace ifb {
     IFB_ENGINE_API bool    eng_map_set_origin           (const hnd_map h_map, const vec3& origin);
     IFB_ENGINE_API bool    eng_map_get_dimensions       (const hnd_map h_map, u32& count_rows, u32& count_cols);
     IFB_ENGINE_API bool    eng_map_is_in_bounds         (const cmpnt_map_coords& coords);
-    IFB_ENGINE_API bool    eng_map_chunk_get_dimensions (const hnd_map h_map, const u32 chunk_index, u32& count_rows, u32& count_cols, u32& origin_row, u32& origin_col);
+    IFB_ENGINE_API bool    eng_map_chunk_get_dimensions (const hnd_map h_map, const u32 chunk_index, map_chunk_dims& dims);
     IFB_ENGINE_API u32     eng_map_get_chunk_count      (const hnd_map h_map);
     IFB_ENGINE_API bool    eng_map_chunk_get_info       (const hnd_map h_map, const u32 chunk_index, map_chunk_info& info);
     IFB_ENGINE_API bool    eng_map_chunk_set_color      (const hnd_map h_map, const u32 chunk_index, const map_color_u32 color);
