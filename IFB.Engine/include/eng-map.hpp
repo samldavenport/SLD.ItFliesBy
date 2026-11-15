@@ -84,6 +84,7 @@ namespace ifb {
     // map
     IFB_INTERNAL hnd_map                  map_create                (const cchar* map_name, const u32 count_rows, const u32 count_cols);
     IFB_INTERNAL bool                     map_destroy               (const hnd_map h_map);
+    IFB_INTERNAL u32                      map_destroy_by_scene      (const hnd_scene h_scene);
     IFB_INTERNAL u32                      map_render_buffer         (byte* buffer_data, const u32 buffer_size, const hnd_map h_map);
     IFB_INTERNAL bool                     map_get_dimensions        (const hnd_map h_map, map_dimensions& dims);
     IFB_INTERNAL bool                     map_get_navigable_bounds  (const hnd_map h_map, u32& row_min, u32& col_min, u32& row_max, u32& col_max);
@@ -249,6 +250,7 @@ namespace ifb {
 
     struct map_table {
         hnd_map*         hnd;
+        hnd_scene*       scene;   // the scene that was bound when the map was made, destroying it destroys the map
         map_dimensions*  dims;
         cstr_c16*        name;
         map_chunk_array* chunk_array;

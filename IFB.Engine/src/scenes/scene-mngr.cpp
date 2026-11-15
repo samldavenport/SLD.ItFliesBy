@@ -8,6 +8,7 @@
 #include "eng-events.hpp"
 #include "eng-memory.hpp"
 #include "eng-particle.hpp"
+#include "eng-map.hpp"
 #include "eng-scene.hpp"
 
 namespace ifb {
@@ -175,6 +176,7 @@ namespace ifb {
 
         (void)entity_destroy_by_scene        (h_scene);
         (void)particle_mngr_destroy_by_scene (h_scene);
+        (void)map_destroy_by_scene           (h_scene);
         arena_reset          (_scene_mngr->tbl.arena    [h_scene.val]);
         scene_parallax_clear (_scene_mngr->tbl.parallax [h_scene.val]);
     }

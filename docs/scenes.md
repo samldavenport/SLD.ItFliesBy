@@ -21,6 +21,7 @@ These belong to the scene that's bound when they're created:
 | --- | --- | --- |
 | Entities | `eng_entity_create` | Destroyed with `entity_destroy_by_scene` |
 | Particle emitters | `eng_particle_emitter_create_parabolic` / `_radial` | Destroyed with `particle_mngr_destroy_by_scene` |
+| Maps | `eng_map_create`, `eng_map_load`, `eng_map_load_as` | Destroyed with `map_destroy_by_scene` |
 | Memory | `eng_scene_alloc(h_scene, size)` | The scene's arena is reset |
 | Parallax | `eng_scene_set_parallax`, `eng_parallax_set` | Cleared |
 
@@ -30,7 +31,6 @@ Each scene has its own arena from the [arena](memory.md) pool. `eng_scene_alloc`
 
 Not everything is owned by a scene yet:
 
-- **Maps** are loaded globally and stay loaded when a scene is destroyed.
 - **Sprite atlases, sounds, and event listeners** are global.
 - Destroying an entity doesn't clear its component, physics, or particle data. The slot is reused by the next entity.
 
@@ -170,9 +170,9 @@ The game runs one scene at a time (`IFB.Game/src/game-scene.cpp`). Each one has 
 | --- | --- | --- |
 | `enter` | The scene is created and bound | Allocates the scene's state with `eng_scene_alloc`, and spawns its entities and NPCs |
 | `update_and_render` | Every game update while it's active | Returns early when the engine says the scene isn't running |
-| `exit` | After the engine released the scene | Releases what the scene doesn't own, like its map, and clears its pointers |
+| `exit` | After the engine released the scene | Clears what pointed into the scene, and releases anything the engine scene doesn't own |
 
-`exit` runs after the scene's entities and `eng_scene_alloc` memory are gone, so it can't read them. Keep anything it has to release, like a map handle, outside the scene's memory.
+`exit` runs after the scene's entities, maps, and `eng_scene_alloc` memory are gone, so it can't read them.
 
 ### Switching Scenes
 
@@ -198,7 +198,7 @@ The NPCs passed to `game_scene_request` in `npc_keep` are kept through the switc
 
 ### The Dev Scene
 
-The dev scene (`IFB.Game/src/game-scene-dev.cpp`, engine scene `DEV`) is the first scene. It loads `DEV-MAP` and its parallax, and spawns the player rig, the four boxes, and Rose. Its state is one `game_scene_dev` struct in its scene memory. Its exit destroys `DEV-MAP`, since maps are global and loading one twice under the same name fails.
+The dev scene (`IFB.Game/src/game-scene-dev.cpp`, engine scene `DEV`) is the first scene. Its `enter` loads `DEV-MAP` and its parallax, and spawns the player rig, the four boxes, and Rose. Its state is one `game_scene_dev` struct in its scene memory. The scene owns `DEV-MAP`, so the engine destroys it with the scene, and entering again can load it under the same name.
 
 The game context's global arena only holds what lasts the whole game: the context, sprites, audio, the dialog, and the NPC manager. `game_context::player_rig` and `::map` point at the active scene's, and are NULL when it doesn't have one.
 

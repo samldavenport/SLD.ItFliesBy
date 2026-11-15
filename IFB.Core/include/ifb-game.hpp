@@ -197,11 +197,11 @@ namespace ifb {
     struct game_context;
 
     struct game_scene_procs {
-        // the scene is bound, allocate its state with eng_scene_alloc, and spawn or place its entities and npcs
+        // the scene is bound, load its map, allocate its state with eng_scene_alloc, and spawn or place its entities and npcs
         void (*enter)             (game_context* ctx, const hnd_scene h_scene);
         void (*update_and_render) (game_context* ctx);
-        // runs after the engine released the scene, so its entities and its eng_scene_alloc memory are already gone
-        // it releases what the scene doesn't own, like its map, so keep those handles outside the scene's memory
+        // runs after the engine released the scene, so its entities, maps, and eng_scene_alloc memory are already gone
+        // it clears what pointed into them, and releases anything the engine scene doesn't own
         void (*exit)              (game_context* ctx);
     };
 
@@ -297,7 +297,6 @@ namespace ifb {
     );
 
 
-    IFB_INTERNAL void          game_map_init                     (game_map* map);
     IFB_INTERNAL void          game_map_update_and_render        (game_map* map);
 
 

@@ -2,7 +2,8 @@
     "text": [
     ],
     "map": [
-        { "name": "DEV-MAP", "path": "maps/dev-map.json" }
+        { "name": "DEV-MAP", "path": "maps/dev-map.json" },
+        { "name": "CLIFF-TOWN", "path": "maps/cliff-town.json" }
     ],
     "image": [
         { "name": "CONNOR-LEFT", "path": "images/connor-left.png" },

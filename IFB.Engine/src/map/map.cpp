@@ -16,6 +16,7 @@
 #include "ifb-engine.hpp"
 #include "eng-entity.hpp"
 #include "eng-asset.hpp"
+#include "eng-scene.hpp"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -64,6 +65,11 @@ namespace ifb {
             return(INVALID_HANDLE);
         }
 
+        // the bound scene owns every map made while it's bound
+        const hnd_scene h_scene = scene_get_bound();
+        assert(h_scene != INVALID_HANDLE);
+        tbl_map->scene[index] = h_scene;
+
         // get the map properties
         hnd_map&      hnd    = tbl_map->hnd         [index];
         map_dimensions&  dims   = tbl_map->dims        [index]; 
@@ -107,10 +113,40 @@ namespace ifb {
         const bool result    = (map_index != INVALID_INDEX);
 
         if (result) {
-            tbl_map->hnd[map_index] = INVALID_HANDLE;
+            tbl_map->hnd   [map_index] = INVALID_HANDLE;
+            tbl_map->scene [map_index] = INVALID_HANDLE;
         }
 
         return(result);
+    }
+
+    // destroys every map the scene owns, returns how many were destroyed
+    IFB_INTERNAL u32
+    map_destroy_by_scene(
+        const hnd_scene h_scene) {
+
+        const auto& cfg = config_instance();
+
+        assert(_map_mngr);
+        map_table* tbl_map = _map_mngr->tbl_map;
+        assert(tbl_map);
+        assert(h_scene != INVALID_HANDLE);
+
+        u32 destroyed = 0;
+        for (
+            u32 map_index = 0;
+                map_index < cfg.map_capacity;
+              ++map_index) {
+
+            if (tbl_map->hnd   [map_index] == INVALID_HANDLE) continue;
+            if (tbl_map->scene [map_index] != h_scene)        continue;
+
+            tbl_map->hnd   [map_index] = INVALID_HANDLE;
+            tbl_map->scene [map_index] = INVALID_HANDLE;
+            ++destroyed;
+        }
+
+        return(destroyed);
     }
     
     IFB_INTERNAL map_dimensions&

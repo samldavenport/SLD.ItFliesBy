@@ -5,7 +5,6 @@
 #include "ifb.hpp"
 
 #include "game-entity.cpp"
-#include "game-map.cpp"
 #include "game-player-rig.cpp"
 #include <cassert>
 
@@ -18,10 +17,6 @@ namespace ifb {
         game_map        map;
         game_entities   entities;
     } static * _scene_dev;
-
-    // the scene doesn't own its map, so exit destroys it
-    // it's kept out of the scene memory, which is gone by the time exit runs
-    static hnd_map _scene_dev_h_map;
 
     IFB_INTERNAL void
     game_scene_dev_box_proc(
@@ -109,7 +104,7 @@ namespace ifb {
     }
 
     // the map and its parallax, the player rig, the boxes, and rose
-    // the scene is bound, so everything created here belongs to it
+    // the scene is bound, so everything created here belongs to it, the map too
     IFB_INTERNAL void
     game_scene_dev_enter(
         game_context*   ctx,
@@ -132,8 +127,24 @@ namespace ifb {
         auto entities = &dev->entities;
 
         // the map goes first, the player rig spawns on it
-        game_map_init(map);
-        _scene_dev_h_map = map->eng_hnd;
+        // DEV-MAP is assets/maps/dev-map.json, a map asset in the asset database
+        // it uses CORE-SPRITES, so the atlas has to be loaded first
+        map->eng_hnd = eng_map_load("DEV-MAP");
+        assert(map->eng_hnd != INVALID_HANDLE);
+
+        const bool did_set_plx = eng_parallax_set(
+            "PARALLAX-FRONT",
+            "PARALLAX-MID",
+            "PARALLAX-BACK"
+        );
+
+        // const bool did_set_plx = eng_parallax_set(
+        //     "PARALLAX-CLIFFS-FRONT",
+        //     "PARALLAX-CLIFFS-MID",
+        //     "PARALLAX-CLIFFS-BACK"
+        // );
+        assert(did_set_plx);
+        (void)did_set_plx;
 
         rig->starting_map_hnd = map->eng_hnd;
         rig->current_map_hnd  = map->eng_hnd;
@@ -219,8 +230,8 @@ namespace ifb {
 
         game_player_rig_update_and_render (&dev->rig);
         game_player_rig_update_camera     (&dev->rig);
-        game_map_update_and_render        (&dev->map);
-        game_npc_mngr_update_and_render   ();
+        const bool did_render = eng_map_render(dev->map.eng_hnd);
+        game_npc_mngr_update_and_render       ();
 
         eng_entity_render(dev->entities.static_entity_0);
         eng_entity_render(dev->entities.static_entity_1);
@@ -228,19 +239,12 @@ namespace ifb {
         eng_entity_render(dev->entities.static_entity_3);
     }
 
-    // the scene's entities and memory are already gone
+    // the engine already released everything the scene owned: its entities, its map, and its memory
     IFB_INTERNAL void
     game_scene_dev_exit(
         game_context* ctx) {
 
         assert(ctx);
-
-        // entering again loads the map again, and a map's handle is the hash of its name
-        if (_scene_dev_h_map != INVALID_HANDLE) {
-            eng_map_destroy(_scene_dev_h_map);
-        }
-
-        _scene_dev_h_map = INVALID_HANDLE;
-        _scene_dev       = NULL;
+        _scene_dev = NULL;
     }
 };
