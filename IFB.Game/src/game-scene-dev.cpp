@@ -141,11 +141,26 @@ namespace ifb {
         assert(did_set_plx);
         (void)did_set_plx;
 
-        // connor starts in the first chunk, between the four boxes
+        // connor starts in the first chunk, between the four boxes, unless a trigger says otherwise
+        const game_scene_arrival spawn   = { 0, 5, 5 };
+        const game_scene_arrival arrival = game_scene_get_arrival(spawn);
+
         game_player_rig_init(rig);
-        const bool did_place_rig = game_player_rig_place(rig, map->eng_hnd, 0, 5, 5);
+        const bool did_place_rig = game_player_rig_place(rig, map->eng_hnd, arrival.chunk_index, arrival.chunk_x, arrival.chunk_y);
         assert(did_place_rig);
         (void)did_place_rig;
+
+        // the corner of the first chunk goes to cliff town, connor arrives on its road
+        game_scene_trigger_def to_cliff_town;
+        to_cliff_town.cstr_name   = "TRG-CLIFF-TOWN";
+        to_cliff_town.h_map       = map->eng_hnd;
+        to_cliff_town.chunk_index = 0;
+        to_cliff_town.chunk_x     = 0;
+        to_cliff_town.chunk_y     = 0;
+        to_cliff_town.target      = game_scene_id_e_cliff_town;
+        to_cliff_town.arrival     = NULL;
+
+        entities->trigger_cliff_town = game_scene_trigger_spawn(to_cliff_town);
 
         entities->static_entity_0 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-0","WOOD",map->eng_hnd,0,3,3);
         entities->static_entity_1 = game_entity_spawn_static_core_sprite("STATIC-SPRITE-1","WOOD",map->eng_hnd,0,3,7);
@@ -198,7 +213,8 @@ namespace ifb {
         // the same whether the npc manager kept her from the last scene or not
         entities->rose = game_npc_spawn(rose_def, rose_at);
 
-        assert(entities->rose            != ENTITY_ID_INVALID);
+        assert(entities->trigger_cliff_town != ENTITY_ID_INVALID);
+        assert(entities->rose               != ENTITY_ID_INVALID);
         assert(entities->static_entity_0 != ENTITY_ID_INVALID);
         assert(entities->static_entity_1 != ENTITY_ID_INVALID);
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);

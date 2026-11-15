@@ -4,6 +4,7 @@
 #include "ifb-game.hpp"
 #include "ifb.hpp"
 
+#include "game-scene-trigger.cpp"
 #include "game-scene-dev.cpp"
 #include "game-scene-cliff-town.cpp"
 #include <cassert>
@@ -45,6 +46,7 @@ namespace ifb {
         _scene->phase          = game_scene_phase_e_running;
         _scene->h_active       = INVALID_HANDLE;
         _scene->h_next         = INVALID_HANDLE;
+        _scene->has_arrival    = false;
         _scene->npc_keep_count = 0;
 
         const bool did_request = game_scene_request(first);
@@ -78,13 +80,15 @@ namespace ifb {
     }
 
     // the scene to switch to at the end of the next game update
+    // connor arrives at arrival, or the scene's own spawn if it's NULL
     // the npcs in npc_keep are remembered, so the next scene can place them again, the rest are forgotten
     // false while another switch is requested or underway
     IFB_INTERNAL bool
     game_scene_request(
-        const game_scene_id_e id,
-        const entity_id*      npc_keep,
-        const u32             npc_keep_count) {
+        const game_scene_id_e     id,
+        const game_scene_arrival* arrival,
+        const entity_id*          npc_keep,
+        const u32                 npc_keep_count) {
 
         assert(_scene);
         assert(id > game_scene_id_e_none && id < game_scene_id_e_count);
@@ -93,7 +97,12 @@ namespace ifb {
         if (game_scene_is_switching())                return(false);
         if (npc_keep_count > GAME_NPC_MNGR_CAPACITY) return(false);
 
-        _scene->next           = id;
+        _scene->next        = id;
+        _scene->has_arrival = (arrival != NULL);
+        if (arrival) {
+            _scene->arrival = *arrival;
+        }
+
         _scene->npc_keep_count = npc_keep_count;
         for (
             u32 i_keep = 0;
@@ -116,6 +125,16 @@ namespace ifb {
             _scene->phase == game_scene_phase_e_switching ||
             _scene->next  != game_scene_id_e_none
         );
+    }
+
+    // where connor goes in the scene that's entering, the requested arrival, or the scene's own spawn
+    // only meaningful in a scene's enter proc
+    IFB_INTERNAL game_scene_arrival
+    game_scene_get_arrival(
+        const game_scene_arrival& spawn) {
+
+        assert(_scene);
+        return(_scene->has_arrival ? _scene->arrival : spawn);
     }
 
     // the engine destroys the old scene at the start of the next frame, and runs the new one from then
@@ -157,9 +176,10 @@ namespace ifb {
             GAME_SCENE_PROCS[_scene->active.val].exit(ctx);
         }
 
-        // a dialog or a press from the old scene doesn't carry over
+        // a dialog, a press, or a trigger from the old scene doesn't carry over
         game_npc_mngr_reset_all_except(_scene->npc_keep, _scene->npc_keep_count);
         game_dialog_reset();
+        game_scene_trigger_reset();
         ctx->is_action_pressed = false;
 
         _scene->active         = _scene->next;
@@ -175,5 +195,8 @@ namespace ifb {
         (void)did_bind;
 
         GAME_SCENE_PROCS[_scene->active.val].enter(ctx, _scene->h_active);
+
+        // used up by enter
+        _scene->has_arrival = false;
     }
 };

@@ -14,14 +14,25 @@ namespace ifb {
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_SPAWN_X     = 12;
     static constexpr u32 GAME_SCENE_CLIFF_TOWN_SPAWN_Y     = 12;
 
+    // the trigger back to the dev map, at the west end of the road
+    static constexpr u32 GAME_SCENE_CLIFF_TOWN_TO_DEV_CHUNK = 0;
+    static constexpr u32 GAME_SCENE_CLIFF_TOWN_TO_DEV_X     = 0;
+    static constexpr u32 GAME_SCENE_CLIFF_TOWN_TO_DEV_Y     = 12;
+
+    // where connor arrives in the dev map, next to its cliff town trigger at 0,0
+    static constexpr u32 GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_CHUNK = 0;
+    static constexpr u32 GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_X     = 1;
+    static constexpr u32 GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_Y     = 1;
+
     // the cliff town scene's state, in its scene memory, NULL while it isn't the active scene
     struct game_scene_cliff_town {
         hnd_scene       h_scene;
         game_player_rig rig;
         game_map        map;
+        entity_id       trigger_dev;
     } static * _scene_cliff_town;
 
-    // the map and its parallax, and the player rig
+    // the map and its parallax, the player rig, and the trigger back to the dev map
     // the scene is bound, so everything created here belongs to it, the map too
     IFB_INTERNAL void
     game_scene_cliff_town_enter(
@@ -57,16 +68,44 @@ namespace ifb {
         assert(did_set_plx);
         (void)did_set_plx;
 
+        // wherever the trigger he came through says, or the road
+        const game_scene_arrival spawn = {
+            GAME_SCENE_CLIFF_TOWN_SPAWN_CHUNK,
+            GAME_SCENE_CLIFF_TOWN_SPAWN_X,
+            GAME_SCENE_CLIFF_TOWN_SPAWN_Y
+        };
+        const game_scene_arrival arrival = game_scene_get_arrival(spawn);
+
         game_player_rig_init(rig);
         const bool did_place_rig = game_player_rig_place(
             rig,
             map->eng_hnd,
-            GAME_SCENE_CLIFF_TOWN_SPAWN_CHUNK,
-            GAME_SCENE_CLIFF_TOWN_SPAWN_X,
-            GAME_SCENE_CLIFF_TOWN_SPAWN_Y
+            arrival.chunk_index,
+            arrival.chunk_x,
+            arrival.chunk_y
         );
         assert(did_place_rig);
         (void)did_place_rig;
+
+        // the west end of the road goes back to the dev map,
+        // connor arrives beside its cliff town trigger, not on it
+        const game_scene_arrival dev_arrival = {
+            GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_CHUNK,
+            GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_X,
+            GAME_SCENE_CLIFF_TOWN_DEV_ARRIVAL_Y
+        };
+
+        game_scene_trigger_def to_dev;
+        to_dev.cstr_name   = "TRG-DEV";
+        to_dev.h_map       = map->eng_hnd;
+        to_dev.chunk_index = GAME_SCENE_CLIFF_TOWN_TO_DEV_CHUNK;
+        to_dev.chunk_x     = GAME_SCENE_CLIFF_TOWN_TO_DEV_X;
+        to_dev.chunk_y     = GAME_SCENE_CLIFF_TOWN_TO_DEV_Y;
+        to_dev.target      = game_scene_id_e_dev;
+        to_dev.arrival     = &dev_arrival;
+
+        town->trigger_dev = game_scene_trigger_spawn(to_dev);
+        assert(town->trigger_dev != ENTITY_ID_INVALID);
     }
 
     // the engine skips the scene's entities while it isn't updating or rendering,
