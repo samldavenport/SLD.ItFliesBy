@@ -29,8 +29,8 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     enum map_tile_flag_e {
-        map_tile_flag_e_textured    = bit_value(1), 
         map_tile_flag_e_navigable   = bit_value(0),
+        map_tile_flag_e_textured    = bit_value(1), 
         map_tile_flag_e_wall_row    = bit_value(2), // render only, the tile is a row wall
         map_tile_flag_e_wall_column = bit_value(3), // render only, the tile is a column wall
     };
