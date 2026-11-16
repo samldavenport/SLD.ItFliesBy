@@ -34,6 +34,11 @@ namespace ifb {
     // 0 shrinks and grows like the map, bigger values change size less, very big values never change size
     static constexpr f32   PARALLAX_BACKDROP_VIRTUAL_DEPTH = 3.0f;
 
+    // the camera's distance to the backdrop where the images are drawn at their unscaled size
+    // it's fixed so the same distance always looks the same, no matter which map was loaded first or where the camera was
+    // 2 is about where the camera sits when connor spawns in the dev map
+    static constexpr f32   PARALLAX_BACKDROP_REFERENCE_DISTANCE = 2.0f;
+
     // how fast each layer scrolls compared to the map, back to front
     // 0 stays put like it's infinitely far away, 1 moves with the backdrop
     static constexpr f32   PARALLAX_DEFAULT_FACTORS[PARALLAX_LAYER_COUNT] = { 0.1f, 0.3f, 0.6f };
@@ -54,7 +59,6 @@ namespace ifb {
         f32  factors[PARALLAX_LAYER_COUNT];
         u32  texture_width;
         u32  texture_height;
-        f32  reference_distance; // the camera's distance to the backdrop on the first frame, 0 until then
         bool is_set;
     };
 
@@ -131,9 +135,8 @@ namespace ifb {
             shdr->factors[i_layer] = PARALLAX_DEFAULT_FACTORS[i_layer];
         }
         shdr->texture_width  = 0;
-        shdr->texture_height     = 0;
-        shdr->reference_distance = 0.0f;
-        shdr->is_set             = false;
+        shdr->texture_height = 0;
+        shdr->is_set         = false;
     }
 
     // the names are image assets, back to front, and every image has to be the same size
@@ -217,9 +220,6 @@ namespace ifb {
         shdr->texture_width  = did_upload ? width  : 0;
         shdr->texture_height = did_upload ? height : 0;
         shdr->is_set         = did_upload;
-
-        // new layers are framed from the next frame's camera
-        shdr->reference_distance = 0.0f;
         return(did_upload);
     }
 
@@ -249,9 +249,8 @@ namespace ifb {
         // something that far away changes size on screen by (reference + depth) / (distance + depth)
         // the plane it's drawn on already changes by reference / distance, so the image is scaled by the difference
         // it stands on the ground behind the map, so it grows up from the ground
-        // the first frame's distance is the reference, so it looks like it did at spawn
-        if (shdr->reference_distance <= 0.0f) shdr->reference_distance = distance;
-        const f32 reference_distance = shdr->reference_distance;
+        // the reference is fixed, so a map looks the same however it was entered
+        const f32 reference_distance = PARALLAX_BACKDROP_REFERENCE_DISTANCE;
         const f32 scale              =
             (distance / reference_distance) *
             ((reference_distance + PARALLAX_BACKDROP_VIRTUAL_DEPTH) / (distance + PARALLAX_BACKDROP_VIRTUAL_DEPTH));
