@@ -191,7 +191,31 @@ The camera is a look-at camera defined by an origin and a target:
 | `eng_camera_get_fov` / `_set_fov` | Vertical field of view |
 | `eng_camera_get_xform` | The view matrix |
 
-The projection is a perspective projection with a 30° vertical field of view, a near plane of `0.01`, and a far plane of `100`, using the window's aspect ratio (see [Projection](#projection) for a quirk in it). The game moves the camera to follow the player (`game_player_rig_update_camera`), and **Renderer > Camera** in the GUI lets you edit it directly.
+The projection is a perspective projection with a 30° vertical field of view, a near plane of `0.01`, and a far plane of `100`, using the window's aspect ratio (see [Projection](#projection) for a quirk in it). The game moves the camera to follow the player (`game_player_rig_update_camera`). It moves it by how far the player moved, so anything else that moves the game's camera stays moved.
+
+### Free Camera
+
+The free camera is a second camera for tools. While it's on, the window is drawn with it instead of the game's camera, but the game keeps moving its own camera underneath, so turning it off goes straight back to the game view.
+
+| Function | Description |
+| --- | --- |
+| `eng_camera_free_set_enabled` / `_is_enabled` | Turn it on or off. Turning it on starts it where the game's camera is, with the game's fov. |
+| `eng_camera_free_reset` | Put it back where the game's camera is, with the game's fov. It stays on. |
+| `eng_camera_free_get_origin` / `_set_origin`, `_get_target` / `_set_target` | Where it is and what it looks at |
+| `eng_camera_free_get_fov` / `_set_fov` | Its vertical field of view, in degrees. Setting it does nothing while it's off. |
+| `eng_camera_free_get_xform` | Its view matrix |
+
+The viewport has one fov, so while the free camera is on, the viewport has the free camera's and the game's is kept aside: `eng_camera_get_fov` and `eng_camera_set_fov` still read and write the game's. `eng_camera_get_origin`, `_get_target` and `_get_xform` are always the game's camera. `eng_camera_get_view_proj` is what the window is drawn with, so it's the free camera's while it's on. The billboarded quads and particles face whichever camera is drawn.
+
+**Engine > Renderer > Camera** in the GUI (`gui-renderer-camera.cpp`) controls it:
+
+- **Free Camera** turns it on. Closing the window turns it off.
+- **Reset to Game View** puts it back where the game's camera is.
+- Over the game (not over a window): **right-drag** orbits around the target, **middle-drag** or **shift + right-drag** pans so the target stays under the mouse, and the **wheel** zooms toward the target.
+- The window also has the target, yaw, pitch, distance and fov as fields. **Keep Framing** moves the camera along the line to the target when the fov changes, so the target stays the same size on screen.
+- **Camera Vectors** and **View Matrix** show the camera that's being drawn.
+
+If the whole GUI is hidden while the free camera is on, it stays on.
 
 ### Projection
 
@@ -238,3 +262,19 @@ The renderer also has `RENDERER_ASSET_PREVIEW_COUNT` (5) textures, one for each 
 ## Memory
 
 The renderer allocates its CPU-side buffers, including the two immediate layers, from the `rendering` reservation in the memory map. The OpenGL buffers are created at startup at the same size as the CPU buffers, so nothing is resized while running.
+
+## Stats
+
+`eng_renderer_get_stats` fills an `eng_renderer_stats` with a snapshot of the renderer, for tools:
+
+| Field | What it has |
+| --- | --- |
+| `buffers` | The quad, tile, immediate world, immediate screen, and particle view buffers, indexed by `eng_renderer_buffer_e`. Each has the bytes the last drawn frame used, the peak, the capacity, and the size of one quad or tile. |
+| `quads_entities`, `quads_particles` | How the last frame split the quad buffer between entity quads and particles. |
+| `memory` | How much of the renderer's stack is used. The buffers and shaders come from it at startup. |
+| `viewport`, `screen`, `particle_view`, `map_view` | Their sizes, and the field of view in radians. |
+| `map`, `sprite_atlases`, `fonts` | The map that's set, and how many atlases and fonts are on the GPU out of how many fit. |
+
+The buffer sizes are recorded while `renderer_draw_buffers` runs: the tile and quad sizes right after they're filled, because the map view refills the tile buffer later, and the immediate layers at the end, before the next frame clears them. The peaks are the most each buffer has held since startup, or since `eng_renderer_reset_stats_peaks`.
+
+**Engine > Renderer > Stats** in the GUI (`gui-engine-renderer.cpp`) shows them, with a plot of the quad buffer over the last 10 seconds that splits it into entity quads and particles. **Engine > Renderer** also has the camera window and the grid toggle.

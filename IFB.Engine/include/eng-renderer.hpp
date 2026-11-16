@@ -39,6 +39,7 @@ namespace ifb {
     struct renderer_tile_shader;
     struct renderer_particle_shader;
     struct renderer_parallax_shader;
+    struct eng_renderer_stats;
 
     //--------------------------------------------------------------------
     // DEFINITIONS
@@ -77,6 +78,16 @@ namespace ifb {
     IFB_INTERNAL const vec3& renderer_get_camera_target                (void);
     IFB_INTERNAL void        renderer_get_camera_orientation           (orientation& o);
     IFB_INTERNAL void        renderer_get_camera_xform                 (mat4& xform);
+    IFB_INTERNAL void        renderer_free_camera_set_enabled          (const bool is_enabled);
+    IFB_INTERNAL bool        renderer_free_camera_is_enabled           (void);
+    IFB_INTERNAL void        renderer_free_camera_reset                (void);
+    IFB_INTERNAL const vec3& renderer_free_camera_get_origin           (void);
+    IFB_INTERNAL const vec3& renderer_free_camera_get_target           (void);
+    IFB_INTERNAL void        renderer_free_camera_set_origin           (const vec3& origin);
+    IFB_INTERNAL void        renderer_free_camera_set_target           (const vec3& target);
+    IFB_INTERNAL void        renderer_free_camera_get_xform            (mat4& xform);
+    IFB_INTERNAL f32         renderer_free_camera_get_fov              (void);
+    IFB_INTERNAL void        renderer_free_camera_set_fov              (const f32 fov_y);
     IFB_INTERNAL void        renderer_set_camera_origin                (const vec3& origin);
     IFB_INTERNAL void        renderer_set_camera_target                (const vec3& target);
     IFB_INTERNAL void        renderer_set_viewport_dimensions          (const u32 width, const u32 height);
@@ -109,6 +120,8 @@ namespace ifb {
     IFB_INTERNAL bool        renderer_immediate_push_screen            (const quad_vertices& vertices);
     IFB_INTERNAL void        renderer_set_screen_size                  (const u32 width, const u32 height);
     IFB_INTERNAL void        renderer_get_screen_size                  (u32& width, u32& height);
+    IFB_INTERNAL void        renderer_get_stats                        (eng_renderer_stats& stats);
+    IFB_INTERNAL void        renderer_reset_stats_peaks                (void);
 
     struct render_buffers;
     struct render_vertex_buffer;

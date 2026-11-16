@@ -53,6 +53,8 @@ namespace ifb {
         render_vertex_buffer*  quad_vertices;
         render_element_buffer* quad_elements;
         render_vertex_buffer*  tile_vertices;
+        u32                    quad_size_entities;  // how the quad buffer was split last frame, for the stats
+        u32                    quad_size_particles;
     };
 
     IFB_INTERNAL render_buffers*
@@ -71,7 +73,10 @@ namespace ifb {
         assert(buffers->quad_vertices);
         assert(buffers->quad_elements);
         assert(buffers->tile_vertices);
-        
+
+        buffers->quad_size_entities  = 0;
+        buffers->quad_size_particles = 0;
+
         return(buffers);
     }
 
@@ -177,18 +182,20 @@ namespace ifb {
 
         // the depth test always passes, so whatever renders last is in front
         // the quads go first so the particles are on top of them
-        quad_buf_vtx->size = quad_render_buffer(
+        buffers->quad_size_entities = quad_render_buffer(
             quad_buf_vtx->data,
             quad_buf_vtx->capacity,
             cam_ori
         );
+        quad_buf_vtx->size = buffers->quad_size_entities;
 
         // the particles are quads too, they render into what is left of the buffer
-        quad_buf_vtx->size += particle_mngr_render_entities(
+        buffers->quad_size_particles = particle_mngr_render_entities(
             &quad_buf_vtx->data[quad_buf_vtx->size],
             quad_buf_vtx->capacity - quad_buf_vtx->size,
             cam_ori
         );
+        quad_buf_vtx->size += buffers->quad_size_particles;
         assert(quad_buf_vtx->size <= quad_buf_vtx->capacity);
 
         // if nothing was rendered, return
