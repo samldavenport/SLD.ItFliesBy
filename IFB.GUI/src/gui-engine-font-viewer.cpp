@@ -248,7 +248,7 @@ namespace ifb {
             ((fnt->line_height * (f32)line_count) * scale) + (padding * 2.0f)
         );
 
-        if (ImGui::BeginChild("font-sample-view", ImVec2(0.0f, size.y + ImGui::GetStyle().ScrollbarSize), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar)) {
+        if (ImGui::BeginChild("font-sample-view", ImVec2(0.0f, size.y + ImGui::GetStyle().ScrollbarSize), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
 
             const ImVec2 origin    = ImGui::GetCursorScreenPos();
             ImDrawList*  draw_list = ImGui::GetWindowDrawList();
@@ -317,7 +317,7 @@ namespace ifb {
         const f32    scale = (f32)state.zoom_atlas;
         const ImVec2 size((f32)fnt->atlas_width * scale, (f32)fnt->atlas_height * scale);
 
-        if (ImGui::BeginChild("font-atlas-view", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar)) {
+        if (ImGui::BeginChild("font-atlas-view", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
 
             const ImVec2 image_min = ImGui::GetCursorScreenPos();
             ImDrawList*  draw_list = ImGui::GetWindowDrawList();

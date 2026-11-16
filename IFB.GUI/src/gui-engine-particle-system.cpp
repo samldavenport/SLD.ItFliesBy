@@ -75,7 +75,7 @@ namespace ifb {
         if (ImGui::Begin(_gui_str->menu_engine_item_particle_system, &is_open)) {
 
             // controls on the left
-            if (ImGui::BeginChild("particle-system-controls", ImVec2(PARTICLE_SYSTEM_CONTROLS_WIDTH, 0.0f), ImGuiChildFlags_Border)) {
+            if (ImGui::BeginChild("particle-system-controls", ImVec2(PARTICLE_SYSTEM_CONTROLS_WIDTH, 0.0f), ImGuiChildFlags_Borders)) {
 
                 particle_system_controls_create  ();
                 particle_system_controls_table   ();
@@ -86,7 +86,7 @@ namespace ifb {
 
             // the viewport gets the rest of the window
             ImGui::SameLine();
-            if (ImGui::BeginChild("particle-system-viewport", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Border)) {
+            if (ImGui::BeginChild("particle-system-viewport", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Borders)) {
 
                 particle_system_viewport();
             }

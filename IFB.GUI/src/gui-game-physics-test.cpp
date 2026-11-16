@@ -169,9 +169,10 @@ namespace ifb {
         if (ImPlot::BeginPlot("##phys-test-step-ms", ImVec2(-1.0f, 160.0f), ImPlotFlags_NoMouseText)) {
             ImPlot::SetupAxes   ("frame", "ms", ImPlotAxisFlags_NoTickLabels, ImPlotAxisFlags_AutoFit);
             ImPlot::SetupAxisLimits(ImAxis_X1, 0.0, (double)GUI_PHYS_TEST_HISTORY_SIZE, ImPlotCond_Always);
-            ImPlot::PlotLine    ("Total",   history_total,   (int)history_count, 1.0, 0.0, 0, plot_offset);
-            ImPlot::PlotLine    ("Detect",  history_detect,  (int)history_count, 1.0, 0.0, 0, plot_offset);
-            ImPlot::PlotLine    ("Resolve", history_resolve, (int)history_count, 1.0, 0.0, 0, plot_offset);
+            const ImPlotSpec ring(ImPlotProp_Offset, plot_offset);
+            ImPlot::PlotLine    ("Total",   history_total,   (int)history_count, 1.0, 0.0, ring);
+            ImPlot::PlotLine    ("Detect",  history_detect,  (int)history_count, 1.0, 0.0, ring);
+            ImPlot::PlotLine    ("Resolve", history_resolve, (int)history_count, 1.0, 0.0, ring);
             ImPlot::EndPlot     ();
         }
 

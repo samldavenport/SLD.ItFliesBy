@@ -179,10 +179,11 @@ namespace ifb {
             const int count  = (int)history.count;
             const int offset = (int)history.head;
             const int stride = sizeof(f32);
+            const ImPlotSpec ring(ImPlotProp_Offset, offset, ImPlotProp_Stride, stride);
 
-            ImPlot::PlotShaded ("Committed", history.time, history.committed, count, 0.0, 0, offset, stride);
-            ImPlot::PlotLine   ("Committed", history.time, history.committed, count,      0, offset, stride);
-            ImPlot::PlotLine   ("Used",      history.time, history.used,      count,      0, offset, stride);
+            ImPlot::PlotShaded ("Committed", history.time, history.committed, count, 0.0, ring);
+            ImPlot::PlotLine   ("Committed", history.time, history.committed, count,      ring);
+            ImPlot::PlotLine   ("Used",      history.time, history.used,      count,      ring);
         }
 
         ImPlot::EndPlot();
@@ -230,8 +231,9 @@ namespace ifb {
         ImPlot::SetupAxisTicks  (ImAxis_Y1, positions, (int)count, labels);
         ImPlot::SetupLegend     (ImPlotLocation_SouthEast);
 
-        ImPlot::PlotBars("Used",                      used, (int)count, 0.67, 0.0, ImPlotBarsFlags_Horizontal);
-        ImPlot::PlotBars("Arena pool (see below)",    pool, (int)count, 0.67, 0.0, ImPlotBarsFlags_Horizontal);
+        const ImPlotSpec horizontal(ImPlotProp_Flags, ImPlotBarsFlags_Horizontal);
+        ImPlot::PlotBars("Used",                      used, (int)count, 0.67, 0.0, horizontal);
+        ImPlot::PlotBars("Arena pool (see below)",    pool, (int)count, 0.67, 0.0, horizontal);
 
         ImPlot::EndPlot();
     }
@@ -269,9 +271,10 @@ namespace ifb {
         ImPlot::SetupLegend     (ImPlotLocation_SouthEast);
 
         // three bars per pool, offset around the tick
-        ImPlot::PlotBars("Arenas in use", in_use,    2, 0.25, -0.25, ImPlotBarsFlags_Horizontal);
-        ImPlot::PlotBars("Committed",     committed, 2, 0.25,  0.0,  ImPlotBarsFlags_Horizontal);
-        ImPlot::PlotBars("Used",          used,      2, 0.25,  0.25, ImPlotBarsFlags_Horizontal);
+        const ImPlotSpec horizontal(ImPlotProp_Flags, ImPlotBarsFlags_Horizontal);
+        ImPlot::PlotBars("Arenas in use", in_use,    2, 0.25, -0.25, horizontal);
+        ImPlot::PlotBars("Committed",     committed, 2, 0.25,  0.0,  horizontal);
+        ImPlot::PlotBars("Used",          used,      2, 0.25,  0.25, horizontal);
 
         ImPlot::EndPlot();
     }

@@ -174,11 +174,12 @@ namespace ifb {
             const int count  = (int)history.count;
             const int offset = (int)history.head;
             const int stride = sizeof(f32);
+            const ImPlotSpec ring(ImPlotProp_Offset, offset, ImPlotProp_Stride, stride);
 
             // particles are the band between the entity quads and the total
-            ImPlot::PlotShaded ("Particles",    history.time, history.entities, history.total, count, 0, offset, stride);
-            ImPlot::PlotShaded ("Entity quads", history.time, history.entities, count, 0.0,       0, offset, stride);
-            ImPlot::PlotLine   ("Total",        history.time, history.total,    count,             0, offset, stride);
+            ImPlot::PlotShaded ("Particles",    history.time, history.entities, history.total, count, ring);
+            ImPlot::PlotShaded ("Entity quads", history.time, history.entities, count, 0.0,        ring);
+            ImPlot::PlotLine   ("Total",        history.time, history.total,    count,             ring);
         }
 
         ImPlot::EndPlot();

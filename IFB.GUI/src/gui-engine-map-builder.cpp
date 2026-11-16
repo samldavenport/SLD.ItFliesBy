@@ -210,7 +210,7 @@ namespace ifb {
 
             map_builder_toolbar();
 
-            if (ImGui::BeginChild("##map-builder-palette", ImVec2(MAP_BUILDER_PALETTE_WIDTH, 0.0f), ImGuiChildFlags_Border)) {
+            if (ImGui::BeginChild("##map-builder-palette", ImVec2(MAP_BUILDER_PALETTE_WIDTH, 0.0f), ImGuiChildFlags_Borders)) {
                 map_builder_palette();
             }
             ImGui::EndChild();

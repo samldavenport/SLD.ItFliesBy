@@ -487,7 +487,7 @@ namespace ifb {
                 ImGui::TextUnformatted("The file is too big, this is only the start of it");
             }
 
-            if (ImGui::BeginChild(str_id, ImVec2(0.0f, ASSET_DICTIONARY_PREVIEW_HEIGHT), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar)) {
+            if (ImGui::BeginChild(str_id, ImVec2(0.0f, ASSET_DICTIONARY_PREVIEW_HEIGHT), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar)) {
                 ImGui::TextUnformatted(preview.text);
             }
             ImGui::EndChild();
