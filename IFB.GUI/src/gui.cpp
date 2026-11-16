@@ -22,6 +22,7 @@
 #include "gui-game-audio.cpp"
 #include "gui-engine-font-viewer.cpp"
 #include "gui-game-tile-coords.cpp"
+#include "gui-game-physics-test.cpp"
 
 static bool _gui_is_open;
 
@@ -56,13 +57,15 @@ namespace ifb {
     gui_main_window(
         const game_context* game_ctx) {
 
-        // the game > scenes labels, indexed by game_scene_id_e, none doesn't have one
+        // the game > scenes labels, indexed by game_scene_id_e
+        // none doesn't have one, and the test scenes are under game > testing instead
         static const char* const scene_labels[game_scene_id_e_count] = {
             NULL,
             _gui_str->menu_game_menu_scenes_item_dev,
             _gui_str->menu_game_menu_scenes_item_cliff_town,
+            NULL,
         };
-        static_assert(game_scene_id_e_count == 3, "add the new scene to scene_labels");
+        static_assert(game_scene_id_e_count == 4, "add the new scene to scene_labels");
 
         game_scene_id_e scene_picked = game_scene_id_e_none;
 
@@ -149,10 +152,28 @@ namespace ifb {
                             i_scene < game_scene_id_e_count;
                           ++i_scene) {
 
+                        if (scene_labels[i_scene] == NULL) continue;
+
                         const bool is_active = (scene.active.val == i_scene);
                         if (ImGui::MenuItem(scene_labels[i_scene], NULL, is_active, !is_switching)) {
                             scene_picked = (game_scene_id_e)i_scene;
                         }
+                    }
+                    ImGui::EndMenu();
+                }
+
+                // the test scenes, picked like the scenes are
+                if (ImGui::BeginMenu(_gui_str->menu_game_menu_testing, game_ctx != NULL)) {
+
+                    const game_scene_state& scene        = game_ctx->scene;
+                    const bool              is_switching = (
+                        scene.phase == game_scene_phase_e_switching ||
+                        scene.next  != game_scene_id_e_none
+                    );
+                    const bool is_active = (scene.active.val == game_scene_id_e_physics);
+
+                    if (ImGui::MenuItem(_gui_str->menu_game_menu_testing_item_physics, NULL, is_active, !is_switching)) {
+                        scene_picked = game_scene_id_e_physics;
                     }
                     ImGui::EndMenu();
                 }
@@ -197,6 +218,7 @@ namespace ifb {
         gui_game_asset_database           (asset_database);
         gui_engine_font_viewer            (eng_font_viewer);
         gui_game_tile_coords              (game_tile_coords, game_ctx);
+        gui_game_physics_test             (game_ctx);
 
         return(scene_picked);
     }

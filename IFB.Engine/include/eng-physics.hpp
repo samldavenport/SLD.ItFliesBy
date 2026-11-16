@@ -32,6 +32,9 @@ namespace ifb {
 
     static phys_mngr* _phys_mngr;
 
+    // collision events that didn't fit in the event queue this step, the procs still ran for them
+    static u32 _phys_cntct_events_dropped;
+
     // boxes this close count as touching, even though they don't overlap
     // resolution pushes a pair back out to exactly touching, so without it a resting contact would end
     // it's only for the contacts, nothing is pushed until the boxes actually overlap
@@ -75,9 +78,11 @@ namespace ifb {
 
     IFB_INTERNAL phys_cllsn_rslvr* phys_cllsn_rslvr_create     (void);
     IFB_INTERNAL void              phys_cllsn_rslvr_run        (phys_cllsn_rslvr* rslvr, const phys_cllsn_list* cllsn_list, phys_cntct_list* cntct_list, const f32 dt);
+    IFB_INTERNAL u32               phys_cllsn_rslvr_get_count_resolved (const phys_cllsn_rslvr* rslvr);
 
     IFB_INTERNAL phys_cllsn_list*  phys_cllsn_list_create      (void); 
     IFB_INTERNAL u32               phys_cllsn_list_get_count   (const phys_cllsn_list* list);
+    IFB_INTERNAL u32               phys_cllsn_list_get_count_dropped (const phys_cllsn_list* list);
     IFB_INTERNAL phys_cllsn_pair   phys_cllsn_list_get_pair    (const phys_cllsn_list* list, const u32 index);
     IFB_INTERNAL bool              phys_cllsn_list_insert_pair (phys_cllsn_list*       list, const phys_cllsn_pair& pair);
     IFB_INTERNAL void              phys_cllsn_list_remove_pair (phys_cllsn_list*       list, const u32 index);

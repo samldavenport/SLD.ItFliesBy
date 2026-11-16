@@ -28,6 +28,7 @@ namespace ifb {
         vec3           offset;      // the box's center is the position plus this
         vec3           half_extent;
         f32            inv_mass;
+        f32            restitution;
         bool           has_velocity;
         bool           is_trigger;
     };
@@ -57,12 +58,14 @@ namespace ifb {
             body.inv_mass = inv_mass.normal_val;
         }
 
-        // entities without a collider are solid
-        body.is_trigger = false;
+        // entities without a collider are solid, and don't bounce
+        body.is_trigger  = false;
+        body.restitution = 0.0f;
         if (body.entt.archetype.has_all(cmpnt_type_e_collider)) {
             cmpnt_collider clldr;
             cmpnt_lookup_collider(body.entt.index_sparse, clldr);
-            body.is_trigger = (clldr.is_trigger != 0);
+            body.is_trigger  = (clldr.is_trigger != 0);
+            body.restitution = clldr.restitution;
         }
 
         return(true);
@@ -110,6 +113,14 @@ namespace ifb {
 
         rslvr->count_resolved = 0;
         return(rslvr);
+    }
+
+    IFB_INTERNAL u32
+    phys_cllsn_rslvr_get_count_resolved(
+        const phys_cllsn_rslvr* rslvr) {
+
+        assert(rslvr);
+        return(rslvr->count_resolved);
     }
 
     IFB_INTERNAL void
@@ -215,9 +226,13 @@ namespace ifb {
 
             // if they're moving toward each other, cancel the closing velocity
             // so they stop at the contact instead of pushing back in next step
+            // then give back the restitution's share of it, so they bounce apart
             const f32 vel_closing = (body_b.vel.v[axis] - body_a.vel.v[axis]) * normal;
             if (vel_closing < 0.0f) {
-                const f32 impulse = -vel_closing / inv_mass_total;
+                f32 restitution = (body_a.restitution > body_b.restitution) ? body_a.restitution : body_b.restitution;
+                if (restitution < 0.0f) restitution = 0.0f;
+                if (restitution > 1.0f) restitution = 1.0f;
+                const f32 impulse = (-(1.0f + restitution) * vel_closing) / inv_mass_total;
                 body_a.vel.v[axis] -= normal * impulse * body_a.inv_mass;
                 body_b.vel.v[axis] += normal * impulse * body_b.inv_mass;
             }

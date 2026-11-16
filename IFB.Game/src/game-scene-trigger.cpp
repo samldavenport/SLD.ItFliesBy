@@ -140,6 +140,7 @@ namespace ifb {
         collider.mask_category      = PHYS_CLLSN_MASK_ALL;
         collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
         collider.is_trigger         = true;
+        collider.restitution        = 0.0f;
 
         const entity_id id = eng_entity_create(def.cstr_name);
         if (id == ENTITY_ID_INVALID) return(ENTITY_ID_INVALID);

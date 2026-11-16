@@ -176,6 +176,7 @@ namespace ifb {
         box_collider.mask_category      = PHYS_CLLSN_MASK_ALL;
         box_collider.mask_collides_with = PHYS_CLLSN_MASK_ALL;
         box_collider.is_trigger         = false;
+        box_collider.restitution        = 0.0f;
 
 
         bool did_add_colliders = true;

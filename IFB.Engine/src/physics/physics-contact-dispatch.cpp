@@ -40,9 +40,12 @@ namespace ifb {
         payload.data.physics_collision.depth  = cntct.depth;
         payload.data.physics_collision.phase  = phase;
 
+        // a full queue drops the event, the procs below still run, so it's counted instead of asserted
+        // a crowded scene has more contacts changing phase in a step than the queue holds
         const bool did_publish = event_mngr_publish(event_type_e_physics_collision, payload);
-        assert(did_publish);
-        (void)did_publish;
+        if (!did_publish) {
+            ++_phys_cntct_events_dropped;
+        }
 
         // a's proc, the normal already points from a to b
         phys_cllsn_contact contact;

@@ -89,6 +89,7 @@ namespace ifb {
 
     static constexpr const cchar* GAME_SCENE_DEV_NAME        = "DEV";
     static constexpr const cchar* GAME_SCENE_CLIFF_TOWN_NAME = "CLIFF-TOWN";
+    static constexpr const cchar* GAME_SCENE_PHYSICS_NAME    = "PHYSICS";
 
     struct game_npc_mngr;
 
@@ -190,7 +191,8 @@ namespace ifb {
         game_scene_id_e_none       = 0,
         game_scene_id_e_dev        = 1,
         game_scene_id_e_cliff_town = 2,
-        game_scene_id_e_count      = 3
+        game_scene_id_e_physics    = 3, // the physics stress test, from game > testing > physics
+        game_scene_id_e_count      = 4
     };
 
     // a switch fades the screen to black, switches while it's black, then fades the new scene in
@@ -283,13 +285,54 @@ namespace ifb {
         const game_scene_arrival* arrival;  // NULL for the target scene's own spawn
     };
 
+    //--------------------------------------------------------------------
+    // PHYSICS TEST
+    //--------------------------------------------------------------------
+    // a walled arena full of quads that fly off in random directions and ricochet off of each other and the walls
+    // the gui's physics test window changes the settings, and shows the readouts
+    // the quads are respawned with the new count, size, and speeds when the window asks,
+    // the restitution and mass apply to the quads right away
+
+    static constexpr u32 GAME_PHYS_TEST_QUAD_CAPACITY = 1000;  // under the engine's entity capacity, with room for the walls
+    static constexpr u32 GAME_PHYS_TEST_ARENA_COLS    = 32;    // tiles, the outer ring is the walls
+    static constexpr u32 GAME_PHYS_TEST_ARENA_ROWS    = 20;
+
+    struct game_phys_test_settings {
+        u32  quad_count;
+        f32  quad_size;      // world units, a tile is 0.2
+        f32  speed_min;      // world units per second
+        f32  speed_max;
+        f32  restitution;    // 1 bounces forever, 0 stops dead
+        f32  mass_min;       // each quad gets a mass between these
+        f32  mass_max;
+        bool is_respawn_requested;
+    };
+
+    // filled in by the scene every frame
+    struct game_phys_test_readout {
+        u32 quad_count;         // the quads that actually spawned
+        u32 quad_count_moving;  // the ones with any speed left
+        f32 speed_avg;
+        f32 speed_max;
+        f32 kinetic_energy;     // sum of half m v squared, it stays flat with perfect bounces
+        f32 kinetic_energy_start;
+        u32 escaped_count;      // quads that got outside of the walls
+    };
+
+    struct game_phys_test {
+        game_phys_test_settings settings;
+        game_phys_test_readout  readout;
+    };
+
     // the global arena holds what lasts the whole game
     // the player rig and map are the active scene's, NULL when it doesn't have one
+    // phys_test is the physics test scene's, NULL when it isn't the active scene
     struct game_context {
         hnd_arena        global_arena;
         game_scene_state scene;
         game_player_rig* player_rig;
         game_map*        map;
+        game_phys_test*  phys_test;
         game_npc_mngr*   npc_mngr;
         game_sprites*    sprites;
         game_audio*      audio;
@@ -333,6 +376,11 @@ namespace ifb {
     IFB_GAME void          game_scene_cliff_town_enter           (game_context* ctx, const hnd_scene h_scene);
     IFB_GAME void          game_scene_cliff_town_update_and_render (game_context* ctx);
     IFB_GAME void          game_scene_cliff_town_exit              (game_context* ctx);
+
+    // the physics test: a walled arena of quads ricocheting off of each other
+    IFB_GAME void          game_scene_physics_enter              (game_context* ctx, const hnd_scene h_scene);
+    IFB_GAME void          game_scene_physics_update_and_render  (game_context* ctx);
+    IFB_GAME void          game_scene_physics_exit               (game_context* ctx);
 
     IFB_GAME void          game_player_rig_validate          (game_player_rig* player_rig);
     IFB_GAME void          game_player_rig_init              (game_player_rig* player_rig);

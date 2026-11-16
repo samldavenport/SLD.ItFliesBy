@@ -7,6 +7,7 @@
 #include "game-scene-trigger.cpp"
 #include "game-scene-dev.cpp"
 #include "game-scene-cliff-town.cpp"
+#include "game-scene-physics.cpp"
 #include <cassert>
 
 namespace ifb {
@@ -16,6 +17,7 @@ namespace ifb {
         { NULL,                        NULL,                                    NULL                       },
         { game_scene_dev_enter,        game_scene_dev_update_and_render,        game_scene_dev_exit        },
         { game_scene_cliff_town_enter, game_scene_cliff_town_update_and_render, game_scene_cliff_town_exit },
+        { game_scene_physics_enter,    game_scene_physics_update_and_render,    game_scene_physics_exit    },
     };
 
     // the engine scene's name
@@ -23,6 +25,7 @@ namespace ifb {
         "",
         GAME_SCENE_DEV_NAME,
         GAME_SCENE_CLIFF_TOWN_NAME,
+        GAME_SCENE_PHYSICS_NAME,
     };
 
     // the game context's, so the collision procs can request a switch without it
@@ -240,6 +243,7 @@ namespace ifb {
         // what pointed into the old scene's memory
         ctx->player_rig = NULL;
         ctx->map        = NULL;
+        ctx->phys_test  = NULL;
 
         if (_scene->active != game_scene_id_e_none) {
             GAME_SCENE_PROCS[_scene->active.val].exit(ctx);

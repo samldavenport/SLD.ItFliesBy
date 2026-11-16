@@ -9,6 +9,7 @@ namespace ifb {
         entity_id* a;
         entity_id* b;
         u32        count;
+        u32        count_dropped; // new pairs that didn't fit since the last reset
     };
 
     IFB_INTERNAL phys_cllsn_list*
@@ -26,8 +27,9 @@ namespace ifb {
         assert(array_b != NULL); 
     
         list->a     = array_a;
-        list->b     = array_b;
-        list->count = 0;
+        list->b             = array_b;
+        list->count         = 0;
+        list->count_dropped = 0;
         return(list);
     }
 
@@ -38,6 +40,14 @@ namespace ifb {
         assert(list);
         assert(list->count <= config::entity_capacity);
         return(list->count);
+    }
+
+    IFB_INTERNAL u32
+    phys_cllsn_list_get_count_dropped(
+        const phys_cllsn_list* list) {
+
+        assert(list);
+        return(list->count_dropped);
     }
 
     IFB_INTERNAL phys_cllsn_pair
@@ -68,10 +78,6 @@ namespace ifb {
         assert(list->b     != NULL);
         assert(list->count <= config::entity_capacity);
 
-        if (list->count == config::entity_capacity) {
-            return(false);
-        }
-
         // order the pair so (a,b) and (b,a) are the same entry
         const bool      a_is_lo = (pair.a.val < pair.b.val);
         const entity_id lo      = a_is_lo ? pair.a : pair.b;
@@ -86,6 +92,12 @@ namespace ifb {
             if (list->a[index] == lo && list->b[index] == hi) {
                 return(false);
             }
+        }
+
+        // a new pair that doesn't fit is never resolved, so it's counted
+        if (list->count == config::entity_capacity) {
+            ++list->count_dropped;
+            return(false);
         }
 
         // it doesnt exist in the list, so insert it
@@ -124,6 +136,7 @@ namespace ifb {
         assert(list->b     != NULL);
         assert(list->count <= config::entity_capacity);
 
-        list->count = 0;
+        list->count         = 0;
+        list->count_dropped = 0;
     }
 };

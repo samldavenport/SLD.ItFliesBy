@@ -40,6 +40,7 @@ namespace ifb {
         ctx->global_arena      = arena_h;
         ctx->player_rig        = NULL;
         ctx->map               = NULL;
+        ctx->phys_test         = NULL;
         ctx->npc_mngr          = game_npc_mngr_create(arena_h);
         ctx->sprites           = sprites;
         ctx->audio             = audio;

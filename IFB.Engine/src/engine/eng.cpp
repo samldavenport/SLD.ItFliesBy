@@ -48,6 +48,7 @@
 #include "eng-keycode.cpp"
 #include "eng-map.cpp"
 #include "eng-particle.cpp"
+#include "eng-physics.cpp"
 #include "eng-random.cpp"
 #include "eng-renderer.cpp"
 #include "eng-scene.cpp"
