@@ -62,7 +62,7 @@ using namespace sld;
 #define IFB_CONFIG_PARTICLE_BUFFER_COUNT          128
 #define IFB_CONFIG_PHYSICS_WORLD_COUNT            8
 #define IFB_CONFIG_PHYSICS_WORLD_SIZE             size_kilobytes(64)
-#define IFB_CONFIG_QUAD_MAX                       1024
+#define IFB_CONFIG_QUAD_RENDER_BUFFER_SIZE        size_kilobytes(160) // 1024 quads * sizeof(quad_vertices), entity quads and particles share it
 #define IFB_CONFIG_RANDOM_REFRESH_FRAMES          60
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
@@ -148,7 +148,7 @@ namespace ifb {
         static constexpr u32   particle_buffer_count         = IFB_CONFIG_PARTICLE_BUFFER_COUNT;
         static constexpr u32   physics_world_count            = IFB_CONFIG_PHYSICS_WORLD_COUNT;
         static constexpr u32   physics_world_size             = IFB_CONFIG_PHYSICS_WORLD_SIZE;
-        static constexpr u32   quad_capacity                  = IFB_CONFIG_QUAD_MAX;
+        static constexpr u32   quad_render_buffer_size        = IFB_CONFIG_QUAD_RENDER_BUFFER_SIZE;
         static constexpr u32   random_refresh_frames          = IFB_CONFIG_RANDOM_REFRESH_FRAMES;
         static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
         static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;

@@ -11,7 +11,9 @@ The game doesn't draw directly. Each frame it tells the renderer **what** to dra
 | `eng_map_render(h_map)` | Sets the map to draw. The map stays set until it's changed. |
 | `eng_entity_render(id)` | Adds the entity's quad, if it has every component in `ENTITY_ARCHETYPE_SPRITE` (see [Quads](quads.md#quad-entities)). Also adds its particle emitter, if it has one. |
 
-These go into the renderer's **draw lists** (`renderer-draw-lists.cpp`). Entities have to be pushed again every frame: the lists are cleared after each draw, but the map stays set.
+The map handle is kept on the renderer. `eng_entity_render` doesn't give the renderer anything: it marks the entity as drawn this frame (`entity_set_drawn`). Marking an entity twice does nothing. The marks are cleared after each draw (`entity_clear_drawn` in the [frame loop](architecture.md#frame-loop)), so entities have to be rendered again every frame, but the map stays set.
+
+The quads and particles are built when the frame is drawn, not when `eng_entity_render` is called, so they use the positions after physics and the particle update. On frames that don't render, nothing is cleared, so nothing is drawn twice.
 
 The game can also draw quads and text that aren't entities, like a dialog box or a HUD, with the `eng_draw_*` functions. See [Immediate Drawing](#immediate-drawing).
 
@@ -22,7 +24,7 @@ The game can also draw quads and text that aren't entities, like a dialog box or
 | Order | Step | Description |
 | --- | --- | --- |
 | 1 | Sync parallax | Load the parallax layers if the [scene parallax](scenes.md#parallax) to draw has changed. |
-| 2 | Lists → buffers | Pack the map's tiles into the tile buffer, and the entity quads and particles into the quad vertex buffer. |
+| 2 | Fill buffers | Pack the map's tiles into the tile buffer. Then the quad code writes the marked entities' quads into the quad vertex buffer, and the particle code writes their particles into what's left. Each returns how many bytes it wrote. |
 | 3 | Parallax | Draw the parallax backdrop behind the map, if there's a map and a parallax. |
 | 4 | Tiles | Draw the map with the tile shader. |
 | 5 | Grid | Draw the debug grid, if it's visible. |
@@ -31,9 +33,8 @@ The game can also draw quads and text that aren't entities, like a dialog box or
 | 8 | Screen immediate quads | Draw the [screen layer](#immediate-drawing) over everything, with an orthographic projection. |
 | 9 | Particle view | Draw the offscreen [particle view](particles.md#particle-view), if it was requested this frame. |
 | 10 | Map view | Draw the offscreen [map view](#map-view), if it was requested this frame. |
-| 11 | Reset | Clear the draw lists for the next frame. |
 
-After that, the engine calls the GUI render callback, so ImGui draws on top of everything, and presents the frame.
+After that, the engine clears the entities' drawn marks and calls the GUI render callback, so ImGui draws on top of everything, and presents the frame.
 
 ## Depth
 
@@ -54,7 +55,7 @@ Entity quads (`src/quads/quad.cpp`, `eng-quad.hpp`) are built on the CPU every f
 - It pivots around its bottom edge, so its base stays on the ground and only the top tilts.
 - If the entity's sprite is found, the quad samples that sprite's rectangle in the active atlas, tinted by the entity's color. Otherwise it's drawn in the entity's color.
 
-The number of quads is limited by `IFB_CONFIG_QUAD_MAX`, and particles share that same buffer. See [Quads](quads.md) for details.
+The quad buffer is sized in bytes by `IFB_CONFIG_QUAD_RENDER_BUFFER_SIZE`, and particles share it. The renderer doesn't count entities, it only hands out the space that's left. See [Quads](quads.md#capacity) for details.
 
 ## Immediate Drawing
 
@@ -67,7 +68,7 @@ There are two layers:
 | **Screen** | Screen pixels. `(0, 0)` is the top left and y goes down. | Last, over everything else in the window. ImGui still draws on top of it. |
 | **World** | World units, placed with a `mat4`. | With the camera, after the entity quads and particles. |
 
-Both layers draw with the [quad shader](quads.md#color-and-sprites), so a quad can be a solid color, a sprite from the **active atlas**, or a glyph from the **active font**, and they can be mixed in any order. Each layer holds `IFB_CONFIG_QUAD_MAX` (1024) quads. A push that doesn't fit returns `false` and draws nothing.
+Both layers draw with the [quad shader](quads.md#color-and-sprites), so a quad can be a solid color, a sprite from the **active atlas**, or a glyph from the **active font**, and they can be mixed in any order. Each layer is `IFB_CONFIG_QUAD_RENDER_BUFFER_SIZE` bytes, the same as the quad buffer (1024 quads). A push that doesn't fit returns `false` and draws nothing.
 
 The game callback can run more than once in a frame (see [Frame Loop](architecture.md#frame-loop)), so the layers are cleared before each run, and the frame draws what the last run pushed. Only quads pushed from the game callback are drawn. Anything pushed from the GUI render callback is cleared before the next draw.
 
@@ -236,4 +237,4 @@ The renderer also has `RENDERER_ASSET_PREVIEW_COUNT` (5) textures, one for each 
 
 ## Memory
 
-The renderer allocates its draw lists and CPU-side buffers, including the two immediate layers, from the `rendering` reservation in the memory map. The OpenGL buffers are created at startup at the same size as the CPU buffers, so nothing is resized while running.
+The renderer allocates its CPU-side buffers, including the two immediate layers, from the `rendering` reservation in the memory map. The OpenGL buffers are created at startup at the same size as the CPU buffers, so nothing is resized while running.

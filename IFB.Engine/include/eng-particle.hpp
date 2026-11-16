@@ -43,6 +43,7 @@ namespace ifb {
     IFB_INTERNAL u32                  particle_mngr_get_emitter_capacity (void);
     IFB_INTERNAL hnd_particle_emitter particle_mngr_get_emitter_hnd      (const u32 index);
     IFB_INTERNAL u32                  particle_mngr_render_buffer        (byte* buffer_data, const u32 buffer_size, const orientation& camera_orientation);
+    IFB_INTERNAL u32                  particle_mngr_render_entities      (byte* buffer_data, const u32 buffer_size, const orientation& camera_orientation);
     IFB_INTERNAL void                 particle_mngr_follow_entities      (void);
 
     // particle emitter

@@ -69,6 +69,7 @@ namespace ifb {
             _entity_mngr->data.dense.tag          [dense_index]  = tag;
             _entity_mngr->data.dense.archetype    [dense_index].reset();
             _entity_mngr->data.dense.scene        [dense_index]  = h_scene;
+            _entity_mngr->data.dense.is_drawn     [dense_index]  = false;
             _entity_mngr->data.dense.sparse_index [dense_index]  = sparse_index;
             _entity_mngr->data.sparse.dense_index [sparse_index] = dense_index;
 
@@ -152,6 +153,7 @@ namespace ifb {
             _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
             _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
             _entity_mngr->data.dense.scene        [e_current.index_dense] = _entity_mngr->data.dense.scene[e_last.index_dense];
+            _entity_mngr->data.dense.is_drawn     [e_current.index_dense] = _entity_mngr->data.dense.is_drawn[e_last.index_dense];
             _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
             _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
         }
@@ -161,6 +163,7 @@ namespace ifb {
         // and return
         _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
         _entity_mngr->data.dense.scene        [last_index]             = INVALID_HANDLE;
+        _entity_mngr->data.dense.is_drawn     [last_index]             = false;
         --_entity_mngr->count;
         return(true);
     }
@@ -204,6 +207,7 @@ namespace ifb {
             _entity_mngr->data.dense.id           [e_current.index_dense] = e_last.id;
             _entity_mngr->data.dense.archetype    [e_current.index_dense] = e_last.archetype;
             _entity_mngr->data.dense.scene        [e_current.index_dense] = _entity_mngr->data.dense.scene[e_last.index_dense];
+            _entity_mngr->data.dense.is_drawn     [e_current.index_dense] = _entity_mngr->data.dense.is_drawn[e_last.index_dense];
             _entity_mngr->data.dense.sparse_index [e_current.index_dense] = e_last.index_sparse; 
             _entity_mngr->data.sparse.dense_index [e_last.index_sparse]   = e_current.index_dense;
         }
@@ -213,6 +217,7 @@ namespace ifb {
         // and return
         _entity_mngr->data.sparse.dense_index [e_current.index_sparse] = INVALID_INDEX;
         _entity_mngr->data.dense.scene        [last_index]             = INVALID_HANDLE;
+        _entity_mngr->data.dense.is_drawn     [last_index]             = false;
         --_entity_mngr->count;
         return(true);
     }
@@ -294,6 +299,41 @@ namespace ifb {
         assert(e.index_dense < _entity_mngr->count);
 
         return(scene_is_rendering(_entity_mngr->data.dense.scene[e.index_dense]));
+    }
+
+    IFB_INTERNAL void
+    entity_set_drawn(
+        const entity& e) {
+
+        entity_mngr_validate();
+        assert(e.index_dense < _entity_mngr->count);
+
+        _entity_mngr->data.dense.is_drawn[e.index_dense] = true;
+    }
+
+    IFB_INTERNAL bool
+    entity_is_drawn(
+        const entity& e) {
+
+        entity_mngr_validate();
+        assert(e.index_dense < _entity_mngr->count);
+
+        return(_entity_mngr->data.dense.is_drawn[e.index_dense]);
+    }
+
+    IFB_INTERNAL void
+    entity_clear_drawn(
+        void) {
+
+        entity_mngr_validate();
+
+        for (
+            u32 index = 0;
+                index < _entity_mngr->count;
+              ++index) {
+
+            _entity_mngr->data.dense.is_drawn[index] = false;
+        }
     }
 
     IFB_INTERNAL bool

@@ -47,7 +47,7 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 | `phys_mngr_simulate(dt)` | every iteration |
 | `event_mngr_update`, which calls the [event](events.md) listeners | every iteration |
 | Particles follow their entities, then update | every iteration |
-| `renderer_draw_buffers` (which loads the top scene's parallax if it changed), GUI callback, `audio_mngr_frame_end`, present the frame | new frame |
+| `renderer_draw_buffers` (which loads the top scene's parallax if it changed), clear the entities' drawn marks, GUI callback, `audio_mngr_frame_end`, present the frame | new frame |
 
 ### Physics Step
 

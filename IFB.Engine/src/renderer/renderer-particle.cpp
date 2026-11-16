@@ -107,8 +107,8 @@ namespace ifb {
         view->clear_color.b    = 0.10f;
         view->clear_color.a    = 1.00f;
 
-        // the particles share the quad elements, so we can render as many particles as quads
-        view->vertices.capacity = cfg.quad_capacity * sizeof(quad_vertices);
+        // the particles share the quad elements, so the view is the same size as the quad buffer
+        view->vertices.capacity = QUAD_RENDER_BUFFER_SIZE;
         view->vertices.size     = 0;
         view->vertices.stride   = sizeof(quad_vertex);
         view->vertices.data     = (byte*)renderer_memory_alloc(view->vertices.capacity);

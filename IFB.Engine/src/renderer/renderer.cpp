@@ -5,7 +5,6 @@
 #include "memory-reservation.cpp"
 #include "eng-renderer.hpp"
 #include "render-buffers.cpp"
-#include "renderer-draw-lists.cpp"
 #include "renderer-quad.cpp"
 #include "renderer-immediate.cpp"
 #include "renderer-camera.cpp"
@@ -64,7 +63,7 @@ namespace ifb {
         renderer_viewport*           viewport;
         vec3                         global_up;
         bool                         is_grid_visible;
-        render_lists*                lists;
+        hnd_map                      map;            // stays set until it's changed
         render_buffers*              buffers;
         renderer_particle_view*      particle_view;
         renderer_map_view*           map_view;
@@ -96,7 +95,6 @@ namespace ifb {
         auto block_ids   = global_alloc<u32>              (block_count); 
         auto camera      = renderer_camera_create();
         auto viewport    = renderer_viewport_create();
-        auto lists       = render_lists_create();
         auto buffers     = render_buffers_create();
         auto textures    = global_alloc<render_textures>();
         assert(
@@ -105,7 +103,6 @@ namespace ifb {
             block_ids  != NULL &&
             camera     != NULL &&
             viewport   != NULL &&
-            lists      != NULL &&
             buffers    != NULL &&
             textures   != NULL
         );
@@ -136,7 +133,7 @@ namespace ifb {
         _renderer->gl       = gl;
         _renderer->cam      = camera;
         _renderer->viewport = viewport;
-        _renderer->lists    = lists;
+        _renderer->map      = INVALID_HANDLE;
         _renderer->buffers  = buffers;
         _renderer->textures = textures;
 
@@ -167,10 +164,9 @@ namespace ifb {
         pfm_graphics_init_opengl(_renderer->gl);
         pfm_graphics_init_imgui();
 
-        // initialize the lists and buffers
+        // initialize the buffers
         // the shaders size their gl buffers from the render buffers,
         // so this needs to happen first
-        render_lists_init             (_renderer->lists);
         render_buffers_alloc_and_init (_renderer->buffers);
 
         // create shaders
@@ -318,7 +314,7 @@ namespace ifb {
         void) {
 
         auto* gl      = _renderer->gl;
-        auto* lists   = _renderer->lists;
+        const hnd_map h_map = _renderer->map;
         auto* buffers = _renderer->buffers;
 
         mat4 view_proj_xform;
@@ -327,15 +323,14 @@ namespace ifb {
         // the backdrop belongs to the highest rendering scene that has one
         renderer_sync_parallax();
 
-        // lists -> buffers
-        render_buffers_render_tiles   (buffers, lists);
-        render_buffers_render_quads   (buffers, lists, _renderer->cam);
+        // map, entities, and particles -> buffers
+        render_buffers_render_tiles   (buffers, h_map);
+        render_buffers_render_quads   (buffers, _renderer->cam);
 
         // buffers -> shaders
         // the parallax backdrop stands on the far edge of the map
         // it goes first so everything draws over it
-        const hnd_map h_map = render_lists_get_map(lists);
-        f32  backdrop_z     = 0.0f;
+        f32 backdrop_z = 0.0f;
         if (renderer_get_parallax_backdrop_z(h_map, backdrop_z)) {
             renderer_parallax_shader_draw(
                 _renderer->shader.parallax,
@@ -348,7 +343,7 @@ namespace ifb {
             );
         }
         //renderer_direction_gizmo_draw (view_proj_xform);
-        renderer_tile_draw           (_renderer->shader.tile, gl, buffers, render_lists_get_map(lists), view_proj_xform);
+        renderer_tile_draw           (_renderer->shader.tile, gl, buffers, h_map, view_proj_xform);
         if (_renderer->is_grid_visible) {
             renderer_grid_draw        (_renderer->shader.grid, gl, buffers, view_proj_xform);
         }
@@ -369,36 +364,6 @@ namespace ifb {
         // the map view reuses the tile buffer, so it goes after the game's map is drawn
         renderer_map_view_draw(_renderer->map_view, gl, buffers, _renderer->shader.tile, _renderer->shader.grid);
         gl_context_update_viewport(gl, 0, 0, (u32)_renderer->viewport->width, (u32)_renderer->viewport->height);
-
-        // the lists get filled again next frame
-        render_lists_reset(lists);
-    }
-
-    IFB_INTERNAL entity_list*
-    renderer_create_entity_list(
-        void) {
-
-        memory mem;
-        mem.size = eng_entity_list_memory_size();
-        mem.ptr  = renderer_memory_alloc(mem.size);
-        if (mem.size == 0 || mem.address == 0) {
-            return(NULL);
-        }
-
-        entity_list* list = eng_entity_list_memory_create(mem);
-        return(list);
-    }
-    
-    IFB_INTERNAL bool 
-    renderer_push_quad(
-        const entity_id id) {
-
-        assert(id != INVALID_ID);
-        assert(_renderer);
-        assert(_renderer->lists);
-
-        const bool did_push = render_lists_push_quad(_renderer->lists, id);
-        return(did_push);
     }
 
     // true if the atlas is on the gpu, uploading it again does nothing
@@ -524,26 +489,18 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    renderer_push_particle_emitter(
-        const entity_id id) {
-
-        assert(id != INVALID_ID);
-        assert(_renderer);
-        assert(_renderer->lists);
-
-        const bool did_push = render_lists_push_particle_emitter(_renderer->lists, id);
-        return(did_push);
-    }
-
-    IFB_INTERNAL bool
     renderer_set_map(
         const hnd_map h_map) {
 
         assert(h_map                      != INVALID_HANDLE);
         assert(_renderer              != NULL);
-        assert(_renderer->lists       != NULL);
 
-        const bool did_set = render_lists_set_map(_renderer->lists, h_map);
+        // make sure the map exists
+        map_dimensions dims;
+        const bool did_set = map_get_dimensions(h_map, dims);
+        if (did_set) {
+            _renderer->map = h_map;
+        }
         return(did_set);
     }
 
