@@ -198,12 +198,32 @@ namespace ifb {
     IFB_ENGINE_API f32         eng_camera_get_fov    (void);
     IFB_ENGINE_API void        eng_camera_set_fov    (const f32 fov_y);
 
+    // the free camera is for tools, it's drawn instead of the game's camera while it's on
+    // the game keeps moving its own camera underneath, so turning it off goes straight back to the game view
+    // turning it on, or resetting it, starts it from the game's camera and fov
+    IFB_ENGINE_API void        eng_camera_free_set_enabled (const bool is_enabled);
+    IFB_ENGINE_API bool        eng_camera_free_is_enabled  (void);
+    IFB_ENGINE_API void        eng_camera_free_reset       (void);
+    IFB_ENGINE_API const vec3& eng_camera_free_get_origin  (void);
+    IFB_ENGINE_API const vec3& eng_camera_free_get_target  (void);
+    IFB_ENGINE_API void        eng_camera_free_set_origin  (const vec3& origin);
+    IFB_ENGINE_API void        eng_camera_free_set_target  (const vec3& target);
+    IFB_ENGINE_API void        eng_camera_free_get_xform   (mat4& xform);
+    IFB_ENGINE_API f32         eng_camera_free_get_fov     (void);
+    IFB_ENGINE_API void        eng_camera_free_set_fov     (const f32 fov_y);
+
     //--------------------------------------------------------------------
     // RENDERER
     //--------------------------------------------------------------------
 
+    struct eng_renderer_stats;
+
     IFB_ENGINE_API bool        eng_renderer_is_grid_visible  (void);
     IFB_ENGINE_API void        eng_renderer_set_grid_visible (const bool is_visible);
+
+    // a snapshot of the renderer's buffers, textures and views, for tools
+    IFB_ENGINE_API void        eng_renderer_get_stats        (eng_renderer_stats& stats);
+    IFB_ENGINE_API void        eng_renderer_reset_stats_peaks (void);
 
     //--------------------------------------------------------------------
     // ENTITIES
@@ -712,6 +732,58 @@ namespace ifb {
             u32 size_capacity;
             u32 size_used;
         } global_stack;
+    };
+
+    // the buffers the renderer fills every frame
+    enum eng_renderer_buffer_e {
+        eng_renderer_buffer_e_quads,            // entity quads, then particles
+        eng_renderer_buffer_e_tiles,            // the map's tiles and walls
+        eng_renderer_buffer_e_immediate_world,
+        eng_renderer_buffer_e_immediate_screen,
+        eng_renderer_buffer_e_particle_view,    // only filled on frames the view is requested
+        eng_renderer_buffer_e_count
+    };
+
+    // sizes are bytes, item_size is the size of one quad or tile
+    // used is what the last drawn frame put in the buffer,
+    // peak is the most it has held since startup or the last reset
+    struct eng_renderer_stats_buffer {
+        const char* name;
+        u32         size_used;
+        u32         size_peak;
+        u32         size_capacity;
+        u32         item_size;
+    };
+
+    struct eng_renderer_stats {
+        u32                       frame_count;  // frames the renderer has drawn
+        eng_renderer_stats_buffer buffers[eng_renderer_buffer_e_count];
+        eng_renderer_stats_buffer quads_entities;  // the part of the quad buffer each one used
+        eng_renderer_stats_buffer quads_particles;
+        struct {
+            u32 size_used;
+            u32 size_capacity;
+        } memory;                               // the renderer's stack, the buffers and shaders come from it
+        struct {
+            u32 width;
+            u32 height;
+            f32 fov_y;
+        } viewport;
+        struct {
+            u32 width;
+            u32 height;
+        } screen, particle_view, map_view;
+        hnd_map map;
+        struct {
+            u32              count;
+            u32              capacity;
+            hnd_sprite_atlas active;
+        } sprite_atlases;
+        struct {
+            u32  count;
+            u32  capacity;
+            bool has_active;
+        } fonts;
     };
 }
 #endif  //IFB_ENGINE_HPP

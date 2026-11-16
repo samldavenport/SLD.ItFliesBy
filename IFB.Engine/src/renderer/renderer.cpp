@@ -5,7 +5,6 @@
 #include "memory-reservation.cpp"
 #include "eng-renderer.hpp"
 #include "render-buffers.cpp"
-#include "renderer-draw-lists.cpp"
 #include "renderer-quad.cpp"
 #include "renderer-immediate.cpp"
 #include "renderer-camera.cpp"
@@ -57,14 +56,35 @@ namespace ifb {
         stack* stack;
     };
 
+    // used is what the last drawn frame put in a buffer, peak is the most it has held
+    struct renderer_buffer_stat {
+        u32 size_used;
+        u32 size_peak;
+    };
+
+    // recorded while the frame is drawn, the map view and next frame's reset would overwrite the buffers
+    struct renderer_stats {
+        u32                  frame_count;
+        renderer_buffer_stat quads;
+        renderer_buffer_stat quads_entities;
+        renderer_buffer_stat quads_particles;
+        renderer_buffer_stat tiles;
+        renderer_buffer_stat immediate_world;
+        renderer_buffer_stat immediate_screen;
+        renderer_buffer_stat particle_view;
+    };
+
     struct renderer {
         gl_context*                  gl;
         renderer_memory              memory;
-        renderer_camera*             cam;
+        renderer_camera*             cam;            // the game's camera
+        renderer_camera*             cam_free;       // drawn instead of cam while is_cam_free, for tools
+        bool                         is_cam_free;
+        f32                          game_fov_y;     // the game's fov while the free camera has the viewport's
         renderer_viewport*           viewport;
         vec3                         global_up;
         bool                         is_grid_visible;
-        render_lists*                lists;
+        hnd_map                      map;            // stays set until it's changed
         render_buffers*              buffers;
         renderer_particle_view*      particle_view;
         renderer_map_view*           map_view;
@@ -78,7 +98,27 @@ namespace ifb {
             renderer_parallax_shader*        parallax;
         } shader;
         u32 parallax_revision; // the scene parallax the shader has loaded, 0 for none
+        renderer_stats stats;
     };
+
+    // the camera the window is drawn with
+    inline renderer_camera*
+    renderer_view_camera(
+        void) {
+
+        return(_renderer->is_cam_free ? _renderer->cam_free : _renderer->cam);
+    }
+
+    inline void
+    renderer_stats_record(
+        renderer_buffer_stat& stat,
+        const u32             size) {
+
+        stat.size_used = size;
+        if (size > stat.size_peak) {
+            stat.size_peak = size;
+        }
+    }
     
     //--------------------------------------------------------------------
     // INTERNAL METHOD DEFINITIONS
@@ -95,8 +135,8 @@ namespace ifb {
         auto gl          = global_alloc<gl_context>       ();
         auto block_ids   = global_alloc<u32>              (block_count); 
         auto camera      = renderer_camera_create();
+        auto camera_free = renderer_camera_create();
         auto viewport    = renderer_viewport_create();
-        auto lists       = render_lists_create();
         auto buffers     = render_buffers_create();
         auto textures    = global_alloc<render_textures>();
         assert(
@@ -104,8 +144,8 @@ namespace ifb {
             gl         != NULL &&
             block_ids  != NULL &&
             camera     != NULL &&
+            camera_free != NULL &&
             viewport   != NULL &&
-            lists      != NULL &&
             buffers    != NULL &&
             textures   != NULL
         );
@@ -135,10 +175,12 @@ namespace ifb {
         _renderer           = rndr;
         _renderer->gl       = gl;
         _renderer->cam      = camera;
+        _renderer->cam_free = camera_free;
         _renderer->viewport = viewport;
-        _renderer->lists    = lists;
+        _renderer->map      = INVALID_HANDLE;
         _renderer->buffers  = buffers;
         _renderer->textures = textures;
+        _renderer->stats    = {};
 
         return(_renderer);
     }
@@ -167,10 +209,9 @@ namespace ifb {
         pfm_graphics_init_opengl(_renderer->gl);
         pfm_graphics_init_imgui();
 
-        // initialize the lists and buffers
+        // initialize the buffers
         // the shaders size their gl buffers from the render buffers,
         // so this needs to happen first
-        render_lists_init             (_renderer->lists);
         render_buffers_alloc_and_init (_renderer->buffers);
 
         // create shaders
@@ -182,8 +223,11 @@ namespace ifb {
         _renderer->parallax_revision      = 0;
 
         // intialize camera
-        renderer_viewport_init (_renderer->viewport); 
+        renderer_viewport_init (_renderer->viewport);
         renderer_camera_init   (_renderer->cam);
+        renderer_camera_init   (_renderer->cam_free);
+        _renderer->is_cam_free = false;
+        _renderer->game_fov_y  = _renderer->viewport->fov_y;
 
         // the window was already sized when it opened, before the renderer could take it
         // the config size includes the borders and title bar, so it's only a fallback
@@ -307,7 +351,7 @@ namespace ifb {
         static mat4 proj = mat4_identity();
         static mat4 view = mat4_identity();
         renderer_viewport_get_xform (_renderer->viewport, proj);
-        renderer_camera_get_xform   (_renderer->cam, view);
+        renderer_camera_get_xform   (renderer_view_camera(), view);
        
         // calculate view projection
         xform = mat4_multiply(proj, view);
@@ -318,7 +362,7 @@ namespace ifb {
         void) {
 
         auto* gl      = _renderer->gl;
-        auto* lists   = _renderer->lists;
+        const hnd_map h_map = _renderer->map;
         auto* buffers = _renderer->buffers;
 
         mat4 view_proj_xform;
@@ -327,28 +371,34 @@ namespace ifb {
         // the backdrop belongs to the highest rendering scene that has one
         renderer_sync_parallax();
 
-        // lists -> buffers
-        render_buffers_render_tiles   (buffers, lists);
-        render_buffers_render_quads   (buffers, lists, _renderer->cam);
+        // map, entities, and particles -> buffers
+        render_buffers_render_tiles   (buffers, h_map);
+        render_buffers_render_quads   (buffers, renderer_view_camera());
+
+        // the map view refills the tile buffer later, so the stats are taken now
+        renderer_stats& stats = _renderer->stats;
+        renderer_stats_record(stats.tiles,           buffers->tile_vertices->size);
+        renderer_stats_record(stats.quads,           buffers->quad_vertices->size);
+        renderer_stats_record(stats.quads_entities,  buffers->quad_size_entities);
+        renderer_stats_record(stats.quads_particles, buffers->quad_size_particles);
 
         // buffers -> shaders
         // the parallax backdrop stands on the far edge of the map
         // it goes first so everything draws over it
-        const hnd_map h_map = render_lists_get_map(lists);
-        f32  backdrop_z     = 0.0f;
+        f32 backdrop_z = 0.0f;
         if (renderer_get_parallax_backdrop_z(h_map, backdrop_z)) {
             renderer_parallax_shader_draw(
                 _renderer->shader.parallax,
                 gl,
                 view_proj_xform,
-                renderer_camera_get_origin(_renderer->cam),
+                renderer_camera_get_origin(renderer_view_camera()),
                 _renderer->viewport->fov_y,
                 renderer_viewport_get_aspect_ratio(_renderer->viewport),
                 backdrop_z
             );
         }
         //renderer_direction_gizmo_draw (view_proj_xform);
-        renderer_tile_draw           (_renderer->shader.tile, gl, buffers, render_lists_get_map(lists), view_proj_xform);
+        renderer_tile_draw           (_renderer->shader.tile, gl, buffers, h_map, view_proj_xform);
         if (_renderer->is_grid_visible) {
             renderer_grid_draw        (_renderer->shader.grid, gl, buffers, view_proj_xform);
         }
@@ -370,35 +420,109 @@ namespace ifb {
         renderer_map_view_draw(_renderer->map_view, gl, buffers, _renderer->shader.tile, _renderer->shader.grid);
         gl_context_update_viewport(gl, 0, 0, (u32)_renderer->viewport->width, (u32)_renderer->viewport->height);
 
-        // the lists get filled again next frame
-        render_lists_reset(lists);
+        // the immediate layers are cleared at the start of the next frame, so they're still full here
+        renderer_stats_record(stats.immediate_world,  _renderer->immediate->world.size);
+        renderer_stats_record(stats.immediate_screen, _renderer->immediate->screen.size);
+        renderer_stats_record(stats.particle_view,    _renderer->particle_view->vertices.size);
+        ++stats.frame_count;
     }
 
-    IFB_INTERNAL entity_list*
-    renderer_create_entity_list(
-        void) {
+    inline void
+    renderer_stats_fill_buffer(
+        eng_renderer_stats_buffer&  out,
+        const char*                 name,
+        const renderer_buffer_stat& stat,
+        const u32                   size_capacity,
+        const u32                   item_size) {
 
-        memory mem;
-        mem.size = eng_entity_list_memory_size();
-        mem.ptr  = renderer_memory_alloc(mem.size);
-        if (mem.size == 0 || mem.address == 0) {
-            return(NULL);
+        out.name          = name;
+        out.size_used     = stat.size_used;
+        out.size_peak     = stat.size_peak;
+        out.size_capacity = size_capacity;
+        out.item_size     = item_size;
+    }
+
+    IFB_INTERNAL void
+    renderer_get_stats(
+        eng_renderer_stats& out) {
+
+        assert(_renderer);
+
+        const renderer_stats&   stats    = _renderer->stats;
+        const render_buffers*   buffers  = _renderer->buffers;
+        const render_textures*  textures = _renderer->textures;
+        const u32               quad     = sizeof(quad_vertices);
+
+        out.frame_count = stats.frame_count;
+
+        // buffers
+        auto* bufs = out.buffers;
+        renderer_stats_fill_buffer(bufs[eng_renderer_buffer_e_quads],            "Quads",            stats.quads,            buffers->quad_vertices->capacity,         quad);
+        renderer_stats_fill_buffer(bufs[eng_renderer_buffer_e_tiles],            "Tiles",            stats.tiles,            buffers->tile_vertices->capacity,         sizeof(map_tile));
+        renderer_stats_fill_buffer(bufs[eng_renderer_buffer_e_immediate_world],  "Immediate World",  stats.immediate_world,  _renderer->immediate->world.capacity,     quad);
+        renderer_stats_fill_buffer(bufs[eng_renderer_buffer_e_immediate_screen], "Immediate Screen", stats.immediate_screen, _renderer->immediate->screen.capacity,    quad);
+        renderer_stats_fill_buffer(bufs[eng_renderer_buffer_e_particle_view],    "Particle View",    stats.particle_view,    _renderer->particle_view->vertices.capacity, quad);
+        renderer_stats_fill_buffer(out.quads_entities,  "Entity Quads", stats.quads_entities,  buffers->quad_vertices->capacity, quad);
+        renderer_stats_fill_buffer(out.quads_particles, "Particles",    stats.quads_particles, buffers->quad_vertices->capacity, quad);
+
+        // memory
+        out.memory.size_used     = eng_stack_get_position (_renderer->memory.stack);
+        out.memory.size_capacity = eng_stack_get_capacity (_renderer->memory.stack);
+
+        // views
+        out.viewport.width  = (u32)_renderer->viewport->width;
+        out.viewport.height = (u32)_renderer->viewport->height;
+        out.viewport.fov_y  = _renderer->viewport->fov_y;
+        renderer_get_screen_size(out.screen.width, out.screen.height);
+        out.particle_view.width  = _renderer->particle_view->width;
+        out.particle_view.height = _renderer->particle_view->height;
+        out.map_view.width       = _renderer->map_view->width;
+        out.map_view.height      = _renderer->map_view->height;
+        out.map                  = _renderer->map;
+
+        // textures
+        out.sprite_atlases.count    = 0;
+        out.sprite_atlases.capacity = config::sprite_atlas_table_capacity;
+        out.sprite_atlases.active   = textures->sprite_atlas_active_hnd;
+        for (
+            u32 i_atlas = 0;
+                i_atlas < config::sprite_atlas_table_capacity;
+              ++i_atlas) {
+
+            out.sprite_atlases.count += (textures->sprite_atlas[i_atlas].texture_id != GL_ID_INVALID) ? 1 : 0;
         }
 
-        entity_list* list = eng_entity_list_memory_create(mem);
-        return(list);
+        out.fonts.count      = 0;
+        out.fonts.capacity   = RENDERER_FONT_CAPACITY;
+        out.fonts.has_active = (textures->font_active_fnt != NULL);
+        for (
+            u32 i_font = 0;
+                i_font < RENDERER_FONT_CAPACITY;
+              ++i_font) {
+
+            out.fonts.count += (textures->fonts[i_font].texture_id != GL_ID_INVALID) ? 1 : 0;
+        }
     }
-    
-    IFB_INTERNAL bool 
-    renderer_push_quad(
-        const entity_id id) {
 
-        assert(id != INVALID_ID);
+    // the peaks start again from what the last frame used
+    IFB_INTERNAL void
+    renderer_reset_stats_peaks(
+        void) {
+
         assert(_renderer);
-        assert(_renderer->lists);
 
-        const bool did_push = render_lists_push_quad(_renderer->lists, id);
-        return(did_push);
+        renderer_buffer_stat* stats[] = {
+            &_renderer->stats.quads,
+            &_renderer->stats.quads_entities,
+            &_renderer->stats.quads_particles,
+            &_renderer->stats.tiles,
+            &_renderer->stats.immediate_world,
+            &_renderer->stats.immediate_screen,
+            &_renderer->stats.particle_view,
+        };
+        for (renderer_buffer_stat* stat : stats) {
+            stat->size_peak = stat->size_used;
+        }
     }
 
     // true if the atlas is on the gpu, uploading it again does nothing
@@ -524,26 +648,18 @@ namespace ifb {
     }
 
     IFB_INTERNAL bool
-    renderer_push_particle_emitter(
-        const entity_id id) {
-
-        assert(id != INVALID_ID);
-        assert(_renderer);
-        assert(_renderer->lists);
-
-        const bool did_push = render_lists_push_particle_emitter(_renderer->lists, id);
-        return(did_push);
-    }
-
-    IFB_INTERNAL bool
     renderer_set_map(
         const hnd_map h_map) {
 
         assert(h_map                      != INVALID_HANDLE);
         assert(_renderer              != NULL);
-        assert(_renderer->lists       != NULL);
 
-        const bool did_set = render_lists_set_map(_renderer->lists, h_map);
+        // make sure the map exists
+        map_dimensions dims;
+        const bool did_set = map_get_dimensions(h_map, dims);
+        if (did_set) {
+            _renderer->map = h_map;
+        }
         return(did_set);
     }
 
@@ -1130,7 +1246,8 @@ namespace ifb {
         renderer_viewport_get_xform(_renderer->viewport, xform);
     }
 
-    // the vertical field of view, in radians
+    // the game's vertical field of view, in radians
+    // while the free camera is on, the viewport has the free camera's fov, so the game's is kept aside
     IFB_INTERNAL f32
     renderer_get_viewport_fov(
         void) {
@@ -1138,7 +1255,7 @@ namespace ifb {
         assert(_renderer);
         assert(_renderer->viewport);
 
-        return(_renderer->viewport->fov_y);
+        return(_renderer->is_cam_free ? _renderer->game_fov_y : _renderer->viewport->fov_y);
     }
 
     IFB_INTERNAL void
@@ -1148,6 +1265,115 @@ namespace ifb {
         assert(_renderer);
         assert(_renderer->viewport);
         assert(fov_y > 0.0f);
+
+        if (_renderer->is_cam_free) {
+            _renderer->game_fov_y = fov_y;
+        }
+        else {
+            _renderer->viewport->fov_y = fov_y;
+        }
+    }
+
+    //--------------------------------------------------------------------
+    // FREE CAMERA METHODS
+    //--------------------------------------------------------------------
+
+    IFB_INTERNAL void
+    renderer_free_camera_set_enabled(
+        const bool is_enabled) {
+
+        assert(_renderer);
+        if (is_enabled == _renderer->is_cam_free) return;
+
+        if (is_enabled) {
+            _renderer->game_fov_y  = _renderer->viewport->fov_y;
+            *_renderer->cam_free   = *_renderer->cam;
+            _renderer->is_cam_free = true;
+        }
+        else {
+            _renderer->viewport->fov_y = _renderer->game_fov_y;
+            _renderer->is_cam_free     = false;
+        }
+    }
+
+    IFB_INTERNAL bool
+    renderer_free_camera_is_enabled(
+        void) {
+
+        assert(_renderer);
+        return(_renderer->is_cam_free);
+    }
+
+    // puts the free camera where the game's camera is, it stays on
+    IFB_INTERNAL void
+    renderer_free_camera_reset(
+        void) {
+
+        assert(_renderer);
+
+        *_renderer->cam_free = *_renderer->cam;
+        if (_renderer->is_cam_free) {
+            _renderer->viewport->fov_y = _renderer->game_fov_y;
+        }
+    }
+
+    IFB_INTERNAL const vec3&
+    renderer_free_camera_get_origin(
+        void) {
+
+        assert(_renderer);
+        return(renderer_camera_get_origin(_renderer->cam_free));
+    }
+
+    IFB_INTERNAL const vec3&
+    renderer_free_camera_get_target(
+        void) {
+
+        assert(_renderer);
+        return(renderer_camera_get_target(_renderer->cam_free));
+    }
+
+    IFB_INTERNAL void
+    renderer_free_camera_set_origin(
+        const vec3& origin) {
+
+        assert(_renderer);
+        renderer_camera_set_origin(_renderer->cam_free, origin);
+    }
+
+    IFB_INTERNAL void
+    renderer_free_camera_set_target(
+        const vec3& target) {
+
+        assert(_renderer);
+        renderer_camera_set_target(_renderer->cam_free, target);
+    }
+
+    IFB_INTERNAL void
+    renderer_free_camera_get_xform(
+        mat4& xform) {
+
+        assert(_renderer);
+        renderer_camera_get_xform(_renderer->cam_free, xform);
+    }
+
+    // the free camera's vertical field of view, in radians
+    // it only has its own while it's on, otherwise it's the game's
+    IFB_INTERNAL f32
+    renderer_free_camera_get_fov(
+        void) {
+
+        assert(_renderer);
+        return(_renderer->viewport->fov_y);
+    }
+
+    IFB_INTERNAL void
+    renderer_free_camera_set_fov(
+        const f32 fov_y) {
+
+        assert(_renderer);
+        assert(fov_y > 0.0f);
+        if (!_renderer->is_cam_free) return;
 
         _renderer->viewport->fov_y = fov_y;
     }

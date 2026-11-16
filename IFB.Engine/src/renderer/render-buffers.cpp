@@ -53,6 +53,8 @@ namespace ifb {
         render_vertex_buffer*  quad_vertices;
         render_element_buffer* quad_elements;
         render_vertex_buffer*  tile_vertices;
+        u32                    quad_size_entities;  // how the quad buffer was split last frame, for the stats
+        u32                    quad_size_particles;
     };
 
     IFB_INTERNAL render_buffers*
@@ -71,7 +73,10 @@ namespace ifb {
         assert(buffers->quad_vertices);
         assert(buffers->quad_elements);
         assert(buffers->tile_vertices);
-        
+
+        buffers->quad_size_entities  = 0;
+        buffers->quad_size_particles = 0;
+
         return(buffers);
     }
 
@@ -101,7 +106,7 @@ namespace ifb {
         //---------------------
 
         auto* quad_buf_vtx = buffers->quad_vertices;
-        quad_buf_vtx->capacity = cfg.quad_capacity * sizeof(quad_vertices); 
+        quad_buf_vtx->capacity = QUAD_RENDER_BUFFER_SIZE;
         quad_buf_vtx->size     = 0;
         quad_buf_vtx->stride   = sizeof(quad_vertex);
         quad_buf_vtx->data     = (byte*)renderer_memory_alloc(quad_buf_vtx->capacity);
@@ -112,14 +117,14 @@ namespace ifb {
         //---------------------
 
         auto* quad_buf_elmnt = buffers->quad_elements;
-        quad_buf_elmnt->capacity = cfg.quad_capacity * QUAD_ELEMENT_DATA_SIZE;
+        quad_buf_elmnt->capacity = QUAD_RENDER_CAPACITY * QUAD_ELEMENT_DATA_SIZE;
         quad_buf_elmnt->size     = 0;
         quad_buf_elmnt->stride   = sizeof(u32);
         quad_buf_elmnt->data     = (u32*)renderer_memory_alloc(quad_buf_elmnt->capacity);
         assert(quad_buf_elmnt->data != NULL);
         for (
             u32 elmnt_index = 0;
-                elmnt_index < cfg.quad_capacity;
+                elmnt_index < QUAD_RENDER_CAPACITY;
               ++elmnt_index) {
 
             const u32 offset   = (elmnt_index * QUAD_VERTEX_COUNT);
@@ -144,10 +149,11 @@ namespace ifb {
         assert(tile_buf_vtx->data != NULL);
     }
     
+    // the renderer only hands out the buffer,
+    // the quad and particle code fill as much of it as they need and return how much they used
     IFB_INTERNAL void
     render_buffers_render_quads(
         render_buffers*  buffers,
-        render_lists*    lists,
         renderer_camera* camera) {
     
         assert(buffers);
@@ -169,10 +175,6 @@ namespace ifb {
         // reset the buffers
         quad_buf_vtx->size   = 0;
         quad_buf_elmnt->size = 0;
-   
-        // get the quad list
-        const entity_list* quad_list = render_lists_get_quads(lists); 
-        assert(quad_list); 
 
         // get the camera orientation
         orientation cam_ori;
@@ -180,40 +182,21 @@ namespace ifb {
 
         // the depth test always passes, so whatever renders last is in front
         // the quads go first so the particles are on top of them
-        if (eng_entity_list_count(quad_list) != 0) {
-            quad_buf_vtx->size = quad_render_buffer(
-                quad_buf_vtx->data,
-                quad_buf_vtx->capacity,
-                quad_list,
-                cam_ori
-            );
-        }
+        buffers->quad_size_entities = quad_render_buffer(
+            quad_buf_vtx->data,
+            quad_buf_vtx->capacity,
+            cam_ori
+        );
+        quad_buf_vtx->size = buffers->quad_size_entities;
 
         // the particles are quads too, they render into what is left of the buffer
-        // if the buffer is full, the rest of the particles aren't rendered
-        const entity_list* emitter_list  = render_lists_get_particle_emitters(lists);
-        const u32          emitter_count = eng_entity_list_count(emitter_list);
-        for (
-            u32 emitter_index = 0;
-                emitter_index < emitter_count;
-              ++emitter_index) {
-
-            entity e;
-            const entity_id emitter_id = eng_entity_list_index(emitter_list, emitter_index);
-            if (!entity_lookup_by_id(e, emitter_id)) continue;
-
-            cmpnt_particle_emitter emitter;
-            cmpnt_lookup_particle_emitter(e.index_sparse, emitter);
-            if (emitter.hnd == INVALID_HANDLE)                continue;
-            if (quad_buf_vtx->size == quad_buf_vtx->capacity) break;
-
-            quad_buf_vtx->size += particle_emitter_render_quads(
-                emitter.hnd,
-                &quad_buf_vtx->data[quad_buf_vtx->size],
-                quad_buf_vtx->capacity - quad_buf_vtx->size,
-                cam_ori
-            );
-        }
+        buffers->quad_size_particles = particle_mngr_render_entities(
+            &quad_buf_vtx->data[quad_buf_vtx->size],
+            quad_buf_vtx->capacity - quad_buf_vtx->size,
+            cam_ori
+        );
+        quad_buf_vtx->size += buffers->quad_size_particles;
+        assert(quad_buf_vtx->size <= quad_buf_vtx->capacity);
 
         // if nothing was rendered, return
         if (quad_buf_vtx->size == 0) return;
@@ -227,7 +210,7 @@ namespace ifb {
     IFB_INTERNAL void
     render_buffers_render_tiles(
         render_buffers* buffers,
-        render_lists*   lists) {
+        const hnd_map   h_map) {
 
         assert(buffers);
 
@@ -242,7 +225,6 @@ namespace ifb {
         tile_buf_vtx->size = 0;
 
         // if there's no map, there's nothing to render
-        const hnd_map h_map = render_lists_get_map(lists);
         if (h_map == INVALID_HANDLE) return;
 
         // render the tiles

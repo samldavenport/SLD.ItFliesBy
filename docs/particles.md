@@ -105,7 +105,7 @@ An entity with a position and a `cmpnt_particle_emitter` component carries an em
 
 Particles are drawn as solid colored quads that face the camera. They don't use sprites.
 
-To draw an entity's particles, call `eng_entity_render` on the entity. It pushes the emitter to the renderer along with the entity's quad. Particles go into the same vertex buffer as the entity quads, after them, so they render on top. If the buffer fills up, the rest of the particles aren't drawn.
+To draw an entity's particles, call `eng_entity_render` on the entity. It marks the entity to be drawn, and `particle_mngr_render_entities` writes the particles of every marked entity with an emitter. Particles go into the same vertex buffer as the entity quads, after them, so they render on top. If the buffer fills up, the rest of the particles aren't drawn.
 
 > **Note:** `eng_particle_emitter_render` isn't implemented yet and always returns `false`. For now, emitters are only drawn in the main view through an entity.
 

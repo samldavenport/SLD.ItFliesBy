@@ -46,6 +46,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_memory                 (bool& is_open);
     IFB_INTERNAL void  gui_engine_hash_calculator        (bool& is_open);
     IFB_INTERNAL void  gui_engine_font_viewer            (bool& is_open);
+    IFB_INTERNAL void  gui_engine_renderer               (bool& is_open);
 
     // game
     IFB_INTERNAL void  gui_game_player_rig       (bool& is_open, const game_context* game_ctx);
@@ -93,9 +94,11 @@ namespace ifb {
         inline static const char* window_engine_hash_calculator                      = "Hash Calculator";
         inline static const char* menu_entities                                      = "Entities";
         inline static const char* menu_entity_item_manager                           = "Entity Manager";
-        inline static const char* menu_renderer                                      = "Renderer";
-        inline static const char* menu_renderer_item_camera                          = "Camera";
-        inline static const char* menu_renderer_item_grid                            = "Grid";
+        inline static const char* menu_engine_menu_renderer                          = "Renderer";
+        inline static const char* menu_engine_menu_renderer_item_stats               = "Stats";
+        inline static const char* menu_engine_menu_renderer_item_camera              = "Camera";
+        inline static const char* menu_engine_menu_renderer_item_grid                = "Grid";
+        inline static const char* window_engine_renderer                             = "Renderer";
         inline static const char* window_renderer_camera                             = "Renderer Camera";
         inline static const char* camera_origin                                      = "Camera Origin";
         inline static const char* camera_target                                      = "Camera Target";

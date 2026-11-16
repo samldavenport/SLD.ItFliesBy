@@ -158,14 +158,16 @@ namespace ifb {
             return(false);
         }
 
-        const bool can_render = (does_exist && has_component); 
-        const bool did_push   = can_render && renderer_push_quad(id);
-
         // an entity with a particle emitter renders its particles too
-        const bool has_emitter      = does_exist  && e.archetype.has_all(cmpnt_type_e_position | cmpnt_type_e_particle_emitter);
-        const bool did_push_emitter = has_emitter && renderer_push_particle_emitter(id);
+        const bool can_render  = (does_exist && has_component); 
+        const bool has_emitter = (does_exist && e.archetype.has_all(cmpnt_type_e_position | cmpnt_type_e_particle_emitter));
+        const bool will_draw   = (can_render || has_emitter);
 
-        return(did_push || did_push_emitter);
+        // the quads and particles are built when the frame is drawn, after physics moves them
+        if (will_draw) {
+            entity_set_drawn(e);
+        }
+        return(will_draw);
     }
 
     IFB_ENGINE_API bool

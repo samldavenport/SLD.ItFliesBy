@@ -32,7 +32,7 @@ eng_entity_render(id);
 
 `game_entity_spawn_static_sprite` in `game-entity.cpp` does this for the game's static objects.
 
-> **Note:** an entity is only drawn if it has **every** component in `ENTITY_ARCHETYPE_SPRITE`. `eng_entity_render` only checks for a position, quad, and color before it returns `true`, but the renderer's draw list skips an entity that's missing the map coordinates or sprite component. So an entity with only a position, quad, and color isn't drawn, even though `eng_entity_render` reports success.
+> **Note:** an entity is only drawn if it has **every** component in `ENTITY_ARCHETYPE_SPRITE`. `eng_entity_render` only checks for a position, quad, and color before it returns `true`, but `quad_render` skips an entity that's missing the map coordinates or sprite component. So an entity with only a position, quad, and color isn't drawn, even though `eng_entity_render` reports success.
 
 ### Reading a Quad
 
@@ -64,12 +64,12 @@ The texture coordinates are the sprite's rectangle in the atlas, divided by the 
 
 ## Building the Vertex Buffer
 
-Each frame, `quad_render_buffer` (`quad.cpp`) turns the renderer's quad list into vertices:
+Each frame, `quad_render_buffer` (`quad.cpp`) turns the entities marked by `eng_entity_render` into vertices:
 
-1. For each entity in the list, `quad_render` reads its components and writes four `quad_vertex` values (top right, bottom right, bottom left, top left) into a `quad_vertices`.
+1. For each marked entity, `quad_render` reads its components and writes four `quad_vertex` values (top right, bottom right, bottom left, top left) into a `quad_vertices`.
 2. The quads are **sorted back to front** by the distance from the camera plane to each quad's center, so nearer quads draw over farther ones. The renderer doesn't depth-test quads, so this order decides what's in front. The order barely changes between frames, so the sort is an insertion sort, which is fast on nearly sorted data.
 
-[Particles](particles.md#rendering) are written into the same buffer after the quads, so they always draw on top.
+It stops when the buffer is full, and returns the bytes it wrote. [Particles](particles.md#rendering) are written into what's left of the same buffer after the quads, so they always draw on top.
 
 ### Vertex Layout
 
@@ -86,20 +86,20 @@ The vertex shader (`quad-shader-vertex.glsl`) multiplies each position by `u_mat
 
 ## Capacity
 
-The quad vertex buffer holds `IFB_CONFIG_QUAD_MAX` (1024) quads, shared with particles. That matches `IFB_CONFIG_ENTITY_CAPACITY`, so every entity can be drawn, but particles only get whatever room the entity quads leave.
+The quad vertex buffer is `IFB_CONFIG_QUAD_RENDER_BUFFER_SIZE` bytes (160 KB, 1024 quads), shared with particles. `QUAD_RENDER_CAPACITY` in `eng-renderer.hpp` is how many quads fit, and the element buffer is built for that many. The buffer isn't tied to `IFB_CONFIG_ENTITY_CAPACITY`: the entity quads go first, particles get whatever room they leave, and anything that doesn't fit isn't drawn. To draw more, raise the buffer size.
 
-The [immediate drawing](renderer.md#immediate-drawing) layers use the same vertex layout and element buffer, but have their own buffers of `IFB_CONFIG_QUAD_MAX` quads each, so they don't take room from entities or particles.
+The [immediate drawing](renderer.md#immediate-drawing) layers use the same vertex layout and element buffer, but have their own buffers of the same size, so they don't take room from entities or particles.
 
 ## Internal Functions
 
 | Function | Description |
 | --- | --- |
-| `quad_lookup_by_id` | Fill a `quad_entity` from an entity's components. `eng_entity_quad_lookup` wraps it. |
+| `quad_lookup` | Fill a `quad_entity` from an entity's components |
+| `quad_lookup_by_id` | Find the entity, then `quad_lookup`. `eng_entity_quad_lookup` wraps it. |
 | `quad_update(quad_entity)` | Write a `quad_entity` back to the position, color, quad, and sprite components |
 | `quad_update(id, cmpnt_quad)` | Write only the quad component |
-| `quad_does_exist` | Check if an entity has every component in `ENTITY_ARCHETYPE_SPRITE` |
 | `quad_render` | Write one quad's four vertices |
-| `quad_render_buffer` | Write and sort the vertices for a list of quads |
+| `quad_render_buffer` | Write and sort the vertices for every entity marked to be drawn, up to the buffer size |
 | `quad_tests` | Creates 100 quads and updates them (`quad-tests.cpp`). Not called by the engine. |
 
 `eng-quad.hpp` also defines a `quad_mngr` struct and declares `quad_tile`, but neither is used.

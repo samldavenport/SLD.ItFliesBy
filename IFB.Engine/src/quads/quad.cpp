@@ -12,20 +12,12 @@
 
 namespace ifb {
 
-    IFB_INTERNAL bool 
-    quad_lookup_by_id(
-        quad_entity&    q,
-        const entity_id id) {
+    IFB_INTERNAL bool
+    quad_lookup(
+        quad_entity&  q,
+        const entity& e) {
 
-        assert(id != ENTITY_ID_INVALID);
-
-        entity e;
-        const bool found_entity = (
-            entity_lookup_by_id(e, id) &&
-            e.archetype.has_all(ARCHETYPE_SPRITE)
-        );
-
-        if (!found_entity) {
+        if (!e.archetype.has_all(ARCHETYPE_SPRITE)) {
             return(false);
         }
 
@@ -45,6 +37,21 @@ namespace ifb {
         q.dims.height = q_.height;
 
         return(true);
+    }
+
+    IFB_INTERNAL bool
+    quad_lookup_by_id(
+        quad_entity&    q,
+        const entity_id id) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        entity e;
+        const bool did_find = (
+            entity_lookup_by_id(e, id) &&
+            quad_lookup(q, e)
+        );
+        return(did_find);
     }
 
     IFB_INTERNAL void
@@ -79,19 +86,6 @@ namespace ifb {
         cmpnt_update_quad     (sparse_index, q);
     }
 
-    IFB_INTERNAL bool
-    quad_does_exist(
-        const entity_id id) {
-
-        entity e;
-        const bool does_exist = (
-            entity_lookup_by_id(e, id) &&
-            e.archetype.has_all(ARCHETYPE_SPRITE)
-        );
-
-        return(does_exist);
-    }
-
     // distance from the camera plane to the quad's center, farther is larger
     IFB_INTERNAL f32
     quad_depth(
@@ -108,38 +102,31 @@ namespace ifb {
         return(depth);
     }
 
+    // renders the quad of every entity marked to be drawn this frame
+    // returns the size of the vertex data that was written to the buffer
+    // if the buffer is full, the rest of the quads aren't rendered
     IFB_INTERNAL u32
     quad_render_buffer(
         byte*               buffer_data,
         const u32           buffer_size,
-        const entity_list*  quad_list,
         const orientation&  camera_orientation) {
 
         assert(buffer_data != NULL);
-        assert(buffer_size != 0);
-        assert(quad_list   != NULL);
 
-        // make sure we have entities to render
-        const u32 count_entities = eng_entity_list_count(quad_list);  
-        if (count_entities == 0) return(0);
-
-        // calculate the size needed to render the buffer,
-        // and the size we actually have
-        const u32 count_vertices = count_entities * 4;
-        const u32 render_size    = count_vertices * sizeof(quad_vertex); 
-        assert(buffer_size >= render_size);
-
-        // render the quads
-        u32  vertex_index = 0;
-        auto vertex_buffer   = (quad_vertices*)buffer_data;
+        auto*     vertex_buffer = (quad_vertices*)buffer_data;
+        const u32 quad_capacity = buffer_size / sizeof(quad_vertices);
+        const u32 entity_count  = entity_mngr_get_count();
+        u32       vertex_index  = 0;
         for (
-            u32 quad_index = 0;
-                quad_index < count_entities;
-              ++quad_index) {
+            u32 entity_index = 0;
+                entity_index < entity_count && vertex_index < quad_capacity;
+              ++entity_index) {
 
-            const entity_id quad_id       = eng_entity_list_index(quad_list, quad_index);  
-            quad_vertices&  quad_vertices = vertex_buffer[vertex_index];
-            if (quad_render(quad_vertices, quad_id, camera_orientation)) {
+            entity e;
+            if (!entity_lookup_by_index_dense(e, entity_index)) continue;
+            if (!entity_is_drawn(e))                            continue;
+
+            if (quad_render(vertex_buffer[vertex_index], e, camera_orientation)) {
                 vertex_index++;
             }
         }
@@ -165,19 +152,17 @@ namespace ifb {
             vertex_buffer[insert_index] = sort_quad;
         }
 
-        return(render_size);
+        return(vertex_index * sizeof(quad_vertices));
     }
-    
-    IFB_INTERNAL bool 
+
+    IFB_INTERNAL bool
     quad_render(
         quad_vertices&     vertices,
-        const entity_id    id,
+        const entity&      e,
         const orientation& camera_orientation) {
 
-        assert(id != INVALID_ID);
-
         quad_entity q;
-        const bool quad_is_valid = quad_lookup_by_id(q, id); 
+        const bool quad_is_valid = quad_lookup(q, e); 
         if (quad_is_valid) {
 
             const color_rgba_f32 color         = color_rgba_f32(q.color.hex);

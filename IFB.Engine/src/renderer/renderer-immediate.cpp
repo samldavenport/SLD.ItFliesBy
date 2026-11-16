@@ -50,8 +50,8 @@ namespace ifb {
 
         static const auto& cfg = config_instance();
 
-        // the layers share the quad elements, so they can hold as many quads as the quad buffer
-        layer->capacity = cfg.quad_capacity * sizeof(quad_vertices);
+        // the layers share the quad elements, so they're the same size as the quad buffer
+        layer->capacity = QUAD_RENDER_BUFFER_SIZE;
         layer->size     = 0;
         layer->stride   = sizeof(quad_vertex);
         layer->data     = (byte*)renderer_memory_alloc(layer->capacity);

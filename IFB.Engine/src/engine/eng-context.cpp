@@ -251,6 +251,9 @@ namespace ifb {
             // render graphics
             renderer_draw_buffers();
 
+            // the entities get marked again by next frame's game callback
+            entity_clear_drawn();
+
             _eng_context->render_callback();
 
             // before the swap, which can block on vsync

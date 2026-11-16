@@ -16,6 +16,7 @@
 #include "gui-engine-audio-test.cpp"
 #include "gui-engine-wav-player.cpp"
 #include "gui-engine-memory.cpp"
+#include "gui-engine-renderer.cpp"
 #include "gui-engine-hash-calculator.cpp"
 #include "gui-engine-map-builder.cpp"
 #include "gui-game-audio.cpp"
@@ -70,7 +71,8 @@ namespace ifb {
         static bool eng_implot_demo        = false;
         static bool eng_system             = false;
         static bool eng_particle_system    = false; 
-        static bool rndr_camera            = false; 
+        static bool rndr_camera            = false;
+        static bool rndr_stats             = false;
         static bool entity_manager         = false;
         static bool quad_manager           = false;
         static bool player_rig             = false;
@@ -98,6 +100,18 @@ namespace ifb {
                 ImGui::MenuItem (_gui_str->menu_engine_item_audio_test,           NULL, &eng_audio_test);
                 ImGui::MenuItem (_gui_str->menu_engine_item_wav_player,           NULL, &eng_wav_player);
                 ImGui::MenuItem (_gui_str->menu_engine_item_memory,               NULL, &eng_memory);
+
+                if (ImGui::BeginMenu(_gui_str->menu_engine_menu_renderer)) {
+                    ImGui::MenuItem (_gui_str->menu_engine_menu_renderer_item_stats,  NULL, &rndr_stats);
+                    ImGui::MenuItem (_gui_str->menu_engine_menu_renderer_item_camera, NULL, &rndr_camera);
+
+                    // the renderer owns the grid state, so read it every time the menu is open
+                    bool rndr_grid = eng_renderer_is_grid_visible();
+                    if (ImGui::MenuItem(_gui_str->menu_engine_menu_renderer_item_grid, NULL, &rndr_grid)) {
+                        eng_renderer_set_grid_visible(rndr_grid);
+                    }
+                    ImGui::EndMenu();
+                }
 
                 if (ImGui::BeginMenu(_gui_str->menu_engine_menu_sprite_tools)) {
                     ImGui::MenuItem (_gui_str->menu_engine_menu_sprite_tools_item_atlas_builder,   NULL, &sprite_atlas_builder);
@@ -160,18 +174,6 @@ namespace ifb {
                 ImGui::EndMenu  ();
             }
 
-            if (ImGui::BeginMenu(_gui_str->menu_renderer)) {
-                ImGui::MenuItem (_gui_str->menu_renderer_item_camera, NULL, &rndr_camera);
-
-                // the renderer owns the grid state, so read it every time the menu is open
-                bool rndr_grid = eng_renderer_is_grid_visible();
-                if (ImGui::MenuItem(_gui_str->menu_renderer_item_grid, NULL, &rndr_grid)) {
-                    eng_renderer_set_grid_visible(rndr_grid);
-                }
-
-                ImGui::EndMenu  ();
-            }
-
             ImGui::EndMainMenuBar();
         }
 
@@ -186,6 +188,7 @@ namespace ifb {
         gui_engine_hash_calculator        (eng_hash_calculator);
         gui_engine_map_builder            (eng_map_builder);
         gui_renderer_camera               (rndr_camera);
+        gui_engine_renderer               (rndr_stats);
         gui_entity_manager                (entity_manager);
         gui_quad_manager                  (quad_manager);
         gui_game_player_rig               (player_rig, game_ctx);

@@ -17,6 +17,7 @@ namespace ifb {
                 tag*       tag;
                 archetype* archetype;
                 hnd_scene* scene;        // the scene that owns the entity
+                bool*      is_drawn;     // set by eng_entity_render, cleared after the frame is drawn
                 u32*       sparse_index;
             } dense;
             struct {
@@ -66,6 +67,11 @@ namespace ifb {
     // scenes off the stack, or covered by a scene that doesn't let them run, are skipped
     IFB_INTERNAL bool         entity_is_updating               (const entity& e);
     IFB_INTERNAL bool         entity_is_rendering              (const entity& e);
+
+    // entities marked this frame have their quad and particles drawn, marking one twice does nothing
+    IFB_INTERNAL void         entity_set_drawn                 (const entity& e);
+    IFB_INTERNAL bool         entity_is_drawn                  (const entity& e);
+    IFB_INTERNAL void         entity_clear_drawn               (void);
 
     // components
     IFB_INTERNAL bool         entity_component_add             (const entity_id id, const cmpnt_type_u32 types);

@@ -20,6 +20,20 @@ namespace ifb {
         renderer_set_grid_visible(is_visible);
     }
 
+    IFB_ENGINE_API void
+    eng_renderer_get_stats(
+        eng_renderer_stats& stats) {
+
+        renderer_get_stats(stats);
+    }
+
+    IFB_ENGINE_API void
+    eng_renderer_reset_stats_peaks(
+        void) {
+
+        renderer_reset_stats_peaks();
+    }
+
     // sets the parallax of the bound scene
     // the names are image assets, they all have to be the same size
     IFB_ENGINE_API bool
