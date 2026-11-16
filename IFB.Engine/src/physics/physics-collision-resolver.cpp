@@ -130,6 +130,8 @@ namespace ifb {
         phys_cntct_list*       cntct_list,
         const f32              dt) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(rslvr);
         assert(cllsn_list);
         assert(cntct_list);

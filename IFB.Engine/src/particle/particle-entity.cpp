@@ -18,6 +18,8 @@ namespace ifb {
     particle_mngr_follow_entities(
         void) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(_particle_mngr);
 
         static const cmpnt_type_u32 cmpnt_types = (

@@ -287,6 +287,8 @@ namespace ifb {
     scene_mngr_frame_start(
         void) {
 
+        IFB_PROFILE_FUNCTION();
+
         scene_mngr_validate();
 
         bool did_change = false;

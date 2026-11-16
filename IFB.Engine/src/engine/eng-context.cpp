@@ -202,6 +202,8 @@ namespace ifb {
     IFB_ENGINE_API bool 
     eng_context_run(void) {
 
+        IFB_PROFILE_FUNCTION();
+
         static f32 elapsed_time = 0.0f;
     
         system_refresh_info();
@@ -217,6 +219,7 @@ namespace ifb {
 
         // start new frame
         if (elapsed_time == 0.0f) {
+            IFB_PROFILE_SCOPE("Frame Start");
             ++_eng_context->frame_count;
             asset_mngr_update        ();
             pfm_window_frame_start   ();
@@ -247,7 +250,9 @@ namespace ifb {
         particle_mngr_update_emitters(dt * 1000.0f);
         
         if (elapsed_time == 0.0f) {
-       
+
+            IFB_PROFILE_SCOPE("Render");
+
             // render graphics
             renderer_draw_buffers();
 
@@ -261,6 +266,9 @@ namespace ifb {
 
             // render frame
             pfm_window_frame_render();
+
+            // the frame is on screen, tracy measures frames from here to here
+            IFB_PROFILE_FRAME();
         }
 
         // check if quit received

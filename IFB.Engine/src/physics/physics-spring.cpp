@@ -39,6 +39,8 @@ namespace ifb {
     phys_frc_sprcalc_run(
         phys_frc_sprcalc* calc) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(calc);
 
         if(!spring_calculator_load_components(calc)) {

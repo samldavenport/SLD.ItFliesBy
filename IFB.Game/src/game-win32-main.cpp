@@ -38,6 +38,8 @@ wWinMain(
     PWSTR     p_cmd_line,
     int       n_cmd_show) {
 
+    IFB_PROFILE_THREAD("Main");
+
     // initialize the memory map
     eng_mem_map mem_map;
     mem_map_init(mem_map);

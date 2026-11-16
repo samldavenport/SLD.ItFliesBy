@@ -238,6 +238,8 @@ namespace ifb {
     audio_mngr_frame_start(
         void) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(_audio_mngr);
 
         _audio_mngr->frame_count   = 0;
@@ -294,6 +296,8 @@ namespace ifb {
     IFB_INTERNAL void
     audio_mngr_frame_end(
         void) {
+
+        IFB_PROFILE_FUNCTION();
 
         assert(_audio_mngr);
 

@@ -2,6 +2,7 @@
 
 #include "ifb-gui.hpp"
 #include "gui-engine.cpp"
+#include "gui-engine-profiler.cpp"
 #include "gui-entity-manager.cpp"
 #include "gui-renderer-camera.cpp"
 #include "gui-controls.cpp"
@@ -45,6 +46,8 @@ namespace ifb {
     game_scene_id_e
     gui_render(
         const game_context* game_ctx) {
+
+        IFB_PROFILE_FUNCTION();
 
         if (!_gui_is_open) {
             return(game_scene_id_e_none);
@@ -126,6 +129,16 @@ namespace ifb {
                     ImGui::MenuItem (_gui_str->menu_engine_menu_tools_item_hash_calculator, NULL, &eng_hash_calculator);
                     ImGui::MenuItem (_gui_str->menu_engine_menu_tools_item_map_builder,     NULL, &eng_map_builder);
                     ImGui::MenuItem (_gui_str->menu_engine_menu_tools_font_viewer,          NULL, &eng_font_viewer);
+
+                    // the viewer is its own program, checked while it's open
+                    const bool profiler_available = gui_engine_profiler_is_available();
+                    const bool profiler_running   = gui_engine_profiler_is_running();
+                    if (ImGui::MenuItem(_gui_str->menu_engine_menu_tools_item_profiler, NULL, profiler_running, profiler_available && !profiler_running)) {
+                        gui_engine_profiler_open();
+                    }
+                    if (!profiler_available) {
+                        ImGui::SetItemTooltip("%s", _gui_str->menu_engine_menu_tools_item_profiler_unavailable);
+                    }
                     ImGui::EndMenu();
                 }
 

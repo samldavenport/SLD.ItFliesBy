@@ -361,6 +361,8 @@ namespace ifb {
     renderer_draw_buffers(
         void) {
 
+        IFB_PROFILE_FUNCTION();
+
         auto* gl      = _renderer->gl;
         const hnd_map h_map = _renderer->map;
         auto* buffers = _renderer->buffers;

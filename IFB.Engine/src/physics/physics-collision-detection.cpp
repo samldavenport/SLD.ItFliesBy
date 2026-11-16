@@ -123,6 +123,8 @@ namespace ifb {
         phys_cllsn_dtctr* dtctr,
         const f32         dt) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(dtctr             != NULL);
         assert(dtctr->cllsn_list != NULL);
 

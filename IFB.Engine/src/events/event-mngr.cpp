@@ -51,6 +51,8 @@ namespace ifb {
     event_mngr_update(
         void) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(_event_mngr);
         assert(_event_mngr->queue);
         assert(_event_mngr->listener_table);

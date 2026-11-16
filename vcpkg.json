@@ -19,6 +19,12 @@
     },
     {
       "name": "implot"
+    },
+    {
+        "name": "tracy",
+        "features": [
+            "gui-tools"
+        ]
     }
   ]
 }
