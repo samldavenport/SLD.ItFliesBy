@@ -347,6 +347,7 @@ namespace ifb {
         collider.mask_category      = at.mask_category;
         collider.mask_collides_with = at.mask_collides_with;
         collider.is_trigger         = false;
+        collider.restitution        = 0.0f;
 
         bool did_add_collider = true;
         did_add_collider &= eng_entity_add_components (id, cmpnt_type_e_collider);

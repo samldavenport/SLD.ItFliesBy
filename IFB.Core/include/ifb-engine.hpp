@@ -63,6 +63,15 @@ namespace ifb {
     IFB_ENGINE_API f32 eng_system_get_delta_time_s (void);
 
     //--------------------------------------------------------------------
+    // PHYSICS
+    //--------------------------------------------------------------------
+
+    struct eng_physics_stats;
+
+    // what the last physics step did, and how long each part of it took, for tools
+    IFB_ENGINE_API void eng_physics_get_stats (eng_physics_stats& stats);
+
+    //--------------------------------------------------------------------
     // MEMORY
     //--------------------------------------------------------------------
 
@@ -699,6 +708,25 @@ namespace ifb {
 
     struct eng_game_context {
         int x;
+    };
+
+    // the pairs are the broad phase's candidates, the contacts are the ones that actually touch,
+    // and resolved is the contacts that were pushed apart
+    // a dropped pair didn't fit in the pair list, so it was never resolved
+    // a dropped event didn't fit in the event queue, the colliders' procs still ran for it
+    struct eng_physics_stats {
+        u32 count_pairs;
+        u32 count_pairs_dropped;
+        u32 capacity_pairs;
+        u32 count_contacts;
+        u32 count_resolved;
+        u32 count_events_dropped;
+        f32 ms_detect;
+        f32 ms_springs;
+        f32 ms_integrate;
+        f32 ms_resolve;
+        f32 ms_dispatch;
+        f32 ms_total;
     };
 
     static constexpr u32 ENG_MEM_STATS_RESERVATION_MAX = 32;

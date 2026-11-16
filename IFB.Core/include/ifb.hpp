@@ -609,11 +609,14 @@ namespace ifb {
         u32              i_sprite;
     };
 
+    // restitution is how much of the closing speed a collision gives back, 0 stops dead, 1 is a perfect bounce
+    // a pair bounces with the larger of its two, so a bouncy body bounces off of anything
     struct cmpnt_collider {
         fptr_phys_cllsn_proc proc;
         u32                  mask_category;
         u32                  mask_collides_with;
         b32                  is_trigger;
+        f32                  restitution;
     };
 
     //--------------------------------------------------------------------

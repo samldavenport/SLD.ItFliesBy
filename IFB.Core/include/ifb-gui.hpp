@@ -54,6 +54,7 @@ namespace ifb {
     IFB_INTERNAL void  gui_game_asset_dictionary (bool& is_open);
     IFB_INTERNAL void  gui_game_asset_database   (bool& is_open);
     IFB_INTERNAL void  gui_game_tile_coords      (const bool is_enabled, const game_context* game_ctx);
+    IFB_INTERNAL void  gui_game_physics_test     (const game_context* game_ctx);
 
     // entities
     IFB_INTERNAL void  gui_entity_manager     (bool& is_open);
@@ -111,6 +112,9 @@ namespace ifb {
         inline static const char* menu_game_menu_scenes                              = "Scenes";
         inline static const char* menu_game_menu_scenes_item_dev                     = "Dev";
         inline static const char* menu_game_menu_scenes_item_cliff_town              = "Cliff Town";
+        inline static const char* menu_game_menu_testing                             = "Testing";
+        inline static const char* menu_game_menu_testing_item_physics                = "Physics";
+        inline static const char* window_game_physics_test                           = "Physics Test";
         inline static const char* menu_game_menu_assets                              = "Assets";
         inline static const char* menu_game_menu_assets_item_dictionary              = "Asset Dictionary";
         inline static const char* menu_game_menu_assets_item_database                = "Asset Database";

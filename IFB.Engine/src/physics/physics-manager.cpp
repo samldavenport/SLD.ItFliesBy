@@ -8,6 +8,8 @@
 #include <cstddef>
 #include "eng-physics.hpp"
 #include "eng-memory.hpp"
+#include "ifb-engine.hpp"
+#include "ifb-platform.hpp"
 
 namespace ifb {
 
@@ -24,7 +26,19 @@ namespace ifb {
         phys_cllsn_rslvr* collision_resolver;
         phys_cntct_list*  contact_list_curr; // the contacts from this step
         phys_cntct_list*  contact_list_prev; // the contacts from the last step, for the phases
+        eng_physics_stats stats;             // the last step's
     };
+
+    // milliseconds between two timestamps
+    inline f32
+    phys_mngr_elapsed_ms(
+        const u64 start,
+        const u64 end) {
+
+        const u64 freq = pfm_system_frequency();
+        if (freq == 0) return(0.0f);
+        return((f32)((f64)(end - start) * 1000.0 / (f64)freq));
+    }
 
     //--------------------------------------------------------------------
     // PUBLIC METHODS 
@@ -96,19 +110,48 @@ namespace ifb {
 
         // collisions are resolved after integration, once the components hold the new positions
         // the resolver fills the contact list with the pairs that actually overlap
+        const u64 t_start = pfm_system_timestamp();
         phys_cllsn_dtctr_run   (_phys_mngr->collision_detector, dt);
+        const u64 t_detect = pfm_system_timestamp();
         phys_frc_sprcalc_run   (_phys_mngr->spring_calculator);
+        const u64 t_springs = pfm_system_timestamp();
         phys_frc_intgrtr_run   (_phys_mngr->force_integrator, _phys_mngr->force_accumulator, dt);
+        const u64 t_integrate = pfm_system_timestamp();
         phys_cllsn_rslvr_run   (_phys_mngr->collision_resolver, cllsn_list, _phys_mngr->contact_list_curr, dt);
         phys_frc_accmltr_reset (_phys_mngr->force_accumulator);
+        const u64 t_resolve = pfm_system_timestamp();
 
         // the step is done, so the procs can't change anything out from under it
         // forces they add land in the next step
+        _phys_cntct_events_dropped = 0;
         (void)phys_cntct_list_walk_phases(
             _phys_mngr->contact_list_curr,
             _phys_mngr->contact_list_prev,
             phys_cntct_dispatch
         );
+        const u64 t_dispatch = pfm_system_timestamp();
+
+        eng_physics_stats& stats  = _phys_mngr->stats;
+        stats.count_pairs         = phys_cllsn_list_get_count(cllsn_list);
+        stats.count_pairs_dropped = phys_cllsn_list_get_count_dropped(cllsn_list);
+        stats.capacity_pairs      = config::entity_capacity;
+        stats.count_contacts      = phys_cntct_list_get_count(_phys_mngr->contact_list_curr);
+        stats.count_resolved      = phys_cllsn_rslvr_get_count_resolved(_phys_mngr->collision_resolver);
+        stats.count_events_dropped = _phys_cntct_events_dropped;
+        stats.ms_detect           = phys_mngr_elapsed_ms(t_start,     t_detect);
+        stats.ms_springs          = phys_mngr_elapsed_ms(t_detect,    t_springs);
+        stats.ms_integrate        = phys_mngr_elapsed_ms(t_springs,   t_integrate);
+        stats.ms_resolve          = phys_mngr_elapsed_ms(t_integrate, t_resolve);
+        stats.ms_dispatch         = phys_mngr_elapsed_ms(t_resolve,   t_dispatch);
+        stats.ms_total            = phys_mngr_elapsed_ms(t_start,     t_dispatch);
+    }
+
+    IFB_INTERNAL const eng_physics_stats&
+    phys_mngr_get_stats(
+        void) {
+
+        assert(_phys_mngr);
+        return(_phys_mngr->stats);
     }
 
     //--------------------------------------------------------------------
