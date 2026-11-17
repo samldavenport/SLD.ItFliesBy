@@ -15,6 +15,7 @@ namespace ifb {
     struct job_worker;
     struct job_queue;
     struct job_worker_pool;
+    struct job_counter;
 
     //--------------------------------------------------------------------
     // METHODS 
@@ -26,6 +27,13 @@ namespace ifb {
     IFB_INTERNAL void             job_dspchr_main        (void* ctx);
     IFB_INTERNAL bool             job_dspchr_add_job     (const job& j);
     IFB_INTERNAL void             job_dspchr_wait        (void);
+    IFB_INTERNAL u32              job_dspchr_get_worker_count (void);
+
+    // waiting on a batch of jobs, without waiting on every job in the queue like job_dspchr_wait
+    // add to the counter before adding the jobs, each job marks itself done as the last thing it does
+    IFB_INTERNAL void             job_counter_add        (job_counter& counter, const u32 count);
+    IFB_INTERNAL void             job_counter_done       (job_counter& counter);
+    IFB_INTERNAL void             job_counter_wait       (job_counter& counter);
 
     IFB_INTERNAL job_queue*       job_queue_create       (void);
     IFB_INTERNAL void             job_queue_init         (job_queue* queue, memory queue_mem);
@@ -45,6 +53,12 @@ namespace ifb {
     struct job_worker {
         pfm_hnd_thread h_pfm_thread;
         hnd_arena      h_arena;
+    };
+
+    // the jobs in a batch that haven't finished, under the dispatcher's lock
+    // it can live on the waiting thread's stack, a job doesn't touch it after it marks itself done
+    struct job_counter {
+        u32 unfinished;
     };
 
 };
