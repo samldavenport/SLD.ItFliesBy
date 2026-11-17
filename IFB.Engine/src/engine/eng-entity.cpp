@@ -33,6 +33,9 @@ namespace ifb {
             const u32 sparse_index = entity_lookup_sparse_index(id);
             assert(sparse_index != INVALID_INDEX);
             phys_entity_clear_force(sparse_index);
+
+            // and its previous position isn't either, so it isn't drawn sliding in from there
+            cmpnt_position_snap(sparse_index);
         }
 
         return(id);

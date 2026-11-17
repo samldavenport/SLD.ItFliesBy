@@ -70,7 +70,7 @@ There are two layers:
 
 Both layers draw with the [quad shader](quads.md#color-and-sprites), so a quad can be a solid color, a sprite from the **active atlas**, or a glyph from the **active font**, and they can be mixed in any order. Each layer is `IFB_CONFIG_QUAD_RENDER_BUFFER_SIZE` bytes, the same as the quad buffer (1024 quads). A push that doesn't fit returns `false` and draws nothing.
 
-The game callback can run more than once in a frame (see [Frame Loop](architecture.md#frame-loop)), so the layers are cleared before each run, and the frame draws what the last run pushed. Only quads pushed from the game callback are drawn. Anything pushed from the GUI render callback is cleared before the next draw.
+The game callback runs once per simulation step, which can be zero, one, or several times in a frame (see [Frame Loop](architecture.md#frame-loop)). The layers are cleared before each run, and the frame draws what the last run pushed, even if that run was in an earlier frame. Only quads pushed from the game callback are drawn. Anything pushed from the GUI render callback is cleared before the next draw.
 
 ### Screen Size
 

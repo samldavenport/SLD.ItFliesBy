@@ -281,8 +281,11 @@ namespace ifb {
         IFB_PROFILE_FUNCTION();
 
         quad_entity q;
-        const bool quad_is_valid = quad_lookup(q, e); 
+        const bool quad_is_valid = quad_lookup(q, e);
         if (quad_is_valid) {
+
+            // drawn between where the last simulation step started and ended it
+            cmpnt_lookup_position_render(q.index_sparse, q.pos);
 
             const color_rgba_f32 color         = color_rgba_f32(q.color.hex);
             const f32            offset_width  = q.dims.width  * 0.5f;

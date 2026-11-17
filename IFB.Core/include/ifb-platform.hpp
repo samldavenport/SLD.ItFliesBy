@@ -242,6 +242,9 @@ namespace ifb {
     IFB_PLATFORM_API u32 pfm_system_get_core_count          (void);
     IFB_PLATFORM_API u32 pfm_system_get_current_core_number (void);
 
+    // blocks the calling thread until pfm_system_timestamp reaches timestamp, returns right away if it already has
+    IFB_PLATFORM_API void pfm_system_wait_until             (const u64 timestamp);
+
     //--------------------------------------------------------------------
     // THREADS 
     //--------------------------------------------------------------------

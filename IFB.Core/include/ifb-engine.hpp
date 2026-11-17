@@ -60,6 +60,7 @@ namespace ifb {
     // SYSTEM
     //--------------------------------------------------------------------
 
+    // the length of one simulation step, the game callback runs once per step
     IFB_ENGINE_API f32 eng_system_get_delta_time_s (void);
 
     //--------------------------------------------------------------------
@@ -305,6 +306,9 @@ namespace ifb {
     IFB_ENGINE_API bool         eng_cmpnt_lookup_collider         (const entity_id id, cmpnt_collider&          collider);
 
     IFB_ENGINE_API bool         eng_cmpnt_update_position         (const entity_id id, const cmpnt_position&         pos);
+
+    // after a teleport, so the entity is drawn where it landed instead of sliding there from where it was
+    IFB_ENGINE_API bool         eng_cmpnt_snap_position           (const entity_id id);
     IFB_ENGINE_API bool         eng_cmpnt_update_velocity         (const entity_id id, const cmpnt_velocity&         vel);
     IFB_ENGINE_API bool         eng_cmpnt_update_acceleration     (const entity_id id, const cmpnt_acceleration&     acc);
     IFB_ENGINE_API bool         eng_cmpnt_update_term_velocity    (const entity_id id, const cmpnt_term_velocity&    tv);

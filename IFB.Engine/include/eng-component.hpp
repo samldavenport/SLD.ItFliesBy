@@ -50,7 +50,13 @@ namespace ifb {
     IFB_INTERNAL void        cmpnt_update_sprite           (const u32 sparse_index, const cmpnt_sprite&           sprite);
     IFB_INTERNAL void        cmpnt_update_bounds           (const u32 sparse_index, const cmpnt_bounds&           bounds);
     IFB_INTERNAL void        cmpnt_update_collider         (const u32 sparse_index, const cmpnt_collider&         collider);
-    
+
+    // the positions at the start of the last simulation step, so a frame can be drawn between two steps
+    IFB_INTERNAL void        cmpnt_positions_begin_step       (void);
+    IFB_INTERNAL void        cmpnt_positions_set_render_alpha (const f32 alpha);
+    IFB_INTERNAL void        cmpnt_position_snap              (const u32 sparse_index);
+    IFB_INTERNAL void        cmpnt_lookup_position_render     (const u32 sparse_index, cmpnt_position& position);
+
     //--------------------------------------------------------------------
     // GLOBALS
     //--------------------------------------------------------------------
@@ -65,10 +71,13 @@ namespace ifb {
         reservation* res;
         cmpnt_table* cmpnt_tbl;
         u32          capacity;
+        f32          render_alpha; // how far the frame being drawn is from the last step's start to its end, 0 to 1
     };
     
     struct cmpnt_table {
-        cmpnt_position*         array_position; 
+        cmpnt_position*         array_position;
+        cmpnt_position*         array_position_prev;       // where each entity was when the last step started
+        bool*                   array_position_prev_valid; // false for an entity created or snapped since then, it's drawn where it is
         cmpnt_color*            array_color;
         cmpnt_quad*             array_quad; 
         cmpnt_velocity*         array_velocity; 

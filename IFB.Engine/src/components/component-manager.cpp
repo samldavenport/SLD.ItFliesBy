@@ -42,8 +42,10 @@ namespace ifb {
         auto* tbl = _cmpnt_mngr->cmpnt_tbl;
         assert(tbl);
 
-        tbl->array_position         =         (cmpnt_position*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_position));      
-        tbl->array_color            =            (cmpnt_color*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_color));         
+        tbl->array_position         =         (cmpnt_position*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_position));
+        tbl->array_position_prev    =         (cmpnt_position*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_position));
+        tbl->array_position_prev_valid =                (bool*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(bool));
+        tbl->array_color           =            (cmpnt_color*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_color));         
         tbl->array_quad             =             (cmpnt_quad*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_quad));          
         tbl->array_velocity         =         (cmpnt_velocity*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_velocity));      
         tbl->array_acceleration     =     (cmpnt_acceleration*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_acceleration));  
@@ -58,7 +60,13 @@ namespace ifb {
         tbl->array_collider         =         (cmpnt_collider*)reservation_push_bytes(res, _cmpnt_mngr->capacity * sizeof(cmpnt_collider));
 
         assert(tbl->array_position);
+        assert(tbl->array_position_prev);
+        assert(tbl->array_position_prev_valid);
         assert(tbl->array_color);
+
+        // nothing has a previous position until the first step starts
+        zero_memory((void*)tbl->array_position_prev_valid, _cmpnt_mngr->capacity * sizeof(bool));
+        _cmpnt_mngr->render_alpha = 1.0f;
         assert(tbl->array_quad);
         assert(tbl->array_velocity);
         assert(tbl->array_acceleration);

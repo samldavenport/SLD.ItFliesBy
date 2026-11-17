@@ -53,7 +53,7 @@ Dispatch happens on the same thread as the rest of the frame loop, so a slow lis
 
 ### Timing
 
-`event_mngr_update` runs every iteration of the loop, not just on new frames, so the queue is emptied at least as often as physics runs.
+`event_mngr_update` runs in every simulation step, right after physics, so the queue is emptied as often as physics runs.
 
 | Order | Step |
 | --- | --- |
@@ -61,9 +61,9 @@ Dispatch happens on the same thread as the rest of the frame loop, so a slow lis
 | 1 | Game callback |
 | 2 | `phys_mngr_simulate`, which publishes collision events at the end of the step |
 | 3 | `event_mngr_update`, which calls the listeners |
-| 4 | Particles, then rendering on a new frame |
+| 4 | Particles, then rendering once the frame's steps are done |
 
-Listeners see the positions and velocities left by collision resolution, and anything they change is what gets rendered this pass. The next game callback runs after them.
+Listeners see the positions and velocities left by collision resolution, and anything they change is what gets rendered after the step. The next game callback runs after them.
 
 ### Listener Removal
 

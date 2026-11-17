@@ -26,6 +26,12 @@ namespace ifb {
         gl_context_enable_smoothing       (ctx);
         gl_context_set_clear_color_rgba   (ctx, clear_color);
         gl_context_update_viewport        (ctx, 0,0, viewport_width, viewport_height);
+
+        // vsync, so SwapBuffers waits for the display instead of the loop running flat out
+        // the driver can override it, the engine also caps the frame rate in case it does
+        if (WGLEW_EXT_swap_control) {
+            (void)wglSwapIntervalEXT(1);
+        }
     }
 
     IFB_PLATFORM_API void

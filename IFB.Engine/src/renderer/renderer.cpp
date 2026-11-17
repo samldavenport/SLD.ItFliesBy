@@ -80,6 +80,9 @@ namespace ifb {
         renderer_camera*             cam;            // the game's camera
         renderer_camera*             cam_free;       // drawn instead of cam while is_cam_free, for tools
         bool                         is_cam_free;
+        vec3                         cam_origin_prev; // where the game's camera was when the last simulation step started
+        vec3                         cam_target_prev;
+        bool                         is_cam_prev_valid;
         f32                          game_fov_y;     // the game's fov while the free camera has the viewport's
         renderer_viewport*           viewport;
         vec3                         global_up;
@@ -226,8 +229,9 @@ namespace ifb {
         renderer_viewport_init (_renderer->viewport);
         renderer_camera_init   (_renderer->cam);
         renderer_camera_init   (_renderer->cam_free);
-        _renderer->is_cam_free = false;
-        _renderer->game_fov_y  = _renderer->viewport->fov_y;
+        _renderer->is_cam_free       = false;
+        _renderer->is_cam_prev_valid = false;
+        _renderer->game_fov_y        = _renderer->viewport->fov_y;
 
         // the window was already sized when it opened, before the renderer could take it
         // the config size includes the borders and title bar, so it's only a fallback
@@ -357,15 +361,46 @@ namespace ifb {
         xform = mat4_multiply(proj, view);
     }
     
+    // called when a simulation step starts, before the game moves the camera
+    IFB_INTERNAL void
+    renderer_begin_step(
+        void) {
+
+        assert(_renderer);
+
+        _renderer->cam_origin_prev   = renderer_camera_get_origin(_renderer->cam);
+        _renderer->cam_target_prev   = renderer_camera_get_target(_renderer->cam);
+        _renderer->is_cam_prev_valid = true;
+    }
+
+    // alpha is how far this frame is between the last step's start and its end, 0 to 1
+    // entities and the game's camera are drawn that far between where they were and where they are
+    // the free camera isn't, the tools move it every frame
     IFB_INTERNAL void
     renderer_draw_buffers(
-        void) {
+        const f32 alpha) {
 
         IFB_PROFILE_FUNCTION();
 
         auto* gl      = _renderer->gl;
         const hnd_map h_map = _renderer->map;
         auto* buffers = _renderer->buffers;
+
+        cmpnt_positions_set_render_alpha(alpha);
+
+        // the game's camera is put back once the frame is drawn, so the game and tools only ever see where it really is
+        renderer_camera* cam         = _renderer->cam;
+        const vec3       cam_origin  = renderer_camera_get_origin(cam);
+        const vec3       cam_target  = renderer_camera_get_target(cam);
+        const bool       is_cam_lerp = (!_renderer->is_cam_free && _renderer->is_cam_prev_valid);
+        if (is_cam_lerp) {
+            const vec3& o0 = _renderer->cam_origin_prev;
+            const vec3& t0 = _renderer->cam_target_prev;
+            const vec3  origin = { o0.x + ((cam_origin.x - o0.x) * alpha), o0.y + ((cam_origin.y - o0.y) * alpha), o0.z + ((cam_origin.z - o0.z) * alpha) };
+            const vec3  target = { t0.x + ((cam_target.x - t0.x) * alpha), t0.y + ((cam_target.y - t0.y) * alpha), t0.z + ((cam_target.z - t0.z) * alpha) };
+            renderer_camera_set_origin(cam, origin);
+            renderer_camera_set_target(cam, target);
+        }
 
         mat4 view_proj_xform;
         renderer_view_projection_xform(view_proj_xform);
@@ -427,6 +462,11 @@ namespace ifb {
         renderer_stats_record(stats.immediate_screen, _renderer->immediate->screen.size);
         renderer_stats_record(stats.particle_view,    _renderer->particle_view->vertices.size);
         ++stats.frame_count;
+
+        if (is_cam_lerp) {
+            renderer_camera_set_origin(cam, cam_origin);
+            renderer_camera_set_target(cam, cam_target);
+        }
     }
 
     inline void

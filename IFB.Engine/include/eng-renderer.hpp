@@ -64,7 +64,8 @@ namespace ifb {
     IFB_INTERNAL void        renderer_startup                          (reservation* res);
     IFB_INTERNAL void        renderer_shutdown                         (void);
     IFB_INTERNAL void        renderer_update_view_matrix               (void);
-    IFB_INTERNAL void        renderer_draw_buffers                     (void);
+    IFB_INTERNAL void        renderer_begin_step                       (void);
+    IFB_INTERNAL void        renderer_draw_buffers                     (const f32 alpha);
     IFB_INTERNAL void        renderer_view_projection_xform            (mat4& xform);
     IFB_INTERNAL bool        renderer_upload_sprite_atlas              (const hnd_sprite_atlas h_atlas);
     IFB_INTERNAL bool        renderer_release_sprite_atlas             (const hnd_sprite_atlas h_atlas);

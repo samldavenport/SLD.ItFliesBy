@@ -4,7 +4,7 @@ The physics system (`IFB.Engine/src/physics`, `eng-physics.hpp`) moves entities 
 
 ## Simulation Step
 
-`phys_mngr_simulate(dt)` runs once per pass of the [frame loop](architecture.md#frame-loop), after the game callback, with the measured delta time in seconds.
+`phys_mngr_simulate(dt)` runs once per simulation step of the [frame loop](architecture.md#frame-loop), after the game callback, with the fixed step length `config::sim_step_s` in seconds.
 
 | Order | Step | Source | Description |
 | --- | --- | --- | --- |

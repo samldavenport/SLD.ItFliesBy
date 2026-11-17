@@ -36,20 +36,33 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 
 ## Frame Loop
 
-`eng_context_run` (`src/engine/eng-context.cpp`) runs every iteration. Simulation steps run every iteration with the measured delta time; frame steps only run once enough time has passed for a new frame (`IFB_CONFIG_DEFAULT_FPS`).
+`eng_context_run` (`src/engine/eng-context.cpp`) runs one frame per call. The simulation (the game callback, physics, events, and particles) runs in **fixed steps** of `config::sim_step_s` (`IFB_CONFIG_SIM_STEP_HZ`, 120 a second), separately from the frame rate. Each frame adds the real time since the last frame to an accumulator, runs as many steps as fit in it, and keeps the remainder for the next frame. A frame can run no steps, one, or several.
 
-The delta time is capped at `IFB_CONFIG_DELTA_TIME_MAX_S` (0.1 seconds). A long pause, like a breakpoint, a window drag, or the first frame, would otherwise go into one step and move everything by its velocity for all of it. The game, physics, and particles all see the capped value.
+Every step is the same length, so the game behaves the same on any machine and at any frame rate. Springs and collisions don't change with the frame time, and a run can be reproduced. `eng_system_get_delta_time_s` always returns the step length.
+
+The real frame time is capped at `IFB_CONFIG_DELTA_TIME_MAX_S` (0.1 seconds), and a frame runs at most `IFB_CONFIG_SIM_MAX_STEPS` (8) steps. Past that, the leftover time is dropped and the game slows down for a moment instead of falling further behind (the "spiral of death"). The first frame runs exactly one step.
+
+Frames are paced by vsync (`wglSwapIntervalEXT(1)` in `pfm_graphics_init_opengl`). If the driver ignores vsync, `IFB_CONFIG_DEFAULT_FPS` caps the frame rate with `pfm_system_wait_until`, which sleeps on a high-resolution timer and spins for the last millisecond.
 
 | Step | When |
 | --- | --- |
-| Update system info and delta time | every iteration |
-| `asset_mngr_update`, window frame start, process window events, `random_table_update`, `audio_mngr_frame_start` | new frame |
-| `scene_mngr_frame_start`, which applies the [scene](scenes.md#when-changes-happen) pushes, pops, resets, and destroys requested since the last pass | every iteration |
-| Clear the [immediate drawing](renderer.md#immediate-drawing) layers, then the game callback (`game_context_update_and_render`) | every iteration |
-| `phys_mngr_simulate(dt)` | every iteration |
-| `event_mngr_update`, which calls the [event](events.md) listeners | every iteration |
-| Particles follow their entities, then update | every iteration |
-| `renderer_draw_buffers` (which loads the top scene's parallax if it changed), clear the entities' drawn marks, GUI callback, `audio_mngr_frame_end`, present the frame | new frame |
+| Wait for the frame cap, update system info and the real frame time, add it to the accumulator | every frame |
+| `asset_mngr_update`, window frame start, process window events, `random_table_update`, `audio_mngr_frame_start` | every frame |
+| Save the entities' positions and the game camera for [interpolation](#interpolation) | every step |
+| `scene_mngr_frame_start`, which applies the [scene](scenes.md#when-changes-happen) pushes, pops, resets, and destroys requested since the last step | every step |
+| Clear the [immediate drawing](renderer.md#immediate-drawing) layers and the entities' drawn marks, then the game callback (`game_context_update_and_render`) | every step |
+| `phys_mngr_simulate(config::sim_step_s)` | every step |
+| `event_mngr_update`, which calls the [event](events.md) listeners | every step |
+| Particles follow their entities, then update | every step |
+| `renderer_draw_buffers(alpha)` (which loads the top scene's parallax if it changed), GUI callback, `audio_mngr_frame_end`, present the frame | every frame |
+
+### Interpolation
+
+A frame usually lands between two steps. Drawing exactly where the last step left everything would make motion stutter whenever the frame rate and the step rate don't line up. So the frame is drawn `alpha` of the way from where the last step started to where it ended, with `alpha` being the leftover time in the accumulator divided by the step length. At the start of each step, `cmpnt_positions_begin_step` saves every entity's position and `renderer_begin_step` saves the game camera. `quad_render` draws entities at `cmpnt_lookup_position_render`, and `renderer_draw_buffers` draws with the camera blended the same way, then puts the camera back. Everything except drawing still sees the real positions.
+
+The draw marks and immediate quads stay as the last step left them until the next step, so a frame that runs no steps draws the same scene again.
+
+A new entity is drawn where it is until the next step, since its slot's saved position belonged to whatever used the slot before. After a teleport, call `eng_cmpnt_snap_position` so the entity isn't drawn sliding across the map for a frame. `game_player_rig_place` does this. Particles and world-space immediate quads aren't interpolated. They're drawn as the last step left them, which is at most one step (about 8 ms) behind.
 
 ### Physics Step
 
