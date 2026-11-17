@@ -180,4 +180,61 @@ namespace ifb {
         }
         pfm_thread_mutex_unlock(_job_dspchr->lock);
     }
+
+    // with no workers, add_job runs the job before it returns
+    IFB_INTERNAL u32
+    job_dspchr_get_worker_count(
+        void) {
+
+        assert(_job_dspchr);
+        return(job_worker_pool_get_count(_job_dspchr->worker_pool));
+    }
+
+    IFB_INTERNAL void
+    job_counter_add(
+        job_counter& counter,
+        const u32    count) {
+
+        assert(_job_dspchr);
+
+        pfm_thread_mutex_lock(_job_dspchr->lock);
+        counter.unfinished += count;
+        pfm_thread_mutex_unlock(_job_dspchr->lock);
+    }
+
+    // the counter isn't touched after the lock is released, so the waiter can free it as soon as it sees zero
+    // the wake is on the dispatcher's condition, which outlives the counter
+    // job_dspchr_wait shares the condition, it wakes up and checks its own count again
+    IFB_INTERNAL void
+    job_counter_done(
+        job_counter& counter) {
+
+        assert(_job_dspchr);
+
+        pfm_thread_mutex_lock(_job_dspchr->lock);
+        assert(counter.unfinished > 0);
+        const bool is_done = (--counter.unfinished == 0);
+        pfm_thread_mutex_unlock(_job_dspchr->lock);
+
+        if (is_done) {
+            pfm_thread_cond_wake_all(_job_dspchr->all_done);
+        }
+    }
+
+    // waits for the jobs on the counter, not every job in the queue
+    // don't call this from a job, the workers could all end up waiting
+    IFB_INTERNAL void
+    job_counter_wait(
+        job_counter& counter) {
+
+        assert(_job_dspchr);
+
+        IFB_PROFILE_FUNCTION();
+
+        pfm_thread_mutex_lock(_job_dspchr->lock);
+        while (counter.unfinished > 0) {
+            pfm_thread_cond_wait(_job_dspchr->all_done, _job_dspchr->lock);
+        }
+        pfm_thread_mutex_unlock(_job_dspchr->lock);
+    }
 };

@@ -217,7 +217,7 @@ namespace ifb {
             }
             {
                 IFB_PROFILE_SCOPE("phys_cllsn_dtctr_bvh_query");
-                phys_bvh_query_pairs(bvh, dtctr->cllsn_list);
+                phys_bvh_query_pairs(bvh, dtctr->cllsn_list, h_arena);
             }
         }
 

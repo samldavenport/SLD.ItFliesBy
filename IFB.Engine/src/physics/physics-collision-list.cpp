@@ -132,4 +132,14 @@ namespace ifb {
         list->count         = 0;
         list->count_dropped = 0;
     }
+
+    // pairs that were found but never made it to the list, like the query running out of room
+    IFB_INTERNAL void
+    phys_cllsn_list_add_dropped(
+        phys_cllsn_list* list,
+        const u32        count) {
+
+        assert(list != NULL);
+        list->count_dropped += count;
+    }
 };
