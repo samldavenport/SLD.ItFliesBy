@@ -55,7 +55,10 @@ namespace ifb {
         job_dspchr*        job_dspchr;
         audio_mngr*        audio_mngr;
         scene_mngr*        scene_mngr;
-        f32                seconds_per_frame;
+        f32                seconds_per_frame;   // the frame rate cap, in case the driver ignores vsync
+        f64                sim_accumulator_s;   // real time that hasn't been simulated yet, less than a step after each frame
+        u64                sim_step_count;      // the simulation steps run since startup
+        u64                frame_timestamp;     // when the last frame started, for the cap
     } static * _eng_context;
 
     struct global_stack {

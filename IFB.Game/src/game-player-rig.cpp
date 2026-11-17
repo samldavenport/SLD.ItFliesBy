@@ -268,6 +268,11 @@ namespace ifb {
         did_place &= eng_cmpnt_update_position   (player_rig->jig_id,        pos_jig);
         did_place &= eng_cmpnt_update_velocity   (player_rig->jig_id,        vel_zero);
         did_place &= eng_cmpnt_update_position   (player_rig->jig_anchor_id, pos_anchor);
+
+        // drawn where they landed, not sliding there from where they were
+        did_place &= eng_cmpnt_snap_position     (player_rig->connor_id);
+        did_place &= eng_cmpnt_snap_position     (player_rig->jig_id);
+        did_place &= eng_cmpnt_snap_position     (player_rig->jig_anchor_id);
         assert(did_place);
 
         player_rig->current_map_hnd = h_map;

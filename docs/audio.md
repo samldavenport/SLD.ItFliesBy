@@ -33,7 +33,7 @@ The buffer is interleaved in the device's format, `config::audio_sample_rate` an
 
 The buffer always goes to the device, so if nothing writes to it, silence plays. The frame count changes every frame, so anything generating sound has to keep its own position (like the phase of a wave) between frames.
 
-The game callback can run several times in one frame, and every call gets the same buffer. Write to it once per frame.
+The game callback runs once per simulation step, which can be zero, one, or several times in one frame, and every call in a frame gets the same buffer. Write to it once per frame.
 
 Most sound should go through voices instead of the buffer. Writing to the buffer is for generated sound, like the audio test.
 

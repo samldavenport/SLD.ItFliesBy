@@ -65,12 +65,13 @@ namespace ifb {
         return((f32)dt_s);
     }
     
+    // the game runs in fixed simulation steps, so this is always the step's length,
+    // not the time since the last frame
     IFB_ENGINE_API f32
     eng_system_get_delta_time_s(
         void) {
 
-        const f32 dt_s = system_get_delta_time_s();
-        return(dt_s);
+        return(config::sim_step_s);
     }
 
     IFB_ENG_INTERNAL u32

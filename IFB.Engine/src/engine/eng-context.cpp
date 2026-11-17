@@ -7,6 +7,7 @@
 #include "ifb-config.hpp"
 #include "ifb-engine.hpp"
 #include "ifb-gui.hpp"
+#include "ifb-profile.hpp"
 #include "ifb.hpp"
 #include "eng-context.hpp"
 #include "imgui.h"
@@ -121,6 +122,9 @@ namespace ifb {
 
         _eng_context->seconds_per_frame = (1.0f / (f32)config.default_fps);
         _eng_context->frame_count       = 0;
+        _eng_context->sim_accumulator_s = 0.0;
+        _eng_context->sim_step_count    = 0;
+        _eng_context->frame_timestamp   = 0;
 
         // refresh system info
         system_refresh_info();
@@ -199,77 +203,140 @@ namespace ifb {
         scene_mngr_startup    ();
     }
 
+    inline void
+    eng_context_frame_cap(void) {
+
+        // the cap, in case the driver ignores vsync, otherwise vsync paces the frames and this never waits
+        if (_eng_context->frame_timestamp != 0) {
+            const u64 freq        = pfm_system_frequency();
+            const u64 frame_ticks = (u64)((f64)_eng_context->seconds_per_frame * (f64)freq);
+            IFB_PROFILE_SCOPE("Frame Cap");
+            pfm_system_wait_until(_eng_context->frame_timestamp + frame_ticks);
+        }
+        _eng_context->frame_timestamp = pfm_system_timestamp();
+    }
+
+    inline void
+    eng_context_update_time_and_sys_info(
+        const f64 step_s) {
+
+        system_refresh_info();
+        
+        // the real time since the last frame, capped so a breakpoint or a window drag doesn't become a pile of steps
+        // the first frame has nothing to measure from, so it runs one step to have something to draw
+        system_update_time();
+        if (_eng_context->frame_count == 0) {
+            _eng_context->sim_accumulator_s = step_s;
+        }
+        else {
+            _eng_context->sim_accumulator_s += (f64)system_get_delta_time_s();
+        }
+    }
+
+    inline void
+    eng_context_frame_start(
+        void) {
+
+        IFB_PROFILE_SCOPE("Frame Start");
+        ++_eng_context->frame_count;
+        asset_mngr_update        ();
+        pfm_window_frame_start   ();
+        pfm_window_process_events();
+        random_table_update      ();
+        audio_mngr_frame_start   ();
+    }
+    
+    inline void
+    eng_context_simulate(
+        const f64 step_s) {
+
+        IFB_PROFILE_SCOPE("Simulate");
+
+        for (
+            u32 step_count = 0;
+            (
+                step_count < config::sim_max_steps &&
+                _eng_context->sim_accumulator_s >= step_s 
+            );
+            ++step_count
+        ) {
+        
+            IFB_PROFILE_SCOPE("Sim Step");
+            // where everything is before this step moves it, to draw from
+            cmpnt_positions_begin_step();
+            renderer_begin_step();
+
+            // scene requests from the last step take effect here, before anything runs
+            scene_mngr_frame_start();
+
+            // the game marks its entities and pushes its immediate quads again every step
+            renderer_immediate_reset();
+            entity_clear_drawn();
+
+            _eng_context->game_callback(
+                _eng_context->game_ctx
+            );
+
+            // simulate physics
+            phys_mngr_simulate(config::sim_step_s);
+
+            // handle events
+            event_mngr_update();
+
+            // update particles, the emitters on entities go where the physics put them
+            particle_mngr_follow_entities();
+            particle_mngr_update_emitters(config::sim_step_s * 1000.0f);
+
+            _eng_context->sim_accumulator_s -= step_s;
+                ++_eng_context->sim_step_count;
+        }
+        
+        // too far behind to catch up, the game slows down for a moment instead of falling further behind
+        if (_eng_context->sim_accumulator_s >= step_s) {
+            _eng_context->sim_accumulator_s = 0.0;
+        }
+    }
+
+    inline void
+    eng_context_frame_render(
+        const f64 step_s) {
+
+        IFB_PROFILE_SCOPE("Render");
+
+        // how far this frame is into the next step
+        const f32 alpha = (f32)(_eng_context->sim_accumulator_s / step_s);
+
+        // render graphics
+        renderer_draw_buffers(alpha);
+
+        _eng_context->render_callback();
+
+        // before the swap, which can block on vsync
+        audio_mngr_frame_end();
+
+        // render frame
+        pfm_window_frame_render();
+
+        // the frame is on screen, tracy measures frames from here to here
+        IFB_PROFILE_FRAME();
+    }
+
     IFB_ENGINE_API bool 
     eng_context_run(void) {
 
         IFB_PROFILE_FUNCTION();
 
-        static f32 elapsed_time = 0.0f;
-    
-        system_refresh_info();
+        // each call is one frame: input, as many fixed simulation steps as the time since the last frame needs, then a draw
+        // the game, physics, and particles always move by config::sim_step_s, however fast or slow the frames are,
+        // and the frame is drawn between the last two steps so motion stays smooth when the two rates don't line up
 
-        // get delta time
-        system_update_time();
-        const f32 dt =  system_get_delta_time_s();
+        const f64 step_s = (f64)config::sim_step_s;
 
-        elapsed_time += dt;
-        if (elapsed_time >= _eng_context->seconds_per_frame) {
-            elapsed_time = 0.0f;
-        }
-
-        // start new frame
-        if (elapsed_time == 0.0f) {
-            IFB_PROFILE_SCOPE("Frame Start");
-            ++_eng_context->frame_count;
-            asset_mngr_update        ();
-            pfm_window_frame_start   ();
-            pfm_window_process_events();
-            random_table_update      ();
-            audio_mngr_frame_start   ();
-        }
-
-        // game callback    
-        // scene requests from the last frame take effect here, before anything runs
-        scene_mngr_frame_start();
-
-        // the immediate quads are pushed again by every run of the game callback
-        renderer_immediate_reset();
-
-        _eng_context->game_callback(
-            _eng_context->game_ctx
-        );
-
-        // simulate physics
-        phys_mngr_simulate(dt);
-
-        // handle events
-        event_mngr_update();
-
-        // update particles, the emitters on entities go where the physics put them
-        particle_mngr_follow_entities();
-        particle_mngr_update_emitters(dt * 1000.0f);
-        
-        if (elapsed_time == 0.0f) {
-
-            IFB_PROFILE_SCOPE("Render");
-
-            // render graphics
-            renderer_draw_buffers();
-
-            // the entities get marked again by next frame's game callback
-            entity_clear_drawn();
-
-            _eng_context->render_callback();
-
-            // before the swap, which can block on vsync
-            audio_mngr_frame_end();
-
-            // render frame
-            pfm_window_frame_render();
-
-            // the frame is on screen, tracy measures frames from here to here
-            IFB_PROFILE_FRAME();
-        }
+        eng_context_frame_cap                ();
+        eng_context_update_time_and_sys_info (step_s);
+        eng_context_frame_start              ();
+        eng_context_simulate                 (step_s);
+        eng_context_frame_render             (step_s);
 
         // check if quit received
         const bool quit = pfm_window_quit_received();
@@ -299,8 +366,9 @@ namespace ifb {
     // INTERNAL METHOD DEFINITIONS
     //--------------------------------------------------------------------
 
-    // the number of frames started since startup, counted at the fixed frame rate
-    // the game callback can run several times in one frame, and sees the same count each time
+    // the number of frames started since startup, one per draw, so it goes up at the display's rate
+    // the game callback runs once per simulation step, which can be zero or several times in one frame,
+    // and sees the same count each time in a frame
     IFB_ENG_INTERNAL u64
     eng_context_get_frame_count(
         void) {

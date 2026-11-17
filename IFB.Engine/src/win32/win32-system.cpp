@@ -13,6 +13,51 @@ namespace ifb {
         return(timestamp);
     }
 
+    // older sdks don't define it
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#   define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+    // sleeps on a high resolution timer until about a millisecond before, then spins the rest,
+    // since the timer can wake up a little late but spinning the whole wait would keep a core busy
+    IFB_PLATFORM_API void
+    pfm_system_wait_until(
+        const u64 timestamp) {
+
+        static const u64 freq      = pfm_system_frequency();
+        static const u64 spin_time = freq / 1000;
+
+        // made once and kept, it's only used from the main thread
+        // CREATE_WAITABLE_TIMER_HIGH_RESOLUTION needs windows 10 1803, older versions fall back to a normal timer
+        static HANDLE timer = NULL;
+        if (timer == NULL) {
+            timer = CreateWaitableTimerExW(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+            if (timer == NULL) {
+                timer = CreateWaitableTimerExW(NULL, NULL, 0, TIMER_ALL_ACCESS);
+            }
+        }
+
+        u64 now = pfm_system_timestamp();
+        if (now >= timestamp) return;
+
+        const u64 remaining = timestamp - now;
+        if (timer != NULL && remaining > spin_time) {
+
+            // in 100 ns units, negative means relative to now
+            const u64     sleep_ticks = remaining - spin_time;
+            LARGE_INTEGER due;
+            due.QuadPart = -(LONGLONG)((sleep_ticks * 10000000ull) / freq);
+
+            if (SetWaitableTimerEx(timer, &due, 0, NULL, NULL, NULL, 0)) {
+                WaitForSingleObject(timer, INFINITE);
+            }
+        }
+
+        while (pfm_system_timestamp() < timestamp) {
+            YieldProcessor();
+        }
+    }
+
     IFB_PLATFORM_API u64
     pfm_system_frequency(
         void) {

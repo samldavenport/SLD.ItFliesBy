@@ -40,6 +40,25 @@ namespace ifb {
     }
 
     IFB_ENGINE_API bool
+    eng_cmpnt_snap_position(
+        const entity_id id) {
+
+        assert(id != ENTITY_ID_INVALID);
+
+        bool result = true;
+
+        entity e;
+        result &= entity_lookup_by_id  (e, id);
+        result &= entity_has_component (e, cmpnt_type_e_position);
+
+        if (result) {
+            cmpnt_position_snap(e.index_sparse);
+        }
+
+        return(result);
+    }
+
+    IFB_ENGINE_API bool
     eng_cmpnt_lookup_velocity(
         const entity_id id,
         cmpnt_velocity&    vel) {

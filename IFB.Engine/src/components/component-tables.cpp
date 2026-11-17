@@ -292,4 +292,76 @@ namespace ifb {
         const auto tbl = cmpnt_table_get_and_validate(sparse_index);
         tbl->array_collider[sparse_index] = collider;
     }
+
+    //--------------------------------------------------------------------
+    // INTERPOLATION
+    //--------------------------------------------------------------------
+
+    // called when a simulation step starts, before anything moves
+    // a frame drawn after the step blends from these positions to the ones the step leaves
+    IFB_INTERNAL void
+    cmpnt_positions_begin_step(
+        void) {
+
+        IFB_PROFILE_FUNCTION();
+
+        assert(_cmpnt_mngr);
+        cmpnt_table* tbl = _cmpnt_mngr->cmpnt_tbl;
+        assert(tbl);
+
+        for (
+            u32 index = 0;
+                index < _cmpnt_mngr->capacity;
+              ++index) {
+
+            tbl->array_position_prev       [index] = tbl->array_position[index];
+            tbl->array_position_prev_valid [index] = true;
+        }
+    }
+
+    // 0 draws everything where the last step started it, 1 where the step left it
+    IFB_INTERNAL void
+    cmpnt_positions_set_render_alpha(
+        const f32 alpha) {
+
+        assert(_cmpnt_mngr);
+
+        f32 a = alpha;
+        if (a < 0.0f) a = 0.0f;
+        if (a > 1.0f) a = 1.0f;
+        _cmpnt_mngr->render_alpha = a;
+    }
+
+    // the entity is drawn exactly where it is until the next step starts,
+    // for a new entity, whose slot's previous position was someone else's,
+    // and for a teleport, which shouldn't be drawn sliding across the map
+    IFB_INTERNAL void
+    cmpnt_position_snap(
+        const u32 sparse_index) {
+
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+        tbl->array_position_prev_valid[sparse_index] = false;
+    }
+
+    // where to draw the entity in this frame, between its last two steps
+    // only for drawing, everything else uses cmpnt_lookup_position
+    IFB_INTERNAL void
+    cmpnt_lookup_position_render(
+        const u32       sparse_index,
+        cmpnt_position& pos) {
+
+        const auto tbl = cmpnt_table_get_and_validate(sparse_index);
+
+        const cmpnt_position& curr = tbl->array_position[sparse_index];
+        if (!tbl->array_position_prev_valid[sparse_index]) {
+            pos = curr;
+            return;
+        }
+
+        const cmpnt_position& prev = tbl->array_position_prev[sparse_index];
+        const f32             t    = _cmpnt_mngr->render_alpha;
+        pos.x = prev.x + ((curr.x - prev.x) * t);
+        pos.y = prev.y + ((curr.y - prev.y) * t);
+        pos.z = prev.z + ((curr.z - prev.z) * t);
+    }
 };

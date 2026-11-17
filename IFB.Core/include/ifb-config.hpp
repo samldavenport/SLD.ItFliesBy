@@ -67,6 +67,8 @@ using namespace sld;
 #define IFB_CONFIG_RANDOM_TABLE_COUNT             1024
 #define IFB_CONFIG_RENDERER_MEM_GRANULARITY       size_kilobytes(64)
 #define IFB_CONFIG_SCENE_CAPACITY                 16
+#define IFB_CONFIG_SIM_MAX_STEPS                  8    // per frame, past this the game slows down instead of falling further behind
+#define IFB_CONFIG_SIM_STEP_HZ                    120  // the game, physics, and particles always step this many times a second
 #define IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100       0.75f
 #define IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY      4
 #define IFB_CONFIG_SPRITE_MEM_BLOCK_SIZE          size_megabytes(64)
@@ -153,6 +155,8 @@ namespace ifb {
         static constexpr u32   random_table_count             = IFB_CONFIG_RANDOM_TABLE_COUNT;
         static constexpr u32   renderer_mem_granularity       = IFB_CONFIG_RENDERER_MEM_GRANULARITY;
         static constexpr u32   scene_capacity                 = IFB_CONFIG_SCENE_CAPACITY;
+        static constexpr u32   sim_max_steps                  = IFB_CONFIG_SIM_MAX_STEPS;
+        static constexpr f32   sim_step_s                     = 1.0f / (f32)IFB_CONFIG_SIM_STEP_HZ;
         static constexpr f32   sparse_set_max_load_p100       = IFB_CONFIG_SPARSE_SET_MAX_LOAD_P100;
         static constexpr u32   sprite_atlas_table_capacity    = IFB_CONFIG_SPRITE_TABLE_CAPACITY;
         static constexpr u32   sprite_mem_block_capacity      = IFB_CONFIG_SPRITE_MEM_BLOCK_CAPACITY;
