@@ -83,16 +83,9 @@ namespace ifb {
         const entity_id lo      = a_is_lo ? pair.a : pair.b;
         const entity_id hi      = a_is_lo ? pair.b : pair.a;
 
-        // check for the existing pair
-        for (
-            u32 index = 0;
-                index < list->count;
-              ++index) {
-
-            if (list->a[index] == lo && list->b[index] == hi) {
-                return(false);
-            }
-        }
+        // there's no check for an existing pair, scanning the list made inserts O(n^2)
+        // the caller has to insert each pair once, the detector does this by
+        // putting each entity in one bvh and only taking a pair from its lower index
 
         // a new pair that doesn't fit is never resolved, so it's counted
         if (list->count == config::entity_capacity) {
@@ -100,7 +93,7 @@ namespace ifb {
             return(false);
         }
 
-        // it doesnt exist in the list, so insert it
+        // insert it
         const u32 index = list->count;
         list->a[index] = lo;
         list->b[index] = hi;
