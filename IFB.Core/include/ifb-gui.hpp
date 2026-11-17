@@ -38,6 +38,9 @@ namespace ifb {
     IFB_INTERNAL void  gui_engine_imgui_demo             (bool& is_open);
     IFB_INTERNAL void  gui_engine_implot_demo            (bool& is_open);
     IFB_INTERNAL void  gui_engine_system                 (bool& is_open);
+    IFB_INTERNAL bool  gui_engine_profiler_is_available  (void);
+    IFB_INTERNAL bool  gui_engine_profiler_is_running    (void);
+    IFB_INTERNAL void  gui_engine_profiler_open          (void);
     IFB_INTERNAL void  gui_engine_particle_system        (bool& is_open);
     IFB_INTERNAL void  gui_engine_sprite_atlas_builder   (bool& is_open);
     IFB_INTERNAL void  gui_engine_sprite_atlas_inspector (bool& is_open);
@@ -92,6 +95,8 @@ namespace ifb {
         inline static const char* menu_engine_menu_tools                             = "Tools";
         inline static const char* menu_engine_menu_tools_item_hash_calculator        = "Hash Calculator";
         inline static const char* menu_engine_menu_tools_font_viewer                 = "Font Viewer";
+        inline static const char* menu_engine_menu_tools_item_profiler               = "Profiler (Tracy)";
+        inline static const char* menu_engine_menu_tools_item_profiler_unavailable   = "Build with IFB_ENABLE_PROFILING and tracy's gui-tools feature to use the profiler";
         inline static const char* window_engine_hash_calculator                      = "Hash Calculator";
         inline static const char* menu_entities                                      = "Entities";
         inline static const char* menu_entity_item_manager                           = "Entity Manager";

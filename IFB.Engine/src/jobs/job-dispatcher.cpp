@@ -81,6 +81,8 @@ namespace ifb {
         void* ctx) {
 
         auto worker = (job_worker*)ctx;
+
+        IFB_PROFILE_THREAD("Job Worker");
     
         for (;;) {
 
@@ -107,8 +109,11 @@ namespace ifb {
             pfm_thread_mutex_unlock(_job_dspchr->lock);
        
             // reset the arena and do the work
-            arena_reset(worker->h_arena);
-            next_job.proc(worker->h_arena, &next_job.ctx);
+            {
+                IFB_PROFILE_SCOPE("Job");
+                arena_reset(worker->h_arena);
+                next_job.proc(worker->h_arena, &next_job.ctx);
+            }
 
             // wake anyone waiting if this was the last job
             pfm_thread_mutex_lock(_job_dspchr->lock);

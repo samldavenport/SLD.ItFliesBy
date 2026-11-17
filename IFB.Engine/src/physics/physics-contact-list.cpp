@@ -151,6 +151,8 @@ namespace ifb {
         const phys_cntct_list*           prev,
         const fptr_phys_cntct_phase_proc proc) {
 
+        IFB_PROFILE_FUNCTION();
+
         phys_cntct_list_validate(curr);
         phys_cntct_list_validate(prev);
         assert(curr != prev);

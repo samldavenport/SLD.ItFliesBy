@@ -73,6 +73,8 @@ namespace ifb {
     asset_mngr_update(
         void) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(_asset_mngr);
 
         const u64 frame = eng_context_get_frame_count();

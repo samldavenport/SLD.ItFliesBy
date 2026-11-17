@@ -85,6 +85,8 @@ namespace ifb {
     pfm_window_frame_render(
         void) {
 
+        IFB_PROFILE_FUNCTION();
+
         win32_window& window = _pfm_ctx.window;
 
         // render imgui
@@ -100,7 +102,9 @@ namespace ifb {
     IFB_WIN32_API_FUNC void
     pfm_window_process_events(
         void) {
- 
+
+        IFB_PROFILE_FUNCTION();
+
         // window instance
         win32_window& window = _pfm_ctx.window;
 

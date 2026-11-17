@@ -100,6 +100,8 @@ namespace ifb {
     phys_mngr_simulate(
         const f32 dt) {
 
+        IFB_PROFILE_FUNCTION();
+
         const phys_cllsn_list* cllsn_list = phys_cllsn_dtctr_get_list(_phys_mngr->collision_detector);
 
         // this step's contacts become the last step's

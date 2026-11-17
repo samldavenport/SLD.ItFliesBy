@@ -10,6 +10,7 @@
 #include <sld-strings.hpp>
 
 #include "ifb-config.hpp"
+#include "ifb-profile.hpp"
 
 //--------------------------------------------------------------------
 // EXPORTS

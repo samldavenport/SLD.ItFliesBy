@@ -52,6 +52,8 @@ namespace ifb {
         const phys_frc_accmltr* accum,
         const f32               dt) {
 
+        IFB_PROFILE_FUNCTION();
+
         // load every entity with the physics archetype into the integrator,
         // with the force it was given this step, or none
         // map entities integrate in world space like everything else,

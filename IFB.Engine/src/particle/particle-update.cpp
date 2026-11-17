@@ -374,6 +374,8 @@ namespace ifb {
     particle_mngr_update_emitters(
         const f32 dt_ms) {
 
+        IFB_PROFILE_FUNCTION();
+
         assert(_particle_mngr);
         assert(dt_ms >= 0.0f);
 

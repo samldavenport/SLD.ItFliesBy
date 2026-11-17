@@ -24,6 +24,13 @@ find_package(implot    CONFIG REQUIRED)
 find_package(RapidJSON CONFIG REQUIRED)
 find_package(Stb       REQUIRED)
 
+# tracy profiler client, connect to the running game with tracy-profiler.exe
+# turn it off to compile the IFB_PROFILE_* macros away
+option(IFB_ENABLE_PROFILING "Build with the Tracy profiler client" ON)
+if(IFB_ENABLE_PROFILING)
+    find_package(Tracy CONFIG REQUIRED)
+endif()
+
 #--------------------------------------------------------------------
 # CORE
 #--------------------------------------------------------------------
@@ -44,6 +51,12 @@ target_include_directories(ifb_core INTERFACE
 target_link_libraries(ifb_core INTERFACE
     SLD::Core SLD::OpenGL SLD::Math SLD::Strings imgui::imgui implot::implot
 )
+
+# the engine, gui, and game all share the one TracyClient.dll
+if(IFB_ENABLE_PROFILING)
+    target_link_libraries(ifb_core INTERFACE Tracy::TracyClient)
+    target_compile_definitions(ifb_core INTERFACE IFB_PROFILE_ENABLED)
+endif()
 
 #--------------------------------------------------------------------
 # ENGINE
@@ -134,6 +147,18 @@ target_include_directories(ifb_gui PRIVATE
 )
 
 target_link_libraries(ifb_gui PUBLIC IFB::Engine)
+
+# engine > tools > profiler opens the tracy viewer from the vcpkg tools
+if(IFB_ENABLE_PROFILING)
+    get_filename_component(IFB_TRACY_PROFILER_EXE
+        "${Tracy_DIR}/../../tools/tracy/tracy-profiler.exe" ABSOLUTE)
+    if(EXISTS "${IFB_TRACY_PROFILER_EXE}")
+        target_compile_definitions(ifb_gui PRIVATE
+            IFB_TRACY_PROFILER_EXE="${IFB_TRACY_PROFILER_EXE}")
+    else()
+        message(STATUS "tracy-profiler.exe not found, the profiler menu item is disabled (install tracy with the gui-tools feature)")
+    endif()
+endif()
 
 #--------------------------------------------------------------------
 # GAME

@@ -98,6 +98,8 @@ namespace ifb {
     game_context_update_and_render(
         game_context* ctx) {
 
+        IFB_PROFILE_FUNCTION();
+
         game_context_validate(ctx);
 
         auto audio = ctx->audio;
