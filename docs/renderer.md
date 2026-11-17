@@ -42,7 +42,7 @@ The renderer mostly uses draw order instead of the depth buffer:
 
 - **Map tiles** get a real depth test, because walls stand up off the floor and have to hide each other.
 - **The grid** is tested against the map's depth, so walls hide it.
-- **Quads** always pass the depth test. They're sorted back to front by distance from the camera before they're drawn, so nearer quads cover farther ones. The order barely changes between frames, so the sort is an insertion sort.
+- **Quads** always pass the depth test. They're sorted back to front by distance from the camera before they're drawn, so nearer quads cover farther ones. The sort is a radix sort on the depths (see [Quads](quads.md#building-the-vertex-buffer)).
 - **Particles** are drawn after the quads, so they're always on top.
 - **Immediate quads** aren't sorted. Each layer draws in the order the quads were pushed, so later ones are on top. The world layer draws after the particles, and the screen layer draws last.
 

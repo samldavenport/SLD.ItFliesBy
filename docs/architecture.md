@@ -38,6 +38,8 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 
 `eng_context_run` (`src/engine/eng-context.cpp`) runs every iteration. Simulation steps run every iteration with the measured delta time; frame steps only run once enough time has passed for a new frame (`IFB_CONFIG_DEFAULT_FPS`).
 
+The delta time is capped at `IFB_CONFIG_DELTA_TIME_MAX_S` (0.1 seconds). A long pause, like a breakpoint, a window drag, or the first frame, would otherwise go into one step and move everything by its velocity for all of it. The game, physics, and particles all see the capped value.
+
 | Step | When |
 | --- | --- |
 | Update system info and delta time | every iteration |
@@ -54,10 +56,10 @@ CMake globs the other `.cpp` files and marks them `HEADER_FILE_ONLY`, so they sh
 `phys_mngr_simulate` runs in this order:
 
 1. Swap this step's and the last step's contact lists
-2. Collision detection (BVH broad phase, filtered by collider masks)
+2. Collision detection (a BVH broad phase per map, queried on the job workers, filtered by collider masks)
 3. Spring forces
 4. Force integration, which writes new velocities and positions into the components
-5. Collision resolution, which records the pairs from step 2 that actually overlap as contacts
+5. Collision resolution, which records the pairs from step 2 that actually overlap as contacts, and pushes and bounces the solid ones apart
 6. Reset the force accumulator
 7. Contact dispatch, which gives each contact a begin, stay, or end phase, calls the collider procs, and publishes a collision [event](events.md) for each
 
@@ -65,9 +67,27 @@ See [Physics](physics.md#simulation-step) for details.
 
 ## Threads
 
-The frame loop runs on the main thread, which owns the game world, the window, and all rendering. The engine also starts a pool of worker threads for [jobs](jobs.md), which sleep until a job is added. Nothing in the frame loop uses them yet.
+The frame loop runs on the main thread, which owns the game world, the window, and all rendering. The engine also starts a pool of worker threads for [jobs](jobs.md), which sleep until a job is added. In the frame loop, physics uses them to [query its BVH](physics.md#querying-on-worker-threads), and waits for those jobs before it goes on. Audio streaming reads on them too.
 
 Only part of the engine is safe to call from a job. See the [thread rules](jobs.md#thread-rules).
+
+## Profiling
+
+The engine, GUI, and game are instrumented for the [Tracy](https://github.com/wolfpld/tracy) profiler through the macros in `IFB.Core/include/ifb-profile.hpp`, so nothing else includes Tracy directly:
+
+| Macro | Description |
+| --- | --- |
+| `IFB_PROFILE_FUNCTION()` | A zone named after the enclosing function, until the end of the scope |
+| `IFB_PROFILE_SCOPE(name)` | A zone with its own name, for a block inside a function |
+| `IFB_PROFILE_FRAME()` | Marks the end of a frame. `eng_context_run` calls it once the frame is presented. |
+| `IFB_PROFILE_THREAD(name)` | Names the calling thread. The job workers are `Job Worker`. |
+| `IFB_PROFILE_PLOT(name, value)` | Plots a value over time |
+
+The CMake option `IFB_ENABLE_PROFILING` (on by default) links `Tracy::TracyClient` into every module and defines `IFB_PROFILE_ENABLED`. With it off, every macro compiles away. Tracy comes from vcpkg with its `gui-tools` feature, which also builds the viewer, `tracy-profiler.exe`.
+
+To profile, run the game and pick **Engine > Tools > Profiler (Tracy)** in the GUI. It starts the viewer and connects it to the running game. The item is disabled, with a tooltip saying why, when the build doesn't have profiling or CMake couldn't find the viewer. The viewer can also be started by hand from `vcpkg_installed/x64-windows/tools/tracy`.
+
+Add a zone to anything that runs a few times per frame. Skip the ones that run per entity or per quad, where the zone costs more than the work.
 
 ## Memory
 

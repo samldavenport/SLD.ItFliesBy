@@ -17,7 +17,7 @@ namespace ifb {
     static constexpr f32 GAME_SCENE_TRIGGER_EDGE_THICKNESS = 0.2f;
 
     // the slab is nudged this far into its tile, in tiles,
-    // so its center is on the tile's chunk, where connor is, even on the chunk's far edge
+    // so its center stays on its own tile instead of on the line between two tiles
     static constexpr f32 GAME_SCENE_TRIGGER_EDGE_NUDGE = 0.01f;
 
     // the active scene's triggers, the shared collision proc finds where to go by the trigger's entity id

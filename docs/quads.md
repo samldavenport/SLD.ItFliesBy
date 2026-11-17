@@ -67,7 +67,11 @@ The texture coordinates are the sprite's rectangle in the atlas, divided by the 
 Each frame, `quad_render_buffer` (`quad.cpp`) turns the entities marked by `eng_entity_render` into vertices:
 
 1. For each marked entity, `quad_render` reads its components and writes four `quad_vertex` values (top right, bottom right, bottom left, top left) into a `quad_vertices`.
-2. The quads are **sorted back to front** by the distance from the camera plane to each quad's center, so nearer quads draw over farther ones. The renderer doesn't depth-test quads, so this order decides what's in front. The order barely changes between frames, so the sort is an insertion sort, which is fast on nearly sorted data.
+2. The quads are **sorted back to front** by the distance from the camera plane to each quad's center, so nearer quads draw over farther ones. The renderer doesn't depth-test quads, so this order decides what's in front.
+
+The sort (`quad_sort_back_to_front`) works out each quad's depth once and turns it into a `u32` key whose bits sort in draw order: a float's bits sort like the float once negatives are flipped, and the bits are then inverted so the farthest quad comes first. The keys are sorted with an LSD radix sort, a byte at a time, skipping any pass where every key has the same byte. Then each quad is moved into place by following the cycles of the sorted order, so it's copied once. The radix sort is stable, so quads at the same depth keep their entity order.
+
+It replaced an insertion sort, which was O(n²) because the buffer is filled in entity order every frame, not in the last frame's sorted order.
 
 It stops when the buffer is full, and returns the bytes it wrote. [Particles](particles.md#rendering) are written into what's left of the same buffer after the quads, so they always draw on top.
 

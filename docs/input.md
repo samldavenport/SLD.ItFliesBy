@@ -20,6 +20,10 @@ The player rig moves with W, A, S, and D (`game_player_rig_update_and_render` in
 
 Key state is still tracked while the GUI has focus, so a key that's released during that time isn't stuck down afterwards.
 
+### Window Focus
+
+When the game window loses the focus, like to a debugger stopping on a breakpoint, the key-up messages go to whatever has the focus instead. So on `WM_KILLFOCUS` the window calls `eng_input_release_all_keys`, and nothing is left held down when the focus comes back.
+
 ## How Keys Are Tracked
 
 1. The Win32 window gets `WM_KEYDOWN` / `WM_SYSKEYDOWN` and `WM_KEYUP` / `WM_SYSKEYUP` messages while it processes events at the start of each frame (`win32-window.cpp`).
@@ -60,4 +64,5 @@ The mouse functions in the public API (`eng_input_mouse_click_left_down`, `_up`,
 | --- | --- |
 | `eng_input_is_key_down` | Check if a key is held down. Always `false` while the GUI has keyboard focus. |
 | `eng_input_set_key_down` / `_set_key_up` | Set a key's state. The platform layer calls these, but they can also be used to simulate input. |
+| `eng_input_release_all_keys` | Release every key. The window calls it when it loses the focus. |
 | `eng_input_mouse_*` | Not implemented yet |

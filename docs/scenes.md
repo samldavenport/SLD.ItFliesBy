@@ -164,7 +164,7 @@ The backdrop stands just behind the far edge of the map being drawn, so nothing 
 
 ## In the Game
 
-The game runs one scene at a time (`IFB.Game/src/game-scene.cpp`). Each one has an ID in `game_scene_id_e` and three procs in the `GAME_SCENE_PROCS` table:
+The game runs one scene at a time (`IFB.Game/src/game-scene.cpp`). Each one has an ID in `game_scene_id_e`, an engine scene name in `GAME_SCENE_NAMES`, and three procs in the `GAME_SCENE_PROCS` table:
 
 | Proc | When it runs | What it does |
 | --- | --- | --- |
@@ -174,16 +174,64 @@ The game runs one scene at a time (`IFB.Game/src/game-scene.cpp`). Each one has 
 
 `exit` runs after the scene's entities, maps, and `eng_scene_alloc` memory are gone, so it can't read them.
 
+Game functions are declared with `IFB_GAME` (`ifb-game.hpp`), which is `static`, the same as the engine's `IFB_INTERNAL`.
+
 ### Switching Scenes
 
-`game_scene_request(id, npc_keep, npc_keep_count)` asks for a switch. It's safe to call from anywhere, including collision procs, and returns false while another switch is requested or underway. The switch is applied over two frames:
+`game_scene_request(id, arrival, npc_keep, npc_keep_count)` asks for a switch. Everything after `id` is optional. It's safe to call from anywhere, including collision procs, and returns false while another switch is requested or underway (`game_scene_is_switching`).
 
-1. **The frame it's applied**: the old scene updates one last time, then `game_scene_update_and_render` creates the new engine scene and calls `eng_scene_transition`. The old scene's collision procs still run in this frame's physics step.
-2. **The next frame**: the engine released the old scene in `scene_mngr_frame_start`, so the old scene exits, the NPCs that aren't kept are forgotten, the dialog is closed, and the new scene enters and updates.
+A switch fades the screen to black, switches while it's black, then fades the new scene in. The game scene state moves through four phases (`game_scene_phase_e`):
 
-The new scene enters a frame late because entity IDs are a hash of the entity's name, and creating an entity whose name is already taken asserts. The old scene's entities, like `CONNOR`, are only destroyed at the start of the next frame, so a scene can't create its own `CONNOR` until then.
+| Phase | What happens | Next |
+| --- | --- | --- |
+| `running` | The active scene updates. A requested switch starts the fade out at the end of the update. | `fade_out` |
+| `fade_out` | The old scene keeps running under a fade to black, for `GAME_SCENE_FADE_OUT_S` (0.3 s). Once it's black, the game creates the new engine scene and calls `eng_scene_transition`. The old scene's collision procs still run in that frame's physics step. | `switching` |
+| `switching` | The next frame, the engine has released the old scene in `scene_mngr_frame_start`. The old scene exits, the NPCs that aren't kept are forgotten, the dialog and the scene triggers are reset, and the new scene enters and updates. | `fade_in` |
+| `fade_in` | The screen stays black for `GAME_SCENE_FADE_HOLD_S` (0.1 s), which covers the new scene's first frames, then fades in over `GAME_SCENE_FADE_IN_S` (0.3 s). | `running` |
 
-`game_scene_init` enters the first scene right away, since nothing is running yet.
+The fade's time step is capped at `GAME_SCENE_FADE_MAX_DT` (1/30 s), so a long frame, like the one that loads a map, doesn't skip it. `game_scene_render_fade` draws the black as a screen-space rectangle with an eased alpha. It's drawn last, after the dialog, so only the GUI is on top of it. Connor's movement keys are locked, and presses are dropped, from the request until the fade in is done.
+
+The new scene enters a frame after the transition because entity IDs are a hash of the entity's name, and creating an entity whose name is already taken asserts. The old scene's entities, like `CONNOR`, are only destroyed at the start of the next frame, so a scene can't create its own `CONNOR` until then.
+
+`game_scene_init` enters the first scene right away, since nothing is running yet, and fades it in from black.
+
+### Arrivals
+
+A `game_scene_arrival` is the tile Connor is placed on when a scene enters: a chunk index and a tile in that chunk, like the door he came through. Pass one to `game_scene_request` to choose where he arrives, or `NULL` for the scene's own spawn.
+
+A scene's `enter` proc calls `game_scene_get_arrival(spawn)` with its own spawn tile, and gets the requested arrival if there was one, or the spawn if there wasn't. The arrival is used up by `enter`.
+
+### Scene Triggers
+
+A scene trigger (`game-scene-trigger.cpp`) is a tile, or one edge of a tile, that switches scenes when Connor touches it, like a door. Each one is an invisible [trigger](physics.md#colliders) entity in the scene that spawned it, so it's gone with the scene.
+
+```cpp
+const game_scene_arrival cliff_town_arrival = { 0, 1, 12 };
+
+game_scene_trigger_def to_cliff_town;
+to_cliff_town.cstr_name   = "TRG-CLIFF-TOWN";             // the entity's tag, unique in the scene
+to_cliff_town.h_map       = map->eng_hnd;
+to_cliff_town.chunk_index = 0;
+to_cliff_town.chunk_x     = 5;
+to_cliff_town.chunk_y     = 0;
+to_cliff_town.side        = game_scene_trigger_side_e_y_min;
+to_cliff_town.target      = game_scene_id_e_cliff_town;
+to_cliff_town.arrival     = &cliff_town_arrival;          // NULL for the target's own spawn
+
+const entity_id id = game_scene_trigger_spawn(to_cliff_town);
+```
+
+| Side | What it covers |
+| --- | --- |
+| `game_scene_trigger_side_e_tile` | The whole tile. Connor walks onto it. |
+| `_x_min`, `_x_max`, `_y_min`, `_y_max` | A thin slab along that edge of the tile, thicker than a wall, so Connor touches it walking into a wall there, into the edge of the map, or through a gap in a wall. |
+
+In a [map file](map-format.md), a row wall at `(row, col)` is the `y_min` side of tile `(col, row)`, and a column wall at `(row, col)` is the `x_min` side.
+
+- `game_scene_trigger_spawn` returns `ENTITY_ID_INVALID` if the tile isn't on the map or the table is full. A scene can have up to `GAME_SCENE_TRIGGER_CAPACITY` (32).
+- All the triggers share one collision proc. On a `begin` contact with Connor, it looks up the trigger's target and arrival and calls `game_scene_request`. Standing on a trigger doesn't keep asking, and a switch that's underway refuses anyway.
+- The table is emptied whenever the scene switches.
+- Never put an arrival on a trigger, or Connor walks straight back out. The dev scene and Cliff Town each arrive just inside the other's door.
 
 ### NPCs Across Scenes
 
@@ -198,19 +246,32 @@ The NPCs passed to `game_scene_request` in `npc_keep` are kept through the switc
 
 ### The Dev Scene
 
-The dev scene (`IFB.Game/src/game-scene-dev.cpp`, engine scene `DEV`) is the first scene. Its `enter` loads `DEV-MAP` and its parallax, and spawns the player rig, the four boxes, and Rose. The rig is created with `game_player_rig_init` and put on the map with `game_player_rig_place` (a map, chunk, and tile in the chunk, the same addressing as the boxes and NPCs), so each scene picks where the player starts. `game_player_rig_place` can also be called again to move the rig. Its state is one `game_scene_dev` struct in its scene memory. The scene owns `DEV-MAP`, so the engine destroys it with the scene, and entering again can load it under the same name.
+The dev scene (`IFB.Game/src/game-scene-dev.cpp`, engine scene `DEV`) is the first scene. Its `enter` loads `DEV-MAP` and its parallax, and spawns the player rig, the four boxes, Rose, and a [trigger](#scene-triggers) on the wall along the top of the first chunk that goes to Cliff Town. The rig is created with `game_player_rig_init` and put on the map with `game_player_rig_place` (a map, chunk, and tile in the chunk, the same addressing as the boxes and NPCs) at the [arrival](#arrivals), or at chunk 0, tile 5, 5 between the boxes. `game_player_rig_place` can also be called again to move the rig. Its state is one `game_scene_dev` struct in its scene memory. The scene owns `DEV-MAP`, so the engine destroys it with the scene, and entering again can load it under the same name.
 
 ### Cliff Town
 
-Cliff town (`IFB.Game/src/game-scene-cliff-town.cpp`, engine scene `CLIFF-TOWN`) loads the `CLIFF-TOWN` map (`assets/maps/cliff-town.json`) and the cliffs parallax, and places the player rig on the road across the middle of the map (chunk 0, tile 12, 12). Its state is one `game_scene_cliff_town` struct in its scene memory. Switch to it with `game_scene_request(game_scene_id_e_cliff_town)`, or from **Game > Scenes** in the GUI.
+Cliff town (`IFB.Game/src/game-scene-cliff-town.cpp`, engine scene `CLIFF-TOWN`) loads the `CLIFF-TOWN` map (`assets/maps/cliff-town.json`) and the cliffs parallax, and places the player rig at the [arrival](#arrivals), or on the road across the middle of the map (chunk 0, tile 12, 12). Walking off the west end of the road, through a trigger on the map's edge, goes back to the dev scene. Its state is one `game_scene_cliff_town` struct in its scene memory. Switch to it with `game_scene_request(game_scene_id_e_cliff_town)`, by walking through the dev scene's door, or from **Game > Scenes** in the GUI.
+
+### The Physics Test
+
+The physics test (`IFB.Game/src/game-scene-physics.cpp`, `game_scene_id_e_physics`) is a stress test for [physics](physics.md). It builds a walled arena map (32 × 20 tiles in one chunk, with a ring of wood tiles under the walls) and fills it with quads that fly off in random directions and ricochet off of each other and the walls. The quads have no drag and no top speed, so only collisions change their speed. The walls are invisible, immovable boxes whose masks only collide with the quads.
+
+Open it from **Game > Testing > Physics** in the GUI. While it's the active scene, the **Physics Test** window is open:
+
+- **Respawn settings**: the quad count (up to `GAME_PHYS_TEST_QUAD_CAPACITY`, 1000), size, and speed range. The quads are spawned again with these when you ask.
+- **Live settings**: the [restitution](physics.md#restitution) and mass range, which apply to the flying quads right away.
+- **Readouts**: how many quads spawned and are still moving, their average and top speed, the kinetic energy against where it started (it stays flat with perfect bounces, so the drift shows how far the solver is off), and how many quads escaped the walls.
+- **The physics step**: the [physics stats](physics.md#stats), with a plot of the step times.
+
+The settings and readouts are in `game_phys_test` (`ifb-game.hpp`). `game_context::phys_test` points at it while the test is the active scene, and is NULL the rest of the time. The scene frames the arena with the camera every frame, and puts the camera back the way the last scene left it when it exits.
 
 ### Switching from the GUI
 
-**Game > Scenes** lists every scene, with the active one checked. The items are disabled while a switch is underway. The GUI only gets a const `game_context`, so it doesn't switch itself: `gui_render` returns the scene that was picked (`game_scene_id_e_none` if none was), and the game's render proc passes it to `game_scene_request` (`game-win32-main.cpp`). It's a fresh switch that keeps no NPCs, and it happens at the end of the next game update. Picking the active scene enters it again from the start.
+**Game > Scenes** lists the dev scene and Cliff Town, and **Game > Testing > Physics** opens the physics test, with the active one checked. The items are disabled while a switch is underway. The GUI only gets a const `game_context`, so it doesn't switch itself: `gui_render` returns the scene that was picked (`game_scene_id_e_none` if none was), and the game's render proc passes it to `game_scene_request` (`game-win32-main.cpp`). It's a fresh switch that keeps no NPCs, and it happens at the end of the next game update. Picking the active scene enters it again from the start.
 
 A new scene needs a label in `gui_strings` and in `scene_labels` in `gui_main_window` (`gui.cpp`). A `static_assert` on `game_scene_id_e_count` there catches a missing one.
 
-The game context's global arena only holds what lasts the whole game: the context, sprites, audio, the dialog, and the NPC manager. `game_context::player_rig` and `::map` point at the active scene's, and are NULL when it doesn't have one.
+The game context's global arena only holds what lasts the whole game: the context, sprites, audio, the dialog, and the NPC manager. `game_context::player_rig` and `::map` point at the active scene's, and are NULL when it doesn't have one. `::phys_test` is only set while the physics test is active.
 
 ## How It Works
 

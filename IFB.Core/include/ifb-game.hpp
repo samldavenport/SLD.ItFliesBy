@@ -262,8 +262,8 @@ namespace ifb {
     // into the edge of the map, or through a gap in a wall
     // in the map file, a row wall at (row, col) is the y_min side of tile (col, row),
     // and a column wall at (row, col) is the x_min side of tile (col, row)
-    // physics only pairs entities in the same chunk, so an edge between two chunks
-    // only triggers from the tile's side
+    // physics pairs entities anywhere on the same map, so an edge between two chunks
+    // triggers from either side
     IFB_U32(game_scene_trigger_side_u32);
     enum game_scene_trigger_side_e {
         game_scene_trigger_side_e_tile  = 0, // the whole tile, connor walks onto it

@@ -117,7 +117,7 @@ namespace ifb {
         settings.mass_max             = 1.0f;
         settings.is_respawn_requested = false;
 
-        // one chunk is the whole arena, physics only pairs entities in the same chunk
+        // one chunk is the whole arena, physics pairs everything on the map
         // the floor is gray, and the ring of tiles around the edge is wood, where the walls are
         const hnd_map h_map = eng_map_create(GAME_PHYS_TEST_MAP_NAME, GAME_PHYS_TEST_ARENA_ROWS, GAME_PHYS_TEST_ARENA_COLS);
         assert(h_map != INVALID_HANDLE);
@@ -223,7 +223,7 @@ namespace ifb {
     //--------------------------------------------------------------------
 
     // a wall is an invisible, immovable box over one side of the ring of wood tiles
-    // its center is on the map, so physics pairs it with the quads in the arena's chunk
+    // its center is on the map, so physics pairs it with the quads on the arena's map
     inline entity_id
     game_scene_physics_spawn_wall(
         const cchar*  tag,

@@ -78,6 +78,7 @@ A map belongs to the [scene](scenes.md) that's bound when it's created or loaded
 | Function | Description |
 | --- | --- |
 | `eng_map_get_chunk_count` / `eng_map_chunk_get_info` | List the chunks: each one's rectangle, color, and atlas |
+| `eng_map_chunk_get_dimensions` | A chunk's rows, columns, and origin row and column, as a `map_chunk_dims` |
 | `eng_map_chunk_set_color` | Change a chunk's color. Its tiles without a sprite show the color, and its tiles with one are tinted by it. |
 | `eng_map_chunk_destroy` | Remove a chunk with its tiles and walls. The chunks after it move down one index. A wall on an edge it shares with another chunk moves to that chunk instead of going with it. |
 

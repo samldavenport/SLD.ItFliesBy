@@ -2,9 +2,14 @@
 
 The job system (`IFB.Engine/src/jobs`, `eng-jobs.hpp`) runs work on a pool of worker threads. Workers sleep until a job is added, so an idle pool doesn't use any CPU time.
 
-The frame loop doesn't use jobs yet, and neither does the game. The one thing that does is audio streaming, which reads each chunk of a stream with a job (see [Audio](audio.md#reading-on-worker-threads)). Everything else runs on the main thread unless something calls `eng_job_add`.
+Two things in the engine use jobs, and the game doesn't use them yet:
 
-Since `eng_job_wait` waits on every job, a wait also waits on any stream reads that are out. They're short reads, but keep it in mind if a wait ever lands in the frame loop.
+- **Physics** queries its [BVH](physics.md#querying-on-worker-threads) on the workers during collision detection, and waits for those jobs with a [job counter](#waiting-on-a-batch) before the step goes on.
+- **Audio streaming** reads each chunk of a stream with a job (see [Audio](audio.md#reading-on-worker-threads)).
+
+Everything else runs on the main thread.
+
+Since `eng_job_wait` waits on every job, a wait also waits on any stream reads that are out. They're short reads, but keep it in mind if a wait ever lands in the frame loop. Code inside the engine that only needs its own jobs should wait on a [job counter](#waiting-on-a-batch) instead.
 
 ## Adding Jobs
 
@@ -63,6 +68,35 @@ Things to know:
 - **Jobs start in the order they were added**, but they can finish in any order. There are no priorities or dependencies between jobs.
 - **Waiting blocks the main thread.** It doesn't run jobs while it waits.
 
+### Waiting on a Batch
+
+Inside the engine, a **job counter** (`job_counter`, `eng-jobs.hpp`) waits for a batch of jobs without waiting on everything else in the queue, like stream reads. The physics BVH query uses one.
+
+```cpp
+job_counter counter = {};
+job_counter_add(counter, job_count);       // before adding the jobs
+
+for (/* each job */) {
+    // the job's context points at the counter, and the job calls
+    // job_counter_done(*counter) as the last thing it does
+    if (!job_dspchr_add_job(j)) {
+        // the queue is full, so run it here
+        j.proc(h_arena, &j.ctx);
+    }
+}
+
+job_counter_wait(counter);                 // only these jobs
+```
+
+| Function | Description |
+| --- | --- |
+| `job_counter_add` | Add to the number of jobs the counter waits on. Call it before adding the jobs. |
+| `job_counter_done` | Mark one job done. A job calls it as its last step, and doesn't touch the counter after. |
+| `job_counter_wait` | Block until the counter reaches zero. Don't call it from a job. |
+| `job_dspchr_get_worker_count` | The number of worker threads. With `0`, `job_dspchr_add_job` runs the job before it returns, so it's usually better to do the work directly. |
+
+The counter is updated under the dispatcher's lock, and the last `job_counter_done` wakes the same condition variable as `eng_job_wait`. Nothing touches the counter after it reaches zero, so it can live on the waiting thread's stack. These functions are `IFB_INTERNAL`, so the game and GUI can't use them.
+
 ### Single Core Machines
 
 With one CPU core there are no workers, so `eng_job_add` runs the job on the calling thread before it returns. It uses an arena set aside for this, saved and reverted around the job, and a job can add another job. Don't assume jobs run in parallel, or that `eng_job_add` returns before the job starts.
@@ -75,7 +109,7 @@ The main thread owns the game world and everything that talks to the GPU, an aud
 
 | System | Rules |
 | --- | --- |
-| Jobs | `eng_job_add` from any thread. `eng_job_wait` from anything except a job. |
+| Jobs | `eng_job_add` from any thread. `eng_job_wait` and `job_counter_wait` from anything except a job. |
 | Arenas | Any thread can allocate or free an arena, but only one thread can use a given arena at a time. |
 | Files | Any thread can open or close a file, but only one thread can use an open file at a time. Don't open a path that's already open, because both opens get the same handle. |
 | Text and images | `eng_text_*` and `eng_image_*`, with a file and an arena that belong to the job. |
@@ -113,14 +147,14 @@ To work on game data in a job, have the main thread pass pointers to the data in
 1. `eng_job_add` takes the lock, copies the job into the queue, adds one to `unfinished`, and releases the lock.
 2. It wakes one worker with the `work_available` condition variable.
 3. The worker takes the lock, copies the job out of the queue, and releases the lock.
-4. It resets its arena and runs the job with nothing locked.
+4. It resets its arena and runs the job with nothing locked, inside a `Job` [profiler](architecture.md#profiling) zone.
 5. It takes the lock and subtracts one from `unfinished`. If that was the last one, it wakes everything waiting on `all_done`.
 
 `unfinished` counts jobs that are queued or running, so `eng_job_wait` can't return while a job is still running even when the queue is empty.
 
 ### Workers
 
-`job_worker_pool_init` creates one worker per physical core, minus one for the main thread, up to `IFB_CONFIG_THREAD_CAPACITY`. A machine with 8 cores gets 7 workers. The scheduler decides where they run, since the pool doesn't set an ideal core or an affinity.
+Each worker names its thread `Job Worker` in the [profiler](architecture.md#profiling). `job_worker_pool_init` creates one worker per physical core, minus one for the main thread, up to `IFB_CONFIG_THREAD_CAPACITY`. A machine with 8 cores gets 7 workers. The scheduler decides where they run, since the pool doesn't set an ideal core or an affinity.
 
 ### Startup and Shutdown
 

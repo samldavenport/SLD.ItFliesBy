@@ -112,7 +112,7 @@ Everything is a fixed size, set in `IFB.Core/include/ifb-config.hpp` and allocat
 | `IFB_CONFIG_EVENT_TYPE_MAX` | 64 | Asserts on publish, subscribe, and unsubscribe |
 | `IFB_CONFIG_EVENT_MAX_LISTENERS_PER_EVENT` | 16 | `eng_event_listener_subscribe` returns `false` |
 
-> **Note:** contact dispatch asserts that every publish succeeds, so more than 128 contacts in one pass, counting `begin`, `stay`, and `end`, trips that assert. If asserts are compiled out, the extra events are dropped. The collider procs are still called.
+> **Note:** more than 128 contacts in one pass, counting `begin`, `stay`, and `end`, fills the queue, which a crowded scene can do. Contact dispatch drops the extra events and counts them in the [physics stats](physics.md#stats) as `count_events_dropped`. The collider procs are still called for them.
 
 ## Public API
 
