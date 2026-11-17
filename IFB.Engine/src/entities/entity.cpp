@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ifb-profile.hpp"
 #include "ifb.hpp"
 #include "sld.hpp"
 #include "eng-entity.hpp"
@@ -314,6 +315,8 @@ namespace ifb {
     IFB_INTERNAL bool
     entity_is_drawn(
         const entity& e) {
+
+        IFB_PROFILE_FUNCTION();
 
         entity_mngr_validate();
         assert(e.index_dense < _entity_mngr->count);

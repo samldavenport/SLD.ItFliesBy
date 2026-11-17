@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity-manager.cpp"
+#include "ifb-profile.hpp"
 #include "ifb.hpp"
 #include "ifb-engine.hpp"
 #include "eng-entity.hpp"
@@ -45,6 +46,8 @@ namespace ifb {
     entity_lookup_by_index_dense(
         entity&   e,
         const u32 index) {
+
+        IFB_PROFILE_FUNCTION();
 
         entity_mngr_validate();
         

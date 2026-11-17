@@ -4,6 +4,7 @@
 #include "eng-entity.hpp"
 
 #include "eng-component.hpp"
+#include "ifb-profile.hpp"
 #include "ifb.hpp"
 #include "eng-particle.hpp"
 #include "particle-mngr.cpp"
@@ -57,6 +58,8 @@ namespace ifb {
         byte*              buffer_data,
         const u32          buffer_size,
         const orientation& camera_orientation) {
+
+        IFB_PROFILE_FUNCTION();
 
         assert(_particle_mngr);
         assert(buffer_data != NULL);
