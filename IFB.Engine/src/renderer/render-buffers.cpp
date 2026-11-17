@@ -2,6 +2,7 @@
 
 #include "ifb-config.hpp"
 #include "eng-component.hpp"
+#include "ifb-profile.hpp"
 #include "ifb.hpp"
 #include "eng-context.hpp"
 #include "eng-renderer.hpp"
@@ -155,7 +156,9 @@ namespace ifb {
     render_buffers_render_quads(
         render_buffers*  buffers,
         renderer_camera* camera) {
-    
+   
+        IFB_PROFILE_FUNCTION();
+
         assert(buffers);
 
         // validate the vertex buffer
@@ -211,6 +214,8 @@ namespace ifb {
     render_buffers_render_tiles(
         render_buffers* buffers,
         const hnd_map   h_map) {
+
+        IFB_PROFILE_FUNCTION();
 
         assert(buffers);
 

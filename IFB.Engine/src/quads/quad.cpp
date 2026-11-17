@@ -2,6 +2,7 @@
 
 #include "entity.cpp"
 #include "eng-component.hpp"
+#include "ifb-profile.hpp"
 #include "ifb.hpp"
 #include "memory-arena.cpp"
 #include "particle-emitter.cpp"
@@ -92,6 +93,8 @@ namespace ifb {
         const quad_vertices& vertices,
         const orientation&   camera_orientation) {
 
+        // no profile zone, this runs once per quad and the zones cost more than the math
+
         const vec3 center = {
             (vertices.top_right.position.x + vertices.bottom_left.position.x) * 0.5f,
             (vertices.top_right.position.y + vertices.bottom_left.position.y) * 0.5f,
@@ -102,6 +105,136 @@ namespace ifb {
         return(depth);
     }
 
+    struct quad_sort_key {
+        u32 key;   // the depth, as bits that sort in the order we draw
+        u32 index; // where the quad is in the vertex buffer
+    };
+
+    // maps the depth to bits where a smaller value is drawn first
+    // a float's bits sort like the float once negatives are flipped,
+    // then everything is inverted so the farthest quad comes first
+    inline u32
+    quad_sort_key_from_depth(
+        const f32 depth) {
+
+        union { f32 f; u32 u; } bits;
+        bits.f = depth;
+
+        const u32 ascending = (bits.u & 0x80000000u)
+            ? ~bits.u
+            : (bits.u | 0x80000000u);
+
+        return(~ascending);
+    }
+
+    // sorts the quads in the buffer back to front
+    // the depths are computed once, then the keys are radix sorted and the quads are moved into place once
+    // this used to be an insertion sort over the quads, which was O(n^2) since the buffer is
+    // filled in entity order every frame, at 1000 quads that was ~250k steps each recomputing a depth and copying a quad
+    // the radix sort is stable, so quads at the same depth keep their entity order like before
+    IFB_INTERNAL void
+    quad_sort_back_to_front(
+        quad_vertices*     vertex_buffer,
+        const u32          count,
+        const orientation& camera_orientation) {
+
+        IFB_PROFILE_FUNCTION();
+
+        if (count < 2) return;
+
+        const hnd_arena h_arena = arena_alloc();
+        assert(h_arena != INVALID_HANDLE);
+        if (h_arena == INVALID_HANDLE) return;
+
+        auto* keys     = (quad_sort_key*)arena_push(h_arena, count * sizeof(quad_sort_key));
+        auto* keys_tmp = (quad_sort_key*)arena_push(h_arena, count * sizeof(quad_sort_key));
+        assert(keys != NULL && keys_tmp != NULL);
+        if (keys == NULL || keys_tmp == NULL) {
+            arena_free(h_arena);
+            return;
+        }
+
+        // one depth per quad
+        for (
+            u32 index = 0;
+                index < count;
+              ++index) {
+
+            keys[index].key   = quad_sort_key_from_depth(quad_depth(vertex_buffer[index], camera_orientation));
+            keys[index].index = index;
+        }
+
+        // lsd radix sort, a byte at a time
+        // a pass where every key has the same byte doesn't change the order, so it's skipped
+        quad_sort_key* src = keys;
+        quad_sort_key* dst = keys_tmp;
+        for (
+            u32 shift = 0;
+                shift < 32;
+                shift += 8) {
+
+            u32 offsets[256] = {};
+            for (
+                u32 index = 0;
+                    index < count;
+                  ++index) {
+
+                ++offsets[(src[index].key >> shift) & 0xFF];
+            }
+
+            if (offsets[(src[0].key >> shift) & 0xFF] == count) continue;
+
+            u32 sum = 0;
+            for (
+                u32 bucket = 0;
+                    bucket < 256;
+                  ++bucket) {
+
+                const u32 bucket_count = offsets[bucket];
+                offsets[bucket] = sum;
+                sum += bucket_count;
+            }
+
+            for (
+                u32 index = 0;
+                    index < count;
+                  ++index) {
+
+                const u32 bucket = (src[index].key >> shift) & 0xFF;
+                dst[offsets[bucket]++] = src[index];
+            }
+
+            quad_sort_key* swap = src;
+            src = dst;
+            dst = swap;
+        }
+
+        // src[i].index is the quad that belongs at i, move them into place by following the cycles
+        // each quad is copied once, plus one extra copy per cycle
+        for (
+            u32 index = 0;
+                index < count;
+              ++index) {
+
+            if (src[index].index == index) continue;
+
+            const quad_vertices first = vertex_buffer[index];
+            u32 hole = index;
+            for (;;) {
+                const u32 from = src[hole].index;
+                src[hole].index = hole;
+                if (from == index) {
+                    vertex_buffer[hole] = first;
+                    break;
+                }
+                vertex_buffer[hole] = vertex_buffer[from];
+                hole = from;
+            }
+        }
+
+        arena_free(h_arena);
+    }
+
     // renders the quad of every entity marked to be drawn this frame
     // returns the size of the vertex data that was written to the buffer
     // if the buffer is full, the rest of the quads aren't rendered
@@ -110,6 +243,8 @@ namespace ifb {
         byte*               buffer_data,
         const u32           buffer_size,
         const orientation&  camera_orientation) {
+
+        IFB_PROFILE_FUNCTION();
 
         assert(buffer_data != NULL);
 
@@ -132,25 +267,7 @@ namespace ifb {
         }
 
         // the quads are sorted back to front so their transparent edges blend over the quads behind them
-        // the order barely changes between frames, so an insertion sort is cheap
-        for (
-            u32 sort_index = 1;
-                sort_index < vertex_index;
-              ++sort_index) {
-
-            const quad_vertices sort_quad  = vertex_buffer[sort_index];
-            const f32           sort_depth = quad_depth(sort_quad, camera_orientation);
-
-            u32 insert_index = sort_index;
-            while (
-                insert_index > 0 &&
-                quad_depth(vertex_buffer[insert_index - 1], camera_orientation) < sort_depth) {
-
-                vertex_buffer[insert_index] = vertex_buffer[insert_index - 1];
-                --insert_index;
-            }
-            vertex_buffer[insert_index] = sort_quad;
-        }
+        quad_sort_back_to_front(vertex_buffer, vertex_index, camera_orientation);
 
         return(vertex_index * sizeof(quad_vertices));
     }
@@ -160,6 +277,8 @@ namespace ifb {
         quad_vertices&     vertices,
         const entity&      e,
         const orientation& camera_orientation) {
+
+        IFB_PROFILE_FUNCTION();
 
         quad_entity q;
         const bool quad_is_valid = quad_lookup(q, e); 
@@ -225,49 +344,49 @@ namespace ifb {
             }
 
             // top right
-            vertices.top_right.position.x    = center.x + right.x + up.x;
-            vertices.top_right.position.y    = center.y + right.y + up.y;
-            vertices.top_right.position.z    = center.z + right.z + up.z;
-            vertices.top_right.color.r       = color.r;
-            vertices.top_right.color.g       = color.g;
-            vertices.top_right.color.b       = color.b;
-            vertices.top_right.color.a       = color.a;
-            vertices.top_right.text_coords.x = u_right;
-            vertices.top_right.text_coords.y = v_top;
-            vertices.top_right.textured      = textured;
+            vertices.top_right.position.x       = center.x + right.x + up.x;
+            vertices.top_right.position.y       = center.y + right.y + up.y;
+            vertices.top_right.position.z       = center.z + right.z + up.z;
+            vertices.top_right.color.r          = color.r;
+            vertices.top_right.color.g          = color.g;
+            vertices.top_right.color.b          = color.b;
+            vertices.top_right.color.a          = color.a;
+            vertices.top_right.text_coords.x    = u_right;
+            vertices.top_right.text_coords.y    = v_top;
+            vertices.top_right.textured         = textured;
 
             // bottom right
-            vertices.bottom_right.position.x = center.x + right.x - up.x;
-            vertices.bottom_right.position.y = center.y + right.y - up.y;
-            vertices.bottom_right.position.z = center.z + right.z - up.z;
-            vertices.bottom_right.color.r    = color.r;
-            vertices.bottom_right.color.g    = color.g;
-            vertices.bottom_right.color.b    = color.b;
-            vertices.bottom_right.color.a    = color.a;
+            vertices.bottom_right.position.x    = center.x + right.x - up.x;
+            vertices.bottom_right.position.y    = center.y + right.y - up.y;
+            vertices.bottom_right.position.z    = center.z + right.z - up.z;
+            vertices.bottom_right.color.r       = color.r;
+            vertices.bottom_right.color.g       = color.g;
+            vertices.bottom_right.color.b       = color.b;
+            vertices.bottom_right.color.a       = color.a;
             vertices.bottom_right.text_coords.x = u_right;
             vertices.bottom_right.text_coords.y = v_bottom;
             vertices.bottom_right.textured      = textured;
 
             // bottom left
-            vertices.bottom_left.position.x  = center.x - right.x - up.x;
-            vertices.bottom_left.position.y  = center.y - right.y - up.y;
-            vertices.bottom_left.position.z  = center.z - right.z - up.z;
-            vertices.bottom_left.color.r     = color.r;
-            vertices.bottom_left.color.g     = color.g;
-            vertices.bottom_left.color.b     = color.b;
-            vertices.bottom_left.color.a     = color.a;
+            vertices.bottom_left.position.y     = center.y - right.y - up.y;
+            vertices.bottom_left.position.x     = center.x - right.x - up.x;
+            vertices.bottom_left.position.z     = center.z - right.z - up.z;
+            vertices.bottom_left.color.r        = color.r;
+            vertices.bottom_left.color.g        = color.g;
+            vertices.bottom_left.color.b        = color.b;
+            vertices.bottom_left.color.a        = color.a;
             vertices.bottom_left.text_coords.x  = u_left;
             vertices.bottom_left.text_coords.y  = v_bottom;
             vertices.bottom_left.textured       = textured;
 
             // top left
-            vertices.top_left.position.x     = center.x - right.x + up.x;
-            vertices.top_left.position.y     = center.y - right.y + up.y;
-            vertices.top_left.position.z     = center.z - right.z + up.z;
-            vertices.top_left.color.r        = color.r;
-            vertices.top_left.color.g        = color.g;
-            vertices.top_left.color.b        = color.b;
-            vertices.top_left.color.a        = color.a;
+            vertices.top_left.position.x        = center.x - right.x + up.x;
+            vertices.top_left.position.y        = center.y - right.y + up.y;
+            vertices.top_left.position.z        = center.z - right.z + up.z;
+            vertices.top_left.color.r           = color.r;
+            vertices.top_left.color.g           = color.g;
+            vertices.top_left.color.b           = color.b;
+            vertices.top_left.color.a           = color.a;
             vertices.top_left.text_coords.x     = u_left;
             vertices.top_left.text_coords.y     = v_top;
             vertices.top_left.textured          = textured;
