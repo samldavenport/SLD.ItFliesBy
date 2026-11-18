@@ -6,6 +6,7 @@
 
 #include "game-scene.cpp"
 #include "game-dialog.cpp"
+#include "game-audio.cpp"
 
 namespace ifb {
 
@@ -51,15 +52,13 @@ namespace ifb {
         ctx->is_action_pressed = false;
 
         // nothing is playing yet
-        audio->h_boop = {INVALID_HANDLE};
+        audio->h_boop  = INVALID_HANDLE;
+        audio->h_music = INVALID_HANDLE;
 
         // loaded now so the first bump doesn't wait on the disk, it stays loaded for the whole game
         // without the sound bank it fails, and the boop just doesn't play
         (void)eng_audio_sound_preload("BOOP");
-
-        // the music is streamed from the sound bank instead of loaded, and loops for the whole game
-        // it's in the music group, so it can be turned down without the sound effects
-        audio->h_music = eng_audio_sound_stream("AMBIENT-LOOP", audio_group_e_music, GAME_MUSIC_VOLUME, true);
+        
 
         // load the sprite atlas
         sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
@@ -103,8 +102,6 @@ namespace ifb {
         game_context_validate(ctx);
 
         auto audio = ctx->audio;
-
-        eng_audio_voice_stop(audio->h_music);
 
         game_scene_update_and_render(ctx);
         game_dialog_update(ctx);

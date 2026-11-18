@@ -60,7 +60,6 @@ namespace ifb {
         game_scene_begin_switch  ();
         game_scene_finish_switch (ctx);
     
-        (void)eng_audio_sound_play("AMBIENT-LOOP", audio_group_e_music, 0.25, true); 
     }
 
     // finishes a switch from last frame, updates the active scene, then moves the fade along
