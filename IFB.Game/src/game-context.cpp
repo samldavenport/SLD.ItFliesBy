@@ -59,7 +59,7 @@ namespace ifb {
 
         // the music is streamed from the sound bank instead of loaded, and loops for the whole game
         // it's in the music group, so it can be turned down without the sound effects
-        audio->h_music = eng_audio_sound_stream("PIANO", audio_group_e_music, GAME_MUSIC_VOLUME, true);
+        audio->h_music = eng_audio_sound_stream("AMBIENT-LOOP", audio_group_e_music, GAME_MUSIC_VOLUME, true);
 
         // load the sprite atlas
         sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
