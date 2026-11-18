@@ -69,6 +69,7 @@
     ],
     "sound": [
         { "name": "PIANO", "path": "sounds/piano.wav" },
-        { "name": "BOOP", "path": "sounds/boop.wav" }
+        { "name": "BOOP", "path": "sounds/boop.wav" },
+        { "name": "AMBIENT-LOOP", "path": "sounds/ambient-loop.wav" }
     ]
 }

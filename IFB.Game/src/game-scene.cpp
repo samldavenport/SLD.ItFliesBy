@@ -59,6 +59,7 @@ namespace ifb {
 
         game_scene_begin_switch  ();
         game_scene_finish_switch (ctx);
+    
     }
 
     // finishes a switch from last frame, updates the active scene, then moves the fade along

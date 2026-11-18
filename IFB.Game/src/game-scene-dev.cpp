@@ -46,12 +46,7 @@ namespace ifb {
         else if (contact.self == entities->static_entity_3) text = text_box_4;
         const u32 text_size = sizeof(text_box_1)-1;
 
-        auto audio = _game_ctx->audio;
-        audio_voice_info info;
-        const bool is_boop_playing = eng_audio_voice_get_info(audio->h_boop, info);
-        if (!is_boop_playing) {
-            audio->h_boop = eng_audio_sound_play("BOOP", audio_group_e_sfx, GAME_BOOP_VOLUME, false);
-        };
+        game_audio_play_sfx(_game_ctx, "BOOP");
 
         const bool did_open = game_dialog_open(text,text_size);
         assert(did_open);
@@ -224,6 +219,8 @@ namespace ifb {
         assert(entities->static_entity_1 != ENTITY_ID_INVALID);
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);
         assert(entities->static_entity_3 != ENTITY_ID_INVALID);
+
+        game_audio_play_music(ctx, "AMBIENT-LOOP");
     }
 
     // the engine skips the scene's entities while it isn't updating or rendering,
