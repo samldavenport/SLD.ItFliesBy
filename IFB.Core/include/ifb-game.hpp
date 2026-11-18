@@ -346,7 +346,9 @@ namespace ifb {
     IFB_GAME game_context* game_context_create_and_init      (void);
     IFB_GAME void          game_context_update_and_render    (game_context* ctx);
 
-    IFB_GAME void          game_audio_set_music           (game_context* ctx, const cchar* name);
+    IFB_GAME void          game_audio_play_music           (game_context* ctx, const cchar* sound_name);
+    IFB_GAME void          game_audio_play_sfx             (game_context* ctx, const cchar* sound_name);
+
 
     IFB_GAME game_dialog*  game_dialog_create     (const hnd_arena h_arena, const font* fnt);
     IFB_GAME void          game_dialog_reset      (void);
