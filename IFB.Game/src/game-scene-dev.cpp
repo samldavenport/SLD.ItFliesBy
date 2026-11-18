@@ -48,8 +48,6 @@ namespace ifb {
 
         game_audio_play_sfx(_game_ctx, "BOOP");
 
-        game_audio_pause_music(_game_ctx);
-
         const bool did_open = game_dialog_open(text,text_size);
         assert(did_open);
     }
