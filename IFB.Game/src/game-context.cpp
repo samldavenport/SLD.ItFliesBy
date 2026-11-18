@@ -52,8 +52,10 @@ namespace ifb {
         ctx->is_action_pressed = false;
 
         // nothing is playing yet
-        audio->h_boop  = INVALID_HANDLE;
-        audio->h_music = INVALID_HANDLE;
+        audio->h_boop          = INVALID_HANDLE;
+        audio->h_music         = INVALID_HANDLE;
+        audio->music_state     = game_audio_music_state_e_none;
+        audio->fade_out_volume = GAME_MUSIC_VOLUME;
 
         // loaded now so the first bump doesn't wait on the disk, it stays loaded for the whole game
         // without the sound bank it fails, and the boop just doesn't play
@@ -101,10 +103,9 @@ namespace ifb {
 
         game_context_validate(ctx);
 
-        auto audio = ctx->audio;
-
         game_scene_update_and_render(ctx);
         game_dialog_update(ctx);
+        game_audio_update(ctx);
 
         // the dialog leaves e for the collision procs, nothing gets it while a scene fades
         if (game_scene_is_switching()) {

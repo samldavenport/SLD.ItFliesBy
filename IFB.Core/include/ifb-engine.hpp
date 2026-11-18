@@ -569,9 +569,22 @@ namespace ifb {
     IFB_ENGINE_API f32  eng_audio_get_master_volume (void);
 
     // voices are mixed into the buffer at the end of the frame, after the game and gui callbacks
-    // the wav has to stay in memory until every voice playing it is freed, see eng_audio_voice_stop_all_using
     // a handle goes stale when its voice is freed, then the calls on it do nothing and get_info returns false
-    IFB_ENGINE_API hnd_audio_voice eng_audio_voice_play           (const wav* w, const audio_group_e group, const f32 volume, const bool is_looping);
+
+    // an owned voice on a sound asset by name, paused at the start, nothing is heard until it's played
+    // it's kept until it's destroyed: when it ends, or a stop fades out, it goes back to the start and pauses
+    // a streamed one is read from the bank a chunk at a time instead of loaded, and asks for its first chunks now
+    // it holds a voice, and its sound in memory or one of IFB_CONFIG_AUDIO_STREAM_CAPACITY streams, even while it's paused
+    // copy to runtime frees it, like every voice on a sound asset
+    IFB_ENGINE_API hnd_audio_voice eng_audio_voice_create         (const cchar* name, const audio_group_e group, const f32 volume, const bool is_looping, const bool is_streamed);
+    IFB_ENGINE_API void            eng_audio_voice_play           (const hnd_audio_voice h_voice); // fades in from where it is, and calls off a stop
+    IFB_ENGINE_API void            eng_audio_voice_pause          (const hnd_audio_voice h_voice); // fades out, and holds its position
+    IFB_ENGINE_API void            eng_audio_voice_destroy        (const hnd_audio_voice h_voice); // fades out, then frees
+
+    // the one-shots below start playing right away, and are freed when they end or are stopped
+
+    // the wav has to stay in memory until every voice playing it is freed, see eng_audio_voice_stop_all_using
+    IFB_ENGINE_API hnd_audio_voice eng_audio_wav_play             (const wav* w, const audio_group_e group, const f32 volume, const bool is_looping);
 
     // plays a sound asset from the runtime database by name, it's loaded if it isn't in memory
     // the sound stays in memory while the voice plays, there's nothing to free
@@ -586,10 +599,9 @@ namespace ifb {
     // false if there's no sound by that name, no room for it, or IFB_CONFIG_AUDIO_PRELOAD_CAPACITY sounds are already preloaded
     IFB_ENGINE_API bool            eng_audio_sound_preload        (const cchar* name);
     IFB_ENGINE_API void            eng_audio_sound_unload         (const cchar* name);
-    IFB_ENGINE_API void            eng_audio_voice_stop           (const hnd_audio_voice h_voice); // fades out, then frees
-    IFB_ENGINE_API void            eng_audio_voice_stop_now       (const hnd_audio_voice h_voice); // frees without a fade
+    IFB_ENGINE_API void            eng_audio_voice_stop           (const hnd_audio_voice h_voice); // fades out, then an owned voice rewinds and pauses, a one-shot is freed
+    IFB_ENGINE_API void            eng_audio_voice_stop_now       (const hnd_audio_voice h_voice); // frees without a fade, owned or not
     IFB_ENGINE_API void            eng_audio_voice_stop_all_using (const wav* w);                  // frees without a fade, call it before freeing a wav
-    IFB_ENGINE_API void            eng_audio_voice_set_paused     (const hnd_audio_voice h_voice, const bool is_paused);
     IFB_ENGINE_API void            eng_audio_voice_set_volume     (const hnd_audio_voice h_voice, const f32 volume);
     IFB_ENGINE_API void            eng_audio_voice_set_looping    (const hnd_audio_voice h_voice, const bool is_looping);
     IFB_ENGINE_API void            eng_audio_voice_seek           (const hnd_audio_voice h_voice, const f64 position);

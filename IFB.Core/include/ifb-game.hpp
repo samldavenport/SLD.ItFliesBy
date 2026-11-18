@@ -79,12 +79,22 @@ namespace ifb {
         u32              i_sprite_jig;
     };
 
-    static constexpr f32 GAME_BOOP_VOLUME  = 0.25f;
-    static constexpr f32 GAME_MUSIC_VOLUME = 0.3f;
+    static constexpr f32 GAME_BOOP_VOLUME      = 0.25f;
+    static constexpr f32 GAME_MUSIC_VOLUME     = 0.3f;
+    static constexpr f32 GAME_MUSIC_FADE_OUT_S = 1.25f; // from full volume to silent
+
+    IFB_U32(game_audio_music_state_u32);
+    enum game_audio_music_state_e {
+        game_audio_music_state_e_none     = 0, // playing, paused, or not set, the engine's voice says which
+        game_audio_music_state_e_delayed  = 1,
+        game_audio_music_state_e_fade_out = 2  // turned down a little each update, then stopped
+    };
 
     struct game_audio {
-        hnd_audio_voice h_music; // INVALID_HANDLE if it couldn't start, like without the sound bank
-        hnd_audio_voice h_boop;  // stale once the boop finishes
+        hnd_audio_voice            h_music; // INVALID_HANDLE if it couldn't start, like without the sound bank
+        hnd_audio_voice            h_boop;  // stale once the boop finishes
+        game_audio_music_state_u32 music_state;
+        f32                        fade_out_volume; // the music's volume while it fades out
     };
 
     static constexpr const cchar* GAME_SCENE_DEV_NAME        = "DEV";
@@ -346,9 +356,12 @@ namespace ifb {
     IFB_GAME game_context* game_context_create_and_init      (void);
     IFB_GAME void          game_context_update_and_render    (game_context* ctx);
 
-    IFB_GAME void          game_audio_play_music           (game_context* ctx, const cchar* sound_name);
+    IFB_GAME void          game_audio_set_music            (game_context* ctx, const cchar* sound_name);
+    IFB_GAME void          game_audio_play_music           (game_context* ctx);
+    IFB_GAME void          game_audio_pause_music          (game_context* ctx);
+    IFB_GAME void          game_audio_fade_out_music       (game_context* ctx);
     IFB_GAME void          game_audio_play_sfx             (game_context* ctx, const cchar* sound_name);
-
+    IFB_GAME void          game_audio_update               (game_context* ctx);
 
     IFB_GAME game_dialog*  game_dialog_create     (const hnd_arena h_arena, const font* fnt);
     IFB_GAME void          game_dialog_reset      (void);

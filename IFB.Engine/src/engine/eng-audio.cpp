@@ -27,13 +27,47 @@ namespace ifb {
     }
 
     IFB_ENGINE_API hnd_audio_voice
-    eng_audio_voice_play(
+    eng_audio_wav_play(
         const wav*          w,
         const audio_group_e group,
         const f32           volume,
         const bool          is_looping) {
 
-        return(audio_mngr_voice_play(w, group, volume, is_looping));
+        assert(w);
+        return(audio_mngr_wav_play(w, group, volume, is_looping));
+    }
+
+    IFB_ENGINE_API hnd_audio_voice
+    eng_audio_voice_create(
+        const cchar*        name,
+        const audio_group_e group,
+        const f32           volume,
+        const bool          is_looping,
+        const bool          is_streamed) {
+
+        assert(name);
+        return(audio_mngr_voice_create(name, group, volume, is_looping, is_streamed));
+    }
+
+    IFB_ENGINE_API void
+    eng_audio_voice_play(
+        const hnd_audio_voice h_voice) {
+
+        audio_mngr_voice_play(h_voice);
+    }
+
+    IFB_ENGINE_API void
+    eng_audio_voice_pause(
+        const hnd_audio_voice h_voice) {
+
+        audio_mngr_voice_pause(h_voice);
+    }
+
+    IFB_ENGINE_API void
+    eng_audio_voice_destroy(
+        const hnd_audio_voice h_voice) {
+
+        audio_mngr_voice_destroy(h_voice);
     }
 
     IFB_ENGINE_API hnd_audio_voice
@@ -139,14 +173,6 @@ namespace ifb {
         const wav* w) {
 
         audio_mngr_voice_stop_all_using(w);
-    }
-
-    IFB_ENGINE_API void
-    eng_audio_voice_set_paused(
-        const hnd_audio_voice h_voice,
-        const bool            is_paused) {
-
-        audio_mngr_voice_set_paused(h_voice, is_paused);
     }
 
     IFB_ENGINE_API void

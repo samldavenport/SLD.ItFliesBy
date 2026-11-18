@@ -48,6 +48,8 @@ namespace ifb {
 
         game_audio_play_sfx(_game_ctx, "BOOP");
 
+        game_audio_pause_music(_game_ctx);
+
         const bool did_open = game_dialog_open(text,text_size);
         assert(did_open);
     }
@@ -220,7 +222,8 @@ namespace ifb {
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);
         assert(entities->static_entity_3 != ENTITY_ID_INVALID);
 
-        game_audio_play_music(ctx, "AMBIENT-LOOP");
+        game_audio_set_music  (ctx, "AMBIENT-LOOP");
+        game_audio_play_music (ctx);
     }
 
     // the engine skips the scene's entities while it isn't updating or rendering,
@@ -261,5 +264,7 @@ namespace ifb {
 
         assert(ctx);
         _scene_dev = NULL;
+    
+        game_audio_fade_out_music(_game_ctx);
     }
 };

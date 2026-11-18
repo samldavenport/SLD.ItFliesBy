@@ -41,24 +41,37 @@ Most sound should go through voices instead of the buffer. Writing to the buffer
 
 A voice plays a `wav` from memory. The audio manager has a fixed pool of them (`IFB_CONFIG_AUDIO_VOICE_CAPACITY`, 32) and mixes every active one at the end of the frame, after the game and GUI callbacks, so they're added to anything written to the buffer directly.
 
-```cpp
-hnd_audio_voice h_voice = eng_audio_voice_play(w, audio_group_e_sfx, 0.5f, false);
+There are two kinds of voice:
 
-eng_audio_voice_set_paused (h_voice, true);
-eng_audio_voice_seek       (h_voice, 0.0);
-eng_audio_voice_stop       (h_voice);
+- **Owned voices** come from `eng_audio_voice_create`. They start paused at the beginning and nothing is heard until they're played. They're kept until they're destroyed: when one reaches the end (without looping), or a stop finishes fading out, it goes back to the start and pauses, and its handle stays good. Use these for anything you control, like music.
+- **One-shots** come from `eng_audio_sound_play`, `eng_audio_sound_stream`, and `eng_audio_wav_play`. They start playing right away and free themselves when they end or are stopped, so they can be played and forgotten, like sound effects.
+
+```cpp
+// an owned voice, set up now and played later
+hnd_audio_voice h_music = eng_audio_voice_create("PIANO", audio_group_e_music, 0.5f, true, true);
+
+eng_audio_voice_play    (h_music);
+eng_audio_voice_pause   (h_music);
+eng_audio_voice_seek    (h_music, 0.0);
+eng_audio_voice_destroy (h_music);
+
+// a one-shot
+eng_audio_sound_play("BOOP", audio_group_e_sfx, 0.25f, false);
 ```
 
 | Function | Description |
 | --- | --- |
-| `eng_audio_voice_play` | Start a voice from the beginning of a wav, in a [group](#volume-groups). Returns an invalid handle if there's no device or every voice is in use. |
-| `eng_audio_sound_play` | Start a voice on a [sound asset](assets.md#sounds) by name. Also returns an invalid handle if there's no sound by that name, or no room to load it. |
+| `eng_audio_voice_create` | Create an owned voice on a [sound asset](assets.md#sounds) by name, paused at the start, in a [group](#volume-groups). Loaded, or [streamed](#streaming) if `is_streamed`. Returns an invalid handle if there's no device, no sound by that name, no room to load it, or every voice (or stream) is in use. |
+| `eng_audio_voice_play` | Fade in from where the voice is, and call off a stop that's fading out |
+| `eng_audio_voice_pause` | Fade out and hold the position |
+| `eng_audio_voice_destroy` | Fade out, then free the voice, owned or not |
+| `eng_audio_sound_play` | Play a one-shot on a sound asset by name. Also returns an invalid handle if there's no sound by that name, or no room to load it. |
 | `eng_audio_sound_preload` / `_unload` | Load a sound ahead of time and keep it in memory, see [Preloading](assets.md#preloading) |
-| `eng_audio_sound_stream` | Start a voice on a sound asset by name, read from the bank a chunk at a time instead of loading it, see [Streaming](#streaming) |
-| `eng_audio_voice_stop` | Fade out, then free the voice |
-| `eng_audio_voice_stop_now` | Free the voice without a fade |
+| `eng_audio_sound_stream` | Play a one-shot on a sound asset by name, read from the bank a chunk at a time instead of loading it, see [Streaming](#streaming) |
+| `eng_audio_wav_play` | Play a one-shot from the beginning of a wav in memory |
+| `eng_audio_voice_stop` | Fade out, then an owned voice goes back to the start and pauses, and a one-shot is freed |
+| `eng_audio_voice_stop_now` | Free the voice without a fade, owned or not |
 | `eng_audio_voice_stop_all_using` | Free every voice playing a wav, without a fade |
-| `eng_audio_voice_set_paused` | Fade out and hold the position, or fade back in |
 | `eng_audio_voice_set_volume` | Change the volume, which fades to the new value |
 | `eng_audio_voice_set_looping` | Loop back to the start at the end, instead of freeing the voice |
 | `eng_audio_voice_seek` | Jump to a position, in frames of the wav |
@@ -66,7 +79,8 @@ eng_audio_voice_stop       (h_voice);
 
 Things to know:
 
-- **A voice frees itself at the end of a wav** unless it's looping, so a sound can be played and forgotten. Its handle goes stale, and every call with a stale handle does nothing.
+- **A one-shot frees itself at the end** unless it's looping, so a sound can be played and forgotten. Its handle goes stale, and every call with a stale handle does nothing.
+- **An owned voice holds its resources while it's paused.** It keeps a voice from the pool, and either its sound pinned in memory or one of the streams, until it's destroyed. Copy to Runtime frees it anyway, like every voice on a sound asset, and its handle goes stale.
 - **The wav has to stay in memory until every voice playing it is freed.** A stopped voice keeps reading it while it fades out, so call `eng_audio_voice_stop_all_using` before freeing it. Sound assets take care of this themselves, a voice keeps its sound pinned until it's freed.
 - **Every change fades over 20 ms** (`IFB_CONFIG_AUDIO_FADE_MS`): starting, stopping, pausing, resuming, and volume. Seeking doesn't fade, so it can click once.
 - **The mix clips.** Voices are added together and clamped to `-1` to `1` once at the end, so many loud voices at once will distort.
@@ -151,7 +165,8 @@ Things to know:
 - **Starting and seeking wait for the read.** A stream starts once its first chunk is in, usually the frame it's started or the one after, and a seek to a place that isn't in the ring waits the same way.
 - **Chunks are asked for well ahead.** The chunk 2 ahead of the one playing is asked for as soon as the playhead enters a chunk, so a read has about 0.7 to 1.4 seconds to finish before it's needed.
 - **A chunk that can't be read is silence.** The voice waits, and the chunk is asked for again every frame until it reads.
-- **A stopping voice that's waiting is freed.** It was fading out anyway.
+- **A stopping voice that's waiting finishes right away.** It was fading out anyway, so a one-shot is freed, and an owned voice goes back to the start and pauses.
+- **A paused stream keeps reading.** An owned streamed voice asks for its first chunks when it's created, so playing it later starts without waiting on the disk.
 - **Nothing is pinned or loaded.** Preloading doesn't apply, and a stream doesn't count against asset memory.
 - **Copy to Runtime stops every stream**, and waits for any reads that are still out before the bank is closed.
 - **With one core there are no workers**, so the job runs as it's added, on the main thread. That's the same as reading synchronously.
