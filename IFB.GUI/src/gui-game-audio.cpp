@@ -122,7 +122,8 @@ namespace ifb {
         if (!is_playing) {
             ImGui::TextUnformatted("Not playing");
             if (ImGui::Button("Play##music")) {
-                audio->h_music = eng_audio_sound_stream("PIANO", audio_group_e_music, GAME_MUSIC_VOLUME, true);
+                audio->h_music = eng_audio_voice_create("PIANO", audio_group_e_music, GAME_MUSIC_VOLUME, true, true);
+                eng_audio_voice_play(audio->h_music);
             }
             if (audio->h_music == INVALID_HANDLE) {
                 ImGui::SameLine();
@@ -140,16 +141,17 @@ namespace ifb {
         );
 
         if (ImGui::Button(info.is_paused ? "Resume##music" : "Pause##music")) {
-            eng_audio_voice_set_paused(audio->h_music, !info.is_paused);
+            if (info.is_paused) eng_audio_voice_play  (audio->h_music);
+            else                eng_audio_voice_pause (audio->h_music);
         }
 
         ImGui::SameLine();
         if (ImGui::Button("Restart##music")) {
-            eng_audio_voice_seek       (audio->h_music, 0.0);
-            eng_audio_voice_set_paused (audio->h_music, false);
+            eng_audio_voice_seek (audio->h_music, 0.0);
+            eng_audio_voice_play (audio->h_music);
         }
 
-        // it fades out and the handle goes stale, then it can be started again
+        // the music is an owned voice, it fades out, goes back to the start and pauses
         ImGui::SameLine();
         if (ImGui::Button("Stop##music")) {
             eng_audio_voice_stop(audio->h_music);

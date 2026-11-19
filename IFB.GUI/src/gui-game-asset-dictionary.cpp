@@ -469,7 +469,7 @@ namespace ifb {
             if (ImGui::Button(is_playing ? "Stop" : "Play")) {
                 eng_audio_voice_stop(_asset_preview_voice);
                 if (!is_playing) {
-                    _asset_preview_voice = eng_audio_voice_play(w, audio_group_e_sfx, 0.5f, false);
+                    _asset_preview_voice = eng_audio_wav_play(w, audio_group_e_sfx, 0.5f, false);
                     _asset_preview_wav   = w;
                 }
             }

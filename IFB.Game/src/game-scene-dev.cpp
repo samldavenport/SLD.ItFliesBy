@@ -220,7 +220,8 @@ namespace ifb {
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);
         assert(entities->static_entity_3 != ENTITY_ID_INVALID);
 
-        game_audio_play_music(ctx, "AMBIENT-LOOP");
+        game_audio_set_music  (ctx, "AMBIENT-LOOP");
+        game_audio_play_music (ctx);
     }
 
     // the engine skips the scene's entities while it isn't updating or rendering,
@@ -261,5 +262,7 @@ namespace ifb {
 
         assert(ctx);
         _scene_dev = NULL;
+    
+        game_audio_fade_out_music(_game_ctx);
     }
 };

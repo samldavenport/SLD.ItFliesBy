@@ -67,7 +67,7 @@ namespace ifb {
         // closing the window pauses, the voice fades out and keeps its place
         if (!is_open) {
             if (state.is_playing) {
-                eng_audio_voice_set_paused(state.h_voice, true);
+                eng_audio_voice_pause(state.h_voice);
                 state.is_playing = false;
             }
             return;
@@ -189,12 +189,12 @@ namespace ifb {
         auto& state = _wav_player;
 
         if (state.h_voice != INVALID_HANDLE) {
-            eng_audio_voice_set_paused(state.h_voice, false);
+            eng_audio_voice_play(state.h_voice);
             state.is_playing = true;
             return;
         }
 
-        state.h_voice = eng_audio_voice_play(state.w, audio_group_e_sfx, state.volume, state.is_looping);
+        state.h_voice = eng_audio_wav_play(state.w, audio_group_e_sfx, state.volume, state.is_looping);
         if (state.h_voice == INVALID_HANDLE) {
             state.status = "Failed to play the file, there's no audio device or every voice is in use";
             return;
@@ -266,7 +266,7 @@ namespace ifb {
 
         if (ImGui::Button(state.is_playing ? "Pause" : "Play")) {
             if (state.is_playing) {
-                eng_audio_voice_set_paused(state.h_voice, true);
+                eng_audio_voice_pause(state.h_voice);
                 state.is_playing = false;
             }
             else {

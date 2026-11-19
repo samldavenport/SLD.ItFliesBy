@@ -22,14 +22,19 @@ namespace ifb {
     IFB_INTERNAL f32             audio_mngr_get_master_volume    (void);
 
     // voices
-    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play           (const wav* w,      const audio_group_u32 group, const f32 volume, const bool is_looping);
+    // the one-shots start playing and are freed when they end or are stopped
+    IFB_INTERNAL hnd_audio_voice audio_mngr_wav_play             (const wav* w,      const audio_group_u32 group, const f32 volume, const bool is_looping);
     IFB_INTERNAL hnd_audio_voice audio_mngr_voice_play_sound     (const cchar* name, const audio_group_u32 group, const f32 volume, const bool is_looping);
     IFB_INTERNAL hnd_audio_voice audio_mngr_voice_stream_sound   (const cchar* name, const audio_group_u32 group, const f32 volume, const bool is_looping);
+    // an owned voice starts paused, and is kept until it's destroyed
+    IFB_INTERNAL hnd_audio_voice audio_mngr_voice_create         (const cchar* name, const audio_group_u32 group, const f32 volume, const bool is_looping, const bool is_streamed);
+    IFB_INTERNAL void            audio_mngr_voice_play           (const hnd_audio_voice h_voice);
+    IFB_INTERNAL void            audio_mngr_voice_pause          (const hnd_audio_voice h_voice);
+    IFB_INTERNAL void            audio_mngr_voice_destroy        (const hnd_audio_voice h_voice);
     IFB_INTERNAL void            audio_mngr_voice_stop_all_sounds(void);
     IFB_INTERNAL void            audio_mngr_voice_stop           (const hnd_audio_voice h_voice);
     IFB_INTERNAL void            audio_mngr_voice_stop_now       (const hnd_audio_voice h_voice);
     IFB_INTERNAL void            audio_mngr_voice_stop_all_using (const wav* w);
-    IFB_INTERNAL void            audio_mngr_voice_set_paused     (const hnd_audio_voice h_voice, const bool is_paused);
     IFB_INTERNAL void            audio_mngr_voice_set_volume     (const hnd_audio_voice h_voice, const f32 volume);
     IFB_INTERNAL void            audio_mngr_voice_set_looping    (const hnd_audio_voice h_voice, const bool is_looping);
     IFB_INTERNAL void            audio_mngr_voice_seek           (const hnd_audio_voice h_voice, const f64 position);
