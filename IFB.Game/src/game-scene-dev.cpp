@@ -220,6 +220,10 @@ namespace ifb {
         assert(entities->static_entity_2 != ENTITY_ID_INVALID);
         assert(entities->static_entity_3 != ENTITY_ID_INVALID);
 
+        // loaded now so the first bump doesn't wait on the disk, it stays loaded for the whole game
+        // without the sound bank it fails, and the boop just doesn't play
+        (void)eng_audio_sound_preload("BOOP");
+
         game_audio_set_music  (ctx, "AMBIENT-LOOP");
         game_audio_play_music (ctx);
     }

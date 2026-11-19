@@ -57,9 +57,6 @@ namespace ifb {
         audio->music_state     = game_audio_music_state_e_none;
         audio->fade_out_volume = GAME_MUSIC_VOLUME;
 
-        // loaded now so the first bump doesn't wait on the disk, it stays loaded for the whole game
-        // without the sound bank it fails, and the boop just doesn't play
-        (void)eng_audio_sound_preload("BOOP");
         
 
         // load the sprite atlas
