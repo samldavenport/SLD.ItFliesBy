@@ -1463,53 +1463,62 @@ namespace ifb {
         }
 
         // the rest are at the same gain, 2 frames of stereo at a time
-        static_assert(config::audio_channel_count == 2,
-                    "the master pass is 2 frames of stereo at a time");
+        static_assert(config::audio_channel_count == 2, "the master pass is 2 frames of stereo at a time");
         const f128 gain_all = simd_f128_set_all(gain);
-        const f128 max_all = simd_f128_set_all(1.0f);
-        const f128 min_all = simd_f128_set_all(-1.0f);
-        for (; i_frame + 2 <= buffer.frame_count; i_frame += 2) {
+        const f128 max_all  = simd_f128_set_all(1.0f);
+        const f128 min_all  = simd_f128_set_all(-1.0f);
+        for (
+            ;
+            i_frame + 2 <= buffer.frame_count;
+            i_frame += 2) {
 
-        f32 *samples = &buffer.samples[i_frame * config::audio_channel_count];
-        const f128 scaled = simd_f128_a_mul_b(simd_f128_load(samples), gain_all);
+            f32*       samples = &buffer.samples[i_frame * config::audio_channel_count];
+            const f128 scaled  = simd_f128_a_mul_b(simd_f128_load(samples), gain_all);
 
-        // a bit for each sample that's clamped
-        const u32 clipped = simd_f128_a_gt_b_mask(scaled, max_all) |
-                            simd_f128_a_lt_b_mask(scaled, min_all);
-        _audio_mngr->output_clip_count += (clipped & 1) + ((clipped >> 1) & 1) +
-                                          ((clipped >> 2) & 1) +
-                                          ((clipped >> 3) & 1);
+            // a bit for each sample that's clamped
+            const u32 clipped = (
+                simd_f128_a_gt_b_mask(scaled, max_all) |
+                simd_f128_a_lt_b_mask(scaled, min_all)
+            );
+            _audio_mngr->output_clip_count +=
+                (clipped & 1)        +
+                ((clipped >> 1) & 1) +
+                ((clipped >> 2) & 1) +
+                ((clipped >> 3) & 1);
 
-        simd_f128_store(samples, simd_f128_a_max_b(
-                                     simd_f128_a_min_b(scaled, max_all), min_all));
+            simd_f128_store(
+                samples,
+                simd_f128_a_max_b(
+                    simd_f128_a_min_b(
+                        scaled,
+                        max_all
+                    ),
+                    min_all
+                )
+            );
         }
 
         // an odd frame left over
         if (i_frame < buffer.frame_count) {
-        audio_mngr_scale_and_clamp(
-            &buffer.samples[i_frame * config::audio_channel_count],
-            config::audio_channel_count, gain);
+            audio_mngr_scale_and_clamp(
+                &buffer.samples[i_frame * config::audio_channel_count],
+                config::audio_channel_count, gain
+            );
         }
 
         // a copy for the gui, what the device gets
         // only the newest frames fit in the ring, it's copied in 2 pieces when it
         // wraps
-        const u32 ring_frames = config::audio_output_frames;
-        const u32 copy_frames = (buffer.frame_count < ring_frames) ? buffer.frame_count : ring_frames;
-        const u32 skip_frames = buffer.frame_count - copy_frames;
-        const u32 write_first =
-          (_audio_mngr->output_write + skip_frames) % ring_frames;
-        const u32 copy_first = ((ring_frames - write_first) < copy_frames)
-                                 ? (ring_frames - write_first)
-                                 : copy_frames;
-        const u32 frame_size = config::audio_channel_count * sizeof(f32);
-        const f32 *src = &buffer.samples[skip_frames * config::audio_channel_count];
+        const u32  ring_frames = config::audio_output_frames;
+        const u32  copy_frames = (buffer.frame_count < ring_frames) ? buffer.frame_count : ring_frames;
+        const u32  skip_frames = buffer.frame_count - copy_frames;
+        const u32  write_first = (_audio_mngr->output_write + skip_frames) % ring_frames;
+        const u32  copy_first  = ((ring_frames - write_first) < copy_frames) ? (ring_frames - write_first) : copy_frames;
+        const u32  frame_size  = config::audio_channel_count * sizeof(f32);
+        const f32* src         = &buffer.samples[skip_frames * config::audio_channel_count];
 
-        memcpy(&_audio_mngr->output[write_first * config::audio_channel_count], src,
-             copy_first * frame_size);
-        memcpy(_audio_mngr->output, &src[copy_first * config::audio_channel_count],
-             (copy_frames - copy_first) * frame_size);
-        _audio_mngr->output_write =
-          (_audio_mngr->output_write + buffer.frame_count) % ring_frames;
+        memcpy(&_audio_mngr->output[write_first * config::audio_channel_count], src,                                            copy_first * frame_size);
+        memcpy(_audio_mngr->output,                                             &src[copy_first * config::audio_channel_count], (copy_frames - copy_first) * frame_size);
+        _audio_mngr->output_write = (_audio_mngr->output_write + buffer.frame_count) % ring_frames;
     }
 }; // namespace ifb
