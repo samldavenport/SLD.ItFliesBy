@@ -70,16 +70,16 @@ namespace ifb {
         u16                   generation;
 
         inline bool is_active   (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_active));   }
-        inline bool is_owned    (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_owned));   }
+        inline bool is_owned    (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_owned));    }
         inline bool is_paused   (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_paused));   }
         inline bool is_looping  (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_looping));  }
         inline bool is_stopping (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_stopping)); }
     
-        inline void set_active   (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_active);   else bit_mask_off(flags.val, audio_voice_flags_e_active);   }
-        inline void set_owned    (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_owned);    else bit_mask_off(flags.val, audio_voice_flags_e_owned);    }
-        inline void set_paused   (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_paused);   else bit_mask_off(flags.val, audio_voice_flags_e_paused);   }
-        inline void set_looping  (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_looping);  else bit_mask_off(flags.val, audio_voice_flags_e_looping);  }
-        inline void set_stopping (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_stopping); else bit_mask_off(flags.val, audio_voice_flags_e_stopping); }
+        inline void set_active   (const bool val) { bit_mask_set(flags.val, audio_voice_flags_e_active,   val); }
+        inline void set_owned    (const bool val) { bit_mask_set(flags.val, audio_voice_flags_e_owned,    val); }
+        inline void set_paused   (const bool val) { bit_mask_set(flags.val, audio_voice_flags_e_paused,   val); }
+        inline void set_looping  (const bool val) { bit_mask_set(flags.val, audio_voice_flags_e_looping,  val); }
+        inline void set_stopping (const bool val) { bit_mask_set(flags.val, audio_voice_flags_e_stopping, val); }
     };
 
     // a preloaded sound has one pin however many times it's preloaded, the count is
