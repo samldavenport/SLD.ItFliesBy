@@ -13,6 +13,7 @@
 #include "ifb-platform.hpp"
 #include "ifb.hpp"
 #include "memory-reservation.cpp"
+#include "sld.hpp"
 
 namespace ifb {
 
@@ -48,19 +49,37 @@ namespace ifb {
     // has it pinned through its source
     // an owned voice is kept until it's destroyed, when it ends or a stop fades out
     // it goes back to the start and pauses, a one-shot is freed then
+    
+    IFB_U32(audio_voice_flags_u32);
+    enum audio_voice_flags_e {
+        audio_voice_flags_e_active   = bit_value(0),
+        audio_voice_flags_e_owned    = bit_value(1),
+        audio_voice_flags_e_paused   = bit_value(2),
+        audio_voice_flags_e_looping  = bit_value(3),
+        audio_voice_flags_e_stopping = bit_value(4),
+    };
+
     struct audio_voice {
-        audio_source    source;
-        f64             position; // in frames of the source
-        f64             step;     // source frames per device frame
-        audio_group_u32 group;
-        f32             volume;
-        f32             gain;     // fades toward volume times the group's volume
-        u16             generation;
-        bool            is_active;
-        bool            is_owned;
-        bool            is_paused;
-        bool            is_looping;
-        bool            is_stopping;
+        audio_source          source;
+        f64                   position; // in frames of the source
+        f64                   step;     // source frames per device frame
+        f32                   volume;
+        f32                   gain;     // fades toward volume times the group's volume
+        audio_group_u32       group;
+        audio_voice_flags_u32 flags;
+        u16                   generation;
+
+        inline bool is_active   (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_active));   }
+        inline bool is_owned    (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_owned));   }
+        inline bool is_paused   (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_paused));   }
+        inline bool is_looping  (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_looping));  }
+        inline bool is_stopping (void) const { return(bit_mask_test(flags.val, audio_voice_flags_e_stopping)); }
+    
+        inline void set_active   (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_active);   else bit_mask_off(flags.val, audio_voice_flags_e_active);   }
+        inline void set_owned    (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_owned);    else bit_mask_off(flags.val, audio_voice_flags_e_owned);    }
+        inline void set_paused   (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_paused);   else bit_mask_off(flags.val, audio_voice_flags_e_paused);   }
+        inline void set_looping  (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_looping);  else bit_mask_off(flags.val, audio_voice_flags_e_looping);  }
+        inline void set_stopping (const bool val) { if (val) bit_mask_or(flags.val, audio_voice_flags_e_stopping); else bit_mask_off(flags.val, audio_voice_flags_e_stopping); }
     };
 
     // a preloaded sound has one pin however many times it's preloaded, the count is
@@ -271,7 +290,7 @@ namespace ifb {
               ++index) {
 
             audio_voice &voice = _audio_mngr->voices[index];
-            if (voice.is_active) audio_mngr_voice_free(&voice);
+            if (voice.is_active()) audio_mngr_voice_free(&voice);
         }
 
         // and the preloads let go of theirs
@@ -623,7 +642,7 @@ namespace ifb {
                 voice.source.type    == audio_source_type_e_stream
             );
             
-            if (voice.is_active && is_sound) {
+            if (voice.is_active() && is_sound) {
                 audio_mngr_voice_free(&voice);
             }
         }
@@ -776,8 +795,8 @@ namespace ifb {
         audio_voice *voice = audio_mngr_voice_from_handle(h_voice);
         if (!voice) return;
 
-        voice->is_paused   = false;
-        voice->is_stopping = false;
+        voice->set_paused(false);
+        voice->set_stopping(false);
     }
 
     // fades out, and holds its position until it's played
@@ -786,7 +805,7 @@ namespace ifb {
         const hnd_audio_voice h_voice) {
 
         audio_voice *voice = audio_mngr_voice_from_handle(h_voice);
-        if (voice) voice->is_paused = true;
+        if (voice) voice->set_paused(true);
     }
 
     // fades out, then an owned voice goes back to the start and pauses, a one-shot
@@ -796,7 +815,7 @@ namespace ifb {
         const hnd_audio_voice h_voice) {
 
         audio_voice *voice = audio_mngr_voice_from_handle(h_voice);
-        if (voice) voice->is_stopping = true;
+        if (voice) voice->set_stopping(true);
     }
 
     // fades out, then frees, owned or not
@@ -807,8 +826,8 @@ namespace ifb {
         audio_voice *voice = audio_mngr_voice_from_handle(h_voice);
         if (!voice) return;
 
-        voice->is_owned    = false;
-        voice->is_stopping = true;
+        voice->set_owned(false);
+        voice->set_stopping(true);
     }
 
     IFB_INTERNAL void
@@ -833,7 +852,7 @@ namespace ifb {
 
             audio_voice &voice = _audio_mngr->voices[index];
             if (
-                voice.is_active                                 &&
+                voice.is_active()                               &&
                 voice.source.type == audio_source_type_e_memory &&
                 voice.source.w == w
             ) {
@@ -857,7 +876,7 @@ namespace ifb {
         const bool            is_looping) {
 
         audio_voice *voice = audio_mngr_voice_from_handle(h_voice);
-        if (voice) voice->is_looping = is_looping;
+        if (voice) voice->set_looping(is_looping);
     }
 
     // jumping while it's audible can click once
@@ -892,9 +911,9 @@ namespace ifb {
         info.gain         = voice->gain;
         info.group        = voice->group;
         info.is_streaming = (voice->source.type == audio_source_type_e_stream);
-        info.is_paused    = voice->is_paused;
-        info.is_looping   = voice->is_looping;
-        info.is_stopping  = voice->is_stopping;
+        info.is_paused    = voice->is_paused();
+        info.is_looping   = voice->is_looping();
+        info.is_stopping  = voice->is_stopping();
 
         // the name is only in the database, it's up to IFB_CONFIG_ASSET_NAME_SIZE
         // without a terminator
@@ -925,7 +944,7 @@ namespace ifb {
               ++index) {
 
             const audio_voice &voice = _audio_mngr->voices[index];
-            if (!voice.is_active) continue;
+            if (!voice.is_active()) continue;
 
             handles[count].val = ((u32)voice.generation << AUDIO_VOICE_GENERATION_SHIFT) | index;
             ++count;
@@ -985,7 +1004,7 @@ namespace ifb {
         if (index >= config::audio_voice_capacity) return (NULL);
 
         audio_voice* voice    = &_audio_mngr->voices[index];
-        const bool   is_match = (voice->is_active && voice->generation == generation);
+        const bool   is_match = (voice->is_active() && voice->generation == generation);
         return (is_match ? voice : NULL);
     }
 
@@ -993,7 +1012,7 @@ namespace ifb {
     audio_mngr_voice_free(
         audio_voice *voice) {
 
-        assert(voice->is_active && _audio_mngr->voice_count > 0);
+        assert(voice->is_active() && _audio_mngr->voice_count > 0);
 
         if (voice->source.type == audio_source_type_e_stream) {
             assert(_audio_mngr->stream_count > 0);
@@ -1001,7 +1020,7 @@ namespace ifb {
         }
         audio_source_release(voice->source);
 
-        voice->is_active = false;
+        voice->set_active(false);
         ++voice->generation;
         --_audio_mngr->voice_count;
     }
@@ -1012,15 +1031,15 @@ namespace ifb {
     audio_mngr_voice_finish(
         audio_voice *voice) {
 
-        if (!voice->is_owned) {
+        if (!voice->is_owned()) {
             audio_mngr_voice_free(voice);
             return;
         }
 
         voice->position    = 0.0;
         voice->gain        = 0.0f;
-        voice->is_paused   = true;
-        voice->is_stopping = false;
+        voice->set_paused(true);
+        voice->set_stopping(false);
     }
 
     // returns an invalid handle if there's no device, since nothing would mix the
@@ -1052,7 +1071,7 @@ namespace ifb {
               ++index) {
 
             audio_voice &voice = _audio_mngr->voices[index];
-            if (voice.is_active) continue;
+            if (voice.is_active()) continue;
 
             // the generation is kept, it's what makes the old handles stale
             voice.source      = src;
@@ -1061,11 +1080,11 @@ namespace ifb {
             voice.group       = group;
             voice.volume      = volume;
             voice.gain        = 0.0f;
-            voice.is_active   = true;
-            voice.is_owned    = is_owned;
-            voice.is_paused   = is_owned;
-            voice.is_looping  = is_looping;
-            voice.is_stopping = false;
+            voice.set_active  (true);
+            voice.set_owned   (is_owned);
+            voice.set_paused  (is_owned);
+            voice.set_looping (is_looping);
+            voice.set_stopping(false);
             ++_audio_mngr->voice_count;
 
             h_voice.val = ((u32)voice.generation << AUDIO_VOICE_GENERATION_SHIFT) | index;
@@ -1098,7 +1117,7 @@ namespace ifb {
             u32 index = 0;
             u32 run = 0;
 
-            if (voice->is_looping) {
+            if (voice->is_looping()) {
 
                 index = (u32)(frame % frame_count);
                 run   = frame_count - index;
@@ -1207,27 +1226,27 @@ namespace ifb {
         if (voice->source.type == audio_source_type_e_stream) {
             audio_stream *stream = voice->source.stream;
             _audio_mngr->stream_chunk_reads +=
-                audio_stream_refill(stream, voice->position, voice->is_looping);
+                audio_stream_refill(stream, voice->position, voice->is_looping());
 
             const u32 frames_needed = (u32)((f64)buffer.frame_count * voice->step) + AUDIO_SCRATCH_PAD_FRAMES;
 
             const bool has_frames = audio_stream_has_frames(
                 stream,
                 voice->position, frames_needed,
-                voice->is_looping
+                voice->is_looping()
             );
 
             if (!has_frames) {
 
                 // a stopping voice was on its way out anyway
-                if (voice->is_stopping) {
+                if (voice->is_stopping()) {
                     audio_mngr_voice_finish(voice);
                     return;
                 }
 
                 // a voice that can be heard waits, which is an underrun, a silent one
                 // just waits
-                const bool is_heard = (!voice->is_paused && voice->volume > 0.0f) || voice->gain > 0.0f;
+                const bool is_heard = (!voice->is_paused() && voice->volume > 0.0f) || voice->gain > 0.0f;
                 if (is_heard) ++_audio_mngr->stream_underrun_count;
                 
                 return;
@@ -1237,7 +1256,7 @@ namespace ifb {
         const audio_source& src         = voice->source;
         const u32           channels    = src.channel_count;
         const f64           frame_count = (f64)src.frame_count;
-        const bool          is_audible  = (!voice->is_paused && !voice->is_stopping);
+        const bool          is_audible  = (!voice->is_paused() && !voice->is_stopping());
         const f32           gain_target = is_audible
               ? (voice->volume * _audio_mngr->group_volumes[voice->group.val])
               : 0.0f;
@@ -1258,7 +1277,7 @@ namespace ifb {
             // a seek can put the position at the end, and a looping voice comes back
             // around between blocks
             if (voice->position >= frame_count) {
-              if (!voice->is_looping) {
+              if (!voice->is_looping()) {
                 audio_mngr_voice_finish(voice);
                 return;
               }
@@ -1285,7 +1304,7 @@ namespace ifb {
                 const f64 position_next = position + voice->step;
                 const bool is_steady = is_audible && voice->gain == gain_target;
                 const bool is_pair = (i_block + 1 < block_count) &&
-                                   (voice->is_looping || position_next < frame_count);
+                                   (voice->is_looping() || position_next < frame_count);
                 if (is_steady && is_pair) {
                     audio_mngr_voice_mix_pair(
                         scratch,
@@ -1327,7 +1346,7 @@ namespace ifb {
                 }
 
                 // the end of a voice that isn't looping
-                if (!voice->is_looping && position >= frame_count) {
+                if (!voice->is_looping() && position >= frame_count) {
                     audio_mngr_voice_finish(voice);
                     return;
                 }
@@ -1362,11 +1381,11 @@ namespace ifb {
         }
 
         // a looping voice's position stays inside the source
-        if (voice->is_looping && voice->position >= frame_count) {
+        if (voice->is_looping() && voice->position >= frame_count) {
             voice->position = fmod(voice->position, frame_count);
         }
 
-        if (voice->is_stopping && voice->gain <= 0.0f) {
+        if (voice->is_stopping() && voice->gain <= 0.0f) {
             audio_mngr_voice_finish(voice);
         }
     }
@@ -1413,7 +1432,7 @@ namespace ifb {
                   ++index) {
 
                 audio_voice *voice = &_audio_mngr->voices[index];
-                if (voice->is_active) audio_mngr_voice_mix(voice, buffer);
+                if (voice->is_active()) audio_mngr_voice_mix(voice, buffer);
             }
         }
 
