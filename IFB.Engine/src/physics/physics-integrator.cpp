@@ -189,10 +189,61 @@ namespace ifb {
         return(i->count > 0);
     }
 
+    // the simd loop reads the vec3 arrays as packed floats, 4 vec3s to 3 registers,
+    // and the scalar components 4 to a register
+    static_assert(sizeof(vec3)           == sizeof(f32) * 3, "the simd integration needs packed vec3s");
+    static_assert(sizeof(cmpnt_inv_mass) == sizeof(f32),     "the simd integration needs packed inv masses");
+    static_assert(sizeof(cmpnt_drag)     == sizeof(f32),     "the simd integration needs packed drags");
+
+    // the same as phys_frc_intgrtr_clamp_term_velocity, for 4 lanes
+    inline f128
+    phys_frc_intgrtr_clamp_term_velocity_f128(
+        const f128& vel,
+        const f128& tv,
+        const f128& zero,
+        const f128& infinity) {
+
+        const f128 limit       = simd_f128_select  (simd_f128_a_gt_b(tv, zero), tv, infinity);
+        const f128 vel_clamped = simd_f128_a_min_b (limit, vel);
+        return(simd_f128_a_max_b(simd_f128_negate(limit), vel_clamped));
+    }
+
+    // integrates 4 lanes of the packed vec3 arrays, starting at the float offset
+    // the inv mass and drag registers hold each lane's entity's value
+    // the math is in the same order as the scalar code, so the results match it
+    inline void
+    phys_frc_intgrtr_exec_f128(
+        const f32* __restrict force,
+        const f32* __restrict term_velocity,
+        f32*       __restrict position,
+        f32*       __restrict velocity,
+        f32*       __restrict acceleration,
+        const u32             offset,
+        const f128&           inv_mass,
+        const f128&           drag_pow_dt,
+        const f128&           dt,
+        const f128&           dt_pow_2_over_2,
+        const f128&           zero,
+        const f128&           infinity) {
+
+        const f128 acc = simd_f128_a_mul_b(simd_f128_load(&force[offset]), inv_mass);
+        f128       vel = simd_f128_load(&velocity[offset]);
+        f128       pos = simd_f128_load(&position[offset]);
+
+        // position, then velocity from the velocity before this step
+        pos = simd_f128_a_add_b(pos, simd_f128_a_add_b(simd_f128_a_mul_b(vel, dt), simd_f128_a_mul_b(acc, dt_pow_2_over_2)));
+        vel = simd_f128_a_mul_b(simd_f128_a_add_b(vel, simd_f128_a_mul_b(acc, dt)), drag_pow_dt);
+        vel = phys_frc_intgrtr_clamp_term_velocity_f128(vel, simd_f128_load(&term_velocity[offset]), zero, infinity);
+
+        simd_f128_store(&acceleration [offset], acc);
+        simd_f128_store(&position     [offset], pos);
+        simd_f128_store(&velocity     [offset], vel);
+    }
+
     inline void
     phys_frc_intgrtr_exec(
         phys_frc_intgrtr* i, const f32 dt) {
-     
+
         // calculate dt constants
         const f32 dt_pow_2        = dt * dt;
         const f32 dt_pow_2_over_2 = dt_pow_2 * 0.5f;
@@ -203,14 +254,68 @@ namespace ifb {
         drag_cache.count = 0;
         drag_cache.next  = 0;
 
+        // replace each drag with drag to the power of dt before the simd loop, which can't call powf
+        // the drags are the integrator's copies, they're never written back to the components
+        const u32 count = i->count;
         for (
             u32 integrator_index = 0;
-                integrator_index < i->count;
+                integrator_index < count;
+              ++integrator_index
+        ) {
+            cmpnt_drag& drag = i->drag[integrator_index];
+            drag.normal_val  = phys_frc_intgrtr_drag_pow_dt(drag_cache, drag.normal_val, dt);
+        }
+
+        // 4 entities at a time, their vec3s are 12 floats, 3 registers
+        const f32* __restrict force         = i->force[0].v;
+        const f32* __restrict term_velocity = i->term_velocity[0].v;
+        const f32* __restrict inv_mass      = &i->inv_mass[0].normal_val;
+        const f32* __restrict drag_pow_dt   = &i->drag[0].normal_val;
+        f32*       __restrict position      = i->position[0].v;
+        f32*       __restrict velocity      = i->velocity[0].v;
+        f32*       __restrict acceleration  = i->acceleration[0].v;
+
+        const f128 dt_f128              = simd_f128_set_all(dt);
+        const f128 dt_pow_2_over_2_f128 = simd_f128_set_all(dt_pow_2_over_2);
+        const f128 zero_f128            = simd_f128_set_all(0.0f);
+        const f128 infinity_f128        = simd_f128_set_all(INFINITY);
+
+        const u32 count_simd = count & ~3u;
+        for (
+            u32 integrator_index = 0;
+                integrator_index < count_simd;
+                integrator_index += 4
+        ) {
+
+            f128 inv_mass_f128    [3];
+            f128 drag_pow_dt_f128 [3];
+            simd_f128_spread_x3(simd_f128_load(&inv_mass    [integrator_index]), inv_mass_f128[0],    inv_mass_f128[1],    inv_mass_f128[2]);
+            simd_f128_spread_x3(simd_f128_load(&drag_pow_dt [integrator_index]), drag_pow_dt_f128[0], drag_pow_dt_f128[1], drag_pow_dt_f128[2]);
+
+            const u32 offset = integrator_index * 3;
+            for (
+                u32 reg = 0;
+                    reg < 3;
+                  ++reg
+            ) {
+                phys_frc_intgrtr_exec_f128(
+                    force, term_velocity, position, velocity, acceleration,
+                    offset + (reg * 4),
+                    inv_mass_f128    [reg],
+                    drag_pow_dt_f128 [reg],
+                    dt_f128, dt_pow_2_over_2_f128, zero_f128, infinity_f128
+                );
+            }
+        }
+
+        // the last 0-3 entities one at a time
+        for (
+            u32 integrator_index = count_simd;
+                integrator_index < count;
               ++integrator_index
         ) {
 
-            // calculate component constants
-            const f32 drag_pow_dt = phys_frc_intgrtr_drag_pow_dt(drag_cache, i->drag[integrator_index].normal_val, dt);
+            const f32 drag_pow_dt = i->drag[integrator_index].normal_val;
 
             // calculate acceleration
             i->acceleration[integrator_index].x = i->force[integrator_index].x * i->inv_mass[integrator_index].normal_val;
