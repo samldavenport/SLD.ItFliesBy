@@ -351,6 +351,8 @@ namespace ifb {
         vec3             camera_focus;  // where the engine camera is framed, it outlives the scenes like the camera does
         bool             talk_was_down;
         bool             is_action_pressed; // e was pressed this pass, and nothing has used it yet
+        bool             is_esc_pressed;
+        bool             is_paused;
     } static * _game_ctx;
 
     IFB_GAME game_context* game_context_create_and_init      (void);
@@ -454,6 +456,9 @@ namespace ifb {
     IFB_GAME bool           game_npc_despawn                  (const entity_id id);
     IFB_GAME bool           game_npc_is_placed                (const entity_id id);
     IFB_GAME bool           game_npc_talk_to                  (const entity_id id, const entity_id other_id);
+
+
+    IFB_GAME void           game_pause_menu (bool& is_paused);
 };
 
 #endif //IFB_GAME_HPP

@@ -2,13 +2,18 @@
 
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
+#include "ifb-input.hpp"
 #include "ifb.hpp"
 
 #include "game-scene.cpp"
 #include "game-dialog.cpp"
 #include "game-audio.cpp"
+#include "game-pause-menu.cpp"
+#include "sld.hpp"
 
 namespace ifb {
+
+    inline void game_context_check_pause(void);
 
     IFB_GAME game_context*
     game_context_create_and_init(
@@ -57,8 +62,6 @@ namespace ifb {
         audio->music_state     = game_audio_music_state_e_none;
         audio->fade_out_volume = GAME_MUSIC_VOLUME;
 
-        
-
         // load the sprite atlas
         sprites->h_atlas         = eng_sprite_atlas_load                ("CORE-SPRITES");
         sprites->i_sprite_connor = eng_sprite_atlas_lookup_sprite_index (sprites->h_atlas, "CONNOR");
@@ -72,6 +75,7 @@ namespace ifb {
             assert(did_set_texture);
             (void)did_set_texture;
         }
+        
 
 
         // set before the first scene enters, the collision procs read it
@@ -99,6 +103,18 @@ namespace ifb {
         IFB_PROFILE_FUNCTION();
 
         game_context_validate(ctx);
+
+        if (eng_input_is_key_down(input_keycode_e_escape)) {
+            ctx->is_esc_pressed = true;
+        }
+        else {
+            if (ctx->is_esc_pressed) {
+                ctx->is_paused = ctx->is_paused ? false : true;
+            }
+            ctx->is_esc_pressed = false;
+        }
+
+        game_pause_menu(ctx->is_paused);
 
         game_scene_update_and_render(ctx);
         game_dialog_update(ctx);
