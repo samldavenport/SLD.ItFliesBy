@@ -1447,19 +1447,22 @@ namespace ifb {
               i_frame < buffer.frame_count && gain != gain_target;
             ++i_frame) {
 
-        if (gain < gain_target) {
-            gain += gain_step;
-            if (gain > gain_target)
-                gain = gain_target;
-        } else if (gain > gain_target) {
-            gain -= gain_step;
-                if (gain < gain_target)
+            if (gain < gain_target) {
+                gain += gain_step;
+                if (gain > gain_target) {
                     gain = gain_target;
-        }
+                }
+            }
+            else if (gain > gain_target) {
+                gain -= gain_step;
+                if (gain < gain_target) {
+                    gain = gain_target;
+                }
+            }
 
-        audio_mngr_scale_and_clamp(
-            &buffer.samples[i_frame * config::audio_channel_count],
-            config::audio_channel_count, gain);
+            audio_mngr_scale_and_clamp(
+                &buffer.samples[i_frame * config::audio_channel_count],
+                config::audio_channel_count, gain);
         }
 
         // the rest are at the same gain, 2 frames of stereo at a time
