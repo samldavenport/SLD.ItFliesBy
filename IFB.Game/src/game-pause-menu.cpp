@@ -6,7 +6,14 @@
 
 namespace ifb {
 
+    static constexpr f32 GAME_PAUSE_MENU_ROW_HEIGHT            = 32.0f;
+    static constexpr f32 GAME_PAUSE_MENU_ROW_GAP               = 8.0f;
+    static constexpr f32 GAME_PAUSE_MENU_COLUMN_GAP            = 32.0f;
+    static constexpr f32 GAME_PAUSE_MENU_COLUMN_WIDTH          = 360.0f;
+    static constexpr u32 GAME_PAUSE_MENU_TEXT_COLOR_RGBA       = 0xFFFFFFFF;
+    static constexpr u32 GAME_PAUSE_MENU_BACKGROUND_COLOR_RGBA = 0x212121C8;
     inline void game_pause_menu_dlg (game_context* ctx);
+
 
     IFB_GAME void
     game_pause_menu(
@@ -14,19 +21,16 @@ namespace ifb {
 
         if (!ctx->is_paused) return;
         game_pause_menu_dlg(ctx); 
-   
+        
+        const color_rgba_u32 prev_color = game_ui_get_text_color();
+
         game_ui_begin(ctx->fnt, ctx->is_paused);
-   
-        rect button_rect;
-        button_rect.x = 0;
-        button_rect.y = 0;
-        button_rect.width = 100;
-        button_rect.height = 100;
+        game_ui_set_text_color(GAME_PAUSE_MENU_TEXT_COLOR_RGBA);
 
-        game_ui_button(button_rect, "TEST");
-
+        game_pause_menu_dlg(ctx);
 
         game_ui_end();
+        game_ui_set_text_color(prev_color);
     }
     
     inline void
@@ -61,7 +65,7 @@ namespace ifb {
         pause_text_pos.y = ((f32)screen_height - ctx->fnt->line_height) * 0.5f;
 
 
-        const color_rgba_f32 pause_text_color(0xFFFFFFFF);
+        const color_rgba_f32 pause_text_color(GAME_PAUSE_MENU_BACKGROUND_COLOR_RGBA);
 
         eng_draw_text_screen(
             ctx->fnt,

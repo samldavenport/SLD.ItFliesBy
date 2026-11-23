@@ -2,6 +2,7 @@
 #define IFB_GAME_HPP
 
 #include "ifb.hpp"
+#include "sld.hpp"
 
 #define IFB_GAME static
 
@@ -144,6 +145,10 @@ namespace ifb {
     IFB_GAME void game_ui_begin    (const font* fnt, const bool is_input_enabled);
     // draws the open drop down's list over everything else
     IFB_GAME void game_ui_end      (void);
+    // 0xRRGGBBAA text for the controls called after it, game_ui_begin sets it back to GAME_UI_COLOR_TEXT
+    // an open drop down's list keeps the color its drop down was called with
+    IFB_GAME void            game_ui_set_text_color (const color_rgba_u32 color);
+    IFB_GAME color_rgba_u32  game_ui_get_text_color (void);
     // true the pass it's clicked
     IFB_GAME bool game_ui_button   (const rect& dst, const cchar* label);
     // true the pass value flips
@@ -365,6 +370,12 @@ namespace ifb {
     struct game_phys_test {
         game_phys_test_settings settings;
         game_phys_test_readout  readout;
+    };
+
+    struct game_pause_menu {
+        u32 screen_width;
+        u32 screen_height;
+        rect row;
     };
 
     // the global arena holds what lasts the whole game
