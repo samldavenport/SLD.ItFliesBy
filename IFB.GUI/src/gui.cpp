@@ -67,8 +67,9 @@ namespace ifb {
             _gui_str->menu_game_menu_scenes_item_dev,
             _gui_str->menu_game_menu_scenes_item_cliff_town,
             NULL,
+            NULL,
         };
-        static_assert(game_scene_id_e_count == 4, "add the new scene to scene_labels");
+        static_assert(game_scene_id_e_count == 5, "add the new scene to scene_labels");
 
         game_scene_id_e scene_picked = game_scene_id_e_none;
 
@@ -183,10 +184,14 @@ namespace ifb {
                         scene.phase == game_scene_phase_e_switching ||
                         scene.next  != game_scene_id_e_none
                     );
-                    const bool is_active = (scene.active.val == game_scene_id_e_physics);
+                    const bool is_physics_active = (scene.active.val == game_scene_id_e_physics);
+                    const bool is_ui_active      = (scene.active.val == game_scene_id_e_ui_test);
 
-                    if (ImGui::MenuItem(_gui_str->menu_game_menu_testing_item_physics, NULL, is_active, !is_switching)) {
+                    if (ImGui::MenuItem(_gui_str->menu_game_menu_testing_item_physics, NULL, is_physics_active, !is_switching)) {
                         scene_picked = game_scene_id_e_physics;
+                    }
+                    if (ImGui::MenuItem(_gui_str->menu_game_menu_testing_item_ui, NULL, is_ui_active, !is_switching)) {
+                        scene_picked = game_scene_id_e_ui_test;
                     }
                     ImGui::EndMenu();
                 }

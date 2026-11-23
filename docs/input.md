@@ -1,6 +1,6 @@
 # Input
 
-The input system (`IFB.Engine/src/engine/eng-input.cpp`, `eng-keycode.cpp`, `eng-input.hpp`) tracks which keys are held down. Keycodes are defined in `IFB.Core/include/ifb-input.hpp`.
+The input system (`IFB.Engine/src/engine/eng-input.cpp`, `eng-keycode.cpp`, `eng-input.hpp`) tracks which keys are held down, and where the mouse is and which of its buttons are down. Keycodes are defined in `IFB.Core/include/ifb-input.hpp`.
 
 ## Checking Keys
 
@@ -22,7 +22,7 @@ Key state is still tracked while the GUI has focus, so a key that's released dur
 
 ### Window Focus
 
-When the game window loses the focus, like to a debugger stopping on a breakpoint, the key-up messages go to whatever has the focus instead. So on `WM_KILLFOCUS` the window calls `eng_input_release_all_keys`, and nothing is left held down when the focus comes back.
+When the game window loses the focus, like to a debugger stopping on a breakpoint, the key-up messages go to whatever has the focus instead. So on `WM_KILLFOCUS` the window calls `eng_input_release_all_keys` and `eng_input_mouse_release_all`, and nothing is left held down when the focus comes back.
 
 ## How Keys Are Tracked
 
@@ -52,11 +52,30 @@ The keyboard state is four 32-bit masks, which holds 128 keys. That's why the va
 
 Use the `input_keycode_e_*` names instead of the numbers. When you add a key, keep its low byte under 32 so it maps to a valid bit.
 
-## Mouse and Gamepad
+## Mouse
 
-The mouse functions in the public API (`eng_input_mouse_click_left_down`, `_up`, `eng_input_mouse_click_right_down`, `_up`, `eng_input_mouse_move`) exist, but their bodies are **empty**: the engine doesn't track the mouse yet. `WM_MOUSEMOVE` is passed to `eng_input_mouse_move` and ignored.
+The engine tracks the mouse's position and its left and right buttons. The [in-game UI](ui.md) uses it.
 
-`eng-input.hpp` also defines mouse flags, gamepad button flags, and an `input_mouse` struct, but nothing uses them yet.
+```cpp
+vec2 mouse;
+if (eng_input_mouse_get_screen_pos(mouse) && eng_input_mouse_is_left_down()) {
+    // dragging, mouse is in the same units as eng_draw_rect_screen
+}
+```
+
+- **Position:** `eng_input_mouse_get_screen_pos` gives it in [screen-layer](renderer.md#screen-size) units, the same as the `eng_draw_*_screen` functions take. With the default screen size that's window pixels, and with `eng_draw_set_screen_size` it's scaled to match. It returns `false` before the mouse has moved over the window.
+- **Buttons:** `eng_input_mouse_is_left_down` and `_is_right_down` say if a button is down **right now**. Like the keys, there are no click events, so keep the last state and compare to find presses and releases.
+- **The GUI:** while ImGui wants the mouse (it's over one of its windows, or dragging something that started in one), the position returns `false` and the buttons read as up. This stops clicks on the developer tools from also reaching the game.
+
+### How It's Tracked
+
+The window passes `WM_MOUSEMOVE`, `WM_LBUTTONDOWN` / `UP`, and `WM_RBUTTONDOWN` / `UP` to `eng_input_mouse_move` and `eng_input_mouse_click_*` while it processes events at the start of each frame (`win32-window.cpp`). The position is kept in window pixels, and is signed, since it goes negative left of or above the window while a drag holds the mouse. ImGui's Win32 handler captures the mouse on a button down, so the button up still arrives when it's let go outside the window.
+
+The state is read when the game asks, so a click that goes down and up within one frame, before a simulation step runs, isn't seen. That's much faster than a person clicks.
+
+## Gamepad
+
+`eng-input.hpp` defines gamepad button flags and an unused `input_mouse` struct, but nothing uses them yet.
 
 ## Public API
 
@@ -65,4 +84,8 @@ The mouse functions in the public API (`eng_input_mouse_click_left_down`, `_up`,
 | `eng_input_is_key_down` | Check if a key is held down. Always `false` while the GUI has keyboard focus. |
 | `eng_input_set_key_down` / `_set_key_up` | Set a key's state. The platform layer calls these, but they can also be used to simulate input. |
 | `eng_input_release_all_keys` | Release every key. The window calls it when it loses the focus. |
-| `eng_input_mouse_*` | Not implemented yet |
+| `eng_input_mouse_get_screen_pos` | Where the mouse is, in screen-layer units. `false` while the GUI has the mouse, or before it's moved over the window. |
+| `eng_input_mouse_is_left_down` / `_is_right_down` | Check if a button is down. Always `false` while the GUI has the mouse. |
+| `eng_input_mouse_move` | Set the position, in window pixels. The platform layer calls it. |
+| `eng_input_mouse_click_left_down` / `_up`, `_right_down` / `_up` | Set a button's state. The platform layer calls these, but they can also be used to simulate input. |
+| `eng_input_mouse_release_all` | Release both buttons. The window calls it when it loses the focus. |

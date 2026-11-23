@@ -132,11 +132,19 @@ namespace ifb {
                     if (key_code != input_keycode_e_null) eng_input_set_key_up(key_code);
                 } break;
                 
+                // signed, it goes negative left of or above the window while a drag holds the mouse
                 case WM_MOUSEMOVE: {
-                    const u32 x = LOWORD(msg.lParam);   
-                    const u32 y = HIWORD(msg.lParam);
+                    const s32 x = (s32)(s16)LOWORD(msg.lParam);
+                    const s32 y = (s32)(s16)HIWORD(msg.lParam);
                     eng_input_mouse_move(x, y);
                 } break;
+
+                // the gui's win32 handler captures the mouse on a button down,
+                // so the button up still comes here when it's let go outside the window
+                case WM_LBUTTONDOWN: eng_input_mouse_click_left_down  (); break;
+                case WM_LBUTTONUP:   eng_input_mouse_click_left_up    (); break;
+                case WM_RBUTTONDOWN: eng_input_mouse_click_right_down (); break;
+                case WM_RBUTTONUP:   eng_input_mouse_click_right_up   (); break;
                 
                 case(WM_QUIT):
                 case(WM_DESTROY):
@@ -250,7 +258,8 @@ namespace ifb {
             // the key ups go to whatever takes the focus, like the debugger on a breakpoint
             // so nothing is left held down when the focus comes back
             case WM_KILLFOCUS: {
-                eng_input_release_all_keys();
+                eng_input_release_all_keys  ();
+                eng_input_mouse_release_all ();
             } break;
 
 

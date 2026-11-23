@@ -8,6 +8,8 @@
 #include "game-scene-dev.cpp"
 #include "game-scene-cliff-town.cpp"
 #include "game-scene-physics.cpp"
+#include "game-ui.cpp"
+#include "game-scene-ui-test.cpp"
 #include <cassert>
 
 namespace ifb {
@@ -18,6 +20,7 @@ namespace ifb {
         { game_scene_dev_enter,        game_scene_dev_update_and_render,        game_scene_dev_exit        },
         { game_scene_cliff_town_enter, game_scene_cliff_town_update_and_render, game_scene_cliff_town_exit },
         { game_scene_physics_enter,    game_scene_physics_update_and_render,    game_scene_physics_exit    },
+        { game_scene_ui_test_enter,    game_scene_ui_test_update_and_render,    game_scene_ui_test_exit    },
     };
 
     // the engine scene's name
@@ -26,6 +29,7 @@ namespace ifb {
         GAME_SCENE_DEV_NAME,
         GAME_SCENE_CLIFF_TOWN_NAME,
         GAME_SCENE_PHYSICS_NAME,
+        GAME_SCENE_UI_TEST_NAME,
     };
 
     // the game context's, so the collision procs can request a switch without it
@@ -62,7 +66,22 @@ namespace ifb {
     
     }
 
-    // finishes a switch from last frame, updates the active scene, then moves the fade along
+    // finishes a switch from last frame: the old scene exits and the new one enters
+    // the engine released the old scene at the start of this frame, so this has to run
+    // before anything reads the active scene's state, like the player rig
+    IFB_GAME void
+    game_scene_apply_pending_switch(
+        game_context* ctx) {
+
+        assert(ctx);
+        assert(_scene);
+
+        if (_scene->phase == game_scene_phase_e_switching) {
+            game_scene_finish_switch(ctx);
+        }
+    }
+
+    // updates the active scene, then moves the fade along
     // the switch starts after the update, once the screen is black,
     // so the old scene draws its last frame, and its collision procs still run in this frame's physics step
     IFB_GAME void
@@ -72,9 +91,8 @@ namespace ifb {
         assert(ctx);
         assert(_scene);
 
-        if (_scene->phase == game_scene_phase_e_switching) {
-            game_scene_finish_switch(ctx);
-        }
+        // in case nothing applied it yet this pass
+        game_scene_apply_pending_switch(ctx);
 
         assert(_scene->active.val > game_scene_id_e_none && _scene->active.val < game_scene_id_e_count);
         GAME_SCENE_PROCS[_scene->active.val].update_and_render(ctx);

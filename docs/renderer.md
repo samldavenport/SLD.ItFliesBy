@@ -15,7 +15,7 @@ The map handle is kept on the renderer. `eng_entity_render` doesn't give the ren
 
 The quads and particles are built when the frame is drawn, not when `eng_entity_render` is called, so they use the positions after physics and the particle update. On frames that don't render, nothing is cleared, so nothing is drawn twice.
 
-The game can also draw quads and text that aren't entities, like a dialog box or a HUD, with the `eng_draw_*` functions. See [Immediate Drawing](#immediate-drawing).
+The game can also draw quads and text that aren't entities, like a dialog box or a HUD, with the `eng_draw_*` functions. See [Immediate Drawing](#immediate-drawing). The game's buttons, checkboxes, sliders, and drop downs are built on it, see [In-Game UI](ui.md).
 
 ## Frame
 

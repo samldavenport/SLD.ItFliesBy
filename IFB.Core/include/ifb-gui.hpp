@@ -119,6 +119,7 @@ namespace ifb {
         inline static const char* menu_game_menu_scenes_item_cliff_town              = "Cliff Town";
         inline static const char* menu_game_menu_testing                             = "Testing";
         inline static const char* menu_game_menu_testing_item_physics                = "Physics";
+        inline static const char* menu_game_menu_testing_item_ui                     = "UI";
         inline static const char* window_game_physics_test                           = "Physics Test";
         inline static const char* menu_game_menu_assets                              = "Assets";
         inline static const char* menu_game_menu_assets_item_dictionary              = "Asset Dictionary";

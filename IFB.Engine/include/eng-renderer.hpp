@@ -92,6 +92,7 @@ namespace ifb {
     IFB_INTERNAL void        renderer_set_camera_origin                (const vec3& origin);
     IFB_INTERNAL void        renderer_set_camera_target                (const vec3& target);
     IFB_INTERNAL void        renderer_set_viewport_dimensions          (const u32 width, const u32 height);
+    IFB_INTERNAL void        renderer_get_viewport_size                (u32& width, u32& height);
     IFB_INTERNAL f32         renderer_get_viewport_aspect_ratio        (void);
     IFB_INTERNAL void        renderer_get_viewport_xform               (mat4& xform);
     IFB_INTERNAL f32         renderer_get_viewport_fov                 (void);

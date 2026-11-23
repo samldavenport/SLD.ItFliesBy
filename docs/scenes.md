@@ -187,6 +187,8 @@ A switch fades the screen to black, switches while it's black, then fades the ne
 | `running` | The active scene updates. A requested switch starts the fade out at the end of the update. | `fade_out` |
 | `fade_out` | The old scene keeps running under a fade to black, for `GAME_SCENE_FADE_OUT_S` (0.3 s). Once it's black, the game creates the new engine scene and calls `eng_scene_transition`. The old scene's collision procs still run in that frame's physics step. | `switching` |
 | `switching` | The next frame, the engine has released the old scene in `scene_mngr_frame_start`. The old scene exits, the NPCs that aren't kept are forgotten, the dialog and the scene triggers are reset, and the new scene enters and updates. | `fade_in` |
+
+The `switching` work happens in `game_scene_apply_pending_switch`, the **first** thing `game_context_update_and_render` does each pass. By then the old scene's entities and scene memory are already gone, so nothing may read the active scene's state first: `game_context::player_rig` and `::map` still point into the old scene until the switch is applied. `game_scene_update_and_render` applies it too, in case nothing did yet.
 | `fade_in` | The screen stays black for `GAME_SCENE_FADE_HOLD_S` (0.1 s), which covers the new scene's first frames, then fades in over `GAME_SCENE_FADE_IN_S` (0.3 s). | `running` |
 
 The fade's time step is capped at `GAME_SCENE_FADE_MAX_DT` (1/30 s), so a long frame, like the one that loads a map, doesn't skip it. `game_scene_render_fade` draws the black as a screen-space rectangle with an eased alpha. It's drawn last, after the dialog, so only the GUI is on top of it. Connor's movement keys are locked, and presses are dropped, from the request until the fade in is done.
@@ -265,9 +267,13 @@ Open it from **Game > Testing > Physics** in the GUI. While it's the active scen
 
 The settings and readouts are in `game_phys_test` (`ifb-game.hpp`). `game_context::phys_test` points at it while the test is the active scene, and is NULL the rest of the time. The scene frames the arena with the camera every frame, and puts the camera back the way the last scene left it when it exits.
 
+### The UI Test
+
+The UI test (`IFB.Game/src/game-scene-ui-test.cpp`, `game_scene_id_e_ui_test`) has one of every [in-game UI](ui.md) control, wired to a preview swatch so you can see them work. It has no map or entities, only the screen layer. Open it from **Game > Testing > UI**. See [The UI Test Scene](ui.md#the-ui-test-scene).
+
 ### Switching from the GUI
 
-**Game > Scenes** lists the dev scene and Cliff Town, and **Game > Testing > Physics** opens the physics test, with the active one checked. The items are disabled while a switch is underway. The GUI only gets a const `game_context`, so it doesn't switch itself: `gui_render` returns the scene that was picked (`game_scene_id_e_none` if none was), and the game's render proc passes it to `game_scene_request` (`game-win32-main.cpp`). It's a fresh switch that keeps no NPCs, and it happens at the end of the next game update. Picking the active scene enters it again from the start.
+**Game > Scenes** lists the dev scene and Cliff Town, and **Game > Testing** opens the physics test and the UI test, with the active one checked. The items are disabled while a switch is underway. The GUI only gets a const `game_context`, so it doesn't switch itself: `gui_render` returns the scene that was picked (`game_scene_id_e_none` if none was), and the game's render proc passes it to `game_scene_request` (`game-win32-main.cpp`). It's a fresh switch that keeps no NPCs, and it happens at the end of the next game update. Picking the active scene enters it again from the start.
 
 A new scene needs a label in `gui_strings` and in `scene_labels` in `gui_main_window` (`gui.cpp`). A `static_assert` on `game_scene_id_e_count` there catches a missing one.
 
