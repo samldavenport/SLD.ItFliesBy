@@ -100,14 +100,16 @@ namespace ifb {
 
         IFB_PROFILE_FUNCTION();
 
-        game_context_validate          (ctx);
-        game_context_check_escape      (ctx);
-        game_pause_menu                (ctx);
-        game_context_update_player_rig (ctx);
-        game_scene_update_and_render   (ctx);
-        game_dialog_update             (ctx);
-        game_audio_update              (ctx);
-
+        // the old scene's entities and memory are gone by now, so the rig pointer
+        // has to move to the new scene's before anything updates it
+        game_context_validate           (ctx);
+        game_scene_apply_pending_switch (ctx);
+        game_context_check_escape       (ctx);
+        game_pause_menu                 (ctx);
+        game_context_update_player_rig  (ctx);
+        game_scene_update_and_render    (ctx);
+        game_dialog_update              (ctx);
+        game_audio_update               (ctx);
 
         // the dialog leaves e for the collision procs, nothing gets it while a scene fades
         if (game_scene_is_switching()) {

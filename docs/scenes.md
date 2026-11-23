@@ -187,6 +187,8 @@ A switch fades the screen to black, switches while it's black, then fades the ne
 | `running` | The active scene updates. A requested switch starts the fade out at the end of the update. | `fade_out` |
 | `fade_out` | The old scene keeps running under a fade to black, for `GAME_SCENE_FADE_OUT_S` (0.3 s). Once it's black, the game creates the new engine scene and calls `eng_scene_transition`. The old scene's collision procs still run in that frame's physics step. | `switching` |
 | `switching` | The next frame, the engine has released the old scene in `scene_mngr_frame_start`. The old scene exits, the NPCs that aren't kept are forgotten, the dialog and the scene triggers are reset, and the new scene enters and updates. | `fade_in` |
+
+The `switching` work happens in `game_scene_apply_pending_switch`, the **first** thing `game_context_update_and_render` does each pass. By then the old scene's entities and scene memory are already gone, so nothing may read the active scene's state first: `game_context::player_rig` and `::map` still point into the old scene until the switch is applied. `game_scene_update_and_render` applies it too, in case nothing did yet.
 | `fade_in` | The screen stays black for `GAME_SCENE_FADE_HOLD_S` (0.1 s), which covers the new scene's first frames, then fades in over `GAME_SCENE_FADE_IN_S` (0.3 s). | `running` |
 
 The fade's time step is capped at `GAME_SCENE_FADE_MAX_DT` (1/30 s), so a long frame, like the one that loads a map, doesn't skip it. `game_scene_render_fade` draws the black as a screen-space rectangle with an eased alpha. It's drawn last, after the dialog, so only the GUI is on top of it. Connor's movement keys are locked, and presses are dropped, from the request until the fade in is done.

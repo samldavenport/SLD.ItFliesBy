@@ -419,6 +419,7 @@ namespace ifb {
 
     // scenes
     IFB_GAME void          game_scene_init              (game_context* ctx, const game_scene_id_e first);
+    IFB_GAME void          game_scene_apply_pending_switch (game_context* ctx); // first thing each pass, before the scene's state is read
     IFB_GAME void          game_scene_update_and_render (game_context* ctx);
     IFB_GAME bool          game_scene_request           (const game_scene_id_e id, const game_scene_arrival* arrival = NULL, const entity_id* npc_keep = NULL, const u32 npc_keep_count = 0);
     IFB_GAME bool          game_scene_is_switching      (void);
