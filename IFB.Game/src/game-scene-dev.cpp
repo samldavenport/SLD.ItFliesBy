@@ -10,12 +10,21 @@
 
 namespace ifb {
 
+    struct game_scene_dev_entities {
+        entity_id static_entity_0;
+        entity_id static_entity_1;
+        entity_id static_entity_2;
+        entity_id static_entity_3;
+        entity_id rose;
+        entity_id trigger_cliff_town;
+    };
+
     // the dev scene's state, in its scene memory, NULL while it isn't the active scene
     struct game_scene_dev {
-        hnd_scene       h_scene;
-        game_player_rig rig;
-        game_map        map;
-        game_entities   entities;
+        hnd_scene               h_scene;
+        game_player_rig         rig;
+        game_map                map;
+        game_scene_dev_entities entities;
     } static * _scene_dev;
 
     IFB_GAME void

@@ -58,14 +58,6 @@ namespace ifb {
         bool                         is_input_locked;   // the movement keys are ignored, like while a dialog is open
     };
 
-    struct game_entities {
-        entity_id static_entity_0;
-        entity_id static_entity_1;
-        entity_id static_entity_2;
-        entity_id static_entity_3;
-        entity_id rose;
-        entity_id trigger_cliff_town;
-    };
 
     struct game_map {
         hnd_map eng_hnd;

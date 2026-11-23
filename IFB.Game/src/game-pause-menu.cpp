@@ -14,6 +14,19 @@ namespace ifb {
 
         if (!ctx->is_paused) return;
         game_pause_menu_dlg(ctx); 
+   
+        game_ui_begin(ctx->fnt, ctx->is_paused);
+   
+        rect button_rect;
+        button_rect.x = 0;
+        button_rect.y = 0;
+        button_rect.width = 100;
+        button_rect.height = 100;
+
+        game_ui_button(button_rect, "TEST");
+
+
+        game_ui_end();
     }
     
     inline void
