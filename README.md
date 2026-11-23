@@ -2,7 +2,7 @@
 
 A 2.5D game and the custom C++ engine it's built on. Sprites move around on 3D tile maps, with a physics system, particles, and an ImGui editor/debug interface over the top. The engine runs on Windows (Win32 + OpenGL).
 
-More detailed documentation lives in [`docs/`](docs/).
+More detailed documentation lives in [`docs/`](docs/). The game's own [in-game UI](docs/ui.md) controls (buttons, checkboxes, sliders, and drop downs) are documented there too.
 
 ## Repository Layout
 
@@ -49,7 +49,7 @@ The game and GUI only talk to the engine through `ifb-engine.hpp`. Objects insid
 | **Renderer** | `src/renderer`, `eng-renderer.hpp` | OpenGL rendering for quads, tiles, particles, the parallax backdrop, the debug grid, and the direction gizmo. Immediate drawing of quads, sprites, and text in screen or world space, for UI like dialog boxes. Owns the camera and viewport. | [Renderer](docs/renderer.md) |
 | **Quads** | `src/quads`, `eng-quad.hpp` | Quad vertex buffers used to draw sprites and colored entities, radix sorted back to front. | [Quads](docs/quads.md) |
 | **Files** | `src/files`, `eng-file.hpp` | File handles for reading and writing, plus the native file dialog. | [Files](docs/files.md) |
-| **Input** | `src/engine/eng-input.cpp`, `eng-input.hpp` | Keyboard state, released when the window loses the focus. | [Input](docs/input.md) |
+| **Input** | `src/engine/eng-input.cpp`, `eng-input.hpp` | Keyboard state, and the mouse's position (in screen-layer units) and buttons. Both are released when the window loses the focus, and hidden from the game while the GUI has them. | [Input](docs/input.md) |
 | **Events** | `src/events`, `eng-events.hpp` | A queue of engine events, sent to subscribed listeners once per pass of the frame loop. Physics publishes collision events. | [Events](docs/events.md) |
 | **Jobs** | `src/jobs`, `eng-jobs.hpp` | A pool of worker threads that sleep until a job is added, job counters for waiting on a batch, and the rules for what jobs can call. Used by the physics BVH query and audio streaming. | [Jobs](docs/jobs.md) |
 | **Audio** | `src/audio`, `eng-audio.hpp` | A buffer written each frame and sent to the output device, and a test window for checking that it plays cleanly. | [Audio](docs/audio.md) |

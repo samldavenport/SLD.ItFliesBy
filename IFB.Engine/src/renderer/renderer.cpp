@@ -1006,6 +1006,17 @@ namespace ifb {
         return(did_push);
     }
 
+    // the window's drawable area in pixels
+    IFB_INTERNAL void
+    renderer_get_viewport_size(
+        u32& width,
+        u32& height) {
+
+        assert(_renderer);
+        width  = (u32)_renderer->viewport->width;
+        height = (u32)_renderer->viewport->height;
+    }
+
     // the pixels the screen layer is laid out in, it's stretched to fill the window
     // 0 x 0 uses the window's size, so one screen pixel is one window pixel
     IFB_INTERNAL void

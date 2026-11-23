@@ -109,7 +109,13 @@ namespace ifb {
     IFB_ENGINE_API void eng_input_mouse_click_left_up    (void);
     IFB_ENGINE_API void eng_input_mouse_click_right_down (void);
     IFB_ENGINE_API void eng_input_mouse_click_right_up   (void);
-    IFB_ENGINE_API void eng_input_mouse_move             (const u32 x, const u32 y);
+    IFB_ENGINE_API void eng_input_mouse_move             (const s32 x, const s32 y); // window pixels
+    IFB_ENGINE_API void eng_input_mouse_release_all      (void);
+    // false while the gui has the mouse, over one of its windows or dragging from one
+    IFB_ENGINE_API bool eng_input_mouse_is_left_down     (void);
+    IFB_ENGINE_API bool eng_input_mouse_is_right_down    (void);
+    // in screen layer units, the same as eng_draw_*_screen, false while the gui has the mouse
+    IFB_ENGINE_API bool eng_input_mouse_get_screen_pos   (vec2& pos);
 
     //--------------------------------------------------------------------
     // FILES

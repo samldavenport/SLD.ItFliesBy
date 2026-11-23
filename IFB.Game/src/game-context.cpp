@@ -93,7 +93,6 @@ namespace ifb {
         assert(ctx->global_arena != INVALID_INDEX);
         assert(ctx->npc_mngr     != NULL);
     }
-
     
     IFB_GAME void
     game_context_update_and_render(

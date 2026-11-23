@@ -100,6 +100,7 @@ namespace ifb {
     static constexpr const cchar* GAME_SCENE_DEV_NAME        = "DEV";
     static constexpr const cchar* GAME_SCENE_CLIFF_TOWN_NAME = "CLIFF-TOWN";
     static constexpr const cchar* GAME_SCENE_PHYSICS_NAME    = "PHYSICS";
+    static constexpr const cchar* GAME_SCENE_UI_TEST_NAME    = "UI-TEST";
 
     struct game_npc_mngr;
 
@@ -122,6 +123,47 @@ namespace ifb {
     static constexpr u32 GAME_DIALOG_COLOR_BORDER     = 0x303040FF;
     static constexpr u32 GAME_DIALOG_COLOR_FILL       = 0xF8F8F8FF;
     static constexpr u32 GAME_DIALOG_COLOR_TEXT       = 0x303040FF;
+
+    //--------------------------------------------------------------------
+    // IN-GAME UI
+    //--------------------------------------------------------------------
+    // immediate mode controls drawn on the screen layer: buttons, checkboxes, sliders, and drop downs
+    // call them between game_ui_begin and game_ui_end every pass they should be seen, like any immediate drawing
+    // each one is placed with a rect in screen pixels, and found again from one pass to the next by its label,
+    // so the labels in a pass have to be unique
+    //
+    // the mouse clicks and drags them, and the keyboard works them too:
+    //   up / down     move the focus from control to control, in the order they're called
+    //   left / right  move a slider, or pick the next or last item in a drop down
+    //   enter / space press a button, flip a checkbox, open a drop down, or pick the highlighted item
+
+    static constexpr f32 GAME_UI_BORDER              = 2.0f;   // screen pixels
+    static constexpr f32 GAME_UI_PADDING             = 8.0f;   // inside the border, around the text
+    static constexpr f32 GAME_UI_SLIDER_KNOB_WIDTH   = 12.0f;
+    static constexpr f32 GAME_UI_SLIDER_KEY_STEPS    = 20.0f;  // a key press moves a slider a twentieth of its range
+    static constexpr u32 GAME_UI_DROPDOWN_ITEMS_MAX  = 16;     // items past this aren't shown in the open list
+    static constexpr u32 GAME_UI_COLOR_BORDER        = 0x303040FF;
+    static constexpr u32 GAME_UI_COLOR_FILL          = 0xF8F8F8FF;
+    static constexpr u32 GAME_UI_COLOR_FILL_HOT      = 0xDCE4F8FF; // under the mouse
+    static constexpr u32 GAME_UI_COLOR_FILL_ACTIVE   = 0xB8C8F0FF; // held down
+    static constexpr u32 GAME_UI_COLOR_FOCUS         = 0xF0A020FF; // the keyboard focus outline
+    static constexpr u32 GAME_UI_COLOR_TEXT          = 0x303040FF;
+    static constexpr u32 GAME_UI_COLOR_TRACK         = 0x9098B0FF; // a slider's groove, and a checkbox's tick
+
+    // is_input_enabled false draws the controls without letting anything use them, like while the game is paused
+    IFB_GAME void game_ui_begin    (const font* fnt, const bool is_input_enabled);
+    // draws the open drop down's list over everything else
+    IFB_GAME void game_ui_end      (void);
+    // true the pass it's clicked
+    IFB_GAME bool game_ui_button   (const rect& dst, const cchar* label);
+    // true the pass value flips
+    IFB_GAME bool game_ui_checkbox (const rect& dst, const cchar* label, bool& value);
+    // true each pass value changes, value is kept between min and max
+    IFB_GAME bool game_ui_slider   (const rect& dst, const cchar* label, f32& value, const f32 min, const f32 max);
+    // true the pass selected changes, items has to stay around until game_ui_end
+    IFB_GAME bool game_ui_dropdown (const rect& dst, const cchar* label, const cchar* const* items, const u32 item_count, u32& selected);
+    // text that isn't a control, vertically centered in dst
+    IFB_GAME void game_ui_label    (const rect& dst, const cchar* text);
 
     IFB_U32(game_dialog_state_u32);
     enum game_dialog_state_e {
@@ -202,7 +244,8 @@ namespace ifb {
         game_scene_id_e_dev        = 1,
         game_scene_id_e_cliff_town = 2,
         game_scene_id_e_physics    = 3, // the physics stress test, from game > testing > physics
-        game_scene_id_e_count      = 4
+        game_scene_id_e_ui_test    = 4, // every in-game ui control, from game > testing > ui
+        game_scene_id_e_count      = 5
     };
 
     // a switch fades the screen to black, switches while it's black, then fades the new scene in
@@ -400,6 +443,11 @@ namespace ifb {
     IFB_GAME void          game_scene_physics_enter              (game_context* ctx, const hnd_scene h_scene);
     IFB_GAME void          game_scene_physics_update_and_render  (game_context* ctx);
     IFB_GAME void          game_scene_physics_exit               (game_context* ctx);
+
+    // the ui test: one of every in-game ui control, wired to a preview so it's clear they work
+    IFB_GAME void          game_scene_ui_test_enter              (game_context* ctx, const hnd_scene h_scene);
+    IFB_GAME void          game_scene_ui_test_update_and_render  (game_context* ctx);
+    IFB_GAME void          game_scene_ui_test_exit               (game_context* ctx);
 
     IFB_GAME void          game_player_rig_validate          (game_player_rig* player_rig);
     IFB_GAME void          game_player_rig_init              (game_player_rig* player_rig);

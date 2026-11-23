@@ -8,6 +8,8 @@
 #include "game-scene-dev.cpp"
 #include "game-scene-cliff-town.cpp"
 #include "game-scene-physics.cpp"
+#include "game-ui.cpp"
+#include "game-scene-ui-test.cpp"
 #include <cassert>
 
 namespace ifb {
@@ -18,6 +20,7 @@ namespace ifb {
         { game_scene_dev_enter,        game_scene_dev_update_and_render,        game_scene_dev_exit        },
         { game_scene_cliff_town_enter, game_scene_cliff_town_update_and_render, game_scene_cliff_town_exit },
         { game_scene_physics_enter,    game_scene_physics_update_and_render,    game_scene_physics_exit    },
+        { game_scene_ui_test_enter,    game_scene_ui_test_update_and_render,    game_scene_ui_test_exit    },
     };
 
     // the engine scene's name
@@ -26,6 +29,7 @@ namespace ifb {
         GAME_SCENE_DEV_NAME,
         GAME_SCENE_CLIFF_TOWN_NAME,
         GAME_SCENE_PHYSICS_NAME,
+        GAME_SCENE_UI_TEST_NAME,
     };
 
     // the game context's, so the collision procs can request a switch without it

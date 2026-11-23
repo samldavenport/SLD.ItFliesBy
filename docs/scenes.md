@@ -265,9 +265,13 @@ Open it from **Game > Testing > Physics** in the GUI. While it's the active scen
 
 The settings and readouts are in `game_phys_test` (`ifb-game.hpp`). `game_context::phys_test` points at it while the test is the active scene, and is NULL the rest of the time. The scene frames the arena with the camera every frame, and puts the camera back the way the last scene left it when it exits.
 
+### The UI Test
+
+The UI test (`IFB.Game/src/game-scene-ui-test.cpp`, `game_scene_id_e_ui_test`) has one of every [in-game UI](ui.md) control, wired to a preview swatch so you can see them work. It has no map or entities, only the screen layer. Open it from **Game > Testing > UI**. See [The UI Test Scene](ui.md#the-ui-test-scene).
+
 ### Switching from the GUI
 
-**Game > Scenes** lists the dev scene and Cliff Town, and **Game > Testing > Physics** opens the physics test, with the active one checked. The items are disabled while a switch is underway. The GUI only gets a const `game_context`, so it doesn't switch itself: `gui_render` returns the scene that was picked (`game_scene_id_e_none` if none was), and the game's render proc passes it to `game_scene_request` (`game-win32-main.cpp`). It's a fresh switch that keeps no NPCs, and it happens at the end of the next game update. Picking the active scene enters it again from the start.
+**Game > Scenes** lists the dev scene and Cliff Town, and **Game > Testing** opens the physics test and the UI test, with the active one checked. The items are disabled while a switch is underway. The GUI only gets a const `game_context`, so it doesn't switch itself: `gui_render` returns the scene that was picked (`game_scene_id_e_none` if none was), and the game's render proc passes it to `game_scene_request` (`game-win32-main.cpp`). It's a fresh switch that keeps no NPCs, and it happens at the end of the next game update. Picking the active scene enters it again from the start.
 
 A new scene needs a label in `gui_strings` and in `scene_labels` in `gui_main_window` (`gui.cpp`). A `static_assert` on `game_scene_id_e_count` there catches a missing one.
 
