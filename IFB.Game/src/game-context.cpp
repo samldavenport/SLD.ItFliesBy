@@ -13,7 +13,8 @@
 
 namespace ifb {
 
-    inline void game_context_check_escape(game_context* ctx);
+    inline void game_context_check_escape      (game_context* ctx);
+    inline void game_context_update_player_rig (game_context* ctx);
 
     IFB_GAME game_context*
     game_context_create_and_init(
@@ -76,8 +77,6 @@ namespace ifb {
             (void)did_set_texture;
         }
         
-
-
         // set before the first scene enters, the collision procs read it
         _game_ctx = ctx;
 
@@ -102,13 +101,14 @@ namespace ifb {
 
         IFB_PROFILE_FUNCTION();
 
-        game_context_validate(ctx);
+        game_context_validate          (ctx);
+        game_context_check_escape      (ctx);
+        game_pause_menu                (ctx);
+        game_context_update_player_rig (ctx);
+        game_scene_update_and_render   (ctx);
+        game_dialog_update             (ctx);
+        game_audio_update              (ctx);
 
-        game_context_check_escape(ctx);
-        game_pause_menu(ctx);
-        game_scene_update_and_render(ctx);
-        game_dialog_update(ctx);
-        game_audio_update(ctx);
 
         // the dialog leaves e for the collision procs, nothing gets it while a scene fades
         if (game_scene_is_switching()) {
@@ -132,5 +132,25 @@ namespace ifb {
             }
             ctx->is_esc_pressed = false;
         }
+    }
+    
+    inline void
+    game_context_update_player_rig(
+        game_context* ctx) {
+
+        if (ctx->player_rig) {
+
+            auto rig = ctx->player_rig;
+
+            rig->is_input_locked = (
+                game_dialog_is_open()     ||
+                game_scene_is_switching() ||
+                ctx->is_paused
+            );
+
+            game_player_rig_update_and_render (rig);
+            game_player_rig_update_camera     (rig, ctx->camera_focus);
+        }
+        
     }
 };

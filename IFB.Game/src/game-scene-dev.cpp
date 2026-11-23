@@ -245,11 +245,6 @@ namespace ifb {
 
         auto dev = _scene_dev;
 
-        // connor stands still while he's being talked to, and while the scene fades
-        dev->rig.is_input_locked = game_dialog_is_open() || game_scene_is_switching();
-
-        game_player_rig_update_and_render (&dev->rig);
-        game_player_rig_update_camera     (&dev->rig, ctx->camera_focus);
         const bool did_render = eng_map_render(dev->map.eng_hnd);
         game_npc_mngr_update_and_render       ();
 
