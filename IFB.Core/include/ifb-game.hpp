@@ -7,8 +7,6 @@
 
 namespace ifb {
 
-
-
     IFB_U32(game_character_state_u32);
     enum game_character_state_e {
         game_character_state_e_idle_left    = 0,
