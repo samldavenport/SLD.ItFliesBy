@@ -25,7 +25,7 @@ namespace ifb {
         pause_dlg_rect.x      = 0.0f;
         pause_dlg_rect.y      = 0.0f;
 
-        color_rgba_f32 pause_dlg_color(0x212121FF);
+        color_rgba_f32 pause_dlg_color(0x212121C8);
 
         bool did_draw;
         
