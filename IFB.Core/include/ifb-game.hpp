@@ -458,7 +458,7 @@ namespace ifb {
     IFB_GAME bool           game_npc_talk_to                  (const entity_id id, const entity_id other_id);
 
 
-    IFB_GAME void           game_pause_menu (bool& is_paused);
+    IFB_GAME void           game_pause_menu (game_context* ctx);
 };
 
 #endif //IFB_GAME_HPP

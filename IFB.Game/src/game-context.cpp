@@ -13,7 +13,7 @@
 
 namespace ifb {
 
-    inline void game_context_check_pause(void);
+    inline void game_context_check_escape(game_context* ctx);
 
     IFB_GAME game_context*
     game_context_create_and_init(
@@ -104,18 +104,8 @@ namespace ifb {
 
         game_context_validate(ctx);
 
-        if (eng_input_is_key_down(input_keycode_e_escape)) {
-            ctx->is_esc_pressed = true;
-        }
-        else {
-            if (ctx->is_esc_pressed) {
-                ctx->is_paused = ctx->is_paused ? false : true;
-            }
-            ctx->is_esc_pressed = false;
-        }
-
-        game_pause_menu(ctx->is_paused);
-
+        game_context_check_escape(ctx);
+        game_pause_menu(ctx);
         game_scene_update_and_render(ctx);
         game_dialog_update(ctx);
         game_audio_update(ctx);
@@ -129,5 +119,18 @@ namespace ifb {
         game_scene_render_fade();
     }
 
+    inline void
+    game_context_check_escape(
+        game_context* ctx) {
 
+        if (eng_input_is_key_down(input_keycode_e_escape)) {
+            ctx->is_esc_pressed = true;
+        }
+        else {
+            if (ctx->is_esc_pressed) {
+                ctx->is_paused = ctx->is_paused ? false : true;
+            }
+            ctx->is_esc_pressed = false;
+        }
+    }
 };
