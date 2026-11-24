@@ -373,9 +373,10 @@ namespace ifb {
     };
 
     struct game_pause_menu {
-        u32 screen_width;
-        u32 screen_height;
+        u32  screen_width;
+        u32  screen_height;
         rect row;
+        rect panel;
     };
 
     // the global arena holds what lasts the whole game
@@ -384,6 +385,7 @@ namespace ifb {
     struct game_context {
         hnd_arena        global_arena;
         game_scene_state scene;
+        game_pause_menu  pause_menu;
         game_player_rig* player_rig;
         game_map*        map;
         game_phys_test*  phys_test;
