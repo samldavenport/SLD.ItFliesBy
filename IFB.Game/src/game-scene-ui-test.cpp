@@ -24,6 +24,8 @@ namespace ifb {
     static constexpr u32 GAME_UI_TEST_ROW_COUNT      = 13;     // the rows the controls column lays out
     static constexpr f32 GAME_UI_TEST_SIZE_MIN       = 24.0f;  // the swatch's size, in screen pixels
     static constexpr f32 GAME_UI_TEST_SIZE_MAX       = 200.0f;
+    static constexpr u32 GAME_UI_TEST_TITLE_COLOR    = 0x2850C8FF; // game_ui_set_text_color, on the panel's light fill
+    static constexpr u32 GAME_UI_TEST_HINT_COLOR     = 0x7880A0FF;
 
     // the swatch's proportions, width then height, against its size
     static const cchar* const GAME_UI_TEST_SHAPES[]       = { "Square", "Wide", "Tall", "Thin" };
@@ -215,7 +217,10 @@ namespace ifb {
 
         cchar text[96];
 
+        // the title and the hint use their own text color, everything between is the default
+        game_ui_set_text_color(GAME_UI_TEST_TITLE_COLOR);
         game_ui_label(row, "UI TEST");
+        game_ui_set_text_color(GAME_UI_COLOR_TEXT);
         row.y += step;
 
         // buttons, side by side
@@ -277,6 +282,7 @@ namespace ifb {
         (void)snprintf(text, sizeof(text), "Last: %s", test->last_event);
         game_ui_label(row, text);
         row.y += step;
+        game_ui_set_text_color(GAME_UI_TEST_HINT_COLOR);
         game_ui_label(row, "Arrows+Enter work too");
     }
 

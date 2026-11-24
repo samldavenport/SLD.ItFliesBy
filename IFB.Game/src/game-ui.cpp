@@ -3,6 +3,7 @@
 #include "ifb-engine.hpp"
 #include "ifb-game.hpp"
 #include "ifb.hpp"
+#include "sld.hpp"
 
 #include <cassert>
 #include <stdio.h>
@@ -42,12 +43,14 @@ namespace ifb {
         u32                 item_count; // the ones shown
         u32                 selected;
         u32                 highlight;
+        u32                 text_color; // the text color when the drop down was called
         bool                is_pending;
     };
 
     // one for the whole game, the controls are found again each pass by their labels
     struct game_ui {
         const font*       fnt;
+        u32               text_color;         // 0xRRGGBBAA, back to GAME_UI_COLOR_TEXT each pass
         bool              is_input_enabled;
         vec2              mouse;
         vec2              mouse_prev;
@@ -189,10 +192,11 @@ namespace ifb {
 
     // vertically centered in dst, from its left edge plus the padding, or centered across it
     inline void
-    game_ui_draw_text(
+    game_ui_draw_text_color(
         const rect&  dst,
         const cchar* text,
-        const bool   is_centered) {
+        const bool   is_centered,
+        const u32    color) {
 
         if (_ui.fnt == NULL || text == NULL) return;
 
@@ -209,7 +213,17 @@ namespace ifb {
             pos.x = dst.x + GAME_UI_PADDING;
         }
 
-        (void)eng_draw_text_screen(_ui.fnt, text, len, pos, color_rgba_f32(GAME_UI_COLOR_TEXT));
+        (void)eng_draw_text_screen(_ui.fnt, text, len, pos, color_rgba_f32(color));
+    }
+
+    // in the current text color
+    inline void
+    game_ui_draw_text(
+        const rect&  dst,
+        const cchar* text,
+        const bool   is_centered) {
+
+        game_ui_draw_text_color(dst, text, is_centered, _ui.text_color);
     }
 
     inline void
@@ -230,6 +244,7 @@ namespace ifb {
         const bool  is_input_enabled) {
 
         _ui.fnt              = fnt;
+        _ui.text_color       = GAME_UI_COLOR_TEXT;
         _ui.is_input_enabled = is_input_enabled;
 
         // the mouse, nothing reaches the controls while input is off
@@ -340,7 +355,7 @@ namespace ifb {
                     const u32 band_color = (i_item == open.selected) ? GAME_UI_COLOR_FILL_ACTIVE : GAME_UI_COLOR_FILL_HOT;
                     (void)eng_draw_rect_screen(band, color_rgba_f32(band_color));
                 }
-                game_ui_draw_text(row, open.items[i_item], false);
+                game_ui_draw_text_color(row, open.items[i_item], false, open.text_color);
             }
         }
         _ui.open_draw.is_pending = false;
@@ -348,6 +363,21 @@ namespace ifb {
         if (!_ui.is_mouse_down) {
             _ui.id_active = GAME_UI_ID_NONE;
         }
+    }
+
+    // the text color for the controls called after this, until it's set again or the pass ends
+    IFB_GAME void
+    game_ui_set_text_color(
+        const color_rgba_u32 color) {
+
+        _ui.text_color = color.hex;
+    }
+
+    IFB_GAME color_rgba_u32 
+    game_ui_get_text_color(
+        void) {
+
+        return(_ui.text_color);
     }
 
     //--------------------------------------------------------------------
@@ -574,6 +604,7 @@ namespace ifb {
             _ui.open_draw.item_count = shown_count;
             _ui.open_draw.selected   = selected;
             _ui.open_draw.highlight  = _ui.open_highlight;
+            _ui.open_draw.text_color = _ui.text_color;
             _ui.open_draw.is_pending = true;
         }
 

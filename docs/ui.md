@@ -71,6 +71,18 @@ A list shows up to `GAME_UI_DROPDOWN_ITEMS_MAX` (16) items.
 
 The sizes and colors are the `GAME_UI_*` constants in `ifb-game.hpp`. The defaults match the dialog box (`game-dialog.cpp`): a dark border around a light fill, with dark text in the game's font. A control is lighter blue under the mouse, darker blue while it's held, and outlined in orange while it has the focus.
 
+### Text Color
+
+`game_ui_set_text_color(rgba)` changes the text color (`0xRRGGBBAA`) for the controls called after it, until it's set again. `game_ui_begin` puts it back to `GAME_UI_COLOR_TEXT` every pass, so a color can't stay set by accident.
+
+```cpp
+game_ui_set_text_color(0xFFFFFFFF);         // white, for a label on a dark background
+game_ui_label(title_row, "Paused");
+game_ui_set_text_color(GAME_UI_COLOR_TEXT); // back to the default for the buttons
+```
+
+Only the text changes. The border and fill stay the same, so keep text in a control readable on the light fill. An open drop down's list is drawn later by `game_ui_end`, but it keeps the text color its drop down was called with.
+
 ## The UI Test Scene
 
 **Game > Testing > UI** in the GUI opens the UI test scene (`IFB.Game/src/game-scene-ui-test.cpp`, `game_scene_id_e_ui_test`). It has one of every control, wired to a preview so you can see them work:
@@ -85,4 +97,4 @@ The sizes and colors are the `GAME_UI_*` constants in `ifb-game.hpp`. The defaul
 | **Shape** | Its proportions. The list opens over **Backdrop**, which tests that a list blocks the controls under it. |
 | **Backdrop** | The color behind the panel |
 
-The last line reports the last thing a control did. The scene has no map or entities, only the screen layer. Its controls are drawn but can't be used while the game is paused or the scene is fading.
+The title and the hint at the bottom use `game_ui_set_text_color`. The last line reports the last thing a control did. The scene has no map or entities, only the screen layer. Its controls are drawn but can't be used while the game is paused or the scene is fading.
