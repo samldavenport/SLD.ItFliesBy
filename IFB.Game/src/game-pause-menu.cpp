@@ -120,7 +120,7 @@ namespace ifb {
         rect slider_rect;
         slider_rect.width  = GAME_PAUSE_MENU_ROW_WIDTH; 
         slider_rect.height = GAME_PAUSE_MENU_ROW_HEIGHT;
-        slider_rect.x      = ((f32)dims.width  - (f32)slider_rect.width)           * 0.5f; 
+        slider_rect.x      = ((f32)dims.width  - (f32)slider_rect.width) * 0.5f; 
         slider_rect.y      = game_pause_menu_row_y(dims, 1);
 
         game_ui_set_text_color(0x000000FF);
@@ -139,7 +139,7 @@ namespace ifb {
         rect slider_rect;
         slider_rect.width  = GAME_PAUSE_MENU_ROW_WIDTH; 
         slider_rect.height = GAME_PAUSE_MENU_ROW_HEIGHT;
-        slider_rect.x      = ((f32)dims.width  - (f32)slider_rect.width)            * 0.5f; 
+        slider_rect.x      = ((f32)dims.width  - (f32)slider_rect.width) * 0.5f; 
         slider_rect.y      = game_pause_menu_row_y(dims, 2);
         
         game_ui_set_text_color(0x000000FF);
@@ -157,7 +157,7 @@ namespace ifb {
         rect slider_rect;
         slider_rect.width  = GAME_PAUSE_MENU_ROW_WIDTH; 
         slider_rect.height = GAME_PAUSE_MENU_ROW_HEIGHT;
-        slider_rect.x      = ((f32)dims.width  - (f32)slider_rect.width)                * 0.5f; 
+        slider_rect.x      = ((f32)dims.width  - (f32)slider_rect.width) * 0.5f; 
         slider_rect.y      = game_pause_menu_row_y(dims, 3);
         game_ui_set_text_color(0x000000FF);
 
